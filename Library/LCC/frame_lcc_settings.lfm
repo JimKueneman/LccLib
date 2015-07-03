@@ -1,0 +1,161 @@
+object FrameLccSettings: TFrameLccSettings
+  Left = 0
+  Height = 276
+  Top = 0
+  Width = 480
+  ClientHeight = 276
+  ClientWidth = 480
+  Color = clDefault
+  ParentColor = False
+  TabOrder = 0
+  DesignLeft = 485
+  DesignTop = 260
+  object ButtonOk: TButton
+    Left = 325
+    Height = 22
+    Top = 238
+    Width = 126
+    Anchors = [akTop, akRight]
+    Caption = 'Ok'
+    ModalResult = 1
+    OnClick = ButtonOkClick
+    TabOrder = 0
+  end
+  object ButtonCancel: TButton
+    Left = 179
+    Height = 22
+    Top = 238
+    Width = 126
+    Anchors = [akTop, akRight]
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object GroupBoxComPort: TGroupBox
+    Left = 8
+    Height = 65
+    Top = 8
+    Width = 455
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'COM Port'
+    ClientHeight = 43
+    ClientWidth = 447
+    TabOrder = 2
+    object ComboBoxComPort: TComboBox
+      Left = 17
+      Height = 20
+      Top = 9
+      Width = 226
+      ItemHeight = 0
+      OnChange = ComboBoxComPortChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object BitBtnRescanPorts: TBitBtn
+      Left = 259
+      Height = 22
+      Top = 8
+      Width = 144
+      Caption = 'Rescan Ports'
+      OnClick = BitBtnRescanPortsClick
+      TabOrder = 1
+    end
+  end
+  object GroupBoxEthernet: TGroupBox
+    Left = 8
+    Height = 144
+    Top = 80
+    Width = 455
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Ethernet'
+    ClientHeight = 122
+    ClientWidth = 447
+    TabOrder = 3
+    object LabelLocalIP: TLabel
+      Left = 8
+      Height = 16
+      Top = 8
+      Width = 48
+      Caption = 'Local IP'
+      ParentColor = False
+    end
+    object EditLocalIP: TEdit
+      Left = 27
+      Height = 22
+      Top = 28
+      Width = 149
+      TabOrder = 0
+    end
+    object LabelLocalPort: TLabel
+      Left = 192
+      Height = 16
+      Top = 8
+      Width = 62
+      Caption = 'Local Port'
+      ParentColor = False
+    end
+    object SpinEditLocalPort: TSpinEdit
+      Left = 208
+      Height = 16
+      Top = 28
+      Width = 101
+      MaxValue = 65535
+      TabOrder = 1
+      Value = 12022
+    end
+    object ButtonSetLoopbackClient: TButton
+      Left = 336
+      Height = 22
+      Top = 24
+      Width = 91
+      Caption = 'Loopback'
+      OnClick = ButtonSetLoopbackClientClick
+      TabOrder = 2
+    end
+    object LabelRemoteIP: TLabel
+      Left = 8
+      Height = 16
+      Top = 64
+      Width = 63
+      Caption = 'Remote IP'
+      ParentColor = False
+    end
+    object EditRemoteIP: TEdit
+      Left = 27
+      Height = 22
+      Top = 86
+      Width = 149
+      OnExit = EditRemoteIPExit
+      OnKeyPress = EditRemoteIPKeyPress
+      TabOrder = 3
+    end
+    object SpinEditRemotePort: TSpinEdit
+      Left = 208
+      Height = 16
+      Top = 86
+      Width = 101
+      MaxValue = 65535
+      OnExit = SpinEditRemotePortExit
+      OnKeyPress = SpinEditRemotePortKeyPress
+      TabOrder = 4
+      Value = 12022
+    end
+    object ButtonSetLoopbackRemote: TButton
+      Left = 336
+      Height = 22
+      Top = 80
+      Width = 91
+      Caption = 'Loopback'
+      OnClick = ButtonSetLoopbackRemoteClick
+      TabOrder = 5
+    end
+    object LabelRemotePort: TLabel
+      Left = 192
+      Height = 16
+      Top = 64
+      Width = 77
+      Caption = 'Remote Port'
+      ParentColor = False
+    end
+  end
+end

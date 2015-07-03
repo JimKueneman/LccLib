@@ -1,0 +1,50 @@
+package LCC;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  fmx;
+
+contains
+  lcc_can_message_assembler_disassembler in '..\lcc_can_message_assembler_disassembler.pas',
+  lcc_defines in '..\lcc_defines.pas',
+  lcc_ethenetserver in '..\lcc_ethenetserver.pas',
+  lcc_ethernetclient in '..\lcc_ethernetclient.pas',
+  lcc_gridconnect in '..\lcc_gridconnect.pas',
+  lcc_math_float16 in '..\lcc_math_float16.pas',
+  lcc_message_scheduler in '..\lcc_message_scheduler.pas',
+  lcc_messages in '..\lcc_messages.pas',
+  lcc_nodemanager in '..\lcc_nodemanager.pas',
+  lcc_tcp_protocol in '..\lcc_tcp_protocol.pas',
+  lcc_threaded_stringlist in '..\lcc_threaded_stringlist.pas',
+  lcc_threadedcirculararray in '..\lcc_threadedcirculararray.pas',
+  lcc_utilities in '..\lcc_utilities.pas',
+  lcc_app_common_settings in '..\lcc_app_common_settings.pas';
+
+end.
