@@ -33,8 +33,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="295"/>
-        <CursorPos X="36" Y="306"/>
+        <TopLine Value="253"/>
+        <CursorPos X="28" Y="268"/>
         <UsageCount Value="36"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -131,7 +131,6 @@
       </Unit11>
       <Unit12>
         <Filename Value="/Developer/lazarus/lcl/lresources.pp"/>
-        <UnitName Value="LResources"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="778"/>
         <CursorPos Y="794"/>
@@ -146,7 +145,7 @@
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit13>
       <Unit14>
-        <Filename Value="../../../TCH Technology Software/Mustangpeak/Lazarus/Projects/TCH_TrainMaster/Forms/form_main.pas"/>
+        <Filename Value="../../TCH Technology Software/Mustangpeak/Lazarus/Projects/TCH_TrainMaster/Forms/form_main.pas"/>
         <HasResources Value="True"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2046"/>
@@ -210,7 +209,6 @@
       </Unit21>
       <Unit22>
         <Filename Value="../../Library/LCC/lcc_defines.pas"/>
-        <UnitName Value="lcc_defines"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="17"/>
         <UsageCount Value="10"/>
@@ -228,128 +226,128 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="828" TopLine="815"/>
+        <Caret Line="779" TopLine="763"/>
       </Position1>
       <Position2>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="829" TopLine="815"/>
+        <Caret Line="780" TopLine="763"/>
       </Position2>
       <Position3>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="830" TopLine="815"/>
+        <Caret Line="781" TopLine="763"/>
       </Position3>
       <Position4>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="831" TopLine="815"/>
+        <Caret Line="782" TopLine="763"/>
       </Position4>
       <Position5>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="832" TopLine="815"/>
+        <Caret Line="787" TopLine="763"/>
       </Position5>
       <Position6>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="424" TopLine="409"/>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="839" Column="65" TopLine="817"/>
       </Position6>
       <Position7>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="426" TopLine="409"/>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="1634" Column="35" TopLine="1609"/>
       </Position7>
       <Position8>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="427" TopLine="409"/>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="823" TopLine="808"/>
       </Position8>
       <Position9>
         <Filename Value="form_template.pas"/>
-        <Caret Line="436" TopLine="411"/>
+        <Caret Line="424" TopLine="413"/>
       </Position9>
       <Position10>
         <Filename Value="form_template.pas"/>
-        <Caret Line="437" TopLine="412"/>
+        <Caret Line="403" TopLine="388"/>
       </Position10>
       <Position11>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="438" TopLine="413"/>
-      </Position11>
-      <Position12>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="1739" TopLine="1724"/>
-      </Position12>
-      <Position13>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="839" TopLine="825"/>
-      </Position13>
-      <Position14>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="779" TopLine="763"/>
-      </Position14>
-      <Position15>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="780" TopLine="763"/>
-      </Position15>
-      <Position16>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="781" TopLine="763"/>
-      </Position16>
-      <Position17>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="782" TopLine="763"/>
-      </Position17>
-      <Position18>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="787" TopLine="763"/>
-      </Position18>
-      <Position19>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="839" Column="65" TopLine="817"/>
-      </Position19>
-      <Position20>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="1634" Column="35" TopLine="1609"/>
-      </Position20>
-      <Position21>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
         <Caret Line="823" TopLine="808"/>
+      </Position11>
+      <Position12>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="424" TopLine="409"/>
+      </Position12>
+      <Position13>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="403" TopLine="388"/>
+      </Position13>
+      <Position14>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="405" TopLine="388"/>
+      </Position14>
+      <Position15>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="410" TopLine="388"/>
+      </Position15>
+      <Position16>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="407" Column="85" TopLine="390"/>
+      </Position16>
+      <Position17>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="354" Column="3" TopLine="351"/>
+      </Position17>
+      <Position18>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="306" Column="36" TopLine="295"/>
+      </Position18>
+      <Position19>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="381" Column="103" TopLine="362"/>
+      </Position19>
+      <Position20>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="387" Column="103" TopLine="368"/>
+      </Position20>
+      <Position21>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="218" Column="22" TopLine="194"/>
       </Position21>
       <Position22>
         <Filename Value="form_template.pas"/>
-        <Caret Line="424" TopLine="413"/>
+        <Caret Line="2" Column="28"/>
       </Position22>
       <Position23>
         <Filename Value="form_template.pas"/>
-        <Caret Line="403" TopLine="388"/>
+        <Caret Line="34" Column="15" TopLine="14"/>
       </Position23>
       <Position24>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="823" TopLine="808"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="51" Column="17" TopLine="32"/>
       </Position24>
       <Position25>
         <Filename Value="form_template.pas"/>
-        <Caret Line="424" TopLine="409"/>
+        <Caret Line="52" Column="17" TopLine="32"/>
       </Position25>
       <Position26>
         <Filename Value="form_template.pas"/>
-        <Caret Line="403" TopLine="388"/>
+        <Caret Line="68" Column="25" TopLine="48"/>
       </Position26>
       <Position27>
         <Filename Value="form_template.pas"/>
-        <Caret Line="405" TopLine="388"/>
+        <Caret Line="207" Column="35" TopLine="187"/>
       </Position27>
       <Position28>
         <Filename Value="form_template.pas"/>
-        <Caret Line="410" TopLine="388"/>
+        <Caret Line="259" Column="37" TopLine="239"/>
       </Position28>
       <Position29>
         <Filename Value="form_template.pas"/>
-        <Caret Line="407" Column="85" TopLine="390"/>
+        <Caret Line="269" Column="28" TopLine="254"/>
       </Position29>
       <Position30>
         <Filename Value="form_template.pas"/>
-        <Caret Line="354" Column="3" TopLine="351"/>
+        <Caret Line="268" Column="28" TopLine="253"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="6">
+    <BreakPoints Count="4">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -375,23 +373,9 @@
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="../../Library/LCC/lcc_ethernetclient.pas"/>
-        <Line Value="547"/>
-      </Item4>
-      <Item5>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
         <Source Value="../../Library/LCC/lcc_utilities.pas"/>
         <Line Value="236"/>
-      </Item5>
-      <Item6>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="form_template.pas"/>
-        <Line Value="377"/>
-      </Item6>
+      </Item4>
     </BreakPoints>
   </Debugging>
 </CONFIG>

@@ -49,7 +49,6 @@ type
     MenuItemToolsSettings: TMenuItem;
     MenuItemTools: TMenuItem;
     MenuItemHelp: TMenuItem;
-    MenuItemHelpAbout: TMenuItem;
     Panel2: TPanel;
     PanelAddOns: TPanel;
     PanelAppSpace: TPanel;
