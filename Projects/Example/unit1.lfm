@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 465
+  Left = 466
   Height = 509
-  Top = 178
+  Top = 171
   Width = 638
   Caption = 'Form1'
   ClientHeight = 509
@@ -18,6 +18,14 @@ object Form1: TForm1
     UserSettings.SettingType = flst_Server
     UserSettings.ComPort = True
     UserSettings.Ethernet = True
+  end
+  inline FrameLccLogging1: TFrameLccLogging
+    Left = 0
+    Height = 301
+    Top = 208
+    Width = 638
+    Align = alClient
+    TabOrder = 1
   end
   object LccSettings: TLccSettings
     ComPort.AutoConnectAtBoot = False

@@ -95,8 +95,8 @@
       </Item18>
       <Item19>
         <Filename Value="../frame_lcc_logging.pas"/>
-        <HasRegisterProc Value="True"/>
         <UnitName Value="frame_lcc_logging"/>
+        <ResourceBaseClass Value="Frame"/>
       </Item19>
       <Item20>
         <Filename Value="../frame_lcc_settings.lfm"/>
@@ -104,8 +104,8 @@
       </Item20>
       <Item21>
         <Filename Value="../frame_lcc_settings.pas"/>
-        <HasRegisterProc Value="True"/>
         <UnitName Value="frame_lcc_settings"/>
+        <ResourceBaseClass Value="Frame"/>
       </Item21>
     </Files>
     <RequiredPkgs Count="4">

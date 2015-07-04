@@ -138,7 +138,7 @@ object FrameLccSettings: TFrameLccSettings
       OnExit = SpinEditRemoteListenerPortExit
       OnKeyPress = SpinEditRemoteListenerPortKeyPress
       TabOrder = 4
-      Value = 12022
+      Value = 12021
     end
     object ButtonSetLoopbackRemote: TButton
       Left = 336
@@ -198,7 +198,7 @@ object FrameLccSettings: TFrameLccSettings
       Width = 101
       MaxValue = 65535
       TabOrder = 1
-      Value = 12022
+      Value = 12021
     end
     object ButtonSetLoopbackServer: TButton
       Left = 336

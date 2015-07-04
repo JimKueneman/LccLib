@@ -15,6 +15,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    FrameLccLogging1: TFrameLccLogging;
     FrameLccSettings: TFrameLccSettings;
     LccComPort: TLccComPort;
     LccEthernetClient: TLccEthernetClient;

@@ -24,8 +24,6 @@ begin
   RegisterUnit('lcc_ethenetserver', @lcc_ethenetserver.Register);
   RegisterUnit('lcc_ethernetclient', @lcc_ethernetclient.Register);
   RegisterUnit('lcc_nodemanager', @lcc_nodemanager.Register);
-  RegisterUnit('frame_lcc_logging', @frame_lcc_logging.Register);
-  RegisterUnit('frame_lcc_settings', @frame_lcc_settings.Register);
 end;
 
 initialization
