@@ -1,19 +1,20 @@
 object FormTemplate: TFormTemplate
-  Left = 479
-  Height = 351
-  Top = 298
-  Width = 633
+  Left = 355
+  Height = 446
+  Top = 151
+  Width = 718
   Caption = 'LCC Template Application'
-  ClientHeight = 351
-  ClientWidth = 633
+  ClientHeight = 446
+  ClientWidth = 718
   Menu = MainMenu
+  OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   LCLVersion = '1.4.0.4'
   object ToolBarMain: TToolBar
     Left = 0
     Height = 46
     Top = 0
-    Width = 633
+    Width = 718
     AutoSize = True
     ButtonHeight = 44
     Caption = 'ToolBarMain'
@@ -57,14 +58,83 @@ object FormTemplate: TFormTemplate
   object StatusBarMain: TStatusBar
     Left = 0
     Height = 15
-    Top = 336
-    Width = 633
+    Top = 431
+    Width = 718
     Panels = <    
       item
         Text = 'Disconnected'
         Width = 300
+      end    
+      item
+        Text = 'Disconnected'
+        Width = 200
       end>
     SimplePanel = False
+  end
+  object PanelAppSpace: TPanel
+    Left = 0
+    Height = 242
+    Top = 46
+    Width = 718
+    Align = alClient
+    TabOrder = 2
+  end
+  object SplitterApp: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 288
+    Width = 718
+    Align = alBottom
+    ResizeAnchor = akBottom
+  end
+  object PanelAddOns: TPanel
+    Left = 0
+    Height = 138
+    Top = 293
+    Width = 718
+    Align = alBottom
+    ClientHeight = 138
+    ClientWidth = 718
+    TabOrder = 4
+    object LabelServerConnections: TLabel
+      Left = 9
+      Height = 16
+      Top = 1
+      Width = 700
+      Align = alTop
+      BorderSpacing.Left = 8
+      BorderSpacing.Right = 8
+      Caption = 'Server Connection'
+      ParentColor = False
+    end
+    object ListViewServerConnections: TListView
+      Left = 1
+      Height = 120
+      Top = 17
+      Width = 716
+      Align = alClient
+      Columns = <      
+        item
+          Caption = 'Client IP'
+          Width = 200
+        end      
+        item
+          Caption = 'Client Port'
+          Width = 80
+        end      
+        item
+          Caption = 'Server IP'
+          Width = 200
+        end      
+        item
+          Caption = 'Server Port'
+          Width = 80
+        end>
+      GridLines = True
+      TabOrder = 0
+      ViewStyle = vsReport
+    end
   end
   object ActionList: TActionList
     Images = ImageListToolbar
@@ -32131,6 +32201,7 @@ object FormTemplate: TFormTemplate
   end
   object LccComPort: TLccComPort
     Hub = False
+    LoggingFrame = FormLogging.FrameLccLogging
     LccSettings = LccSettings
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccComPortConnectionStateChange
@@ -32144,6 +32215,7 @@ object FormTemplate: TFormTemplate
     Hub = False
     Gridconnect = True
     LccSettings = LccSettings
+    LoggingFrame = FormLogging.FrameLccLogging
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
@@ -32157,6 +32229,11 @@ object FormTemplate: TFormTemplate
     AutoSendVerifyNodesOnStart = False
     Enabled = False
     CAN = True
+    LccSettings = LccSettings
+    OnAliasIDChanged = LccNodeManagerAliasIDChanged
+    OnLccGetRootNodeClass = LccNodeManagerLccGetRootNodeClass
+    OnNodeIDChanged = LccNodeManagerNodeIDChanged
+    OnRequestMessageSend = LccNodeManagerRequestMessageSend
     left = 280
     top = 88
   end
@@ -32164,7 +32241,9 @@ object FormTemplate: TFormTemplate
     Hub = False
     Gridconnect = True
     LccSettings = LccSettings
+    LoggingFrame = FormLogging.FrameLccLogging
     NodeManager = LccNodeManager
+    OnConnectionStateChange = LccEthernetServerConnectionStateChange
     SchedulerPipelineSize = 1
     SleepCount = 0
     left = 280

@@ -58,10 +58,11 @@
         <UnitName Value="form_template"/>
       </Unit2>
       <Unit3>
-        <Filename Value="form_trace.pas"/>
+        <Filename Value="form_logging.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
-        <UnitName Value="form_trace"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit3>
     </Units>
   </ProjectOptions>
