@@ -82,6 +82,7 @@ object FrameLccLogging: TFrameLccLogging
     TabOrder = 1
   end
   inline SynEdit: TSynEdit
+    Cursor = crIBeam
     Left = 0
     Height = 254
     Top = 0
@@ -99,8 +100,6 @@ object FrameLccLogging: TFrameLccLogging
     OnKeyDown = SynEditKeyDown
     Gutter.Width = 55
     Gutter.MouseActions = <>
-    RightGutter.Width = 0
-    RightGutter.MouseActions = <>
     Keystrokes = <    
       item
         Command = ecUp
@@ -523,12 +522,7 @@ object FrameLccLogging: TFrameLccLogging
         ShortCut = 57379
       end>
     MouseActions = <>
-    MouseTextActions = <>
     MouseSelActions = <>
-    Lines.Strings = (
-      'SynEdit'
-    )
-    VisibleSpecialChars = [vscSpace, vscTabAtLast]
     SelectedColor.BackPriority = 50
     SelectedColor.ForePriority = 50
     SelectedColor.FramePriority = 50
@@ -536,17 +530,6 @@ object FrameLccLogging: TFrameLccLogging
     SelectedColor.ItalicPriority = 50
     SelectedColor.UnderlinePriority = 50
     SelectedColor.StrikeOutPriority = 50
-    BracketHighlightStyle = sbhsBoth
-    BracketMatchColor.Background = clNone
-    BracketMatchColor.Foreground = clNone
-    BracketMatchColor.Style = [fsBold]
-    FoldedCodeColor.Background = clNone
-    FoldedCodeColor.Foreground = clGray
-    FoldedCodeColor.FrameColor = clGray
-    MouseLinkColor.Background = clNone
-    MouseLinkColor.Foreground = clBlue
-    LineHighlightColor.Background = clNone
-    LineHighlightColor.Foreground = clNone
     inline SynLeftGutterPartList1: TSynGutterPartList
       object SynGutterMarks1: TSynGutterMarks
         Width = 24

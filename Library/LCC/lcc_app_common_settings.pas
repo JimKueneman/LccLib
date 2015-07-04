@@ -48,10 +48,12 @@ const
 
 
   STR_INI_ETHERNET_SECTION = 'Ethernet';
-  STR_INI_ETHERNET_LOCAL_IP = 'LocalIP';
-  STR_INI_ETHERNET_REMOTE_IP = 'RemoteIP';
-  STR_INI_ETHERNET_LOCAL_PORT = 'LocalPort';
-  STR_INI_ETHERNET_REMOTE_PORT = 'RemotePort';
+  STR_INI_ETHERNET_LOCAL_LISTENER_IP = 'LocalListenerIP';
+  STR_INI_ETHERNET_REMOTE_LISTENER_IP = 'RemoteListenerIP';
+  STR_INI_ETHERNET_LOCAL_CLIENT_IP = 'LocalclientIP';
+  STR_INI_ETHERNET_LOCAL_LISTENER_PORT = 'LocalListenerPort';
+  STR_INI_ETHERNET_REMOTE_LISTENER_PORT = 'RemotePort';
+  STR_INI_ETHERNET_LOCAL_CLIENT_PORT = 'LocalClientPort';
 
 
 type
@@ -159,7 +161,8 @@ type
     procedure LoadFromFile(IniFile: TIniFile);
     procedure SaveToFile(IniFile: TIniFile);
     function AliasIDAsVal: Word;
-    function NodeIDAsVal: DWord;
+    function NodeIDAsVal: QWord;
+    procedure NodeIDAsTNodeID(var ANodeID: TNodeID);
     property CVBlockRead: Word read FCVBlockRead write FCVBlockRead;
   published
     property AliasID: string read FAliasID write SetAliasID;
@@ -186,19 +189,23 @@ type
 
   TEthernetSettings = class(TLccSettingBase)
   private
-    FRemotePort: Integer;
-    FLocalPort: Integer;
-    FLocalIP: string;
-    FRemoteIP: string;
+    FLocalClientIP: string;
+    FLocalClientPort: Integer;
+    FLocalListenerIP: string;
+    FLocalListenerPort: Integer;
+    FRemoteListenerIP: string;
+    FRemoteListenerPort: Integer;
   public
     constructor Create(AnOwner: TLccSettings); override;
     procedure LoadFromFile(IniFile: TIniFile);
     procedure SaveToFile(IniFile: TIniFile);
   published
-    property LocalIP: string read FLocalIP write FLocalIP;
-    property RemoteIP: string read FRemoteIP write FRemoteIP;
-    property LocalPort: Integer read FLocalPort write FLocalPort;            // Storage if the connection is a listener
-    property RemotePort: Integer read FRemotePort write FRemotePort;         // Storage if the connection is a client
+    property LocalClientIP: string read FLocalClientIP write FLocalClientIP;
+    property RemoteListenerIP: string read FRemoteListenerIP write FRemoteListenerIP;
+    property LocalListenerIP: string read FLocalListenerIP write FLocalListenerIP;
+    property LocalClientPort: Integer read FLocalClientPort write FLocalClientPort;
+    property RemoteListenerPort: Integer read FRemoteListenerPort write FRemoteListenerPort;
+    property LocalListenerPort: Integer read FLocalListenerPort write FLocalListenerPort;
   end;
 
   // Settings that all Lcc Applications will have in common
@@ -209,6 +216,7 @@ type
   private
     FComPort: TComPortSettings;
     FEthernet: TEthernetSettings;
+    FFilePath: string;
     FGeneral: TGeneralSettings;
     FLock: TCriticalSection;
     FLogging: TLoggingSettings;
@@ -223,6 +231,7 @@ type
   published
     property ComPort: TComPortSettings read FComPort write FComPort;
     property Ethernet: TEthernetSettings read FEthernet write FEthernet;
+    property FilePath: string read FFilePath write FFilePath;
     property General: TGeneralSettings read FGeneral write FGeneral;
     property Logging: TLoggingSettings read FLogging write FLogging;
     property Throttle: TThrottleSettings read FThrottle write FThrottle;
@@ -253,7 +262,7 @@ end;
 
 constructor TLoggingSettings.Create(AnOwner: TLccSettings);
 begin
-  inherited;
+  inherited Create(AnOwner);
   FJMRIFormat := False;
   FEnabled := False;
   FDetailed := False;
@@ -277,32 +286,40 @@ end;
 
 constructor TEthernetSettings.Create(AnOwner: TLccSettings);
 begin
-  LocalIP := '127.0.0.1';
-  RemoteIP := '127.0.0.1';
-  LocalPort := 12021;
-  RemotePort := 12022;
+  inherited Create(AnOwner);
+  FLocalClientIP := '127.0.0.1';
+  FLocalListenerIP := '127.0.0.1';
+  FRemoteListenerIP := '127.0.0.1';
+  FLocalClientPort := 12022;
+  FRemoteListenerPort := 12021;
+  FLocalListenerPort := 12021;
 end;
 
 procedure TEthernetSettings.LoadFromFile(IniFile: TIniFile);
 begin
-  LocalIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_IP, '127.0.0.1');
-  RemoteIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_IP, '127.0.0.1');
-  LocalPort := IniFile.ReadInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_PORT, 12022);
-  RemotePort := IniFile.ReadInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_PORT, 12021);
+  FLocalClientIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, '127.0.0.1');
+  FLocalListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, '127.0.0.1');
+  FRemoteListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_IP, '127.0.0.1');
+  FLocalClientPort := IniFile.ReadInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_PORT, 12022);
+  FRemoteListenerPort := IniFile.ReadInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_PORT, 12021);
+  FLocalListenerPort := IniFile.ReadInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_PORT, 12021);
 end;
 
 procedure TEthernetSettings.SaveToFile(IniFile: TIniFile);
 begin
-  IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_IP, FLocalIP);
-  IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_IP, FRemoteIP);
-  IniFile.WriteInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_PORT, FRemotePort);
-  IniFile.WriteInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_PORT, FLocalPort);
+  IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, FLocalClientIP);
+  IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, FLocalListenerIP);
+  IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_IP, FRemoteListenerIP);
+  IniFile.WriteInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_PORT, FLocalClientPort);
+  IniFile.WriteInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_PORT, FRemoteListenerPort);
+  IniFile.WriteInteger(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_PORT, FLocalListenerPort);
 end;
 
 { TThrottleSettings }
 
 constructor TThrottleSettings.Create(AnOwner: TLccSettings);
 begin
+  inherited Create(AnOwner);
   FAutoLoadFDI := True;
   FAutoScrollDelta := 2;
 end;
@@ -331,6 +348,7 @@ end;
 
 constructor TGeneralSettings.Create(AnOwner: TLccSettings);
 begin
+  inherited Create(AnOwner);
   FAliasID := '0x000';
   FNodeID := '0x000000000000';
   FSchedulerPipelineSize := 5;
@@ -341,6 +359,21 @@ begin
   AliasID := IniFile.ReadString(STR_INT_GENERAL_SECTION, STR_INI_ALIASID, '0x000');
   NodeID := IniFile.ReadString(STR_INT_GENERAL_SECTION, STR_INI_NODEID, '0x000000000000');
   FSchedulerPipelineSize := IniFile.ReadInteger(STR_INT_GENERAL_SECTION, STR_INI_PIPELINE, 1);
+end;
+
+procedure TGeneralSettings.NodeIDAsTNodeID(var ANodeID: TNodeID);
+var
+  Temp: QWord;
+begin
+  NodeID := Trim(NodeID);
+  Temp := StrToQWord(NodeID);
+  ANodeID[0] :=  Temp and $0000000000FFFFFF;
+  ANodeID[1] := (Temp and $0000FFFFFF000000) shr 24;
+end;
+
+function TGeneralSettings.NodeIDAsVal: QWord;
+begin
+  Result := StrToQWord(NodeID)
 end;
 
 procedure TGeneralSettings.SaveToFile(IniFile: TIniFile);
@@ -355,15 +388,11 @@ begin
   Result := StrToInt(AliasID);
 end;
 
-function TGeneralSettings.NodeIDAsVal: DWord;
-begin
-  Result := StrToInt(NodeID)
-end;
-
 { TComPortSettings }
 
 constructor TComPortSettings.Create(AnOwner: TLccSettings);
 begin
+  inherited Create(AnOwner);
   FBaudRate := 333333;
   FDataBits := cpdb_8_Bits;
   FParity := cpp_None;

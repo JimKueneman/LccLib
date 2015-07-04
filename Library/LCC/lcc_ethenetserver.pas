@@ -611,8 +611,8 @@ begin
     AnEthernetRec.SuppressNotification := False;
     AnEthernetRec.Thread := nil;
     AnEthernetRec.MessageStr := '';
-    AnEthernetRec.ListenerPort := LccSettings.Ethernet.LocalPort;
-    AnEthernetRec.ListenerIP := LccSettings.Ethernet.LocalIP;
+    AnEthernetRec.ListenerPort := LccSettings.Ethernet.LocalListenerPort;
+    AnEthernetRec.ListenerIP := LccSettings.Ethernet.LocalListenerIP;
     AnEthernetRec.ClientIP := '';
     AnEthernetRec.ClientPort := 0;
     AnEthernetRec.HeartbeatRate := 0;

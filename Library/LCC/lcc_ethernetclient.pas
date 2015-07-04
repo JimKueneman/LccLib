@@ -399,10 +399,10 @@ begin
     AnEthernetRec.SuppressNotification := False;
     AnEthernetRec.Thread := nil;
     AnEthernetRec.MessageStr := '';
-    AnEthernetRec.ListenerPort := LccSettings.Ethernet.RemotePort;
-    AnEthernetRec.ListenerIP := LccSettings.Ethernet.RemoteIP;
-    AnEthernetRec.ClientIP := LccSettings.Ethernet.LocalIP;
-    AnEthernetRec.ClientPort := LccSettings.Ethernet.LocalPort;
+    AnEthernetRec.ListenerPort := LccSettings.Ethernet.RemoteListenerPort;
+    AnEthernetRec.ListenerIP := LccSettings.Ethernet.RemoteListenerIP;
+    AnEthernetRec.ClientIP := LccSettings.Ethernet.LocalClientIP;
+    AnEthernetRec.ClientPort := LccSettings.Ethernet.LocalClientPort;
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
     AnEthernetRec.MessageArray := nil;

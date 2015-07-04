@@ -16,7 +16,7 @@ uses
   FMX.Types,
   System.Generics.Collections,
   {$ENDIF}
-  lcc_utilities, lcc_math_float16, lcc_messages;
+  lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -502,7 +502,7 @@ type
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Login(NewNodeID, RegenerateAlias: Boolean);
+    procedure Login(NewNodeID, RegenerateAliasSeed: Boolean);
 
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -516,6 +516,7 @@ type
     FCAN: Boolean;
     FCdiParser: TLccCdiParserBase;
     FEnabled: Boolean;
+    FLccSettings: TLccSettings;
     FNodeList: TList;
     FOnAliasIDChanged: TOnLccNodeMessage;
     FOnNodeIDChanged: TOnLccNodeMessage;
@@ -627,6 +628,7 @@ type
     property AutoSendVerifyNodesOnStart: Boolean read FAutoSendVerifyNodesOnStart write FAutoSendVerifyNodesOnStart;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property CAN: Boolean read FCAN write SetCAN;
+    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
@@ -814,11 +816,27 @@ begin
     OwnerManager.DoNodeIDChanged(Self);
 end;
 
-procedure TLccOwnedNode.Login(NewNodeID, RegenerateAlias: Boolean);
+procedure TLccOwnedNode.Login(NewNodeID, RegenerateAliasSeed: Boolean);
+var
+  TempNodeID: TNodeID;
 begin
-  if NewNodeID then
-    GenerateNewNodeID;
-  LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAlias);
+  if Assigned(OwnerManager.LccSettings) then
+  begin
+    if OwnerManager.LccSettings.General.NodeIDAsVal = 0 then
+      GenerateNewNodeID
+    else begin
+      OwnerManager.LccSettings.General.NodeIDAsTNodeID(TempNodeID);
+      FNodeID[0] := TempNodeID[0];
+      FNodeID[1] := TempNodeID[1];
+      if Assigned(OwnerManager) then
+        OwnerManager.DoNodeIDChanged(Self);
+    end;
+  end else
+  begin
+    if NewNodeID then
+      GenerateNewNodeID;
+  end;
+  LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
   SendAliasLoginRequest;
   DuplicateAliasDetected := False;
   LoginTimer.Enabled := True;
@@ -1613,7 +1631,7 @@ begin
     if FEnabled then
     begin
       if Assigned(RootNode) then
-        RootNode.Login(True, True);
+        RootNode.Login(True, False);
     end else
     begin
       Clear;

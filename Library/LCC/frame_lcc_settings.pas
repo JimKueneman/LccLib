@@ -11,13 +11,6 @@ uses
   Buttons, synaser, lcc_app_common_settings, Dialogs, LResources;
 
 type
-  TFrameLccSettingType = (
-    flst_Server,
-    flst_Client
-  );
-
-
-type
 
   TFrameLccSettings = class;
 
@@ -27,17 +20,17 @@ type
   private
     FOwnerSettings: TFrameLccSettings;
     function GetComPort: Boolean;
-    function GetEthernet: Boolean;
-    function GetSettingType: TFrameLccSettingType;
+    function GetEthernetClient: Boolean;
+    function GetEthernetServer: Boolean;
     procedure SetComPort(AValue: Boolean);
-    procedure SetEthernet(AValue: Boolean);
-    procedure SetSettingType(AValue: TFrameLccSettingType);
+    procedure SetEthernetClient(AValue: Boolean);
+    procedure SetEthernetServer(AValue: Boolean);
   public
     property OwnerSettings: TFrameLccSettings read FOwnerSettings write FOwnerSettings;
   published
-    property SettingType: TFrameLccSettingType read GetSettingType write SetSettingType;
     property ComPort: Boolean read GetComPort write SetComPort;
-    property Ethernet: Boolean read GetEthernet write SetEthernet;
+    property EthernetClient: Boolean read GetEthernetClient write SetEthernetClient;
+    property EthernetServer: Boolean read GetEthernetServer write SetEthernetServer;
   end;
 
   { TFrameLccSettings }
@@ -47,47 +40,53 @@ type
     ButtonCancel: TButton;
     ButtonOk: TButton;
     ButtonSetLoopbackClient: TButton;
+    ButtonSetLoopbackServer: TButton;
     ButtonSetLoopbackRemote: TButton;
     ComboBoxComPort: TComboBox;
-    EditLocalIP: TEdit;
-    EditRemoteIP: TEdit;
+    EditLocalClientIP: TEdit;
+    EditLocalListenerIP: TEdit;
+    EditRemoteListenerIP: TEdit;
     GroupBoxComPort: TGroupBox;
-    GroupBoxEthernet: TGroupBox;
+    GroupBoxEthernetClient: TGroupBox;
+    GroupBoxEthernetServer: TGroupBox;
     LabelLocalIP: TLabel;
+    LabelLocalIP1: TLabel;
     LabelLocalPort: TLabel;
+    LabelLocalPort1: TLabel;
     LabelRemoteIP: TLabel;
     LabelRemotePort: TLabel;
-    SpinEditLocalPort: TSpinEdit;
-    SpinEditRemotePort: TSpinEdit;
+    SpinEditLocalClientPort: TSpinEdit;
+    SpinEditLocalListenerPort: TSpinEdit;
+    SpinEditRemoteListenerPort: TSpinEdit;
     procedure BitBtnRescanPortsClick(Sender: TObject);
     procedure ButtonOkClick(Sender: TObject);
-    procedure ButtonSetLoopbackRemoteClick(Sender: TObject);
     procedure ButtonSetLoopbackClientClick(Sender: TObject);
+    procedure ButtonSetLoopbackRemoteClick(Sender: TObject);
+    procedure ButtonSetLoopbackServerClick(Sender: TObject);
     procedure ComboBoxComPortChange(Sender: TObject);
-    procedure EditRemoteIPExit(Sender: TObject);
-    procedure EditRemoteIPKeyPress(Sender: TObject; var Key: char);
-    procedure SpinEditRemotePortExit(Sender: TObject);
-    procedure SpinEditRemotePortKeyPress(Sender: TObject; var Key: char);
+    procedure EditRemoteListenerIPExit(Sender: TObject);
+    procedure EditRemoteListenerIPKeyPress(Sender: TObject; var Key: char);
+    procedure SpinEditRemoteListenerPortExit(Sender: TObject);
+    procedure SpinEditRemoteListenerPortKeyPress(Sender: TObject; var Key: char);
   private
     FLockSetting: Boolean;
   private
     FComPort: Boolean;
     FEthernet: Boolean;
+    FEthernetClient: Boolean;
+    FEthernetServer: Boolean;
     FLccSettings: TLccSettings;
-    FSettingsFilePath: string;
-    FSettingType: TFrameLccSettingType;
     FUserSettings: TUserSettings;
     { private declarations }
     procedure SetComPort(AValue: Boolean);
-    procedure SetEthernet(AValue: Boolean);
-    procedure SetSettingType(AValue: TFrameLccSettingType);
-    property SettingsFilePath: string read FSettingsFilePath write FSettingsFilePath;
+    procedure SetEthernetClient(AValue: Boolean);
+    procedure SetEthernetServer(AValue: Boolean);
     property LockSetting: Boolean read FLockSetting write FLockSetting;
   protected
     procedure PositionButtons;
-    property SettingType: TFrameLccSettingType read FSettingType write SetSettingType;
     property ComPort: Boolean read FComPort write SetComPort;
-    property Ethernet: Boolean read FEthernet write SetEthernet;
+    property EthernetClient: Boolean read FEthernetClient write SetEthernetClient;
+    property EthernetServer: Boolean read FEthernetServer write SetEthernetServer;
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
@@ -119,29 +118,31 @@ begin
   Result := OwnerSettings.ComPort;
 end;
 
-function TUserSettings.GetEthernet: Boolean;
+function TUserSettings.GetEthernetClient: Boolean;
 begin
-  Result := OwnerSettings.Ethernet;
+  Result := OwnerSettings.EthernetClient;
 end;
 
-function TUserSettings.GetSettingType: TFrameLccSettingType;
+function TUserSettings.GetEthernetServer: Boolean;
 begin
-  Result := OwnerSettings.SettingType;
+  Result := OwnerSettings.EthernetServer;
 end;
+
 
 procedure TUserSettings.SetComPort(AValue: Boolean);
 begin
   OwnerSettings.ComPort := AValue;
 end;
 
-procedure TUserSettings.SetEthernet(AValue: Boolean);
+
+procedure TUserSettings.SetEthernetClient(AValue: Boolean);
 begin
-  OwnerSettings.Ethernet := AValue;
+  OwnerSettings.EthernetClient := AValue
 end;
 
-procedure TUserSettings.SetSettingType(AValue: TFrameLccSettingType);
+procedure TUserSettings.SetEthernetServer(AValue: Boolean);
 begin
-  OwnerSettings.SettingType := AValue;
+  OwnerSettings.EthernetServer := AValue
 end;
 
 { TFrameLccSettings }
@@ -156,9 +157,19 @@ begin
   StoreSettings
 end;
 
+procedure TFrameLccSettings.ButtonSetLoopbackClientClick(Sender: TObject);
+begin
+  EditLocalClientIP.Text := '127.0.0.1';
+end;
+
 procedure TFrameLccSettings.ButtonSetLoopbackRemoteClick(Sender: TObject);
 begin
-  EditRemoteIP.Text := '127.0.0.1';
+  EditRemoteListenerIP.Text := '127.0.0.1';
+end;
+
+procedure TFrameLccSettings.ButtonSetLoopbackServerClick(Sender: TObject);
+begin
+  EditLocalListenerIP.Text := '127.0.0.1';
 end;
 
 procedure TFrameLccSettings.ComboBoxComPortChange(Sender: TObject);
@@ -202,75 +213,31 @@ begin
   FComPort:=AValue;
   if csDesigning in ComponentState then Exit;
   GroupBoxComPort.Visible := FComPort;
-  if FComPort then
-    GroupBoxEthernet.Top := 78
-  else
-    GroupBoxEthernet.Top := 8;
   PositionButtons;
 end;
 
-procedure TFrameLccSettings.SetEthernet(AValue: Boolean);
+procedure TFrameLccSettings.SetEthernetClient(AValue: Boolean);
 begin
-  FEthernet:=AValue;
+  FEthernetClient:=AValue;
   if csDesigning in ComponentState then Exit;
-  GroupBoxEthernet.Visible := FEthernet;
+  GroupBoxEthernetClient.Visible := AValue;
   PositionButtons;
 end;
 
-procedure TFrameLccSettings.SetSettingType(AValue: TFrameLccSettingType);
+procedure TFrameLccSettings.SetEthernetServer(AValue: Boolean);
 begin
-  FSettingType:=AValue;
+  FEthernetServer:=AValue;
   if csDesigning in ComponentState then Exit;
-  case SettingType of
-    flst_Server :
-      begin
-        LabelRemoteIP.Visible := False;
-        LabelRemotePort.Visible := False;
-        EditRemoteIP.Visible := False;
-        SpinEditRemotePort.Visible := False;
-        ButtonSetLoopbackRemote.Visible := False;
-
-        LabelLocalIP.Visible := True;
-        LabelLocalPort.Visible := True;
-        EditLocalIP.Visible := True;
-        SpinEditLocalPort.Visible := True;
-
-        LabelLocalIP.Caption := 'Listener IP';
-        LabelLocalPort.Caption := 'Listener Port';
-
-        GroupBoxEthernet.Height := 84;
-      end;
-    flst_Client :
-      begin
-        LabelRemoteIP.Visible := True;
-        LabelRemotePort.Visible := True;
-        EditRemoteIP.Visible := True;
-        SpinEditRemotePort.Visible := True;
-        ButtonSetLoopbackRemote.Visible := True;
-
-        LabelLocalIP.Visible := True;
-        LabelLocalPort.Visible := True;
-        EditLocalIP.Visible := True;
-        SpinEditLocalPort.Visible := True;
-
-        LabelLocalIP.Caption := 'Client IP';
-        LabelLocalPort.Caption := 'Client Port';
-        LabelRemoteIP.Caption := 'Listener IP';
-        LabelRemotePort.Caption := 'Listener Port';
-
-        GroupBoxEthernet.Height := 146;
-      end;
-  end;
+  GroupBoxEthernetServer.Visible := AValue;
   PositionButtons;
 end;
 
-procedure TFrameLccSettings.SpinEditRemotePortExit(Sender: TObject);
+procedure TFrameLccSettings.SpinEditRemoteListenerPortExit(Sender: TObject);
 begin
   StoreSettings;
 end;
 
-procedure TFrameLccSettings.SpinEditRemotePortKeyPress(
-  Sender: TObject; var Key: char);
+procedure TFrameLccSettings.SpinEditRemoteListenerPortKeyPress(Sender: TObject; var Key: char);
 begin
   if Key = #13 then
     StoreSettings;
@@ -280,30 +247,27 @@ procedure TFrameLccSettings.StoreSettings;
 begin
   if not LockSetting and Assigned(LccSettings) then
   begin
-    if SettingsFilePath = '' then
+    if LccSettings.FilePath = '' then
       ShowMessage('The SettingsFilePath is empty, can''t save the settings')
     else begin
       LccSettings.ComPort.Port := ComboBoxComPort.Caption;
-      LccSettings.Ethernet.LocalIP := EditLocalIP.Text;
-      LccSettings.Ethernet.LocalPort := SpinEditLocalPort.Value;
-      LccSettings.Ethernet.RemoteIP := EditRemoteIP.Text;
-      LccSettings.Ethernet.RemotePort := SpinEditRemotePort.Value;
-      LccSettings.SaveToFile(SettingsFilePath);
+      LccSettings.Ethernet.LocalClientIP := EditLocalClientIP.Text;
+      LccSettings.Ethernet.LocalClientPort := SpinEditLocalClientPort.Value;
+      LccSettings.Ethernet.RemoteListenerIP := EditRemoteListenerIP.Text;
+      LccSettings.Ethernet.RemoteListenerPort := SpinEditRemoteListenerPort.Value;
+      LccSettings.Ethernet.LocalListenerIP := EditLocalListenerIP.Text;
+      LccSettings.Ethernet.LocalListenerPort := SpinEditLocalListenerPort.Value;
+      LccSettings.SaveToFile(LccSettings.FilePath);
     end;
   end;
 end;
 
-procedure TFrameLccSettings.ButtonSetLoopbackClientClick(Sender: TObject);
-begin
-  EditLocalIP.Text := '127.0.0.1';
-end;
-
-procedure TFrameLccSettings.EditRemoteIPExit(Sender: TObject);
+procedure TFrameLccSettings.EditRemoteListenerIPExit(Sender: TObject);
 begin
   StoreSettings;
 end;
 
-procedure TFrameLccSettings.EditRemoteIPKeyPress(Sender: TObject;
+procedure TFrameLccSettings.EditRemoteListenerIPKeyPress(Sender: TObject;
   var Key: char);
 begin
   if Key = #13 then
@@ -311,17 +275,48 @@ begin
 end;
 
 procedure TFrameLccSettings.PositionButtons;
-begin
-  if GroupBoxEthernet.Visible then
+
+  procedure PositionEthernetGroupsBoxes(Offset: Integer);
   begin
-    ButtonCancel.Top := GroupBoxEthernet.Top + GroupBoxEthernet.Height + 8;
-    ButtonOk.Top := GroupBoxEthernet.Top + GroupBoxEthernet.Height + 8;
-    Height := ButtonOk.Top + ButtonOk.Height + 8;
+    if GroupBoxEthernetClient.Visible then
+    begin
+      GroupBoxEthernetClient.Top := Offset + 8;
+      if GroupBoxEthernetServer.Visible then
+      begin
+        GroupBoxEthernetServer.Top := GroupBoxEthernetClient.Top + GroupBoxEthernetClient.Height + 8;
+        ButtonCancel.Top := GroupBoxEthernetServer.Top + GroupBoxEthernetServer.Height + 8;
+        ButtonOk.Top := ButtonCancel.Top;
+        Height := ButtonOk.Top + ButtonOk.Height + 8;
+      end else
+      begin
+        ButtonCancel.Top := GroupBoxEthernetClient.Top + GroupBoxEthernetClient.Height + 8;
+        ButtonOk.Top := ButtonCancel.Top;
+        Height := ButtonOk.Top + ButtonOk.Height + 8;
+      end;
+    end else
+    begin
+      if GroupBoxEthernetServer.Visible then
+      begin
+        GroupBoxEthernetServer.Top := Offset + 8;
+        ButtonCancel.Top := GroupBoxEthernetServer.Top + GroupBoxEthernetServer.Height + 8;
+        ButtonOk.Top := ButtonCancel.Top;
+        Height := ButtonOk.Top + ButtonOk.Height + 8;
+      end else
+      begin
+        ButtonCancel.Top := Offset + 8;
+        ButtonOk.Top := ButtonCancel.Top;
+        Height := ButtonOk.Top + ButtonOk.Height + 8;
+      end;
+    end;
+  end;
+
+begin
+  if GroupBoxComPort.Visible then
+  begin
+    PositionEthernetGroupsBoxes(GroupBoxComPort.Top + GroupBoxComPort.Height);
   end else
   begin
-    ButtonCancel.Top := GroupBoxComPort.Top + GroupBoxComPort.Height + 8;
-    ButtonOk.Top := GroupBoxComPort.Top + GroupBoxComPort.Height + 8;
-    Height := ButtonOk.Top + ButtonOk.Height + 8;
+    PositionEthernetGroupsBoxes(0);
   end;
 end;
 
@@ -331,12 +326,13 @@ begin
   begin
     LockSetting := True;
     try
-      SettingsFilePath := SettingsFile;
       BitBtnRescanPorts.Click;
-      EditLocalIP.Text := LccSettings.Ethernet.LocalIP;
-      SpinEditLocalPort.Value := LccSettings.Ethernet.LocalPort;
-      EditRemoteIP.Text := LccSettings.Ethernet.RemoteIP;
-      SpinEditRemotePort.Value := LccSettings.Ethernet.RemotePort;
+      EditLocalClientIP.Text := LccSettings.Ethernet.LocalClientIP;
+      SpinEditLocalClientPort.Value := LccSettings.Ethernet.LocalClientPort;
+      EditRemoteListenerIP.Text := LccSettings.Ethernet.RemoteListenerIP;
+      SpinEditRemoteListenerPort.Value := LccSettings.Ethernet.RemoteListenerPort;
+      EditLocalListenerIP.Text := LccSettings.Ethernet.LocalListenerIP;
+      SpinEditLocalListenerPort.Value := LccSettings.Ethernet.LocalListenerPort;
     finally
       LockSetting := False;
     end;
