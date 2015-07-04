@@ -1,0 +1,6 @@
+
+Nothing special here.  Download the single setup executable and run it.  It should just work after that
+
+http://www.lazarus-ide.org
+
+and follow the Downloads link at the top for Windows.

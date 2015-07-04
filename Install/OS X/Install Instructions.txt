@@ -1,0 +1,36 @@
+
+Included in this folder is various Xcode version of the GNU debugger and a build of the GNU Debugger project from around version 7.2.  They each have their own issues, I leave it to you to decide which one works better for you.  Alternatively you can try to compile the latest GNU Debugger source code at http://www.gnu.org/software/gdb/
+
+
+*************************************
+
+
+From the OpenLCB Newsgroup
+
+
+Hi Alex et al. --
+Jim talked me through the installation of the Pascal Lazarus IDE.  
+
+Essentially: 
+IN ORDER:
+1. Download fpcsrc-2.6.4-20140421-i386-macosx.dmg and install.
+2. Download fpc-2.6.4.intel-macosx.dmg and install.  
+3. Downlaod lazarus-1.4.0-20150419-i386-macosx.dmg and install.  160Mb
+
+Now it will run but may complain you do not have gdb, if so: 
+1. If necessary download and install Xcode through App Store.  BIG download.  
+2. On OSX 10.10.4, Xcode doesn't include gdb (!?).  Older versions might.  
+ Jim sent them to me, but ... you can 'steal' them from a previous version of Xcode as    per http://forum.lazarus.freepascal.org/index.php?topic=22529.5;wap2  
+   * Download Xcode 4.6.3 from developer.apple.com.
+   * Open the .dmg - it will open with a "Drag to your apps folder" instruction.  Instead of doing that, right-click Xcode and "Show Package Contents".
+   * Copy the (.app)/Contents/Developer/usr/bin/gdb file to your local /usr/bin folder.
+   * Copy the (.app)/Contents/Developer/usr/libexec/gdb *folder* to /usr/libexec
+   * Point Lazarus at /usr/bin/gdb (if it's not already pointed there).
+
+Next you would clone Jim's git repository ... but he can tell us when he is ready.  
+
+David
+
+*************************************
+
+What is missing from this instruction set is you also must have the command line tools for Xcode installed on your machine.  Later version of Xcode install them automatically older version you had to down load from the Apple developer site and install them.  If you don't want to download and install a 2GB Xcode the later is the better choice.  You have to create a free Apple Developer ID to get to these files.

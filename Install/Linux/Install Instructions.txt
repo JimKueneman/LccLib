@@ -1,0 +1,9 @@
+Nothing special here.  Download the *.deb or *.rpm files and run them in following order.  It should just work after that
+
+fpc-src-2.6.4-140420.xxxx.xxx
+fpc-2.6.4-1.xxxx.xxx
+lazarus-1.4.0-0.xxxx.xx
+
+http://www.lazarus-ide.org
+
+and follow the Downloads link at the top for Linux.
