@@ -1,0 +1,213 @@
+object FrameLccSettings: TFrameLccSettings
+  Left = 0
+  Height = 360
+  Top = 0
+  Width = 490
+  ClientHeight = 360
+  ClientWidth = 490
+  Color = clDefault
+  ParentColor = False
+  TabOrder = 0
+  DesignLeft = 484
+  DesignTop = 260
+  object ButtonOk: TButton
+    Left = 335
+    Height = 22
+    Top = 320
+    Width = 126
+    Anchors = [akTop, akRight]
+    Caption = 'Ok'
+    ModalResult = 1
+    OnClick = ButtonOkClick
+    TabOrder = 0
+  end
+  object ButtonCancel: TButton
+    Left = 189
+    Height = 22
+    Top = 320
+    Width = 126
+    Anchors = [akTop, akRight]
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object GroupBoxComPort: TGroupBox
+    Left = 8
+    Height = 65
+    Top = 8
+    Width = 465
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'COM Port'
+    ClientHeight = 43
+    ClientWidth = 457
+    TabOrder = 2
+    object ComboBoxComPort: TComboBox
+      Left = 17
+      Height = 20
+      Top = 9
+      Width = 226
+      ItemHeight = 0
+      OnChange = ComboBoxComPortChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object BitBtnRescanPorts: TBitBtn
+      Left = 259
+      Height = 22
+      Top = 8
+      Width = 144
+      Caption = 'Rescan Ports'
+      OnClick = BitBtnRescanPortsClick
+      TabOrder = 1
+    end
+  end
+  object GroupBoxEthernetClient: TGroupBox
+    Left = 8
+    Height = 144
+    Top = 80
+    Width = 465
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Ethernet Client'
+    ClientHeight = 122
+    ClientWidth = 457
+    TabOrder = 3
+    object LabelLocalIP: TLabel
+      Left = 8
+      Height = 16
+      Top = 8
+      Width = 88
+      Caption = 'Local Client IP'
+      ParentColor = False
+    end
+    object EditLocalClientIP: TEdit
+      Left = 27
+      Height = 22
+      Top = 28
+      Width = 149
+      TabOrder = 0
+    end
+    object LabelLocalPort: TLabel
+      Left = 192
+      Height = 16
+      Top = 8
+      Width = 103
+      Caption = 'Local Client Port'
+      ParentColor = False
+    end
+    object SpinEditLocalClientPort: TSpinEdit
+      Left = 208
+      Height = 16
+      Top = 28
+      Width = 101
+      MaxValue = 65535
+      TabOrder = 1
+      Value = 12022
+    end
+    object ButtonSetLoopbackClient: TButton
+      Left = 336
+      Height = 22
+      Top = 24
+      Width = 91
+      Caption = 'Loopback'
+      OnClick = ButtonSetLoopbackClientClick
+      TabOrder = 2
+    end
+    object LabelRemoteIP: TLabel
+      Left = 8
+      Height = 16
+      Top = 64
+      Width = 117
+      Caption = 'Remote Listener IP'
+      ParentColor = False
+    end
+    object EditRemoteListenerIP: TEdit
+      Left = 27
+      Height = 22
+      Top = 86
+      Width = 149
+      OnExit = EditRemoteListenerIPExit
+      OnKeyPress = EditRemoteListenerIPKeyPress
+      TabOrder = 3
+    end
+    object SpinEditRemoteListenerPort: TSpinEdit
+      Left = 208
+      Height = 16
+      Top = 86
+      Width = 101
+      MaxValue = 65535
+      OnExit = SpinEditRemoteListenerPortExit
+      OnKeyPress = SpinEditRemoteListenerPortKeyPress
+      TabOrder = 4
+      Value = 12021
+    end
+    object ButtonSetLoopbackRemote: TButton
+      Left = 336
+      Height = 22
+      Top = 80
+      Width = 91
+      Caption = 'Loopback'
+      OnClick = ButtonSetLoopbackRemoteClick
+      TabOrder = 5
+    end
+    object LabelRemotePort: TLabel
+      Left = 192
+      Height = 16
+      Top = 64
+      Width = 131
+      Caption = 'Remote Listener Port'
+      ParentColor = False
+    end
+  end
+  object GroupBoxEthernetServer: TGroupBox
+    Left = 8
+    Height = 80
+    Top = 240
+    Width = 465
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Ethernet Server'
+    ClientHeight = 58
+    ClientWidth = 457
+    TabOrder = 4
+    object LabelLocalIP1: TLabel
+      Left = 8
+      Height = 16
+      Top = 8
+      Width = 102
+      Caption = 'Local Listener IP'
+      ParentColor = False
+    end
+    object EditLocalListenerIP: TEdit
+      Left = 27
+      Height = 22
+      Top = 28
+      Width = 149
+      TabOrder = 0
+    end
+    object LabelLocalPort1: TLabel
+      Left = 192
+      Height = 16
+      Top = 8
+      Width = 116
+      Caption = 'Local Listener Port'
+      ParentColor = False
+    end
+    object SpinEditLocalListenerPort: TSpinEdit
+      Left = 208
+      Height = 16
+      Top = 28
+      Width = 101
+      MaxValue = 65535
+      TabOrder = 1
+      Value = 12021
+    end
+    object ButtonSetLoopbackServer: TButton
+      Left = 336
+      Height = 22
+      Top = 24
+      Width = 91
+      Caption = 'Loopback'
+      OnClick = ButtonSetLoopbackServerClick
+      TabOrder = 2
+    end
+  end
+end
