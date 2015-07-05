@@ -16,7 +16,8 @@ uses
   FMX.Types,
   System.Generics.Collections,
   {$ENDIF}
-  lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings;
+  lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
+  lcc_common_classes;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -516,6 +517,7 @@ type
     FCAN: Boolean;
     FCdiParser: TLccCdiParserBase;
     FEnabled: Boolean;
+    FHardwareConnection: TLccHardwareConnectionManager;
     FLccSettings: TLccSettings;
     FNodeList: TList;
     FOnAliasIDChanged: TOnLccNodeMessage;
@@ -628,8 +630,9 @@ type
     property AutoSendVerifyNodesOnStart: Boolean read FAutoSendVerifyNodesOnStart write FAutoSendVerifyNodesOnStart;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property CAN: Boolean read FCAN write SetCAN;
-    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
+    property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
+    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
@@ -1765,6 +1768,8 @@ end;
 
 procedure TLccNodeManager.DoRequestMessageSend(Message: TLccMessage);
 begin
+  if Assigned(HardwareConnection) then
+    HardwareConnection.SendMessage(Message);
   if Assigned(OnRequestMessageSend) then
     OnRequestMessageSend(Self, Message);
 end;
@@ -2543,7 +2548,8 @@ begin
   FreeAndNil(FEventsProduced);
   FreeAndNil(FConfigurationMemOptions);
   FreeAndNil(FConfigMemAddressSpaceInfo);
-  OwnerManager.DoDestroyLccNode(Self);
+  if Assigned(OwnerManager) then
+    OwnerManager.DoDestroyLccNode(Self);
   inherited;
 end;
 
@@ -2955,6 +2961,7 @@ end;
 initialization
   TotalSNIPMessages := 0;
   TotalSTNIPMessage := 0;
+  RegisterClass(TLccNodeManager);
 
 finalization
 

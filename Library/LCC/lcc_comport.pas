@@ -19,7 +19,8 @@ uses
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
   lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
-  lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings;
+  lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
+  lcc_common_classes;
 
 type
   TLccComPortThread = class;             // Forward
@@ -111,7 +112,7 @@ type
 
   { TLccComPort }
 
-  TLccComPort = class(TComponent)
+  TLccComPort = class(TLccHardwareConnectionManager)
   private
     FComPortThreads: TLccComPortThreadList;
     FHub: Boolean;
@@ -149,7 +150,7 @@ type
     function OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
     function OpenComPortWithLccSettings: TLccComPortThread;
     procedure CloseComPort( ComPortThread: TLccComPortThread);
-    procedure SendMessage(AMessage: TLccMessage);
+    procedure SendMessage(AMessage: TLccMessage); override;
     procedure ClearSchedulerQueues;
 
     property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
@@ -711,5 +712,10 @@ begin
   if Assigned(OnSendMessage) then
     OnSendMessage(Self, AMessage);
 end;
+
+initialization
+  RegisterClass(TLccComPort);
+
+finalization
 
 end.

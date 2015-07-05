@@ -1,10 +1,10 @@
 object FormTemplate: TFormTemplate
-  Left = 355
+  Left = 293
   Height = 446
-  Top = 151
+  Top = 185
   Width = 718
   Caption = 'LCC Template Application'
-  ClientHeight = 426
+  ClientHeight = 446
   ClientWidth = 718
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
@@ -27,17 +27,17 @@ object FormTemplate: TFormTemplate
       Action = ActionComPortConnect
     end
     object ToolButtonEthernetClient: TToolButton
-      Left = 50
+      Left = 63
       Top = 2
       Action = ActionEthenetClientConnect
     end
     object ToolButtonEthernetServer: TToolButton
-      Left = 130
+      Left = 165
       Top = 2
       Action = ActionEthernetServerConnect
     end
     object ToolButtonSeparator: TToolButton
-      Left = 215
+      Left = 269
       Height = 44
       Top = 2
       Width = 20
@@ -45,20 +45,20 @@ object FormTemplate: TFormTemplate
       Style = tbsSeparator
     end
     object ToolButtonMsgTrace: TToolButton
-      Left = 290
+      Left = 361
       Top = 2
       Action = ActionMsgTrace
     end
     object ToolButtonLccLogIn: TToolButton
-      Left = 235
+      Left = 289
       Top = 2
       Action = ActionLccLogin
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 23
-    Top = 403
+    Height = 15
+    Top = 431
     Width = 718
     Panels = <    
       item
@@ -73,7 +73,7 @@ object FormTemplate: TFormTemplate
   end
   object PanelAppSpace: TPanel
     Left = 0
-    Height = 214
+    Height = 242
     Top = 46
     Width = 718
     Align = alClient
@@ -83,7 +83,7 @@ object FormTemplate: TFormTemplate
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 260
+    Top = 288
     Width = 718
     Align = alBottom
     ResizeAnchor = akBottom
@@ -91,7 +91,7 @@ object FormTemplate: TFormTemplate
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 265
+    Top = 293
     Width = 718
     Align = alBottom
     ClientHeight = 138
@@ -99,7 +99,7 @@ object FormTemplate: TFormTemplate
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 13
+      Height = 16
       Top = 1
       Width = 700
       Align = alTop
@@ -110,8 +110,8 @@ object FormTemplate: TFormTemplate
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 123
-      Top = 14
+      Height = 120
+      Top = 17
       Width = 716
       Align = alClient
       Columns = <      
@@ -129,7 +129,7 @@ object FormTemplate: TFormTemplate
         end      
         item
           Caption = 'Server Port'
-          Width = 80
+          Width = 218
         end>
       GridLines = True
       TabOrder = 0

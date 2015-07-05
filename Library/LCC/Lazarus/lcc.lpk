@@ -8,13 +8,13 @@
       <Version Value="11"/>
       <SearchPaths>
         <IncludeFiles Value=".."/>
-        <OtherUnitFiles Value="..;../../Synapse_LCC"/>
+        <OtherUnitFiles Value="../../Synapse_LCC;../../Lib;.."/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="21">
+    <Files Count="18">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -90,23 +90,9 @@
         <UnitName Value="lcc_utilities"/>
       </Item17>
       <Item18>
-        <Filename Value="../frame_lcc_logging.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="../lcc_common_classes.pas"/>
+        <UnitName Value="lcc_common_classes"/>
       </Item18>
-      <Item19>
-        <Filename Value="../frame_lcc_logging.pas"/>
-        <UnitName Value="frame_lcc_logging"/>
-        <ResourceBaseClass Value="Frame"/>
-      </Item19>
-      <Item20>
-        <Filename Value="../frame_lcc_settings.lfm"/>
-        <Type Value="LFM"/>
-      </Item20>
-      <Item21>
-        <Filename Value="../frame_lcc_settings.pas"/>
-        <UnitName Value="frame_lcc_settings"/>
-        <ResourceBaseClass Value="Frame"/>
-      </Item21>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

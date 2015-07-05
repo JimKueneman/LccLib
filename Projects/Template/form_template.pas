@@ -9,7 +9,7 @@ uses
   ActnList, Menus, LCLType, StdCtrls, ExtCtrls, lcc_app_common_settings,
   lcc_comport, lcc_ethernetclient, lcc_nodemanager, lcc_ethenetserver,
   form_settings, file_utilities, lcc_messages, form_logging, lcc_defines,
-  lcc_utilities;
+  lcc_utilities, frame_lcc_logging;
 
 const
   BUNDLENAME             = 'LCCAppTemplate';
@@ -117,33 +117,32 @@ begin
   // Define what Protcol this Node Supports
 
   // Common Protocols
+  // We support CDI so we must support datagrams
   ProtocolSupport.Datagram := True;
+  // We support CDI so we must support datagrams
   ProtocolSupport.MemConfig := True;
+  // We Support CDI
   ProtocolSupport.CDI := True;
+  // We support Events
   ProtocolSupport.EventExchange := True;
+  // We Support SNIP
   ProtocolSupport.SimpleNodeInfo := True;
 
-  // Obscure Protocols
-  ProtocolSupport.Stream := False;
-  ProtocolSupport.Reservation := False;
-  ProtocolSupport.Identification := False;
-  ProtocolSupport.Teach_Learn := False;
-  ProtocolSupport.RemoteButton := False;
-  ProtocolSupport.Display := False;
-  ProtocolSupport.ACDI := False;
-
-  // Traction Protocols
-  ProtocolSupport.TractionControl := False;
-  ProtocolSupport.FDI := False;
-  ProtocolSupport.FunctionConfiguration := False;
-  ProtocolSupport.TractionProxy := False;
-  ProtocolSupport.SimpleTrainNodeInfo := False;
-
-  // Setup the SNIP constants
+  // Setup the SNIP constants, this information MUST be idential to the information
+  // in the  <identification> tag of the CDI to comply with the LCC specs
+  SimpleNodeInfo.Version := 1;
   SimpleNodeInfo.Manufacturer := 'Mustangpeak';
   SimpleNodeInfo.Model := 'SW100';
   SimpleNodeInfo.SoftwareVersion := '1.0.0.0';
   SimpleNodeInfo.HardwareVersion := '1.0.0.0';
+  SimpleNodeInfo.UserVersion := 1;
+  SimpleNodeInfo.UserDescription := '';
+  SimpleNodeInfo.UserName := '';
+
+  // Load a CDI XML file from the same folder that the Setting.ini is stored
+  CDI.AStream.LoadFromFile( GetSettingsPath + 'TemplateCDI.xml');
+  CDI.Valid := True;
+
 end;
 
 { TFormTemplate }
@@ -269,7 +268,7 @@ begin
     {$ENDIF}
     {$IFDEF Linux}
     if LccSettings.FilePath = '' then
-      LccSettings.FilePath := GetSettingsPath + PATH_LINUX_APP_FOLDER + PATH_SETTINGS_FILE;
+      LccSettings.FilePath := GetSettingsPath + {PATH_LINUX_APP_FOLDER + }PATH_SETTINGS_FILE;
     {$ELSE}
     if LccSettings.FilePath = '' then
       LccSettings.FilePath := GetSettingsPath + PATH_SETTINGS_FILE;
@@ -277,6 +276,7 @@ begin
     if FileExists(LccSettings.FilePath) then
       LccSettings.LoadFromFile(UTF8ToSys( LccSettings.FilePath));
     FormLogging.OnHideNotifyEvent := @OnTraceFormHideEvent;
+    FormSettings.FrameLccSettings.LccSettings := LccSettings;
     ActionLccLogin.Enabled := False;
     PanelAddOns.Visible := False;
     ShownOnce := True;

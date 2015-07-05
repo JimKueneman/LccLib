@@ -91,25 +91,16 @@ type
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
-    procedure SyncSettingFile(SettingsFile: string);
+    procedure SyncWithLccSettings;
     procedure ScanComPorts;
     procedure StoreSettings;
   published
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property UserSettings: TUserSettings read FUserSettings write FUserSettings;
   end;
-
-procedure Register;
-
 implementation
 
 {$R *.lfm}
-
-procedure Register;
-begin
-  {$I TFrameLccSettings.lrs}
-  RegisterComponents('LCC',[TFrameLccSettings]);
-end;
 
 { TUserSettings }
 
@@ -320,7 +311,7 @@ begin
   end;
 end;
 
-procedure TFrameLccSettings.SyncSettingFile(SettingsFile: string);
+procedure TFrameLccSettings.SyncWithLccSettings;
 begin
   if Assigned(LccSettings) then
   begin

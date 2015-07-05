@@ -1,5 +1,5 @@
 object FormSettings: TFormSettings
-  Left = 478
+  Left = 475
   Height = 402
   Top = 216
   Width = 547
@@ -9,15 +9,28 @@ object FormSettings: TFormSettings
   OnShow = FormShow
   LCLVersion = '1.4.0.4'
   inline FrameLccSettings: TFrameLccSettings
-    Left = 0
     Height = 402
-    Top = 0
     Width = 547
     Align = alClient
-    TabOrder = 0
-    LccSettings = FormTemplate.LccSettings
-    UserSettings.ComPort = True
-    UserSettings.EthernetClient = True
-    UserSettings.EthernetServer = True
+    ClientHeight = 402
+    ClientWidth = 547
+    inherited ButtonOk: TButton
+      Left = 392
+    end
+    inherited ButtonCancel: TButton
+      Left = 246
+    end
+    inherited GroupBoxComPort: TGroupBox
+      Width = 522
+      ClientWidth = 518
+    end
+    inherited GroupBoxEthernetClient: TGroupBox
+      Width = 522
+      ClientWidth = 518
+    end
+    inherited GroupBoxEthernetServer: TGroupBox
+      Width = 522
+      ClientWidth = 518
+    end
   end
 end

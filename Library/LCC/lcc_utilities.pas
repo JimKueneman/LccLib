@@ -46,16 +46,6 @@ type
   end;
 {$ENDIF}
 
-type
-    { TLccEthernetBaseThread }
-
-  TLccEthernetBaseThread = class(TThread)
-  private
-    FGridConnect: Boolean;
-  public
-    property GridConnect: Boolean read FGridConnect write FGridConnect;
-  end;
-
 implementation
 
 function GetTickCount : DWORD;

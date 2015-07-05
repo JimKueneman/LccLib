@@ -23,7 +23,8 @@ uses
   lcc_gridconnect, blcksock, synsock, lcc_threaded_stringlist,
   lcc_can_message_assembler_disassembler, lcc_message_scheduler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
-  lcc_defines, lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities;
+  lcc_defines, lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
+  lcc_common_classes;
 
 type
   TLccEthernetServerThread = class;     // Forward
@@ -165,7 +166,7 @@ type
 
   { TLccEthernetServer }
 
-  TLccEthernetServer = class(TComponent)
+  TLccEthernetServer = class(TLccHardwareConnectionManager)
   private
     FEthernetThreads: TLccEthernetThreadList;
     FGridConnect: Boolean;
@@ -208,7 +209,7 @@ type
     function OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
     function OpenEthernetConnectionWithLccSettings: TLccEthernetListener;
     procedure CloseEthernetConnection( EthernetThread: TLccEthernetServerThread);
-    procedure SendMessage(AMessage: TLccMessage);
+    procedure SendMessage(AMessage: TLccMessage);  override;
     procedure ClearSchedulerQueues;
 
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
@@ -1116,6 +1117,11 @@ begin
   if Assigned(OnSendMessage) then
     OnSendMessage(Self, AMessage);
 end;
+
+initialization
+  RegisterClass(TLccEthernetServer);
+
+finalization
 
 end.
 

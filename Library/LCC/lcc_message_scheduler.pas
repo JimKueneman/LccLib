@@ -16,7 +16,8 @@ uses
   lcc_defines,
   lcc_utilities,
   lcc_can_message_assembler_disassembler,
-  lcc_threadedcirculararray;
+  lcc_threadedcirculararray,
+  lcc_common_classes;
 
 type
 

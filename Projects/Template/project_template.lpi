@@ -47,7 +47,6 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_settings"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>

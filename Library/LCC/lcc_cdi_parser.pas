@@ -2064,6 +2064,10 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TLccCdiParser);
+
+finalization
 
 end.
 

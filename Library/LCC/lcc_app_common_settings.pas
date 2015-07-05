@@ -461,6 +461,7 @@ procedure TLccSettings.LoadFromFile(FileName: string);
 var
   IniFile: TIniFile;
 begin
+  FilePath := FileName;
   IniFile := TIniFile.Create(FileName);
   try
    ComPort.LoadFromFile(IniFile);
@@ -488,6 +489,11 @@ begin
     IniFile.Free;
   end;
 end;
+
+initialization
+  RegisterClass(TLccSettings);
+
+finalization
 
 end.
 
