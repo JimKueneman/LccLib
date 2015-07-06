@@ -165,7 +165,7 @@ end;
 
 procedure TFrameLccSettings.ComboBoxComPortChange(Sender: TObject);
 begin
-  StoreSettings;
+ // StoreSettings;
 end;
 
 constructor TFrameLccSettings.Create(TheOwner: TComponent);

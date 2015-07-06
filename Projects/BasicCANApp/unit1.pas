@@ -74,6 +74,10 @@ end;
 
 procedure TForm1.ActionSettingsExecute(Sender: TObject);
 begin
+  // Update from video series, need to resync with the Settings each time the
+  // dialog is shown as the user may have changed the UI and hit cancel and not
+  // just when the program starts up
+  Form2.FrameLccSettings1.SyncWithLccSettings;
   if Form2.ShowModal = mrOK then
   begin
 
@@ -84,7 +88,6 @@ procedure TForm1.FormShow(Sender: TObject);
 begin
   LccSettings1.LoadFromFile(GetSettingsPath + 'Settings.ini');
   Form2.FrameLccSettings1.LccSettings := LccSettings1;
-  Form2.FrameLccSettings1.SyncWithLccSettings;
   LccComPort1.LoggingFrame := FrameLccLogging1;
 end;
 
