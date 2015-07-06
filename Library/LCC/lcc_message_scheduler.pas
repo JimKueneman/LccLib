@@ -41,7 +41,7 @@ type
     {$ENDIF}
     FMsgAssembler: TLccMessageAssembler;
     FMsgDisAssembler: TLccMessageDisAssembler;
-    FOwnerThread: TLccEthernetBaseThread;
+    FOwnerThread: TLccConnectionThread;
     FSendMessageFunc: TLccSendMessageFunc;                                      // Points back to the owner Threads SendMessage function
     FOnRemoveOutgoingMessage: TOnMessageEvent;
     FOnAddOutgoingMessage: TOnMessageEvent;
@@ -83,7 +83,7 @@ type
     property OnRemoveOutgoingMessage: TOnMessageEvent read FOnRemoveOutgoingMessage write FOnRemoveOutgoingMessage;
     property OnAddWaitingForReplyMessage: TOnMessageEvent read FOnAddWaitingForReplyMessage write FOnAddWaitingForReplyMessage;
     property OnRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnRemoveWaitingForReplyMessage write FOnRemoveWaitingForReplyMessage;
-    property OwnerThread: TLccEthernetBaseThread read FOwnerThread write FOwnerThread;
+    property OwnerThread: TLccConnectionThread read FOwnerThread write FOwnerThread;
     property PipelineSize: Integer read FPipelineSize write FPipelineSize;
 
     constructor Create(AOwner: TComponent; SendFunc: TLccSendMessageFunc); reintroduce; virtual;

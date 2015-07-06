@@ -20,7 +20,7 @@ uses
   {$ENDIF}
   lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
   lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes;
+  lcc_common_classes, file_utilities;
 
 type
   TLccComPortThread = class;             // Forward
@@ -47,7 +47,7 @@ type
 
   { TLccComPortThread }
 
-  TLccComPortThread =  class(TThread)
+  TLccComPortThread =  class(TLccConnectionThread)
     private
       FComPortRec: TLccComPortRec;
       FOnComErrorMessage: TOnComChangeFunc;
@@ -147,6 +147,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    function FormatComPortString(ComPort: string): string;
     function OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
     function OpenComPortWithLccSettings: TLccComPortThread;
     procedure CloseComPort( ComPortThread: TLccComPortThread);
@@ -317,6 +318,19 @@ begin
   inherited Destroy;
 end;
 
+function TLccComPort.FormatComPortString(ComPort: string): string;
+begin
+  {$IFDEF MSWINDOWS}
+    Result := ComPort;
+  {$ELSE}
+    {$IFDEF DARWIN}
+    Result := PATH_OSX_DEV + ComPort;
+    {$ELSE}
+    Result := PATH_LINUX_DEV + ComPort;
+    {$ENDIF}
+  {$ENDIF}
+end;
+
 function TLccComPort.OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
 begin
   Result := TLccComPortThread.Create(True, Self, AComPortRec);
@@ -342,7 +356,7 @@ begin
   if Assigned(LccSettings) then
   begin
     AComPortRec.Baud := LccSettings.ComPort.BaudRate;
-    AComPortRec.ComPort := LccSettings.ComPort.Port;
+    AComPortRec.ComPort := FormatComPortString(LccSettings.ComPort.Port);
 
     case LccSettings.ComPort.StopBits of
       cpsb_1_StopBit   : AComPortRec.StopBits := SB1;
@@ -518,7 +532,7 @@ begin
   Serial := TBlockSerial.Create;                                                // Create the Serial object in the context of the thread
   Serial.LinuxLock:=False;
   Serial.RaiseExcept:=False;
-  Serial.Connect(ComPortRec.ComPort);
+  Serial.Connect(FComPortRec.ComPort);
   if Serial.LastError <> 0 then
   begin
     HandleErrorAndDisconnect;
@@ -626,6 +640,7 @@ begin
     FScheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
     FScheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
     FScheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
+    FScheduler.OwnerThread := Self;
   end;
   Result := FScheduler
 end;
@@ -658,6 +673,7 @@ begin
   FComPortRec.Thread := Self;
   FComPortRec.LccMessage := TLccMessage.Create;
   FOutgoingGridConnect := TThreadStringList.Create;
+  GridConnect := True;
 end;
 
 destructor TLccComPortThread.Destroy;

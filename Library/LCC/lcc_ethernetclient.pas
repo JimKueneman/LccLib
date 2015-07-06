@@ -31,7 +31,7 @@ type
 
 
   TLccEthernetRec = record
-    Thread: TLccEthernetBaseThread;  // Thread owing the Record
+    Thread: TLccConnectionThread;  // Thread owing the Record
     ClientIP,
     ListenerIP: LccString;
     ClientPort,
@@ -52,7 +52,7 @@ type
 
   { TLccEthernetClientThread }
 
-  TLccEthernetClientThread =  class(TLccEthernetBaseThread)
+  TLccEthernetClientThread =  class(TLccConnectionThread)
     private
       FEthernetRec: TLccEthernetRec;
       FMsgAssembler: TLccMessageAssembler;

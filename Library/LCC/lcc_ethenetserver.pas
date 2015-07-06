@@ -32,7 +32,7 @@ type
 
   { TLccEthernetServerThread }
 
-  TLccEthernetServerThread =  class(TLccEthernetBaseThread)
+  TLccEthernetServerThread =  class(TLccConnectionThread)
     private
       FEthernetRec: TLccEthernetRec;
       FMsgAssembler: TLccMessageAssembler;

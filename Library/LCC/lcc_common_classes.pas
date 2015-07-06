@@ -10,12 +10,13 @@ uses
 type
    { TLccEthernetBaseThread }
 
-  TLccEthernetBaseThread = class(TThread)
+  TLccConnectionThread = class(TThread)
   private
     FGridConnect: Boolean;
   public
-    property GridConnect: Boolean read FGridConnect write FGridConnect;
+    property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
   end;
+
 
   { TLccHardwareConnectionManager }
 
