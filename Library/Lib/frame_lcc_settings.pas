@@ -248,7 +248,7 @@ begin
       LccSettings.Ethernet.RemoteListenerPort := SpinEditRemoteListenerPort.Value;
       LccSettings.Ethernet.LocalListenerIP := EditLocalListenerIP.Text;
       LccSettings.Ethernet.LocalListenerPort := SpinEditLocalListenerPort.Value;
-      LccSettings.SaveToFile(LccSettings.FilePath);
+      LccSettings.SaveToFile;
     end;
   end;
 end;

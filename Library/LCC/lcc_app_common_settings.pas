@@ -226,8 +226,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure LoadFromFile(FileName: string);
-    procedure SaveToFile(FileName: string);
+    procedure LoadFromFile;       // Set FilePath as the Target File
+    procedure SaveToFile;
   published
     property ComPort: TComPortSettings read FComPort write FComPort;
     property Ethernet: TEthernetSettings read FEthernet write FEthernet;
@@ -457,12 +457,11 @@ begin
   inherited Destroy;
 end;
 
-procedure TLccSettings.LoadFromFile(FileName: string);
+procedure TLccSettings.LoadFromFile;
 var
   IniFile: TIniFile;
 begin
-  FilePath := FileName;
-  IniFile := TIniFile.Create(FileName);
+  IniFile := TIniFile.Create(FilePath);
   try
    ComPort.LoadFromFile(IniFile);
    General.LoadFromFile(IniFile);
@@ -474,11 +473,11 @@ begin
   end;
 end;
 
-procedure TLccSettings.SaveToFile(FileName: string);
+procedure TLccSettings.SaveToFile;
 var
   IniFile: TIniFile;
 begin
-  IniFile := TIniFile.Create(FileName);
+  IniFile := TIniFile.Create(FilePath);
   try
     ComPort.SaveToFile(IniFile);
     General.SaveToFile(IniFile);

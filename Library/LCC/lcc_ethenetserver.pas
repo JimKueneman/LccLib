@@ -213,6 +213,7 @@ type
     procedure ClearSchedulerQueues;
 
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
+    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
 
   published
@@ -220,7 +221,6 @@ type
     property Hub: Boolean read FHub write FHub;
     property Gridconnect: Boolean read FGridConnect write SetGridConnect;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
-    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property OnClientDisconnect: TOnEthernetRecFunc read FOnClientDisconnect write FOnClientDisconnect;
     property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;

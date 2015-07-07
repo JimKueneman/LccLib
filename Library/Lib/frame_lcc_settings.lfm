@@ -39,7 +39,7 @@ object FrameLccSettings: TFrameLccSettings
     Width = 465
     Anchors = [akTop, akLeft, akRight]
     Caption = 'COM Port'
-    ClientHeight = 43
+    ClientHeight = 42
     ClientWidth = 457
     TabOrder = 2
     object ComboBoxComPort: TComboBox
@@ -69,7 +69,7 @@ object FrameLccSettings: TFrameLccSettings
     Width = 465
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Client'
-    ClientHeight = 122
+    ClientHeight = 121
     ClientWidth = 457
     TabOrder = 3
     object LabelLocalIP: TLabel
@@ -166,7 +166,7 @@ object FrameLccSettings: TFrameLccSettings
     Width = 465
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Server'
-    ClientHeight = 58
+    ClientHeight = 57
     ClientWidth = 457
     TabOrder = 4
     object LabelLocalIP1: TLabel

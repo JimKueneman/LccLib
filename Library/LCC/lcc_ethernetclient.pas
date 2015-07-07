@@ -177,12 +177,12 @@ type
   //  {$ELSE}
  //   property EthernetThreads: TThreadList<TLccEthernetClientThread> read FEthernetThreads write FEthernetThreads;
  //   {$ENDIF}
+    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
     property Gridconnect: Boolean read FGridConnect write FGridConnect;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
-    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;

@@ -144,6 +144,9 @@ type
     procedure UpdateThreadsEvents;
   public
     { Public declarations }
+    property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
+    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
+
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
@@ -153,14 +156,11 @@ type
     procedure CloseComPort( ComPortThread: TLccComPortThread);
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure ClearSchedulerQueues;
-
-    property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
-
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
-    property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
+
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property OnConnectionStateChange: TOnComChangeFunc read FOnConnectionStateChange write FOnConnectionStateChange;
     property OnErrorMessage: TOnComChangeFunc read FOnErrorMessage write FOnErrorMessage;

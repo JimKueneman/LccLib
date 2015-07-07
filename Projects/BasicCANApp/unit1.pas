@@ -33,14 +33,10 @@ type
     procedure ActionLoginExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure LccComPort1ConnectionStateChange(Sender: TObject;
-      ComPortRec: TLccComPortRec);
-    procedure LccComPort1ErrorMessage(Sender: TObject;
-      ComPortRec: TLccComPortRec);
-    procedure LccNodeManager1AliasIDChanged(Sender: TObject;
-      LccSourceNode: TLccNode);
-    procedure LccNodeManager1NodeIDChanged(Sender: TObject;
-      LccSourceNode: TLccNode);
+    procedure LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccComPort1ErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccNodeManager1AliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure LccNodeManager1NodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
   private
     { private declarations }
   public
@@ -76,7 +72,7 @@ procedure TForm1.ActionSettingsExecute(Sender: TObject);
 begin
   // Update from video series, need to resync with the Settings each time the
   // dialog is shown as the user may have changed the UI and hit cancel and not
-  // just when the program starts up
+  // just when the program starts up in the FormShow event
   Form2.FrameLccSettings1.SyncWithLccSettings;
   if Form2.ShowModal = mrOK then
   begin
@@ -86,9 +82,23 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
-  LccSettings1.LoadFromFile(GetSettingsPath + 'Settings.ini');
+  LccSettings1.FilePath := GetSettingsPath + 'Settings.ini';
+  LccSettings1.LoadFromFile;
   Form2.FrameLccSettings1.LccSettings := LccSettings1;
   LccComPort1.LoggingFrame := FrameLccLogging1;
+
+  // Updae from video series: Allow Logging frame partake in the Settings to persist logging options
+  FrameLccLogging1.LccSettings := LccSettings1;
+  // Load the Settings into the Logging Frame
+  FrameLccLogging1.SyncwithLccSettings;
+
+  // Update from video series don't show settings that are not valid
+  Form2.FrameLccSettings1.UserSettings.EthernetClient := False;
+  Form2.FrameLccSettings1.UserSettings.EthernetServer := False;
+  // Now resize the form to fit its child controls
+  Form2.ClientHeight := Form2.FrameLccSettings1.ButtonOk.Top + Form2.FrameLccSettings1.ButtonOk.Height + 8;
+  // Keep Login Button disabled until the ComPort connection is made
+  ActionLogin.Enabled := False;
 end;
 
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -101,6 +111,7 @@ begin
     ccsComConnected :
     begin
       StatusBar1.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
+      ActionLogin.Enabled := True;          // Allow the user to be able to Login
     end;
     ccsComDisconnecting :
     begin
@@ -109,7 +120,9 @@ begin
     ccsComDisconnected :
     begin
        StatusBar1.Panels[0].Text := 'Disconnected:';
+       StatusBar1.Panels[1].Text := 'Disconnected';
        ActionComPort.Checked := False;
+       ActionLogin.Enabled := False;         // Disallow the user from being able to Login
     end;
   end;
 end;

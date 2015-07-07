@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="BasicCANApp.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -57,6 +57,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit2"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="..\..\Library\LCC\lcc_rootnode.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="lcc_rootnode"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -9,7 +9,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Buttons, Menus, LCLType, StdCtrls, ActnList, SynEditKeyCmds, SynEdit,
-  SynEditMarkupHighAll, LResources, lcc_defines;
+  SynEditMarkupHighAll, LResources, lcc_defines, lcc_app_common_settings;
 
 type
 
@@ -42,18 +42,23 @@ type
     procedure ActionLogPasteExecute(Sender: TObject);
     procedure ActionLogPauseExecute(Sender: TObject);
     procedure ActionLogSelectAllExecute(Sender: TObject);
+    procedure CheckBoxDetailedLoggingChange(Sender: TObject);
+    procedure CheckBoxJMRIFormatChange(Sender: TObject);
     procedure SynEditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
+    FLccSettings: TLccSettings;
     FPaused: Boolean;
     { private declarations }
   protected
     procedure Loaded; override;
   public
     { public declarations }
-
     property Paused: Boolean read FPaused write FPaused;
+    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
+
     constructor Create(TheOwner: TComponent); override;
     procedure AddLine(ALine: LccString);
+    procedure SyncwithLccSettings;
   end;
 
 implementation
@@ -109,6 +114,24 @@ begin
   end;
 end;
 
+procedure TFrameLccLogging.CheckBoxDetailedLoggingChange(Sender: TObject);
+begin
+  if Assigned(LccSettings) then
+  begin
+    LccSettings.Logging.Detailed := CheckBoxDetailedLogging.Checked;
+    LccSettings.SaveToFile;                 // use the built it FilePath
+  end;
+end;
+
+procedure TFrameLccLogging.CheckBoxJMRIFormatChange(Sender: TObject);
+begin
+  if Assigned(LccSettings) then
+  begin
+    LccSettings.Logging.JMRIFormat := CheckBoxJMRIFormat.Checked;
+    LccSettings.SaveToFile;                 // use the built it FilePath
+  end;
+end;
+
 procedure TFrameLccLogging.Loaded;
 var
  Markup: TSynEditMarkupHighlightAllCaret;
@@ -121,6 +144,15 @@ begin
   Markup.Trim := True;
   Markup.FullWord := False;
   Markup.IgnoreKeywords := False;  }
+end;
+
+procedure TFrameLccLogging.SyncwithLccSettings;
+begin
+  if Assigned(LccSettings) then
+  begin
+    CheckBoxJMRIFormat.Checked := LccSettings.Logging.JMRIFormat;
+    CheckBoxDetailedLogging.Checked := LccSettings.Logging.Detailed;
+  end;
 end;
 
 procedure TFrameLccLogging.SynEditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);

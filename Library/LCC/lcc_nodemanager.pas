@@ -17,7 +17,7 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes;
+  lcc_common_classes, lcc_rootnode;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -508,6 +508,13 @@ type
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
+  { TLccDefaultRootNode }
+
+  TLccDefaultRootNode = class(TLccOwnedNode)
+  public
+   constructor Create(AnOwner: TComponent); override;
+  end;
+
 
   { TLccNodeManager }
 
@@ -691,6 +698,37 @@ begin
   RegisterComponents('LCC',[TLccNodeManager]);
 end;
 
+{ TLccDefaultRootNode }
+
+constructor TLccDefaultRootNode.Create(AnOwner: TComponent);
+var
+  i: Integer;
+begin
+  inherited Create(AnOwner);
+  // Common Protocols
+  ProtocolSupport.Datagram := True;      // We support CDI so we must support datagrams
+  ProtocolSupport.MemConfig := True;   // We support CDI so we must support datagrams
+  ProtocolSupport.CDI := True;         // We Support CDI
+  ProtocolSupport.EventExchange := True;  // We support Events
+  ProtocolSupport.SimpleNodeInfo := True;  // We Support SNIP
+
+  // Setup the SNIP constants, this information MUST be idential to the information
+  // in the  <identification> tag of the CDI to comply with the LCC specs
+  SimpleNodeInfo.Version := SNIP_VER;
+  SimpleNodeInfo.Manufacturer := SNIP_MFG;
+  SimpleNodeInfo.Model := SNIP_MODEL;
+  SimpleNodeInfo.SoftwareVersion := SNIP_SW_VER;
+  SimpleNodeInfo.HardwareVersion := SNIP_HW_VER;
+  SimpleNodeInfo.UserVersion := SNIP_USER_VER;
+  SimpleNodeInfo.UserDescription := SNIP_USER_DESC;
+  SimpleNodeInfo.UserName := SNIP_USER_NAME;
+
+  CDI.AStream.Clear;
+  for i := 0 to MAX_CDI_ARRAY - 1 do
+    CDI.AStream.WriteByte(CDI_ARRAY[i]);
+  CDI.Valid := True;
+end;
+
 { TConfigurationMemOptions }
 
 procedure TConfigurationMemOptions.LoadReply(LccMessage: TLccMessage);
@@ -815,30 +853,41 @@ begin
   FNodeIDStr := FNodeIDStr + IntToHex(FNodeID[0], 6);
   FSeedNodeID[0] := FNodeID[0];
   FSeedNodeID[1] := FNodeID[1];
-  if Assigned(OwnerManager) then
-    OwnerManager.DoNodeIDChanged(Self);
 end;
 
 procedure TLccOwnedNode.Login(NewNodeID, RegenerateAliasSeed: Boolean);
 var
   TempNodeID: TNodeID;
+  TempID, TempID1, TempID2: QWord;
 begin
   if Assigned(OwnerManager.LccSettings) then
   begin
     if OwnerManager.LccSettings.General.NodeIDAsVal = 0 then
-      GenerateNewNodeID
-    else begin
+    begin
+      GenerateNewNodeID;
+      OwnerManager.LccSettings.General.NodeIDAsTNodeID(TempNodeID);
+      if not EqualNodeID(TempNodeID, NodeID, True) then
+      begin
+         TempID1 := QWord(NodeID[0]);
+         TempID2 := QWord(NodeID[1]);
+         TempID2 := TempID2 shl 24;
+         TempID := TempID1 or TempID2;
+         OwnerManager.LccSettings.General.NodeID := '0x'+IntToHex(TempID, 12);
+         OwnerManager.LccSettings.SaveToFile;
+      end;
+    end else
+    begin
       OwnerManager.LccSettings.General.NodeIDAsTNodeID(TempNodeID);
       FNodeID[0] := TempNodeID[0];
       FNodeID[1] := TempNodeID[1];
-      if Assigned(OwnerManager) then
-        OwnerManager.DoNodeIDChanged(Self);
     end;
   end else
   begin
     if NewNodeID then
       GenerateNewNodeID;
   end;
+  if Assigned(OwnerManager) then
+    OwnerManager.DoNodeIDChanged(Self);
   LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
   SendAliasLoginRequest;
   DuplicateAliasDetected := False;
@@ -1724,7 +1773,7 @@ end;
 
 procedure TLccNodeManager.DoGetRootNodeClass( var RootNodeClass: TLccOwnedNodeClass);
 begin
-  RootNodeClass := TLccOwnedNode;
+  RootNodeClass := TLccDefaultRootNode;
   if Assigned(OnLccGetRootNodeClass) then
     OnLccGetRootNodeClass(Self, RootNodeClass);
 end;
