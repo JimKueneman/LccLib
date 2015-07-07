@@ -221,14 +221,21 @@ begin
   CharPtr := @AString[Low(AString)];
   {$ENDIF}
   Len := Length(AString);
-  for i := Low(AString) to Len do
+  if Len > 0 then
   begin
-    ANullArray[iIndex] := Ord( CharPtr^);
-    Inc(CharPtr);
+    {$IFDEF FPC}
+    for i := 1 to Len do
+    {$ELSE}
+    for i := Low(AString) to Len do
+    {$ENDIF}
+    begin
+      ANullArray[iIndex] := Ord( CharPtr^);
+      Inc(CharPtr);
+      Inc(iIndex);
+    end;
+    ANullArray[iIndex] := 0;
     Inc(iIndex);
   end;
-  ANullArray[iIndex] := 0;
-  Inc(iIndex);
 end;
 
 function NullArrayToString(var ANullArray: array of Byte): LccString;

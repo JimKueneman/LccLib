@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="32">
+      <Unit0>
+        <Filename Value="BasicCANandEthernetApp.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BasicCANandEthernetApp"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
+        <TopLine Value="-1"/>
+        <CursorPos X="-1" Y="-1"/>
+        <UsageCount Value="52"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="209"/>
+        <CursorPos X="18" Y="209"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="unit2.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form2"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit2"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="39" Y="18"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../Library/LCC/lcc_rootnode.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="24"/>
+        <CursorPos X="12" Y="22"/>
+        <UsageCount Value="23"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../Library/Lib/frame_lcc_settings.pas"/>
+        <ComponentName Value="FrameLccSettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="236"/>
+        <CursorPos X="29" Y="251"/>
+        <UsageCount Value="24"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../Library/Lib/file_utilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="7"/>
+        <CursorPos X="53" Y="17"/>
+        <UsageCount Value="8"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="109" Y="148"/>
+        <UsageCount Value="10"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../Library/Synapse_LCC/synaser.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2453"/>
+        <CursorPos X="79" Y="2457"/>
+        <UsageCount Value="8"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../TCH Technology Software/Mustangpeak/CrossPlatform/OpenLCB/mustangpeakcomconnection.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="268"/>
+        <CursorPos X="22" Y="293"/>
+        <UsageCount Value="7"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../TCH Technology Software/Mustangpeak/Lazarus/Projects/TCH_TrainMaster/Forms/form_main.pas"/>
+        <HasResources Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1377"/>
+        <CursorPos X="41" Y="1393"/>
+        <UsageCount Value="8"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../TCH Technology Software/Mustangpeak/Lazarus/Library/file_utilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="18"/>
+        <UsageCount Value="7"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1387"/>
+        <CursorPos Y="1393"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <UnitName Value="lcc_nodemanager"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="1017"/>
+        <CursorPos Y="1031"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../Library/LCC/lcc_message_scheduler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="556"/>
+        <CursorPos X="56" Y="569"/>
+        <UsageCount Value="7"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../../Library/LCC/lcc_common_classes.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="9" Y="16"/>
+        <UsageCount Value="7"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="340"/>
+        <CursorPos Y="355"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../../Library/LCC/lcc_ethernetclient.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="109" Y="180"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="../../Library/Lib/frame_lcc_logging.pas"/>
+        <ComponentName Value="FrameLccLogging"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="112"/>
+        <CursorPos Y="124"/>
+        <UsageCount Value="23"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="352"/>
+        <CursorPos Y="372"/>
+        <UsageCount Value="22"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="unit1.lfm"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="52"/>
+        <CursorPos X="16" Y="63"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="../../Library/Lib/frame_lcc_logging.lfm"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="56" Y="16"/>
+        <UsageCount Value="8"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="/Developer/lazarus/lcl/include/buttoncontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="34"/>
+        <CursorPos Y="55"/>
+        <UsageCount Value="10"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="/Developer/lazarus/lcl/include/control.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2703"/>
+        <CursorPos Y="2728"/>
+        <UsageCount Value="10"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="/Developer/lazarus/lcl/include/customcheckbox.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="52"/>
+        <CursorPos Y="67"/>
+        <UsageCount Value="10"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="/Developer/lazarus/lcl/include/wincontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="5328"/>
+        <CursorPos Y="5342"/>
+        <UsageCount Value="10"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="/Developer/lazarus/lcl/include/customform.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1430"/>
+        <CursorPos Y="1444"/>
+        <UsageCount Value="10"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="/Developer/lazarus/lcl/lclmessageglue.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="76"/>
+        <CursorPos Y="119"/>
+        <UsageCount Value="10"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="../Template/form_template.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="423"/>
+        <CursorPos X="39" Y="442"/>
+        <UsageCount Value="10"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="/Developer/lazarus/lcl/include/statuspanels.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4"/>
+        <CursorPos Y="29"/>
+        <UsageCount Value="10"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="/Developer/lazarus/lcl/include/statuspanel.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="117"/>
+        <CursorPos Y="138"/>
+        <UsageCount Value="10"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1680"/>
+        <CursorPos X="22" Y="1695"/>
+        <UsageCount Value="10"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="209"/>
+        <CursorPos X="16" Y="223"/>
+        <UsageCount Value="10"/>
+      </Unit31>
+    </Units>
+    <JumpHistory Count="1">
+      <Position1>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="1031" TopLine="1017"/>
+      </Position1>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

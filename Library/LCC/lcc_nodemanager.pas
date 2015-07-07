@@ -880,6 +880,7 @@ begin
       OwnerManager.LccSettings.General.NodeIDAsTNodeID(TempNodeID);
       FNodeID[0] := TempNodeID[0];
       FNodeID[1] := TempNodeID[1];
+      FNodeIDStr := OwnerManager.LccSettings.General.NodeID;
     end;
   end else
   begin
