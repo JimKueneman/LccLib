@@ -723,10 +723,34 @@ begin
   SimpleNodeInfo.UserDescription := SNIP_USER_DESC;
   SimpleNodeInfo.UserName := SNIP_USER_NAME;
 
+  // Setup a basic CDI
   CDI.AStream.Clear;
   for i := 0 to MAX_CDI_ARRAY - 1 do
     CDI.AStream.WriteByte(CDI_ARRAY[i]);
   CDI.Valid := True;
+
+  // Setup the Configuraion Memory Options:
+  ConfigurationMemOptions.HighSpace := MSI_CDI;
+  ConfigurationMemOptions.LowSpace := MSI_ACDI_USER;
+  ConfigurationMemOptions.SupportACDIMfgRead := False;
+  ConfigurationMemOptions.SupportACDIUserRead := False;
+  ConfigurationMemOptions.SupportACDIUserWrite := False;
+  ConfigurationMemOptions.UnAlignedReads := True;
+  ConfigurationMemOptions.UnAlignedWrites := True;
+  ConfigurationMemOptions.WriteArbitraryBytes := True;
+  ConfigurationMemOptions.WriteLenFourBytes := True;
+  ConfigurationMemOptions.WriteLenOneByte := True;
+  ConfigurationMemOptions.WriteLenSixyFourBytes := True;
+  ConfigurationMemOptions.WriteLenTwoBytes := True;
+  ConfigurationMemOptions.WriteStream := False;
+  ConfigurationMemOptions.WriteUnderMask := False;
+
+  // Setup the Configuration Memory Addres Space Information
+  ConfigMemAddressSpaceInfo.Add(MSI_CDI, True, True, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_ALL, True, True, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_CONFIG, True, False, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, False, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, False, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
 end;
 
 { TConfigurationMemOptions }
