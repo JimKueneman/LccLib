@@ -7,7 +7,7 @@ unit lcc_nodemanager;
 interface
 
 uses
-  Classes, SysUtils, lcc_defines,
+  Classes, SysUtils, FileUtil,
   {$IFDEF FPC}
   laz2_DOM, laz2_XMLRead, LResources, ExtCtrls,
   {$ENDIF}
@@ -17,7 +17,7 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes, lcc_rootnode;
+  lcc_common_classes, lcc_rootnode, lcc_defines;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -226,6 +226,7 @@ type
     constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); reintroduce; virtual;
     destructor Destroy; override;
     procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
+    procedure Write(LccMessage: TLccMessage); virtual;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
@@ -266,8 +267,18 @@ type
   { TConfiguration }
 
   TConfiguration = class(TStreamBasedProtocol)
+  private
+    FAutoSaveOnWrite: Boolean;
+    FFilePath: string;
   protected
     procedure DoLoadComplete(LccMessage: TLccMessage); override;
+    function FullPath: string;
+  public
+    property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
+    property FilePath: string read FFilePath write FFilePath;
+
+    procedure Write(LccMessage: TLccMessage); virtual;
+    procedure LoadFromFile;
   end;
 
 
@@ -751,6 +762,7 @@ begin
   ConfigMemAddressSpaceInfo.Add(MSI_CONFIG, True, False, True, $00000000, $FFFFFFFF);
   ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, False, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
   ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, False, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
+
 end;
 
 { TConfigurationMemOptions }
@@ -911,6 +923,7 @@ begin
     if NewNodeID then
       GenerateNewNodeID;
   end;
+  Configuration.LoadFromFile;
   if Assigned(OwnerManager) then
     OwnerManager.DoNodeIDChanged(Self);
   LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
@@ -1110,6 +1123,23 @@ begin
                    case LccMessage.DataArrayIndexer[1] and $F0 of
                      MCP_WRITE :
                        begin
+                         case LccMessage.DataArrayIndexer[1] and $03 of
+                           MCP_NONE :
+                               begin
+                                 case LccMessage.DataArrayIndexer[6] of
+                                   MSI_CDI             : begin end;  // Not writeable
+                                   MSI_ALL             : begin end;  // Not writeable
+                                   MSI_CONFIG          : Configuration.Write(LccMessage);
+                                   MSI_ACDI_MFG        : begin end;  // Not writeable
+                                   MSI_ACDI_USER       : begin  end;
+                                   MSI_FDI             : begin end;  // Not writeable
+                                   MSI_FUNCTION_CONFIG : begin end;
+                                 end
+                               end;
+                           MCP_CONFIGURATION : Configuration.Write(LccMessage);
+                           MCP_ALL           : begin end; // Not writeable
+                           MCP_CDI           : begin end; // Not writeable
+                         end;
                          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                     //     CDI.LoadReply(WorkerMessage);
                     //     OwnerManager.DoRequestMessageSend(WorkerMessage);
@@ -1120,15 +1150,15 @@ begin
                      MCP_READ :
                        begin
                          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                         case LccMessage.DataArrayIndexer[1] and $0F of
+                         case LccMessage.DataArrayIndexer[1] and $03 of
                            MCP_NONE :
                                begin
-                                 case LccMessage.DataArrayIndexer[1] of
+                                 case LccMessage.DataArrayIndexer[6] of
                                    MSI_CDI             : CDI.LoadReply(LccMessage, WorkerMessage);
                                    MSI_ALL             : begin end;
                                    MSI_CONFIG          : Configuration.LoadReply(LccMessage, WorkerMessage);
                                    MSI_ACDI_MFG        : ACDIMfg.LoadReply(LccMessage, WorkerMessage);
-                                   MSI_ACDI_USER       : begin end;
+                                   MSI_ACDI_USER       : begin  end;
                                    MSI_FDI             : begin end;
                                    MSI_FUNCTION_CONFIG : begin end;
                                  end
@@ -2457,6 +2487,11 @@ begin
   end
 end;
 
+procedure TStreamBasedProtocol.Write(LccMessage: TLccMessage);
+begin
+
+end;
+
 constructor TStreamBasedProtocol.Create(AnOwner: TComponent; AnAddressSpace: Byte);
 begin
   inherited Create(AnOwner);
@@ -3030,6 +3065,46 @@ end;
 procedure TConfiguration.DoLoadComplete(LccMessage: TLccMessage);
 begin
 
+end;
+
+function TConfiguration.FullPath: string;
+begin
+  Result := FilePath + (Owner as TLccOwnedNode).NodeIDStr + '.dat'
+end;
+
+procedure TConfiguration.LoadFromFile;
+begin
+  if DirectoryExists(FilePath) then
+  begin
+    if FileExists(FullPath) then
+      AStream.LoadFromFile(FullPath);
+  end;
+end;
+
+procedure TConfiguration.Write(LccMessage: TLccMessage);
+var
+  i: Integer;
+  iStart, WriteCount: Integer;
+  Address: DWord;
+  AByte: Byte;
+begin
+  // Assumption is this is a datagram message
+  if LccMessage.DataArrayIndexer[1] and $03 = 0 then
+    iStart := 7
+  else
+    iStart := 6;
+  WriteCount := LccMessage.DataCount - iStart;
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  if Address + WriteCount > AStream.Size then
+    AStream.Size := Address + WriteCount;
+  AStream.Position := Address;
+  for i := iStart to LccMessage.DataCount - 1 do
+     AStream.WriteByte(LccMessage.DataArrayIndexer[i]);
+  if AutoSaveOnWrite then
+  begin
+    if DirectoryExists(FilePath) then
+      AStream.SaveToFile(FullPath);
+  end;
 end;
 
 initialization

@@ -99,6 +99,10 @@ begin
   Form2.ClientHeight := Form2.FrameLccSettings1.ButtonOk.Top + Form2.FrameLccSettings1.ButtonOk.Height + 8;
   // Keep Login Button disabled until the ComPort connection is made
   ActionLogin.Enabled := False;
+
+  // Autosave the Configuration File
+  LccNodeManager1.RootNode.Configuration.FilePath := GetSettingsPath;
+  LccNodeManager1.RootNode.Configuration.AutoSaveOnWrite := True;
 end;
 
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);

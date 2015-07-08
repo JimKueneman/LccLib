@@ -40,7 +40,6 @@
       <Unit0>
         <Filename Value="BasicCANandEthernetApp.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="BasicCANandEthernetApp"/>
       </Unit0>
       <Unit1>
         <Filename Value="unit1.pas"/>
