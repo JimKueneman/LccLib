@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 456
+  Left = 373
   Height = 386
-  Top = 137
+  Top = 158
   Width = 748
   Caption = 'Form1'
   ClientHeight = 386
@@ -143,7 +143,7 @@ object Form1: TForm1
   object ActionList1: TActionList
     Images = ImageList1
     left = 280
-    top = 32
+    top = 72
     object ActionSettings: TAction
       Caption = 'Settings...'
       ImageIndex = 3
@@ -170,7 +170,7 @@ object Form1: TForm1
   end
   object ImageList1: TImageList
     left = 368
-    top = 32
+    top = 64
     Bitmap = {
       4C69060000001000000010000000A9715152DDB18DBCDCA77BC4DCA67AC4DAA4
       7AC4D5A076C4D49E75C4D29D73C4CF9A72C4CE9970C4C49A79C4A9715152FFFF

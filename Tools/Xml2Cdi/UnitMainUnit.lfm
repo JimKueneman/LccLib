@@ -1,0 +1,486 @@
+object Form1: TForm1
+  Left = 94
+  Height = 617
+  Top = 131
+  Width = 701
+  Caption = 'mPascal ACDI String Editor'
+  ClientHeight = 617
+  ClientWidth = 701
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '1.4.0.4'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 617
+    Top = 0
+    Width = 701
+    ActivePage = TabSheet2
+    Align = alClient
+    TabIndex = 1
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'ACDI'
+      ClientHeight = 578
+      ClientWidth = 695
+      object Label1: TLabel
+        Left = 16
+        Height = 15
+        Top = 48
+        Width = 70
+        Caption = 'Manufacturer'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 16
+        Height = 15
+        Top = 80
+        Width = 61
+        Caption = 'Node Name'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        Left = 16
+        Height = 15
+        Top = 112
+        Width = 93
+        Caption = 'Hardware Version'
+        ParentColor = False
+      end
+      object Label4: TLabel
+        Left = 16
+        Height = 15
+        Top = 144
+        Width = 91
+        Caption = 'Software Version'
+        ParentColor = False
+      end
+      object Label5: TLabel
+        Left = 16
+        Height = 15
+        Top = 225
+        Width = 101
+        Caption = 'User Defined Name'
+        ParentColor = False
+      end
+      object Label6: TLabel
+        Left = 16
+        Height = 15
+        Top = 257
+        Width = 130
+        Caption = 'User Defined Description'
+        ParentColor = False
+      end
+      object LabelMfgInfoVer: TLabel
+        Left = 16
+        Height = 15
+        Top = 16
+        Width = 137
+        Caption = 'Manufacturer Info Version'
+        ParentColor = False
+      end
+      object LabelUserInfoVersion: TLabel
+        Left = 32
+        Height = 15
+        Top = 193
+        Width = 112
+        Caption = 'LabelUserInfoVersion'
+        ParentColor = False
+      end
+      object EditMfg: TEdit
+        Left = 160
+        Height = 22
+        Top = 40
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditMfgChange
+        TabOrder = 0
+      end
+      object EditName: TEdit
+        Left = 160
+        Height = 22
+        Top = 72
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditNameChange
+        TabOrder = 1
+      end
+      object EditHWVersion: TEdit
+        Left = 160
+        Height = 22
+        Top = 104
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditHWVersionChange
+        TabOrder = 2
+      end
+      object EditSWVersion: TEdit
+        Left = 160
+        Height = 22
+        Top = 136
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditSWVersionChange
+        TabOrder = 3
+      end
+      object EditUserDefinedName: TEdit
+        Left = 160
+        Height = 22
+        Top = 217
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditUserDefinedNameChange
+        TabOrder = 4
+      end
+      object EditUserDefinedDesc: TEdit
+        Left = 160
+        Height = 22
+        Top = 249
+        Width = 301
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = EditUserDefinedDescChange
+        TabOrder = 5
+      end
+      object ButtonGenerateCode: TButton
+        Left = 16
+        Height = 25
+        Top = 297
+        Width = 137
+        Caption = 'Generate Code'
+        OnClick = ButtonGenerateCodeClick
+        TabOrder = 6
+      end
+      object ButtonDecompile: TButton
+        Left = 168
+        Height = 25
+        Top = 297
+        Width = 137
+        Caption = 'Decompile'
+        OnClick = ButtonDecompileClick
+        TabOrder = 7
+      end
+      object EditMfgInfoVer: TEdit
+        Left = 160
+        Height = 22
+        Top = 8
+        Width = 48
+        OnExit = EditMfgInfoVerExit
+        OnKeyPress = EditMfgInfoVerKeyPress
+        TabOrder = 8
+        Text = '1'
+      end
+      object EditUserInfoVer: TEdit
+        Left = 160
+        Height = 22
+        Top = 185
+        Width = 48
+        TabOrder = 9
+        Text = '1'
+      end
+      object GroupBox1: TGroupBox
+        Left = 470
+        Height = 289
+        Top = 30
+        Width = 214
+        Anchors = [akTop, akRight]
+        Caption = 'Counts (Including nulls)'
+        ClientHeight = 266
+        ClientWidth = 206
+        TabOrder = 11
+        object Bevel1: TBevel
+          Left = 3
+          Height = 49
+          Top = 114
+          Width = 204
+        end
+        object Bevel2: TBevel
+          Left = 3
+          Height = 65
+          Top = 170
+          Width = 204
+        end
+        object LabelMfgLen: TLabel
+          Left = 13
+          Height = 15
+          Top = 3
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelNodeNameLen: TLabel
+          Left = 13
+          Height = 15
+          Top = 35
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelHardwareLen: TLabel
+          Left = 13
+          Height = 15
+          Top = 66
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelSoftwareLen: TLabel
+          Left = 13
+          Height = 15
+          Top = 98
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelUserName: TLabel
+          Left = 13
+          Height = 15
+          Top = 179
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelUserDesc: TLabel
+          Left = 13
+          Height = 15
+          Top = 211
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label13: TLabel
+          Left = 4
+          Height = 15
+          Top = 243
+          Width = 62
+          Caption = 'Total Count'
+          ParentColor = False
+        end
+        object LabelTotalCount: TLabel
+          Left = 68
+          Height = 15
+          Top = 243
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label15: TLabel
+          Left = 109
+          Height = 15
+          Top = 122
+          Width = 84
+          Caption = 'OpenLCB Limits'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelMaxDesc: TLabel
+          Left = 179
+          Height = 15
+          Top = 211
+          Width = 15
+          Caption = '40'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelUserMaxChar: TLabel
+          Left = 179
+          Height = 15
+          Top = 179
+          Width = 15
+          Caption = '20'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelMaxMfg: TLabel
+          Left = 179
+          Height = 15
+          Top = 139
+          Width = 15
+          Caption = '64'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label19: TLabel
+          Left = 75
+          Height = 15
+          Top = 139
+          Width = 87
+          Caption = '(Recommended)'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelMfgSubTotal: TLabel
+          Left = 13
+          Height = 15
+          Top = 139
+          Width = 7
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label21: TLabel
+          Left = 13
+          Height = 15
+          Top = 123
+          Width = 47
+          Caption = 'SubTotal'
+          ParentColor = False
+        end
+      end
+      object CheckBoxACDI: TCheckBox
+        Left = 328
+        Height = 18
+        Top = 304
+        Width = 159
+        Caption = 'For Virtual Node ACDI'
+        TabOrder = 10
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'CDI'
+      ClientHeight = 578
+      ClientWidth = 695
+      ImageIndex = 1
+      object Label7: TLabel
+        Left = 8
+        Height = 15
+        Top = 40
+        Width = 43
+        Caption = 'XML File'
+        ParentColor = False
+      end
+      object Label8: TLabel
+        Left = 8
+        Height = 15
+        Top = 72
+        Width = 100
+        Caption = 'CDI Array Identifier'
+        ParentColor = False
+      end
+      object Label9: TLabel
+        Left = 8
+        Height = 15
+        Top = 96
+        Width = 93
+        Caption = 'CDI Map Identifier'
+        ParentColor = False
+      end
+      object Label10: TLabel
+        Left = 8
+        Height = 15
+        Top = 120
+        Width = 125
+        Caption = 'Max CDI Array Identifier'
+        ParentColor = False
+      end
+      object Label11: TLabel
+        Left = 16
+        Height = 15
+        Top = 528
+        Width = 316
+        Caption = 'Manufacturer Total Strings Length (64 Max Recommended)'
+        ParentColor = False
+      end
+      object LabelMaxMfgStrLen: TLabel
+        Left = 312
+        Height = 15
+        Top = 528
+        Width = 7
+        Caption = '0'
+        ParentColor = False
+      end
+      object EditXMLFile: TEdit
+        Left = 64
+        Height = 22
+        Top = 32
+        Width = 505
+        TabOrder = 0
+      end
+      object Button1: TButton
+        Left = 576
+        Height = 25
+        Top = 32
+        Width = 75
+        Caption = 'Open...'
+        OnClick = Button1Click
+        TabOrder = 1
+      end
+      object MemoCDI: TMemo
+        Left = 8
+        Height = 317
+        Top = 184
+        Width = 670
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ScrollBars = ssBoth
+        TabOrder = 2
+        WordWrap = False
+      end
+      object Button2: TButton
+        Left = 8
+        Height = 25
+        Top = 144
+        Width = 129
+        Caption = 'Generate Code'
+        OnClick = Button2Click
+        TabOrder = 3
+      end
+      object EditCDIArray: TEdit
+        Left = 128
+        Height = 22
+        Top = 64
+        Width = 121
+        TabOrder = 4
+        Text = 'CDI_ARRAY'
+      end
+      object EditCDIMap: TEdit
+        Left = 128
+        Height = 22
+        Top = 88
+        Width = 121
+        TabOrder = 5
+        Text = 'CDI_MAP'
+      end
+      object EditMaxCDIArray: TEdit
+        Left = 128
+        Height = 22
+        Top = 112
+        Width = 121
+        TabOrder = 6
+        Text = 'MAX_CDI_ARRAY'
+      end
+      object CheckBoxVirtualNodeCDI: TCheckBox
+        Left = 168
+        Height = 16
+        Top = 152
+        Width = 122
+        Caption = 'For Virtual Node'
+        TabOrder = 7
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = '.*.xml'
+    Filter = 'XML Files|*.XML'
+    left = 592
+    top = 128
+  end
+end

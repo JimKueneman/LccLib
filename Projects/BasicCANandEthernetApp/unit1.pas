@@ -88,6 +88,8 @@ end;
 procedure TForm1.ActionLoginExecute(Sender: TObject);
 begin
   LccNodeManager1.Enabled := ActionLogin.Checked;
+  if LccNodeManager1.Enabled = False then
+    StatusBar1.Panels[1].Text := 'Disconnected';
 end;
 
 procedure TForm1.ActionSettingsExecute(Sender: TObject);
@@ -138,9 +140,16 @@ begin
   // Keep Login Button disabled until the ComPort connection is made
   ActionLogin.Enabled := False;
 
-  // Autosave the Configuration File
-  LccNodeManager1.RootNode.Configuration.FilePath := GetSettingsPath;
-  LccNodeManager1.RootNode.Configuration.AutoSaveOnWrite := True;
+  // Set the name for the configuration file.  If this is not set the configuration will
+  // persist in a local stream object but when the application is closed it will be lost
+  LccNodeManager1.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';
+  LccNodeManager1.RootNode.Configuration.LoadFromFile;
+
+  // You must place a XML file in the Setting Folder for this to have any effect
+  // We also need to syncronize the SNIP to be the same as the <identification> section of
+  // the CDI
+  LccNodeManager1.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
+  LccNodeManager1.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
 end;
 
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);

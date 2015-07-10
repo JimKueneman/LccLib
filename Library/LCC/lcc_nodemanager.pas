@@ -130,6 +130,8 @@ type
     FVersion: Word;
 
     function GetPackedFormat: TSimpleNodeInfoPacked;
+    function GetUserDescription: string;
+    function GetUserName: string;
   public
     property Version: Word read FVersion write FVersion;
     property Manufacturer: string read FManufacturer write FManufacturer;
@@ -137,11 +139,12 @@ type
     property HardwareVersion: string read FHardwareVersion write FHardwareVersion;
     property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
     property UserVersion: Word read FUserVersion write FUserVersion;
-    property UserName: string read FUserName write FUserName;
-    property UserDescription: string read FUserDescription write FUserDescription;
+    property UserName: string read GetUserName write FUserName;
+    property UserDescription: string read GetUserDescription write FUserDescription;
 
     property PackedFormat: TSimpleNodeInfoPacked read GetPackedFormat;
 
+    function LoadFromXml(CdiFilePath: string): Boolean;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
@@ -216,7 +219,7 @@ type
     FAddressSpace: Byte;
   protected
     procedure SetValid(AValue: Boolean); override;
-    procedure DoLoadComplete(LccMessage: TLccMessage); virtual; abstract;
+    procedure DoLoadComplete(LccMessage: TLccMessage); virtual;
 
     property InProcessAddress: DWord read FInProcessAddress write FInProcessAddress;
     property AddressSpace: Byte read FAddressSpace write FAddressSpace;
@@ -226,7 +229,7 @@ type
     constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); reintroduce; virtual;
     destructor Destroy; override;
     procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
-    procedure Write(LccMessage: TLccMessage); virtual;
+    procedure WriteRequest(LccMessage: TLccMessage); virtual;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
@@ -255,13 +258,23 @@ type
   TCDI = class(TStreamBasedProtocol)
   protected
     procedure DoLoadComplete(LccMessage: TLccMessage); override;
+  public
+    function LoadFromXml(CdiFilePath: string): Boolean;
   end;
 
   { TACDIMfg }
 
   TACDIMfg = class(TStreamBasedProtocol)
-  protected
-    procedure DoLoadComplete(LccMessage: TLccMessage); override;
+  public
+    procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
+  end;
+
+  { TACDIUser }
+
+  TACDIUser = class(TACDIMfg)
+  public
+    procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); override;
+    procedure WriteRequest(LccMessage: TLccMessage); override;
   end;
 
   { TConfiguration }
@@ -270,14 +283,13 @@ type
   private
     FAutoSaveOnWrite: Boolean;
     FFilePath: string;
-  protected
-    procedure DoLoadComplete(LccMessage: TLccMessage); override;
-    function FullPath: string;
   public
     property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
     property FilePath: string read FFilePath write FFilePath;
 
-    procedure Write(LccMessage: TLccMessage); virtual;
+    constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); override;
+    procedure WriteRequest(LccMessage: TLccMessage); override;
+    function ReadAsString(Address: DWord): string;
     procedure LoadFromFile;
   end;
 
@@ -482,6 +494,7 @@ type
   TLccOwnedNode = class(TLccNode)
   private
     FACDIMfg: TACDIMfg;
+    FACDIUser: TACDIUser;
     FConfiguration: TConfiguration;
     FDuplicateAliasDetected: Boolean;
     FInitialized: Boolean;
@@ -508,6 +521,7 @@ type
     procedure SendProducedEvents;
   public
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
+    property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
     property Configuration: TConfiguration read FConfiguration write FConfiguration;
     property Initialized: Boolean read FInitialized;
     property Permitted: Boolean read FPermitted;
@@ -709,6 +723,96 @@ begin
   RegisterComponents('LCC',[TLccNodeManager]);
 end;
 
+{ TACDIMfg }
+
+procedure TACDIMfg.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
+var
+  i, Offset: Integer;
+  ReadCount: Integer;
+  Address: DWord;
+  FlatArray: array[0..ACDI_MFG_SIZE - 1] of Byte;
+  SNIP: TSimpleNodeInfo;
+begin
+  // Assumption is this is a datagram message
+  ReadCount := LccMessage.ExtractDataBytesAsInt(7, 7);
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  OutMessage.DataArrayIndexer[0] := LccMessage.DataArrayIndexer[0];
+  OutMessage.DataArrayIndexer[1] := LccMessage.DataArrayIndexer[1] or $10;   // Make it a reply
+  OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];          // Copy the address
+  OutMessage.DataArrayIndexer[3] := LccMessage.DataArrayIndexer[3];
+  OutMessage.DataArrayIndexer[4] := LccMessage.DataArrayIndexer[4];
+  OutMessage.DataArrayIndexer[5] := LccMessage.DataArrayIndexer[5];
+  OutMessage.DataArrayIndexer[6] := LccMessage.DataArrayIndexer[6];
+
+  FillChar(FlatArray, ACDI_MFG_SIZE, #0);
+
+  SNIP := (Owner as TLccOwnedNode).SimpleNodeInfo;
+  FlatArray[0] := SNIP.Version;
+  Offset := ACDI_MFG_OFFSET_MANUFACTURER;
+  StringToNullArray(SNIP.Manufacturer, FlatArray, Offset);
+  Offset := ACDI_MFG_OFFSET_MODEL;
+  StringToNullArray(SNIP.Model, FlatArray, Offset);
+  Offset := ACDI_MFG_OFFSET_HARDWARE_VERSION;
+  StringToNullArray(SNIP.HardwareVersion, FlatArray, Offset);
+  Offset := ACDI_MFG_OFFSET_SOFTWARE_VERSION;
+  StringToNullArray(SNIP.SoftwareVersion, FlatArray, Offset);
+
+  OutMessage.DataCount := ReadCount + 7;
+  for i := 0 to ReadCount - 1 do
+    OutMessage.DataArray[i + 7] := FlatArray[Address + i];
+  OutMessage.UserValid := True;
+end;
+
+{ TACDIUser }
+
+procedure TACDIUser.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
+var
+  i, Offset: Integer;
+  ReadCount: Integer;
+  Address: DWord;
+  FlatArray: array[0..ACDI_USER_SIZE - 1] of Byte;
+  SNIP: TSimpleNodeInfo;
+begin
+  // Assumption is this is a datagram message
+  ReadCount := LccMessage.ExtractDataBytesAsInt(7, 7);
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  OutMessage.DataArrayIndexer[0] := LccMessage.DataArrayIndexer[0];
+  OutMessage.DataArrayIndexer[1] := LccMessage.DataArrayIndexer[1] or $10;   // Make it a reply
+  OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];          // Copy the address
+  OutMessage.DataArrayIndexer[3] := LccMessage.DataArrayIndexer[3];
+  OutMessage.DataArrayIndexer[4] := LccMessage.DataArrayIndexer[4];
+  OutMessage.DataArrayIndexer[5] := LccMessage.DataArrayIndexer[5];
+  OutMessage.DataArrayIndexer[6] := LccMessage.DataArrayIndexer[6];
+
+  FillChar(FlatArray, ACDI_USER_SIZE, #0);
+
+  SNIP := (Owner as TLccOwnedNode).SimpleNodeInfo;
+  FlatArray[0] := SNIP.UserVersion;
+  Offset := ACDI_USER_OFFSET_NAME;
+  StringToNullArray(SNIP.UserName, FlatArray, Offset);
+  Offset := ACDI_USER_OFFSET_DESCRIPTION;
+  StringToNullArray(SNIP.UserDescription, FlatArray, Offset);
+
+  OutMessage.DataCount := ReadCount + 7;
+  for i := 0 to ReadCount - 1 do
+    OutMessage.DataArray[i + 7] := FlatArray[Address + i];
+  OutMessage.UserValid := True;
+end;
+
+procedure TACDIUser.WriteRequest(LccMessage: TLccMessage);
+var
+  Configuration: TConfiguration;
+  Address: DWord;
+begin
+  // We should never allow the Version to be written too so never write to 0 offset
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  if Address > 0 then
+  begin
+    Configuration := (Owner as TLccOwnedNode).Configuration;
+    Configuration.WriteRequest(LccMessage);
+  end;
+end;
+
 { TLccDefaultRootNode }
 
 constructor TLccDefaultRootNode.Create(AnOwner: TComponent);
@@ -722,6 +826,7 @@ begin
   ProtocolSupport.CDI := True;         // We Support CDI
   ProtocolSupport.EventExchange := True;  // We support Events
   ProtocolSupport.SimpleNodeInfo := True;  // We Support SNIP
+  ProtocolSupport.ACDI := True;
 
   // Setup the SNIP constants, this information MUST be idential to the information
   // in the  <identification> tag of the CDI to comply with the LCC specs
@@ -743,9 +848,9 @@ begin
   // Setup the Configuraion Memory Options:
   ConfigurationMemOptions.HighSpace := MSI_CDI;
   ConfigurationMemOptions.LowSpace := MSI_ACDI_USER;
-  ConfigurationMemOptions.SupportACDIMfgRead := False;
-  ConfigurationMemOptions.SupportACDIUserRead := False;
-  ConfigurationMemOptions.SupportACDIUserWrite := False;
+  ConfigurationMemOptions.SupportACDIMfgRead := True;
+  ConfigurationMemOptions.SupportACDIUserRead := True;
+  ConfigurationMemOptions.SupportACDIUserWrite := True;
   ConfigurationMemOptions.UnAlignedReads := True;
   ConfigurationMemOptions.UnAlignedWrites := True;
   ConfigurationMemOptions.WriteArbitraryBytes := True;
@@ -760,8 +865,8 @@ begin
   ConfigMemAddressSpaceInfo.Add(MSI_CDI, True, True, True, $00000000, $FFFFFFFF);
   ConfigMemAddressSpaceInfo.Add(MSI_ALL, True, True, True, $00000000, $FFFFFFFF);
   ConfigMemAddressSpaceInfo.Add(MSI_CONFIG, True, False, True, $00000000, $FFFFFFFF);
-  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, False, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
-  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, False, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, True, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, True, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
 
 end;
 
@@ -848,6 +953,7 @@ begin
   LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
   LogInAliasID := 0;
   FACDIMfg := TACDIMfg.Create(Self, MSI_ACDI_MFG);
+  FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER);
   FConfiguration := TConfiguration.Create(Self, MSI_CONFIG);
 end;
 
@@ -872,6 +978,7 @@ begin
   end;
   FPermitted := False;
   FreeAndNil(FACDIMfg);
+  FreeAndNil(FACDIUser);
   FreeAndNil(FConfiguration);
   inherited Destroy;
 end;
@@ -1129,14 +1236,14 @@ begin
                                  case LccMessage.DataArrayIndexer[6] of
                                    MSI_CDI             : begin end;  // Not writeable
                                    MSI_ALL             : begin end;  // Not writeable
-                                   MSI_CONFIG          : Configuration.Write(LccMessage);
+                                   MSI_CONFIG          : Configuration.WriteRequest(LccMessage);
                                    MSI_ACDI_MFG        : begin end;  // Not writeable
-                                   MSI_ACDI_USER       : begin  end;
+                                   MSI_ACDI_USER       : ACDIUser.WriteRequest(LccMessage);
                                    MSI_FDI             : begin end;  // Not writeable
                                    MSI_FUNCTION_CONFIG : begin end;
                                  end
                                end;
-                           MCP_CONFIGURATION : Configuration.Write(LccMessage);
+                           MCP_CONFIGURATION : Configuration.WriteRequest(LccMessage);
                            MCP_ALL           : begin end; // Not writeable
                            MCP_CDI           : begin end; // Not writeable
                          end;
@@ -1158,7 +1265,7 @@ begin
                                    MSI_ALL             : begin end;
                                    MSI_CONFIG          : Configuration.LoadReply(LccMessage, WorkerMessage);
                                    MSI_ACDI_MFG        : ACDIMfg.LoadReply(LccMessage, WorkerMessage);
-                                   MSI_ACDI_USER       : begin  end;
+                                   MSI_ACDI_USER       : ACDIUser.LoadReply(LccMessage, WorkerMessage);
                                    MSI_FDI             : begin end;
                                    MSI_FUNCTION_CONFIG : begin end;
                                  end
@@ -1572,6 +1679,8 @@ begin
   FDataRaw[iIndex] := Value
 end;
 
+{TCDI}
+
 procedure TCDI.DoLoadComplete(LccMessage: TLccMessage);
 var
   SourceNode, DestNode: TLccNode;
@@ -1582,6 +1691,38 @@ begin
     DestNode := OwnerManager.FindDestNode(LccMessage);
     if Assigned(SourceNode) and Assigned(DestNode) then
       OwnerManager.DoCDI(SourceNode, DestNode);
+  end;
+end;
+
+function TCDI.LoadFromXml(CdiFilePath: string): Boolean;
+var
+  XmlFile: TStringList;
+  i, j, AsciiArrayCount: Integer;
+begin
+  Result := False;
+  if FileExists(CdiFilePath) then
+  begin
+    XmlFile := TStringList.Create;
+    try
+      XmlFile.LoadFromFile(CdiFilePath);
+      XmlFile.Text := Trim(XmlFile.Text);
+      AStream.Clear;
+      AsciiArrayCount := 0;
+      for i := 0 to XmlFile.Count - 1 do
+      begin
+        if Length(XmlFile[i]) > 0 then
+        begin
+          for j := 1 to Length(XmlFile[i]) do
+          begin
+            AStream.WriteByte(Ord(XmlFile[i][j]));
+            Inc(AsciiArrayCount)
+          end;
+        end
+      end;
+      Result := True;
+    finally
+      FreeAndNil(XmlFile);
+    end;
   end;
 end;
 
@@ -2216,7 +2357,7 @@ begin
   inherited Loaded;
   RootNodeClass := nil;
   DoGetRootNodeClass(RootNodeClass);
-  FRootNode := RootNodeClass.Create(nil);
+  FRootNode := RootNodeClass.Create(Self);
   FRootNode.OwnerManager := Self;
   DoCreateLccNode(FRootNode);
 end;
@@ -2345,24 +2486,76 @@ const
 var
   iArray, i: Integer;
 begin
-  i :=  Length(FManufacturer) + Length(FModel) + Length(FHardwareVersion) + Length(FSoftwareVersion) + Length(UserName) + Length(UserDescription);
+  i :=  Length(Manufacturer) + Length(Model) + Length(HardwareVersion) + Length(SoftwareVersion) + Length(UserName) + Length(UserDescription);
   i := i + NULL_COUNT + VERSION_COUNT;
   SetLength(FPackedInfo, i);
   iArray := 0;
 
   FPackedInfo[iArray] := Version;      // 4 Items follow
   Inc(iArray);
-  StringToNullArray(FManufacturer, FPackedInfo, iArray);
-  StringToNullArray(FModel, FPackedInfo, iArray);
-  StringToNullArray(FHardwareVersion, FPackedInfo, iArray);
-  StringToNullArray(FSoftwareVersion, FPackedInfo, iArray);
+  StringToNullArray(Manufacturer, FPackedInfo, iArray);
+  StringToNullArray(Model, FPackedInfo, iArray);
+  StringToNullArray(HardwareVersion, FPackedInfo, iArray);
+  StringToNullArray(SoftwareVersion, FPackedInfo, iArray);
 
   FPackedInfo[iArray] := UserVersion;  // 2 items follow
   Inc(iArray);
-  StringToNullArray(FUserName, FPackedInfo, iArray);
-  StringToNullArray(FUserDescription, FPackedInfo, iArray);
+  StringToNullArray(UserName, FPackedInfo, iArray);
+  StringToNullArray(UserDescription, FPackedInfo, iArray);
 
   Result := FPackedInfo;
+end;
+
+function TSimpleNodeInfo.GetUserDescription: string;
+begin
+  Result := FUserName;
+  if Owner is TLccOwnedNode then
+    Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(64);
+end;
+
+function TSimpleNodeInfo.GetUserName: string;
+begin
+  Result := FUserName;
+  if Owner is TLccOwnedNode then
+    Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
+end;
+
+function TSimpleNodeInfo.LoadFromXml(CdiFilePath: string): Boolean;
+var
+  XMLDoc: TXMLDocument;
+  CdiNode, IdentificationNode, ChildNode: TDOMNode;
+begin
+  Result := False;
+  if FileExists(CdiFilePath) then
+  begin
+    try
+      ReadXMLFile(XmlDoc, CdiFilePath);
+      if Assigned(XmlDoc) then
+      begin
+        CdiNode := XmlDoc.FindNode('cdi');
+        if Assigned(CdiNode) then
+        begin
+          IdentificationNode := CdiNode.FindNode('identification');
+          if Assigned(IdentificationNode) then
+          begin
+             Version := 1;
+             ChildNode := IdentificationNode.FindNode('manufacturer');
+             if Assigned(ChildNode) then FManufacturer := ChildNode.FirstChild.NodeValue else Exit;
+             ChildNode := IdentificationNode.FindNode('model');
+             if Assigned(ChildNode) then FModel := ChildNode.FirstChild.NodeValue else Exit;
+             ChildNode := IdentificationNode.FindNode('hardwareVersion');
+             if Assigned(ChildNode) then FHardwareVersion := ChildNode.FirstChild.NodeValue else Exit;
+             ChildNode := IdentificationNode.FindNode('softwareVersion');
+             if Assigned(ChildNode) then FSoftwareVersion := ChildNode.FirstChild.NodeValue else Exit;
+             UserVersion := 1;
+             Result := True;
+          end;
+        end;
+      end;
+    except
+      // Quiet fail
+    end;
+  end;
 end;
 
 function TSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
@@ -2487,7 +2680,7 @@ begin
   end
 end;
 
-procedure TStreamBasedProtocol.Write(LccMessage: TLccMessage);
+procedure TStreamBasedProtocol.WriteRequest(LccMessage: TLccMessage);
 begin
 
 end;
@@ -2503,6 +2696,11 @@ destructor TStreamBasedProtocol.Destroy;
 begin
   FreeAndNil(FStream);
   inherited Destroy;
+end;
+
+procedure TStreamBasedProtocol.DoLoadComplete(LccMessage: TLccMessage);
+begin
+
 end;
 
 procedure TStreamBasedProtocol.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
@@ -2628,19 +2826,19 @@ end;
 constructor TLccNode.Create(AnOwner: TComponent);
 begin
   inherited Create(AnOwner);
-  FProtocolSupport := TProtocolSupport.Create(AnOwner);
-  FSimpleNodeInfo := TSimpleNodeInfo.Create(AnOwner);
-  FSimpleTrainNodeInfo := TSimpleTrainNodeInfo.Create(AnOwner);
-  FCDI := TCDI.Create(AnOwner, MSI_CDI);
-  FFDI := TFDI.Create(AnOwner, MSI_FDI);
-  FTraction := TTraction.Create(AnOwner);
-  FConfigurationMem := TConfigurationMemory.Create(AnOwner);
-  FFunctionConfiguration := TFunctionConfiguration.Create(AnOwner);
+  FProtocolSupport := TProtocolSupport.Create(Self);
+  FSimpleNodeInfo := TSimpleNodeInfo.Create(Self);
+  FSimpleTrainNodeInfo := TSimpleTrainNodeInfo.Create(Self);
+  FCDI := TCDI.Create(Self, MSI_CDI);
+  FFDI := TFDI.Create(Self, MSI_FDI);
+  FTraction := TTraction.Create(Self);
+  FConfigurationMem := TConfigurationMemory.Create(Self);
+  FFunctionConfiguration := TFunctionConfiguration.Create(Self);
   FiStartupSequence := 0;
-  FEventsConsumed := TLccEvents.Create(AnOwner);
-  FEventsProduced := TLccEvents.Create(AnOwner);
-  FConfigurationMemOptions := TConfigurationMemOptions.Create(AnOwner);
-  FConfigMemAddressSpaceInfo := TConfigMemAddressSpaceInfo.Create(AnOwner);
+  FEventsConsumed := TLccEvents.Create(Self);
+  FEventsProduced := TLccEvents.Create(Self);
+  FConfigurationMemOptions := TConfigurationMemOptions.Create(Self);
+  FConfigMemAddressSpaceInfo := TConfigMemAddressSpaceInfo.Create(Self);
 end;
 
 destructor TLccNode.Destroy;
@@ -3053,35 +3251,45 @@ begin
   Result := True
 end;
 
-{ TACDIMfg }
-
-procedure TACDIMfg.DoLoadComplete(LccMessage: TLccMessage);
-begin
-
-end;
-
 { TConfiguration }
 
-procedure TConfiguration.DoLoadComplete(LccMessage: TLccMessage);
+constructor TConfiguration.Create(AnOwner: TComponent; AnAddressSpace: Byte);
 begin
-
-end;
-
-function TConfiguration.FullPath: string;
-begin
-  Result := FilePath + (Owner as TLccOwnedNode).NodeIDStr + '.dat'
+  inherited Create(AnOwner, AnAddressSpace);
+  AutoSaveOnWrite := True;
 end;
 
 procedure TConfiguration.LoadFromFile;
 begin
-  if DirectoryExists(FilePath) then
+  if FileExists(FilePath) then
+    AStream.LoadFromFile(FilePath);
+end;
+
+function TConfiguration.ReadAsString(Address: DWord): string;
+var
+  i: Integer;
+  C: Char;
+  Done: Boolean;
+begin
+  Result := '';
+  if AStream.Size > Address then
   begin
-    if FileExists(FullPath) then
-      AStream.LoadFromFile(FullPath);
+    AStream.Position := Address;
+    i := 0;
+    Done := False;
+    while (i + Address < AStream.Size) and not Done do
+    begin
+      C := Chr(AStream.ReadByte);
+      if C <> #0 then
+        Result := Result + C
+      else
+        Done := True;
+      Inc(i)
+    end;
   end;
 end;
 
-procedure TConfiguration.Write(LccMessage: TLccMessage);
+procedure TConfiguration.WriteRequest(LccMessage: TLccMessage);
 var
   i: Integer;
   iStart, WriteCount: Integer;
@@ -3101,10 +3309,7 @@ begin
   for i := iStart to LccMessage.DataCount - 1 do
      AStream.WriteByte(LccMessage.DataArrayIndexer[i]);
   if AutoSaveOnWrite then
-  begin
-    if DirectoryExists(FilePath) then
-      AStream.SaveToFile(FullPath);
-  end;
+    AStream.SaveToFile(FilePath);
 end;
 
 initialization
