@@ -821,12 +821,12 @@ var
 begin
   inherited Create(AnOwner);
   // Common Protocols
-  ProtocolSupport.Datagram := True;      // We support CDI so we must support datagrams
-  ProtocolSupport.MemConfig := True;   // We support CDI so we must support datagrams
-  ProtocolSupport.CDI := True;         // We Support CDI
-  ProtocolSupport.EventExchange := True;  // We support Events
+  ProtocolSupport.Datagram := True;        // We support CDI so we must support datagrams
+  ProtocolSupport.MemConfig := True;       // We support CDI so we must support datagrams
+  ProtocolSupport.CDI := True;             // We Support CDI
+  ProtocolSupport.EventExchange := True;   // We support Events
   ProtocolSupport.SimpleNodeInfo := True;  // We Support SNIP
-  ProtocolSupport.ACDI := True;
+  ProtocolSupport.ACDI := True;            // We Support ACDI
 
   // Setup the SNIP constants, this information MUST be idential to the information
   // in the  <identification> tag of the CDI to comply with the LCC specs
