@@ -32,6 +32,7 @@ uses
   function NullNodeID(ANodeID: TNodeID): Boolean;
   procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
   function NullArrayToString(var ANullArray: array of Byte): LccString;
+  function EventIDToString(EventID: TEventID): string;
 
 {$IFDEF FPC}
 type
@@ -248,6 +249,20 @@ begin
   begin
     Result := Result + Chr( ANullArray[i]);
     Inc(i);
+  end;
+end;
+
+function EventIDToString(EventID: TEventID): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 0 to MAX_EVENT_LEN - 1 do
+  begin
+    if i < MAX_EVENT_LEN - 1 then
+      Result := Result + IntToHex(EventID[i], 2) + '.'
+    else
+      Result := Result + IntToHex(EventID[i], 2);
   end;
 end;
 

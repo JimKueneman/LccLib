@@ -772,6 +772,7 @@ begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
   CANOnly := True;
+  SourceID := ASourceID;
   case ACID of
     0 : CAN.MTI := MTI_CAN_CID0 or DWord(ASourceAlias) or (ASourceID[1] and $00FFF000);
     1 : CAN.MTI := MTI_CAN_CID1 or DWord(ASourceAlias) or ((ASourceID[1] shl 12) and $00FFF000);
@@ -794,6 +795,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CANOnly := True;
   CAN.MTI := MTI_CAN_AMD or ASourceAlias;
+  SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
   DataCount := 6;
 end;
@@ -804,6 +806,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CANOnly := True;
   CAN.MTI := MTI_CAN_AME or ASourceAlias;
+  SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
   DataCount := 6;
 end;
@@ -814,6 +817,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CANOnly := True;
   CAN.MTI := MTI_CAN_AMR or ASourceAlias;
+  SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
   DataCount := 6;
 end;

@@ -12,7 +12,7 @@ uses
   lcc_ethenetserver, lcc_ethernetclient, lcc_gridconnect, lcc_math_float16, 
   lcc_message_scheduler, lcc_messages, lcc_nodemanager, lcc_tcp_protocol, 
   lcc_threaded_stringlist, lcc_threadedcirculararray, lcc_utilities, 
-  lcc_common_classes, lcc_rootnode, LazarusPackageIntf;
+  lcc_common_classes, LazarusPackageIntf;
 
 implementation
 
