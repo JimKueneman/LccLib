@@ -1,4 +1,4 @@
-unit Unit2;
+unit form_settings;
 
 {$mode objfpc}{$H+}
 
@@ -10,9 +10,9 @@ uses
 
 type
 
-  { TForm2 }
+  { TFormSettings }
 
-  TForm2 = class(TForm)
+  TFormSettings = class(TForm)
     FrameLccSettings1: TFrameLccSettings;
   private
     { private declarations }
@@ -21,7 +21,7 @@ type
   end;
 
 var
-  Form2: TForm2;
+  FormSettings: TFormSettings;
 
 implementation
 

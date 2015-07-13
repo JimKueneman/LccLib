@@ -20,68 +20,38 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 1
+      Left = 184
       Top = 2
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 72
+      Left = 100
       Height = 44
       Top = 2
-      Width = 58
+      Width = 18
       Caption = 'ToolButton2'
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 234
+      Left = 51
       Top = 2
       Action = ActionComPort
     end
-    object ToolButton4: TToolButton
-      Left = 296
-      Top = 2
-      Action = ActionLogin
-    end
     object ToolButton5: TToolButton
-      Left = 130
+      Left = 1
       Top = 2
       Action = ActionEthernetServer
     end
-  end
-  inline FrameLccLogging1: TFrameLccLogging
-    Height = 323
-    Top = 48
-    Width = 748
-    Align = alClient
-    ClientHeight = 323
-    ClientWidth = 748
-    TabOrder = 1
-    inherited SpeedButtonPause: TSpeedButton
-      Left = 413
-      Top = 289
-    end
-    inherited SpeedButtonClear: TSpeedButton
-      Left = 573
-      Top = 289
-    end
-    inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 61
-      Top = 293
-      OnChange = nil
-    end
-    inherited CheckBoxJMRIFormat: TCheckBox
-      Left = 237
-      Top = 293
-    end
-    inherited SynEdit: TSynEdit
-      Height = 279
-      Width = 748
+    object ToolButton4: TToolButton
+      Left = 118
+      Top = 2
+      Action = ActionLogWindow
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 15
-    Top = 371
+    Height = 23
+    Top = 363
     Width = 748
     Panels = <    
       item
@@ -92,7 +62,45 @@ object Form1: TForm1
       end>
     SimplePanel = False
   end
-  object LccSettings1: TLccSettings
+  object PanelNetworkTree: TPanel
+    Left = 0
+    Height = 315
+    Top = 48
+    Width = 210
+    Align = alLeft
+    ClientHeight = 315
+    ClientWidth = 210
+    TabOrder = 2
+    object LccNetworkTree: TLccNetworkTree
+      Left = 1
+      Height = 313
+      Top = 1
+      Width = 208
+      Align = alClient
+      DefaultItemHeight = 16
+      TabOrder = 0
+      Connected = False
+      NodeManager = LccNodeManager
+      NetworkTreeProperties = [tp_Snip]
+      ShowRootNode = False
+      ShowLocallNodes = False
+    end
+  end
+  object SplitterMain: TSplitter
+    Left = 210
+    Height = 315
+    Top = 48
+    Width = 8
+  end
+  object PanelMain: TPanel
+    Left = 218
+    Height = 315
+    Top = 48
+    Width = 530
+    Align = alClient
+    TabOrder = 4
+  end
+  object LccSettings: TLccSettings
     ComPort.AutoConnectAtBoot = False
     ComPort.BaudRate = 333333
     ComPort.DataBits = cpdb_8_Bits
@@ -114,36 +122,37 @@ object Form1: TForm1
     Logging.JMRIFormat = False
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
-    left = 86
-    top = 40
+    left = 264
+    top = 120
   end
-  object LccComPort1: TLccComPort
+  object LccComPort: TLccComPort
     Hub = False
-    LccSettings = LccSettings1
-    NodeManager = LccNodeManager1
-    OnConnectionStateChange = LccComPort1ConnectionStateChange
-    OnErrorMessage = LccComPort1ErrorMessage
+    LccSettings = LccSettings
+    NodeManager = LccNodeManager
+    OnConnectionStateChange = LccComPortConnectionStateChange
+    OnErrorMessage = LccComPortErrorMessage
     SchedulerPipelineSize = 1
     SleepCount = 0
-    left = 86
-    top = 104
+    left = 313
+    top = 184
   end
-  object LccNodeManager1: TLccNodeManager
+  object LccNodeManager: TLccNodeManager
     AutoInterrogateDiscoveredNodes = False
     AutoSendVerifyNodesOnStart = False
     Enabled = False
     CAN = False
-    HardwareConnection = LccComPort1
-    LccSettings = LccSettings1
-    OnAliasIDChanged = LccNodeManager1AliasIDChanged
-    OnNodeIDChanged = LccNodeManager1NodeIDChanged
-    left = 86
-    top = 176
+    HardwareConnection = LccComPort
+    LccSettings = LccSettings
+    NetworkTree = LccNetworkTree
+    OnAliasIDChanged = LccNodeManagerAliasIDChanged
+    OnNodeIDChanged = LccNodeManagerNodeIDChanged
+    left = 256
+    top = 241
   end
   object ActionList1: TActionList
     Images = ImageList1
-    left = 280
-    top = 72
+    left = 344
+    top = 120
     object ActionSettings: TAction
       Caption = 'Settings...'
       ImageIndex = 3
@@ -163,14 +172,20 @@ object Form1: TForm1
     end
     object ActionEthernetServer: TAction
       AutoCheck = True
-      Caption = 'Ethernet Server'
+      Caption = 'Ethernet'
       ImageIndex = 5
       OnExecute = ActionEthernetServerExecute
     end
+    object ActionLogWindow: TAction
+      AutoCheck = True
+      Caption = 'Log Window'
+      ImageIndex = 1
+      OnExecute = ActionLogWindowExecute
+    end
   end
   object ImageList1: TImageList
-    left = 368
-    top = 64
+    left = 432
+    top = 104
     Bitmap = {
       4C69060000001000000010000000A9715152DDB18DBCDCA77BC4DCA67AC4DAA4
       7AC4D5A076C4D49E75C4D29D73C4CF9A72C4CE9970C4C49A79C4A9715152FFFF
@@ -367,13 +382,13 @@ object Form1: TForm1
       37FF196B37F2196B3788FFFFFF00
     }
   end
-  object LccEthernetServer1: TLccEthernetServer
+  object LccEthernetServer: TLccEthernetServer
     Hub = False
     Gridconnect = True
-    LccSettings = LccSettings1
-    NodeManager = LccNodeManager1
-    OnConnectionStateChange = LccEthernetServer1ConnectionStateChange
-    OnErrorMessage = LccEthernetServer1ErrorMessage
+    LccSettings = LccSettings
+    NodeManager = LccNodeManager
+    OnConnectionStateChange = LccEthernetServerConnectionStateChange
+    OnErrorMessage = LccEthernetServerErrorMessage
     SchedulerPipelineSize = 1
     SleepCount = 0
     left = 313

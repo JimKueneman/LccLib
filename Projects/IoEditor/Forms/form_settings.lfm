@@ -1,0 +1,84 @@
+object FormSettings: TFormSettings
+  Left = 470
+  Height = 370
+  Top = 215
+  Width = 584
+  Caption = 'FormSettings'
+  ClientHeight = 370
+  ClientWidth = 584
+  LCLVersion = '1.4.0.4'
+  inline FrameLccSettings1: TFrameLccSettings
+    Height = 370
+    Width = 584
+    Align = alClient
+    ClientHeight = 370
+    ClientWidth = 584
+    inherited ButtonOk: TButton
+      Left = 429
+    end
+    inherited ButtonCancel: TButton
+      Left = 283
+    end
+    inherited GroupBoxComPort: TGroupBox
+      Width = 559
+      ClientHeight = 47
+      ClientWidth = 555
+      inherited ComboBoxComPort: TComboBox
+        Height = 21
+        ItemHeight = 13
+      end
+    end
+    inherited GroupBoxEthernetClient: TGroupBox
+      Width = 559
+      ClientHeight = 126
+      ClientWidth = 555
+      inherited LabelLocalIP: TLabel
+        Height = 13
+        Width = 67
+      end
+      inherited EditLocalClientIP: TEdit
+        Height = 21
+      end
+      inherited LabelLocalPort: TLabel
+        Height = 13
+        Width = 77
+      end
+      inherited SpinEditLocalClientPort: TSpinEdit
+        Height = 21
+      end
+      inherited LabelRemoteIP: TLabel
+        Height = 13
+        Width = 91
+      end
+      inherited EditRemoteListenerIP: TEdit
+        Height = 21
+      end
+      inherited SpinEditRemoteListenerPort: TSpinEdit
+        Height = 21
+      end
+      inherited LabelRemotePort: TLabel
+        Height = 13
+        Width = 101
+      end
+    end
+    inherited GroupBoxEthernetServer: TGroupBox
+      Width = 559
+      ClientHeight = 62
+      ClientWidth = 555
+      inherited LabelLocalIP1: TLabel
+        Height = 13
+        Width = 78
+      end
+      inherited EditLocalListenerIP: TEdit
+        Height = 21
+      end
+      inherited LabelLocalPort1: TLabel
+        Height = 13
+        Width = 88
+      end
+      inherited SpinEditLocalListenerPort: TSpinEdit
+        Height = 21
+      end
+    end
+  end
+end

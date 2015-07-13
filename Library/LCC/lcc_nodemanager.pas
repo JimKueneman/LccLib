@@ -1333,7 +1333,7 @@ begin
             begin               // Called if I send a SNIP;
               ProtocolSupport.ProcessMessage(LccMessage);
               if Assigned(OwnerManager) then
-                OwnerManager.DoProtocolIdentifyReply(LccSourceNode, Self);
+                OwnerManager.DoSimpleNodeIdentReply(LccSourceNode, Self);
             end;
         MTI_PROTOCOL_SUPPORT_INQUIRY :
             begin
@@ -2815,7 +2815,7 @@ end;
 
 function TSimpleNodeInfo.GetUserDescription: string;
 begin
-  Result := FUserName;
+  Result := FUserDescription;
   if Owner is TLccOwnedNode then
     Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(64);
 end;

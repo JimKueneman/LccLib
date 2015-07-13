@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 244
+  Left = 392
   Height = 472
-  Top = 176
-  Width = 919
+  Top = 228
+  Width = 1013
   Caption = 'Form1'
   ClientHeight = 472
-  ClientWidth = 919
+  ClientWidth = 1013
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   LCLVersion = '1.4.0.4'
@@ -13,7 +13,7 @@ object Form1: TForm1
     Left = 0
     Height = 48
     Top = 0
-    Width = 919
+    Width = 1013
     ButtonHeight = 44
     Caption = 'ToolBar1'
     Images = ImageList1
@@ -25,7 +25,7 @@ object Form1: TForm1
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 60
+      Left = 72
       Height = 44
       Top = 2
       Width = 58
@@ -33,63 +33,57 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 203
+      Left = 234
       Top = 2
       Action = ActionComPort
     end
     object ToolButton4: TToolButton
-      Left = 252
+      Left = 296
       Top = 2
       Action = ActionLogin
     end
     object ToolButton5: TToolButton
-      Left = 118
+      Left = 130
       Top = 2
       Action = ActionEthernetServer
     end
   end
   inline FrameLccLogging1: TFrameLccLogging
-    Left = 248
-    Height = 401
+    Left = 312
+    Height = 409
     Top = 48
-    Width = 671
+    Width = 701
     Align = alClient
-    ClientHeight = 401
-    ClientWidth = 671
+    ClientHeight = 409
+    ClientWidth = 701
     TabOrder = 1
     inherited SpeedButtonPause: TSpeedButton
-      Left = 336
-      Top = 367
-      Flat = False
+      Left = 366
+      Top = 375
     end
     inherited SpeedButtonClear: TSpeedButton
-      Left = 496
-      Top = 367
-      Flat = False
+      Left = 526
+      Top = 375
     end
     inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 15
-      Height = 17
-      Top = 372
-      Width = 97
+      Left = 14
+      Top = 379
       OnChange = nil
     end
     inherited CheckBoxJMRIFormat: TCheckBox
-      Left = 177
-      Height = 17
-      Top = 372
-      Width = 79
+      Left = 190
+      Top = 379
     end
     inherited SynEdit: TSynEdit
-      Height = 357
-      Width = 671
+      Height = 365
+      Width = 701
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 449
-    Width = 919
+    Height = 15
+    Top = 457
+    Width = 1013
     Panels = <    
       item
         Width = 300
@@ -100,36 +94,37 @@ object Form1: TForm1
     SimplePanel = False
   end
   object Splitter1: TSplitter
-    Left = 243
-    Height = 401
+    Left = 307
+    Height = 409
     Top = 48
     Width = 5
   end
   object Panel1: TPanel
     Left = 0
-    Height = 401
+    Height = 409
     Top = 48
-    Width = 243
+    Width = 307
     Align = alLeft
     Caption = 'Panel1'
-    ClientHeight = 401
-    ClientWidth = 243
+    ClientHeight = 409
+    ClientWidth = 307
     TabOrder = 4
     object Panel2: TPanel
       Left = 1
-      Height = 90
-      Top = 310
-      Width = 241
+      Height = 128
+      Top = 280
+      Width = 305
       Align = alBottom
-      ClientHeight = 90
-      ClientWidth = 241
+      ClientHeight = 128
+      ClientWidth = 305
       TabOrder = 0
       object CheckGroupNetworkTree: TCheckGroup
         Left = 1
-        Height = 88
-        Top = 1
-        Width = 239
-        Align = alClient
+        Height = 95
+        Top = 32
+        Width = 303
+        Align = alBottom
+        Anchors = [akTop, akLeft, akRight, akBottom]
         AutoFill = True
         Caption = 'NetworkTree Properites'
         ChildSizing.LeftRightSpacing = 6
@@ -140,8 +135,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 70
-        ClientWidth = 235
+        ClientHeight = 73
+        ClientWidth = 295
         Columns = 2
         Items.Strings = (
           'Protocols'
@@ -156,52 +151,54 @@ object Form1: TForm1
           050000000202020202
         }
       end
-    end
-    object Panel3: TPanel
-      Left = 1
-      Height = 63
-      Top = 1
-      Width = 241
-      Align = alTop
-      ClientHeight = 63
-      ClientWidth = 241
-      TabOrder = 1
-      object CheckBoxTreeEnable: TCheckBox
-        Left = 8
-        Height = 17
-        Top = 8
-        Width = 123
-        Action = ActionConnectNetworkTree
-        TabOrder = 0
-      end
       object CheckBoxShowRootNode: TCheckBox
         Left = 8
-        Height = 17
-        Top = 24
-        Width = 95
+        Height = 18
+        Top = 8
+        Width = 120
         Action = ActionShowRootNode
         TabOrder = 1
       end
       object CheckBoxShowLocalNodes: TCheckBox
-        Left = 8
-        Height = 17
-        Top = 40
-        Width = 104
+        Left = 152
+        Height = 18
+        Top = 8
+        Width = 134
         Action = ActionShowLocalNodes
         TabOrder = 2
       end
     end
+    object Panel3: TPanel
+      Left = 1
+      Height = 31
+      Top = 1
+      Width = 305
+      Align = alTop
+      ClientHeight = 31
+      ClientWidth = 305
+      TabOrder = 1
+      object CheckBoxTreeEnable: TCheckBox
+        Left = 8
+        Height = 18
+        Top = 8
+        Width = 157
+        Action = ActionConnectNetworkTree
+        TabOrder = 0
+      end
+    end
     object LccNetworkTree: TLccNetworkTree
       Left = 1
-      Height = 246
-      Top = 64
-      Width = 241
+      Height = 248
+      Top = 32
+      Width = 305
       Align = alClient
-      DefaultItemHeight = 16
+      DefaultItemHeight = 18
       TabOrder = 2
       Connected = False
       NodeManager = LccNodeManager1
       NetworkTreeProperties = []
+      ShowRootNode = False
+      ShowLocallNodes = False
     end
   end
   object LccSettings1: TLccSettings
@@ -288,13 +285,11 @@ object Form1: TForm1
     object ActionShowRootNode: TAction
       AutoCheck = True
       Caption = 'Show RootNode'
-      Enabled = False
       OnExecute = ActionShowRootNodeExecute
     end
     object ActionShowLocalNodes: TAction
       AutoCheck = True
       Caption = 'Show Local Nodes'
-      Enabled = False
       OnExecute = ActionShowLocalNodesExecute
     end
   end

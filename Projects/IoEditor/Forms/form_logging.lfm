@@ -1,0 +1,43 @@
+object FormLogging: TFormLogging
+  Left = 423
+  Height = 364
+  Top = 163
+  Width = 714
+  Caption = 'Logging'
+  ClientHeight = 364
+  ClientWidth = 714
+  LCLVersion = '1.4.0.4'
+  inline FrameLccLogging: TFrameLccLogging
+    Height = 364
+    Width = 714
+    Align = alClient
+    ClientHeight = 364
+    ClientWidth = 714
+    inherited SpeedButtonPause: TSpeedButton
+      Left = 379
+      Top = 330
+      Flat = False
+    end
+    inherited SpeedButtonClear: TSpeedButton
+      Left = 539
+      Top = 330
+      Flat = False
+    end
+    inherited CheckBoxDetailedLogging: TCheckBox
+      Left = 58
+      Height = 17
+      Top = 335
+      Width = 97
+    end
+    inherited CheckBoxJMRIFormat: TCheckBox
+      Left = 220
+      Height = 17
+      Top = 335
+      Width = 79
+    end
+    inherited SynEdit: TSynEdit
+      Height = 320
+      Width = 714
+    end
+  end
+end

@@ -116,8 +116,6 @@ begin
     if ActionConnectNetworkTree.Checked then     // Disconnect Network Tree
       ActionConnectNetworkTree.Execute;
   end;
-  ActionShowLocalNodes.Enabled := ActionLogin.Checked;
-  ActionShowRootNode.Enabled := ActionLogin.Checked;
   ActionConnectNetworkTree.Enabled := ActionLogin.Checked;
 end;
 
