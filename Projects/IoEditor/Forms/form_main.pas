@@ -6,9 +6,10 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  ComCtrls, ExtCtrls, Menus, lcc_app_common_settings, lcc_comport,
-  lcc_nodemanager, form_settings, file_utilities, frame_lcc_logging,
-  lcc_messages, lcc_ethenetserver, lcc_ethernetclient, form_logging;
+  ComCtrls, ExtCtrls, Menus, StdCtrls, Spin, lcc_app_common_settings,
+  lcc_comport, lcc_nodemanager, form_settings, file_utilities,
+  frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
+  form_logging, lcc_nodeselector, lcc_cdi_parser;
 
 type
 
@@ -22,13 +23,18 @@ type
     ActionSettings: TAction;
     ActionList1: TActionList;
     ImageList1: TImageList;
+    ImageList2: TImageList;
+    LabelMyNodes: TLabel;
     LccComPort: TLccComPort;
     LccEthernetServer: TLccEthernetServer;
-    LccNetworkTree: TLccNetworkTree;
     LccNodeManager: TLccNodeManager;
+    LccNodeSelector: TLccNodeSelector;
     LccSettings: TLccSettings;
     PanelMain: TPanel;
     PanelNetworkTree: TPanel;
+    RadioGroup1: TRadioGroup;
+    RadioGroup2: TRadioGroup;
+    SpinEdit1: TSpinEdit;
     SplitterMain: TSplitter;
     StatusBar1: TStatusBar;
     ToolBar1: TToolBar;
@@ -37,6 +43,7 @@ type
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
+    TrackBar1: TTrackBar;
     procedure ActionComPortExecute(Sender: TObject);
     procedure ActionEthernetServerExecute(Sender: TObject);
     procedure ActionLoginExecute(Sender: TObject);
@@ -50,6 +57,10 @@ type
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure RadioGroup1Click(Sender: TObject);
+    procedure RadioGroup2Click(Sender: TObject);
+    procedure SpinEdit1Change(Sender: TObject);
+    procedure TrackBar1Change(Sender: TObject);
   private
     { private declarations }
   public
@@ -97,7 +108,6 @@ begin
   if LccNodeManager.Enabled = False then
   begin
     StatusBar1.Panels[1].Text := 'Disconnected';
-    LccNetworkTree.Connected := False;
   end;
 end;
 
@@ -136,6 +146,9 @@ begin
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
+var
+  LccNode: TLccGuiNode;
+  i: Integer;
 begin
   // Setup the file paths to the Settings Object
   LccSettings.FilePath := GetSettingsPath + 'Settings.ini';
@@ -178,6 +191,20 @@ begin
   {$IFDEF WINDOWS}
   FormLogging.FrameLccLogging.SynEdit.Font.Size := 11;
   {$ENDIF}
+
+  for i := 0 to 49 do
+  begin
+    LccNode := LccNodeSelector.LccNodes.Add;
+    LccNode.Captions.Clear;
+    LccNode.Captions.Add('Node: ' + IntToStr(i));
+    LccNode.Captions.Add('Subtext 1');
+    LccNode.Captions.Add('Subtext 2');
+    LccNode.Captions.Add('Subtext 3');
+    LccNode.Captions.Add('Subtext 4');
+    LccNode.Captions.Add('Subtext 5');
+    LccNode.Captions.Add('Subtext 6');
+    LccNode.ImageIndex := 0;
+  end;
 end;
 
 procedure TForm1.LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -268,13 +295,32 @@ procedure TForm1.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TL
 begin
   if LccSourceNode = LccNodeManager.RootNode then
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
-  LccNetworkTree.Connected := LccNodeManager.Enabled;
 end;
 
 procedure TForm1.LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
   if LccSourceNode = LccNodeManager.RootNode then
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+end;
+
+procedure TForm1.RadioGroup1Click(Sender: TObject);
+begin
+  LccNodeSelector.Alignment := TAlignment( RadioGroup1.ItemIndex);
+end;
+
+procedure TForm1.RadioGroup2Click(Sender: TObject);
+begin
+  LccNodeSelector.TextLayout := TTextLayout( RadioGroup2.ItemIndex);
+end;
+
+procedure TForm1.SpinEdit1Change(Sender: TObject);
+begin
+  LccNodeSelector.CaptionLineCount := SpinEdit1.Value;
+end;
+
+procedure TForm1.TrackBar1Change(Sender: TObject);
+begin
+  LccNodeSelector.DefaultNodeHeight := TrackBar1.Position;
 end;
 
 end.

@@ -14,7 +14,7 @@
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="18">
+    <Files Count="19">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -93,6 +93,11 @@
         <Filename Value="../lcc_common_classes.pas"/>
         <UnitName Value="lcc_common_classes"/>
       </Item18>
+      <Item19>
+        <Filename Value="../lcc_nodeselector.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="lcc_nodeselector"/>
+      </Item19>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>
