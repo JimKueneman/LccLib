@@ -16,12 +16,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionVisibility: TAction;
     ActionLogWindow: TAction;
     ActionEthernetServer: TAction;
     ActionLogin: TAction;
     ActionComPort: TAction;
     ActionSettings: TAction;
     ActionList1: TActionList;
+    Button1: TButton;
     ImageList1: TImageList;
     ImageList2: TImageList;
     LabelMyNodes: TLabel;
@@ -29,14 +31,21 @@ type
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
     LccNodeSelector: TLccNodeSelector;
+    LccNodeSelectorConsumer: TLccNodeSelector;
+    LccNodeSelectorProducer: TLccNodeSelector;
     LccSettings: TLccSettings;
+    PageControl1: TPageControl;
+    Panel1: TPanel;
     PanelMain: TPanel;
     PanelNetworkTree: TPanel;
     RadioGroup1: TRadioGroup;
     RadioGroup2: TRadioGroup;
     SpinEdit1: TSpinEdit;
+    Splitter1: TSplitter;
     SplitterMain: TSplitter;
     StatusBar1: TStatusBar;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
@@ -49,6 +58,7 @@ type
     procedure ActionLoginExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
+    procedure ActionVisibilityExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -57,6 +67,7 @@ type
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure LccNodeSelectorResize(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
     procedure RadioGroup2Click(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
@@ -136,6 +147,27 @@ begin
   end;
 end;
 
+procedure TForm1.ActionVisibilityExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  LccNodeSelector.BeginUpdate;
+  try
+    if ActionVisibility.Checked then
+    begin
+      for i := 0 to LccNodeSelector.LccNodes.Count - 1 do
+     //   LccNodeSelector.LccNodes[i].Visible := i mod 2 <> 0
+         LccNodeSelector.LccNodes[i].Visible := False
+    end else
+    begin
+      for i := 0 to LccNodeSelector.LccNodes.Count - 1 do
+        LccNodeSelector.LccNodes[i].Visible := True
+    end;
+  finally
+    LccNodeSelector.EndUpdate;
+  end;
+end;
+
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   // Before shutdown clean up and disconnect from connections
@@ -192,18 +224,61 @@ begin
   FormLogging.FrameLccLogging.SynEdit.Font.Size := 11;
   {$ENDIF}
 
-  for i := 0 to 49 do
-  begin
-    LccNode := LccNodeSelector.LccNodes.Add;
-    LccNode.Captions.Clear;
-    LccNode.Captions.Add('Node: ' + IntToStr(i));
-    LccNode.Captions.Add('Subtext 1');
-    LccNode.Captions.Add('Subtext 2');
-    LccNode.Captions.Add('Subtext 3');
-    LccNode.Captions.Add('Subtext 4');
-    LccNode.Captions.Add('Subtext 5');
-    LccNode.Captions.Add('Subtext 6');
-    LccNode.ImageIndex := 0;
+  LccNodeSelector.BeginUpdate;
+  try
+    for i := 0 to 99 do
+    begin
+      LccNode := LccNodeSelector.LccNodes.Add;
+      LccNode.Captions.Clear;
+      LccNode.Captions.Add('Node: ' + IntToStr(i));
+      LccNode.Captions.Add('Subtext 1');
+      LccNode.Captions.Add('Subtext 2');
+      LccNode.Captions.Add('Subtext 3');
+      LccNode.Captions.Add('Subtext 4');
+      LccNode.Captions.Add('Subtext 5');
+      LccNode.Captions.Add('Subtext 6');
+      LccNode.ImageIndex := 0;
+    end;
+  finally
+    LccNodeSelector.EndUpdate;
+  end;
+
+  LccNodeSelectorProducer.BeginUpdate;
+  try
+    for i := 0 to 99 do
+    begin
+      LccNode := LccNodeSelectorProducer.LccNodes.Add;
+      LccNode.Captions.Clear;
+      LccNode.Captions.Add('Node: ' + IntToStr(i));
+      LccNode.Captions.Add('Subtext 1');
+      LccNode.Captions.Add('Subtext 2');
+      LccNode.Captions.Add('Subtext 3');
+      LccNode.Captions.Add('Subtext 4');
+      LccNode.Captions.Add('Subtext 5');
+      LccNode.Captions.Add('Subtext 6');
+      LccNode.ImageIndex := 0;
+    end;
+  finally
+    LccNodeSelectorProducer.EndUpdate;
+  end;
+
+  LccNodeSelectorConsumer.BeginUpdate;
+  try
+    for i := 0 to 99 do
+    begin
+      LccNode := LccNodeSelectorConsumer.LccNodes.Add;
+      LccNode.Captions.Clear;
+      LccNode.Captions.Add('Node: ' + IntToStr(i));
+      LccNode.Captions.Add('Subtext 1');
+      LccNode.Captions.Add('Subtext 2');
+      LccNode.Captions.Add('Subtext 3');
+      LccNode.Captions.Add('Subtext 4');
+      LccNode.Captions.Add('Subtext 5');
+      LccNode.Captions.Add('Subtext 6');
+      LccNode.ImageIndex := 2;
+    end;
+  finally
+    LccNodeSelectorConsumer.EndUpdate;
   end;
 end;
 
@@ -301,6 +376,11 @@ procedure TForm1.LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLc
 begin
   if LccSourceNode = LccNodeManager.RootNode then
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+end;
+
+procedure TForm1.LccNodeSelectorResize(Sender: TObject);
+begin
+  StatusBar1.Panels[2].text := 'ClientH: ' + IntToStr(LccNodeSelector.ClientHeight) + '  VScroll - Pos: ' + IntToStr(LccNodeSelector.VertScrollBar.Position) + '  Page: ' + IntToStr(LccNodeSelector.VertScrollBar.Page) + '  Range: ' + IntToStr(LccNodeSelector.VertScrollBar.Range);
 end;
 
 procedure TForm1.RadioGroup1Click(Sender: TObject);

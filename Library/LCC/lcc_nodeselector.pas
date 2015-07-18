@@ -6,50 +6,108 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  ComCtrls, ExtCtrls, Menus, StdCtrls, Types;
+  {$IFDEF FPC}
+  LCLType,
+  LMessages,
+  {$ENDIF}
+  ComCtrls, ExtCtrls, Menus, StdCtrls, Types, contnrs;
 
 type
   TLccNodeSelectorBase = class;
 
   { TLccGuiNode }
 
-  TLccGuiNode = class(TPaintBox)
+  TLccGuiNode = class(TPersistent)
   private
     FCaptions: TStringList;
+    FColor: TColor;
+    FFocused: Boolean;
+    FHeight: Integer;
     FImageIndex: Integer;
+    FIndex: Integer;
+    FLeft: Integer;
     FOwnerSelector: TLccNodeSelectorBase;
+    FSelected: Boolean;
+    FTop: Integer;
+    FVisible: Boolean;
+    FVisibleIndex: Integer;
+    FWidth: Integer;
     procedure SetCaptions(AValue: TStringList);
+    procedure SetColor(AValue: TColor);
+    procedure SetFocused(AValue: Boolean);
+    procedure SetHeight(AValue: Integer);
     procedure SetImageIndex(AValue: Integer);
+    procedure SetLeft(AValue: Integer);
+    procedure SetSelected(AValue: Boolean);
+    procedure SetTop(AValue: Integer);
+    procedure SetVisible(AValue: Boolean);
+    procedure SetWidth(AValue: Integer);
   protected
-    procedure Paint; override;
+    procedure Paint(Canvas: TCanvas);
   public
     property Captions: TStringList read FCaptions write SetCaptions;
+    property Color: TColor read FColor write SetColor;
+    property Focused: Boolean read FFocused write SetFocused;
+    property Height: Integer read FHeight write SetHeight;
     property ImageIndex: Integer read FImageIndex write SetImageIndex;
+    property Index: Integer read FIndex;
+    property Left: Integer read FLeft write SetLeft;
     property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
-    constructor Create(AOwner: TComponent); override;
+    property Selected: Boolean read FSelected write SetSelected;
+    property Top: Integer read FTop write SetTop;
+    property Visible: Boolean read FVisible write SetVisible;
+    property VisibleIndex: Integer read FVisibleIndex;
+    property Width: Integer read FWidth write SetWidth;
+
+    constructor Create;
     destructor Destroy; override;
+    function BoundsRect: TRect;
+    procedure Invalidate(Update: Boolean);
+    procedure SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
+    function PtInNode(APt: TPoint): Boolean;
   end;
 
   { TLccGuiNodeList }
 
   TLccGuiNodeList = class(TComponent)
   private
-    FNodeList: TList;
+    FNodeList: TObjectList;
     FOwnerSelector: TLccNodeSelectorBase;
     function GetCount: Integer;
-    function GetLccGuiNodes(Index: Integer): TLccGuiNode;
-    procedure SetLccGuiNodes(Index: Integer; AValue: TLccGuiNode);
+    function GetNodes(Index: Integer): TLccGuiNode;
+    procedure SetNodes(Index: Integer; AValue: TLccGuiNode);
+  protected
+    property NodeList: TObjectList read FNodeList write FNodeList;
   public
+    property Count: Integer read GetCount;
+    property Nodes[Index: Integer]: TLccGuiNode read GetNodes write SetNodes; default;
+    property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
+
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
+    function Add: TLccGuiNode;
+    procedure Delete(Index: Integer);
+  end;
+
+  { TLccGuiVisibleNodeList }
+
+  TLccGuiVisibleNodeList = class(TComponent)
+  private
+    FNodeList: TObjectList;
+    function GetCount: Integer;
+    function GetNodes(Index: Integer): TLccGuiNode;
+    procedure SetNodes(Index: Integer; AValue: TLccGuiNode);
   protected
-    property NodeList: TList read FNodeList write FNodeList;
+    property NodeList: TObjectList read FNodeList write FNodeList;
   public
     property Count: Integer read GetCount;
-    property LccGuiNodes[Index: Integer]: TLccGuiNode read GetLccGuiNodes write SetLccGuiNodes; default;
-    property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
-    function Add: TLccGuiNode;
+    property Nodes[Index: Integer]: TLccGuiNode read GetNodes write SetNodes; default;
+
+    constructor Create;
+    destructor Destroy; override;
+    procedure Add(Node: TLccGuiNode);
+    procedure Clear;
     procedure Delete(Index: Integer);
   end;
 
@@ -58,6 +116,7 @@ type
   TLccNodeSelectorBase = class(TScrollBox)
   private
     FAlignment: TAlignment;
+    FFocusedNode: TLccGuiNode;
     FImages: TImageList;
     FTextLayout: TTextLayout;
     FCaptionIndent: Integer;
@@ -66,7 +125,10 @@ type
     FDetailsFont: TFont;
     FDetailsIndent: Integer;
     FLccNodes: TLccGuiNodeList;
+    FLccVisibleNodes: TLccGuiVisibleNodeList;
+    FUpdateLock: Integer;
     procedure SetAlignment(AValue: TAlignment);
+    procedure SetFocusedNode(AValue: TLccGuiNode);
     procedure SetTextLayout(AValue: TTextLayout);
     procedure SetCaptionIndent(AValue: Integer);
     procedure SetCaptionLineCount(AValue: Integer);
@@ -80,18 +142,50 @@ type
     property DefaultNodeHeight: Integer read FDefaultNodeHeight write SetDefaultNodeHeight;
     property DetailsIndent: Integer read FDetailsIndent write SetDetailsIndent;
     property DetailsFont: TFont read FDetailsFont write SetDetailsFont;
+    property FocusedNode: TLccGuiNode read FFocusedNode write SetFocusedNode;
     property Images: TImageList read FImages write FImages;
     property LccNodes: TLccGuiNodeList read FLccNodes write FLccNodes;
+    property LccVisibleNodes: TLccGuiVisibleNodeList read FLccVisibleNodes write FLccVisibleNodes;
     property TextLayout: TTextLayout read FTextLayout write SetTextLayout;
+    property UpdateLock: Integer read FUpdateLock write FUpdateLock;
+
+    function AdjustedClientWidth: Integer;
+    procedure CalculateAutoRanges; override;
     procedure DoOnResize; override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure WMShowWindow(var Message: TLMShowWindow); message LM_SHOWWINDOW;
+    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
+    procedure Paint; override;
+    procedure RebuildNodes;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    procedure BeginUpdate;
+    function ClientRectToCurrentViewPt(ARect: TRect): TRect;
+    function ClientPtToCurrentViewPt(APt: TPoint): TPoint;
+    function ClientPtToVisibleNode(ClientPt: TPoint; CurrentViewOnly: Boolean): TLccGuiNode;
+    procedure CurrentViewRect(var ARect: TRect);
+    procedure EndUpdate;
+    function First: TLccGuiNode;
+    function FirstInView: TLccGuiNode;
+    function FirstVisible: TLccGuiNode;
+    function IsInCurrentView(Node: TLccGuiNode): Boolean;
+    function Last: TLccGuiNode;
+    function LastVisible: TLccGuiNode;
+    function Next(Node: TLccGuiNode): TLccGuiNode;
+    function NextVisible(Node: TLccGuiNode): TLccGuiNode;
+    function Previous(Node: TLccGuiNode): TLccGuiNode;
+    function PreviousVisible(Node: TLccGuiNode): TLccGuiNode;
+    procedure ScrollIntoView(Node: TLccGuiNode);
   end;
 
   TLccNodeSelector = class(TLccNodeSelectorBase)
   public
-    property LccNodes: TLccGuiNodeList read FLccNodes write FLccNodes;
+    property LccNodes;
+    property LccVisibleNodes;
   published
     property Alignment;
     property CaptionIndent;
@@ -115,13 +209,77 @@ begin
   RegisterComponents('LCC',[TLccNodeSelector]);
 end;
 
+procedure EmptyRect(var ARect: TRect);
+begin
+  ARect := Rect(0, 0, 0, 0);
+end;
+
+{ TLccGuiVisibleNodeList }
+
+procedure TLccGuiVisibleNodeList.Add(Node: TLccGuiNode);
+begin
+  NodeList.Add(Node);
+end;
+
+procedure TLccGuiVisibleNodeList.Clear;
+begin
+  NodeList.Clear;
+end;
+
+constructor TLccGuiVisibleNodeList.Create;
+begin
+  inherited;
+  FNodeList := TObjectList.Create;
+  NodeList.OwnsObjects := False;
+end;
+
+procedure TLccGuiVisibleNodeList.Delete(Index: Integer);
+begin
+  NodeList.Delete(Index);
+end;
+
+destructor TLccGuiVisibleNodeList.Destroy;
+begin
+  FreeAndNil(FNodeList);
+  inherited Destroy;
+end;
+
+function TLccGuiVisibleNodeList.GetCount: Integer;
+begin
+  Result := NodeList.Count;
+end;
+
+function TLccGuiVisibleNodeList.GetNodes(Index: Integer): TLccGuiNode;
+begin
+  Result := NodeList[Index] as TLccGuiNode
+end;
+
+procedure TLccGuiVisibleNodeList.SetNodes(Index: Integer; AValue: TLccGuiNode);
+begin
+  NodeList[Index] := AValue
+end;
+
 { TLccGuiNode }
 
-constructor TLccGuiNode.Create(AOwner: TComponent);
+function TLccGuiNode.BoundsRect: TRect;
 begin
-  inherited Create(AOwner);
+  Result.Top := Top;
+  Result.Bottom := Top + FHeight;
+  Result.Left := Left;
+  Result.Right := Left + FWidth;
+end;
+
+constructor TLccGuiNode.Create;
+begin
+  inherited Create;
   FCaptions := TStringList.Create;
   FImageIndex := -1;
+  FVisible := True;
+  FColor := clWindow;
+  FTop := 0;
+  FLeft := 0;
+  FWidth := 20;
+  FHeight := 20;
 end;
 
 destructor TLccGuiNode.Destroy;
@@ -130,13 +288,17 @@ begin
   inherited Destroy;
 end;
 
-procedure TLccGuiNode.Paint;
-
-  procedure EmptyRect(var ARect: TRect);
+procedure TLccGuiNode.Invalidate(Update: Boolean);
+begin
+  if Assigned(OwnerSelector) then
   begin
-    ARect := Rect(0, 0, 0, 0);
+    OwnerSelector.Invalidate;
+    if Update then
+      OwnerSelector.Update;
   end;
+end;
 
+procedure TLccGuiNode.Paint(Canvas: TCanvas);
 var
   TextBox: TRect;
   i, Offset: Integer;
@@ -144,8 +306,6 @@ var
   TextRects: array of TRect;
   ImageWidth: Integer;
 begin
-  inherited Paint;
-
   ImageWidth := 0;
   if Assigned(OwnerSelector.Images) and (ImageIndex > -1) then
     ImageWidth := OwnerSelector.Images.Width + 4;
@@ -161,8 +321,8 @@ begin
     TextRects[0].Right := TextExtent.cx + ImageWidth;
     TextRects[0].Bottom := TextExtent.cy;
     OffsetRect(TextRects[0], OwnerSelector.CaptionIndent + ImageWidth, 0);
-    if TextRects[0].Right > ClientWidth - OwnerSelector.CaptionIndent then
-      TextRects[0].Right := ClientWidth - OwnerSelector.CaptionIndent;
+    if TextRects[0].Right > Width - OwnerSelector.CaptionIndent then
+      TextRects[0].Right := Width - OwnerSelector.CaptionIndent;
 
     Canvas.Font.Assign(OwnerSelector.DetailsFont);
     i := 1;
@@ -172,8 +332,8 @@ begin
       TextRects[i].Right := TextExtent.cx + ImageWidth;
       TextRects[i].Bottom := TextExtent.cy;
       OffsetRect(TextRects[i], OwnerSelector.DetailsIndent + ImageWidth, 0);
-      if TextRects[i].Right > ClientWidth - OwnerSelector.DetailsIndent then
-        TextRects[i].Right := ClientWidth - OwnerSelector.DetailsIndent;
+      if TextRects[i].Right > Width - OwnerSelector.DetailsIndent then
+        TextRects[i].Right := Width - OwnerSelector.DetailsIndent;
       OffsetRect(TextRects[i], 0, TextRects[i-1].Bottom);
       Inc(i)
     end;
@@ -190,8 +350,8 @@ begin
         end;
       tlCenter :
         begin
-          if TextBox.Bottom < ClientHeight then
-            Offset := (ClientHeight - TextBox.Bottom) div 2
+          if TextBox.Bottom < Height then
+            Offset := (Height - TextBox.Bottom) div 2
           else
             Offset := 0;
 
@@ -200,9 +360,9 @@ begin
         end;
       tlBottom :
         begin
-          if TextBox.Bottom < ClientHeight then
+          if TextBox.Bottom < Height then
           begin
-            Offset := ClientHeight - TextBox.Bottom
+            Offset := Height - TextBox.Bottom
           end else
             Offset := 0;
 
@@ -219,8 +379,8 @@ begin
         end;
       taCenter :
         begin
-          if TextBox.Right < ClientWidth then
-            Offset := (ClientWidth - TextBox.Right) div 2
+          if TextBox.Right < Width then
+            Offset := (Width - TextBox.Right) div 2
           else
             Offset := 0;
 
@@ -229,9 +389,9 @@ begin
         end;
       taRightJustify :
         begin
-          if TextBox.Right < ClientWidth then
+          if TextBox.Right < Width then
           begin
-            Offset := ClientWidth - TextBox.Right
+            Offset := Width - TextBox.Right
           end else
             Offset := 0;
 
@@ -240,47 +400,189 @@ begin
         end;
     end;
 
+    Canvas.ClipRect := BoundsRect;
+    Canvas.Clipping := True;
     Canvas.Brush.Color := Color;
-    Canvas.FillRect(0, 0, ClientWidth, ClientHeight);
+    Canvas.FillRect(BoundsRect);
     if Assigned(OwnerSelector.Images) and (ImageIndex > -1) then
     case OwnerSelector.TextLayout of
-      tlTop    : OwnerSelector.Images.Draw(Canvas, 4, 4, ImageIndex);
-      tlCenter : OwnerSelector.Images.Draw(Canvas, 4, ((ClientHeight - OwnerSelector.Images.Height) div 2), ImageIndex);
-      tlBottom : OwnerSelector.Images.Draw(Canvas, 4, (ClientHeight - OwnerSelector.Images.Height - 4), ImageIndex);
+      tlTop    : OwnerSelector.Images.Draw(Canvas, Left + 4, Top + 4, ImageIndex);
+      tlCenter : OwnerSelector.Images.Draw(Canvas, Left + 4, Top + ((Height - OwnerSelector.Images.Height) div 2), ImageIndex);
+      tlBottom : OwnerSelector.Images.Draw(Canvas, Left + 4, Top + (Height - OwnerSelector.Images.Height - 4), ImageIndex);
     end;
     Canvas.Font.Assign(OwnerSelector.Font);
+    OffsetRect(TextRects[0], Left, Top);
     Canvas.TextRect(TextRects[0], TextRects[0].Left, TextRects[0].Top, Captions[0]);
     Canvas.Font.Assign(OwnerSelector.DetailsFont);
     i := 1;
     while (i < OwnerSelector.CaptionLineCount) and (i < Captions.Count) do
     begin
+      OffsetRect(TextRects[i], Left, Top);
       Canvas.TextRect(TextRects[i], TextRects[i].Left, TextRects[i].Top, Captions[i]);
       Inc(i)
     end;
+    if Focused then
+    begin
+      Canvas.Pen.Width := 2;
+      Canvas.Pen.Color := clBlack;
+      Canvas.Frame(BoundsRect);
+    end;
   end;
+end;
+
+function TLccGuiNode.PtInNode(APt: TPoint): Boolean;
+begin
+  Result := PtInRect(BoundsRect, APt);
+end;
+
+procedure TLccGuiNode.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
+begin
+  FTop := ATop;
+  FLeft := ALeft;
+  FWidth := AWidth;
+  FHeight := AHeight;
 end;
 
 procedure TLccGuiNode.SetCaptions(AValue: TStringList);
 begin
   FCaptions.Assign(AValue);
-  InvalidateControl(True, False);
-  Update;
+  Invalidate(True);
+end;
+
+procedure TLccGuiNode.SetColor(AValue: TColor);
+begin
+  if FColor = AValue then Exit;
+  FColor := AValue;
+  Invalidate(True);
+end;
+
+procedure TLccGuiNode.SetFocused(AValue: Boolean);
+begin
+  if FFocused = AValue then Exit;
+  FFocused := AValue;
+  if Assigned(OwnerSelector) then
+  begin
+    if AValue then
+    begin
+      if Assigned(OwnerSelector.FocusedNode) and (OwnerSelector.FocusedNode <> Self) then
+        OwnerSelector.FocusedNode.Focused := False;
+      OwnerSelector.FocusedNode := Self;
+      if not OwnerSelector.IsInCurrentView(Self) then
+        OwnerSelector.ScrollIntoView(Self);
+    end;
+  end;
+  Invalidate(True);
+end;
+
+procedure TLccGuiNode.SetHeight(AValue: Integer);
+begin
+  if FHeight = AValue then Exit;
+  FHeight := AValue;
 end;
 
 procedure TLccGuiNode.SetImageIndex(AValue: Integer);
 begin
   if FImageIndex = AValue then Exit;
   FImageIndex := AValue;
-  InvalidateControl(True, False);
-  Update;
+  Invalidate(True);
+end;
+
+procedure TLccGuiNode.SetLeft(AValue: Integer);
+begin
+  if FLeft = AValue then Exit;
+  FLeft := AValue;
+end;
+
+procedure TLccGuiNode.SetSelected(AValue: Boolean);
+begin
+  if FSelected = AValue then Exit;
+  FSelected := AValue;
+end;
+
+procedure TLccGuiNode.SetTop(AValue: Integer);
+begin
+  if FTop = AValue then Exit;
+  FTop := AValue;
+end;
+
+procedure TLccGuiNode.SetVisible(AValue: Boolean);
+begin
+  if FVisible = AValue then Exit;
+  FVisible := AValue;
+  OwnerSelector.RebuildNodes;
+end;
+
+procedure TLccGuiNode.SetWidth(AValue: Integer);
+begin
+  if FWidth = AValue then Exit;
+  FWidth := AValue;
 end;
 
 { TLccNodeSelectorBase }
+
+function TLccNodeSelectorBase.AdjustedClientWidth: Integer;
+begin
+  Result := ClientWidth - 2
+end;
+
+procedure TLccNodeSelectorBase.BeginUpdate;
+begin
+  Inc(FUpdateLock);
+end;
+
+procedure TLccNodeSelectorBase.CalculateAutoRanges;
+begin
+  VertScrollBar.Range := DefaultNodeHeight * LccVisibleNodes.Count;
+  HorzScrollBar.Range := 400;
+  AutoScroll := True;
+end;
+
+function TLccNodeSelectorBase.ClientPtToCurrentViewPt(APt: TPoint): TPoint;
+begin
+  Result.X := APt.X + HorzScrollBar.Position;
+  Result.Y := APt.Y + VertScrollBar.Position;
+end;
+
+function TLccNodeSelectorBase.ClientPtToVisibleNode(ClientPt: TPoint; CurrentViewOnly: Boolean): TLccGuiNode;
+var
+  ViewPt: TPoint;
+  Node: TLccGuiNode;
+begin
+  Result := nil;
+  ViewPt := ClientPtToCurrentViewPt(ClientPt);
+  if CurrentViewOnly then
+    Node := FirstInView
+  else
+    Node := FirstVisible;
+  while Assigned(Node) and not Assigned(Result) do
+  begin
+    if Node.PtInNode(ViewPt) then
+    begin
+      Result := Node;
+      Break
+    end else
+    begin
+      Node := NextVisible(Node);
+      if CurrentViewOnly then
+      begin
+        if not IsInCurrentView(Node) then
+        Node := nil
+      end
+    end;
+  end;
+end;
+
+function TLccNodeSelectorBase.ClientRectToCurrentViewPt(ARect: TRect): TRect;
+begin
+  Result.TopLeft := ClientPtToCurrentViewPt(ARect.TopLeft);
+  Result.BottomRight := ClientPtToCurrentViewPt(ARect.BottomRight);
+end;
 
 constructor TLccNodeSelectorBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FLccNodes := TLccGuiNodeList.Create;
+  LccVisibleNodes := TLccGuiVisibleNodeList.Create;
   FLccNodes.FOwnerSelector := Self;
   FDefaultNodeHeight := 44;
   FDetailsFont := TFont.Create;
@@ -293,20 +595,237 @@ end;
 
 destructor TLccNodeSelectorBase.Destroy;
 begin
+  FreeAndNil(FLccVisibleNodes);
   FreeAndNil(FLccNodes);
   FreeAndNil(FDetailsFont);
   inherited Destroy;
 end;
 
 procedure TLccNodeSelectorBase.DoOnResize;
+begin
+  inherited DoOnResize;
+  RebuildNodes;
+end;
+
+procedure TLccNodeSelectorBase.EndUpdate;
+begin
+  Dec(FUpdateLock);
+  if FUpdateLock < 1 then
+  begin
+    FUpdateLock := 0;
+    RebuildNodes;
+    Invalidate;
+    Update
+  end;
+end;
+
+function TLccNodeSelectorBase.First: TLccGuiNode;
+begin
+  Result := nil;
+  if LccNodes.Count > 0 then
+    Result := LccNodes[0];
+end;
+
+function TLccNodeSelectorBase.FirstInView: TLccGuiNode;
+var
+  Index: Integer;
+begin
+  Result := nil;
+  if LccVisibleNodes.Count > 0 then
+  begin
+    Index := (VertScrollBar.Position div DefaultNodeHeight);
+    if Index >= LccVisibleNodes.Count then
+      Index := LccVisibleNodes.Count - 1;
+    Result := LccVisibleNodes[Index];
+  end;
+end;
+
+function TLccNodeSelectorBase.FirstVisible: TLccGuiNode;
+begin
+  Result := nil;
+  if LccVisibleNodes.Count > 0 then
+    Result := LccVisibleNodes[0];
+end;
+
+function TLccNodeSelectorBase.IsInCurrentView(Node: TLccGuiNode): Boolean;
+var
+  ResultRect, AViewRect: TRect;
+begin
+  Result := False;
+  if Assigned(Node) then
+  begin
+    CurrentViewRect(AViewRect);
+    IntersectRect(ResultRect, AViewRect, Node.BoundsRect);
+    Result := not IsRectEmpty(ResultRect)
+  end;
+end;
+
+procedure TLccNodeSelectorBase.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited KeyDown(Key, Shift);
+  case Key of
+    VK_DOWN :
+      begin
+        FocusedNode := NextVisible(FocusedNode);
+        if not Assigned(FocusedNode) then
+          FocusedNode := FirstVisible;
+      end;
+    VK_UP :
+      begin
+        FocusedNode := PreviousVisible(FocusedNode);
+        if not Assigned(FocusedNode) then
+          FocusedNode := FirstVisible;
+      end;
+    VK_HOME :
+      begin
+        FocusedNode := FirstVisible;
+      end;
+    VK_END :
+      begin
+        FocusedNode := LastVisible;
+      end;
+  end;
+end;
+
+function TLccNodeSelectorBase.Last: TLccGuiNode;
+begin
+  Result := nil;
+  if LccNodes.Count > 0 then
+    Result := LccNodes[LccNodes.Count - 1];
+end;
+
+function TLccNodeSelectorBase.LastVisible: TLccGuiNode;
+begin
+  Result := nil;
+  if LccVisibleNodes.Count > 0 then
+    Result := LccVisibleNodes[LccVisibleNodes.Count - 1];
+end;
+
+procedure TLccNodeSelectorBase.ScrollIntoView(Node: TLccGuiNode);
+begin
+  VertScrollBar.Position := Node.Top;
+end;
+
+procedure TLccNodeSelectorBase.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Node: TLccGuiNode;
+begin
+  inherited MouseDown(Button, Shift, X, Y);
+  SetFocus;
+  MouseCapture := True;
+  Node := ClientPtToVisibleNode(Point(X, Y), True);
+  FocusedNode := Node;
+end;
+
+procedure TLccNodeSelectorBase.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited MouseUp(Button, Shift, X, Y);
+  MouseCapture := False;
+end;
+
+function TLccNodeSelectorBase.Next(Node: TLccGuiNode): TLccGuiNode;
 var
   i: Integer;
 begin
-  inherited DoOnResize;
+  Result := nil;
+  if Assigned(Node) then
+  begin
+    i := Node.Index;
+    Inc(i);
+    if i >= LccNodes.NodeList.Count then
+      i := 0;                                   // Wrap
+    Result := LccNodes.Nodes[i]
+  end;
+end;
+
+function TLccNodeSelectorBase.NextVisible(Node: TLccGuiNode): TLccGuiNode;
+var
+  i: Integer;
+begin
+  Result := nil;
+  if Assigned(Node) then
+  begin
+    i := Node.VisibleIndex;
+    Inc(i);
+    if i >= LccVisibleNodes.NodeList.Count then
+      i := 0;                                   // Wrap
+    Result := LccVisibleNodes.Nodes[i]
+  end;
+end;
+
+procedure TLccNodeSelectorBase.Paint;
+var
+  Node: TLccGuiNode;
+  IntersetRect: TRect;
+begin
+  inherited Paint;
+  // TODO:  Find first and last in Viewport
+  Node := FirstInView;
+  while Assigned(Node) do
+  begin
+    Node.Paint(Canvas);
+    Node := NextVisible(Node);
+    if not IsInCurrentView(Node) then
+      Node := nil
+  end;
+end;
+
+function TLccNodeSelectorBase.Previous(Node: TLccGuiNode): TLccGuiNode;
+var
+  i: Integer;
+begin
+  i := LccNodes.NodeList.IndexOf(Node);
+  if (i > -1) then
+  begin
+    Dec(i);
+    if i < 0 then
+      i := LccNodes.Count - 1;                   // Wrap
+    Result := LccNodes.Nodes[i]
+  end;
+end;
+
+function TLccNodeSelectorBase.PreviousVisible(Node: TLccGuiNode): TLccGuiNode;
+var
+  i: Integer;
+begin
+  i := LccVisibleNodes.NodeList.IndexOf(Node);
+  if (i > -1) then
+  begin
+    Dec(i);
+    if i < 0 then
+      i := LccVisibleNodes.Count - 1;                   // Wrap
+    Result := LccVisibleNodes.Nodes[i]
+  end;
+end;
+
+procedure TLccNodeSelectorBase.RebuildNodes;
+var
+  i, NextTop, LocalVisibleIndex: Integer;
+begin
+  if UpdateLock > 0 then Exit;
+
+  LccVisibleNodes.Clear;
+  NextTop := 0;
+  LocalVisibleIndex := 0;
   for i := 0 to LccNodes.Count - 1 do
   begin
-    LccNodes[i].Width := ClientWidth;
+    LccNodes[i].FIndex := i;
+    if LccNodes[i].Visible then
+    begin
+      LccNodes[i].FVisibleIndex := LocalVisibleIndex;
+      Inc(LocalVisibleIndex);
+      LccVisibleNodes.Add(LccNodes[i]);
+      LccNodes[i].SetBounds(0, NextTop, AdjustedClientWidth, DefaultNodeHeight);
+      NextTop := LccNodes[i].Top + LccNodes[i].Height;
+    end else
+    begin
+      LccNodes[i].Height := 0;
+    end;
   end;
+
+  UpdateScrollbars;
+  Invalidate;
+  Update;
 end;
 
 procedure TLccNodeSelectorBase.SetAlignment(AValue: TAlignment);
@@ -326,6 +845,24 @@ begin
   Update;
 end;
 
+procedure TLccNodeSelectorBase.CurrentViewRect(var ARect: TRect);
+begin
+  ARect.Top := VertScrollBar.Position;
+  ARect.Bottom := ARect.Top + VertScrollBar.Page;
+  ARect.Left := HorzScrollBar.Position;
+  ARect.Right := ARect.Left + HorzScrollBar.Page;
+end;
+
+procedure TLccNodeSelectorBase.WMShowWindow(var Message: TLMShowWindow);
+begin
+  inherited WMShowWindow(Message);
+end;
+
+procedure TLccNodeSelectorBase.WMKeyDown(var Message: TLMKeyDown);
+begin
+  inherited;
+end;
+
 procedure TLccNodeSelectorBase.SetCaptionIndent(AValue: Integer);
 begin
   if FCaptionIndent = AValue then Exit;
@@ -343,21 +880,12 @@ begin
 end;
 
 procedure TLccNodeSelectorBase.SetDefaultNodeHeight(AValue: Integer);
-var
-  i: Integer;
 begin
   if AValue < 1 then
     AValue := 1;
   if FDefaultNodeHeight = AValue then Exit;
   FDefaultNodeHeight := AValue;
-  for i := 0 to LccNodes.Count - 1 do
-  begin
-    LccNodes[i].Height := DefaultNodeHeight;
-    if i > 0 then
-      LccNodes[i].Top := LccNodes[i-1].Top + LccNodes[i-1].Height;
-  end;
-  Invalidate;
-  Update
+  RebuildNodes;
 end;
 
 procedure TLccNodeSelectorBase.SetDetailsFont(AValue: TFont);
@@ -373,48 +901,48 @@ begin
   Update
 end;
 
+procedure TLccNodeSelectorBase.SetFocusedNode(AValue: TLccGuiNode);
+var
+  OldFocused: TLccGuiNode;
+begin
+  if FFocusedNode = AValue then Exit;
+  OldFocused := FocusedNode;
+  FFocusedNode := AValue;
+  if Assigned(AValue) then
+    AValue.Focused := True;
+  if Assigned(OldFocused) then
+    OldFocused.Focused := False;
+end;
+
 
 { TLccGuiNodeList }
 
 function TLccGuiNodeList.Add: TLccGuiNode;
 begin
-  Result := TLccGuiNode.Create(OwnerSelector);
-  Result.Top := 0;
-  Result.Height := OwnerSelector.DefaultNodeHeight;
-  Result.Width := OwnerSelector.ClientWidth;
-  Result.Parent := OwnerSelector;
+  Result := TLccGuiNode.Create;
   Result.FOwnerSelector := OwnerSelector;
   if Count > 0 then
-    Result.Top := LccGuiNodes[Count-1].Top + LccGuiNodes[Count-1].Height;
+    Result.SetBounds(0, Nodes[Count-1].Top + Nodes[Count-1].Height, OwnerSelector.AdjustedClientWidth, OwnerSelector.DefaultNodeHeight)
+  else
+    Result.SetBounds(0, 0, OwnerSelector.AdjustedClientWidth, OwnerSelector.DefaultNodeHeight);
   NodeList.Add(Result);
 end;
 
 procedure TLccGuiNodeList.Clear;
-var
-  i: Integer;
-  Node: TObject;
 begin
-  for i := FNodeList.Count - 1 downto 0 do
-  begin
-    {$IFDEF FPC}
-    Node := TObject( FNodeList[i]);
-    FreeAndNil(Node);
-    {$ELSE}
-    Delphi way here
-    {$ENDIF}
-    Delete(i);
-  end;
+  NodeList.Clear;
 end;
 
 constructor TLccGuiNodeList.Create;
 begin
   inherited;
-  FNodeList := TList.Create;
+  FNodeList := TObjectList.Create;
+  NodeList.OwnsObjects := True;
 end;
 
 procedure TLccGuiNodeList.Delete(Index: Integer);
 begin
-
+  NodeList.Delete(Index);
 end;
 
 destructor TLccGuiNodeList.Destroy;
@@ -429,12 +957,12 @@ begin
   Result := NodeList.Count;
 end;
 
-function TLccGuiNodeList.GetLccGuiNodes(Index: Integer): TLccGuiNode;
+function TLccGuiNodeList.GetNodes(Index: Integer): TLccGuiNode;
 begin
-  Result := TLccGuiNode( NodeList[Index])
+  Result := NodeList[Index] as TLccGuiNode
 end;
 
-procedure TLccGuiNodeList.SetLccGuiNodes(Index: Integer; AValue: TLccGuiNode);
+procedure TLccGuiNodeList.SetNodes(Index: Integer; AValue: TLccGuiNode);
 begin
   NodeList[Index] := AValue
 end;
