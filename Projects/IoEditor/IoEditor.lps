@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="57">
+    <Units Count="72">
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,8 +18,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_main"/>
-        <TopLine Value="377"/>
-        <CursorPos X="22" Y="403"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="219"/>
+        <CursorPos X="3" Y="221"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -38,7 +39,7 @@
       <Unit3>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="135"/>
+        <UsageCount Value="21"/>
       </Unit3>
       <Unit4>
         <Filename Value="Forms/form_logging.pas"/>
@@ -49,503 +50,591 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="28" Y="16"/>
-        <UsageCount Value="189"/>
+        <UsageCount Value="194"/>
       </Unit4>
       <Unit5>
-        <Filename Value="../../Library/LCC/lcc_rootnode.pas"/>
-        <UsageCount Value="12"/>
+        <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
+        <UsageCount Value="20"/>
       </Unit5>
       <Unit6>
-        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="3" Y="27"/>
-        <UsageCount Value="23"/>
+        <Filename Value="../../Library/LCC/lcc_rootnode.pas"/>
+        <UsageCount Value="136"/>
       </Unit6>
       <Unit7>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2884"/>
-        <CursorPos X="32" Y="2898"/>
-        <UsageCount Value="56"/>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <UnitName Value="lcc_messages"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="902"/>
+        <CursorPos Y="920"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
       </Unit7>
       <Unit8>
+        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
+        <UnitName Value="lcc_nodemanager"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="2576"/>
+        <CursorPos X="39" Y="2578"/>
+        <UsageCount Value="58"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="418"/>
         <CursorPos X="14" Y="429"/>
         <UsageCount Value="9"/>
-      </Unit8>
-      <Unit9>
+      </Unit9>
+      <Unit10>
         <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="209"/>
         <CursorPos X="28" Y="209"/>
         <UsageCount Value="20"/>
-      </Unit9>
-      <Unit10>
+      </Unit10>
+      <Unit11>
         <Filename Value="../../Library/LCC/lcc_defines.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="370"/>
         <CursorPos X="35" Y="394"/>
         <UsageCount Value="12"/>
-      </Unit10>
-      <Unit11>
+      </Unit11>
+      <Unit12>
         <Filename Value="/Developer/lazarus/lcl/controls.pp"/>
-        <UnitName Value="Controls"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="853"/>
         <CursorPos X="5" Y="870"/>
         <UsageCount Value="11"/>
-      </Unit11>
-      <Unit12>
+      </Unit12>
+      <Unit13>
         <Filename Value="/Developer/lazarus/lcl/graphics.pp"/>
-        <UnitName Value="Graphics"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1155"/>
         <CursorPos X="15" Y="1168"/>
         <UsageCount Value="11"/>
-      </Unit12>
-      <Unit13>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <UnitName Value="lcc_nodeselector"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="545"/>
-        <CursorPos X="10" Y="570"/>
-        <UsageCount Value="95"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
-        <Filename Value="/Developer/lazarus/lcl/forms.pp"/>
-        <UnitName Value="Forms"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="156"/>
-        <CursorPos X="15" Y="180"/>
-        <UsageCount Value="67"/>
+        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
+        <UnitName Value="lcc_nodeselector"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="974"/>
+        <CursorPos X="58" Y="983"/>
+        <UsageCount Value="97"/>
+        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
+        <Filename Value="/Developer/lazarus/lcl/forms.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="600"/>
+        <CursorPos X="14" Y="615"/>
+        <UsageCount Value="67"/>
+      </Unit15>
+      <Unit16>
         <Filename Value="/Developer/lazarus/lcl/include/canvas.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1009"/>
         <CursorPos X="16" Y="1020"/>
         <UsageCount Value="10"/>
-      </Unit15>
-      <Unit16>
+      </Unit16>
+      <Unit17>
         <Filename Value="/usr/local/share/fpcsrc/packages/fcl-image/src/fpcanvas.pp"/>
-        <UnitName Value="FPCanvas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="349"/>
         <CursorPos X="56" Y="363"/>
         <UsageCount Value="10"/>
-      </Unit16>
-      <Unit17>
+      </Unit17>
+      <Unit18>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/types.pp"/>
-        <UnitName Value="types"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="352"/>
         <CursorPos X="3" Y="356"/>
         <UsageCount Value="11"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="/Developer/lazarus/lcl/include/graphiccontrol.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="43"/>
-        <CursorPos Y="58"/>
-        <UsageCount Value="0"/>
       </Unit18>
       <Unit19>
-        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonobject.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="656"/>
-        <CursorPos Y="675"/>
-        <UsageCount Value="0"/>
-      </Unit19>
-      <Unit20>
         <Filename Value="/Developer/lazarus/lcl/include/wincontrol.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="7166"/>
-        <CursorPos X="58" Y="7182"/>
+        <TopLine Value="5328"/>
+        <CursorPos Y="5341"/>
         <UsageCount Value="59"/>
-      </Unit20>
-      <Unit21>
+      </Unit19>
+      <Unit20>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/objpas.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="0"/>
-      </Unit21>
-      <Unit22>
+        <UsageCount Value="10"/>
+      </Unit20>
+      <Unit21>
         <Filename Value="/Developer/lazarus/lcl/include/customform.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="719"/>
-        <CursorPos Y="739"/>
+        <TopLine Value="2450"/>
+        <CursorPos X="3" Y="2455"/>
         <UsageCount Value="10"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivatewindow.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="281"/>
-        <CursorPos Y="296"/>
+        <TopLine Value="958"/>
+        <CursorPos Y="1014"/>
         <UsageCount Value="60"/>
-      </Unit23>
-      <Unit24>
+      </Unit22>
+      <Unit23>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivate.pp"/>
-        <UnitName Value="CarbonPrivate"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1168"/>
         <CursorPos Y="1185"/>
         <UsageCount Value="23"/>
-      </Unit24>
-      <Unit25>
+      </Unit23>
+      <Unit24>
         <Filename Value="/usr/local/share/fpcsrc/packages/univint/src/MacWindows.pas"/>
-        <UnitName Value="MacWindows"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1299"/>
         <CursorPos X="27" Y="1306"/>
         <UsageCount Value="21"/>
-      </Unit25>
-      <Unit26>
+      </Unit24>
+      <Unit25>
         <Filename Value="/Developer/lazarus/lcl/include/winapi.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="479"/>
-        <CursorPos Y="486"/>
+        <TopLine Value="913"/>
+        <CursorPos Y="928"/>
         <UsageCount Value="57"/>
-      </Unit26>
-      <Unit27>
+      </Unit25>
+      <Unit26>
         <Filename Value="/Developer/lazarus/lcl/include/control.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1716"/>
-        <CursorPos Y="1731"/>
+        <TopLine Value="2015"/>
+        <CursorPos X="44" Y="2033"/>
         <UsageCount Value="62"/>
-      </Unit27>
-      <Unit28>
+      </Unit26>
+      <Unit27>
         <Filename Value="/Developer/lazarus/lcl/lclclasses.pp"/>
-        <UnitName Value="LCLClasses"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="32"/>
         <CursorPos X="28" Y="42"/>
         <UsageCount Value="9"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="/Developer/lazarus/lcl/lclmessageglue.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="174"/>
+        <CursorPos Y="189"/>
+        <UsageCount Value="60"/>
       </Unit28>
       <Unit29>
-        <Filename Value="/Developer/lazarus/lcl/lclmessageglue.pas"/>
-        <UnitName Value="LCLMessageGlue"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="99"/>
-        <CursorPos Y="123"/>
-        <UsageCount Value="60"/>
-      </Unit29>
-      <Unit30>
         <Filename Value="/Developer/lazarus/lcl/include/scrollingwincontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="184"/>
         <CursorPos Y="208"/>
-        <UsageCount Value="52"/>
-      </Unit30>
-      <Unit31>
+        <UsageCount Value="51"/>
+      </Unit29>
+      <Unit30>
         <Filename Value="/Developer/lazarus/lcl/include/application.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2022"/>
         <CursorPos Y="2038"/>
         <UsageCount Value="43"/>
-      </Unit31>
-      <Unit32>
+      </Unit30>
+      <Unit31>
         <Filename Value="/Developer/lazarus/lcl/include/dragmanager.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="615"/>
         <CursorPos Y="631"/>
-        <UsageCount Value="55"/>
+        <UsageCount Value="54"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbondef.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="522"/>
+        <CursorPos Y="538"/>
+        <UsageCount Value="59"/>
       </Unit32>
       <Unit33>
-        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbondef.pp"/>
-        <UnitName Value="CarbonDef"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="69"/>
-        <CursorPos X="5" Y="83"/>
-        <UsageCount Value="59"/>
-      </Unit33>
-      <Unit34>
         <Filename Value="/Developer/lazarus/lcl/lmessages.pp"/>
-        <UnitName Value="LMessages"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="15" Y="20"/>
         <UsageCount Value="59"/>
-      </Unit34>
-      <Unit35>
+      </Unit33>
+      <Unit34>
         <Filename Value="/Developer/lazarus/lcl/include/controlscrollbar.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="174"/>
         <CursorPos X="76" Y="194"/>
         <UsageCount Value="51"/>
-      </Unit35>
-      <Unit36>
+      </Unit34>
+      <Unit35>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonwinapi.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1871"/>
-        <CursorPos Y="1896"/>
+        <TopLine Value="3655"/>
+        <CursorPos Y="3670"/>
         <UsageCount Value="59"/>
-      </Unit36>
-      <Unit37>
+      </Unit35>
+      <Unit36>
         <Filename Value="/usr/local/share/fpcsrc/packages/univint/src/CarbonEventsCore.pas"/>
-        <UnitName Value="CarbonEventsCore"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1004"/>
         <CursorPos X="27" Y="1019"/>
         <UsageCount Value="59"/>
-      </Unit37>
-      <Unit38>
+      </Unit36>
+      <Unit37>
         <Filename Value="/Developer/lazarus/lcl/lclproc.pas"/>
-        <UnitName Value="LCLProc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="23"/>
         <CursorPos X="19" Y="180"/>
         <UsageCount Value="59"/>
-      </Unit38>
-      <Unit39>
+      </Unit37>
+      <Unit38>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1211"/>
         <CursorPos X="3" Y="1214"/>
         <UsageCount Value="3"/>
-      </Unit39>
-      <Unit40>
+      </Unit38>
+      <Unit39>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonproc.pp"/>
-        <UnitName Value="CarbonProc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="23"/>
         <CursorPos X="10" Y="39"/>
         <UsageCount Value="22"/>
-      </Unit40>
-      <Unit41>
+      </Unit39>
+      <Unit40>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivatecontrol.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1699"/>
-        <CursorPos Y="1719"/>
+        <TopLine Value="1454"/>
+        <CursorPos Y="1471"/>
         <UsageCount Value="23"/>
-      </Unit41>
-      <Unit42>
+      </Unit40>
+      <Unit41>
         <Filename Value="/usr/local/share/fpcsrc/packages/univint/src/Controls.pas"/>
-        <UnitName Value="Controls"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3042"/>
         <CursorPos X="28" Y="3059"/>
         <UsageCount Value="22"/>
-      </Unit42>
-      <Unit43>
+      </Unit41>
+      <Unit42>
         <Filename Value="/usr/local/share/fpcsrc/packages/univint/src/MacTypes.pas"/>
-        <UnitName Value="MacTypes"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="190"/>
         <CursorPos X="5" Y="205"/>
         <UsageCount Value="21"/>
-      </Unit43>
-      <Unit44>
+      </Unit42>
+      <Unit43>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbondbgconsts.pp"/>
-        <UnitName Value="CarbonDbgConsts"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="38"/>
         <CursorPos X="3" Y="53"/>
         <UsageCount Value="21"/>
-      </Unit44>
-      <Unit45>
+      </Unit43>
+      <Unit44>
         <Filename Value="/Developer/lazarus/lcl/lcltype.pp"/>
-        <UnitName Value="LCLType"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="16"/>
         <CursorPos X="13" Y="31"/>
         <UsageCount Value="23"/>
-      </Unit45>
-      <Unit46>
+      </Unit44>
+      <Unit45>
         <Filename Value="/usr/local/share/fpcsrc/packages/univint/src/HIView.pas"/>
-        <UnitName Value="HIView"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3363"/>
         <CursorPos X="10" Y="3378"/>
         <UsageCount Value="21"/>
-      </Unit46>
-      <Unit47>
+      </Unit45>
+      <Unit46>
         <Filename Value="/Developer/lazarus/components/lazreport/source/lr_class.pas"/>
-        <UnitName Value="LR_Class"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="8243"/>
         <CursorPos X="6" Y="8257"/>
         <UsageCount Value="11"/>
-      </Unit47>
-      <Unit48>
+      </Unit46>
+      <Unit47>
         <Filename Value="/Developer/lazarus/lcl/include/winapih.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="132"/>
         <CursorPos X="10" Y="147"/>
         <UsageCount Value="11"/>
-      </Unit48>
-      <Unit49>
+      </Unit47>
+      <Unit48>
         <Filename Value="/Developer/lazarus/lcl/include/lclintf.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="275"/>
         <CursorPos Y="291"/>
         <UsageCount Value="9"/>
-      </Unit49>
-      <Unit50>
+      </Unit48>
+      <Unit49>
         <Filename Value="/Developer/lazarus/components/ideintf/idecommands.pas"/>
-        <UnitName Value="IDECommands"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="886"/>
         <CursorPos X="61" Y="901"/>
         <UsageCount Value="11"/>
-      </Unit50>
-      <Unit51>
+      </Unit49>
+      <Unit50>
         <Filename Value="/Developer/lazarus/lcl/include/customcontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="102"/>
         <CursorPos Y="128"/>
         <UsageCount Value="11"/>
-      </Unit51>
-      <Unit52>
+      </Unit50>
+      <Unit51>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/math.pp"/>
-        <UnitName Value="math"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="123"/>
         <CursorPos X="10" Y="138"/>
         <UsageCount Value="10"/>
-      </Unit52>
-      <Unit53>
+      </Unit51>
+      <Unit52>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonwscontrols.pp"/>
-        <UnitName Value="CarbonWSControls"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="222"/>
         <CursorPos Y="242"/>
         <UsageCount Value="10"/>
-      </Unit53>
-      <Unit54>
+      </Unit52>
+      <Unit53>
         <Filename Value="/Developer/lazarus/lcl/include/scrollbox.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="3" Y="20"/>
         <UsageCount Value="10"/>
-      </Unit54>
-      <Unit55>
+      </Unit53>
+      <Unit54>
         <Filename Value="/Developer/lazarus/components/lazreport/source/lr_view.pas"/>
-        <UnitName Value="LR_View"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="531"/>
         <CursorPos X="14" Y="546"/>
         <UsageCount Value="10"/>
-      </Unit55>
-      <Unit56>
+      </Unit54>
+      <Unit55>
         <Filename Value="/usr/local/share/fpcsrc/rtl/morphos/graphics.pas"/>
-        <UnitName Value="graphics"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="2184"/>
         <CursorPos X="40" Y="2199"/>
+        <UsageCount Value="11"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivatecommon.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="422"/>
+        <CursorPos Y="436"/>
+        <UsageCount Value="10"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="C:/lazarus/lcl/include/customcontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="108"/>
+        <CursorPos Y="128"/>
+        <UsageCount Value="11"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="C:/lazarus/lcl/include/scrollingwincontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="236"/>
+        <CursorPos Y="256"/>
+        <UsageCount Value="10"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="C:/lazarus/lcl/include/wincontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="6386"/>
+        <CursorPos Y="6399"/>
+        <UsageCount Value="10"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="C:/lazarus/lcl/include/winapi.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1027"/>
+        <CursorPos Y="1039"/>
+        <UsageCount Value="10"/>
+      </Unit60>
+      <Unit61>
+        <Filename Value="C:/lazarus/lcl/interfaces/win32/win32winapi.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3765"/>
+        <CursorPos X="21" Y="3777"/>
+        <UsageCount Value="10"/>
+      </Unit61>
+      <Unit62>
+        <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/win/wininc/func.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="525"/>
+        <CursorPos X="10" Y="537"/>
+        <UsageCount Value="10"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/objpas/sysutils/sysutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/inc/objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/objpas/classes/compon.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit65>
+      <Unit66>
+        <Filename Value="C:/lazarus/lcl/forms.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="136"/>
+        <CursorPos X="35" Y="148"/>
+        <UsageCount Value="10"/>
+      </Unit66>
+      <Unit67>
+        <Filename Value="C:/lazarus/lcl/controls.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1348"/>
+        <CursorPos X="15" Y="1360"/>
+        <UsageCount Value="10"/>
+      </Unit67>
+      <Unit68>
+        <Filename Value="C:/lazarus/lcl/lmessages.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="679"/>
+        <CursorPos X="20" Y="691"/>
+        <UsageCount Value="10"/>
+      </Unit68>
+      <Unit69>
+        <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/win/wininc/messages.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1198"/>
+        <CursorPos X="5" Y="1210"/>
+        <UsageCount Value="11"/>
+      </Unit69>
+      <Unit70>
+        <Filename Value="C:/lazarus/lcl/include/control.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1085"/>
+        <CursorPos X="8" Y="1090"/>
+        <UsageCount Value="10"/>
+      </Unit70>
+      <Unit71>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <UnitName Value="lcc_comport"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="413"/>
+        <CursorPos Y="424"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-      </Unit56>
+      </Unit71>
     </Units>
-    <JumpHistory Count="27" HistoryIndex="26">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="750" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <Caret Line="917" TopLine="902"/>
       </Position1>
       <Position2>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="751" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <Caret Line="918" TopLine="902"/>
       </Position2>
       <Position3>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="752" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <Caret Line="919" TopLine="902"/>
       </Position3>
       <Position4>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="753" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_messages.pas"/>
+        <Caret Line="920" TopLine="902"/>
       </Position4>
       <Position5>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="755" TopLine="733"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="467" TopLine="447"/>
       </Position5>
       <Position6>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="756" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="415" TopLine="403"/>
       </Position6>
       <Position7>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="758" TopLine="733"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="416" TopLine="403"/>
       </Position7>
       <Position8>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="759" TopLine="734"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="417" TopLine="403"/>
       </Position8>
       <Position9>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="760" TopLine="735"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="419" TopLine="403"/>
       </Position9>
       <Position10>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="761" TopLine="736"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="420" TopLine="403"/>
       </Position10>
       <Position11>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="900" TopLine="879"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="421" TopLine="403"/>
       </Position11>
       <Position12>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="901" TopLine="879"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="633" TopLine="621"/>
       </Position12>
       <Position13>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="514" TopLine="499"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="645" TopLine="625"/>
       </Position13>
       <Position14>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="515" TopLine="499"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="646" TopLine="626"/>
       </Position14>
       <Position15>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="762" TopLine="748"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="424" TopLine="413"/>
       </Position15>
       <Position16>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="613" TopLine="607"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="466" TopLine="447"/>
       </Position16>
       <Position17>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="614" TopLine="607"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="373" TopLine="361"/>
       </Position17>
       <Position18>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="617" TopLine="607"/>
+        <Caret Line="315" TopLine="303"/>
       </Position18>
       <Position19>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="618" TopLine="607"/>
+        <Caret Line="513" TopLine="495"/>
       </Position19>
       <Position20>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="619" TopLine="607"/>
+        <Caret Line="988" Column="16" TopLine="977"/>
       </Position20>
       <Position21>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="636" TopLine="611"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="466" TopLine="447"/>
       </Position21>
       <Position22>
-        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="166" Column="27" TopLine="157"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="373" TopLine="361"/>
       </Position22>
       <Position23>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="168" Column="12" TopLine="160"/>
+        <Caret Line="985" TopLine="977"/>
       </Position23>
       <Position24>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="540" Column="106" TopLine="539"/>
+        <Caret Line="581" TopLine="569"/>
       </Position24>
       <Position25>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="67" Column="44" TopLine="53"/>
+        <Caret Line="583" TopLine="569"/>
       </Position25>
       <Position26>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="169" Column="17" TopLine="161"/>
+        <Caret Line="986" TopLine="974"/>
       </Position26>
       <Position27>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Caret Line="711" Column="24" TopLine="696"/>
+        <Caret Line="987" TopLine="974"/>
       </Position27>
+      <Position28>
+        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
+        <Caret Line="988" TopLine="974"/>
+      </Position28>
+      <Position29>
+        <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
+        <Caret Line="990" TopLine="974"/>
+      </Position29>
+      <Position30>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="373" TopLine="361"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
@@ -555,7 +644,7 @@
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Line Value="3966"/>
+        <Line Value="3997"/>
       </Item1>
       <Item2>
         <Kind Value="bpkSource"/>
@@ -568,8 +657,8 @@
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <Line Value="559"/>
+        <Source Value="Forms/form_main.pas"/>
+        <Line Value="371"/>
       </Item3>
     </BreakPoints>
   </Debugging>

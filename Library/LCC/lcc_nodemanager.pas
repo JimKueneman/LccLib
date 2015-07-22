@@ -19,7 +19,7 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes, lcc_defines;
+  lcc_common_classes, lcc_defines, lcc_nodeselector;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -524,6 +524,7 @@ type
     FFunctionConfiguration: TFunctionConfiguration;
     {$ENDIF}
     FiStartupSequence: Word;
+    FLccGuiNode: TLccGuiNode;
     FNodeID: TNodeID;
     FProtocolSupport: TProtocolSupport;
     FSimpleNodeInfo: TSimpleNodeInfo;
@@ -532,6 +533,7 @@ type
     FTraction: TTraction;
     {$ENDIF}
     FConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo;
+    function GetAliasIDStr: string;
     function GetNodeIDStr: string;
     procedure SetOwnerManager(AValue: TLccNodeManager); override;
   protected
@@ -539,6 +541,7 @@ type
     function ExtractAddressSpace(LccMessage: TLccMessage): Byte;
   public
     property AliasID: Word read FAliasID;
+    property AliasIDStr: string read GetAliasIDStr;
     property CDI: TCDI read FCDI write FCDI;
     property ConfigurationMem: TConfigurationMemory read FConfigurationMem write FConfigurationMem;
     property ConfigurationMemOptions: TConfigurationMemOptions read FConfigurationMemOptions write FConfigurationMemOptions;
@@ -549,6 +552,7 @@ type
     property FDI: TFDI read FFDI write FFDI;
     property FunctionConfiguration: TFunctionConfiguration read FFunctionConfiguration write FFunctionConfiguration;
     {$ENDIF}
+    property LccGuiNode: TLccGuiNode read FLccGuiNode write FLccGuiNode;
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: string read GetNodeIDStr;
     property ProtocolSupport: TProtocolSupport read FProtocolSupport;
@@ -666,6 +670,7 @@ type
     FOwnedNodeList: TList;
     FRootNode: TLccOwnedNode;
     FTLccNetworkTree: TLccNetworkTree;
+    FUserMessage: TLccMessage;
     FWorkerMessage: TLccMessage;
     FAutoSendVerifyNodesOnStart: Boolean;
     function GetNodes(Index: Integer): TLccNode;
@@ -729,6 +734,7 @@ type
     property RootNode: TLccOwnedNode read FRootNode write FRootNode;
     property RootNodeID: TNodeID read GetRootNodeID;
     property RootNodeAlias: Word read GetRootNodeAlias;
+    property UserMessage: TLccMessage read FUserMessage;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -739,6 +745,7 @@ type
     function CreateNodeByDestMessage(LccMessage: TLccMessage): TLccNode;
     function CreateOwnedNode: TLccOwnedNode;
     function EqualEventID(var Event1, Event2: TEventID): Boolean;
+    function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
     procedure NodeIDStringToNodeID(ANodeIDStr: string; var ANodeID: TNodeID);
@@ -2485,6 +2492,7 @@ begin
   FNodeList := TList.Create;
   FOwnedNodeList := TList.Create;
   FWorkerMessage := TLccMessage.Create;
+  FUserMessage := TLccMessage.Create;
 end;
 
 destructor TLccNodeManager.Destroy;
@@ -2495,6 +2503,7 @@ begin
   FreeAndNil(FWorkerMessage);
   FreeAndNil(FOwnedNodeList);
   FreeAndNil(FRootNode);
+  FreeAndNil(FUserMessage);
   inherited Destroy;
 end;
 
@@ -2563,6 +2572,23 @@ begin
       Break
     end;
     Inc(i);
+  end;
+end;
+
+function TLccNodeManager.FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
+var
+  i: Integer;
+  LccNode: TLccNode;
+begin
+  Result := nil;
+  for i := 0 to NodeList.Count - 1 do
+  begin
+    LccNode := TLccNode( NodeList[i]);
+    if LccNode.LccGuiNode = GuiNode then
+    begin
+      Result := LccNode;
+      Break
+    end;
   end;
 end;
 
@@ -3138,6 +3164,11 @@ begin
   Result := IntToHex(NodeID[1], 6);
   Result := Result + IntToHex(NodeID[0], 6);
   Result := '0x' + Result
+end;
+
+function TLccNode.GetAliasIDStr: string;
+begin
+  Result := '0x' + IntToHex(FAliasID, 4);
 end;
 
 function TLccNode.ExtractAddressSpace(LccMessage: TLccMessage): Byte;

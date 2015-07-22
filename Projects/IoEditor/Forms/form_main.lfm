@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 242
+  Left = 259
   Height = 532
-  Top = 208
+  Top = 213
   Width = 1015
   Caption = 'Form1'
   ClientHeight = 532
@@ -89,22 +89,27 @@ object Form1: TForm1
       Height = 446
       Top = 14
       Width = 208
-      HorzScrollBar.Page = 1
+      HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
       VertScrollBar.Page = 1
       VertScrollBar.Tracking = True
       Align = alClient
+      Color = clWindow
+      ParentColor = False
+      ParentShowHint = False
+      PopupMenu = PopupMenuSelector
+      ShowHint = True
       TabOrder = 0
-      TabStop = True
+      OnMouseDown = LccNodeSelectorMouseDown
       OnResize = LccNodeSelectorResize
       Alignment = taLeftJustify
       CaptionIndent = 4
-      CaptionLineCount = 2
-      DefaultNodeHeight = 44
+      CaptionLineCount = 4
+      DefaultNodeHeight = 88
       DetailsFont.Color = clGray
-      DetailsIndent = 8
+      DetailsIndent = 16
       Images = ImageList2
-      TextLayout = tlTop
+      TextLayout = tlCenter
     end
   end
   object SplitterMain: TSplitter
@@ -118,25 +123,25 @@ object Form1: TForm1
     Height = 461
     Top = 48
     Width = 461
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 4
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
     end
     object TabSheet2: TTabSheet
       Caption = 'TabSheet2'
-      ClientHeight = 284
-      ClientWidth = 524
+      ClientHeight = 435
+      ClientWidth = 453
       object PanelMain: TPanel
         Left = 0
-        Height = 284
+        Height = 435
         Top = 0
-        Width = 524
+        Width = 453
         Align = alClient
-        ClientHeight = 284
-        ClientWidth = 524
+        ClientHeight = 435
+        ClientWidth = 453
         TabOrder = 0
         object RadioGroup1: TRadioGroup
           Left = 16
@@ -188,7 +193,7 @@ object Form1: TForm1
         end
         object SpinEdit1: TSpinEdit
           Left = 24
-          Height = 16
+          Height = 21
           Top = 136
           Width = 152
           OnChange = SpinEdit1Change
@@ -231,11 +236,14 @@ object Form1: TForm1
       Top = 1
       Width = 334
       HorzScrollBar.Page = 1
+      HorzScrollBar.Range = 10
       VertScrollBar.Page = 1
       Align = alTop
+      AutoScroll = False
       Color = clOlive
       ParentColor = False
       TabOrder = 0
+      TabStop = True
       Alignment = taLeftJustify
       CaptionIndent = 4
       CaptionLineCount = 2
@@ -243,26 +251,6 @@ object Form1: TForm1
       DetailsFont.Color = clGray
       DetailsIndent = 8
       Images = ImageList1
-      TextLayout = tlTop
-    end
-    object LccNodeSelectorConsumer: TLccNodeSelector
-      Left = 1
-      Height = 244
-      Top = 216
-      Width = 334
-      HorzScrollBar.Page = 1
-      VertScrollBar.Page = 1
-      Align = alClient
-      Color = clMaroon
-      ParentColor = False
-      TabOrder = 1
-      Alignment = taLeftJustify
-      CaptionIndent = 4
-      CaptionLineCount = 2
-      DefaultNodeHeight = 70
-      DetailsFont.Color = clGray
-      DetailsIndent = 8
-      Images = ImageList2
       TextLayout = tlTop
     end
     object Splitter1: TSplitter
@@ -273,6 +261,27 @@ object Form1: TForm1
       Width = 334
       Align = alTop
       ResizeAnchor = akTop
+    end
+    object LccNodeSelectorConsumer: TLccNodeSelector
+      Left = 1
+      Height = 244
+      Top = 216
+      Width = 254
+      HorzScrollBar.Page = 10
+      VertScrollBar.Page = 1
+      Align = alLeft
+      Color = clMaroon
+      ParentColor = False
+      TabOrder = 1
+      TabStop = True
+      Alignment = taLeftJustify
+      CaptionIndent = 4
+      CaptionLineCount = 2
+      DefaultNodeHeight = 70
+      DetailsFont.Color = clGray
+      DetailsIndent = 8
+      Images = ImageList2
+      TextLayout = tlTop
     end
   end
   object LccSettings: TLccSettings
@@ -290,7 +299,7 @@ object Form1: TForm1
     Ethernet.RemoteListenerPort = 12021
     Ethernet.LocalListenerPort = 12021
     General.AliasID = '0x000'
-    General.NodeID = '0x000000000000'
+    General.NodeID = '0x020112FAA1C8'
     General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
@@ -312,14 +321,18 @@ object Form1: TForm1
     top = 184
   end
   object LccNodeManager: TLccNodeManager
-    AutoInterrogateDiscoveredNodes = False
-    AutoSendVerifyNodesOnStart = False
+    AutoInterrogateDiscoveredNodes = True
+    AutoSendVerifyNodesOnStart = True
     Enabled = False
-    CAN = False
+    CAN = True
     HardwareConnection = LccComPort
     LccSettings = LccSettings
     OnAliasIDChanged = LccNodeManagerAliasIDChanged
     OnNodeIDChanged = LccNodeManagerNodeIDChanged
+    OnLccNodeInitializationComplete = LccNodeManagerLccNodeInitializationComplete
+    OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply
+    OnLccNodeSimpleNodeIdentReply = LccNodeManagerLccNodeSimpleNodeIdentReply
+    OnLccNodeVerifiedNodeID = LccNodeManagerLccNodeVerifiedNodeID
     left = 256
     top = 241
   end
@@ -3281,5 +3294,21 @@ object Form1: TForm1
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
       FF00FFFFFF00FFFFFF00FFFFFF00
     }
+  end
+  object PopupMenuSelector: TPopupMenu
+    OnPopup = PopupMenuSelectorPopup
+    left = 104
+    top = 216
+    object MenuItemPopupSelectorEditUserStrings: TMenuItem
+      Action = ActionEditUserStrings
+    end
+  end
+  object ActionListSelector: TActionList
+    left = 102
+    top = 272
+    object ActionEditUserStrings: TAction
+      Caption = 'Edit User Strings'
+      OnExecute = ActionEditUserStringsExecute
+    end
   end
 end
