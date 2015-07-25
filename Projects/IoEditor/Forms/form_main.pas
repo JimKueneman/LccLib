@@ -9,7 +9,7 @@ uses
   ComCtrls, ExtCtrls, Menus, StdCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
-  form_logging, lcc_nodeselector, lcc_cdi_parser;
+  form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs;
 
 type
 
@@ -24,14 +24,12 @@ type
   TForm1 = class(TForm)
     ActionEditUserStrings: TAction;
     ActionListSelector: TActionList;
-    ActionVisibility: TAction;
     ActionLogWindow: TAction;
     ActionEthernetServer: TAction;
     ActionLogin: TAction;
     ActionComPort: TAction;
     ActionSettings: TAction;
     ActionList1: TActionList;
-    Button1: TButton;
     ImageList1: TImageList;
     ImageList2: TImageList;
     Label1: TLabel;
@@ -51,9 +49,6 @@ type
     PanelMain: TPanel;
     PanelNetworkTree: TPanel;
     PopupMenuSelector: TPopupMenu;
-    RadioGroup1: TRadioGroup;
-    RadioGroup2: TRadioGroup;
-    SpinEdit1: TSpinEdit;
     Splitter1: TSplitter;
     SplitterMain: TSplitter;
     StatusBar1: TStatusBar;
@@ -72,7 +67,6 @@ type
     procedure ActionLoginExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
-    procedure ActionVisibilityExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -80,24 +74,22 @@ type
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
-    procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject;
-      LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeVerifiedNodeID(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeSelectorMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LccNodeSelectorResize(Sender: TObject);
     procedure PopupMenuSelectorPopup(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
-    procedure RadioGroup2Click(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
   private
     FLastMouseDownInfo: TMouseInfo;
     { private declarations }
   protected
-    procedure TestForDuplicateAndAdd(LccSourceNode: TLccNode);
+    procedure TestForDuplicateAndAdd(TestNode: TLccNode);
+    procedure UpdateForNodeEnabled(TestNode: TLccNode);
   public
     { public declarations }
     property LastMouseDownInfo: TMouseInfo read FLastMouseDownInfo;
@@ -136,11 +128,6 @@ begin
     LccNode := LccNodeManager.FindByGuiNode(LccGuiNode);
     if Assigned(LccNode) then
     begin
-      if LccNode.ProtocolSupport.CDI and not LccNode.CDI.Valid then
-      begin
-        LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccNode.NodeID, LccNode.AliasID);
-        LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-      end;
     end;
   end;
 end;
@@ -195,27 +182,6 @@ begin
   end;
 end;
 
-procedure TForm1.ActionVisibilityExecute(Sender: TObject);
-var
-  i: Integer;
-begin
-  LccNodeSelector.BeginUpdate;
-  try
-    if ActionVisibility.Checked then
-    begin
-      for i := 0 to LccNodeSelector.LccNodes.Count - 1 do
-     //   LccNodeSelector.LccNodes[i].Visible := i mod 2 <> 0
-         LccNodeSelector.LccNodes[i].Visible := False
-    end else
-    begin
-      for i := 0 to LccNodeSelector.LccNodes.Count - 1 do
-        LccNodeSelector.LccNodes[i].Visible := True
-    end;
-  finally
-    LccNodeSelector.EndUpdate;
-  end;
-end;
-
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   // Before shutdown clean up and disconnect from connections
@@ -226,45 +192,20 @@ begin
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
-var
-  i: Integer;
 begin
-  // Setup the file paths to the Settings Object
-  LccSettings.FilePath := GetSettingsPath + 'Settings.ini';
-
-  // Read in the settings from the file to initialize the object
-  LccSettings.LoadFromFile;
-
-  // Connect the Settings Object to the Settings UI frame
-  FormSettings.FrameLccSettings1.LccSettings := LccSettings;
-
-  // Connect the LoggingFrame to the Connections
-  LccComPort.LoggingFrame := FormLogging.FrameLccLogging;
-  LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
-
-  // Allow Logging frame to partake in the Settings to persist logging options
-  FormLogging.FrameLccLogging.LccSettings := LccSettings;
-  // Load the Settings into the Logging Frame
-  FormLogging.FrameLccLogging.SyncwithLccSettings;
-  // Start off Paused since it is hidden
-  FormLogging.FrameLccLogging.Paused := False;
-
-  // Update from video series don't show settings that are not valid
-  FormSettings.FrameLccSettings1.UserSettings.EthernetClient := False;
-  // Now resize the form to fit its child controls
-  FormSettings.ClientHeight := FormSettings.FrameLccSettings1.ButtonOk.Top + FormSettings.FrameLccSettings1.ButtonOk.Height + 8;
-  // Keep Login Button disabled until the ComPort connection is made
-  ActionLogin.Enabled := False;
-
-  // Set the name for the configuration file.  If this is not set the configuration will
-  // persist in a local stream object but when the application is closed it will be lost
-  LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';
+  LccSettings.FilePath := GetSettingsPath + 'Settings.ini';                     // Setup the file paths to the Settings Object
+  LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
+  FormSettings.FrameLccSettings1.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
+  LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
+  FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
+  FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
+  FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
+  FormSettings.FrameLccSettings1.UserSettings.EthernetClient := False;          // Update from video series don't show settings that are not valid
+  FormSettings.ClientHeight := FormSettings.FrameLccSettings1.ButtonOk.Top + FormSettings.FrameLccSettings1.ButtonOk.Height + 8; // Now resize the form to fit its child controls
+  ActionLogin.Enabled := False;                                                   // Keep Login Button disabled until the ComPort connection is made
+  LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;
-
-  // You must place a XML file in the Setting Folder for this to have any effect
-  // We also need to syncronize the SNIP to be the same as the <identification> section of
-  // the CDI
-  LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
+  LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
   LccNodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
 
   {$IFDEF WINDOWS}
@@ -362,6 +303,12 @@ begin
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
 end;
 
+procedure TForm1.LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+begin
+  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Cdi];
+  UpdateForNodeEnabled(LccSourceNode);
+end;
+
 procedure TForm1.LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TestForDuplicateAndAdd(LccSourceNode);
@@ -369,11 +316,25 @@ end;
 
 procedure TForm1.LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
- // beep;//
+  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Pip];
+  if LccSourceNode.ProtocolSupport.SimpleNodeInfo then
+  begin
+    LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight + [mif_Snip];
+  end;
+  if LccSourceNode.ProtocolSupport.CDI then
+  begin
+    LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight + [mif_Cdi];
+  end;
+  UpdateForNodeEnabled(LccSourceNode);
 end;
 
 procedure TForm1.LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
+  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Snip];
   if Assigned(LccSourceNode.LccGuiNode) then
   begin
     LccSourceNode.LccGuiNode.Captions.Clear;
@@ -385,6 +346,7 @@ begin
     LccSourceNode.LccGuiNode.Captions.Add('User Desc: ' + LccSourceNode.SimpleNodeInfo.UserDescription);
     LccSourceNode.LccGuiNode.Invalidate(False);
   end;
+  UpdateForNodeEnabled(LccSourceNode);
 end;
 
 procedure TForm1.LccNodeManagerLccNodeVerifiedNodeID(Sender: TObject; LccSourceNode: TLccNode);
@@ -422,23 +384,8 @@ begin
   begin
     LccNode := LccNodeManager.FindByGuiNode(LccGuiNode);
     if Assigned(LccNode) then
-      ActionEditUserStrings.Enabled := LccNode.ProtocolSupport.CDI
+      ActionEditUserStrings.Enabled := LccGuiNode.Enabled and LccNode.ProtocolSupport.CDI
   end;
-end;
-
-procedure TForm1.RadioGroup1Click(Sender: TObject);
-begin
-  LccNodeSelector.Alignment := TAlignment( RadioGroup1.ItemIndex);
-end;
-
-procedure TForm1.RadioGroup2Click(Sender: TObject);
-begin
-  LccNodeSelector.TextLayout := TTextLayout( RadioGroup2.ItemIndex);
-end;
-
-procedure TForm1.SpinEdit1Change(Sender: TObject);
-begin
-  LccNodeSelector.CaptionLineCount := SpinEdit1.Value;
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
@@ -446,25 +393,34 @@ begin
   LccNodeSelector.DefaultNodeHeight := TrackBar1.Position;
 end;
 
-procedure TForm1.TestForDuplicateAndAdd(LccSourceNode: TLccNode);
+procedure TForm1.TestForDuplicateAndAdd(TestNode: TLccNode);
 begin
-  if not Assigned(LccNodeSelector.LccNodes.Find(LccSourceNode.NodeID)) then
+  if not Assigned(LccNodeSelector.LccNodes.Find(TestNode.NodeID)) then
   begin
     LccNodeSelector.BeginUpdate;
     try
-      LccSourceNode.LccGuiNode := LccNodeSelector.LccNodes.Add(LccSourceNode.NodeID, LccSourceNode.AliasID);
-      LccSourceNode.LccGuiNode.Captions.Clear;
-      LccSourceNode.LccGuiNode.Captions.Add('NodeID: ' + LccSourceNode.NodeIDStr);
-      LccSourceNode.LccGuiNode.Captions.Add('AliasID: ' + LccSourceNode.AliasIDStr);
-      LccSourceNode.LccGuiNode.ImageIndex := 0;
+      TestNode.LccGuiNode := LccNodeSelector.LccNodes.Add(TestNode.NodeID, TestNode.AliasID);
+      TestNode.LccGuiNode.Captions.Clear;
+      TestNode.LccGuiNode.Captions.Add('NodeID: ' + TestNode.NodeIDStr);
+      TestNode.LccGuiNode.Captions.Add('AliasID: ' + TestNode.AliasIDStr);
+      TestNode.LccGuiNode.ImageIndex := 0;
     finally
       LccNodeSelector.EndUpdate;
     end;
   end;
-  LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
+  TestNode.LccGuiNode.Captions.Add('Loading Node Info...');
+  LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, TestNode.NodeID, TestNode.AliasID);
   LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-  LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
-  LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+  TestNode.UserMsgInFlight := TestNode.UserMsgInFlight + [mif_Pip];
+  UpdateForNodeEnabled(TestNode);
+end;
+
+procedure TForm1.UpdateForNodeEnabled(TestNode: TLccNode);
+begin
+  if Assigned(TestNode.LccGuiNode) then
+  begin
+    TestNode.LccGuiNode.Enabled := TestNode.UserMsgInFlight = [];
+  end;
 end;
 
 end.

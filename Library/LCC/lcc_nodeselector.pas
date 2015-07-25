@@ -25,6 +25,7 @@ type
     FAliasID: Word;
     FCaptions: TStringList;
     FColor: TColor;
+    FEnabled: Boolean;
     FFocused: Boolean;
     FHeight: Integer;
     FImageIndex: Integer;
@@ -40,6 +41,7 @@ type
     function GetNodeIDStr: string;
     procedure SetCaptions(AValue: TStringList);
     procedure SetColor(AValue: TColor);
+    procedure SetEnabled(AValue: Boolean);
     procedure SetFocused(AValue: Boolean);
     procedure SetHeight(AValue: Integer);
     procedure SetImageIndex(AValue: Integer);
@@ -54,6 +56,7 @@ type
     property AliasID: Word read FAliasID;
     property Captions: TStringList read FCaptions write SetCaptions;
     property Color: TColor read FColor write SetColor;
+    property Enabled: Boolean read FEnabled write SetEnabled;
     property Focused: Boolean read FFocused write SetFocused;
     property Height: Integer read FHeight write SetHeight;
     property ImageIndex: Integer read FImageIndex write SetImageIndex;
@@ -424,16 +427,19 @@ begin
   Canvas.ClipRect := BoundsRect;
   Canvas.Clipping := True;
 
-
-  Canvas.Brush.Color := Color;
+  if Enabled then
+    Canvas.Brush.Color := Color
+  else
+    Canvas.Brush.Color := clLtGray;
   Canvas.FillRect(BoundsRect);
   if Focused then
   begin
     Canvas.Pen.Width := 1;
-    Canvas.Pen.Color := clDkGray;
+    Canvas.Pen.Color := clHighlightedText;
     Canvas.Brush.Color := clHighlight;
     Canvas.RoundRect(BoundsRect, 8, 8);
   end;
+
   if Assigned(OwnerSelector.Images) and (ImageIndex > -1) then
   case OwnerSelector.TextLayout of
     tlTop    : OwnerSelector.Images.Draw(Canvas, Left + 4, Top + 4, ImageIndex);
@@ -445,11 +451,15 @@ begin
   if (Captions.Count > 0) and (OwnerSelector.CaptionLineCount > 0) then
   begin
     Canvas.Font.Assign(OwnerSelector.Font);
+    if Focused then
+      Canvas.Font.Color := clHighlightText;
     OffsetRect(TextRects[0], Left, Top);
     Canvas.TextRect(TextRects[0], TextRects[0].Left, TextRects[0].Top, Captions[0]);
   //  if TextRects[0].Right > OwnerSelector.CalculatedHorzScrollRange then
   //    OwnerSelector.CalculatedHorzScrollRange := TextRects[0].Right;
     Canvas.Font.Assign(OwnerSelector.DetailsFont);
+    if Focused then
+      Canvas.Font.Color := clHighlightText;
     i := 1;
     while (i < OwnerSelector.CaptionLineCount) and (i < Captions.Count) do
     begin
@@ -495,9 +505,16 @@ begin
   Invalidate(True);
 end;
 
+procedure TLccGuiNode.SetEnabled(AValue: Boolean);
+begin
+  if FEnabled =AValue then Exit;
+  FEnabled :=AValue;
+  Invalidate(True);
+end;
+
 procedure TLccGuiNode.SetFocused(AValue: Boolean);
 begin
-  if FFocused = AValue then Exit;
+  if (FFocused = AValue) or not Enabled then Exit;
   FFocused := AValue;
   if Assigned(OwnerSelector) then
   begin
@@ -773,7 +790,11 @@ begin
   SetFocus;
   MouseCapture := True;
   Node := ClientPtToVisibleNode(Point(X, Y), True);
-  FocusedNode := Node;
+  if Assigned(Node) then
+  begin
+    if Node.Enabled then
+      FocusedNode := Node;
+  end;
 end;
 
 procedure TLccNodeSelectorBase.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

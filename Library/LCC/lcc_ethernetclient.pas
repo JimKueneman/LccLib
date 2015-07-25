@@ -544,6 +544,7 @@ var
   DynamicByteArray: TDynamicByteArray;
   SynaBytes: TSynaBytes;
   RcvByte: Byte;
+  LocalSleepCount: Integer;
 begin
   FRunning := True;
 
@@ -588,39 +589,40 @@ begin
     begin
       SendConnectionNotification(ccsClientConnected);
       try
+        LocalSleepCount := 0;
         try
           while not IsTerminated and (FEthernetRec.ConnectionState = ccsClientConnected) do
           begin
-            for i := 0 to SleepCount - 1 do
-              {$IFDEF FPC}
-              ThreadSwitch;
-              {$ELSE}
-              Sleep(1);
-              {$ENDIF}
 
             if Gridconnect then
             begin
-              TxStr := '';
-              TxList := OutgoingGridConnect.LockList;
-              try
-                if TxList.Count > 0 then
-                begin
-                  TxStr := TxList[0];
-                  TxList.Delete(0);
-                end;
-              finally
-                OutgoingGridConnect.UnlockList;
-              end;
 
-              if TxStr <> '' then
+              if LocalSleepCount >= SleepCount then
               begin
-                StringToGridConnectBuffer(TxStr, GridConnectStr);
-                for i := 0 to Length(TxStr) - 1 do
-                  Socket.SendByte(GridConnectStr[i]);
-                Socket.SendByte(Ord(#10));
-                if Socket.LastError <> 0 then
-                  HandleErrorAndDisconnect;
+                TxStr := '';
+                TxList := OutgoingGridConnect.LockList;
+                try
+                  if TxList.Count > 0 then
+                  begin
+                    TxStr := TxList[0];
+                    TxList.Delete(0);
+                  end;
+                finally
+                  OutgoingGridConnect.UnlockList;
+                end;
+
+                if TxStr <> '' then
+                begin
+                  StringToGridConnectBuffer(TxStr, GridConnectStr);
+                  for i := 0 to Length(TxStr) - 1 do
+                    Socket.SendByte(GridConnectStr[i]);
+                  Socket.SendByte(Ord(#10));
+                  if Socket.LastError <> 0 then
+                    HandleErrorAndDisconnect;
+                end;
+                LocalSleepCount := 0;
               end;
+              Inc(LocalSleepCount);
 
               RcvByte := Socket.RecvByte(1);
               case Socket.LastError of
@@ -641,22 +643,28 @@ begin
               end;
             end else
             begin
-              DynamicByteArray := nil;
-              OutgoingCircularArray.LockArray;
-              try
-                if OutgoingCircularArray.Count > 0 then
-                  OutgoingCircularArray.PullArray(DynamicByteArray);
-              finally
-                OutgoingCircularArray.UnLockArray;
-              end;
 
-              if Length(DynamicByteArray) > 0 then
+              if LocalSleepCount >= SleepCount then
               begin
-                Socket.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
-                if Socket.LastError <> 0 then
-                  HandleErrorAndDisconnect;
                 DynamicByteArray := nil;
+                OutgoingCircularArray.LockArray;
+                try
+                  if OutgoingCircularArray.Count > 0 then
+                    OutgoingCircularArray.PullArray(DynamicByteArray);
+                finally
+                  OutgoingCircularArray.UnLockArray;
+                end;
+
+                if Length(DynamicByteArray) > 0 then
+                begin
+                  Socket.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
+                  if Socket.LastError <> 0 then
+                    HandleErrorAndDisconnect;
+                  DynamicByteArray := nil;
+                end;
+                LocalSleepCount := 0;
               end;
+              Inc(LocalSleepCount);
 
               SynaBytes := Socket.RecvPacket(1);
               case Socket.LastError of

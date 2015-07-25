@@ -271,6 +271,7 @@ var
   L: TList;
 begin
   if FSleepCount=AValue then Exit;
+  FSleepCount := AValue;
   L := ComPortThreads.LockList;
   try
     for i := 0 to L.Count - 1 do
@@ -524,6 +525,7 @@ var
   GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
   TxList: TStringList;
+  LocalSleepCount: Integer;
 begin
   FRunning := True;
 
@@ -552,29 +554,34 @@ begin
       SendConnectionNotification(ccsComConnected);
       try
         try
+          LocalSleepCount := 0;
           while not IsTerminated and (FComPortRec.ConnectionState = ccsComConnected) do
           begin
-            for i := 0 to SleepCount - 1 do
-              ThreadSwitch;
 
-            TxStr := '';
-            TxList := OutgoingGridConnect.LockList;
-            try
-              if TxList.Count > 0 then
-              begin
-                TxStr := TxList[0];
-                TxList.Delete(0);
-              end;
-            finally
-              OutgoingGridConnect.UnlockList;
-            end;
-
-            if TxStr <> '' then
+            // Transmit new message on every N (SleepCount) Receive trys
+            if LocalSleepCount >= SleepCount then
             begin
-              Serial.SendString(TxStr);
-              if Serial.LastError <> 0 then
-                HandleErrorAndDisconnect;
+              TxStr := '';
+              TxList := OutgoingGridConnect.LockList;
+              try
+                if TxList.Count > 0 then
+                begin
+                  TxStr := TxList[0];
+                  TxList.Delete(0);
+                end;
+              finally
+                OutgoingGridConnect.UnlockList;
+              end;
+
+              if TxStr <> '' then
+              begin
+                Serial.SendString(TxStr);
+                if Serial.LastError <> 0 then
+                  HandleErrorAndDisconnect;
+              end;
+              LocalSleepCount := 0;
             end;
+            Inc(LocalSleepCount);
 
             RcvStr := Serial.Recvstring(1);
             case Serial.LastError of

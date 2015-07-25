@@ -371,7 +371,7 @@ const
 
   MAX_CONFIG_MEM_READWRITE_SIZE = 64;
 
-    DATAGRAM_REJECTED                        = $0000;
+  DATAGRAM_REJECTED                        = $0000;
   DATAGRAM_REJECTED_PERMANENT_ERROR        = $1000;
   DATAGRAM_REJECTED_INFORMATION_LOGGED     = $1010;
   DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   = $1020;
@@ -764,7 +764,7 @@ begin
   Result := Result + ']';
 end;
 
-function MessageToDetailedMessage(MessageString: string; Sending: Boolean): string;
+function MessageToDetailedMessage(MessageString: string): string;
 var
   j, S_Len: Integer;
   f: single;
@@ -778,12 +778,10 @@ begin
     for j := 0 to (28-S_Len) do
       Result := Result + ' ' ;
 
-    if Sending then
-      Result := Result + '  Send:   '
+    if LocalHelper.HasDestinationAddress then
+      Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4) + ' -> ' + '0x' + IntToHex( LocalHelper.DestinationAliasID, 4)
     else
-      Result := Result + '  Receive: ';
-
-    Result := Result + 'From = 0x' + IntToHex( LocalHelper.SourceAliasID, 4);
+      Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4);
 
     if IsDatagramMTI(LocalHelper.MTI, False) then
       Result := Result + RawHelperDataToStr(LocalHelper, True) + ' MTI: ' + MTI_ToString(LocalHelper.MTI)
@@ -1081,7 +1079,7 @@ begin
          begin
            if Detailed then
            begin
-              LogStrings[i] := MessageToDetailedMessage(LogStrings[i], True);
+              LogStrings[i] := MessageToDetailedMessage(LogStrings[i]);
               SemiColonPos := Pos(';',  LogStrings[i]);
               Header := @LogStrings[i][SemiColonPos] + 1;
               SynEditLog.Lines.Add( GridConnectToJMRI(LogStrings[i]) + Header);
@@ -1090,7 +1088,7 @@ begin
          end else
          begin
            if Detailed then
-             SynEditLog.Lines.Add(MessageToDetailedMessage(LogStrings[i], True))
+             SynEditLog.Lines.Add(MessageToDetailedMessage(LogStrings[i]))
            else
              SynEditLog.Lines.Add(LogStrings[i]);
          end;

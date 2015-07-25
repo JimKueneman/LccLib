@@ -95,18 +95,18 @@ private
 public
   property CANOnly: Boolean read FCANOnly write FCANOnly;
   property CAN: TLccCANMessage read FCAN write FCAN;
-  property MTI: Word read FMTI write FMTI;
-  property SourceID: TNodeID read FSourceID write FSourceID;
   property DestID: TNodeID read FDestID write FDestID;
-  property DataCount: Integer read FDataCount write FDataCount;
   property DataArray: TLccByteArray read FDataArray write FDataArray;
   property DataArrayIndexer[iIndex: Word]: Byte read GetDataArrayIndexer write SetDataArrayIndexer;
+  property DataCount: Integer read FDataCount write FDataCount;
   property HasDestination: Boolean read GetHasDestination;
   property HasDestNodeID: Boolean read GetHasDestNodeID;
   property HasSourceNodeID: Boolean read GetHasSourceNodeID;
   property IsDatagram: Boolean read GetIsDatagram;
   property IsStream: Boolean read GetIsStream;
+  property MTI: Word read FMTI write FMTI;
   property RetryAttempts: Integer read FRetryAttempts write FRetryAttempts;
+  property SourceID: TNodeID read FSourceID write FSourceID;
   property UserValid: Boolean read FUserValid write FUserValid;
 
   constructor Create;
@@ -387,13 +387,13 @@ begin
   Result := False;
   if GridConnectStr <> '' then
   begin
+    ZeroFields;
     {$IFDEF FPC}
     ZeroIndex := False;
     {$ELSE}
     ZeroIndex := Low(GridConnectStr) = 0;
     {$ENDIF}
     GridConnectStr := UpperCase(GridConnectStr);
-
     x := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
     if ZeroIndex then Dec(x);
     if x > 0 then

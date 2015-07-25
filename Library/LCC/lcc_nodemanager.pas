@@ -91,6 +91,9 @@ type
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
   TOnLccGetRootNodeClass = procedure(Sender: TObject; var NodeClass: TLccOwnedNodeClass) of object;
 
+  TMessageInFlight = (mif_Snip, mif_Pip, mif_Cdi, mif_Acdi_Mfg, mif_Acdi_User, mif_memconfig);
+  TMessageInFlightSet = set of TMessageInFlight;
+
   { TNodeProtocolBase }
 
   TNodeProtocolBase = class(TComponent)
@@ -533,12 +536,14 @@ type
     FTraction: TTraction;
     {$ENDIF}
     FConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo;
+    FUserMsgInFlight: TMessageInFlightSet;
     function GetAliasIDStr: string;
     function GetNodeIDStr: string;
     procedure SetOwnerManager(AValue: TLccNodeManager); override;
   protected
 
     function ExtractAddressSpace(LccMessage: TLccMessage): Byte;
+    procedure SendAckReply(LccMessage: TLccMessage);
   public
     property AliasID: Word read FAliasID;
     property AliasIDStr: string read GetAliasIDStr;
@@ -562,6 +567,7 @@ type
     property SimpleTrainNodeInfo: TSimpleTrainNodeInfo read FSimpleTrainNodeInfo;
     property Traction: TTraction read FTraction write FTraction;
     {$ENDIF}
+    property UserMsgInFlight: TMessageInFlightSet read FUserMsgInFlight write FUserMsgInFlight;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -1285,6 +1291,7 @@ begin
                 WorkerMessage.LoadAMD(NodeID, AliasID);
                 OwnerManager.DoRequestMessageSend(WorkerMessage);
               end;
+              Result := True;
             end;
         MTI_CAN_AMD  :
             begin
@@ -1296,7 +1303,8 @@ begin
                   WorkerMessage.LoadPCER(NodeID, AliasID, @EVENT_DUPLICATE_ID_DETECTED);
                   OwnerManager.DoRequestMessageSend(WorkerMessage);
                 end
-              end else
+              end;
+              Result := True;
             end;
         MTI_CAN_RID  : begin end;
       end;
@@ -1321,11 +1329,13 @@ begin
                 WorkerMessage.LoadVerifiedNodeID(NodeID, AliasID);
                 OwnerManager.DoRequestMessageSend(WorkerMessage);
               end;
+              Result := True;
             end;
         MTI_VERIFY_NODE_ID_NUMBER_DEST :
             begin
               WorkerMessage.LoadVerifiedNodeID(NodeID, AliasID);
               OwnerManager.DoRequestMessageSend(WorkerMessage);
+              Result := True;
             end;
         MTI_VERIFIED_NODE_ID_NUMBER :
             begin
@@ -1335,28 +1345,33 @@ begin
             begin
               WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, SimpleNodeInfo.PackedFormat);
               OwnerManager.DoRequestMessageSend(WorkerMessage);
+              Result := True;
             end;
         MTI_SIMPLE_NODE_INFO_REPLY :
             begin               // Called if I send a SNIP;
               ProtocolSupport.ProcessMessage(LccMessage);
               if Assigned(OwnerManager) then
                 OwnerManager.DoSimpleNodeIdentReply(LccSourceNode, Self);
+              Result := True;
             end;
         MTI_PROTOCOL_SUPPORT_INQUIRY :
             begin
               WorkerMessage.LoadProtocolIdentifyReply(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ProtocolSupport.EncodeFlags);
               OwnerManager.DoRequestMessageSend(WorkerMessage);
+              Result := True;
             end;
         MTI_PROTOCOL_SUPPORT_REPLY :
             begin   // Called if I send a Protocol Support
               ProtocolSupport.ProcessMessage(LccMessage);
               if Assigned(OwnerManager) then
                 OwnerManager.DoProtocolIdentifyReply(LccSourceNode, Self);
+              Result := True;
             end;
         MTI_EVENTS_IDENTIFY :
             begin
               SendConsumedEvents;
               SendProducedEvents;
+              Result := True;
             end;
         MTI_EVENTS_IDENTIFY_DEST :
             begin
@@ -1365,6 +1380,7 @@ begin
                 SendConsumedEvents;
                 SendProducedEvents;
               end;
+              Result := True;
             end;
         MTI_PRODUCER_IDENDIFY :
             begin
@@ -1373,7 +1389,8 @@ begin
               begin
                 WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Event.FID, Event.State);
                 OwnerManager.DoRequestMessageSend(WorkerMessage);
-              end
+              end;
+              Result := True;
             end;
         MTI_CONSUMER_IDENTIFY :
             begin
@@ -1382,7 +1399,8 @@ begin
               begin
                 WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Event.FID, Event.State);
                 OwnerManager.DoRequestMessageSend(WorkerMessage);
-              end
+              end;
+              Result := True;
             end;
          MTI_CONSUMER_IDENTIFIED_CLEAR :
             begin
@@ -1408,16 +1426,13 @@ begin
              // get passed on
              LccMessage.SwapDestAndSourceIDs;
              OwnerManager.DoRequestMessageSend(LccMessage);
+             Result := True;
            end;
          MTI_DATAGRAM :
            begin
              case LccMessage.DataArrayIndexer[0] of
                DATAGRAM_PROTOCOL_CONFIGURATION :
                  begin
-                   // Only Ack if we accept the datagram
-                   WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
-                   OwnerManager.DoRequestMessageSend(WorkerMessage);
-
                    case LccMessage.DataArrayIndexer[1] and $F0 of
                      MCP_WRITE :
                        begin
@@ -1425,96 +1440,174 @@ begin
                            MCP_NONE :
                                begin
                                  case LccMessage.DataArrayIndexer[6] of
-                                   MSI_CDI             : begin end;  // Not writeable
-                                   MSI_ALL             : begin end;  // Not writeable
-                                   MSI_CONFIG          : Configuration.WriteRequest(LccMessage);
-                                   MSI_ACDI_MFG        : begin end;  // Not writeable
-                                   MSI_ACDI_USER       : ACDIUser.WriteRequest(LccMessage);
+                                   MSI_CDI             :
+                                       begin
+                                       end;  // Not writeable
+                                   MSI_ALL             :
+                                       begin
+                                       end;  // Not writeable
+                                   MSI_CONFIG          :
+                                       begin
+                                         SendAckReply(LccMessage);
+                                         Configuration.WriteRequest(LccMessage);
+                                         Result := True;
+                                       end;
+                                   MSI_ACDI_MFG        :
+                                       begin
+                                       end;  // Not writeable
+                                   MSI_ACDI_USER       :
+                                       begin
+                                         SendAckReply(LccMessage);
+                                         ACDIUser.WriteRequest(LccMessage);
+                                         Result := True;
+                                       end;
                                    {$IFDEF TRACTION}
-                                   MSI_FDI             : begin end;  // Not writeable
-                                   MSI_FUNCTION_CONFIG : begin end;
+                                   MSI_FDI             :
+                                       begin
+                                       end;  // Not writeable
+                                   MSI_FUNCTION_CONFIG :
+                                       begin
+                                       end;
                                    {$ENDIF}
                                  end
                                end;
-                           MCP_CONFIGURATION : Configuration.WriteRequest(LccMessage);
-                           MCP_ALL           : begin end; // Not writeable
-                           MCP_CDI           : begin end; // Not writeable
+                           MCP_CONFIGURATION :
+                               begin
+                                 SendAckReply(LccMessage);         // TODO: Add Reply ability
+                                 Configuration.WriteRequest(LccMessage);
+                                 Result := True;
+                               end;
+                           MCP_ALL           :
+                               begin
+                               end; // Not writeable
+                           MCP_CDI           :
+                               begin
+                               end; // Not writeable
                          end;
-                         WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                    //     CDI.LoadReply(WorkerMessage);
-                    //     OwnerManager.DoRequestMessageSend(WorkerMessage);
                        end;
                      MCP_WRITE_STREAM :
-                       begin
-                       end;
-                     MCP_READ :
-                       begin
-                         WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                         case LccMessage.DataArrayIndexer[1] and $03 of
-                           MCP_NONE :
-                               begin
-                                 case LccMessage.DataArrayIndexer[6] of
-                                   MSI_CDI             : CDI.LoadReply(LccMessage, WorkerMessage);
-                                   MSI_ALL             : begin end;
-                                   MSI_CONFIG          : Configuration.LoadReply(LccMessage, WorkerMessage);
-                                   MSI_ACDI_MFG        : ACDIMfg.LoadReply(LccMessage, WorkerMessage);
-                                   MSI_ACDI_USER       : ACDIUser.LoadReply(LccMessage, WorkerMessage);
-                                   {$IFDEF TRACTION}
-                                   MSI_FDI             : begin end;
-                                   MSI_FUNCTION_CONFIG : begin end;
-                                   {$ENDIF}
-                                 end
-                               end;
-                           MCP_CONFIGURATION : Configuration.LoadReply(LccMessage, WorkerMessage);
-                           MCP_ALL           : begin  end;
-                           MCP_CDI           : CDI.LoadReply(LccMessage, WorkerMessage);
+                         begin
                          end;
-                         if WorkerMessage.UserValid then
-                           OwnerManager.DoRequestMessageSend(WorkerMessage);
-                       end;
+                     MCP_READ :
+                         begin
+                           case LccMessage.DataArrayIndexer[1] and $03 of
+                             MCP_NONE :
+                                 begin
+                                   case LccMessage.DataArrayIndexer[6] of
+                                     MSI_CDI             :
+                                         begin
+                                           SendAckReply(LccMessage);
+                                           WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                           CDI.LoadReply(LccMessage, WorkerMessage);
+                                           if WorkerMessage.UserValid then
+                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           Result := True;
+                                         end;
+                                     MSI_ALL             :
+                                         begin
+                                         end;
+                                     MSI_CONFIG          :
+                                         begin
+                                           SendAckReply(LccMessage);
+                                           WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                           Configuration.LoadReply(LccMessage, WorkerMessage);
+                                           if WorkerMessage.UserValid then
+                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           Result := True;
+                                         end;
+                                     MSI_ACDI_MFG        :
+                                         begin
+                                           SendAckReply(LccMessage);
+                                           WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                           ACDIMfg.LoadReply(LccMessage, WorkerMessage);
+                                           if WorkerMessage.UserValid then
+                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           Result := True;
+                                         end;
+                                     MSI_ACDI_USER       :
+                                         begin
+                                           SendAckReply(LccMessage);
+                                           WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                           ACDIUser.LoadReply(LccMessage, WorkerMessage);
+                                           if WorkerMessage.UserValid then
+                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           Result := True;
+                                         end;
+                                     {$IFDEF TRACTION}
+                                     MSI_FDI             :
+                                          begin
+                                          end;
+                                     MSI_FUNCTION_CONFIG :
+                                          begin
+                                          end;
+                                     {$ENDIF}
+                                   end
+                                 end;
+                             MCP_CONFIGURATION : begin
+                                                   SendAckReply(LccMessage);
+                                                   WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                                   Configuration.LoadReply(LccMessage, WorkerMessage);
+                                                   if WorkerMessage.UserValid then
+                                                     OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                                   Result := True;
+                                                 end;
+                             MCP_ALL           : begin  end;
+                             MCP_CDI           : begin
+                                                   SendAckReply(LccMessage);
+                                                   WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                                   CDI.LoadReply(LccMessage, WorkerMessage);
+                                                   if WorkerMessage.UserValid then
+                                                     OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                                   Result := True;
+                                                 end;
+                           end;
+                         end;
                      MCP_READ_STREAM :
-                       begin
-                       end;
+                         begin
+                         end;
                      MCP_OP_GET_CONFIG :
-                       begin
-                         case LccMessage.DataArrayIndexer[1] of
-                           MCP_OP_GET_CONFIG :
-                             begin
-                               WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                               ConfigurationMemOptions.LoadReply(WorkerMessage);
-                               if WorkerMessage.UserValid then;
-                                 OwnerManager.DoRequestMessageSend(WorkerMessage);
-                             end;
-                           MCP_OP_GET_ADD_SPACE_INFO :
-                             begin
-                               WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                               ConfigMemAddressSpaceInfo.LoadReply(LccMessage, WorkerMessage);
-                               if WorkerMessage.UserValid then
-                                 OwnerManager.DoRequestMessageSend(WorkerMessage);
-                             end;
-                           MCP_OP_LOCK :
-                             begin
-                             end;
-                           MCP_OP_GET_UNIQUEID :
-                             begin
-                             end;
-                           MCP_OP_FREEZE :
-                             begin
-                             end;
-                           MCP_OP_INDICATE :
-                             begin
-                             end;
-                           MCP_OP_RESETS :
-                             begin
-                             end;
-                         end // case
-                       end
+                         begin
+                           case LccMessage.DataArrayIndexer[1] of
+                             MCP_OP_GET_CONFIG :
+                                 begin
+                                   WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                   ConfigurationMemOptions.LoadReply(WorkerMessage);
+                                   if WorkerMessage.UserValid then;
+                                     OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                   Result := True;
+                                 end;
+                             MCP_OP_GET_ADD_SPACE_INFO :
+                                 begin
+                                   WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+                                   ConfigMemAddressSpaceInfo.LoadReply(LccMessage, WorkerMessage);
+                                   if WorkerMessage.UserValid then
+                                     OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                   Result := True;
+                                 end;
+                             MCP_OP_LOCK :
+                                 begin
+                                 end;
+                             MCP_OP_GET_UNIQUEID :
+                                 begin
+                                 end;
+                             MCP_OP_FREEZE :
+                                 begin
+                                 end;
+                             MCP_OP_INDICATE :
+                                 begin
+                                 end;
+                             MCP_OP_RESETS :
+                                 begin
+                                 end;
+                           end // case
+                         end
                    end; // case
                  end
              else begin
                  // Undknown Datagram Type
                  WorkerMessage.LoadDatagramRejected(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_DATAGRAMS_NOT_ACCEPTED);
                  OwnerManager.DoRequestMessageSend(WorkerMessage);
+                 Result := True;
                end;
              end;  // case
            end;
@@ -1523,6 +1616,7 @@ begin
           begin
             WorkerMessage.LoadOptionalInteractionRejected(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL, LccMessage.MTI);
             OwnerManager.DoRequestMessageSend(WorkerMessage);
+            Result := True;
           end;
         end;
       end; // case
@@ -2690,10 +2784,12 @@ var
   LccSourceNode: TLccNode;
   LccOwnedNode: TLccOwnedNode;
   i: Integer;
+  MessageHandled: Boolean;
 begin
   Result := True;
   if Enabled then
   begin
+    MessageHandled := False;
     // First see if we have the node on the network that sent this message and allow
     // the NodeList to update those objects that are images of those nodes.
     LccSourceNode := FindSourceNode(LccMessage, True);
@@ -2701,7 +2797,7 @@ begin
     begin                                                                         // We don't have an image of this node in our database
       LccSourceNode := CreateNodeBySourceMessage(LccMessage);
       DoCreateLccNode(LccSourceNode);
-      LccSourceNode.ProcessMessage(LccMessage);
+      MessageHandled := LccSourceNode.ProcessMessage(LccMessage);
       if LccMessage.MTI = MTI_VERIFIED_NODE_ID_NUMBER then
       begin
         if AutoInterrogateDiscoveredNodes then
@@ -2728,25 +2824,28 @@ begin
     end else
     begin
       if Assigned(LccSourceNode) then
-        LccSourceNode.ProcessMessage(LccMessage);
+        MessageHandled := LccSourceNode.ProcessMessage(LccMessage);
     end;
 
     // Now handle messages that are directed to our internally created and mananged nodes
-    if LccMessage.HasDestination then
+    if not MessageHandled then
     begin
-      LccOwnedNode := FindOwnedDestNode(LccMessage);
-      if Assigned(LccOwnedNode) then
-        LccOwnedNode.ProcessMessage(LccMessage)
-      else begin
-        LccOwnedNode := FindOwnedSourceNode(LccMessage);
+      if LccMessage.HasDestination then
+      begin
+        LccOwnedNode := FindOwnedDestNode(LccMessage);
         if Assigned(LccOwnedNode) then
-          LccOwnedNode.ProcessMessage(LccMessage)   // this will throw an error and reallocate the alias
+          LccOwnedNode.ProcessMessage(LccMessage)
+        else begin
+          LccOwnedNode := FindOwnedSourceNode(LccMessage);
+          if Assigned(LccOwnedNode) then
+            LccOwnedNode.ProcessMessage(LccMessage)   // this will throw an error and reallocate the alias
+        end;
+      end else
+      begin
+        RootNode.ProcessMessage(LccMessage);
+        for i := 0 to OwnedNodeList.Count - 1 do
+          TLccOwnedNode( OwnedNodeList[i]).ProcessMessage(LccMessage);
       end;
-    end else
-    begin
-      RootNode.ProcessMessage(LccMessage);
-      for i := 0 to OwnedNodeList.Count - 1 do
-        TLccOwnedNode( OwnedNodeList[i]).ProcessMessage(LccMessage);
     end;
   end
 end;
@@ -3251,7 +3350,7 @@ var
   LccDestNode: TLccNode;
   EventPtr: PEventID;
 begin
-  Result := True;
+  Result := False;
   ANodeID[0] := 0;
   ANodeID[1] := 0;
   LccDestNode := nil;
@@ -3259,20 +3358,18 @@ begin
   if Assigned(OwnerManager) then
   begin
     if LccMessage.HasDestination then
-  //    if not OwnerManager.IsManagerNode(LccMessage) then
+    begin
+      LccDestNode := OwnerManager.FindDestNode(LccMessage, True);
+      if not Assigned(LccDestNode) then
       begin
-        LccDestNode := OwnerManager.FindDestNode(LccMessage, True);
-        if not Assigned(LccDestNode) then
+        LccDestNode := OwnerManager.CreateNodeByDestMessage(LccMessage);
+        if Assigned(OwnerManager) and OwnerManager.AutoInterrogateDiscoveredNodes then  // Have other nodes send out Verified
         begin
-          LccDestNode := OwnerManager.CreateNodeByDestMessage(LccMessage);
-          if Assigned(OwnerManager) and OwnerManager.AutoInterrogateDiscoveredNodes then
-          begin
-            // Have other nodes send out Verified
-            WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, LccDestNode.NodeID, LccDestNode.AliasID);
-            OwnerManager.DoRequestMessageSend(WorkerMessage);
-          end;
+          WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, LccDestNode.NodeID, LccDestNode.AliasID);
+          OwnerManager.DoRequestMessageSend(WorkerMessage);
         end;
       end;
+    end;
   end;
 
   case LccMessage.MTI of
@@ -3283,6 +3380,7 @@ begin
             FAliasID := LccMessage.CAN.SourceAlias;
             LccMessage.ExtractDataBytesAsNodeID(0, FNodeID);
             OwnerManager.DoInitializationComplete(Self);
+            Result := True;
           end;
         end;
     MTI_PROTOCOL_SUPPORT_REPLY :
@@ -3290,6 +3388,7 @@ begin
           ProtocolSupport.ProcessMessage(LccMessage);
           if Assigned(OwnerManager) then
             OwnerManager.DoProtocolIdentifyReply(Self, LccDestNode);
+          Result := True;
         end;
     MTI_VERIFY_NODE_ID_NUMBER :
         begin
@@ -3303,6 +3402,7 @@ begin
           LccMessage.ExtractDataBytesAsNodeID(0, FNodeID);
           if Assigned(OwnerManager) then
             OwnerManager.DoVerifiedNodeID(Self);
+          Result := True;
         end;
     MTI_SIMPLE_NODE_INFO_REPLY  :
         begin
@@ -3310,6 +3410,7 @@ begin
           SimpleNodeInfo.ProcessMessage(LccMessage);
           if Assigned(OwnerManager) then
             OwnerManager.DoSimpleNodeIdentReply(Self, LccDestNode);
+          Result := True;
         end;
     {$IFDEF TRACTION}
     MTI_SIMPLE_TRAIN_INFO_REPLY :
@@ -3318,6 +3419,7 @@ begin
           SimpleTrainNodeInfo.ProcessMessage(LccMessage, Traction);
           if Assigned(OwnerManager) then
             OwnerManager.DoSimpleTrainNodeIdentReply(Self, LccDestNode);
+          Result := True;
         end;
     {$ENDIF}
     MTI_PRODUCER_IDENTIFIED_SET :
@@ -3326,6 +3428,7 @@ begin
           EventsProduced.Add(EventPtr^, evs_Valid);
           if Assigned(OwnerManager) then
             OwnerManager.DoProducerIdentified(Self, EventPtr^ , evs_Valid);
+          Result := True;
         end;
     MTI_PRODUCER_IDENTIFIED_CLEAR :
         begin
@@ -3333,6 +3436,7 @@ begin
           EventsProduced.Add(EventPtr^, evs_InValid);
           if Assigned(OwnerManager) then
             OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_InValid);
+          Result := True;
         end;
     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
         begin
@@ -3340,6 +3444,7 @@ begin
           EventsProduced.Add(EventPtr^, evs_Unknown);
           if Assigned(OwnerManager) then
             OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_Unknown);
+          Result := True;
         end;
     MTI_CONSUMER_IDENTIFIED_SET :
         begin
@@ -3347,6 +3452,7 @@ begin
           EventsConsumed.Add(EventPtr^, evs_Valid);
           if Assigned(OwnerManager) then
             OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Valid);
+          Result := True;
         end;
     MTI_CONSUMER_IDENTIFIED_CLEAR :
         begin
@@ -3354,6 +3460,7 @@ begin
           EventsConsumed.Add(EventPtr^, evs_InValid);
           if Assigned(OwnerManager) then
             OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_InValid);
+          Result := True;
         end;
     MTI_CONSUMER_IDENTIFIED_UNKNOWN :
         begin
@@ -3361,6 +3468,7 @@ begin
           EventsConsumed.Add(EventPtr^, evs_Unknown);
           if Assigned(OwnerManager) then
             OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Unknown);
+          Result := True;
         end;
     {$IFDEF TRACTION}
     MTI_TRACTION_PROTOCOL :
@@ -3377,6 +3485,7 @@ begin
                             OwnerManager.DoTractionControllerChangeNotify(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10), Allow);
                             WorkerMessage.LoadTractionControllerChangeNotifyReply(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, Allow);
                             OwnerManager.DoRequestMessageSend(WorkerMessage);
+                            Result := True;
                           end;
                     end;
                   end;
@@ -3398,6 +3507,7 @@ begin
                       TRACTION_CONTROLLER_CONFIG_ASSIGN :
                           begin
                             OwnerManager.DoTractionReplyControllerAssign(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                            Result := True;
                           end;
                       TRACTION_CONTROLLER_CONFIG_QUERY  :
                           begin
@@ -3405,15 +3515,20 @@ begin
                               OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10))
                             else
                               OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, 0);
+                            Result := True;
                           end;
                       TRACTION_CONTROLLER_CONFIG_NOTIFY :
                           begin
                             OwnerManager.DoTractionReplyControllerChangeNotify(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                            Result := True;
                           end;
                     end;
                   end;
-              TRACTION_MANAGE : OwnerManager.DoTractionReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
-            end;
+              TRACTION_MANAGE :
+                  begin
+                    OwnerManager.DoTractionReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                    Result := True;
+                  end;
           end;
         end;
     MTI_TRACTION_PROXY_REPLY :
@@ -3424,6 +3539,7 @@ begin
               TRACTION_PROXY_MANAGE   :
                   begin
                     OwnerManager.DoTractionProxyReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                    Result := True;
                   end;
               TRACTION_PROXY_ALLOCATE :
                   begin
@@ -3431,15 +3547,18 @@ begin
                       OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, LccMessage.ExtractDataBytesAsInt(11, 12))
                     else
                       OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, 0);
+                    Result := True;
                   end;
               TRACTION_PROXY_ATTACH   :
                   begin
                     OwnerManager.DoTractionProxyReplyAttach(Self, LccDestNode, LccMessage.DataArrayIndexer[1]);
+                    Result := True;
                   end;
               else begin
                 // Something is broken but don't allow the Reservation to be stuck Reserved, Releasing it will not hurt
                   WorkerMessage.LoadTractionProxyManage(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, False);
                   OwnerManager.DoRequestMessageSend(WorkerMessage);
+                  Result := True;
                 end
               end; // Case
             end;
@@ -3447,6 +3566,10 @@ begin
       {$ENDIF}
       MTI_DATAGRAM :
           begin
+            // Only Ack if we accept the datagram
+            WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
+            OwnerManager.DoRequestMessageSend(WorkerMessage);
+
             case LccMessage.DataArrayIndexer[0] of
               DATAGRAM_PROTOCOL_CONFIGURATION :
                   begin
@@ -3459,14 +3582,14 @@ begin
                             begin
                               // Ok
                               case ExtractAddressSpace(LccMessage) of
-                                MSI_CDI             : CDI.ProcessMessage(LccMessage);
+                                MSI_CDI             : begin CDI.ProcessMessage(LccMessage);Result := True; end;
                                 MSI_ALL             : begin end;
-                                MSI_CONFIG          : ConfigurationMem.ProcessMessage(LccMessage);
+                                MSI_CONFIG          : begin ConfigurationMem.ProcessMessage(LccMessage); Result := True; end;
                                 MSI_ACDI_MFG        : begin end;
                                 MSI_ACDI_USER       : begin end;
                                 {$IFDEF TRACTION}
-                                MSI_FDI             : FDI.ProcessMessage(LccMessage);
-                                MSI_FUNCTION_CONFIG : FunctionConfiguration.ProcessMessage(LccMessage);
+                                MSI_FDI             : begin FDI.ProcessMessage(LccMessage); Result := True; end;
+                                MSI_FUNCTION_CONFIG : begin FunctionConfiguration.ProcessMessage(LccMessage); Result := True; end;
                                 {$ENDIF}
                               end;
                             end else
@@ -3485,12 +3608,12 @@ begin
                               case ExtractAddressSpace(LccMessage) of
                                 MSI_CDI              : begin end; // Not writable
                                 MSI_ALL              : begin end; // Not writeable
-                                MSI_CONFIG           : ConfigurationMem.ProcessMessage(LccMessage);
+                                MSI_CONFIG           : begin ConfigurationMem.ProcessMessage(LccMessage); Result := True; end;
                                 MSI_ACDI_MFG         : begin end;
                                 MSI_ACDI_USER        : begin end;
                                 {$IFDEF TRACTION}
                                 MSI_FDI              : begin end; // Not writeable
-                                MSI_FUNCTION_CONFIG  : FunctionConfiguration.ProcessMessage(LccMessage);
+                                MSI_FUNCTION_CONFIG  : begin FunctionConfiguration.ProcessMessage(LccMessage); Result := True; end;
                                 {$ENDIF}
                               end;
                             end else
@@ -3498,15 +3621,19 @@ begin
                               // Failure
                             end;
                           end;
-                      MCP_OPERATION         :
-                          begin
-                            ConfigurationMemOptions.ProcessMessage(LccMessage);
-                          end;
+                      MCP_OPERATION :begin ConfigurationMemOptions.ProcessMessage(LccMessage); Result := True; end;
                   end;
             end;
-        end;
+          end;
       end;
   end;
+end;
+
+procedure TLccNode.SendAckReply(LccMessage: TLccMessage);
+begin
+  // Only Ack if we accept the datagram
+  WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
+  OwnerManager.DoRequestMessageSend(WorkerMessage);
 end;
 
 

@@ -757,6 +757,7 @@ var
   TxList: TStringList;
   i: Integer;
   DynamicByteArray: TDynamicByteArray;
+  LocalSleepCount: Integer;
 begin
   FRunning := True;
 
@@ -795,36 +796,36 @@ begin
       SendConnectionNotification(ccsListenerClientConnected);
       try
         try
+          LocalSleepCount := 0;
           while not IsTerminated and (FEthernetRec.ConnectionState = ccsListenerClientConnected) do
           begin
-            for i := 0 to SleepCount - 1 do
-              {$IFDEF FPC}
-              ThreadSwitch;
-              {$ELSE}
-              Sleep(1);
-              {$ENDIF}
 
-            // Handle the Socket using GridConnect
-            if Gridconnect then
+            if LocalSleepCount >= SleepCount then
             begin
-              TxStr := '';
-              TxList := OutgoingGridConnect.LockList;
-              try
-                if TxList.Count > 0 then
-                begin
-                  TxStr := LccString( TxList[0]);
-                  TxList.Delete(0);
-                end;
-              finally
-                OutgoingGridConnect.UnlockList;
-              end;
-
-              if TxStr <> '' then
+            // Handle the Socket using GridConnect
+              if Gridconnect then
               begin
-                Socket.SendString(LccString( TxStr) + LF);
-                if Socket.LastError <> 0 then
-                  HandleErrorAndDisconnect;
+                TxStr := '';
+                TxList := OutgoingGridConnect.LockList;
+                try
+                  if TxList.Count > 0 then
+                  begin
+                    TxStr := LccString( TxList[0]);
+                    TxList.Delete(0);
+                  end;
+                finally
+                  OutgoingGridConnect.UnlockList;
+                end;
+
+                if TxStr <> '' then
+                begin
+                  Socket.SendString(LccString( TxStr) + LF);
+                  if Socket.LastError <> 0 then
+                    HandleErrorAndDisconnect;
+                end;
+                LocalSleepCount := 0;
               end;
+              Inc(LocalSleepCount);
 
               RcvByte := Socket.RecvByte(1);
               case Socket.LastError of
