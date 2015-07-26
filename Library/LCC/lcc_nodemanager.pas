@@ -89,9 +89,16 @@ type
   TOnLccNodeTractionControllerChangeNotify = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean) of object;
   {$ENDIF}
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
+  TOnLccNodeConfigMemAddressSpace = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte) of object;
   TOnLccGetRootNodeClass = procedure(Sender: TObject; var NodeClass: TLccOwnedNodeClass) of object;
 
-  TMessageInFlight = (mif_Snip, mif_Pip, mif_Cdi, mif_Acdi_Mfg, mif_Acdi_User, mif_memconfig);
+  TMessageInFlight = (mif_Snip,
+                      mif_Pip,
+                      mif_Cdi,
+                      mif_Acdi_Mfg,
+                      mif_Acdi_User,
+                      mif_ConfigMem,
+                      mif_ConfigMemOptions);
   TMessageInFlightSet = set of TMessageInFlight;
 
   { TNodeProtocolBase }
@@ -639,6 +646,8 @@ type
     FLccSettings: TLccSettings;
     FNodeList: TList;
     FOnAliasIDChanged: TOnLccNodeMessage;
+    FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
+    FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
     FOnNodeIDChanged: TOnLccNodeMessage;
     FOnLccGetRootNodeClass: TOnLccGetRootNodeClass;
     FOnLccNodeCDI: TOnLccNodeMessageWithDest;
@@ -693,6 +702,8 @@ type
 
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoCDI(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoConfigMemAddressSpaceInfoReply(SourceLccNode, DestLccNode: TLccNode; AddressSpace: Byte); virtual;
+    procedure DoConfigMemOptionsReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoConfigMemReadReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoConfigMemWriteReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;
@@ -771,6 +782,8 @@ type
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
+    property OnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace read FOnLccNodeConfigMemAddressSpaceInfoReply write FOnLccNodeConfigMemAddressSpaceInfoReply;
+    property OnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemOptionsReply write FOnLccNodeConfigMemOptionsReply;
     property OnLccNodeConfigMemReadReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemReadReply write FOnLccNodeConfigMemReadReply;
     property OnLccNodeConfigMemWriteReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemWriteReply write FOnLccNodeConfigMemWriteReply;
     property OnLccNodeConsumerIdentified: TOnLccNodeEventIdentified read FOnLccNodeConsumerIdentified write FOnLccNodeConsumerIdentified;
@@ -1098,6 +1111,7 @@ begin
           SupportACDIMfgRead := OpsMask and MCO_ACDI_MFG_READS <> 0;
           SupportACDIUserRead := OpsMask and MCO_ACDI_USER_READS <> 0;
           SupportACDIUserWrite := OpsMask and MCO_ACDI_USER_WRITES <> 0;
+          OwnerManager.DoConfigMemOptionsReply(OwnerManager.FindSourceNode(LccMessage, True), OwnerManager.FindSourceNode(LccMessage, True));
         end;
     end
   end;
@@ -1565,7 +1579,7 @@ begin
                      MCP_READ_STREAM :
                          begin
                          end;
-                     MCP_OP_GET_CONFIG :
+                     MCP_OPERATION :
                          begin
                            case LccMessage.DataArrayIndexer[1] of
                              MCP_OP_GET_CONFIG :
@@ -2232,6 +2246,20 @@ begin
     OnLccNodeCDI(Self, SourceLccNode, DestLccNode)
 end;
 
+procedure TLccNodeManager.DoConfigMemAddressSpaceInfoReply(SourceLccNode,
+  DestLccNode: TLccNode; AddressSpace: Byte);
+begin
+ if Assigned(OnLccNodeConfigMemAddressSpaceInfoReply) then
+   OnLccNodeConfigMemAddressSpaceInfoReply(Self, SourceLccNode, DestLccNode, AddressSpace);
+end;
+
+procedure TLccNodeManager.DoConfigMemOptionsReply(SourceLccNode,
+  DestLccNode: TLccNode);
+begin
+  if Assigned(OnLccNodeConfigMemOptionsReply) then
+    OnLccNodeConfigMemOptionsReply(Self, SourceLccNode, DestLccNode);
+end;
+
 procedure TLccNodeManager.DoConfigMemReadReply(SourceLccNode,
   DestLccNode: TLccNode);
 begin
@@ -2675,6 +2703,7 @@ var
   LccNode: TLccNode;
 begin
   Result := nil;
+  if GuiNode = nil then Exit;
   for i := 0 to NodeList.Count - 1 do
   begin
     LccNode := TLccNode( NodeList[i]);
@@ -3621,7 +3650,7 @@ begin
                               // Failure
                             end;
                           end;
-                      MCP_OPERATION :begin ConfigurationMemOptions.ProcessMessage(LccMessage); Result := True; end;
+                      MCP_OPERATION : begin ConfigurationMemOptions.ProcessMessage(LccMessage); Result := True; end;
                   end;
             end;
           end;
@@ -3710,9 +3739,10 @@ begin
   Info := FindByAddressSpace( LccMessage.DataArrayIndexer[2]);
   if Assigned(Info) then
   begin
-    OutMessage.DataArrayIndexer[1] := MCP_OP_GET_ADD_SPACE_INFO_REPLY;
     if Info.IsPresent then
-      OutMessage.DataArrayIndexer[1] := OutMessage.DataArrayIndexer[1] or MCP_OP_GET_ADD_SPACE_INFO_REPLY_PRESENT;
+      OutMessage.DataArrayIndexer[1] := MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY
+    else
+      OutMessage.DataArrayIndexer[1] := MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY;
     OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];
     OutMessage.DataArrayIndexer[3] := _Highest(Info.FHighAddress);
     OutMessage.DataArrayIndexer[4] := _Higher(Info.FHighAddress);
@@ -3732,7 +3762,7 @@ begin
     end;
   end else
   begin
-    OutMessage.DataArrayIndexer[1] := MCP_OP_GET_ADD_SPACE_INFO_REPLY;  // Not present
+    OutMessage.DataArrayIndexer[1] := MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY;
     OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];
     OutMessage.DataArrayIndexer[3] := 0;
     OutMessage.DataArrayIndexer[4] := 0;

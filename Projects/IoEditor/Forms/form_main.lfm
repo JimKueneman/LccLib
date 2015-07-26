@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 290
+  Left = 279
   Height = 532
-  Top = 137
+  Top = 191
   Width = 1015
   Caption = 'Form1'
   ClientHeight = 532
@@ -86,7 +86,7 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 446
+      Height = 354
       Top = 14
       Width = 208
       HorzScrollBar.Page = 10
@@ -106,12 +106,55 @@ object Form1: TForm1
       OnResize = LccNodeSelectorResize
       Alignment = taLeftJustify
       CaptionIndent = 4
-      CaptionLineCount = 4
-      DefaultNodeHeight = 88
+      CaptionLineCount = 6
+      DefaultNodeHeight = 100
       DetailsFont.Color = clGray
       DetailsIndent = 16
       Images = ImageList2
+      OnFocusedChanged = LccNodeSelectorFocusedChanged
       TextLayout = tlCenter
+    end
+    object PanelNodeUserInfo: TPanel
+      Left = 1
+      Height = 92
+      Top = 368
+      Width = 208
+      Align = alBottom
+      ClientHeight = 92
+      ClientWidth = 208
+      TabOrder = 1
+      object EditUserName: TEdit
+        Left = 16
+        Height = 21
+        Top = 24
+        Width = 176
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 0
+      end
+      object EditUserDesc: TEdit
+        Left = 16
+        Height = 21
+        Top = 64
+        Width = 176
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 1
+      end
+      object LabelUseName: TLabel
+        Left = 8
+        Height = 13
+        Top = 8
+        Width = 52
+        Caption = 'User Name'
+        ParentColor = False
+      end
+      object LabelUserDesc: TLabel
+        Left = 8
+        Height = 13
+        Top = 48
+        Width = 78
+        Caption = 'User Description'
+        ParentColor = False
+      end
     end
   end
   object SplitterMain: TSplitter
@@ -267,6 +310,8 @@ object Form1: TForm1
     LccSettings = LccSettings
     OnAliasIDChanged = LccNodeManagerAliasIDChanged
     OnLccNodeCDI = LccNodeManagerLccNodeCDI
+    OnLccNodeConfigMemAddressSpaceInfoReply = LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply
+    OnLccNodeConfigMemOptionsReply = LccNodeManagerLccNodeConfigMemOptionsReply
     OnNodeIDChanged = LccNodeManagerNodeIDChanged
     OnLccNodeInitializationComplete = LccNodeManagerLccNodeInitializationComplete
     OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply
@@ -3236,6 +3281,12 @@ object Form1: TForm1
     object MenuItemPopupSelectorEditUserStrings: TMenuItem
       Action = ActionEditUserStrings
     end
+    object MenuItemLastSpace: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem2: TMenuItem
+      Action = ActionShowNodeProperties
+    end
   end
   object ActionListSelector: TActionList
     left = 102
@@ -3244,5 +3295,24 @@ object Form1: TForm1
       Caption = 'Edit User Strings'
       OnExecute = ActionEditUserStringsExecute
     end
+    object ActionShowNodeProperties: TAction
+      Caption = 'Properties...'
+      OnExecute = ActionShowNodePropertiesExecute
+    end
+  end
+  object LccCdiParser1: TLccCdiParser
+    AutoReadOnTabChange = False
+    CVBlockRead = 1
+    ImageIndexStateCurrent = 0
+    ImageIndexStateUnknown = 0
+    ImageIndexRead = 0
+    ImageIndexWrite = 0
+    NodeManager = LccNodeManager
+    PrintMemOffset = False
+    ShowReadBtn = True
+    ShowWriteBtn = True
+    SuppressNameAndDescription = False
+    left = 85
+    top = 91
   end
 end

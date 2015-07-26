@@ -261,13 +261,12 @@ const
   MCP_OP_GET_CONFIG                  = $80;                                     // MemoryConfigurationProtocol Operation - Get Configuration
   MCP_OP_GET_CONFIG_REPLY            = $82;                                     // MemoryConfigurationProtocol Operation - Get Configuration Reply
   MCP_OP_GET_ADD_SPACE_INFO          = $84;                                     // MemoryConfigurationProtocol Operation - Get Add Space Info
-  MCP_OP_GET_ADD_SPACE_INFO_REPLY    = $86;                                     // MemoryConfigurationProtocol Operation - Get Add Space Info Reply
+  MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY     = $87;
+  MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY = $86;                            // MemoryConfigurationProtocol Operation - Get Add Space Info Reply
   MCP_OP_LOCK                        = $88;                                     // MemoryConfigurationProtocol Operation - Lock Node
   MCP_OP_LOCK_REPLY                  = $8A;                                     // MemoryConfigurationProtocol Operation - Lock Node Reply
   MCP_OP_GET_UNIQUEID                = $8C;                                     // MemoryConfigurationProtocol Operation - Get Unique ID Key
   MCP_OP_GET_UNIQUEID_REPLY          = $8E;                                     // MemoryConfigurationProtocol Operation - Get Unique ID Key Reply
-
-  MCP_OP_GET_ADD_SPACE_INFO_REPLY_PRESENT = $01;
 
   MCP_OP_FREEZE                      = $A0;                                     // MemoryConfigurationProtocol Operation - Freeze Node
   MCP_OP_INDICATE                    = $A4;                                     // MemoryConfigurationProtocol Operation - Indicate

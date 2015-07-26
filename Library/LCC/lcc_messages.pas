@@ -192,6 +192,8 @@ public
   procedure LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean);
   procedure LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word);
   // ConfigurationMemory
+  procedure LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
+  procedure LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadConfigMemRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ConfigMemSize: Byte);
   procedure LoadConfigMemWriteInteger(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; IntegerSize: Byte; DataInteger: Integer);
   procedure LoadConfigMemWriteString(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; AString: string);
@@ -1533,6 +1535,33 @@ begin
   MTI := MTI_DATAGRAM_REJECTED_REPLY;
   FDataArray[0] := _Hi(Reason);
   FDataArray[1] := _Lo(Reason);
+end;
+
+procedure TLccMessage.LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  FDataArray[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
+  FDataArray[1] := MCP_OP_GET_ADD_SPACE_INFO;
+  FDataArray[2] := AddressSpace;
+  FDataCount := 3;
+  FMTI := MTI_DATAGRAM;
+end;
+
+procedure TLccMessage.LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  FDataArray[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
+  FDataArray[1] := MCP_OP_GET_CONFIG;
+  FDataCount := 2;
+  FMTI := MTI_DATAGRAM;
 end;
 
 procedure TLccMessage.LoadConfigMemRead(ASourceID: TNodeID;

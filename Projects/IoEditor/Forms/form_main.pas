@@ -9,7 +9,8 @@ uses
   ComCtrls, ExtCtrls, Menus, StdCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
-  form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs;
+  form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
+  form_properties;
 
 type
 
@@ -19,9 +20,39 @@ type
     X, Y: Integer
   end;
 
+  { TCdiGroup }
+
+  TCdiGroup = class(TPersistent)
+  private
+    FDataSize: Integer;
+    FDataType: TLccConfigDataType;
+    FDescription: string;
+    FMemOffset: Integer;
+    FName: string;
+  public
+    property Name: string read FName write FName;
+    property Description: string read FDescription write FDescription;
+    property MemOffset: Integer read FMemOffset write FMemOffset;
+    property DataType: TLccConfigDataType read FDataType write FDataType;
+    property DataSize: Integer read FDataSize write FDataSize;
+  end;
+
+  { TNetworkNodeCache }
+
+  TNetworkNodeCache = class(TPersistent)
+  private
+    FHardwareVersion: string;
+    FSoftwareVersion: string;
+  public
+    property HardwareVersion: string read FHardwareVersion write FHardwareVersion;
+    property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
+
+  end;
+
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionShowNodeProperties: TAction;
     ActionEditUserStrings: TAction;
     ActionListSelector: TActionList;
     ActionLogWindow: TAction;
@@ -30,11 +61,14 @@ type
     ActionComPort: TAction;
     ActionSettings: TAction;
     ActionList1: TActionList;
+    EditUserName: TEdit;
+    EditUserDesc: TEdit;
     ImageList1: TImageList;
     ImageList2: TImageList;
-    Label1: TLabel;
-    Label2: TLabel;
+    LabelUseName: TLabel;
+    LabelUserDesc: TLabel;
     LabelMyNodes: TLabel;
+    LccCdiParser1: TLccCdiParser;
     LccComPort: TLccComPort;
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
@@ -43,9 +77,12 @@ type
     LccNodeSelectorProducer: TLccNodeSelector;
     LccNodeSelectorProducer1: TLccNodeSelector;
     LccSettings: TLccSettings;
+    MenuItemLastSpace: TMenuItem;
+    MenuItem2: TMenuItem;
     MenuItemPopupSelectorEditUserStrings: TMenuItem;
     PageControl1: TPageControl;
     Panel1: TPanel;
+    PanelNodeUserInfo: TPanel;
     PanelMain: TPanel;
     PanelNetworkTree: TPanel;
     PopupMenuSelector: TPopupMenu;
@@ -67,6 +104,7 @@ type
     procedure ActionLoginExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
+    procedure ActionShowNodePropertiesExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -75,11 +113,14 @@ type
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
+    procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeVerifiedNodeID(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure LccNodeSelectorFocusedChanged(Sender: TObject; FocusedNode, OldFocusedNode: TLccGuiNode);
     procedure LccNodeSelectorMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LccNodeSelectorResize(Sender: TObject);
     procedure PopupMenuSelectorPopup(Sender: TObject);
@@ -90,6 +131,12 @@ type
   protected
     procedure TestForDuplicateAndAdd(TestNode: TLccNode);
     procedure UpdateForNodeEnabled(TestNode: TLccNode);
+    procedure UpdateNodePropertiesForm(Node: TLccNode);
+    procedure SendSnipRequest(Node: TLccNode);
+    procedure SendPipRequest(Node: TLccNode);
+    procedure SendCdiRequest(Node: TLccNode);
+    procedure SendConfigMemOptionsRequest(Node: TLccNode);
+    procedure SendConfigMemAddressInfo(Node: TLccNode; AddressSpace: Byte);
   public
     { public declarations }
     property LastMouseDownInfo: TMouseInfo read FLastMouseDownInfo;
@@ -180,6 +227,16 @@ begin
   begin
 
   end;
+end;
+
+procedure TForm1.ActionShowNodePropertiesExecute(Sender: TObject);
+var
+  Node: TLccNode;
+begin
+  Node := LccNodeManager.FindByGuiNode(LccNodeSelector.FocusedNode);
+  UpdateNodePropertiesForm(Node);
+  if Assigned(Node) then
+    FormNodeProperties.Show;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -309,6 +366,24 @@ begin
   UpdateForNodeEnabled(LccSourceNode);
 end;
 
+procedure TForm1.LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
+begin
+  FormNodeProperties.LoadConfigMemAddressSpaceInfo(LccSourceNode.ConfigMemAddressSpaceInfo.FindByAddressSpace(AddressSpace));
+end;
+
+procedure TForm1.LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+var
+  i: Integer;
+begin
+  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_ConfigMemOptions];
+  if LccSourceNode.ConfigurationMemOptions.Valid then
+  begin
+    for i := LccSourceNode.ConfigurationMemOptions.LowSpace to LccSourceNode.ConfigurationMemOptions.HighSpace do
+      SendConfigMemAddressInfo(LccSourceNode, i);
+  end;
+  UpdateNodePropertiesForm(LccSourceNode);
+end;
+
 procedure TForm1.LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TestForDuplicateAndAdd(LccSourceNode);
@@ -318,17 +393,9 @@ procedure TForm1.LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; Lcc
 begin
   LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Pip];
   if LccSourceNode.ProtocolSupport.SimpleNodeInfo then
-  begin
-    LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
-    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight + [mif_Snip];
-  end;
+    SendSnipRequest(LccSourceNode);
   if LccSourceNode.ProtocolSupport.CDI then
-  begin
-    LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
-    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight + [mif_Cdi];
-  end;
+    SendCdiRequest(LccSourceNode);
   UpdateForNodeEnabled(LccSourceNode);
 end;
 
@@ -358,6 +425,25 @@ procedure TForm1.LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLc
 begin
   if LccSourceNode = LccNodeManager.RootNode then
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+end;
+
+procedure TForm1.LccNodeSelectorFocusedChanged(Sender: TObject; FocusedNode, OldFocusedNode: TLccGuiNode);
+var
+  Node: TLccNode;
+begin
+  Node := LccNodeManager.FindByGuiNode(FocusedNode);
+  if Assigned(Node) then
+  begin
+    EditUserDesc.Text := Node.SimpleNodeInfo.UserDescription;
+    EditUserName.Text := Node.SimpleNodeInfo.UserName;
+  end else
+  begin
+    EditUserDesc.Text := '';
+    EditUserName.Text := '';
+  end;
+  FormNodeProperties.ActiveNode := Node;
+  if FormNodeProperties.Visible then
+    UpdateNodePropertiesForm(Node);
 end;
 
 procedure TForm1.LccNodeSelectorMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -409,9 +495,7 @@ begin
     end;
   end;
   TestNode.LccGuiNode.Captions.Add('Loading Node Info...');
-  LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, TestNode.NodeID, TestNode.AliasID);
-  LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-  TestNode.UserMsgInFlight := TestNode.UserMsgInFlight + [mif_Pip];
+  SendPipRequest(TestNode);
   UpdateForNodeEnabled(TestNode);
 end;
 
@@ -421,6 +505,69 @@ begin
   begin
     TestNode.LccGuiNode.Enabled := TestNode.UserMsgInFlight = [];
   end;
+end;
+
+procedure TForm1.UpdateNodePropertiesForm(Node: TLccNode);
+begin
+  FormNodeProperties.ActiveNode := Node;
+  if Assigned(Node) then
+  begin
+    if not FormNodeProperties.LoadConfigMemOptions(Node.ConfigurationMemOptions) then
+      SendConfigMemOptionsRequest(Node);  // When this replies we send the GetAddressSpaceInfo message
+    if not FormNodeProperties.LoadProtocols(Node.ProtocolSupport) then
+      SendPipRequest(Node);
+    if not FormNodeProperties.LoadCdi(Node.CDI) then
+      SendCdiRequest(Node);
+    if not FormNodeProperties.LoadSnip(Node.SimpleNodeInfo) then
+      SendSnipRequest(Node);
+  end
+end;
+
+procedure TForm1.SendSnipRequest(Node: TLccNode);
+begin
+  if Node.UserMsgInFlight * [mif_Snip] = [] then
+  begin
+    LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Snip];
+  end;
+end;
+
+procedure TForm1.SendPipRequest(Node: TLccNode);
+begin
+  if Node.UserMsgInFlight * [mif_Pip] = [] then
+  begin
+    LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Pip];
+  end;
+end;
+
+procedure TForm1.SendCdiRequest(Node: TLccNode);
+begin
+  if Node.UserMsgInFlight * [mif_Cdi] = [] then
+  begin
+    LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Cdi];
+  end;
+end;
+
+procedure TForm1.SendConfigMemOptionsRequest(Node: TLccNode);
+begin
+  if Node.UserMsgInFlight * [mif_ConfigMemOptions] = [] then
+  begin
+    LccNodeManager.UserMessage.LoadConfigMemOptions(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
+    LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];
+  end;
+end;
+
+procedure TForm1.SendConfigMemAddressInfo(Node: TLccNode; AddressSpace: Byte);
+begin
+  LccNodeManager.UserMessage.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID, AddressSpace);
+  LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
+//  Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];
 end;
 
 end.

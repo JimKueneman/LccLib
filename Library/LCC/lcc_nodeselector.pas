@@ -205,6 +205,7 @@ type
 
   TLccNodeSelector = class(TLccNodeSelectorBase)
   public
+    property FocusedNode;
     property LccNodes;
     property LccVisibleNodes;
   published
@@ -455,8 +456,6 @@ begin
       Canvas.Font.Color := clHighlightText;
     OffsetRect(TextRects[0], Left, Top);
     Canvas.TextRect(TextRects[0], TextRects[0].Left, TextRects[0].Top, Captions[0]);
-  //  if TextRects[0].Right > OwnerSelector.CalculatedHorzScrollRange then
-  //    OwnerSelector.CalculatedHorzScrollRange := TextRects[0].Right;
     Canvas.Font.Assign(OwnerSelector.DetailsFont);
     if Focused then
       Canvas.Font.Color := clHighlightText;
@@ -465,8 +464,6 @@ begin
     begin
       OffsetRect(TextRects[i], Left, Top);
       Canvas.TextRect(TextRects[i], TextRects[i].Left, TextRects[i].Top, Captions[i]);
-    //  if TextRects[i].Right > OwnerSelector.CalculatedHorzScrollRange then
-    //    OwnerSelector.CalculatedHorzScrollRange := TextRects[i].Right;
       Inc(i);
     end;
   end;
@@ -793,8 +790,9 @@ begin
   if Assigned(Node) then
   begin
     if Node.Enabled then
-      FocusedNode := Node;
-  end;
+      FocusedNode := Node
+  end else
+    FocusedNode := nil;
 end;
 
 procedure TLccNodeSelectorBase.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
