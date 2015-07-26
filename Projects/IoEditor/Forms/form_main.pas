@@ -68,7 +68,6 @@ type
     LabelUseName: TLabel;
     LabelUserDesc: TLabel;
     LabelMyNodes: TLabel;
-    LccCdiParser1: TLccCdiParser;
     LccComPort: TLccComPort;
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
@@ -115,10 +114,8 @@ type
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
     procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
-    procedure LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject;
-      LccSourceNode, LccDestNode: TLccNode);
-    procedure LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject;
-      LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
@@ -135,12 +132,14 @@ type
   protected
     procedure TestForDuplicateAndAdd(TestNode: TLccNode);
     procedure UpdateForNodeEnabled(TestNode: TLccNode);
+    function TestForAllNodesEnabled: Boolean;
     procedure UpdateNodePropertiesForm(Node: TLccNode);
     procedure SendSnipRequest(Node: TLccNode);
     procedure SendPipRequest(Node: TLccNode);
     procedure SendCdiRequest(Node: TLccNode);
     procedure SendConfigMemOptionsRequest(Node: TLccNode);
     procedure SendConfigMemAddressInfo(Node: TLccNode; AddressSpace: Byte);
+    procedure FormLoggingHideNotify(Sender: TObject);
   public
     { public declarations }
     property LastMouseDownInfo: TMouseInfo read FLastMouseDownInfo;
@@ -254,6 +253,7 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  FormLogging.OnHideNotify := @FormLoggingHideNotify;
   LccSettings.FilePath := GetSettingsPath + 'Settings.ini';                     // Setup the file paths to the Settings Object
   LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
   FormSettings.FrameLccSettings1.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
@@ -521,6 +521,21 @@ begin
   end;
 end;
 
+function TForm1.TestForAllNodesEnabled: Boolean;
+var
+  i: Integer;
+begin
+  Result := True;
+  for i := 0 to LccNodeSelector.LccNodes.Count - 1 do
+  begin
+    if not LccNodeSelector.LccNodes[i].Enabled then
+    begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
 procedure TForm1.UpdateNodePropertiesForm(Node: TLccNode);
 var
   i: Integer;
@@ -586,6 +601,12 @@ begin
   LccNodeManager.UserMessage.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID, AddressSpace);
   LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
 //  Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];
+end;
+
+procedure TForm1.FormLoggingHideNotify(Sender: TObject);
+begin
+  if ActionLogWindow.Checked = True then
+    ActionLogWindow.Execute;
 end;
 
 end.

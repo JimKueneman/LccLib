@@ -3302,19 +3302,4 @@ object Form1: TForm1
       OnExecute = ActionShowNodePropertiesExecute
     end
   end
-  object LccCdiParser1: TLccCdiParser
-    AutoReadOnTabChange = False
-    CVBlockRead = 1
-    ImageIndexStateCurrent = 0
-    ImageIndexStateUnknown = 0
-    ImageIndexRead = 0
-    ImageIndexWrite = 0
-    NodeManager = LccNodeManager
-    PrintMemOffset = False
-    ShowReadBtn = True
-    ShowWriteBtn = True
-    SuppressNameAndDescription = False
-    left = 85
-    top = 91
-  end
 end

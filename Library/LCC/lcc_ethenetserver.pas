@@ -950,7 +950,7 @@ begin
       MessageStr := AMessage.ConvertToGridConnectStr('');
       OutgoingGridConnect.Add(MessageStr);
       {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'S: ' + MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
@@ -965,7 +965,7 @@ begin
       begin
         OutgoingCircularArray.AddChunk(ByteArray);
         {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
           PrintTCPToSynEdit( '...Sending TCP...',
                           ByteArray,
                           Owner.LoggingFrame.SynEdit,
@@ -1043,7 +1043,7 @@ begin
     if Gridconnect then
     begin
       {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'R: ' + EthernetRec.MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
@@ -1077,7 +1077,7 @@ begin
     end else
     begin   // TCP Protocol
       {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame)  and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintTCPToSynEdit( '...Receiving TCP...',
                         EthernetRec.MessageArray,
                         Owner.LoggingFrame.SynEdit,

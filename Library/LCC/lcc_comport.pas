@@ -661,7 +661,7 @@ begin
   begin
     MessageStr := AMessage.ConvertToGridConnectStr('');
     OutgoingGridConnect.Add(MessageStr);
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
       PrintToSynEdit( 'S: ' + MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
@@ -716,7 +716,7 @@ begin
     if Assigned(OnReceiveMessage) then
       OnReceiveMessage(Self, FComPortRec);
 
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
       PrintToSynEdit( 'R: ' + ComPortRec.MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,

@@ -69,6 +69,7 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="form_logging"/>
       </Unit4>
       <Unit5>
         <Filename Value="Forms\form_properties.pas"/>

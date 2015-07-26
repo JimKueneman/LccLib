@@ -747,7 +747,7 @@ begin
       MessageStr := AMessage.ConvertToGridConnectStr('');
       OutgoingGridConnect.Add(MessageStr);
       {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'S: ' + MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
@@ -762,7 +762,7 @@ begin
       begin
         OutgoingCircularArray.AddChunk(ByteArray);
         {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
           PrintTCPToSynEdit( '...Sending TCP...',
                           ByteArray,
                           Owner.LoggingFrame.SynEdit,
@@ -832,7 +832,7 @@ begin
     if Gridconnect then
     begin
       {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and Owner.LoggingFrame.Visible then
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'R: ' + EthernetRec.MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
@@ -846,12 +846,13 @@ begin
     end else
     begin
       {$IFDEF LOGGING}
-      PrintTCPToSynEdit( '...Receiving TCP...',
-                        EthernetRec.MessageArray,
-                        Owner.LoggingFrame.SynEdit,
-                        Owner.LoggingFrame.ActionLogPause.Checked,
-                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
+        PrintTCPToSynEdit( '...Receiving TCP...',
+                          EthernetRec.MessageArray,
+                          Owner.LoggingFrame.SynEdit,
+                          Owner.LoggingFrame.ActionLogPause.Checked,
+                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
+                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
       {$ENDIF}
       LocalMessage := nil;
       if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
