@@ -376,9 +376,9 @@ var
   i: Integer;
 begin
   LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_ConfigMemOptions];
-  if LccSourceNode.ConfigurationMemOptions.Valid then
+  if LccSourceNode.ConfigMemOptions.Valid then
   begin
-    for i := LccSourceNode.ConfigurationMemOptions.LowSpace to LccSourceNode.ConfigurationMemOptions.HighSpace do
+    for i := LccSourceNode.ConfigMemOptions.LowSpace to LccSourceNode.ConfigMemOptions.HighSpace do
       SendConfigMemAddressInfo(LccSourceNode, i);
   end;
   UpdateNodePropertiesForm(LccSourceNode);
@@ -512,7 +512,7 @@ begin
   FormNodeProperties.ActiveNode := Node;
   if Assigned(Node) then
   begin
-    if not FormNodeProperties.LoadConfigMemOptions(Node.ConfigurationMemOptions) then
+    if not FormNodeProperties.LoadConfigMemOptions(Node.ConfigMemOptions) then
       SendConfigMemOptionsRequest(Node);  // When this replies we send the GetAddressSpaceInfo message
     if not FormNodeProperties.LoadProtocols(Node.ProtocolSupport) then
       SendPipRequest(Node);

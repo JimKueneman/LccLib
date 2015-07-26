@@ -526,7 +526,7 @@ type
     FAliasID: Word;
     FCDI: TCDI;
     FConfigurationMem: TConfigurationMemory;
-    FConfigurationMemOptions: TConfigurationMemOptions;
+    FConfigMemOptions: TConfigurationMemOptions;
     FEventsConsumed: TLccEvents;
     FEventsProduced: TLccEvents;
     {$IFDEF TRACTION}
@@ -556,7 +556,7 @@ type
     property AliasIDStr: string read GetAliasIDStr;
     property CDI: TCDI read FCDI write FCDI;
     property ConfigurationMem: TConfigurationMemory read FConfigurationMem write FConfigurationMem;
-    property ConfigurationMemOptions: TConfigurationMemOptions read FConfigurationMemOptions write FConfigurationMemOptions;
+    property ConfigMemOptions: TConfigurationMemOptions read FConfigMemOptions write FConfigMemOptions;
     property ConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo read FConfigMemAddressSpaceInfo write FConfigMemAddressSpaceInfo;
     property EventsConsumed: TLccEvents read FEventsConsumed write FEventsConsumed;
     property EventsProduced: TLccEvents read FEventsProduced write FEventsProduced;
@@ -1020,20 +1020,20 @@ begin
   CDI.Valid := True;
 
   // Setup the Configuraion Memory Options:
-  ConfigurationMemOptions.HighSpace := MSI_CDI;
-  ConfigurationMemOptions.LowSpace := MSI_ACDI_USER;
-  ConfigurationMemOptions.SupportACDIMfgRead := True;
-  ConfigurationMemOptions.SupportACDIUserRead := True;
-  ConfigurationMemOptions.SupportACDIUserWrite := True;
-  ConfigurationMemOptions.UnAlignedReads := True;
-  ConfigurationMemOptions.UnAlignedWrites := True;
-  ConfigurationMemOptions.WriteArbitraryBytes := True;
-  ConfigurationMemOptions.WriteLenFourBytes := True;
-  ConfigurationMemOptions.WriteLenOneByte := True;
-  ConfigurationMemOptions.WriteLenSixyFourBytes := True;
-  ConfigurationMemOptions.WriteLenTwoBytes := True;
-  ConfigurationMemOptions.WriteStream := False;
-  ConfigurationMemOptions.WriteUnderMask := False;
+  ConfigMemOptions.HighSpace := MSI_CDI;
+  ConfigMemOptions.LowSpace := MSI_ACDI_USER;
+  ConfigMemOptions.SupportACDIMfgRead := True;
+  ConfigMemOptions.SupportACDIUserRead := True;
+  ConfigMemOptions.SupportACDIUserWrite := True;
+  ConfigMemOptions.UnAlignedReads := True;
+  ConfigMemOptions.UnAlignedWrites := True;
+  ConfigMemOptions.WriteArbitraryBytes := True;
+  ConfigMemOptions.WriteLenFourBytes := True;
+  ConfigMemOptions.WriteLenOneByte := True;
+  ConfigMemOptions.WriteLenSixyFourBytes := True;
+  ConfigMemOptions.WriteLenTwoBytes := True;
+  ConfigMemOptions.WriteStream := False;
+  ConfigMemOptions.WriteUnderMask := False;
 
   // Setup the Configuration Memory Addres Space Information
   ConfigMemAddressSpaceInfo.Add(MSI_CDI, True, True, True, $00000000, $FFFFFFFF);
@@ -1111,6 +1111,7 @@ begin
           SupportACDIMfgRead := OpsMask and MCO_ACDI_MFG_READS <> 0;
           SupportACDIUserRead := OpsMask and MCO_ACDI_USER_READS <> 0;
           SupportACDIUserWrite := OpsMask and MCO_ACDI_USER_WRITES <> 0;
+          Valid := True;
           OwnerManager.DoConfigMemOptionsReply(OwnerManager.FindSourceNode(LccMessage, True), OwnerManager.FindSourceNode(LccMessage, True));
         end;
     end
@@ -1585,7 +1586,7 @@ begin
                              MCP_OP_GET_CONFIG :
                                  begin
                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                                   ConfigurationMemOptions.LoadReply(WorkerMessage);
+                                   ConfigMemOptions.LoadReply(WorkerMessage);
                                    if WorkerMessage.UserValid then;
                                      OwnerManager.DoRequestMessageSend(WorkerMessage);
                                    Result := True;
@@ -3285,6 +3286,8 @@ begin
   ConfigurationMem.OwnerManager := AValue;
   EventsProduced.OwnerManager := AValue;
   EventsConsumed.OwnerManager := AValue;
+  ConfigMemAddressSpaceInfo.OwnerManager := AValue;
+  ConfigMemOptions.OwnerManager := AValue;
 end;
 
 function TLccNode.GetNodeIDStr: string;
@@ -3326,7 +3329,7 @@ begin
   FiStartupSequence := 0;
   FEventsConsumed := TLccEvents.Create(Self);
   FEventsProduced := TLccEvents.Create(Self);
-  FConfigurationMemOptions := TConfigurationMemOptions.Create(Self);
+  FConfigMemOptions := TConfigurationMemOptions.Create(Self);
   FConfigMemAddressSpaceInfo := TConfigMemAddressSpaceInfo.Create(Self);
 end;
 
@@ -3344,7 +3347,7 @@ begin
   FreeAndNil(FConfigurationMem);
   FreeAndNil(FEventsConsumed);
   FreeAndNil(FEventsProduced);
-  FreeAndNil(FConfigurationMemOptions);
+  FreeAndNil(FConfigMemOptions);
   FreeAndNil(FConfigMemAddressSpaceInfo);
   if Assigned(OwnerManager) then
     OwnerManager.DoDestroyLccNode(Self);
@@ -3650,7 +3653,44 @@ begin
                               // Failure
                             end;
                           end;
-                      MCP_OPERATION : begin ConfigurationMemOptions.ProcessMessage(LccMessage); Result := True; end;
+                      MCP_OPERATION :
+                        begin
+                          case LccMessage.DataArrayIndexer[1] of
+                             MCP_OP_GET_CONFIG :
+                                 begin
+                                 end;
+                             MCP_OP_GET_CONFIG_REPLY :
+                                 begin
+                                   ConfigMemOptions.ProcessMessage(LccMessage);
+                                   Result := True;
+                                 end;
+                             MCP_OP_GET_ADD_SPACE_INFO :
+                                 begin
+                                 end;
+                             MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
+                             MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
+                                 begin
+                                   ConfigMemAddressSpaceInfo.ProcessMessage(LccMessage);
+                                   Result := True;
+                                 end;
+                             MCP_OP_LOCK :
+                                 begin
+                                 end;
+                             MCP_OP_GET_UNIQUEID :
+                                 begin
+                                 end;
+                             MCP_OP_FREEZE :
+                                 begin
+                                 end;
+                             MCP_OP_INDICATE :
+                                 begin
+                                 end;
+                             MCP_OP_RESETS :
+                                 begin
+                                 end;
+
+                          end;
+                        end;
                   end;
             end;
           end;
@@ -3775,8 +3815,37 @@ begin
 end;
 
 function TConfigMemAddressSpaceInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
+var
+  Info: TConfigMemAddressSpaceInfoObject;
+  IsPresent, ImpliedZeroAddress, IsReadOnly: Boolean;
+  Space: Byte;
 begin
-  Result := True
+  Result := True;
+  IsPresent := LccMessage.DataArrayIndexer[1] = MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY;
+  ImpliedZeroAddress := LccMessage.DataArrayIndexer[7] and $02 = 0;
+  IsReadOnly := LccMessage.DataArrayIndexer[7] and $01 <> 0;
+  Space := LccMessage.DataArrayIndexer[2];
+
+  Info := FindByAddressSpace(Space);
+  if not Assigned(Info) then
+  begin
+    if ImpliedZeroAddress then
+      Add(Space,                                       // Space
+          IsPresent,                                   // Present?
+          IsReadOnly,                                  // Readonly?
+          ImpliedZeroAddress,                          // Implied Zero Address
+          0,                                           // Low Memory Address
+          LccMessage.ExtractDataBytesAsInt(3, 6))      // High Memory Address
+    else
+      Add(Space,                                       // Space
+          IsPresent,                                   // Present?
+          IsReadOnly,                                  // Readonly?
+          ImpliedZeroAddress,                          // Implied Zero Address
+          LccMessage.ExtractDataBytesAsInt(8, 11),     // Low Memory Address
+          LccMessage.ExtractDataBytesAsInt(3, 6));     // High Memory Address
+    OwnerManager.DoConfigMemAddressSpaceInfoReply(OwnerManager.FindSourceNode(LccMessage, True), OwnerManager.FindDestNode(LccMessage, True), Space);
+  end;
+  Valid := True;                                       // Had at least one....
 end;
 
 { TConfiguration }
