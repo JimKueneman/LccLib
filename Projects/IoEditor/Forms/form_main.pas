@@ -115,6 +115,10 @@ type
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
     procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject;
+      LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject;
+      LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
@@ -384,6 +388,16 @@ begin
   UpdateNodePropertiesForm(LccSourceNode);
 end;
 
+procedure TForm1.LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+begin
+  FormNodeProperties.LccCdiParser.DoConfigMemReadReply(LccSourceNode);
+end;
+
+procedure TForm1.LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+begin
+  FormNodeProperties.LccCdiParser.DoConfigMemReadReply(LccSourceNode);
+end;
+
 procedure TForm1.LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TestForDuplicateAndAdd(LccSourceNode);
@@ -508,6 +522,8 @@ begin
 end;
 
 procedure TForm1.UpdateNodePropertiesForm(Node: TLccNode);
+var
+  i: Integer;
 begin
   FormNodeProperties.ActiveNode := Node;
   if Assigned(Node) then
@@ -520,6 +536,8 @@ begin
       SendCdiRequest(Node);
     if not FormNodeProperties.LoadSnip(Node.SimpleNodeInfo) then
       SendSnipRequest(Node);
+    for i := 0 to Node.ConfigMemAddressSpaceInfo.Count - 1 do
+      FormNodeProperties.LoadConfigMemAddressSpaceInfo(Node.ConfigMemAddressSpaceInfo[i]);
   end
 end;
 

@@ -17,6 +17,7 @@ type
   TLccGuiNode = class;
 
   TOnLccSelectorFocusedChanged = procedure(Sender: TObject; FocusedNode, OldFocusedNode: TLccGuiNode) of object;
+  TOnLccSelectorSort = function(Sender: TObject; Node1, Node2: TLccGuiNode): Integer of object;
 
   { TLccGuiNode }
 
@@ -34,6 +35,7 @@ type
     FNodeID: TNodeID;
     FOwnerSelector: TLccNodeSelectorBase;
     FSelected: Boolean;
+    FTag: Integer;
     FTop: Integer;
     FVisible: Boolean;
     FVisibleIndex: Integer;
@@ -66,6 +68,7 @@ type
     property NodeIDStr: string read GetNodeIDStr;
     property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
     property Selected: Boolean read FSelected write SetSelected;
+    property Tag: Integer read FTag write FTag;
     property Top: Integer read FTop write SetTop;
     property Visible: Boolean read FVisible write SetVisible;
     property VisibleIndex: Integer read FVisibleIndex;
@@ -101,6 +104,7 @@ type
     function Add(ANodeID: TNodeID; AnAliasID: Word): TLccGuiNode;
     procedure Delete(Index: Integer);
     function Find(ANodeID: TNodeID): TLccGuiNode;
+    procedure Sort;
   end;
 
   { TLccGuiVisibleNodeList }
@@ -108,11 +112,13 @@ type
   TLccGuiVisibleNodeList = class(TComponent)
   private
     FNodeList: TObjectList;
+    FOwnerSelector: TLccNodeSelectorBase;
     function GetCount: Integer;
     function GetNodes(Index: Integer): TLccGuiNode;
     procedure SetNodes(Index: Integer; AValue: TLccGuiNode);
   protected
     property NodeList: TObjectList read FNodeList write FNodeList;
+    property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
   public
     property Count: Integer read GetCount;
     property Nodes[Index: Integer]: TLccGuiNode read GetNodes write SetNodes; default;
@@ -132,6 +138,7 @@ type
     FFocusedNode: TLccGuiNode;
     FCalculatedHorzScrollRange: Integer;
     FImages: TImageList;
+    FOnSort: TOnLccSelectorSort;
     FTextLayout: TTextLayout;
     FCaptionIndent: Integer;
     FCaptionLineCount: Integer;
@@ -164,6 +171,7 @@ type
     property LccNodes: TLccGuiNodeList read FLccNodes write FLccNodes;
     property LccVisibleNodes: TLccGuiVisibleNodeList read FLccVisibleNodes write FLccVisibleNodes;
     property OnFocusedChanged: TOnLccSelectorFocusedChanged read OnFocusChanged write OnFocusChanged;
+    property OnSort: TOnLccSelectorSort read FOnSort write FOnSort;
     property TextLayout: TTextLayout read FTextLayout write SetTextLayout;
     property UpdateLock: Integer read FUpdateLock write FUpdateLock;
 
@@ -172,6 +180,7 @@ type
     procedure DoOnFocusChanged(LccNode, OldLccNode: TLccGuiNode); virtual;
     procedure DoOnResize; override;
     procedure DoOnShowHint(HintInfo: PHintInfo); override;
+    function DoOnSort(Node1, Node2: TLccGuiNode): Integer; virtual;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -217,6 +226,7 @@ type
     property DetailsIndent;
     property Images;
     property OnFocusedChanged;
+    property OnSort;
     property TextLayout;
   end;
 
@@ -428,10 +438,11 @@ begin
   Canvas.ClipRect := BoundsRect;
   Canvas.Clipping := True;
 
-  if Enabled then
-    Canvas.Brush.Color := Color
-  else
-    Canvas.Brush.Color := clLtGray;
+ // if Enabled then
+    Canvas.Brush.Color := Color;
+//  else
+//    Canvas.Brush.Color := clLtGray;
+
   Canvas.FillRect(BoundsRect);
   if Focused then
   begin
@@ -642,6 +653,7 @@ begin
   inherited Create(AOwner);
   FLccNodes := TLccGuiNodeList.Create;
   LccVisibleNodes := TLccGuiVisibleNodeList.Create;
+  LccVisibleNodes.FOwnerSelector := Self;
   FLccNodes.FOwnerSelector := Self;
   FDefaultNodeHeight := 44;
   FDetailsFont := TFont.Create;
@@ -678,6 +690,13 @@ begin
     if LccNode.AliasID <> 0 then
       HintInfo^.HintStr := HintInfo^.HintStr + #13+#10 + 'AliasID: 0x' + IntToHex(LccNode.AliasID, 4);
   end;
+end;
+
+function TLccNodeSelectorBase.DoOnSort(Node1, Node2: TLccGuiNode): Integer;
+begin
+  Result := 0;
+  if Assigned(OnSort) then
+    Result := OnSort(Self, Node1, Node2);
 end;
 
 procedure TLccNodeSelectorBase.EndUpdate;
@@ -1063,6 +1082,36 @@ begin
   end;
 end;
 
+procedure TLccGuiNodeList.Sort;
+var
+  i, n, newn: Integer;
+  Temp: TLccGuiNode;
+begin
+  if Assigned(OwnerSelector) then
+  begin
+    OwnerSelector.BeginUpdate;
+    try
+      n := Count - 1;
+      repeat
+       newn := 0;
+       for i := 1 to n do
+       begin
+         if OwnerSelector.DoOnSort(Nodes[i-1], Nodes[i]) > 0 then
+         begin
+           Temp := Nodes[i-1];
+           Nodes[i-1] := Nodes[i];
+           Nodes[i] := Temp;
+           newn := i
+         end;
+       end;
+       n := newn
+      until n = 0;
+    finally
+      OwnerSelector.EndUpdate;
+    end;
+  end;
+end;
+
 destructor TLccGuiNodeList.Destroy;
 begin
   Clear;
@@ -1081,8 +1130,13 @@ begin
 end;
 
 procedure TLccGuiNodeList.SetNodes(Index: Integer; AValue: TLccGuiNode);
+var
+  Old: Boolean;
 begin
-  NodeList[Index] := AValue
+  Old := NodeList.OwnsObjects;
+  NodeList.OwnsObjects := False;
+  NodeList[Index] := AValue;
+  NodeList.OwnsObjects := Old;
 end;
 
 end.

@@ -312,6 +312,8 @@ object Form1: TForm1
     OnLccNodeCDI = LccNodeManagerLccNodeCDI
     OnLccNodeConfigMemAddressSpaceInfoReply = LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply
     OnLccNodeConfigMemOptionsReply = LccNodeManagerLccNodeConfigMemOptionsReply
+    OnLccNodeConfigMemReadReply = LccNodeManagerLccNodeConfigMemReadReply
+    OnLccNodeConfigMemWriteReply = LccNodeManagerLccNodeConfigMemWriteReply
     OnNodeIDChanged = LccNodeManagerNodeIDChanged
     OnLccNodeInitializationComplete = LccNodeManagerLccNodeInitializationComplete
     OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply

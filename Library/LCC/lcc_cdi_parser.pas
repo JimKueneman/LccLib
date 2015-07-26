@@ -246,7 +246,7 @@ type
     FMarkedToStop: Boolean;
     FMarkedToStopIsStopping: Boolean;
     FNodeManager: TLccNodeManager;
-    FLccNode: TLccOwnedNode;
+    FLccNode: TLccNode;
     FOnAfterReadPage: TNotifyEvent;
     FOnAfterWritePage: TNotifyEvent;
     FOnBuildInterfaceComplete: TNotifyEvent;
@@ -309,14 +309,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function Build_CDI_Interface(AnLccNode: TLccOwnedNode; ParentControl: TPanel; CDI: TXMLDocument): TPageControl;
+    function Build_CDI_Interface(AnLccNode: TLccNode; ParentControl: TPanel; CDI: TXMLDocument): TPageControl;
     procedure Clear_CDI_Interface(ClearLccNode: Boolean);
     procedure DoConfigMemReadReply(ANode: TObject); override;
     procedure DoConfigMemWriteReply(ANode: TObject); override;
     procedure NotifyLccNodeDestroy(LccNode: TObject); override;
     procedure SetNodeManager(ANodeManager: TObject); override;
 
-    property LccNode: TLccOwnedNode read FLccNode;
+    property LccNode: TLccNode read FLccNode;
   published
     property AutoReadOnTabChange: Boolean read FAutoReadOnTabChange write FAutoReadOnTabChange;
     property CVBlockRead: Word read GetCVBlockRead write SetCVBlockRead;
@@ -1735,7 +1735,7 @@ end;
 
 procedure TLccCdiParser.SetNodeManager(ANodeManager: TObject);
 begin
-  NodeManager := TLccNodeManager( ANodeManager);
+  NodeManager := ANodeManager as TLccNodeManager;
 end;
 
 function TLccCdiParser.SpeedButtonToConfigInfo(Sender: TObject): TConfigInfo;
@@ -1832,7 +1832,7 @@ begin
   inherited Destroy;
 end;
 
-function TLccCdiParser.Build_CDI_Interface(AnLccNode: TLccOwnedNode; ParentControl: TPanel; CDI: TXMLDocument): TPageControl;
+function TLccCdiParser.Build_CDI_Interface(AnLccNode: TLccNode; ParentControl: TPanel; CDI: TXMLDocument): TPageControl;
 const
   IDENTIFICATION_INDENT = 16;
 var

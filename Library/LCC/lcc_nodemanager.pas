@@ -435,7 +435,7 @@ type
   protected
     property List: TList read FList write FList;
   public
-    property AddressSpace[Index: Integer]: TConfigMemAddressSpaceInfoObject read GetAddressSpace;
+    property AddressSpace[Index: Integer]: TConfigMemAddressSpaceInfoObject read GetAddressSpace; default;
     property Count: Integer read GetCount;
 
     constructor Create(AnOwner: TComponent); override;

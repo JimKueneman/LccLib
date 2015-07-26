@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, lcc_nodeselector, lcc_nodemanager, lcc_defines, laz2_DOM, laz2_XMLRead,
-  laz2_XMLWrite, SynEdit, SynHighlighterHTML;
+  ExtCtrls, ComCtrls, lcc_nodeselector, lcc_nodemanager, lcc_defines,
+  lcc_cdi_parser, laz2_DOM, laz2_XMLRead, laz2_XMLWrite, SynEdit,
+  SynHighlighterHTML;
 
 type
 
@@ -17,6 +18,8 @@ type
     CheckGroupProtocols: TCheckGroup;
     CheckGroupConfigMem: TCheckGroup;
     GroupBoxMemSpaces: TGroupBox;
+    ImageLcc: TImage;
+    ImageListCdiParser: TImageList;
     ImageListProperties: TImageList;
     Label1: TLabel;
     Label10: TLabel;
@@ -38,8 +41,10 @@ type
     LabelMfg: TLabel;
     LabelModel: TLabel;
     LabelSoftwareVer: TLabel;
+    LccCdiParser: TLccCdiParser;
     LccNodeSelectorMemSpaces: TLccNodeSelector;
-    PageControl1: TPageControl;
+    PageControl: TPageControl;
+    PanelRenderCdi: TPanel;
     SynEdit: TSynEdit;
     SynHTMLSyn: TSynHTMLSyn;
     TabSheet1: TTabSheet;
@@ -47,6 +52,10 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
+    TabSheetRenderCdi: TTabSheet;
+    procedure CheckGroupConfigMemItemClick(Sender: TObject; Index: integer);
+    procedure CheckGroupProtocolsItemClick(Sender: TObject; Index: integer);
+    function LccNodeSelectorMemSpacesSort(Sender: TObject; Node1, Node2: TLccGuiNode): Integer;
   private
     FActiveNode: TLccNode;
     procedure SetActiveNode(AValue: TLccNode);
@@ -70,6 +79,21 @@ implementation
 {$R *.lfm}
 
 { TFormNodeProperties }
+
+function TFormNodeProperties.LccNodeSelectorMemSpacesSort(Sender: TObject; Node1, Node2: TLccGuiNode): Integer;
+begin
+  Result := Node2.Tag - Node1.Tag;
+end;
+
+procedure TFormNodeProperties.CheckGroupProtocolsItemClick(Sender: TObject; Index: integer);
+begin
+  ShowMessage('These properties are a function of the Node and can not be changed');
+end;
+
+procedure TFormNodeProperties.CheckGroupConfigMemItemClick(Sender: TObject; Index: integer);
+begin
+  ShowMessage('These properties are a function of the Node and can not be changed');
+end;
 
 procedure TFormNodeProperties.SetActiveNode(AValue: TLccNode);
 begin
@@ -98,6 +122,7 @@ begin
     CheckGroupConfigMem.Checked[i] := False;
   for i := 0 to CheckGroupProtocols.Items.Count - 1 do
     CheckGroupProtocols.Checked[i] := False;
+  LccCdiParser.Clear_CDI_Interface(False);
 end;
 
 function TFormNodeProperties.LoadConfigMemAddressSpaceInfo(ConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfoObject): Boolean;
@@ -107,16 +132,14 @@ function TFormNodeProperties.LoadConfigMemAddressSpaceInfo(ConfigMemAddressSpace
     Result := 'Address Space: 0x' + IntToHex(AddressSpace, 4) + ' (' + IntToStr(AddressSpace) + ')';
   end;
 
-  function FindExisitingSpace: TLccGuiNode;
+  function FindExisitingSpace(AddressSpace: Byte): TLccGuiNode;
   var
     i: Integer;
-    SpaceStr: string;
   begin
     Result := nil;
-    SpaceStr := AddressSpaceToCaption(ConfigMemAddressSpaceInfo.AddressSpace);
     for i := 0 to LccNodeSelectorMemSpaces.LccNodes.Count - 1 do
     begin
-      if LccNodeSelectorMemSpaces.LccNodes[i].Captions[0] = SpaceStr then
+      if LccNodeSelectorMemSpaces.LccNodes[i].Tag = AddressSpace then
       begin
         Result := LccNodeSelectorMemSpaces.LccNodes[i];
         Break;
@@ -130,12 +153,13 @@ begin
   Result := False;
   if Assigned(ConfigMemAddressSpaceInfo) then
   begin
-    NodeGui := FindExisitingSpace;
+    NodeGui := FindExisitingSpace(ConfigMemAddressSpaceInfo.AddressSpace);
     if not Assigned(NodeGui)  then
     begin
       LccNodeSelectorMemSpaces.BeginUpdate;
       try
         NodeGui := LccNodeSelectorMemSpaces.LccNodes.Add(NULL_NODE_ID, 0);
+        NodeGui.Tag := ConfigMemAddressSpaceInfo.AddressSpace;
         NodeGui.Captions.Add(AddressSpaceToCaption(ConfigMemAddressSpaceInfo.AddressSpace));
         if ConfigMemAddressSpaceInfo.IsPresent then
           NodeGui.Captions.Add('Address space is present')
@@ -152,6 +176,7 @@ begin
         NodeGui.Captions.Add('High address is 0x' + IntToHex(ConfigMemAddressSpaceInfo.HighAddress, 8) + ' (' + IntToStr(ConfigMemAddressSpaceInfo.HighAddress) + ')');
         NodeGui.ImageIndex := 0;
         NodeGui.Enabled := True;
+        LccNodeSelectorMemSpaces.LccNodes.Sort;
       finally
         LccNodeSelectorMemSpaces.EndUpdate;
       end;
@@ -243,6 +268,10 @@ begin
     for i := 0 to TempStream.Size - 1 do
       LocalText := LocalText + Char(TempStream.ReadByte);
     SynEdit.ClearAll;
+
+    if Assigned(ActiveNode) then
+      LccCdiParser.Build_CDI_Interface(ActiveNode, PanelRenderCdi, XML);
+
     SynEdit.Text := LocalText;
     FreeAndNil(XML);
     FreeAndNil(TempStream);
