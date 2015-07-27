@@ -69,7 +69,6 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_logging"/>
       </Unit4>
       <Unit5>
         <Filename Value="Forms\form_properties.pas"/>
@@ -85,7 +84,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="Compiled_Binaries\$(TargetCPU)-$(TargetOS)\BasicCANApp.app\Contents\MacOS\IoEditor"/>
+      <Filename Value="Compiled_Binaries\$(TargetCPU)-$(TargetOS)\IoEditor.app\Contents\MacOS\IoEditor"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

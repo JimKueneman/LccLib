@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="51">
+    <Units Count="52">
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -39,7 +39,7 @@
       <Unit3>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="20"/>
       </Unit3>
       <Unit4>
         <Filename Value="Forms/form_logging.pas"/>
@@ -47,7 +47,6 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_logging"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="29" Y="29"/>
@@ -62,9 +61,10 @@
         <UnitName Value="form_properties"/>
         <EditorIndex Value="3"/>
         <TopLine Value="251"/>
-        <CursorPos X="49" Y="275"/>
+        <CursorPos X="17" Y="259"/>
         <UsageCount Value="75"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
@@ -111,7 +111,7 @@
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
         <UnitName Value="lcc_nodeselector"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="1087"/>
+        <TopLine Value="1088"/>
         <CursorPos Y="1113"/>
         <UsageCount Value="112"/>
         <Loaded Value="True"/>
@@ -285,7 +285,6 @@
       </Unit36>
       <Unit37>
         <Filename Value="../../Library/LCC/lcc_comport.pas"/>
-        <UnitName Value="lcc_comport"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="655"/>
         <CursorPos X="5" Y="662"/>
@@ -293,7 +292,6 @@
       </Unit37>
       <Unit38>
         <Filename Value="../../Library/LCC/lcc_message_scheduler.pas"/>
-        <UnitName Value="lcc_message_scheduler"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="14" Y="574"/>
         <UsageCount Value="10"/>
@@ -303,7 +301,6 @@
         <ComponentName Value="FrameLccLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="frame_lcc_logging"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="77"/>
         <CursorPos X="23" Y="103"/>
@@ -311,7 +308,6 @@
       </Unit39>
       <Unit40>
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="950"/>
         <CursorPos X="92" Y="953"/>
@@ -333,7 +329,6 @@
       </Unit42>
       <Unit43>
         <Filename Value="../../Library/LCC/lcc_ethernetclient.pas"/>
-        <UnitName Value="lcc_ethernetclient"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="70"/>
         <CursorPos X="17" Y="86"/>
@@ -388,6 +383,21 @@
         <TopLine Value="28"/>
         <UsageCount Value="10"/>
       </Unit50>
+      <Unit51>
+        <Filename Value="Forms/form_main.lfm"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="5"/>
+        <CursorPos X="23" Y="23"/>
+        <ExtraEditorCount Value="1"/>
+        <ExtraEditor1>
+          <EditorIndex Value="-1"/>
+        </ExtraEditor1>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit51>
     </Units>
     <JumpHistory Count="14" HistoryIndex="13">
       <Position1>

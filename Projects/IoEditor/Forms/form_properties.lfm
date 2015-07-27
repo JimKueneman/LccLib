@@ -1,150 +1,150 @@
 object FormNodeProperties: TFormNodeProperties
   Left = 453
-  Height = 308
+  Height = 350
   Top = 279
-  Width = 613
+  Width = 770
   Caption = 'Lcc Node Properties'
-  ClientHeight = 308
-  ClientWidth = 613
+  ClientHeight = 350
+  ClientWidth = 770
   LCLVersion = '1.4.0.4'
   object PageControl: TPageControl
     Left = 0
-    Height = 308
+    Height = 350
     Top = 0
-    Width = 613
+    Width = 770
     ActivePage = TabSheet1
     Align = alClient
     TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'General'
-      ClientHeight = 282
-      ClientWidth = 605
+      ClientHeight = 311
+      ClientWidth = 764
       object Label2: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 64
-        Width = 28
+        Width = 38
         Caption = 'Model'
         ParentColor = False
       end
       object Label1: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 40
-        Width = 65
+        Width = 84
         Caption = 'Manufacturer'
         ParentColor = False
       end
       object Label3: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 88
-        Width = 82
+        Width = 106
         Caption = 'Software Version'
         ParentColor = False
       end
       object Label4: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 112
-        Width = 85
+        Width = 112
         Caption = 'Hardware Version'
         ParentColor = False
       end
       object Label5: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 184
-        Width = 52
+        Width = 68
         Caption = 'User Name'
         ParentColor = False
       end
       object Label6: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 208
-        Width = 78
+        Width = 105
         Caption = 'User Description'
         ParentColor = False
       end
       object LabelMfg: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 40
-        Width = 43
+        Width = 57
         Caption = 'LabelMfg'
         ParentColor = False
       end
       object LabelModel: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 64
-        Width = 53
+        Width = 72
         Caption = 'LabelModel'
         ParentColor = False
       end
       object LabelSoftwareVer: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 88
-        Width = 85
+        Width = 109
         Caption = 'LabelSoftwareVer'
         ParentColor = False
       end
       object LabelHardwareVer: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 112
-        Width = 88
+        Width = 114
         Caption = 'LabelHardwareVer'
         ParentColor = False
       end
       object LabelUserName: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 184
-        Width = 74
+        Width = 98
         Caption = 'LabelUserName'
         ParentColor = False
       end
       object LabelUserDesc: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 208
-        Width = 70
+        Width = 92
         Caption = 'LabelUserDesc'
         ParentColor = False
       end
       object Label7: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 16
-        Width = 35
+        Width = 47
         Caption = 'Version'
         ParentColor = False
       end
       object LabelVersion: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 20
-        Width = 60
+        Width = 81
         Caption = 'LabelVersion'
         ParentColor = False
       end
       object Label9: TLabel
         Left = 168
-        Height = 13
+        Height = 16
         Top = 160
-        Width = 35
+        Width = 47
         Caption = 'Version'
         ParentColor = False
       end
       object LabelUserVersion: TLabel
         Left = 304
-        Height = 13
+        Height = 16
         Top = 164
-        Width = 60
+        Width = 81
         Caption = 'LabelVersion'
         ParentColor = False
       end
@@ -439,13 +439,13 @@ object FormNodeProperties: TFormNodeProperties
     end
     object TabSheet2: TTabSheet
       Caption = 'Protocols'
-      ClientHeight = 282
-      ClientWidth = 605
+      ClientHeight = 311
+      ClientWidth = 764
       object CheckGroupProtocols: TCheckGroup
         Left = 16
-        Height = 250
+        Height = 279
         Top = 16
-        Width = 573
+        Width = 732
         Align = alClient
         Anchors = [akTop, akRight]
         AutoFill = True
@@ -459,8 +459,8 @@ object FormNodeProperties: TFormNodeProperties
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclTopToBottomThenLeftToRight
         ChildSizing.ControlsPerLine = 5
-        ClientHeight = 232
-        ClientWidth = 569
+        ClientHeight = 257
+        ClientWidth = 724
         ColumnLayout = clVerticalThenHorizontal
         Columns = 2
         Items.Strings = (
@@ -483,13 +483,13 @@ object FormNodeProperties: TFormNodeProperties
     end
     object TabSheet5: TTabSheet
       Caption = 'Config Memory'
-      ClientHeight = 282
-      ClientWidth = 605
+      ClientHeight = 311
+      ClientWidth = 764
       object CheckGroupConfigMem: TCheckGroup
         Left = 8
-        Height = 203
+        Height = 232
         Top = 8
-        Width = 589
+        Width = 748
         Align = alTop
         Anchors = [akTop, akLeft, akRight, akBottom]
         AutoFill = True
@@ -503,8 +503,8 @@ object FormNodeProperties: TFormNodeProperties
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclTopToBottomThenLeftToRight
         ChildSizing.ControlsPerLine = 6
-        ClientHeight = 185
-        ClientWidth = 585
+        ClientHeight = 210
+        ClientWidth = 740
         ColumnLayout = clVerticalThenHorizontal
         Columns = 2
         Items.Strings = (
@@ -530,43 +530,43 @@ object FormNodeProperties: TFormNodeProperties
       object GroupBoxMemSpaces: TGroupBox
         Left = 0
         Height = 63
-        Top = 219
-        Width = 605
+        Top = 248
+        Width = 764
         Align = alClient
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Available Memory Space Range'
-        ClientHeight = 45
-        ClientWidth = 601
+        ClientHeight = 41
+        ClientWidth = 756
         TabOrder = 1
         object Label8: TLabel
           Left = 16
-          Height = 13
+          Height = 16
           Top = 7
-          Width = 51
+          Width = 65
           Caption = 'Low Space'
           ParentColor = False
         end
         object Label10: TLabel
           Left = 16
-          Height = 13
+          Height = 16
           Top = 24
-          Width = 53
+          Width = 70
           Caption = 'High Space'
           ParentColor = False
         end
         object LabelLowSpace: TLabel
           Left = 103
-          Height = 13
+          Height = 16
           Top = 8
-          Width = 73
+          Width = 94
           Caption = 'LabelLowSpace'
           ParentColor = False
         end
         object LabelHighSpace: TLabel
           Left = 103
-          Height = 13
+          Height = 16
           Top = 24
-          Width = 75
+          Width = 99
           Caption = 'LabelHighSpace'
           ParentColor = False
         end
@@ -574,13 +574,13 @@ object FormNodeProperties: TFormNodeProperties
     end
     object TabSheet3: TTabSheet
       Caption = 'Memory Spaces'
-      ClientHeight = 282
-      ClientWidth = 605
+      ClientHeight = 311
+      ClientWidth = 764
       object LccNodeSelectorMemSpaces: TLccNodeSelector
         Left = 16
-        Height = 250
+        Height = 279
         Top = 16
-        Width = 573
+        Width = 732
         HorzScrollBar.Page = 10
         HorzScrollBar.Tracking = True
         VertScrollBar.Page = 1
