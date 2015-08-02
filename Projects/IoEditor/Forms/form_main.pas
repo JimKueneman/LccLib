@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties;
+  form_properties, lcc_message_scheduler;
 
 type
 
@@ -186,12 +186,13 @@ procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
 begin
   if ActionEthernetServer.Checked then
   begin
-    LccEthernetServer.OpenEthernetConnectionWithLccSettings;
     LccNodeManager.HardwareConnection := LccEthernetServer;     // Connect the Node Manager to the Comport Link
+    LccEthernetServer.OpenEthernetConnectionWithLccSettings;
   end else
   begin
-    LccEthernetServer.CloseEthernetConnection(nil);
     LccNodeManager.HardwareConnection := nil;          // DisConnect the Node Manager  Link
+    LccEthernetServer.CloseEthernetConnection(nil);
+
   end
 end;
 
