@@ -258,6 +258,7 @@ begin
   LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
   FormSettings.FrameLccSettings1.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
   LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
+  LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
   FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
   FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
   FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
