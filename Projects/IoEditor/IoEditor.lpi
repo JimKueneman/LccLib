@@ -50,7 +50,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms\form_settings.pas"/>
@@ -76,7 +75,6 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_properties"/>
       </Unit5>
     </Units>
   </ProjectOptions>
@@ -88,7 +86,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Library\Lib;Forms"/>
+      <OtherUnitFiles Value="..\..\Library\Lib;..\..\Library\LCC;Forms"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'darwin' then

@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="55">
+    <Units Count="59">
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -17,10 +17,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="352"/>
-        <CursorPos Y="368"/>
+        <CursorPos X="20" Y="12"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -39,7 +36,7 @@
       <Unit3>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="74"/>
       </Unit3>
       <Unit4>
         <Filename Value="Forms/form_logging.pas"/>
@@ -58,11 +55,10 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_properties"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="251"/>
         <CursorPos X="17" Y="259"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="79"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit5>
@@ -72,19 +68,17 @@
       </Unit6>
       <Unit7>
         <Filename Value="../../Library/LCC/lcc_messages.pas"/>
-        <UnitName Value="lcc_messages"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="80"/>
-        <CursorPos X="57" Y="96"/>
+        <TopLine Value="81"/>
+        <CursorPos X="19" Y="87"/>
         <UsageCount Value="75"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
-        <EditorIndex Value="9"/>
-        <TopLine Value="2803"/>
-        <CursorPos Y="2820"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="2821"/>
+        <CursorPos X="12" Y="2830"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -96,17 +90,15 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../Library/LCC/lcc_defines.pas"/>
-        <UnitName Value="lcc_defines"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="260"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="32"/>
         <CursorPos X="175" Y="287"/>
         <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <UnitName Value="lcc_nodeselector"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="1031"/>
         <CursorPos X="16" Y="1052"/>
         <UsageCount Value="112"/>
@@ -281,15 +273,15 @@
       </Unit35>
       <Unit36>
         <Filename Value="../../Library/LCC/lcc_comport.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="655"/>
-        <CursorPos X="5" Y="662"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="349"/>
+        <CursorPos Y="362"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit36>
       <Unit37>
         <Filename Value="../../Library/LCC/lcc_message_scheduler.pas"/>
-        <UnitName Value="lcc_message_scheduler"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="188"/>
         <CursorPos Y="205"/>
         <UsageCount Value="11"/>
@@ -307,12 +299,10 @@
       </Unit38>
       <Unit39>
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="801"/>
         <CursorPos Y="813"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit39>
       <Unit40>
         <Filename Value="../../Library/LCC/lcc_detailed_logging.pas"/>
@@ -337,12 +327,10 @@
       </Unit42>
       <Unit43>
         <Filename Value="../../Library/LCC/lcc_cdi_parser.pas"/>
-        <UnitName Value="lcc_cdi_parser"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1734"/>
         <CursorPos X="49" Y="1738"/>
         <UsageCount Value="47"/>
-        <Loaded Value="True"/>
       </Unit43>
       <Unit44>
         <Filename Value="C:/lazarus/fpc/2.6.4/source/rtl/objpas/sysutils/sysstrh.inc"/>
@@ -401,161 +389,170 @@
       </Unit50>
       <Unit51>
         <Filename Value="../../Library/Lib/file_utilities.pas"/>
-        <UnitName Value="file_utilities"/>
-        <EditorIndex Value="3"/>
-        <CursorPos X="20"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="22" Y="18"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit51>
       <Unit52>
         <Filename Value="/Developer/lazarus/lcl/include/containedaction.inc"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="79"/>
         <CursorPos Y="100"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit52>
       <Unit53>
         <Filename Value="/Developer/lazarus/lcl/include/customaction.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="104"/>
         <CursorPos Y="131"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit53>
       <Unit54>
         <Filename Value="../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
-        <UnitName Value="lcc_can_message_assembler_disassembler"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="../../Library/Synapse_LCC/synaser.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="258"/>
+        <CursorPos X="11" Y="272"/>
+        <UsageCount Value="10"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="/usr/local/fpc/source/rtl/linux/termios.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1398"/>
+        <CursorPos X="4" Y="1413"/>
+        <UsageCount Value="10"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="/usr/local/fpc/source/rtl/unix/bunxh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="85"/>
+        <CursorPos X="15" Y="98"/>
+        <UsageCount Value="10"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="384"/>
+        <CursorPos X="24" Y="400"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-      </Unit54>
+      </Unit58>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="26" HistoryIndex="25">
       <Position1>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2826" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="400" TopLine="379"/>
       </Position1>
       <Position2>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2828" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="401" TopLine="380"/>
       </Position2>
       <Position3>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2829" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="402" TopLine="381"/>
       </Position3>
       <Position4>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2830" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="403" TopLine="382"/>
       </Position4>
       <Position5>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2831" TopLine="2804"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="404" TopLine="383"/>
       </Position5>
       <Position6>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2840" TopLine="2825"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="406" TopLine="385"/>
       </Position6>
       <Position7>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2845" TopLine="2825"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="408" TopLine="387"/>
       </Position7>
       <Position8>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2861" TopLine="2845"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="162" TopLine="149"/>
       </Position8>
       <Position9>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2863" TopLine="2845"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="357" TopLine="343"/>
       </Position9>
       <Position10>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2820" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="359" TopLine="343"/>
       </Position10>
       <Position11>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2822" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="360" TopLine="343"/>
       </Position11>
       <Position12>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2825" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="537" TopLine="531"/>
       </Position12>
       <Position13>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2826" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="538" TopLine="531"/>
       </Position13>
       <Position14>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2856" TopLine="2841"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="544" TopLine="531"/>
       </Position14>
       <Position15>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2857" TopLine="2841"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="545" TopLine="531"/>
       </Position15>
       <Position16>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3385" TopLine="3368"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="547" TopLine="531"/>
       </Position16>
       <Position17>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3386" TopLine="3368"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="544" Column="13" TopLine="531"/>
       </Position17>
       <Position18>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3387" TopLine="3368"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="9" Column="59"/>
       </Position18>
       <Position19>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3388" TopLine="3368"/>
+        <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
+        <Caret Line="412" TopLine="393"/>
       </Position19>
       <Position20>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3390" TopLine="3368"/>
+        <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
+        <Caret Line="414" TopLine="393"/>
       </Position20>
       <Position21>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3392" TopLine="3368"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="355" TopLine="347"/>
       </Position21>
       <Position22>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3407" TopLine="3392"/>
+        <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
+        <Caret Line="414" Column="91" TopLine="402"/>
       </Position22>
       <Position23>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="3731" TopLine="3715"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="10" Column="49"/>
       </Position23>
       <Position24>
-        <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="2820" TopLine="2803"/>
+        <Filename Value="../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="364" Column="94" TopLine="49"/>
       </Position24>
       <Position25>
-        <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <Caret Line="813" TopLine="801"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="10" Column="49"/>
       </Position25>
       <Position26>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="370" TopLine="354"/>
+        <Caret Line="12" Column="20"/>
       </Position26>
-      <Position27>
-        <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <Caret Line="813" TopLine="801"/>
-      </Position27>
-      <Position28>
-        <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="376" TopLine="354"/>
-      </Position28>
-      <Position29>
-        <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="370" TopLine="354"/>
-      </Position29>
-      <Position30>
-        <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="376" TopLine="354"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="4">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -577,6 +574,13 @@
         <Source Value="../../Library/LCC/lcc_nodemanager.pas"/>
         <Line Value="2848"/>
       </Item3>
+      <Item4>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="../../Library/LCC/lcc_comport.pas"/>
+        <Line Value="362"/>
+      </Item4>
     </BreakPoints>
   </Debugging>
 </CONFIG>

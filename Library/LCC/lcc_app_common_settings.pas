@@ -393,7 +393,11 @@ end;
 constructor TComPortSettings.Create(AnOwner: TLccSettings);
 begin
   inherited Create(AnOwner);
+  {$IFDEF cpuarm}
   FBaudRate := 333333;
+  {$ELSE}
+  FBaudRate := 333333;
+  {$ENDIF}
   FDataBits := cpdb_8_Bits;
   FParity := cpp_None;
   FPort := 'COM1';
@@ -406,7 +410,11 @@ var
   Value: QWord;
 begin
   Port := IniFile.ReadString(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_PORT_KEY, 'COM2');
+  {$IFDEF cpuarm}
   BaudRate := IniFile.ReadInteger(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_BAUD_KEY, 333333);
+  {$ELSE}
+  BaudRate := IniFile.ReadInteger(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_BAUD_KEY, 333333);
+  {$ENDIF}
   DataBits := TComPortDataBits(IniFile.ReadInteger(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_BITS_KEY, Integer( cpdb_8_Bits)));
   StopBits := TComPortStopBits(IniFile.ReadInteger(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_STOPBITS_KEY, Integer(cpsb_1_StopBit)));
   Value := IniFile.ReadInteger(STR_INI_COMPORT_SECTION, STR_INI_COMPORT_PARITY_KEY, 0);
