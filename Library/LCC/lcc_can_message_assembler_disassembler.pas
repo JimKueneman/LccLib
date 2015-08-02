@@ -214,7 +214,7 @@ begin                                                                           
   Result := imgcr_False;
   if LccMessage.LoadByGridConnectStr(GridConnectStr) then
   begin
-    if LccMessage.CANOnly then
+    if LccMessage.IsCAN then
     begin  // CAN Only frames
       case LccMessage.CAN.MTI of
         MTI_CAN_AMR :
@@ -235,7 +235,7 @@ begin                                                                           
               if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
               begin
               {$ENDIF}
-                LccMessage.CANOnly := False;
+                LccMessage.IsCAN := False;
                 LccMessage.MTI := MTI_DATAGRAM;
                 Result := imgcr_True
               {$IFDEF PYTHON_COMPATIBLE}
@@ -282,7 +282,7 @@ begin                                                                           
               InProcessMessage.AppendDataArray(LccMessage);
               InProcessMessage.Copy(LccMessage);
               Remove(InProcessMessage, True);
-              LccMessage.CANOnly := False;
+              LccMessage.IsCAN := False;
               LccMessage.MTI := MTI_DATAGRAM;
               LccMessage.CAN.MTI := 0;
               {$IFDEF PYTHON_COMPATIBLE}

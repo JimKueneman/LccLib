@@ -75,7 +75,7 @@ end;
 
 TLccMessage = class
 private
-  FCANOnly: Boolean;                                                          // True if only The CAN_Message MTI is valid
+  FIsCAN: Boolean;                                                          // True if only The CAN_Message MTI is valid
   FCAN: TLccCANMessage;
   FDataArray: TLccByteArray;
   FDataCount: Integer;
@@ -93,7 +93,6 @@ private
   procedure SetDataArrayIndexer(iIndex: Word; const Value: Byte);protected
   FSourceID: TNodeID;
 public
-  property CANOnly: Boolean read FCANOnly write FCANOnly;
   property CAN: TLccCANMessage read FCAN write FCAN;
   property DestID: TNodeID read FDestID write FDestID;
   property DataArray: TLccByteArray read FDataArray write FDataArray;
@@ -102,6 +101,7 @@ public
   property HasDestination: Boolean read GetHasDestination;
   property HasDestNodeID: Boolean read GetHasDestNodeID;
   property HasSourceNodeID: Boolean read GetHasSourceNodeID;
+  property IsCAN: Boolean read FIsCAN write FIsCAN;
   property IsDatagram: Boolean read GetIsDatagram;
   property IsStream: Boolean read GetIsStream;
   property MTI: Word read FMTI write FMTI;
@@ -244,7 +244,7 @@ end;
 function TLccMessage.Clone: TLccMessage;
 begin
   Result := TLccMessage.Create;
-  Result.FCANOnly := FCanOnly;
+  Result.FIsCAN := FIsCAN;
   Result.CAN.FDestAlias := CAN.FDestAlias;
   Result.CAN.FFramingBits := CAN.FFramingBits;
   Result.CAN.FiTag := CAN.FiTag;
@@ -415,10 +415,10 @@ begin
           CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
           CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
           // Was this an OpenLCB or CAN specific message? This covers special multiFrame LccMessage and CAN layer specific messages
-          CANOnly := (CAN.MTI and $07000000 <> $01000000);
+          IsCAN := (CAN.MTI and $07000000 <> $01000000);
 
           // Extract the General OpenLCB message if possible
-          if CANOnly then                                                       // CANOnly means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
+          if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
           begin
             if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
             begin
@@ -521,7 +521,7 @@ begin
     // There are 2 ways a Datagram can enter here:
     // 1) A raw Message with a MTI_DATAGRAM MTI that has not been parsed into CAN frames yet
     // 2) A parsed CAN frame that effectively is a piece of a MTI_DATAGRAM but does not need to be reparsed
-    if CANOnly then
+    if IsCAN then
     begin
       LocalMTI := CAN.MTI or CAN.SourceAlias  or $10000000;
       LocalMTI := LocalMTI or (DWord( CAN.DestAlias) shl 12);
@@ -564,7 +564,7 @@ begin
   end else
   if MTI = MTI_STREAM_SEND then
   begin
-    if CANOnly then
+    if IsCAN then
     begin
 
     end else
@@ -573,7 +573,7 @@ begin
     end;
   end else
   begin
-    if CANOnly then
+    if IsCAN then
       LocalMTI := CAN.MTI or CAN.SourceAlias or $10000000
     else
       LocalMTI := DWord(( MTI shl 12) or CAN.SourceAlias or MTI_CAN_FRAME_TYPE_GENERAL or $10000000);
@@ -658,7 +658,7 @@ var
   Size: DWord;
   i, Offset: Integer;
 begin
-  if CANOnly then
+  if IsCAN then
     Result := False
   else begin
     if HasDestination then
@@ -741,7 +741,7 @@ end;
 
 procedure TLccMessage.Copy(TargetMessage: TLccMessage);
 begin
-  TargetMessage.FCANOnly := FCANOnly;
+  TargetMessage.FIsCAN := FIsCAN;
   TargetMessage.FMTI := FMTI;
   TargetMessage.FDataArray := FDataArray;
   TargetMessage.FDataCount := FDataCount;
@@ -756,7 +756,7 @@ end;
 
 procedure TLccMessage.ZeroFields;
 begin
-  FCANOnly := False;
+  FIsCAN := False;
   FDataCount := 0;
   CAN.FDestAlias := 0;
   FDestID := NULL_NODE_ID;
@@ -773,7 +773,7 @@ procedure TLccMessage.LoadCID(ASourceID: TNodeID; ASourceAlias: Word; ACID: Byte
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
-  CANOnly := True;
+  IsCAN := True;
   SourceID := ASourceID;
   case ACID of
     0 : CAN.MTI := MTI_CAN_CID0 or DWord(ASourceAlias) or (ASourceID[1] and $00FFF000);
@@ -787,7 +787,7 @@ procedure TLccMessage.LoadRID(ASourceAlias: Word);
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
-  CANOnly := True;
+  IsCAN := True;
   CAN.MTI := MTI_CAN_RID or ASourceAlias;
 end;
 
@@ -795,7 +795,7 @@ procedure TLccMessage.LoadAMD(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
-  CANOnly := True;
+  IsCAN := True;
   CAN.MTI := MTI_CAN_AMD or ASourceAlias;
   SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
@@ -806,7 +806,7 @@ procedure TLccMessage.LoadAME(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
-  CANOnly := True;
+  IsCAN := True;
   CAN.MTI := MTI_CAN_AME or ASourceAlias;
   SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
@@ -817,7 +817,7 @@ procedure TLccMessage.LoadAMR(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
-  CANOnly := True;
+  IsCAN := True;
   CAN.MTI := MTI_CAN_AMR or ASourceAlias;
   SourceID := ASourceID;
   InsertNodeID(0, ASourceID);

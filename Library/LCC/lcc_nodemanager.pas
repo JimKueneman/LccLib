@@ -1288,7 +1288,7 @@ begin
 
   if Permitted and Initialized then
   begin
-    if LccMessage.CANOnly then
+    if LccMessage.IsCAN then
     begin
       case LccMessage.CAN.MTI of
         MTI_CAN_AME  :
@@ -2842,7 +2842,7 @@ begin
         // Events will be coming as part of the initialization sequence
       end else
       begin
-        if AutoInterrogateDiscoveredNodes then
+        if AutoInterrogateDiscoveredNodes and not (LccMessage.IsCAN) then
         begin
           // Found a node some other way so need to get it information (NodeID and Events)
           WorkerMessage.LoadVerifyNodeIDAddressed(RootNode.NodeID, RootNode.AliasID, LccSourceNode.NodeID, LccSourceNode.AliasID);
@@ -3251,7 +3251,7 @@ begin
       DoLoadComplete(LccMessage);
     end else
     begin
-      WorkerMessage.CANOnly := False;
+      WorkerMessage.IsCAN := False;
       WorkerMessage.SourceID := LccMessage.DestID;
       WorkerMessage.CAN.SourceAlias := LccMessage.CAN.DestAlias;
       WorkerMessage.DestID := LccMessage.SourceID;
@@ -3395,7 +3395,7 @@ begin
       if not Assigned(LccDestNode) then
       begin
         LccDestNode := OwnerManager.CreateNodeByDestMessage(LccMessage);
-        if Assigned(OwnerManager) and OwnerManager.AutoInterrogateDiscoveredNodes then  // Have other nodes send out Verified
+        if Assigned(OwnerManager) and OwnerManager.AutoInterrogateDiscoveredNodes and not LccMessage.IsCAN then  // Have other nodes send out Verified
         begin
           WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, LccDestNode.NodeID, LccDestNode.AliasID);
           OwnerManager.DoRequestMessageSend(WorkerMessage);
@@ -3404,323 +3404,329 @@ begin
     end;
   end;
 
-  case LccMessage.MTI of
-    MTI_INITIALIZATION_COMPLETE :
-        begin
-          if Assigned(OwnerManager) then
+  if LccMessage.IsCAN then
+  begin
+
+  end else
+  begin
+    case LccMessage.MTI of
+      MTI_INITIALIZATION_COMPLETE :
+          begin
+            if Assigned(OwnerManager) then
+            begin
+              FAliasID := LccMessage.CAN.SourceAlias;
+              LccMessage.ExtractDataBytesAsNodeID(0, FNodeID);
+              OwnerManager.DoInitializationComplete(Self);
+              Result := True;
+            end;
+          end;
+      MTI_PROTOCOL_SUPPORT_REPLY :
+          begin
+            ProtocolSupport.ProcessMessage(LccMessage);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoProtocolIdentifyReply(Self, LccDestNode);
+            Result := True;
+          end;
+      MTI_VERIFY_NODE_ID_NUMBER :
+          begin
+          end;
+      MTI_VERIFY_NODE_ID_NUMBER_DEST :
+          begin
+          end;
+      MTI_VERIFIED_NODE_ID_NUMBER :
           begin
             FAliasID := LccMessage.CAN.SourceAlias;
             LccMessage.ExtractDataBytesAsNodeID(0, FNodeID);
-            OwnerManager.DoInitializationComplete(Self);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoVerifiedNodeID(Self);
             Result := True;
           end;
-        end;
-    MTI_PROTOCOL_SUPPORT_REPLY :
-        begin
-          ProtocolSupport.ProcessMessage(LccMessage);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoProtocolIdentifyReply(Self, LccDestNode);
-          Result := True;
-        end;
-    MTI_VERIFY_NODE_ID_NUMBER :
-        begin
-        end;
-    MTI_VERIFY_NODE_ID_NUMBER_DEST :
-        begin
-        end;
-    MTI_VERIFIED_NODE_ID_NUMBER :
-        begin
-          FAliasID := LccMessage.CAN.SourceAlias;
-          LccMessage.ExtractDataBytesAsNodeID(0, FNodeID);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoVerifiedNodeID(Self);
-          Result := True;
-        end;
-    MTI_SIMPLE_NODE_INFO_REPLY  :
-        begin
-          Inc(TotalSNIPMessages);
-          SimpleNodeInfo.ProcessMessage(LccMessage);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoSimpleNodeIdentReply(Self, LccDestNode);
-          Result := True;
-        end;
-    {$IFDEF TRACTION}
-    MTI_SIMPLE_TRAIN_INFO_REPLY :
-        begin
-          Inc(TotalSTNIPMessage);
-          SimpleTrainNodeInfo.ProcessMessage(LccMessage, Traction);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoSimpleTrainNodeIdentReply(Self, LccDestNode);
-          Result := True;
-        end;
-    {$ENDIF}
-    MTI_PRODUCER_IDENTIFIED_SET :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsProduced.Add(EventPtr^, evs_Valid);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoProducerIdentified(Self, EventPtr^ , evs_Valid);
-          Result := True;
-        end;
-    MTI_PRODUCER_IDENTIFIED_CLEAR :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsProduced.Add(EventPtr^, evs_InValid);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_InValid);
-          Result := True;
-        end;
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsProduced.Add(EventPtr^, evs_Unknown);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_Unknown);
-          Result := True;
-        end;
-    MTI_CONSUMER_IDENTIFIED_SET :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsConsumed.Add(EventPtr^, evs_Valid);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Valid);
-          Result := True;
-        end;
-    MTI_CONSUMER_IDENTIFIED_CLEAR :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsConsumed.Add(EventPtr^, evs_InValid);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_InValid);
-          Result := True;
-        end;
-    MTI_CONSUMER_IDENTIFIED_UNKNOWN :
-        begin
-          EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
-          EventsConsumed.Add(EventPtr^, evs_Unknown);
-          if Assigned(OwnerManager) then
-            OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Unknown);
-          Result := True;
-        end;
-    {$IFDEF TRACTION}
-    MTI_TRACTION_PROTOCOL :
-        begin
-          if Assigned(OwnerManager) then
+      MTI_SIMPLE_NODE_INFO_REPLY  :
           begin
-            case LccMessage.DataArrayIndexer[0] of
-              TRACTION_CONTROLLER_CONFIG :
-                  begin
-                    case LccMessage.DataArrayIndexer[1] of
-                        TRACTION_CONTROLLER_CONFIG_NOTIFY :
-                          begin
-                            Allow := True;
-                            OwnerManager.DoTractionControllerChangeNotify(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10), Allow);
-                            WorkerMessage.LoadTractionControllerChangeNotifyReply(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, Allow);
-                            OwnerManager.DoRequestMessageSend(WorkerMessage);
-                            Result := True;
-                          end;
-                    end;
-                  end;
-            end
-          end
-        end;
-    MTI_TRACTION_REPLY :
-        begin
-          ANodeID := NULL_NODE_ID;
-          Traction.ProcessMessage(LccMessage);
-          if Assigned(OwnerManager) then
-          begin
-            case LccMessage.DataArrayIndexer[0] of
-              TRACTION_QUERY_SPEED : OwnerManager.DoTractionReplyQuerySpeed(Self, LccDestNode);
-              TRACTION_QUERY_FUNCTION : OwnerManager.DoTractionReplyQueryFunction(Self, LccDestNode);
-              TRACTION_CONTROLLER_CONFIG :
-                  begin
-                    case LccMessage.DataArrayIndexer[1] of
-                      TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                          begin
-                            OwnerManager.DoTractionReplyControllerAssign(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
-                            Result := True;
-                          end;
-                      TRACTION_CONTROLLER_CONFIG_QUERY  :
-                          begin
-                            if LccMessage.DataArrayIndexer[2] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                              OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10))
-                            else
-                              OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, 0);
-                            Result := True;
-                          end;
-                      TRACTION_CONTROLLER_CONFIG_NOTIFY :
-                          begin
-                            OwnerManager.DoTractionReplyControllerChangeNotify(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
-                            Result := True;
-                          end;
-                    end;
-                  end;
-              TRACTION_MANAGE :
-                  begin
-                    OwnerManager.DoTractionReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
-                    Result := True;
-                  end;
+            Inc(TotalSNIPMessages);
+            SimpleNodeInfo.ProcessMessage(LccMessage);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoSimpleNodeIdentReply(Self, LccDestNode);
+            Result := True;
           end;
-        end;
-    MTI_TRACTION_PROXY_REPLY :
-        begin
-          if Assigned(OwnerManager) then
+      {$IFDEF TRACTION}
+      MTI_SIMPLE_TRAIN_INFO_REPLY :
           begin
-            case LccMessage.DataArrayIndexer[0] of
-              TRACTION_PROXY_MANAGE   :
-                  begin
-                    OwnerManager.DoTractionProxyReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
-                    Result := True;
-                  end;
-              TRACTION_PROXY_ALLOCATE :
-                  begin
-                    if LccMessage.DataArrayIndexer[1] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                      OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, LccMessage.ExtractDataBytesAsInt(11, 12))
-                    else
-                      OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, 0);
-                    Result := True;
-                  end;
-              TRACTION_PROXY_ATTACH   :
-                  begin
-                    OwnerManager.DoTractionProxyReplyAttach(Self, LccDestNode, LccMessage.DataArrayIndexer[1]);
-                    Result := True;
-                  end;
-              else begin
-                // Something is broken but don't allow the Reservation to be stuck Reserved, Releasing it will not hurt
-                  WorkerMessage.LoadTractionProxyManage(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, False);
-                  OwnerManager.DoRequestMessageSend(WorkerMessage);
-                  Result := True;
-                end
-              end; // Case
-            end;
+            Inc(TotalSTNIPMessage);
+            SimpleTrainNodeInfo.ProcessMessage(LccMessage, Traction);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoSimpleTrainNodeIdentReply(Self, LccDestNode);
+            Result := True;
           end;
       {$ENDIF}
-      MTI_DATAGRAM :
+      MTI_PRODUCER_IDENTIFIED_SET :
           begin
-            // Only Ack if we accept the datagram
-     ///       WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
-     //       OwnerManager.DoRequestMessageSend(WorkerMessage);
-
-            case LccMessage.DataArrayIndexer[0] of
-              DATAGRAM_PROTOCOL_CONFIGURATION :
-                  begin
-                    case LccMessage.DataArrayIndexer[1] and $F0 of
-                      MCP_READ              : begin end;
-                      MCP_READ_STREAM       : begin end;
-                      MCP_READ_REPLY        :
-                          begin
-                            if LccMessage.DataArrayIndexer[1] and $08 = 0 then
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsProduced.Add(EventPtr^, evs_Valid);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoProducerIdentified(Self, EventPtr^ , evs_Valid);
+            Result := True;
+          end;
+      MTI_PRODUCER_IDENTIFIED_CLEAR :
+          begin
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsProduced.Add(EventPtr^, evs_InValid);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_InValid);
+            Result := True;
+          end;
+      MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+          begin
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsProduced.Add(EventPtr^, evs_Unknown);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoProducerIdentified(Self, EventPtr^, evs_Unknown);
+            Result := True;
+          end;
+      MTI_CONSUMER_IDENTIFIED_SET :
+          begin
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsConsumed.Add(EventPtr^, evs_Valid);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Valid);
+            Result := True;
+          end;
+      MTI_CONSUMER_IDENTIFIED_CLEAR :
+          begin
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsConsumed.Add(EventPtr^, evs_InValid);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_InValid);
+            Result := True;
+          end;
+      MTI_CONSUMER_IDENTIFIED_UNKNOWN :
+          begin
+            EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
+            EventsConsumed.Add(EventPtr^, evs_Unknown);
+            if Assigned(OwnerManager) then
+              OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Unknown);
+            Result := True;
+          end;
+      {$IFDEF TRACTION}
+      MTI_TRACTION_PROTOCOL :
+          begin
+            if Assigned(OwnerManager) then
+            begin
+              case LccMessage.DataArrayIndexer[0] of
+                TRACTION_CONTROLLER_CONFIG :
+                    begin
+                      case LccMessage.DataArrayIndexer[1] of
+                          TRACTION_CONTROLLER_CONFIG_NOTIFY :
                             begin
-                              // Ok
-                              case ExtractAddressSpace(LccMessage) of
-                                MSI_CDI             : begin
-                                                        SendAckReply(LccMessage);
-                                                        CDI.ProcessMessage(LccMessage);
-                                                        Result := True;
-                                                      end;
-                                MSI_ALL             : begin end;
-                                MSI_CONFIG          : begin
-                                                        SendAckReply(LccMessage);
-                                                        ConfigurationMem.ProcessMessage(LccMessage);
-                                                        Result := True;
-                                                      end;
-                                MSI_ACDI_MFG        : begin end;
-                                MSI_ACDI_USER       : begin end;
-                                {$IFDEF TRACTION}
-                                MSI_FDI             : begin
-                                                        SendAckReply(LccMessage);
-                                                        FDI.ProcessMessage(LccMessage);
-                                                        Result := True;
-                                                      end;
-                                MSI_FUNCTION_CONFIG : begin
-                                                        SendAckReply(LccMessage);
-                                                        FunctionConfiguration.ProcessMessage(LccMessage);
-                                                        Result := True;
-                                                      end;
-                                {$ENDIF}
-                              end;
-                            end else
-                            begin
-                              // Failure
+                              Allow := True;
+                              OwnerManager.DoTractionControllerChangeNotify(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10), Allow);
+                              WorkerMessage.LoadTractionControllerChangeNotifyReply(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, Allow);
+                              OwnerManager.DoRequestMessageSend(WorkerMessage);
+                              Result := True;
                             end;
-                          end;
-                      MCP_READ_STREAM_REPLY : begin end;
-                      MCP_WRITE             : begin end;
-                      MCP_WRITE_STREAM      : begin end;
-                      MCP_WRITE_REPLY       :
-                          begin
-                            if LccMessage.DataArrayIndexer[1] and $08 = 0 then
+                      end;
+                    end;
+              end
+            end
+          end;
+      MTI_TRACTION_REPLY :
+          begin
+            ANodeID := NULL_NODE_ID;
+            Traction.ProcessMessage(LccMessage);
+            if Assigned(OwnerManager) then
+            begin
+              case LccMessage.DataArrayIndexer[0] of
+                TRACTION_QUERY_SPEED : OwnerManager.DoTractionReplyQuerySpeed(Self, LccDestNode);
+                TRACTION_QUERY_FUNCTION : OwnerManager.DoTractionReplyQueryFunction(Self, LccDestNode);
+                TRACTION_CONTROLLER_CONFIG :
+                    begin
+                      case LccMessage.DataArrayIndexer[1] of
+                        TRACTION_CONTROLLER_CONFIG_ASSIGN :
                             begin
-                              // Ok
-                              case ExtractAddressSpace(LccMessage) of
-                                MSI_CDI              : begin end; // Not writable
-                                MSI_ALL              : begin end; // Not writeable
-                                MSI_CONFIG           : begin
-                                                         SendAckReply(LccMessage);
-                                                         ConfigurationMem.ProcessMessage(LccMessage);
-                                                         Result := True;
-                                                       end;
-                                MSI_ACDI_MFG         : begin end;
-                                MSI_ACDI_USER        : begin end;
-                                {$IFDEF TRACTION}
-                                MSI_FDI              : begin end; // Not writeable
-                                MSI_FUNCTION_CONFIG  : begin
-                                                         SendAckReply(LccMessage);
-                                                         FunctionConfiguration.ProcessMessage(LccMessage);
-                                                         Result := True;
-                                                       end;
-                                {$ENDIF}
-                              end;
-                            end else
-                            begin
-                              // Failure
+                              OwnerManager.DoTractionReplyControllerAssign(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                              Result := True;
                             end;
-                          end;
-                      MCP_OPERATION :
-                        begin
-                          case LccMessage.DataArrayIndexer[1] of
-                             MCP_OP_GET_CONFIG :
-                                 begin
-                                 end;
-                             MCP_OP_GET_CONFIG_REPLY :
-                                 begin
-                                   SendAckReply(LccMessage);
-                                   ConfigMemOptions.ProcessMessage(LccMessage);
-                                   Result := True;
-                                 end;
-                             MCP_OP_GET_ADD_SPACE_INFO :
-                                 begin
-                                 end;
-                             MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
-                             MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
-                                 begin
-                                   SendAckReply(LccMessage);
-                                   ConfigMemAddressSpaceInfo.ProcessMessage(LccMessage);
-                                   Result := True;
-                                 end;
-                             MCP_OP_LOCK :
-                                 begin
-                                 end;
-                             MCP_OP_GET_UNIQUEID :
-                                 begin
-                                 end;
-                             MCP_OP_FREEZE :
-                                 begin
-                                 end;
-                             MCP_OP_INDICATE :
-                                 begin
-                                 end;
-                             MCP_OP_RESETS :
-                                 begin
-                                 end;
-
-                          end;
-                        end;
-                  end;
+                        TRACTION_CONTROLLER_CONFIG_QUERY  :
+                            begin
+                              if LccMessage.DataArrayIndexer[2] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                                OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10))
+                              else
+                                OwnerManager.DoTractionReplyControllerQuery(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, 0);
+                              Result := True;
+                            end;
+                        TRACTION_CONTROLLER_CONFIG_NOTIFY :
+                            begin
+                              OwnerManager.DoTractionReplyControllerChangeNotify(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                              Result := True;
+                            end;
+                      end;
+                    end;
+                TRACTION_MANAGE :
+                    begin
+                      OwnerManager.DoTractionReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                      Result := True;
+                    end;
             end;
           end;
-      end;
+      MTI_TRACTION_PROXY_REPLY :
+          begin
+            if Assigned(OwnerManager) then
+            begin
+              case LccMessage.DataArrayIndexer[0] of
+                TRACTION_PROXY_MANAGE   :
+                    begin
+                      OwnerManager.DoTractionProxyReplyManage(Self, LccDestNode, LccMessage.DataArrayIndexer[2]);
+                      Result := True;
+                    end;
+                TRACTION_PROXY_ALLOCATE :
+                    begin
+                      if LccMessage.DataArrayIndexer[1] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                        OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, LccMessage.ExtractDataBytesAsInt(11, 12))
+                      else
+                        OwnerManager.DoTractionProxyReplyAllocate(Self, LccDestNode, LccMessage.DataArrayIndexer[1], LccMessage.ExtractDataBytesAsInt(3, 4), LccMessage.ExtractDataBytesAsNodeID(5, ANodeID)^, 0);
+                      Result := True;
+                    end;
+                TRACTION_PROXY_ATTACH   :
+                    begin
+                      OwnerManager.DoTractionProxyReplyAttach(Self, LccDestNode, LccMessage.DataArrayIndexer[1]);
+                      Result := True;
+                    end;
+                else begin
+                  // Something is broken but don't allow the Reservation to be stuck Reserved, Releasing it will not hurt
+                    WorkerMessage.LoadTractionProxyManage(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, False);
+                    OwnerManager.DoRequestMessageSend(WorkerMessage);
+                    Result := True;
+                  end
+                end; // Case
+              end;
+            end;
+        {$ENDIF}
+        MTI_DATAGRAM :
+            begin
+              // Only Ack if we accept the datagram
+       ///       WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
+       //       OwnerManager.DoRequestMessageSend(WorkerMessage);
+
+              case LccMessage.DataArrayIndexer[0] of
+                DATAGRAM_PROTOCOL_CONFIGURATION :
+                    begin
+                      case LccMessage.DataArrayIndexer[1] and $F0 of
+                        MCP_READ              : begin end;
+                        MCP_READ_STREAM       : begin end;
+                        MCP_READ_REPLY        :
+                            begin
+                              if LccMessage.DataArrayIndexer[1] and $08 = 0 then
+                              begin
+                                // Ok
+                                case ExtractAddressSpace(LccMessage) of
+                                  MSI_CDI             : begin
+                                                          SendAckReply(LccMessage);
+                                                          CDI.ProcessMessage(LccMessage);
+                                                          Result := True;
+                                                        end;
+                                  MSI_ALL             : begin end;
+                                  MSI_CONFIG          : begin
+                                                          SendAckReply(LccMessage);
+                                                          ConfigurationMem.ProcessMessage(LccMessage);
+                                                          Result := True;
+                                                        end;
+                                  MSI_ACDI_MFG        : begin end;
+                                  MSI_ACDI_USER       : begin end;
+                                  {$IFDEF TRACTION}
+                                  MSI_FDI             : begin
+                                                          SendAckReply(LccMessage);
+                                                          FDI.ProcessMessage(LccMessage);
+                                                          Result := True;
+                                                        end;
+                                  MSI_FUNCTION_CONFIG : begin
+                                                          SendAckReply(LccMessage);
+                                                          FunctionConfiguration.ProcessMessage(LccMessage);
+                                                          Result := True;
+                                                        end;
+                                  {$ENDIF}
+                                end;
+                              end else
+                              begin
+                                // Failure
+                              end;
+                            end;
+                        MCP_READ_STREAM_REPLY : begin end;
+                        MCP_WRITE             : begin end;
+                        MCP_WRITE_STREAM      : begin end;
+                        MCP_WRITE_REPLY       :
+                            begin
+                              if LccMessage.DataArrayIndexer[1] and $08 = 0 then
+                              begin
+                                // Ok
+                                case ExtractAddressSpace(LccMessage) of
+                                  MSI_CDI              : begin end; // Not writable
+                                  MSI_ALL              : begin end; // Not writeable
+                                  MSI_CONFIG           : begin
+                                                           SendAckReply(LccMessage);
+                                                           ConfigurationMem.ProcessMessage(LccMessage);
+                                                           Result := True;
+                                                         end;
+                                  MSI_ACDI_MFG         : begin end;
+                                  MSI_ACDI_USER        : begin end;
+                                  {$IFDEF TRACTION}
+                                  MSI_FDI              : begin end; // Not writeable
+                                  MSI_FUNCTION_CONFIG  : begin
+                                                           SendAckReply(LccMessage);
+                                                           FunctionConfiguration.ProcessMessage(LccMessage);
+                                                           Result := True;
+                                                         end;
+                                  {$ENDIF}
+                                end;
+                              end else
+                              begin
+                                // Failure
+                              end;
+                            end;
+                        MCP_OPERATION :
+                          begin
+                            case LccMessage.DataArrayIndexer[1] of
+                               MCP_OP_GET_CONFIG :
+                                   begin
+                                   end;
+                               MCP_OP_GET_CONFIG_REPLY :
+                                   begin
+                                     SendAckReply(LccMessage);
+                                     ConfigMemOptions.ProcessMessage(LccMessage);
+                                     Result := True;
+                                   end;
+                               MCP_OP_GET_ADD_SPACE_INFO :
+                                   begin
+                                   end;
+                               MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
+                               MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
+                                   begin
+                                     SendAckReply(LccMessage);
+                                     ConfigMemAddressSpaceInfo.ProcessMessage(LccMessage);
+                                     Result := True;
+                                   end;
+                               MCP_OP_LOCK :
+                                   begin
+                                   end;
+                               MCP_OP_GET_UNIQUEID :
+                                   begin
+                                   end;
+                               MCP_OP_FREEZE :
+                                   begin
+                                   end;
+                               MCP_OP_INDICATE :
+                                   begin
+                                   end;
+                               MCP_OP_RESETS :
+                                   begin
+                                   end;
+
+                            end;
+                          end;
+                    end;
+              end;
+            end;
+        end;
+    end;
   end;
 end;
 
