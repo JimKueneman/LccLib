@@ -4,12 +4,12 @@ object FormTemplate: TFormTemplate
   Top = 185
   Width = 718
   Caption = 'LCC Template Application'
-  ClientHeight = 446
+  ClientHeight = 420
   ClientWidth = 718
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.5'
   object ToolBarMain: TToolBar
     Left = 0
     Height = 46
@@ -27,17 +27,17 @@ object FormTemplate: TFormTemplate
       Action = ActionComPortConnect
     end
     object ToolButtonEthernetClient: TToolButton
-      Left = 63
+      Left = 60
       Top = 2
       Action = ActionEthenetClientConnect
     end
     object ToolButtonEthernetServer: TToolButton
-      Left = 165
+      Left = 150
       Top = 2
       Action = ActionEthernetServerConnect
     end
     object ToolButtonSeparator: TToolButton
-      Left = 269
+      Left = 245
       Height = 44
       Top = 2
       Width = 20
@@ -45,20 +45,20 @@ object FormTemplate: TFormTemplate
       Style = tbsSeparator
     end
     object ToolButtonMsgTrace: TToolButton
-      Left = 361
+      Left = 330
       Top = 2
       Action = ActionMsgTrace
     end
     object ToolButtonLccLogIn: TToolButton
-      Left = 289
+      Left = 265
       Top = 2
       Action = ActionLccLogin
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 431
+    Height = 22
+    Top = 398
     Width = 718
     Panels = <    
       item
@@ -73,7 +73,7 @@ object FormTemplate: TFormTemplate
   end
   object PanelAppSpace: TPanel
     Left = 0
-    Height = 242
+    Height = 209
     Top = 46
     Width = 718
     Align = alClient
@@ -83,7 +83,7 @@ object FormTemplate: TFormTemplate
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 288
+    Top = 255
     Width = 718
     Align = alBottom
     ResizeAnchor = akBottom
@@ -91,7 +91,7 @@ object FormTemplate: TFormTemplate
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 293
+    Top = 260
     Width = 718
     Align = alBottom
     ClientHeight = 138
@@ -99,7 +99,7 @@ object FormTemplate: TFormTemplate
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 18
       Top = 1
       Width = 700
       Align = alTop
@@ -110,8 +110,8 @@ object FormTemplate: TFormTemplate
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
+      Height = 118
+      Top = 19
       Width = 716
       Align = alClient
       Columns = <      
@@ -32201,7 +32201,6 @@ object FormTemplate: TFormTemplate
   end
   object LccComPort: TLccComPort
     Hub = False
-    LoggingFrame = FormLogging.FrameLccLogging
     LccSettings = LccSettings
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccComPortConnectionStateChange
@@ -32215,7 +32214,6 @@ object FormTemplate: TFormTemplate
     Hub = False
     Gridconnect = True
     LccSettings = LccSettings
-    LoggingFrame = FormLogging.FrameLccLogging
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
@@ -32241,7 +32239,6 @@ object FormTemplate: TFormTemplate
     Hub = False
     Gridconnect = True
     LccSettings = LccSettings
-    LoggingFrame = FormLogging.FrameLccLogging
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     SchedulerPipelineSize = 1

@@ -933,7 +933,7 @@ begin
 
   OutMessage.DataCount := ReadCount + 7;
   for i := 0 to ReadCount - 1 do
-    OutMessage.DataArray[i + 7] := FlatArray[Address + i];
+    OutMessage.DataArrayIndexer[i + 7] := FlatArray[Address + i];
   OutMessage.UserValid := True;
 end;
 
@@ -969,7 +969,7 @@ begin
 
   OutMessage.DataCount := ReadCount + 7;
   for i := 0 to ReadCount - 1 do
-    OutMessage.DataArray[i + 7] := FlatArray[Address + i];
+    OutMessage.DataArrayIndexer[i + 7] := FlatArray[Address + i];
   OutMessage.UserValid := True;
 end;
 
@@ -3599,8 +3599,8 @@ begin
       MTI_DATAGRAM :
           begin
             // Only Ack if we accept the datagram
-            WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
-            OwnerManager.DoRequestMessageSend(WorkerMessage);
+     ///       WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True);
+     //       OwnerManager.DoRequestMessageSend(WorkerMessage);
 
             case LccMessage.DataArrayIndexer[0] of
               DATAGRAM_PROTOCOL_CONFIGURATION :
@@ -3614,14 +3614,30 @@ begin
                             begin
                               // Ok
                               case ExtractAddressSpace(LccMessage) of
-                                MSI_CDI             : begin CDI.ProcessMessage(LccMessage);Result := True; end;
+                                MSI_CDI             : begin
+                                                        SendAckReply(LccMessage);
+                                                        CDI.ProcessMessage(LccMessage);
+                                                        Result := True;
+                                                      end;
                                 MSI_ALL             : begin end;
-                                MSI_CONFIG          : begin ConfigurationMem.ProcessMessage(LccMessage); Result := True; end;
+                                MSI_CONFIG          : begin
+                                                        SendAckReply(LccMessage);
+                                                        ConfigurationMem.ProcessMessage(LccMessage);
+                                                        Result := True;
+                                                      end;
                                 MSI_ACDI_MFG        : begin end;
                                 MSI_ACDI_USER       : begin end;
                                 {$IFDEF TRACTION}
-                                MSI_FDI             : begin FDI.ProcessMessage(LccMessage); Result := True; end;
-                                MSI_FUNCTION_CONFIG : begin FunctionConfiguration.ProcessMessage(LccMessage); Result := True; end;
+                                MSI_FDI             : begin
+                                                        SendAckReply(LccMessage);
+                                                        FDI.ProcessMessage(LccMessage);
+                                                        Result := True;
+                                                      end;
+                                MSI_FUNCTION_CONFIG : begin
+                                                        SendAckReply(LccMessage);
+                                                        FunctionConfiguration.ProcessMessage(LccMessage);
+                                                        Result := True;
+                                                      end;
                                 {$ENDIF}
                               end;
                             end else
@@ -3640,12 +3656,20 @@ begin
                               case ExtractAddressSpace(LccMessage) of
                                 MSI_CDI              : begin end; // Not writable
                                 MSI_ALL              : begin end; // Not writeable
-                                MSI_CONFIG           : begin ConfigurationMem.ProcessMessage(LccMessage); Result := True; end;
+                                MSI_CONFIG           : begin
+                                                         SendAckReply(LccMessage);
+                                                         ConfigurationMem.ProcessMessage(LccMessage);
+                                                         Result := True;
+                                                       end;
                                 MSI_ACDI_MFG         : begin end;
                                 MSI_ACDI_USER        : begin end;
                                 {$IFDEF TRACTION}
                                 MSI_FDI              : begin end; // Not writeable
-                                MSI_FUNCTION_CONFIG  : begin FunctionConfiguration.ProcessMessage(LccMessage); Result := True; end;
+                                MSI_FUNCTION_CONFIG  : begin
+                                                         SendAckReply(LccMessage);
+                                                         FunctionConfiguration.ProcessMessage(LccMessage);
+                                                         Result := True;
+                                                       end;
                                 {$ENDIF}
                               end;
                             end else
@@ -3661,6 +3685,7 @@ begin
                                  end;
                              MCP_OP_GET_CONFIG_REPLY :
                                  begin
+                                   SendAckReply(LccMessage);
                                    ConfigMemOptions.ProcessMessage(LccMessage);
                                    Result := True;
                                  end;
@@ -3670,6 +3695,7 @@ begin
                              MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
                              MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
                                  begin
+                                   SendAckReply(LccMessage);
                                    ConfigMemAddressSpaceInfo.ProcessMessage(LccMessage);
                                    Result := True;
                                  end;

@@ -140,8 +140,8 @@ begin
   SimpleNodeInfo.UserName := '';
 
   // Load a CDI XML file from the same folder that the Setting.ini is stored
-  CDI.AStream.LoadFromFile( GetSettingsPath + 'TemplateCDI.xml');
-  CDI.Valid := True;
+//  CDI.AStream.LoadFromFile( GetSettingsPath + 'TemplateCDI.xml');
+//  CDI.Valid := True;
 
 end;
 
@@ -274,7 +274,7 @@ begin
       LccSettings.FilePath := GetSettingsPath + PATH_SETTINGS_FILE;
     {$ENDIF}
     if FileExists(LccSettings.FilePath) then
-      LccSettings.LoadFromFile(UTF8ToSys( LccSettings.FilePath));
+      LccSettings.LoadFromFile;
     FormLogging.OnHideNotifyEvent := @OnTraceFormHideEvent;
     FormSettings.FrameLccSettings.LccSettings := LccSettings;
     ActionLccLogin.Enabled := False;

@@ -98,12 +98,15 @@ type
     FCurrentIndex: Integer;
     FDataArray: TMultiFrameArray;
     FDataArraySize: Integer;
+    function GetDataArrayIndexer(Index: Integer): Byte;
+    procedure SetDataArrayIndexer(Index: Integer; AValue: Byte);
   public
     constructor Create;
     function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
     function ExtractDataBytesAsHex(StartByteIndex, EndByteIndex: Integer): string;
     property AliasID: Word read FAliasID write FAliasID;
     property DataArray: TMultiFrameArray read FDataArray write FDataArray;
+    property DataArrayIndexer[Index: Integer]: Byte read GetDataArrayIndexer write SetDataArrayIndexer;
     property DataArraySize: Integer read FDataArraySize;
     property CurrentIndex: Integer read FCurrentIndex write FCurrentIndex;
   end;
@@ -1123,6 +1126,16 @@ end;
 
 { TMultiFrameBuffer }
 
+function TMultiFrameBuffer.GetDataArrayIndexer(Index: Integer): Byte;
+begin
+  Result := FDataArray[Index];
+end;
+
+procedure TMultiFrameBuffer.SetDataArrayIndexer(Index: Integer; AValue: Byte);
+begin
+  FDataArray[Index] := AValue;
+end;
+
 constructor TMultiFrameBuffer.Create;
 begin
    FAliasID := 0;
@@ -1214,7 +1227,7 @@ begin
 
   for i := 2 to NewFrame.DataCount - 1 do          // Skip the Alias
   begin
-    Buffer.DataArray[Buffer.CurrentIndex] := NewFrame.Data[i];
+    Buffer.DataArrayIndexer[Buffer.CurrentIndex] := NewFrame.Data[i];
     Inc(Buffer.FDataArraySize);
     Inc(Buffer.FCurrentIndex);
   end;
@@ -1321,15 +1334,15 @@ begin
           end;
 
           for i := 0 to CAN_BYTE_COUNT - 1 do
-            Data[i] := 0;
+            FData[i] := 0;
 
           // Convert the CAN payload bytes into numbers
-          FDataCount := 0;
+          DataCount := 0;
           i := n;
           while i < SemiColon do
           begin
             ByteStr := MessageStr[i] + MessageStr[i+1];
-            Data[FDataCount] := StrToInt('$'+ByteStr);
+            FData[FDataCount] := StrToInt('$'+ByteStr);
             Inc(i, 2);
             Inc(FDataCount);
           end;
@@ -1409,14 +1422,14 @@ begin
   DataCount := ADataCount;
   SourceAliasID := ASourceAlias;
   DestinationAliasID := ADestinationAlias;
-  Data[0] := AData0;
-  Data[1] := AData1;
-  Data[2] := AData2;
-  Data[3] := AData3;
-  Data[4] := AData4;
-  Data[5] := AData5;
-  Data[6] := AData6;
-  Data[7] := AData7;
+  FData[0] := AData0;
+  FData[1] := AData1;
+  FData[2] := AData2;
+  FData[3] := AData3;
+  FData[4] := AData4;
+  FData[5] := AData5;
+  FData[6] := AData6;
+  FData[7] := AData7;
 end;
 
 procedure TLccMessageHelper.StoreNodeIDToData(NodeID: Int64; IsAddressed: Boolean);
@@ -1427,12 +1440,12 @@ begin
     Offset := 2
   else
     Offset := 0;
-  Data[0+Offset] := (NodeID shr 40) and $000000FF;
-  Data[1+Offset] := (NodeID shr 32) and $000000FF;
-  Data[2+Offset] := (NodeID shr 24) and $000000FF;
-  Data[3+Offset] := (NodeID shr 16) and $000000FF;
-  Data[4+Offset] := (NodeID shr 8) and $000000FF;
-  Data[5+Offset] := (NodeID) and $000000FF;
+  FData[0+Offset] := (NodeID shr 40) and $000000FF;
+  FData[1+Offset] := (NodeID shr 32) and $000000FF;
+  FData[2+Offset] := (NodeID shr 24) and $000000FF;
+  FData[3+Offset] := (NodeID shr 16) and $000000FF;
+  FData[4+Offset] := (NodeID shr 8) and $000000FF;
+  FData[5+Offset] := (NodeID) and $000000FF;
   DataCount := 6 + Offset;
 end;
 

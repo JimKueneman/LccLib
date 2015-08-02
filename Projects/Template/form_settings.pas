@@ -32,7 +32,7 @@ implementation
 
 procedure TFormSettings.FormShow(Sender: TObject);
 begin
-  FrameLccSettings.SyncSettingFile(FrameLccSettings.LccSettings.FilePath);
+  FrameLccSettings.SyncWithLccSettings;
 end;
 
 end.
