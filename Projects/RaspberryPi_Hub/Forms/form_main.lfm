@@ -20,12 +20,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 311
+      Left = 456
       Top = 2
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 205
+      Left = 350
       Height = 44
       Top = 2
       Width = 22
@@ -33,7 +33,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 143
+      Left = 288
       Top = 2
       Action = ActionComPort
     end
@@ -43,17 +43,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButton4: TToolButton
-      Left = 227
+      Left = 372
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButton6: TToolButton
-      Left = 62
+      Left = 207
       Top = 2
       Action = ActionTCP
     end
     object ToolButton7: TToolButton
-      Left = 121
+      Left = 266
       Height = 44
       Top = 2
       Width = 22
@@ -61,17 +61,22 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton8: TToolButton
-      Left = 404
+      Left = 549
       Top = 2
       Action = ActionPropertiesWindow
     end
     object ToolButton9: TToolButton
-      Left = 382
+      Left = 527
       Height = 44
       Top = 2
       Width = 22
       Caption = 'ToolButton9'
       Style = tbsSeparator
+    end
+    object ToolButton10: TToolButton
+      Left = 105
+      Top = 2
+      Action = ActionEthernetClient
     end
   end
   object StatusBarMain: TStatusBar
@@ -159,8 +164,8 @@ object Form1: TForm1
     Left = 233
     Height = 18
     Top = 90
-    Width = 346
-    Caption = 'Automatically send a Verify Nodes query on Startup'
+    Width = 352
+    Caption = 'Automatically send a Verify Nodes query on Connect'
     OnChange = CheckBoxAutoSendVerifyNodesChange
     TabOrder = 5
   end
@@ -220,6 +225,7 @@ object Form1: TForm1
     ComPort.Port = 'COM1'
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
+    Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'
     Ethernet.LocalListenerIP = '127.0.0.1'
@@ -232,6 +238,8 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
+    OnLoadFromFile = LccSettingsLoadFromFile
+    OnSaveToFile = LccSettingsSaveToFile
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
     left = 264
@@ -249,8 +257,8 @@ object Form1: TForm1
     top = 184
   end
   object LccNodeManager: TLccNodeManager
-    AutoInterrogateDiscoveredNodes = True
-    AutoSendVerifyNodesOnStart = True
+    AutoInterrogateDiscoveredNodes = False
+    AutoSendVerifyNodesOnStart = False
     Enabled = False
     CAN = True
     HardwareConnection = LccComPort
@@ -283,11 +291,10 @@ object Form1: TForm1
       Caption = 'ComPort'
       ImageIndex = 10
       OnExecute = ActionComPortExecute
-      Visible = False
     end
     object ActionEthernetServer: TAction
       AutoCheck = True
-      Caption = 'Ethernet'
+      Caption = 'Ethernet Server'
       ImageIndex = 5
       OnExecute = ActionEthernetServerExecute
     end
@@ -308,6 +315,12 @@ object Form1: TForm1
       Caption = 'Show Properties'
       ImageIndex = 9
       OnExecute = ActionPropertiesWindowExecute
+    end
+    object ActionEthernetClient: TAction
+      AutoCheck = True
+      Caption = 'Ethernet Client'
+      ImageIndex = 1
+      OnExecute = ActionEthernetClientExecute
     end
   end
   object ImageListMain: TImageList
@@ -679,7 +692,7 @@ object Form1: TForm1
     SchedulerPipelineSize = 1
     SleepCount = 0
     left = 400
-    top = 224
+    top = 232
   end
   object ImageListNodeList: TImageList
     Height = 60
@@ -3415,5 +3428,15 @@ object Form1: TForm1
       Caption = 'Properties...'
       OnExecute = ActionShowNodePropertiesExecute
     end
+  end
+  object LccEthernetClient: TLccEthernetClient
+    Hub = False
+    Gridconnect = False
+    OnConnectionStateChange = LccEthernetClientConnectionStateChange
+    OnErrorMessage = LccEthernetClientErrorMessage
+    SchedulerPipelineSize = 1
+    SleepCount = 0
+    left = 449
+    top = 177
   end
 end

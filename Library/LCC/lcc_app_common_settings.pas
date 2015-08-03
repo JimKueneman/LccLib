@@ -212,6 +212,7 @@ type
   end;
 
   // Settings that all Lcc Applications will have in common
+  TOnCustomSettingFileOperations = procedure(Sender: TObject; IniFile: TIniFile) of object;
 
   { TLccSettings }
 
@@ -223,9 +224,13 @@ type
     FGeneral: TGeneralSettings;
     FLock: TCriticalSection;
     FLogging: TLoggingSettings;
+    FOnLoadFromFile: TOnCustomSettingFileOperations;
+    FOnSaveToFile: TOnCustomSettingFileOperations;
     FThrottle: TThrottleSettings;
   protected
     property Lock: TCriticalSection read FLock write FLock;
+    procedure DoLoadFromFile(IniFile: TIniFile); virtual;
+    procedure DoSaveToFile(IniFile: TIniFile); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -237,6 +242,8 @@ type
     property FilePath: string read FFilePath write FFilePath;
     property General: TGeneralSettings read FGeneral write FGeneral;
     property Logging: TLoggingSettings read FLogging write FLogging;
+    property OnLoadFromFile: TOnCustomSettingFileOperations read FOnLoadFromFile write FOnLoadFromFile;
+    property OnSaveToFile: TOnCustomSettingFileOperations read FOnSaveToFile write FOnSaveToFile;
     property Throttle: TThrottleSettings read FThrottle write FThrottle;
   end;
 
@@ -470,6 +477,18 @@ begin
   inherited Destroy;
 end;
 
+procedure TLccSettings.DoLoadFromFile(IniFile: TIniFile);
+begin
+  if Assigned(OnLoadFromFile) then
+    OnLoadFromFile(Self, IniFile);
+end;
+
+procedure TLccSettings.DoSaveToFile(IniFile: TIniFile);
+begin
+  if Assigned(OnSaveToFile) then
+    OnSaveToFile(Self, IniFile);
+end;
+
 procedure TLccSettings.LoadFromFile;
 var
   IniFile: TIniFile;
@@ -481,6 +500,7 @@ begin
    Throttle.LoadFromFile(IniFile);
    Ethernet.LoadFromFile(IniFile);
    Logging.LoadFromFile(IniFile);
+   DoLoadFromFile(IniFile);
   finally
     IniFile.Free;
   end;
@@ -497,6 +517,7 @@ begin
     Throttle.SaveToFile(IniFile);
     Ethernet.SaveToFile(IniFile);
     Logging.SaveToFile(IniFile);
+    DoSaveToFile(IniFile);
   finally
     IniFile.Free;
   end;

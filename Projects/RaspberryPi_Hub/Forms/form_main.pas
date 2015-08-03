@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler;
+  form_properties, lcc_message_scheduler, IniFiles;
 
 type
 
@@ -52,6 +52,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionEthernetClient: TAction;
     ActionPropertiesWindow: TAction;
     ActionTCP: TAction;
     ActionShowNodeProperties: TAction;
@@ -69,6 +70,7 @@ type
     LabelMyNodes: TLabel;
     LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
+    LccEthernetClient: TLccEthernetClient;
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
     LccNodeSelector: TLccNodeSelector;
@@ -85,6 +87,7 @@ type
     StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
+    ToolButton10: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -95,6 +98,7 @@ type
     ToolButton9: TToolButton;
     procedure ActionComPortExecute(Sender: TObject);
     procedure ActionEditUserStringsExecute(Sender: TObject);
+    procedure ActionEthernetClientExecute(Sender: TObject);
     procedure ActionEthernetServerExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionPropertiesWindowExecute(Sender: TObject);
@@ -107,6 +111,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -122,6 +128,8 @@ type
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeSelectorFocusedChanged(Sender: TObject; FocusedNode, OldFocusedNode: TLccGuiNode);
     procedure LccNodeSelectorMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
+    procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
     procedure PopupMenuSelectorPopup(Sender: TObject);
   private
     FLastMouseDownInfo: TMouseInfo;
@@ -180,6 +188,19 @@ begin
   end;
 end;
 
+procedure TForm1.ActionEthernetClientExecute(Sender: TObject);
+begin
+  if ActionEthernetClient.Checked then
+  begin
+    LccNodeManager.HardwareConnection := LccEthernetClient;     // Connect the Node Manager to the Comport Link
+    LccEthernetClient.OpenEthernetConnectionWithLccSettings;
+  end else
+  begin
+    LccNodeManager.HardwareConnection := nil;                         // DisConnect the Node Manager  Link
+    LccEthernetClient.CloseEthernetConnection(nil);
+  end
+end;
+
 procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
 begin
   if ActionEthernetServer.Checked then
@@ -190,7 +211,6 @@ begin
   begin
     LccNodeManager.HardwareConnection := nil;          // DisConnect the Node Manager  Link
     LccEthernetServer.CloseEthernetConnection(nil);
-
   end
 end;
 
@@ -220,8 +240,9 @@ end;
 
 procedure TForm1.ActionSettingsExecute(Sender: TObject);
 begin
-  FormSettings.FrameLccSettings.UserSettings.EthernetClient := False;          // Update from video series don't show settings that are not valid
+  FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
   FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
+  FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
   // Update from video series, need to resync with the Settings each time the
   // dialog is shown as the user may have changed the UI and hit cancel and not
   // just when the program starts up in the FormShow event
@@ -246,17 +267,20 @@ procedure TForm1.ActionTCPExecute(Sender: TObject);
 begin
   LccSettings.Ethernet.GridConnect := not ActionTCP.Checked;
   LccEthernetServer.Gridconnect := LccSettings.Ethernet.GridConnect;
+  LccEthernetClient.Gridconnect := LccSettings.Ethernet.GridConnect;
   LccSettings.SaveToFile;
 end;
 
 procedure TForm1.CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
 begin
   LccNodeManager.AutoSendVerifyNodesOnStart :=  CheckBoxAutoSendVerifyNodes.Checked;
+  LccSettings.SaveToFile;
 end;
 
 procedure TForm1.CheckBoxAutoQueryInfoChange(Sender: TObject);
 begin
   LccNodeManager.AutoInterrogateDiscoveredNodes := CheckBoxAutoQueryInfo.Checked;
+  LccSettings.SaveToFile;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -283,15 +307,14 @@ begin
   FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
   FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
   ActionTCP.Checked := not LccSettings.Ethernet.GridConnect;
-  ActionTCP.Execute;
+  LccEthernetServer.Gridconnect := ActionTCP.Checked;
+  LccEthernetClient.GridConnect := ActionTCP.Checked;
   FormSettings.ClientHeight := FormSettings.FrameLccSettings.ButtonOk.Top + FormSettings.FrameLccSettings.ButtonOk.Height + 8; // Now resize the form to fit its child controls
   LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;
   LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
   LccNodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
 
-  CheckBoxAutoQueryInfo.Checked := LccNodeManager.AutoInterrogateDiscoveredNodes;
-  CheckBoxAutoSendVerifyNodes.Checked := LccNodeManager.AutoSendVerifyNodesOnStart;
   FormNodeProperties.ActiveNode := LccNodeManager.RootNode;
   for i := 0 to LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.Count - 1 do
     FormNodeProperties.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.AddressSpace[i]);
@@ -311,6 +334,8 @@ begin
     begin
       StatusBarMain.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
       ActionEthernetServer.Enabled := False;    // Disable Ethernet if Comport active
+      ActionEthernetClient.Enabled := False;
+      ActionTCP.Enabled := False;
     end;
     ccsComConnected :
     begin
@@ -331,6 +356,8 @@ begin
        StatusBarMain.Panels[1].Text := 'Disconnected';
        ActionComPort.Checked := False;
        ActionEthernetServer.Enabled := True;  // Reinable Ethernet
+       ActionEthernetClient.Enabled := True;
+       ActionTCP.Enabled := True;
     end;
   end;
 end;
@@ -339,6 +366,47 @@ procedure TForm1.LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPort
 begin
   ShowMessage('Error on ' + ComPortRec.ComPort + ' Message: ' + ComPortRec.MessageStr);
   ActionComPort.Checked := False;
+end;
+
+procedure TForm1.LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  case EthernetRec.ConnectionState of
+    ccsClientConnecting :
+      begin
+        StatusBarMain.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
+        ActionEthernetServer.Enabled := False;
+        ActionTCP.Enabled := False;
+      end;
+    ccsClientConnected :
+      begin
+        StatusBarMain.Panels[0].Text := 'Listening: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        LccNodeSelector.LccNodes.Clear;
+        LccNodeManager.Enabled := True;
+      end;
+    ccsClientDisconnecting :
+      begin
+         LccNodeSelector.LccNodes.Clear;
+         LccNodeManager.Enabled := False;
+         StatusBarMain.Panels[0].Text := 'Disconnecting';
+         StatusBarMain.Panels[0].Text := 'Disconnecting Ethernet: '+ EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+      end;
+    ccsClientDisconnected :
+      begin
+         StatusBarMain.Panels[0].Text := 'Disconnected:';
+         StatusBarMain.Panels[1].Text := 'Disconnected';
+         ActionEthernetClient.Checked := False;
+         ActionComPort.Enabled := True;        // Reinable Comport
+         ActionEthernetServer.Enabled := True;
+         ActionTCP.Enabled := True;
+      end;
+  end;
+end;
+
+procedure TForm1.LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  ShowMessage('Error on ' + EthernetRec.ClientIP + ' Message: ' + EthernetRec.MessageStr);
+  ActionEthernetClient.Checked := False;
 end;
 
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -351,6 +419,8 @@ begin
       begin
         StatusBarMain.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
         ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
+        ActionEthernetClient.Enabled := False;
+        ActionTCP.Enabled := False;
       end;
     ccsListenerConnected :
       begin
@@ -371,6 +441,8 @@ begin
          StatusBarMain.Panels[1].Text := 'Disconnected';
          ActionEthernetServer.Checked := False;
          ActionComPort.Enabled := True;        // Reinable Comport
+         ActionEthernetClient.Enabled := True;
+         ActionTCP.Enabled := True;
       end;
     ccsListenerClientConnecting :
       begin
@@ -410,7 +482,7 @@ end;
 
 procedure TForm1.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  if LccNodeManager.Enabled then
+  if LccNodeManager.Enabled and not ActionTCP.Checked then
   begin
     if LccSourceNode = LccNodeManager.RootNode then
       StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
@@ -493,7 +565,12 @@ begin
   if LccNodeManager.Enabled then
   begin
      if LccSourceNode = LccNodeManager.RootNode then
-      StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+     begin
+       if ActionTCP.Checked then
+         StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr
+       else
+         StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+     end;
   end;
 end;
 
@@ -516,6 +593,24 @@ begin
   FLastMouseDownInfo.Shift := Shift;
   FLastMouseDownInfo.X := X;
   FLastMouseDownInfo.Y := Y;
+end;
+
+procedure TForm1.LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
+begin
+  CheckBoxAutoQueryInfo.Checked := IniFile.ReadBool('Custom Settings', 'CheckBoxAutoQueryInfo', False);
+  CheckBoxAutoSendVerifyNodes.Checked := IniFile.ReadBool('Custom Settings', 'CheckBoxAutoSendVerifyNodes', False);
+  ActionEthernetServer.Visible := IniFile.ReadBool('Custom Settings', 'EthernetServer', True);
+  ActionEthernetClient.Visible := IniFile.ReadBool('Custom Settings', 'EthernetClient', False);
+  ActionComPort.Visible := IniFile.ReadBool('Custom Settings', 'ComPort', False);
+end;
+
+procedure TForm1.LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
+begin
+  IniFile.WriteBool('Custom Settings', 'CheckBoxAutoQueryInfo', CheckBoxAutoQueryInfo.Checked);
+  IniFile.WriteBool('Custom Settings', 'CheckBoxAutoSendVerifyNodes', CheckBoxAutoSendVerifyNodes.Checked);
+  IniFile.WriteBool('Custom Settings', 'EthernetServer', ActionEthernetServer.Visible);
+  IniFile.WriteBool('Custom Settings', 'EthernetClient', ActionEthernetClient.Visible);
+  IniFile.WriteBool('Custom Settings', 'ComPort', ActionComPort.Visible);
 end;
 
 procedure TForm1.PopupMenuSelectorPopup(Sender: TObject);
