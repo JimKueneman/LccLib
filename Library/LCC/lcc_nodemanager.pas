@@ -1001,6 +1001,7 @@ begin
   ProtocolSupport.EventExchange := True;   // We support Events
   ProtocolSupport.SimpleNodeInfo := True;  // We Support SNIP
   ProtocolSupport.ACDI := True;            // We Support ACDI
+  ProtocolSupport.Valid := True;
 
   // Setup the SNIP constants, this information MUST be idential to the information
   // in the  <identification> tag of the CDI to comply with the LCC specs
@@ -1012,6 +1013,7 @@ begin
   SimpleNodeInfo.UserVersion := SNIP_USER_VER;
   SimpleNodeInfo.UserDescription := SNIP_USER_DESC;
   SimpleNodeInfo.UserName := SNIP_USER_NAME;
+  SimpleNodeInfo.Valid := True;
 
   // Setup a basic CDI
   CDI.AStream.Clear;
@@ -1034,6 +1036,7 @@ begin
   ConfigMemOptions.WriteLenTwoBytes := True;
   ConfigMemOptions.WriteStream := False;
   ConfigMemOptions.WriteUnderMask := False;
+  ConfigMemOptions.Valid := True;
 
   // Setup the Configuration Memory Addres Space Information
   ConfigMemAddressSpaceInfo.Add(MSI_CDI, True, True, True, $00000000, $FFFFFFFF);
@@ -1041,7 +1044,7 @@ begin
   ConfigMemAddressSpaceInfo.Add(MSI_CONFIG, True, False, True, $00000000, $FFFFFFFF);
   ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, True, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
   ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, True, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
-
+  ConfigMemAddressSpaceInfo.Valid := True;
 end;
 
 { TConfigurationMemOptions }

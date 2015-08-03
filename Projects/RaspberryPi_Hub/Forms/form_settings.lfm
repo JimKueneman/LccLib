@@ -1,0 +1,38 @@
+object FormSettings: TFormSettings
+  Left = 470
+  Height = 370
+  Top = 215
+  Width = 584
+  Caption = 'FormSettings'
+  ClientHeight = 370
+  ClientWidth = 584
+  LCLVersion = '1.4.0.4'
+  inline FrameLccSettings: TFrameLccSettings
+    Height = 370
+    Width = 584
+    Align = alClient
+    ClientHeight = 370
+    ClientWidth = 584
+    inherited ButtonOk: TButton
+      Left = 429
+    end
+    inherited ButtonCancel: TButton
+      Left = 283
+    end
+    inherited GroupBoxComPort: TGroupBox
+      Width = 559
+      ClientHeight = 43
+      ClientWidth = 551
+    end
+    inherited GroupBoxEthernetClient: TGroupBox
+      Width = 559
+      ClientHeight = 122
+      ClientWidth = 551
+    end
+    inherited GroupBoxEthernetServer: TGroupBox
+      Width = 559
+      ClientHeight = 58
+      ClientWidth = 551
+    end
+  end
+end

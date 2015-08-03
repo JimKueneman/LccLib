@@ -54,6 +54,7 @@ const
   STR_INI_ETHERNET_LOCAL_LISTENER_PORT = 'LocalListenerPort';
   STR_INI_ETHERNET_REMOTE_LISTENER_PORT = 'RemotePort';
   STR_INI_ETHERNET_LOCAL_CLIENT_PORT = 'LocalClientPort';
+  STR_INI_ETHERNET_GRIDCONNECT = 'GridConnect';
 
 
 type
@@ -189,6 +190,7 @@ type
 
   TEthernetSettings = class(TLccSettingBase)
   private
+    FGridConnect: Boolean;
     FLocalClientIP: string;
     FLocalClientPort: Integer;
     FLocalListenerIP: string;
@@ -200,6 +202,7 @@ type
     procedure LoadFromFile(IniFile: TIniFile);
     procedure SaveToFile(IniFile: TIniFile);
   published
+    property GridConnect: Boolean read FGridConnect write FGridConnect;
     property LocalClientIP: string read FLocalClientIP write FLocalClientIP;
     property RemoteListenerIP: string read FRemoteListenerIP write FRemoteListenerIP;
     property LocalListenerIP: string read FLocalListenerIP write FLocalListenerIP;
@@ -297,6 +300,7 @@ end;
 
 procedure TEthernetSettings.LoadFromFile(IniFile: TIniFile);
 begin
+  FGridConnect := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, False);
   FLocalClientIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, '127.0.0.1');
   FLocalListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, '127.0.0.1');
   FRemoteListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_IP, '127.0.0.1');
@@ -307,6 +311,7 @@ end;
 
 procedure TEthernetSettings.SaveToFile(IniFile: TIniFile);
 begin
+  IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, FGridConnect);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, FLocalClientIP);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, FLocalListenerIP);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_REMOTE_LISTENER_IP, FRemoteListenerIP);
