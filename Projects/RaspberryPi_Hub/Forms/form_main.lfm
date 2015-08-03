@@ -74,14 +74,14 @@ object Form1: TForm1
       Style = tbsSeparator
     end
   end
-  object StatusBar1: TStatusBar
+  object StatusBarMain: TStatusBar
     Left = 0
     Height = 15
     Top = 436
     Width = 742
     Panels = <    
       item
-        Width = 300
+        Width = 220
       end    
       item
         Width = 200
@@ -93,11 +93,11 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 388
+    Height = 250
     Top = 48
     Width = 210
     Align = alLeft
-    ClientHeight = 388
+    ClientHeight = 250
     ClientWidth = 210
     TabOrder = 2
     object LabelMyNodes: TLabel
@@ -112,7 +112,7 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 370
+      Height = 232
       Top = 17
       Width = 208
       HorzScrollBar.Page = 10
@@ -142,7 +142,7 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 210
-    Height = 388
+    Height = 250
     Top = 48
     Width = 8
   end
@@ -163,6 +163,54 @@ object Form1: TForm1
     Caption = 'Automatically send a Verify Nodes query on Startup'
     OnChange = CheckBoxAutoSendVerifyNodesChange
     TabOrder = 5
+  end
+  object PanelAddOns: TPanel
+    Left = 0
+    Height = 138
+    Top = 298
+    Width = 742
+    Align = alBottom
+    ClientHeight = 138
+    ClientWidth = 742
+    TabOrder = 6
+    object LabelServerConnections: TLabel
+      Left = 9
+      Height = 16
+      Top = 1
+      Width = 724
+      Align = alTop
+      BorderSpacing.Left = 8
+      BorderSpacing.Right = 8
+      Caption = 'Server Connection'
+      ParentColor = False
+    end
+    object ListViewServerConnections: TListView
+      Left = 1
+      Height = 120
+      Top = 17
+      Width = 740
+      Align = alClient
+      Columns = <      
+        item
+          Caption = 'Client IP'
+          Width = 200
+        end      
+        item
+          Caption = 'Client Port'
+          Width = 80
+        end      
+        item
+          Caption = 'Server IP'
+          Width = 200
+        end      
+        item
+          Caption = 'Server Port'
+          Width = 218
+        end>
+      GridLines = True
+      TabOrder = 0
+      ViewStyle = vsReport
+    end
   end
   object LccSettings: TLccSettings
     ComPort.AutoConnectAtBoot = False

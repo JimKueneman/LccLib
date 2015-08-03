@@ -67,19 +67,22 @@ type
     ImageListMain: TImageList;
     ImageListNodeList: TImageList;
     LabelMyNodes: TLabel;
+    LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
     LccNodeSelector: TLccNodeSelector;
     LccNodeSelectorProducer1: TLccNodeSelector;
     LccSettings: TLccSettings;
+    ListViewServerConnections: TListView;
     MenuItemLastSpace: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItemPopupSelectorEditUserStrings: TMenuItem;
+    PanelAddOns: TPanel;
     PanelNetworkTree: TPanel;
     PopupMenuSelector: TPopupMenu;
     SplitterMain: TSplitter;
-    StatusBar1: TStatusBar;
+    StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
@@ -306,12 +309,12 @@ begin
   case ComPortRec.ConnectionState of
     ccsComConnecting :
     begin
-      StatusBar1.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
+      StatusBarMain.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
       ActionEthernetServer.Enabled := False;    // Disable Ethernet if Comport active
     end;
     ccsComConnected :
     begin
-      StatusBar1.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
+      StatusBarMain.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
       LccNodeSelector.LccNodes.Clear;
       LccNodeManager.Enabled := True;
     end;
@@ -319,13 +322,13 @@ begin
     begin
        LccNodeSelector.LccNodes.Clear;
        LccNodeManager.Enabled := False;
-       StatusBar1.Panels[1].Text := 'Disconnecting';
-       StatusBar1.Panels[0].Text := 'Disconnecting ComPort: ' + ComPortRec.ComPort;
+       StatusBarMain.Panels[1].Text := 'Disconnecting';
+       StatusBarMain.Panels[0].Text := 'Disconnecting ComPort: ' + ComPortRec.ComPort;
     end;
     ccsComDisconnected :
     begin
-       StatusBar1.Panels[0].Text := 'Disconnected:';
-       StatusBar1.Panels[1].Text := 'Disconnected';
+       StatusBarMain.Panels[0].Text := 'Disconnected:';
+       StatusBarMain.Panels[1].Text := 'Disconnected';
        ActionComPort.Checked := False;
        ActionEthernetServer.Enabled := True;  // Reinable Ethernet
     end;
@@ -339,45 +342,63 @@ begin
 end;
 
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+var
+  ListItem: TListItem;
+  i: Integer;
 begin
   case EthernetRec.ConnectionState of
     ccsListenerConnecting :
-    begin
-      StatusBar1.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-      ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
-    end;
+      begin
+        StatusBarMain.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
+        ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
+      end;
     ccsListenerConnected :
-    begin
-      StatusBar1.Panels[0].Text := 'Listening: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-      LccNodeSelector.LccNodes.Clear;
-      LccNodeManager.Enabled := True;
-    end;
+      begin
+        StatusBarMain.Panels[0].Text := 'Listening: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
+        LccNodeSelector.LccNodes.Clear;
+        LccNodeManager.Enabled := True;
+      end;
     ccsListenerDisconnecting :
-    begin
-       LccNodeSelector.LccNodes.Clear;
-       LccNodeManager.Enabled := False;
-       StatusBar1.Panels[0].Text := 'Disconnecting';
-       StatusBar1.Panels[0].Text := 'Disconnecting Ethernet: '+ EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-    end;
+      begin
+         LccNodeSelector.LccNodes.Clear;
+         LccNodeManager.Enabled := False;
+         StatusBarMain.Panels[0].Text := 'Disconnecting';
+         StatusBarMain.Panels[0].Text := 'Disconnecting Ethernet: '+ EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
+      end;
     ccsListenerDisconnected :
-    begin
-       StatusBar1.Panels[0].Text := 'Disconnected:';
-       StatusBar1.Panels[1].Text := 'Disconnected';
-       ActionEthernetServer.Checked := False;
-       ActionComPort.Enabled := True;        // Reinable Comport
-    end;
+      begin
+         StatusBarMain.Panels[0].Text := 'Disconnected:';
+         StatusBarMain.Panels[1].Text := 'Disconnected';
+         ActionEthernetServer.Checked := False;
+         ActionComPort.Enabled := True;        // Reinable Comport
+      end;
     ccsListenerClientConnecting :
-    begin
-    end;
+      begin
+      end;
     ccsListenerClientConnected :
-    begin
-    end;
+      begin
+        ListItem := ListViewServerConnections.Items.Add;
+        ListItem.Caption := EthernetRec.ClientIP;
+        ListItem.SubItems.Add(IntToStr(EthernetRec.ClientPort));
+        ListItem.SubItems.Add(EthernetRec.ListenerIP);
+        ListItem.SubItems.Add(IntToStr(EthernetRec.ListenerPort));
+      end;
     ccsListenerClientDisconnecting :
-    begin
-    end;
+      begin
+      end;
     ccsListenerClientDisconnected :
-    begin
-    end;
+      begin
+        for i := 0 to ListViewServerConnections.Items.Count - 1 do
+        begin
+          ListItem := ListViewServerConnections.Items[i];
+          if ListItem.Caption = EthernetRec.ClientIP then
+            if ListITem.SubItems[0] = IntToStr(EthernetRec.ClientPort) then
+            begin
+              ListViewServerConnections.Items.Delete(i);
+              Break;
+            end;
+        end;
+      end;
   end;
 end;
 
@@ -392,7 +413,7 @@ begin
   if LccNodeManager.Enabled then
   begin
     if LccSourceNode = LccNodeManager.RootNode then
-      StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+      StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
   end;
 end;
 
@@ -472,7 +493,7 @@ begin
   if LccNodeManager.Enabled then
   begin
      if LccSourceNode = LccNodeManager.RootNode then
-      StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
+      StatusBarMain.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
   end;
 end;
 
