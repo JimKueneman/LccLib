@@ -57,7 +57,6 @@ type
     ActionListSelector: TActionList;
     ActionLogWindow: TAction;
     ActionEthernetServer: TAction;
-    ActionLogin: TAction;
     ActionComPort: TAction;
     ActionSettings: TAction;
     ActionList1: TActionList;
@@ -100,7 +99,6 @@ type
     procedure ActionComPortExecute(Sender: TObject);
     procedure ActionEditUserStringsExecute(Sender: TObject);
     procedure ActionEthernetServerExecute(Sender: TObject);
-    procedure ActionLoginExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
     procedure ActionShowNodePropertiesExecute(Sender: TObject);
@@ -196,18 +194,6 @@ begin
   end
 end;
 
-procedure TForm1.ActionLoginExecute(Sender: TObject);
-begin
-  LccNodeManager.Enabled := ActionLogin.Checked;
-  if LccNodeManager.Enabled = False then
-  begin
-    StatusBar1.Panels[1].Text := 'Disconnected';
-  end else
-  begin
-    LccNodeSelector.LccNodes.Clear;
-  end;
-end;
-
 procedure TForm1.ActionLogWindowExecute(Sender: TObject);
 begin
   if ActionLogWindow.Checked then
@@ -265,7 +251,6 @@ begin
   FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
   FormSettings.FrameLccSettings1.UserSettings.EthernetClient := False;          // Update from video series don't show settings that are not valid
   FormSettings.ClientHeight := FormSettings.FrameLccSettings1.ButtonOk.Top + FormSettings.FrameLccSettings1.ButtonOk.Height + 8; // Now resize the form to fit its child controls
-  ActionLogin.Enabled := False;                                                   // Keep Login Button disabled until the ComPort connection is made
   LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;
   LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
@@ -287,11 +272,14 @@ begin
     ccsComConnected :
     begin
       StatusBar1.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
-      ActionLogin.Enabled := True;          // Allow the user to be able to Login
-      ActionLogin.Execute;
+      LccNodeSelector.LccNodes.Clear;
+      LccNodeManager.Enabled := True;
     end;
     ccsComDisconnecting :
     begin
+       LccNodeSelector.LccNodes.Clear;
+       LccNodeManager.Enabled := False;
+       StatusBar1.Panels[1].Text := 'Disconnecting';
        StatusBar1.Panels[0].Text := 'Disconnecting ComPort: ' + ComPortRec.ComPort;
     end;
     ccsComDisconnected :
@@ -299,8 +287,6 @@ begin
        StatusBar1.Panels[0].Text := 'Disconnected:';
        StatusBar1.Panels[1].Text := 'Disconnected';
        ActionComPort.Checked := False;
-       ActionLogin.Execute;
-       ActionLogin.Enabled := False;          // Disallow the user from being able to Login
        ActionEthernetServer.Enabled := True;  // Reinable Ethernet
     end;
   end;
@@ -323,11 +309,14 @@ begin
     ccsListenerConnected :
     begin
       StatusBar1.Panels[0].Text := 'Listening: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-      ActionLogin.Enabled := True;          // Allow the user to be able to Login
-      ActionLogin.Execute;
+      LccNodeSelector.LccNodes.Clear;
+      LccNodeManager.Enabled := True;
     end;
     ccsListenerDisconnecting :
     begin
+       LccNodeSelector.LccNodes.Clear;
+       LccNodeManager.Enabled := False;
+       StatusBar1.Panels[0].Text := 'Disconnecting';
        StatusBar1.Panels[0].Text := 'Disconnecting Ethernet: '+ EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
     end;
     ccsListenerDisconnected :
@@ -335,8 +324,6 @@ begin
        StatusBar1.Panels[0].Text := 'Disconnected:';
        StatusBar1.Panels[1].Text := 'Disconnected';
        ActionEthernetServer.Checked := False;
-       ActionLogin.Execute;
-       ActionLogin.Enabled := False;         // Disallow the user from being able to Login
        ActionComPort.Enabled := True;        // Reinable Comport
     end;
     ccsListenerClientConnecting :
