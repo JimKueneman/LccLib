@@ -18,7 +18,9 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <CursorPos X="57" Y="11"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="295"/>
+        <CursorPos Y="309"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -304,7 +306,6 @@
       </Unit39>
       <Unit40>
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <TopLine Value="862"/>
         <CursorPos X="38" Y="877"/>
@@ -451,7 +452,7 @@
         <Loaded Value="True"/>
       </Unit59>
     </Units>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="309" TopLine="295"/>
@@ -568,10 +569,14 @@
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
         <Caret Line="859" Column="14" TopLine="855"/>
       </Position29>
+      <Position30>
+        <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
+        <Caret Line="877" Column="38" TopLine="862"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="5">
+    <BreakPoints Count="4">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -600,13 +605,6 @@
         <Source Value="Forms/form_main.pas"/>
         <Line Value="268"/>
       </Item4>
-      <Item5>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="Forms/form_main.pas"/>
-        <Line Value="309"/>
-      </Item5>
     </BreakPoints>
   </Debugging>
 </CONFIG>
