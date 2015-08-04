@@ -10,10 +10,12 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler, IniFiles;
+  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType;
+
+const
+    BUNDLENAME  = 'Raspberry Pi Hub';
 
 type
-
   TMouseInfo = record
     Button: TMouseButton;
     Shift: TShiftState;
@@ -52,6 +54,8 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionToolsPreferenceShowMac: TAction;
+    ActionHelpAboutShow: TAction;
     ActionEthernetClient: TAction;
     ActionPropertiesWindow: TAction;
     ActionTCP: TAction;
@@ -61,8 +65,10 @@ type
     ActionLogWindow: TAction;
     ActionEthernetServer: TAction;
     ActionComPort: TAction;
-    ActionSettings: TAction;
+    ActionToolsSettingsShowWin: TAction;
     ActionList: TActionList;
+    CheckBoxEthComportHub: TCheckBox;
+    CheckBoxEthHub: TCheckBox;
     CheckBoxAutoSendVerifyNodes: TCheckBox;
     CheckBoxAutoQueryInfo: TCheckBox;
     ImageListMain: TImageList;
@@ -77,8 +83,21 @@ type
     LccNodeSelectorProducer1: TLccNodeSelector;
     LccSettings: TLccSettings;
     ListViewServerConnections: TListView;
+    MainMenu: TMainMenu;
+    MenuItemConnectionDivider0: TMenuItem;
+    MenuItemConnectionUseTCP: TMenuItem;
+    MenuItemConnectionEthernetServer: TMenuItem;
+    MenuItemConnectionEthernetClient: TMenuItem;
+    MenuItemConnectionComport: TMenuItem;
+    MenuItemConnection: TMenuItem;
+    MenuItemToolsLogWindow: TMenuItem;
+    MenuItemToolsProperties: TMenuItem;
+    MenuItemToolsSettings: TMenuItem;
+    MenuItemTools: TMenuItem;
+    MenuItemHelpAbout: TMenuItem;
+    MenuItemHelp: TMenuItem;
     MenuItemLastSpace: TMenuItem;
-    MenuItem2: TMenuItem;
+    MenuItemNodeProperties: TMenuItem;
     MenuItemPopupSelectorEditUserStrings: TMenuItem;
     PanelAddOns: TPanel;
     PanelNetworkTree: TPanel;
@@ -86,35 +105,43 @@ type
     SplitterMain: TSplitter;
     StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
-    ToolButton1: TToolButton;
-    ToolButton10: TToolButton;
-    ToolButton2: TToolButton;
-    ToolButton3: TToolButton;
-    ToolButton4: TToolButton;
-    ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
+    ToolButtonSettings: TToolButton;
+    ToolButtonEthClient: TToolButton;
+    ToolButtonSpace1: TToolButton;
+    ToolButtonComPort: TToolButton;
+    ToolButtonLogWindow: TToolButton;
+    ToolButtonEthServer: TToolButton;
+    ToolButtonEthUseTCP: TToolButton;
+    ToolButtonSpace0: TToolButton;
+    ToolButtonProperties: TToolButton;
+    ToolButtonSpace2: TToolButton;
     procedure ActionComPortExecute(Sender: TObject);
     procedure ActionEditUserStringsExecute(Sender: TObject);
     procedure ActionEthernetClientExecute(Sender: TObject);
     procedure ActionEthernetServerExecute(Sender: TObject);
+    procedure ActionHelpAboutShowExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionPropertiesWindowExecute(Sender: TObject);
-    procedure ActionSettingsExecute(Sender: TObject);
+    procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
     procedure ActionShowNodePropertiesExecute(Sender: TObject);
     procedure ActionTCPExecute(Sender: TObject);
+    procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
     procedure CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
     procedure CheckBoxAutoQueryInfoChange(Sender: TObject);
+    procedure CheckBoxEthComportHubChange(Sender: TObject);
+    procedure CheckBoxEthHubChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccComPortReceiveMessage(Sender: TObject;
+      ComPortRec: TLccComPortRec);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerReceiveMessage(Sender: TObject;
+      EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
@@ -132,9 +159,24 @@ type
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
     procedure PopupMenuSelectorPopup(Sender: TObject);
   private
+    FAppAboutCmd: TMenuItem;
+    FEthernetToComPortHub: Boolean;
     FLastMouseDownInfo: TMouseInfo;
+    {$IFDEF DARWIN}
+    FOSXMenu: TMenuItem;
+    FOSXSep1Cmd: TMenuItem;
+    FOSXPrefCmd: TMenuItem;
+    FShownOnce: Boolean;
+    {$ENDIF}
     { private declarations }
   protected
+    property AppAboutCmd: TMenuItem read FAppAboutCmd write FAppAboutCmd;
+    property EthernetToComPortHub: Boolean read FEthernetToComPortHub write FEthernetToComPortHub;
+    {$IFDEF DARWIN}
+    property OSXMenu: TMenuItem read FOSXMenu write FOSXMenu;
+    property OSXSep1Cmd: TMenuItem read FOSXSep1Cmd write FOSXSep1Cmd;
+    property OSXPrefCmd: TMenuItem read FOSXPrefCmd write FOSXPrefCmd;
+    {$ENDIF}
     procedure TestForDuplicateAndAdd(TestNode: TLccNode);
     procedure UpdateForNodeEnabled(TestNode: TLccNode);
     function TestForAllNodesEnabled: Boolean;
@@ -146,9 +188,11 @@ type
     procedure SendConfigMemAddressInfo(Node: TLccNode; AddressSpace: Byte);
     procedure FormLoggingHideNotify(Sender: TObject);
     procedure FormProperitesHideNotify(Sender: TObject);
+    procedure ShowSettingsDialog;
   public
     { public declarations }
     property LastMouseDownInfo: TMouseInfo read FLastMouseDownInfo;
+    property ShownOnce: Boolean read FShownOnce write FShownOnce;
   end;
 
 var
@@ -214,6 +258,11 @@ begin
   end
 end;
 
+procedure TForm1.ActionHelpAboutShowExecute(Sender: TObject);
+begin
+  FormAbout.ShowModal;
+end;
+
 procedure TForm1.ActionLogWindowExecute(Sender: TObject);
 begin
   if ActionLogWindow.Checked then
@@ -238,19 +287,9 @@ begin
   end;
 end;
 
-procedure TForm1.ActionSettingsExecute(Sender: TObject);
+procedure TForm1.ActionToolsSettingsShowWinExecute(Sender: TObject);
 begin
-  FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
-  FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
-  FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
-  // Update from video series, need to resync with the Settings each time the
-  // dialog is shown as the user may have changed the UI and hit cancel and not
-  // just when the program starts up in the FormShow event
-  FormSettings.FrameLccSettings.SyncWithLccSettings;
-  if FormSettings.ShowModal = mrOK then
-  begin
-
-  end;
+  ShowSettingsDialog;
 end;
 
 procedure TForm1.ActionShowNodePropertiesExecute(Sender: TObject);
@@ -271,9 +310,26 @@ begin
   LccSettings.SaveToFile;
 end;
 
+procedure TForm1.ActionToolsPreferenceShowMacExecute(Sender: TObject);
+begin
+  ShowSettingsDialog;
+end;
+
 procedure TForm1.CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
 begin
   LccNodeManager.AutoSendVerifyNodesOnStart :=  CheckBoxAutoSendVerifyNodes.Checked;
+  LccSettings.SaveToFile;
+end;
+
+procedure TForm1.CheckBoxEthComportHubChange(Sender: TObject);
+begin
+  EthernetToComPortHub := CheckBoxEthComportHub.Checked;
+  LccSettings.SaveToFile;
+end;
+
+procedure TForm1.CheckBoxEthHubChange(Sender: TObject);
+begin
+  LccEthernetServer.Hub := CheckBoxEthHub.Checked;
   LccSettings.SaveToFile;
 end;
 
@@ -296,35 +352,64 @@ procedure TForm1.FormShow(Sender: TObject);
 var
   i: Integer;
 begin
-  FormLogging.OnHideNotify := @FormLoggingHideNotify;
-  FormNodeProperties.OnHideNotify := @FormProperitesHideNotify;
-  LccSettings.FilePath := GetSettingsPath + 'Settings.ini';                     // Setup the file paths to the Settings Object
-  LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
-  FormSettings.FrameLccSettings.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
-  LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
-  LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
-  FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
-  FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
-  FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
-  ActionTCP.Checked := not LccSettings.Ethernet.GridConnect;
-  LccEthernetServer.Gridconnect := LccSettings.Ethernet.GridConnect;
-  LccEthernetClient.Gridconnect := LccSettings.Ethernet.GridConnect;
-  FormSettings.ClientHeight := FormSettings.FrameLccSettings.ButtonOk.Top + FormSettings.FrameLccSettings.ButtonOk.Height + 8; // Now resize the form to fit its child controls
-  LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
-  LccNodeManager.RootNode.Configuration.LoadFromFile;
-  LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
-  LccNodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
+  if not ShownOnce then
+  begin
+    {$IFDEF DARWIN}
+    OSXMenu := TMenuItem.Create(Self);  {Application menu}
+    OSXMenu.Caption := #$EF#$A3#$BF;  {Unicode Apple logo char}
+    MainMenu.Items.Insert(0, OSXMenu);
 
-  FormNodeProperties.ActiveNode := LccNodeManager.RootNode;
-  for i := 0 to LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.Count - 1 do
-    FormNodeProperties.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.AddressSpace[i]);
-  FormNodeProperties.LoadConfigMemOptions(LccNodeManager.RootNode.ConfigMemOptions);
-  FormNodeProperties.LoadProtocols(LccNodeManager.RootNode.ProtocolSupport);
-  FormNodeProperties.LoadSnip(LccNodeManager.RootNode.SimpleNodeInfo);
-  FormNodeProperties.LoadCdi(LccNodeManager.RootNode.CDI);
-  {$IFDEF WINDOWS}
-  FormLogging.FrameLccLogging.SynEdit.Font.Size := 11;
-  {$ENDIF}
+    AppAboutCmd := TMenuItem.Create(Self);
+    AppAboutCmd.Action := ActionHelpAboutShow;
+    AppAboutCmd.Caption := 'About ' + BUNDLENAME;
+    OSXMenu.Add(AppAboutCmd);  {Add About as item in application menu}
+
+    OSXSep1Cmd := TMenuItem.Create(Self);
+    OSXSep1Cmd.Caption := '-';
+    OSXMenu.Add(OSXSep1Cmd);
+
+    ActionToolsPreferenceShowMac.ShortCut := ShortCut(VK_OEM_COMMA, [ssMeta]);
+    OSXPrefCmd := TMenuItem.Create(Self);
+    OSXPrefCmd.Action := ActionToolsPreferenceShowMac;
+    OSXMenu.Add(OSXPrefCmd);
+    ActionToolsSettingsShowWin.Visible := False;
+    {$ELSE}
+    AppAboutCmd := TMenuItem.Create(Self);
+    AppAboutCmd.Action := ActionHelpAboutShow;
+    MenuItemHelp.Add(AppAboutCmd);
+    {$ENDIF}
+
+    FormLogging.OnHideNotify := @FormLoggingHideNotify;
+    FormNodeProperties.OnHideNotify := @FormProperitesHideNotify;
+    LccSettings.FilePath := GetSettingsPath + 'Settings.ini';                     // Setup the file paths to the Settings Object
+    LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
+    FormSettings.FrameLccSettings.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
+    LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
+    LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
+    FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
+    FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
+    FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
+    ActionTCP.Checked := not LccSettings.Ethernet.GridConnect;
+    LccEthernetServer.Gridconnect := LccSettings.Ethernet.GridConnect;
+    LccEthernetClient.Gridconnect := LccSettings.Ethernet.GridConnect;
+    FormSettings.ClientHeight := FormSettings.FrameLccSettings.ButtonOk.Top + FormSettings.FrameLccSettings.ButtonOk.Height + 8; // Now resize the form to fit its child controls
+    LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
+    LccNodeManager.RootNode.Configuration.LoadFromFile;
+    LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
+    LccNodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
+
+    FormNodeProperties.ActiveNode := LccNodeManager.RootNode;
+    for i := 0 to LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.Count - 1 do
+      FormNodeProperties.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.ConfigMemAddressSpaceInfo.AddressSpace[i]);
+    FormNodeProperties.LoadConfigMemOptions(LccNodeManager.RootNode.ConfigMemOptions);
+    FormNodeProperties.LoadProtocols(LccNodeManager.RootNode.ProtocolSupport);
+    FormNodeProperties.LoadSnip(LccNodeManager.RootNode.SimpleNodeInfo);
+    FormNodeProperties.LoadCdi(LccNodeManager.RootNode.CDI);
+    {$IFDEF WINDOWS}
+    FormLogging.FrameLccLogging.SynEdit.Font.Size := 11;
+    {$ENDIF}
+    ShownOnce := True;
+  end;
 end;
 
 procedure TForm1.LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -366,6 +451,12 @@ procedure TForm1.LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPort
 begin
   ShowMessage('Error on ' + ComPortRec.ComPort + ' Message: ' + ComPortRec.MessageStr);
   ActionComPort.Checked := False;
+end;
+
+procedure TForm1.LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+begin
+  if EthernetToComPortHub then
+    LccEthernetServer.SendMessage(ComPortRec.LccMessage);
 end;
 
 procedure TForm1.LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -478,6 +569,12 @@ procedure TForm1.LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLc
 begin
   ShowMessage('Error on ' + EthernetRec.ListenerIP + ' Message: ' + EthernetRec.MessageStr);
   ActionEthernetServer.Checked := False;
+end;
+
+procedure TForm1.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  if EthernetToComPortHub then
+    LccComPort.SendMessage(EthernetRec.LccMessage);
 end;
 
 procedure TForm1.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -602,6 +699,11 @@ begin
   ActionEthernetServer.Visible := IniFile.ReadBool('Custom Settings', 'EthernetServer', True);
   ActionEthernetClient.Visible := IniFile.ReadBool('Custom Settings', 'EthernetClient', False);
   ActionComPort.Visible := IniFile.ReadBool('Custom Settings', 'ComPort', False);
+  CheckBoxEthHub.Checked := IniFile.ReadBool('Custom Settings', 'EthHub', False);
+  CheckBoxEthComportHub.Checked := IniFile.ReadBool('Custom Settings', 'EthComportHub', False);
+
+  ActionTCP.Visible := ActionEthernetClient.Visible or ActionEthernetServer.Visible;
+  MenuItemConnectionDivider0.Visible := ActionTCP.Visible;
 end;
 
 procedure TForm1.LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
@@ -611,6 +713,8 @@ begin
   IniFile.WriteBool('Custom Settings', 'EthernetServer', ActionEthernetServer.Visible);
   IniFile.WriteBool('Custom Settings', 'EthernetClient', ActionEthernetClient.Visible);
   IniFile.WriteBool('Custom Settings', 'ComPort', ActionComPort.Visible);
+  IniFile.WriteBool('CustomSettings', 'EthHub', CheckBoxEthHub.Checked);
+  IniFile.WriteBool('CustomSettings', 'EthComportHub', CheckBoxEthComportHub.Checked);
 end;
 
 procedure TForm1.PopupMenuSelectorPopup(Sender: TObject);
@@ -698,6 +802,21 @@ begin
     LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
     LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
     Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Snip];
+  end;
+end;
+
+procedure TForm1.ShowSettingsDialog;
+begin
+  FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
+  FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
+  FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
+  // Update from video series, need to resync with the Settings each time the
+  // dialog is shown as the user may have changed the UI and hit cancel and not
+  // just when the program starts up in the FormShow event
+  FormSettings.FrameLccSettings.SyncWithLccSettings;
+  if FormSettings.ShowModal = mrOK then
+  begin
+
   end;
 end;
 

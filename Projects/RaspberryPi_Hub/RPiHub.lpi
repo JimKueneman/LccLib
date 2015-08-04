@@ -39,7 +39,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="RPiHub.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -50,6 +50,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="form_main"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms\form_settings.pas"/>
@@ -68,6 +69,7 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="form_logging"/>
       </Unit4>
       <Unit5>
         <Filename Value="Forms\form_properties.pas"/>
@@ -75,7 +77,16 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="form_properties"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="Forms\form_about.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormAbout"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="form_about"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
