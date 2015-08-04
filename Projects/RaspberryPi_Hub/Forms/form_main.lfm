@@ -4,12 +4,12 @@ object Form1: TForm1
   Top = 202
   Width = 742
   Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 451
+  ClientHeight = 422
   ClientWidth = 742
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.5'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -21,12 +21,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 493
+      Left = 548
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 350
+      Left = 387
       Height = 44
       Top = 2
       Width = 22
@@ -34,7 +34,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 288
+      Left = 316
       Top = 2
       Action = ActionComPort
     end
@@ -44,17 +44,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 372
+      Left = 409
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButtonEthUseTCP: TToolButton
-      Left = 207
+      Left = 226
       Top = 2
       Action = ActionTCP
     end
     object ToolButtonSpace0: TToolButton
-      Left = 266
+      Left = 294
       Height = 44
       Top = 2
       Width = 22
@@ -62,12 +62,12 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonProperties: TToolButton
-      Left = 586
-      Top = 2
+      Left = 1
+      Top = 46
       Action = ActionPropertiesWindow
     end
     object ToolButtonSpace2: TToolButton
-      Left = 564
+      Left = 626
       Height = 44
       Top = 2
       Width = 22
@@ -75,15 +75,15 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonEthClient: TToolButton
-      Left = 105
+      Left = 116
       Top = 2
       Action = ActionEthernetClient
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 436
+    Height = 25
+    Top = 397
     Width = 742
     Panels = <    
       item
@@ -99,16 +99,16 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 250
+    Height = 211
     Top = 48
     Width = 210
     Align = alLeft
-    ClientHeight = 250
+    ClientHeight = 211
     ClientWidth = 210
     TabOrder = 2
     object LabelMyNodes: TLabel
       Left = 1
-      Height = 16
+      Height = 21
       Top = 1
       Width = 208
       Align = alTop
@@ -118,8 +118,8 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 232
-      Top = 17
+      Height = 188
+      Top = 22
       Width = 208
       HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
@@ -148,24 +148,24 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 210
-    Height = 250
+    Height = 211
     Top = 48
     Width = 8
   end
   object CheckBoxAutoQueryInfo: TCheckBox
     Left = 232
-    Height = 18
+    Height = 25
     Top = 64
-    Width = 320
+    Width = 356
     Caption = 'Automatically query new Nodes for information'
     OnChange = CheckBoxAutoQueryInfoChange
     TabOrder = 4
   end
   object CheckBoxAutoSendVerifyNodes: TCheckBox
     Left = 233
-    Height = 18
+    Height = 25
     Top = 90
-    Width = 352
+    Width = 393
     Caption = 'Automatically send a Verify Nodes query on Connect'
     OnChange = CheckBoxAutoSendVerifyNodesChange
     TabOrder = 5
@@ -173,7 +173,7 @@ object Form1: TForm1
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 298
+    Top = 259
     Width = 742
     Align = alBottom
     ClientHeight = 138
@@ -181,7 +181,7 @@ object Form1: TForm1
     TabOrder = 6
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 21
       Top = 1
       Width = 724
       Align = alTop
@@ -192,8 +192,8 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
+      Height = 115
+      Top = 22
       Width = 740
       Align = alClient
       Columns = <      
@@ -220,18 +220,18 @@ object Form1: TForm1
   end
   object CheckBoxEthHub: TCheckBox
     Left = 233
-    Height = 18
+    Height = 25
     Top = 128
-    Width = 303
+    Width = 337
     Caption = 'Hub Mode [Ethernet Server] (In development)'
     OnChange = CheckBoxEthHubChange
     TabOrder = 7
   end
   object CheckBoxEthComportHub: TCheckBox
     Left = 233
-    Height = 18
+    Height = 25
     Top = 152
-    Width = 360
+    Width = 387
     Caption = 'Hub Mode [Ethernet <-> Comport] (In developement)'
     OnChange = CheckBoxEthComportHubChange
     TabOrder = 8
@@ -3509,9 +3509,6 @@ object Form1: TForm1
     end
     object MenuItemHelp: TMenuItem
       Caption = 'Help'
-      object MenuItemHelpAbout: TMenuItem
-        Action = ActionHelpAboutShow
-      end
     end
   end
 end

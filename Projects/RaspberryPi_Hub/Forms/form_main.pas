@@ -94,7 +94,6 @@ type
     MenuItemToolsProperties: TMenuItem;
     MenuItemToolsSettings: TMenuItem;
     MenuItemTools: TMenuItem;
-    MenuItemHelpAbout: TMenuItem;
     MenuItemHelp: TMenuItem;
     MenuItemLastSpace: TMenuItem;
     MenuItemNodeProperties: TMenuItem;
@@ -162,11 +161,11 @@ type
     FAppAboutCmd: TMenuItem;
     FEthernetToComPortHub: Boolean;
     FLastMouseDownInfo: TMouseInfo;
+    FShownOnce: Boolean;
     {$IFDEF DARWIN}
     FOSXMenu: TMenuItem;
     FOSXSep1Cmd: TMenuItem;
     FOSXPrefCmd: TMenuItem;
-    FShownOnce: Boolean;
     {$ENDIF}
     { private declarations }
   protected

@@ -18,10 +18,9 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="574"/>
-        <CursorPos X="67" Y="574"/>
+        <TopLine Value="344"/>
+        <CursorPos X="18" Y="355"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -38,7 +37,6 @@
       </Unit2>
       <Unit3>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
-        <IsPartOfProject Value="True"/>
         <UsageCount Value="81"/>
       </Unit3>
       <Unit4>
@@ -47,7 +45,6 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_logging"/>
         <EditorIndex Value="6"/>
         <TopLine Value="17"/>
         <CursorPos X="16" Y="45"/>
@@ -60,7 +57,6 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_properties"/>
         <EditorIndex Value="7"/>
         <TopLine Value="130"/>
         <CursorPos X="3" Y="133"/>
@@ -74,7 +70,6 @@
         <ComponentName Value="FormAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_about"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="14"/>
         <CursorPos X="16"/>
@@ -92,7 +87,6 @@
       </Unit8>
       <Unit9>
         <Filename Value="../../Library/LCC/lcc_messages.pas"/>
-        <UnitName Value="lcc_messages"/>
         <EditorIndex Value="9"/>
         <TopLine Value="469"/>
         <CursorPos Y="481"/>
@@ -101,7 +95,6 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <EditorIndex Value="10"/>
         <TopLine Value="2790"/>
         <CursorPos X="65" Y="2802"/>
@@ -123,7 +116,6 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <UnitName Value="lcc_nodeselector"/>
         <EditorIndex Value="11"/>
         <TopLine Value="1032"/>
         <CursorPos X="18" Y="1049"/>
@@ -306,7 +298,6 @@
       </Unit38>
       <Unit39>
         <Filename Value="../../Library/LCC/lcc_message_scheduler.pas"/>
-        <UnitName Value="lcc_message_scheduler"/>
         <EditorIndex Value="3"/>
         <TopLine Value="554"/>
         <CursorPos X="11" Y="562"/>
@@ -318,7 +309,6 @@
         <ComponentName Value="FrameLccLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="frame_lcc_logging"/>
         <EditorIndex Value="5"/>
         <TopLine Value="108"/>
         <CursorPos Y="124"/>
@@ -327,7 +317,6 @@
       </Unit40>
       <Unit41>
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="2"/>
         <TopLine Value="625"/>
         <CursorPos X="39" Y="638"/>
@@ -350,10 +339,9 @@
       </Unit43>
       <Unit44>
         <Filename Value="../../Library/LCC/lcc_ethernetclient.pas"/>
-        <UnitName Value="lcc_ethernetclient"/>
         <EditorIndex Value="1"/>
         <TopLine Value="648"/>
-        <CursorPos X="38" Y="664"/>
+        <CursorPos X="30" Y="658"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit44>
@@ -421,7 +409,6 @@
       </Unit52>
       <Unit53>
         <Filename Value="../../Library/Lib/file_utilities.pas"/>
-        <UnitName Value="file_utilities"/>
         <EditorIndex Value="8"/>
         <CursorPos X="31" Y="12"/>
         <UsageCount Value="16"/>
@@ -469,7 +456,6 @@
       </Unit59>
       <Unit60>
         <Filename Value="../../Library/LCC/lcc_app_common_settings.pas"/>
-        <UnitName Value="lcc_app_common_settings"/>
         <EditorIndex Value="4"/>
         <TopLine Value="491"/>
         <CursorPos X="16" Y="501"/>
@@ -478,122 +464,133 @@
       </Unit60>
       <Unit61>
         <Filename Value="../../../TCH Technology Software/Mustangpeak/Lazarus/Projects/TCH_TrainMaster/Forms/form_main.pas"/>
-        <UnitName Value="form_main"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="361"/>
         <CursorPos X="59" Y="383"/>
         <UsageCount Value="10"/>
       </Unit61>
     </Units>
-    <JumpHistory Count="27" HistoryIndex="26">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="158" Column="72" TopLine="127"/>
+        <Caret Line="351" Column="33" TopLine="336"/>
       </Position1>
       <Position2>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="159" Column="72" TopLine="128"/>
+        <Caret Line="313" Column="22" TopLine="303"/>
       </Position2>
       <Position3>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="149" Column="103" TopLine="118"/>
+        <Caret Line="268" Column="88" TopLine="249"/>
       </Position3>
       <Position4>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="634" Column="3" TopLine="634"/>
+        <Caret Line="13" Column="72"/>
       </Position4>
       <Position5>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="344" Column="33" TopLine="329"/>
+        <Caret Line="374" Column="33" TopLine="359"/>
       </Position5>
       <Position6>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="351" Column="33" TopLine="336"/>
+        <Caret Line="251" Column="7" TopLine="234"/>
       </Position6>
       <Position7>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="313" Column="22" TopLine="303"/>
+        <Caret Line="257" Column="15" TopLine="249"/>
       </Position7>
       <Position8>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="268" Column="88" TopLine="249"/>
+        <Caret Line="313" Column="5" TopLine="311"/>
       </Position8>
       <Position9>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="13" Column="72"/>
+        <Caret Line="180" Column="15" TopLine="166"/>
       </Position9>
       <Position10>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="374" Column="33" TopLine="359"/>
+        <Caret Line="304" Column="22" TopLine="300"/>
       </Position10>
       <Position11>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="251" Column="7" TopLine="234"/>
+        <Caret Line="305" Column="22" TopLine="301"/>
       </Position11>
       <Position12>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="257" Column="15" TopLine="249"/>
+        <Caret Line="671" Column="58" TopLine="661"/>
       </Position12>
       <Position13>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="313" Column="5" TopLine="311"/>
+        <Caret Line="670" Column="58" TopLine="660"/>
       </Position13>
       <Position14>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="180" Column="15" TopLine="166"/>
+        <Caret Line="299" Column="120" TopLine="281"/>
       </Position14>
       <Position15>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="304" Column="22" TopLine="300"/>
+        <Caret Line="306" Column="29" TopLine="282"/>
       </Position15>
       <Position16>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="305" Column="22" TopLine="301"/>
+        <Caret Line="328" Column="3" TopLine="328"/>
       </Position16>
       <Position17>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="671" Column="58" TopLine="661"/>
+        <Caret Line="329" Column="3" TopLine="329"/>
       </Position17>
       <Position18>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="670" Column="58" TopLine="660"/>
+        <Caret Line="677" Column="24" TopLine="668"/>
       </Position18>
       <Position19>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="299" Column="120" TopLine="281"/>
+        <Caret Line="326" Column="26" TopLine="323"/>
       </Position19>
       <Position20>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="306" Column="29" TopLine="282"/>
+        <Caret Line="170" Column="21" TopLine="157"/>
       </Position20>
       <Position21>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="328" Column="3" TopLine="328"/>
+        <Caret Line="457" Column="26" TopLine="453"/>
       </Position21>
       <Position22>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="329" Column="3" TopLine="329"/>
+        <Caret Line="459" Column="26" TopLine="455"/>
       </Position22>
       <Position23>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="677" Column="24" TopLine="668"/>
+        <Caret Line="4" Column="24"/>
       </Position23>
       <Position24>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="326" Column="26" TopLine="323"/>
+        <Caret Line="173" Column="73" TopLine="166"/>
       </Position24>
       <Position25>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="170" Column="21" TopLine="157"/>
+        <Caret Line="355" TopLine="342"/>
       </Position25>
       <Position26>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="457" Column="26" TopLine="453"/>
+        <Caret Line="377" TopLine="368"/>
       </Position26>
       <Position27>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="459" Column="26" TopLine="455"/>
+        <Caret Line="378" TopLine="368"/>
       </Position27>
+      <Position28>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="379" TopLine="368"/>
+      </Position28>
+      <Position29>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="382" TopLine="388"/>
+      </Position29>
+      <Position30>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="381" TopLine="381"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
