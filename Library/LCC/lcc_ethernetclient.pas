@@ -596,7 +596,6 @@ begin
 
             if Gridconnect then
             begin
-
               if LocalSleepCount >= SleepCount then
               begin
                 TxStr := '';

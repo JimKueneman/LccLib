@@ -8,7 +8,7 @@ object Form1: TForm1
   ClientWidth = 742
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.5'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -20,12 +20,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 456
+      Left = 504
       Top = 2
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 350
+      Left = 387
       Height = 44
       Top = 2
       Width = 22
@@ -33,7 +33,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 288
+      Left = 316
       Top = 2
       Action = ActionComPort
     end
@@ -43,17 +43,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButton4: TToolButton
-      Left = 372
+      Left = 409
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButton6: TToolButton
-      Left = 207
+      Left = 226
       Top = 2
       Action = ActionTCP
     end
     object ToolButton7: TToolButton
-      Left = 266
+      Left = 294
       Height = 44
       Top = 2
       Width = 22
@@ -61,12 +61,12 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton8: TToolButton
-      Left = 549
+      Left = 604
       Top = 2
       Action = ActionPropertiesWindow
     end
     object ToolButton9: TToolButton
-      Left = 527
+      Left = 582
       Height = 44
       Top = 2
       Width = 22
@@ -74,15 +74,15 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton10: TToolButton
-      Left = 105
+      Left = 116
       Top = 2
       Action = ActionEthernetClient
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 436
+    Height = 25
+    Top = 426
     Width = 742
     Panels = <    
       item
@@ -98,16 +98,16 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 250
+    Height = 240
     Top = 48
     Width = 210
     Align = alLeft
-    ClientHeight = 250
+    ClientHeight = 240
     ClientWidth = 210
     TabOrder = 2
     object LabelMyNodes: TLabel
       Left = 1
-      Height = 16
+      Height = 21
       Top = 1
       Width = 208
       Align = alTop
@@ -117,8 +117,8 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 232
-      Top = 17
+      Height = 217
+      Top = 22
       Width = 208
       HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
@@ -147,24 +147,24 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 210
-    Height = 250
+    Height = 240
     Top = 48
     Width = 8
   end
   object CheckBoxAutoQueryInfo: TCheckBox
     Left = 232
-    Height = 18
+    Height = 25
     Top = 64
-    Width = 320
+    Width = 356
     Caption = 'Automatically query new Nodes for information'
     OnChange = CheckBoxAutoQueryInfoChange
     TabOrder = 4
   end
   object CheckBoxAutoSendVerifyNodes: TCheckBox
     Left = 233
-    Height = 18
+    Height = 25
     Top = 90
-    Width = 352
+    Width = 393
     Caption = 'Automatically send a Verify Nodes query on Connect'
     OnChange = CheckBoxAutoSendVerifyNodesChange
     TabOrder = 5
@@ -172,7 +172,7 @@ object Form1: TForm1
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 298
+    Top = 288
     Width = 742
     Align = alBottom
     ClientHeight = 138
@@ -180,7 +180,7 @@ object Form1: TForm1
     TabOrder = 6
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 21
       Top = 1
       Width = 724
       Align = alTop
@@ -191,8 +191,8 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
+      Height = 115
+      Top = 22
       Width = 740
       Align = alClient
       Columns = <      
@@ -210,7 +210,7 @@ object Form1: TForm1
         end      
         item
           Caption = 'Server Port'
-          Width = 218
+          Width = 240
         end>
       GridLines = True
       TabOrder = 0

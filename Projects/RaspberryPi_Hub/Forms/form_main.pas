@@ -307,8 +307,8 @@ begin
   FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
   FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
   ActionTCP.Checked := not LccSettings.Ethernet.GridConnect;
-  LccEthernetServer.Gridconnect := ActionTCP.Checked;
-  LccEthernetClient.GridConnect := ActionTCP.Checked;
+  LccEthernetServer.Gridconnect := LccSettings.Ethernet.GridConnect;
+  LccEthernetClient.Gridconnect := LccSettings.Ethernet.GridConnect;
   FormSettings.ClientHeight := FormSettings.FrameLccSettings.ButtonOk.Top + FormSettings.FrameLccSettings.ButtonOk.Height + 8; // Now resize the form to fit its child controls
   LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;

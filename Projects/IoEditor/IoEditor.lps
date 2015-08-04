@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="59">
+    <Units Count="61">
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -74,9 +74,8 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="2822"/>
+        <TopLine Value="2839"/>
         <CursorPos Y="2828"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
@@ -96,11 +95,10 @@
       </Unit10>
       <Unit11>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1032"/>
         <CursorPos X="18" Y="1049"/>
         <UsageCount Value="112"/>
-        <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="/Developer/lazarus/lcl/forms.pp"/>
@@ -437,6 +435,26 @@
         <CursorPos X="24" Y="400"/>
         <UsageCount Value="10"/>
       </Unit58>
+      <Unit59>
+        <Filename Value="/usr/local/share/lazarus/ide/frames/compiler_path_options.pas"/>
+        <ComponentName Value="CompilerPathOptionsFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="396"/>
+        <CursorPos X="59" Y="407"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="/usr/local/share/lazarus/ide/diskdiffsdialog.pas"/>
+        <UnitName Value="DiskDiffsDialog"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="283"/>
+        <CursorPos X="12" Y="294"/>
+        <UsageCount Value="10"/>
+      </Unit60>
     </Units>
     <JumpHistory Count="13" HistoryIndex="12">
       <Position1>
@@ -481,15 +499,14 @@
       </Position10>
       <Position11>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="254" TopLine="259"/>
+        <Caret Line="281" Column="42" TopLine="272"/>
       </Position11>
       <Position12>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="281" Column="42" TopLine="272"/>
+        <Caret Line="319" Column="51" TopLine="309"/>
       </Position12>
       <Position13>
-        <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="319" Column="51" TopLine="309"/>
+        <Filename Value="/usr/local/share/lazarus/ide/frames/compiler_path_options.pas"/>
       </Position13>
     </JumpHistory>
   </ProjectSession>
