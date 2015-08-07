@@ -620,6 +620,7 @@ begin
                if GridConnectHelper.GridConnect_DecodeMachine(Ord( RcvStr[i]), GridConnectStrPtr) then
                begin
                  FComPortRec.MessageStr := NullArrayToString(GridConnectStrPtr^);
+                 FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
                  Synchronize(@DoReceiveMessage);
                end;
              end;
@@ -629,6 +630,7 @@ begin
                if GridConnectHelper.GridConnect_DecodeMachine(RcvStr[i], GridConnectStrPtr) then
                begin
                  FComPortRec.MessageStr := GridConnectStrPtr^;
+                 FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
                  Synchronize(@DoReceiveMessage);
                end;
              end;

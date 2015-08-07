@@ -860,6 +860,7 @@ begin
                     if GridConnectHelper.GridConnect_DecodeMachine(RcvByte, GridConnectStrPtr) then
                     begin
                       FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
+                      FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
                       Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
                     end;
                   end;
