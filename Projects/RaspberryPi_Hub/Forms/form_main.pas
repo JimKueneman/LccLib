@@ -10,7 +10,8 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType;
+  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType, types,
+  lcc_utilities;
 
 const
     BUNDLENAME  = 'Raspberry Pi Hub';
@@ -67,12 +68,19 @@ type
     ActionComPort: TAction;
     ActionToolsSettingsShowWin: TAction;
     ActionList: TActionList;
+    ButtonShowOutgoingMessages: TButton;
+    ButtonShowWaitingSchedulerMessages: TButton;
+    CheckBoxDumbNode: TCheckBox;
+    CheckBoxAutoQueryInfo: TCheckBox;
+    CheckBoxAutoSendVerifyNodes: TCheckBox;
     CheckBoxEthComportHub: TCheckBox;
     CheckBoxEthHub: TCheckBox;
-    CheckBoxAutoSendVerifyNodes: TCheckBox;
-    CheckBoxAutoQueryInfo: TCheckBox;
     ImageListMain: TImageList;
     ImageListNodeList: TImageList;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     LabelMyNodes: TLabel;
     LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
@@ -98,11 +106,17 @@ type
     MenuItemLastSpace: TMenuItem;
     MenuItemNodeProperties: TMenuItem;
     MenuItemPopupSelectorEditUserStrings: TMenuItem;
+    PageControlMain: TPageControl;
+    Panel1: TPanel;
+    Panel2: TPanel;
     PanelAddOns: TPanel;
     PanelNetworkTree: TPanel;
     PopupMenuSelector: TPopupMenu;
     SplitterMain: TSplitter;
     StatusBarMain: TStatusBar;
+    TabSheet1: TTabSheet;
+    TabSheetMain: TTabSheet;
+    TabSheetDebug: TTabSheet;
     ToolBar1: TToolBar;
     ToolButtonSettings: TToolButton;
     ToolButtonEthClient: TToolButton;
@@ -125,28 +139,39 @@ type
     procedure ActionShowNodePropertiesExecute(Sender: TObject);
     procedure ActionTCPExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
+    procedure ButtonShowWaitingSchedulerMessagesClick(Sender: TObject);
     procedure CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
     procedure CheckBoxAutoQueryInfoChange(Sender: TObject);
+    procedure CheckBoxDumbNodeChange(Sender: TObject);
     procedure CheckBoxEthComportHubChange(Sender: TObject);
     procedure CheckBoxEthHubChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
-    procedure LccComPortReceiveMessage(Sender: TObject;
-      ComPortRec: TLccComPortRec);
+    procedure LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetClientSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetClientSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetClientSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetClientSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerReceiveMessage(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetServerSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetServerSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetServerSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
     procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
+    procedure LccNodeManagerLccNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
@@ -159,18 +184,22 @@ type
     procedure PopupMenuSelectorPopup(Sender: TObject);
   private
     FAppAboutCmd: TMenuItem;
+    FDumbNode: Boolean;
     FEthernetToComPortHub: Boolean;
     FLastMouseDownInfo: TMouseInfo;
     FShownOnce: Boolean;
+    FWaitingMessageList: TObjectList;
     {$IFDEF DARWIN}
     FOSXMenu: TMenuItem;
     FOSXSep1Cmd: TMenuItem;
     FOSXPrefCmd: TMenuItem;
+    FWaitingMessageList: TObjectList;
     {$ENDIF}
     { private declarations }
   protected
     property AppAboutCmd: TMenuItem read FAppAboutCmd write FAppAboutCmd;
     property EthernetToComPortHub: Boolean read FEthernetToComPortHub write FEthernetToComPortHub;
+    property WaitingMessageList: TObjectList read FWaitingMessageList write FWaitingMessageList;
     {$IFDEF DARWIN}
     property OSXMenu: TMenuItem read FOSXMenu write FOSXMenu;
     property OSXSep1Cmd: TMenuItem read FOSXSep1Cmd write FOSXSep1Cmd;
@@ -189,7 +218,11 @@ type
     procedure FormProperitesHideNotify(Sender: TObject);
     procedure ShowSettingsDialog;
   public
+    TempSourceNode: TLccNode;
+
+
     { public declarations }
+    property DumbNode: Boolean read FDumbNode write FDumbNode;
     property LastMouseDownInfo: TMouseInfo read FLastMouseDownInfo;
     property ShownOnce: Boolean read FShownOnce write FShownOnce;
   end;
@@ -291,6 +324,27 @@ begin
   ShowSettingsDialog;
 end;
 
+procedure TForm1.ButtonShowWaitingSchedulerMessagesClick(Sender: TObject);
+var
+  i: Integer;
+  LccMessage: TLccMessage;
+  Msg: string;
+begin
+  LccNodeManager.HardwareConnection.FillWaitingMessageList(WaitingMessageList);
+  if WaitingMessageList.Count > 0 then
+  begin
+    Msg := '';
+    for i := 0 to WaitingMessageList.Count - 1 do
+    begin
+      LccMessage := WaitingMessageList[i] as TLccMessage;
+      Msg := MTI2String(LccMessage.MTI) + #13+#10;
+    end;
+    WaitingMessageList.Clear;
+  end else
+    Msg := 'No Message Found';
+  ShowMessage(Msg);
+end;
+
 procedure TForm1.ActionShowNodePropertiesExecute(Sender: TObject);
 var
   Node: TLccNode;
@@ -317,6 +371,19 @@ end;
 procedure TForm1.CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
 begin
   LccNodeManager.AutoSendVerifyNodesOnStart :=  CheckBoxAutoSendVerifyNodes.Checked;
+  if CheckBoxAutoSendVerifyNodes.Checked then
+    CheckBoxDumbNode.Checked := False;
+  LccSettings.SaveToFile;
+end;
+
+procedure TForm1.CheckBoxDumbNodeChange(Sender: TObject);
+begin
+  DumbNode := CheckBoxDumbNode.Checked;
+  if DumbNode then
+  begin
+    CheckBoxAutoSendVerifyNodes.Checked := False;
+    CheckBoxAutoQueryInfo.Checked := False;
+  end;
   LccSettings.SaveToFile;
 end;
 
@@ -335,6 +402,8 @@ end;
 procedure TForm1.CheckBoxAutoQueryInfoChange(Sender: TObject);
 begin
   LccNodeManager.AutoInterrogateDiscoveredNodes := CheckBoxAutoQueryInfo.Checked;
+  if CheckBoxAutoQueryInfo.Checked then
+    CheckBoxDumbNode.Checked := False;
   LccSettings.SaveToFile;
 end;
 
@@ -345,6 +414,17 @@ begin
     ActionComPort.Execute;                  // Force calling the OnExecute Event to clean up, but only if the Action is enabled
   if ActionEthernetServer.Checked then
     ActionEthernetServer.Execute;           // Force calling the OnExecute Event to clean up, but only if the Action is enabled
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  WaitingMessageList := TObjectList.Create;
+  WaitingMessageList.OwnsObjects := True;
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FWaitingMessageList);
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
@@ -385,6 +465,8 @@ begin
     FormSettings.FrameLccSettings.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
     LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
     LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
+    LccEthernetClient.LoggingFrame := FormLogging.FrameLccLogging;
+    LccEthernetClient.LccSettings := LccSettings;
     FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
     FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
     FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
@@ -420,6 +502,8 @@ begin
       ActionEthernetServer.Enabled := False;    // Disable Ethernet if Comport active
       ActionEthernetClient.Enabled := False;
       ActionTCP.Enabled := False;
+      Label3.Caption := '0';
+      Label4.Caption := '0';
     end;
     ccsComConnected :
     begin
@@ -454,6 +538,7 @@ end;
 
 procedure TForm1.LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
+  if DumbNode then Exit;
   if EthernetToComPortHub then
     LccEthernetServer.SendMessage(ComPortRec.LccMessage);
 end;
@@ -467,10 +552,12 @@ begin
         ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
         ActionEthernetServer.Enabled := False;
         ActionTCP.Enabled := False;
+        Label3.Caption := '0';
+        Label4.Caption := '0';
       end;
     ccsClientConnected :
       begin
-        StatusBarMain.Panels[0].Text := 'Listening: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        StatusBarMain.Panels[0].Text := 'Connected To: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
         LccNodeSelector.LccNodes.Clear;
         LccNodeManager.Enabled := True;
       end;
@@ -499,6 +586,26 @@ begin
   ActionEthernetClient.Checked := False;
 end;
 
+procedure TForm1.LccEthernetClientSchedulerAddOutgoingMessage(Sender: TObject;LccMessage: TLccMessage);
+begin
+  Label3.Caption := IntToStr( StrToInt(Label3.Caption) + 1);
+end;
+
+procedure TForm1.LccEthernetClientSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  Label4.Caption := IntToStr( StrToInt(Label4.Caption) + 1);
+end;
+
+procedure TForm1.LccEthernetClientSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  Label3.Caption := IntToStr( StrToInt(Label3.Caption) - 1);
+end;
+
+procedure TForm1.LccEthernetClientSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
+begin
+  Label4.Caption := IntToStr( StrToInt(Label4.Caption) - 1);
+end;
+
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 var
   ListItem: TListItem;
@@ -511,6 +618,8 @@ begin
         ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
         ActionEthernetClient.Enabled := False;
         ActionTCP.Enabled := False;
+        Label3.Caption := '0';
+        Label4.Caption := '0';
       end;
     ccsListenerConnected :
       begin
@@ -572,8 +681,29 @@ end;
 
 procedure TForm1.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
+  if DumbNode then Exit;
   if EthernetToComPortHub then
     LccComPort.SendMessage(EthernetRec.LccMessage);
+end;
+
+procedure TForm1.LccEthernetServerSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+   Label3.Caption := IntToStr( StrToInt(Label3.Caption) + 1);
+end;
+
+procedure TForm1.LccEthernetServerSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  Label4.Caption := IntToStr( StrToInt(Label4.Caption) + 1);
+end;
+
+procedure TForm1.LccEthernetServerSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+   Label3.Caption := IntToStr( StrToInt(Label3.Caption) - 1);
+end;
+
+procedure TForm1.LccEthernetServerSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
+begin
+  Label4.Caption := IntToStr( StrToInt(Label4.Caption) - 1);
 end;
 
 procedure TForm1.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -619,6 +749,30 @@ begin
   FormNodeProperties.LccCdiParser.DoConfigMemReadReply(LccSourceNode);
 end;
 
+procedure TForm1.LccNodeManagerLccNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
+var
+  EventID: TEventID;
+  i: Integer;
+  EventOffset: Word;
+begin
+  if LccSourceNode = LccNodeManager.RootNode then
+  begin
+    EventOffset := 0;
+    for i := 0 to 9 do
+    begin
+      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
+      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
+      Inc(EventOffset);
+    end;
+    for i := 0 to 9 do
+    begin
+      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
+      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
+      Inc(EventOffset);
+    end;
+  end;
+end;
+
 procedure TForm1.LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TestForDuplicateAndAdd(LccSourceNode);
@@ -629,6 +783,8 @@ begin
   LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Pip];
   if LccSourceNode.ProtocolSupport.SimpleNodeInfo then
     SendSnipRequest(LccSourceNode);
+
+  TempSourceNode := LccSourceNode;
   if LccSourceNode.ProtocolSupport.CDI then
     SendCdiRequest(LccSourceNode);
   UpdateForNodeEnabled(LccSourceNode);
@@ -700,6 +856,7 @@ begin
   ActionComPort.Visible := IniFile.ReadBool('Custom Settings', 'ComPort', False);
   CheckBoxEthHub.Checked := IniFile.ReadBool('Custom Settings', 'EthHub', False);
   CheckBoxEthComportHub.Checked := IniFile.ReadBool('Custom Settings', 'EthComportHub', False);
+  CheckBoxDumbNode.Checked := IniFile.ReadBool('Custom Settings', 'DumbNode', False);
 
   ActionTCP.Visible := ActionEthernetClient.Visible or ActionEthernetServer.Visible;
   MenuItemConnectionDivider0.Visible := ActionTCP.Visible;
@@ -712,8 +869,9 @@ begin
   IniFile.WriteBool('Custom Settings', 'EthernetServer', ActionEthernetServer.Visible);
   IniFile.WriteBool('Custom Settings', 'EthernetClient', ActionEthernetClient.Visible);
   IniFile.WriteBool('Custom Settings', 'ComPort', ActionComPort.Visible);
-  IniFile.WriteBool('CustomSettings', 'EthHub', CheckBoxEthHub.Checked);
-  IniFile.WriteBool('CustomSettings', 'EthComportHub', CheckBoxEthComportHub.Checked);
+  IniFile.WriteBool('Custom Settings', 'EthHub', CheckBoxEthHub.Checked);
+  IniFile.WriteBool('Custom Settings', 'EthComportHub', CheckBoxEthComportHub.Checked);
+  IniFile.WriteBool('Custom Settings', 'DumbNode', CheckBoxDumbNode.Checked);
 end;
 
 procedure TForm1.PopupMenuSelectorPopup(Sender: TObject);
@@ -733,6 +891,7 @@ end;
 
 procedure TForm1.TestForDuplicateAndAdd(TestNode: TLccNode);
 begin
+  if DumbNode then Exit;
   if not Assigned(LccNodeSelector.LccNodes.Find(TestNode.NodeID)) then
   begin
     LccNodeSelector.BeginUpdate;
@@ -796,6 +955,7 @@ end;
 
 procedure TForm1.SendSnipRequest(Node: TLccNode);
 begin
+  if DumbNode then Exit;
   if Node.UserMsgInFlight * [mif_Snip] = [] then
   begin
     LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
@@ -821,6 +981,7 @@ end;
 
 procedure TForm1.SendPipRequest(Node: TLccNode);
 begin
+  if DumbNode then Exit;
   if Node.UserMsgInFlight * [mif_Pip] = [] then
   begin
     LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
@@ -831,6 +992,7 @@ end;
 
 procedure TForm1.SendCdiRequest(Node: TLccNode);
 begin
+  if DumbNode then Exit;
   if Node.UserMsgInFlight * [mif_Cdi] = [] then
   begin
     LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
@@ -841,6 +1003,7 @@ end;
 
 procedure TForm1.SendConfigMemOptionsRequest(Node: TLccNode);
 begin
+  if DumbNode then Exit;
   if Node.UserMsgInFlight * [mif_ConfigMemOptions] = [] then
   begin
     LccNodeManager.UserMessage.LoadConfigMemOptions(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
@@ -851,6 +1014,7 @@ end;
 
 procedure TForm1.SendConfigMemAddressInfo(Node: TLccNode; AddressSpace: Byte);
 begin
+  if DumbNode then Exit;
   LccNodeManager.UserMessage.LoadConfigMemAddressSpaceInfo(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID, AddressSpace);
   LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
 //  Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];

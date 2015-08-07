@@ -7,7 +7,7 @@ unit lcc_message_scheduler;
 interface
 
 uses
-  Classes, SysUtils, lcc_messages,
+  Classes, SysUtils, lcc_messages, contnrs,
   {$IFDEF FPC}
   {$ELSE}
     System.Generics.Collections,
@@ -31,9 +31,9 @@ type
   private
     FGridConnectStrings: TStringList;
     {$IFDEF FPC}
-    FMessagesOutgoingList: TList;
-    FMessagesPermanentErrorList: TList;
-    FMessagesWaitingForReplyLIst: TList;
+    FMessagesOutgoingList: TObjectList;
+    FMessagesPermanentErrorList: TObjectList;
+    FMessagesWaitingForReplyLIst: TObjectList;
     {$ELSE}
     FMessagesOutgoingList: TObjectList<TLccMessage>;
     FMessagesPermanentErrorList: TObjectList<TLccMessage>;
@@ -54,15 +54,6 @@ type
     property GridConnectStrings: TStringList read FGridConnectStrings write FGridConnectStrings;
     property MsgAssembler: TLccMessageAssembler read FMsgAssembler write FMsgAssembler;
     property MsgDisAssembler: TLccMessageDisAssembler read FMsgDisAssembler write FMsgDisAssembler;
-    {$IFDEF FPC}
-    property MessagesOutgoingList: TList read FMessagesOutgoingList write FMessagesOutgoingList;
-    property MessagesPermanentErrorList: TList read FMessagesPermanentErrorList write FMessagesPermanentErrorList;
-    property MessagesWaitingForReplyList: TList read FMessagesWaitingForReplyLIst write FMessagesWaitingForReplyLIst;
-    {$ELSE}
-    property MessagesOutgoingList: TObjectList<TLccMessage> read FMessagesOutgoingList write FMessagesOutgoingList;
-    property MessagesPermanentErrorList: TObjectList<TLccMessage> read FMessagesPermanentErrorList write FMessagesPermanentErrorList;
-    property MessagesWaitingForReplyList: TObjectList<TLccMessage> read FMessagesWaitingForReplyLIst write FMessagesWaitingForReplyLIst;
-    {$ENDIF}
     property WorkerMessageIncoming: TLccMessage read FWorkerMessageIncoming write FWorkerMessageIncoming;
     property WorkerMessageOutgoing: TLccMessage read FWorkerMessageOutgoing write FWorkerMessageOutgoing;
 
@@ -76,8 +67,17 @@ type
     function ExistingSimilarMessageIsWaiting(LccMessage: TLccMessage): Boolean;
     function IsMessageWithPotentialReply(LccMessage: TLccMessage): Boolean;
     function MatchingNodeIDsAndMTIRequestReplyPair(var LccMessage: TLccMessage; ReplyLccMessage: TLccMessage; AMessageQueue: {$IFDEF FPC}TList{$ELSE}TObjectList<TLccMessage>{$ENDIF}): Boolean;
-    function MatchingNodeIDsAndExternalMTIRequestReplyPair(var MessageWaitingForReply: TLccMessage; MessageReplyToCheck: TLccMessage; AMessageQueue:  {$IFDEF FPC}TList{$ELSE}TObjectList<TLccMessage>{$ENDIF}; TestMTI: Word): Boolean;
+    function MatchingNodeIDsAndMTICompare(var MessageWaitingForReply: TLccMessage; MessageReplyToCheck: TLccMessage; AMessageQueue:  {$IFDEF FPC}TList{$ELSE}TObjectList<TLccMessage>{$ENDIF}; TestMTI: Word): Boolean;
   public
+    {$IFDEF FPC}
+    property MessagesOutgoingList: TObjectList read FMessagesOutgoingList write FMessagesOutgoingList;
+    property MessagesPermanentErrorList: TObjectList read FMessagesPermanentErrorList write FMessagesPermanentErrorList;
+    property MessagesWaitingForReplyList: TObjectList read FMessagesWaitingForReplyLIst write FMessagesWaitingForReplyLIst;
+    {$ELSE}
+    property MessagesOutgoingList: TObjectList<TLccMessage> read FMessagesOutgoingList write FMessagesOutgoingList;
+    property MessagesPermanentErrorList: TObjectList<TLccMessage> read FMessagesPermanentErrorList write FMessagesPermanentErrorList;
+    property MessagesWaitingForReplyList: TObjectList<TLccMessage> read FMessagesWaitingForReplyLIst write FMessagesWaitingForReplyLIst;
+    {$ENDIF}
     property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc write FSendMessageFunc;
     property OnAddOutgoingMessage: TOnMessageEvent read FOnAddOutgoingMessage write FOnAddOutgoingMessage;
     property OnRemoveOutgoingMessage: TOnMessageEvent read FOnRemoveOutgoingMessage write FOnRemoveOutgoingMessage;
@@ -125,14 +125,19 @@ var
   WaitingMessage: TLccMessage;
   LocalErrorCode, RejectedMTI: Word;
 
+  procedure RemoveAndNext;
+  begin
+    DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, True);
+    CheckForNextMessageToSend;
+  end;
+
   procedure HandleErrorCode;
   begin
     if LocalErrorCode and COMMON_TEMPORARY_ERROR = COMMON_TEMPORARY_ERROR then
     begin
       if LccMessage.RetryAttempts > 5 then
       begin  // We give up, throw it away and try the next
-        DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, True);
-        CheckForNextMessageToSend;
+        RemoveAndNext;
       end else
       begin  // Move it to the back of the list to try later
         DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, False);
@@ -154,7 +159,7 @@ begin
   begin
     LocalErrorCode := LccMessage.ExtractDataBytesAsInt(0, 1);
     RejectedMTI := LccMessage.ExtractDataBytesAsInt(2, 3);
-    if MatchingNodeIDsAndExternalMTIRequestReplyPair(WaitingMessage, LccMessage, MessagesWaitingForReplyList, RejectedMTI) then
+    if MatchingNodeIDsAndMTICompare(WaitingMessage, LccMessage, MessagesWaitingForReplyList, RejectedMTI) then
     begin
       HandleErrorCode;
       Result := False
@@ -163,34 +168,35 @@ begin
   if LccMessage.MTI = MTI_DATAGRAM_REJECTED_REPLY then
   begin
     LocalErrorCode := LccMessage.ExtractDataBytesAsInt(0, 1);
-    if MatchingNodeIDsAndExternalMTIRequestReplyPair(WaitingMessage, LccMessage, MessagesWaitingForReplyList, MTI_DATAGRAM) then
+    if MatchingNodeIDsAndMTICompare(WaitingMessage, LccMessage, MessagesWaitingForReplyList, MTI_DATAGRAM) then
     begin
       HandleErrorCode;
       Result := False
     end;
   end else
   if LccMessage.MTI = MTI_DATAGRAM_OK_REPLY then
-  begin  // If the ConfigMem Write has a reply then need to wait for it, else throw the message away and get the next one
-    if LccMessage.DataCount > 0 then
-     if MatchingNodeIDsAndExternalMTIRequestReplyPair(WaitingMessage, LccMessage, MessagesWaitingForReplyList, MTI_DATAGRAM) then
-       if (WaitingMessage.DataArray[0] = $20) and (WaitingMessage.DataArray[1] and $F0 = MCP_WRITE) then
-         if LccMessage.DataArray[0] and DATAGRAM_OK_ACK_REPLY_PENDING <> DATAGRAM_OK_ACK_REPLY_PENDING then
-         begin
-           DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, True);
-           CheckForNextMessageToSend;
-         end;
+  begin
+    // Is there a Datagram waiting for this ACK?
+    if MatchingNodeIDsAndMTICompare(WaitingMessage, LccMessage, MessagesWaitingForReplyList, MTI_DATAGRAM) then
+    begin
+      if LccMessage.DataCount > 0 then        // Does it even carry the extra infomration (legacy nodes)
+      begin
+        if WaitingMessage.DataArrayIndexer[0] = DATAGRAM_PROTOCOL_CONFIGURATION then   // Only the Configuration Mem Datagram is defined this way
+        begin
+          if LccMessage.DataArray[0] and DATAGRAM_OK_ACK_REPLY_PENDING <> DATAGRAM_OK_ACK_REPLY_PENDING then  // A Reply is coming don't remove the message
+            RemoveAndNext;
+        end else
+          RemoveAndNext;
+      end else
+        RemoveAndNext;
+    end;
     Result := False;
   end else
   begin
 
-  //  if LccMessage.Mti = MTI_DATAGRAM then
-  //    beep;
-
+    // Look to see if this message is a reply to a message waiting in the Waiting Message List and if so remove the waiting message and move on...
     if MatchingNodeIDsAndMTIRequestReplyPair(WaitingMessage, LccMessage, MessagesWaitingForReplyList) then
-    begin
-      DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, True);
-      CheckForNextMessageToSend;
-    end
+      RemoveAndNext
   end;
 end;
 
@@ -350,7 +356,7 @@ begin
   end;
 end;
 
-function TSchedulerBase.MatchingNodeIDsAndExternalMTIRequestReplyPair(
+function TSchedulerBase.MatchingNodeIDsAndMTICompare(
   var MessageWaitingForReply: TLccMessage; MessageReplyToCheck: TLccMessage;
   AMessageQueue: {$IFDEF FPC}TList{$ELSE}TObjectList<TLccMessage>{$ENDIF}; TestMTI: Word): Boolean;
 //
@@ -377,9 +383,9 @@ begin
       if NullNodeID(MessageReplyToCheck.SourceID) or NullNodeID(LocalMsg.DestID) then
       begin
         // NodeIDs are invalid so use the Aliases
-        if (MessageReplyToCheck.CAN.SourceAlias <> 0) and (LocalMsg.CAN.DestAlias <> 0) then
+        if (MessageReplyToCheck.CAN.SourceAlias <> 0) and (LocalMsg.CAN.DestAlias <> 0)  then
         begin
-          if  MessageReplyToCheck.CAN.SourceAlias = LocalMsg.CAN.DestAlias then
+          if  (MessageReplyToCheck.CAN.SourceAlias = LocalMsg.CAN.DestAlias) and (LocalMsg.MTI = TestMTI) then
           begin
             Result := True;
             MessageWaitingForReply := LocalMsg;
@@ -408,9 +414,9 @@ begin
   FMsgAssembler := TLccMessageAssembler.Create;
   FMsgDisAssembler := TLccMessageDisAssembler.Create;
   {$IFDEF FPC}
-    FMessagesOutgoingList := TList.Create;
-    FMessagesWaitingForReplyLIst := TList.Create;
-    FMessagesPermanentErrorList := TList.Create;
+    FMessagesOutgoingList := TObjectList.Create(False);
+    FMessagesWaitingForReplyLIst := TObjectList.Create(False);
+    FMessagesPermanentErrorList := TObjectList.Create(False);
   {$ELSE}
     FMessagesOutgoingList := TObjectList<TLccMessage>.Create;
     FMessagesWaitingForReplyLIst := TObjectList<TLccMessage>.Create;

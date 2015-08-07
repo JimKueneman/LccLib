@@ -189,7 +189,7 @@ public
   procedure LoadCDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   // Datagram
   procedure LoadDatagram(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean);
+  procedure LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean; TimeOutValueN: Byte);
   procedure LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word);
   // ConfigurationMemory
   procedure LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
@@ -498,9 +498,11 @@ begin
     Count := Size - Offset;
     Inc(Offset, 5);
     i := 0;
+    FDataCount := 0;
     while i < Count do
     begin
       FDataArray[i] := ByteArray[Offset + i];
+      Inc(FDataCount);
       Inc(i);
     end;
     Result := True;
@@ -1509,14 +1511,20 @@ begin
   MTI := MTI_DATAGRAM;
 end;
 
-procedure TLccMessage.LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean);
+procedure TLccMessage.LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word;
+  ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean;
+  TimeOutValueN: Byte);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  DataCount := 0;
+  DataCount := 1;
+  if ReplyPending then
+    DataArrayIndexer[0] := $80 or (TimeoutValueN and $0F)
+  else
+    DataArrayIndexer[0] := 0;
   if Ok then
     MTI := MTI_DATAGRAM_OK_REPLY
   else

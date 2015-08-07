@@ -31,7 +31,6 @@ type
 
 TLccMessageAssembler = class
 private
-  FDatagramMaxCount: Integer;
   {$IFDEF FPC}
     FInProcessMessageList: TList;
   {$ELSE}

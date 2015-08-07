@@ -11,7 +11,7 @@ unit lcc_ethenetserver;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, contnrs,
   {$IFDEF FPC}
   LResources, Forms, Controls, Graphics, Dialogs,
   {$ELSE}
@@ -209,6 +209,7 @@ type
     function OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
     function OpenEthernetConnectionWithLccSettings: TLccEthernetListener;
     procedure CloseEthernetConnection( EthernetThread: TLccEthernetServerThread);
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage);  override;
     procedure ClearSchedulerQueues;
 
@@ -591,6 +592,29 @@ destructor TLccEthernetServer.Destroy;
 begin
   FreeAndNil( FEthernetThreads);
   inherited Destroy;
+end;
+
+procedure TLccEthernetServer.FillWaitingMessageList(WaitingMessageList: TObjectList);
+var
+  i, j: Integer;
+  L: TList;
+  EthernetThread: TLccEthernetServerThread;
+begin
+  if Assigned(WaitingMessageList) then
+  begin
+    WaitingMessageList.Clear;
+      L := EthernetThreads.LockList;
+    try
+      for i := 0 to L.Count - 1 do
+      begin
+        EthernetThread := TLccEthernetServerThread( L[i]);
+        for j := 0 to EthernetThread.Scheduler.MessagesWaitingForReplyList.Count - 1 do
+          WaitingMessageList.Add( (EthernetThread.Scheduler.MessagesWaitingForReplyList[j] as TLccMessage).Clone);
+      end;
+    finally
+      EthernetThreads.UnlockList;
+    end;
+  end;
 end;
 
 function TLccEthernetServer.OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;

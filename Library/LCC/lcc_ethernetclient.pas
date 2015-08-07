@@ -11,7 +11,7 @@ unit lcc_ethernetclient;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, contnrs,
   {$IFDEF FPC}
   LResources, Forms, Controls, Graphics, Dialogs,
   {$ELSE}
@@ -169,9 +169,10 @@ type
 
     function OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
     function OpenEthernetConnectionWithLccSettings: TLccEthernetClientThread;
-    procedure CloseEthernetConnection( EthernetThread: TLccEthernetClientThread);
-    procedure SendMessage(AMessage: TLccMessage); override;
     procedure ClearSchedulerQueues;
+    procedure CloseEthernetConnection( EthernetThread: TLccEthernetClientThread);
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
+    procedure SendMessage(AMessage: TLccMessage); override;
   //  {$IFDEF FPC}
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
   //  {$ELSE}
@@ -370,6 +371,29 @@ destructor TLccEthernetClient.Destroy;
 begin
   FreeAndNil( FEthernetThreads);
   inherited Destroy;
+end;
+
+procedure TLccEthernetClient.FillWaitingMessageList(WaitingMessageList: TObjectList);
+var
+  i, j: Integer;
+  L: TList;
+  EthernetThread: TLccEthernetClientThread;
+begin
+  if Assigned(WaitingMessageList) then
+  begin
+    WaitingMessageList.Clear;
+      L := EthernetThreads.LockList;
+    try
+      for i := 0 to L.Count - 1 do
+      begin
+        EthernetThread := TLccEthernetClientThread( L[i]);
+        for j := 0 to EthernetThread.Scheduler.MessagesWaitingForReplyList.Count - 1 do
+          WaitingMessageList.Add( (EthernetThread.Scheduler.MessagesWaitingForReplyList[j] as TLccMessage).Clone);
+      end;
+    finally
+      EthernetThreads.UnlockList;
+    end;
+  end;
 end;
 
 function TLccEthernetClient.OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
@@ -665,11 +689,17 @@ begin
               end;
               Inc(LocalSleepCount);
 
-              SynaBytes := Socket.RecvPacket(1);
+          //    SynaBytes := Socket.RecvPacket(1);
+              RcvByte := Socket.RecvByte(1);
               case Socket.LastError of
                 0 :
                   begin
                     DynamicByteArray := nil;
+                    if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
+                      Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+
+                    // I get a random "0" at the beginning of the message in Lazarus OSX at least
+             (*       DynamicByteArray := nil;
                     {$IFDEF UNICODE}
                     for i := 0 to SynaBytes.Length - 1 do
                     {$ELSE}
@@ -682,7 +712,7 @@ begin
                       if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(Ord(SynaBytes[i]), FEthernetRec.MessageArray) then
                       {$ENDIF}
                         Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
-                    end
+                    end            *)
                   end;
                 WSAETIMEDOUT :
                   begin

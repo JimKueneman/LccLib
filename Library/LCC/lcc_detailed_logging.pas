@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, SynEdit, math, lcc_math_float16, strutils, lcc_defines,
-  lcc_threadedcirculararray;
+  lcc_threadedcirculararray, lcc_utilities;
 
 
   procedure PrintToSynEdit(MessageStr: AnsiString; SynEditLog: TSynEdit; Paused: Boolean; Detailed: Boolean; JMRIFormat: Boolean);
@@ -406,7 +406,6 @@ const
   EVENT_DELIVERS_CLOCK       : TEventID = ($01, $01, $00, $00, $00, $00, $05, $01);
 
 var
-  LocalHelper: TLccMessageHelper;
   MultiFrames: TMultiFrameBufferList;
   LogStrings: TStringList;
 
@@ -433,124 +432,6 @@ end;
 
 function MTI_ToString(MTI: DWord): WideString;
 
-  procedure ConfigurationDatagram;
-  begin
-    if LocalHelper.DataCount > 0 then
-        begin
-          if LocalHelper.Data[0] = DATAGRAM_PROTOCOL_CONFIGURATION then
-          begin
-            case LocalHelper.Data[1] and $F8 of
-              MCP_WRITE :
-                  begin
-                    case LocalHelper.Data[1] and $07 of
-                      MCP_CDI            : Result := Result + ' Write Command, Address Space = CDI';
-                      MCP_ALL            : Result := Result + ' Write Command, Address Space = All';
-                      MCP_CONFIGURATION  : Result := Result + ' Write Command, Address Space = Configuration';
-                      MCP_NONE           : begin
-                                             case LocalHelper.Data[6] of
-                                               MSI_CDI         : Result := Result + ' Write Command, Address Space = CDI';
-                                               MSI_ALL         : Result := Result + ' Write Command, Address Space = All';
-                                               MSI_CONFIG      : Result := Result + ' Write Command, Address Space = Configuration';
-                                               MSI_ACDI_MFG    : Result := Result + ' Write Command, Address Space = ACDI Manufacturer';
-                                               MSI_ACDI_USER   : Result := Result + ' Write Command, Address Space = ACDI User';
-                                               MSI_FDI         : Result := Result + ' Write Command, Address Space = Function Definition Info';
-                                               MSI_FSI         : Result := Result + ' Write Command, Address Space = Function State Info'
-                                             else
-                                               Result := Result + ' Write Command, Address Space = [Unknown]'      ;
-                                             end;
-                                           end
-                    end; // Case
-                    Result := Result + ', Starting Address = ' + IntToHex( LocalHelper.ExtractDataBytesAsInt(2, 5), 8);
-                  end;
-              MCP_READ  :
-                  begin
-                    case LocalHelper.Data[1] and $07 of
-                      MCP_CDI            : Result := Result + ' Read Command, Address Space = CDI';
-                      MCP_ALL            : Result := Result + ' Read Command, Address Space = All';
-                      MCP_CONFIGURATION  : Result := Result + ' Read Command, Address Space = Configuration';
-                      MCP_NONE           : begin
-                                             case LocalHelper.Data[6] of
-                                               MSI_CDI         : Result := Result + ' Read Command, Address Space = CDI';
-                                               MSI_ALL         : Result := Result + ' Read Command, Address Space = All';
-                                               MSI_CONFIG      : Result := Result + ' Read Command, Address Space = Configuration';
-                                               MSI_ACDI_MFG    : Result := Result + ' Read Command, Address Space = ACDI Manufacturer';
-                                               MSI_ACDI_USER   : Result := Result + ' Read Command, Address Space = ACDI User';
-                                               MSI_FDI         : Result := Result + ' Read Command, Address Space = Function Definition Info';
-                                               MSI_FSI         : Result := Result + ' Read Command, Address Space = Function State Info'
-                                             else
-                                               Result := Result + ' Read Command, Address Space = [Unknown]'      ;
-                                             end;
-                                           end
-                    end; // Case
-                    Result := Result + ', Starting Address = ' + IntToHex( LocalHelper.ExtractDataBytesAsInt(2, 5), 8);
-                  end;
-              MCP_OPERATION  :
-                  begin
-                  end;
-              MCP_WRITE_DATAGRAM_REPLY :
-                  begin
-                    case LocalHelper.Data[1] and $07 of
-                      MCP_CDI            : Result := Result + ' Write Reply, Address Space = CDI';
-                      MCP_ALL            : Result := Result + ' Write Reply, Address Space = All';
-                      MCP_CONFIGURATION  : Result := Result + ' Write Reply, Address Space = Configuration';
-                      MCP_NONE           : begin
-                                             case LocalHelper.Data[6] of
-                                               MSI_CDI         : Result := Result + ' Write Reply, Address Space = CDI';
-                                               MSI_ALL         : Result := Result + ' Write Reply, Address Space = All';
-                                               MSI_CONFIG      : Result := Result + ' Write Reply, Address Space = Configuration';
-                                               MSI_ACDI_MFG    : Result := Result + ' Write Reply, Address Space = ACDI Manufacturer';
-                                               MSI_ACDI_USER   : Result := Result + ' Write Reply, Address Space = ACDI User';
-                                               MSI_FDI         : Result := Result + ' Write Reply, Address Space = Function Definition Info';
-                                               MSI_FSI         : Result := Result + ' Write Reply, Address Space = Function State Info'
-                                             else
-                                               Result := Result + ' Write Reply, Address Space = [Unknown]'      ;
-                                             end;
-                                           end
-                    end; // Case
-                    Result := Result + ', Starting Address = ' + IntToHex( LocalHelper.ExtractDataBytesAsInt(2, 5), 8);
-                    if LocalHelper.Data[1] and $F8 = MCP_WRITE_OK then
-                      Result := Result + ', Success'
-                    else
-                    if LocalHelper.Data[1] and $F8 = MCP_WRITE_ERROR then
-                      Result := Result + ', Error'
-                  end;
-              MCP_READ_DATAGRAM_REPLY  :
-                  begin
-                    case LocalHelper.Data[1] and $07 of
-                      MCP_CDI            : Result := Result + ' Read Reply, Address Space = CDI';
-                      MCP_ALL            : Result := Result + ' Read Reply, Address Space = All';
-                      MCP_CONFIGURATION  : Result := Result + ' Read Reply, Address Space = Configuration';
-                      MCP_NONE           : begin
-                                             case LocalHelper.Data[6] of
-                                               MSI_CDI         : Result := Result + ' Read Reply, Address Space = CDI';
-                                               MSI_ALL         : Result := Result + ' Read Reply, Address Space = All';
-                                               MSI_CONFIG      : Result := Result + ' Read Reply, Address Space = Configuration';
-                                               MSI_ACDI_MFG    : Result := Result + ' Read Reply, Address Space = ACDI Manufacturer';
-                                               MSI_ACDI_USER   : Result := Result + ' Read Reply, Address Space = ACDI User';
-                                               MSI_FDI         : Result := Result + ' Read Reply, Address Space = Function Definition Info';
-                                               MSI_FSI         : Result := Result + ' Read Reply, Address Space = Function State Info'
-                                             else
-                                               Result := Result + ' Read Reply, Address Space = [Unknown]'      ;
-                                             end;
-                                           end
-                    end; // Case
-                    Result := Result + ', Starting Address = ' + IntToHex( LocalHelper.ExtractDataBytesAsInt(2, 5), 8);
-                    if LocalHelper.Data[1] and $F8 = MCP_READ_OK then
-                      Result := Result + ', Success'
-                    else
-                    if LocalHelper.Data[1] and $F8 = MCP_READ_ERROR then
-                      Result := Result + ', Error'
-                  end;
-              MCP_READ_STREAM_REPLY  :
-                  begin
-
-                  end;
-            end;
-          end;
-        end;
-
-  end;
-
 begin
   case MTI of
     MTI_CID0 : Result := 'Check ID 0';
@@ -568,11 +449,11 @@ begin
 
     MTI_FRAME_TYPE_DATAGRAM_ONLY_FRAME : begin
                                            Result := 'Datagram Single Frame:';
-                                           ConfigurationDatagram;
+
                                          end;
     MTI_FRAME_TYPE_DATAGRAM_FRAME_START : begin
                                            Result := 'Datagram Start Frame:';
-                                           ConfigurationDatagram;
+
                                          end;
     MTI_FRAME_TYPE_DATAGRAM_FRAME : Result := 'Datagram Frame';
     MTI_FRAME_TYPE_DATAGRAM_FRAME_END : Result := 'Datagram End Frame';
@@ -613,21 +494,8 @@ begin
     MTI_SIMPLE_TRAIN_INFO_REQUEST       : Result := 'Simple Train Node Info Request [STNIP]';
     MTI_SIMPLE_TRAIN_INFO_REPLY         : Result := 'Simple Train Node Info Reply [STNIP]';
 
-    MTI_DATAGRAM_OK_REPLY              : begin
-                                           Result := 'Datagram Reply OK';
-                                           if LocalHelper.DataCount > 2 then
-                                           begin
-                                             if LocalHelper.Data[2] and DATAGRAM_OK_ACK_REPLY_PENDING = DATAGRAM_OK_ACK_REPLY_PENDING then
-                                             begin
-                                               if LocalHelper.Data[2] and $7F = 0 then
-                                                 Result := Result + ' - Reply Is Pending - Maximum wait time = Infinity'
-                                               else
-                                                 Result := Result + ' - Reply Is Pending - Maximum wait time = ' + IntToStr( Round( Power(2, LocalHelper.Data[2] and $7F))) + ' seconds'
-                                             end else
-                                               Result := Result + ' - Reply Is Not Pending'
-                                           end else
-                                             Result := Result + ' - Does not include Extended Flags';
-                                         end;
+    MTI_DATAGRAM                        : Result := 'Datagram';
+    MTI_DATAGRAM_OK_REPLY              : Result := 'Datagram Reply OK';
     MTI_DATAGRAM_REJECTED_REPLY        : Result := 'Datagram Rejected Reply';
 
     MTI_TRACTION_PROTOCOL              : Result := 'Traction Protocol';
@@ -639,21 +507,6 @@ begin
     MTI_STREAM_COMPLETE                : Result := 'Stream Complete';
    else
     Result := 'Unknown MTI';
-  end;
-  if LocalHelper.HasDestinationAddress and not IsDatagramMTI(LocalHelper.MTI, False) then
-  begin
-    if LocalHelper.FramingBits = $00 then
-      Result := Result + ' Only Frame'
-    else
-    if LocalHelper.FramingBits = $10 then
-      Result := Result + ' First Frame'
-    else
-    if LocalHelper.FramingBits = $20 then
-      Result := Result + ' Last Frame'
-    else
-    if LocalHelper.FramingBits = $30 then
-      Result := Result + ' Middle Frame'
-    else
   end;
 end;
 
@@ -773,295 +626,301 @@ var
   f: single;
   Half: Word;
   MultiFrame: TMultiFrameBuffer;
+  LocalHelper: TLccMessageHelper;
 begin
-  if LocalHelper.Decompose(MessageString) then
-  begin
-    Result := MessageString;
-    S_Len := Length(Result);
-    for j := 0 to (28-S_Len) do
-      Result := Result + ' ' ;
-
-    if LocalHelper.HasDestinationAddress then
-      Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4) + ' -> ' + '0x' + IntToHex( LocalHelper.DestinationAliasID, 4)
-    else
-      Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4);
-
-    if IsDatagramMTI(LocalHelper.MTI, False) then
-      Result := Result + RawHelperDataToStr(LocalHelper, True) + ' MTI: ' + MTI_ToString(LocalHelper.MTI)
-    else
-      Result := Result + '   MTI: ' + MTI_ToString(LocalHelper.MTI) + ' - ';
-
-    if IsStreamMTI( LocalHelper.MTI, True) then
+  LocalHelper := TLccMessageHelper.Create;
+  try
+    if LocalHelper.Decompose(MessageString) then
     begin
-      case LocalHelper.MTI of
-        MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((Localhelper.Data[2] shl 8) or LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2) + ' Source Stream ID: ' + IntToStr(LocalHelper.Data[6]);
-        MTI_STREAM_INIT_REPLY              : Result := Result + ' Negotiated Bufer Size: ' + IntToStr((Localhelper.Data[2] shl 8) or LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2) + ' Source Stream ID: ' + IntToStr(LocalHelper.Data[6]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[7]);
-        MTI_FRAME_TYPE_CAN_STREAM_SEND     : begin end;
-        MTI_STREAM_PROCEED                 : Result := Result + ' Source Stream ID: ' + IntToStr(Localhelper.Data[2]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2);
-        MTI_STREAM_COMPLETE                : Result := Result + ' Source Stream ID: ' + IntToStr(Localhelper.Data[2]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2);
-      end
-    end;
+      Result := MessageString;
+      S_Len := Length(Result);
+      for j := 0 to (28-S_Len) do
+        Result := Result + ' ' ;
 
-    if LocalHelper.MTI = MTI_OPTIONAL_INTERACTION_REJECTED then
-    begin
-    end;
+      if LocalHelper.HasDestinationAddress then
+        Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4) + ' -> ' + '0x' + IntToHex( LocalHelper.DestinationAliasID, 4)
+      else
+        Result := Result + '0x' + IntToHex( LocalHelper.SourceAliasID, 4);
 
-    // SNII/SNIP
-    if LocalHelper.MTI = MTI_SIMPLE_NODE_INFO_REPLY then
-      Result := Result + RawHelperDataToStr(LocalHelper, True);
+      if IsDatagramMTI(LocalHelper.MTI, False) then
+        Result := Result + RawHelperDataToStr(LocalHelper, True) + ' MTI: ' + MTI_ToString(LocalHelper.MTI)
+      else
+        Result := Result + '   MTI: ' + MTI_ToString(LocalHelper.MTI) + ' - ';
 
-    // STNIP
-    if LocalHelper.MTI = MTI_SIMPLE_TRAIN_INFO_REPLY then
-      Result := Result + RawHelperDataToStr(LocalHelper, True);
-
-    // Events
-    if (LocalHelper.MTI = MTI_PRODUCER_IDENDIFY) or (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_SET) or (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_CLEAR) or
-      (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_UNKNOWN) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFY) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_SET) or
-      (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_CLEAR) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_UNKNOWN) or (LocalHelper.MTI = MTI_PC_EVENT_REPORT)
-    then begin
-        Result := Result + 'EventID: ' + EventIDToString(@LocalHelper.Data);
-    end;
-
-    // Traction Protocol
-    if LocalHelper.MTI = MTI_TRACTION_PROTOCOL then
-    begin
-      MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
-      if Assigned(MultiFrame) then
+      if IsStreamMTI( LocalHelper.MTI, True) then
       begin
-        case MultiFrame.DataArray[0] of
-            TRACTION_SPEED_DIR :
-              begin
-                Result := Result + ' LCC Speed/Dir Operation; Speed = ';
-                f := HalfToFloat( (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2]);
-                if f = 0 then
+        case LocalHelper.MTI of
+          MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((Localhelper.Data[2] shl 8) or LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2) + ' Source Stream ID: ' + IntToStr(LocalHelper.Data[6]);
+          MTI_STREAM_INIT_REPLY              : Result := Result + ' Negotiated Bufer Size: ' + IntToStr((Localhelper.Data[2] shl 8) or LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2) + ' Source Stream ID: ' + IntToStr(LocalHelper.Data[6]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[7]);
+          MTI_FRAME_TYPE_CAN_STREAM_SEND     : begin end;
+          MTI_STREAM_PROCEED                 : Result := Result + ' Source Stream ID: ' + IntToStr(Localhelper.Data[2]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2);
+          MTI_STREAM_COMPLETE                : Result := Result + ' Source Stream ID: ' + IntToStr(Localhelper.Data[2]) + ' Destination Stream ID: ' + IntToStr(LocalHelper.Data[3]) + ' Flags: 0x' + IntToHex(LocalHelper.Data[4], 2) + ' Additional Flags: 0x' + IntToHex(LocalHelper.Data[5], 2);
+        end
+      end;
+
+      if LocalHelper.MTI = MTI_OPTIONAL_INTERACTION_REJECTED then
+      begin
+      end;
+
+      // SNII/SNIP
+      if LocalHelper.MTI = MTI_SIMPLE_NODE_INFO_REPLY then
+        Result := Result + RawHelperDataToStr(LocalHelper, True);
+
+      // STNIP
+      if LocalHelper.MTI = MTI_SIMPLE_TRAIN_INFO_REPLY then
+        Result := Result + RawHelperDataToStr(LocalHelper, True);
+
+      // Events
+      if (LocalHelper.MTI = MTI_PRODUCER_IDENDIFY) or (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_SET) or (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_CLEAR) or
+        (LocalHelper.MTI = MTI_PRODUCER_IDENTIFIED_UNKNOWN) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFY) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_SET) or
+        (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_CLEAR) or (LocalHelper.MTI = MTI_CONSUMER_IDENTIFIED_UNKNOWN) or (LocalHelper.MTI = MTI_PC_EVENT_REPORT)
+      then begin
+          Result := Result + 'EventID: ' + EventIDToString(@LocalHelper.Data);
+      end;
+
+      // Traction Protocol
+      if LocalHelper.MTI = MTI_TRACTION_PROTOCOL then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
+        if Assigned(MultiFrame) then
+        begin
+          case MultiFrame.DataArray[0] of
+              TRACTION_SPEED_DIR :
                 begin
-                  if DWord( f) and $80000000 = $80000000 then
-                    Result := Result + '-0.0'
-                  else
-                    Result := Result + '+0.0'
-                end else
-                  Result := Result + IntToStr( round(f));
-              end;
-            TRACTION_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(4, 5), 2) + ']';
-            TRACTION_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
-            TRACTION_QUERY_SPEED : Result := Result + ' Query Speeds';
-            TRACTION_QUERY_FUNCTION : Result := Result + ' Query Function - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + ']';
-            TRACTION_CONTROLLER_CONFIG :
-              begin;
-                case MultiFrame.DataArray[1] of
-                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                    begin
-                      if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                        Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
-                      else
-                        Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
-                    end;
-                  TRACTION_CONTROLLER_CONFIG_RELEASE :
-                    begin
-                      if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                        Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
-                      else
-                        Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
-                    end;
-                  TRACTION_CONTROLLER_CONFIG_QUERY :
-                    begin
-                      Result := Result + ' Controller Config Query';
-                    end;
-                  TRACTION_CONTROLLER_CONFIG_NOTIFY :
-                    begin
-                      if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                        Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
-                      else
-                        Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
-                    end
-                end
-              end;
-            TRACTION_CONSIST :
-              begin
-                case MultiFrame.DataArray[1] of
-                  TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach';
-                  TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach';
-                  TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query';
-                end
-              end;
-            TRACTION_MANAGE :
-              begin
-                case MultiFrame.DataArray[1] of
-                    TRACTION_MANAGE_RESERVE : Result := Result + 'Traction Management Reserve';
-                    TRACTION_MANAGE_RELEASE : Result := Result + 'Traction Management Release'
-                end
-              end
-        else
-          Result := Result + 'Unknown Traction Operation';
-        end;
-
-        FreeAndNil(MultiFrame);
-      end;
-    end;
-
-    // Traction Protocol Reply
-    if LocalHelper.MTI = MTI_TRACTION_REPLY then
-    begin
-      MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
-      if Assigned(MultiFrame) then
-      begin
-        case MultiFrame.DataArray[0] of
-            TRACTION_QUERY_SPEED :
-              begin
-                Result := Result + 'Query Speed Reply : Set Speed = ';
-                  Half := (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2];
-                  if Half = $FFFF then
+                  Result := Result + ' LCC Speed/Dir Operation; Speed = ';
+                  f := HalfToFloat( (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2]);
+                  if f = 0 then
                   begin
-                    Result := Result + 'NaN'
+                    if DWord( f) and $80000000 = $80000000 then
+                      Result := Result + '-0.0'
+                    else
+                      Result := Result + '+0.0'
                   end else
-                  begin
-                    f := HalfToFloat( Half);
-                    if f = 0 then
-                    begin
-                      if DWord( f) and $80000000 = $80000000 then
-                        Result := Result + '-0.0'
-                      else
-                        Result := Result + '+0.0'
-                    end else
-                      Result := Result + IntToStr( round(f));
-                  end;
-
-                  Result := Result + ': Status = ' + MultiFrame.ExtractDataBytesAsHex(3, 3);
-
-                  Result := Result + ': Commanded Speed = ';
-                  Half := (MultiFrame.DataArray[4] shl 8) or MultiFrame.DataArray[5];
-                  if Half = $FFFF then
-                  begin
-                    Result := Result + 'NaN'
-                  end else
-                  begin
-                    f := HalfToFloat( Half);
-                    if f = 0 then
-                    begin
-                      if DWord( f) and $80000000 = $80000000 then
-                        Result := Result + '-0.0'
-                      else
-                        Result := Result + '+0.0'
-                    end else
-                      Result := Result + IntToStr( round(f));
-                  end;
-
-                  Result := Result + ': Actual Speed = ';
-                  Half := (MultiFrame.DataArray[6] shl 8) or MultiFrame.DataArray[7];
-                  if Half = $FFFF then
-                  begin
-                    Result := Result + 'NaN'
-                  end else
-                  begin
-                    f := HalfToFloat( Half);
-                    if f = 0 then
-                    begin
-                      if DWord( f) and $80000000 = $80000000 then
-                        Result := Result + '-0.0'
-                      else
-                        Result := Result + '+0.0'
-                    end else
-                      Result := Result + IntToStr( round(f));
+                    Result := Result + IntToStr( round(f));
+                end;
+              TRACTION_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(4, 5), 2) + ']';
+              TRACTION_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
+              TRACTION_QUERY_SPEED : Result := Result + ' Query Speeds';
+              TRACTION_QUERY_FUNCTION : Result := Result + ' Query Function - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + ']';
+              TRACTION_CONTROLLER_CONFIG :
+                begin;
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_RELEASE :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_QUERY :
+                      begin
+                        Result := Result + ' Controller Config Query';
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_NOTIFY :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end
                   end
-              end;
-            TRACTION_QUERY_FUNCTION : Result := Result + 'Query Function Reply - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ', Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5));
-            TRACTION_CONTROLLER_CONFIG :
-              begin;
-                case MultiFrame.DataArray[1] of
-                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                    begin
-                      Result := Result + 'Controller Config Assign Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
-                    end;
-                  TRACTION_CONTROLLER_CONFIG_QUERY :
-                    begin
-                      if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                        Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12) + ' Alias = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(10, 11), 4)
-                      else
-                        Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12);
-                    end;
-                  TRACTION_CONTROLLER_CONFIG_NOTIFY :
-                    begin
-                      Result := Result + 'Controller Config Notify Reply - Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
-                    end;
-                end
-              end;
-            TRACTION_CONSIST :
-              begin
-                case MultiFrame.DataArray[1] of
-                  TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach Reply';
-                  TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach Reply';
-                  TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query Reply';
-                end
-              end;
-            TRACTION_MANAGE :
-              begin
-                case MultiFrame.DataArray[1] of
-                    TRACTION_MANAGE_RESERVE : Result := Result +  'Manage: Reserve' + 'Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2);
-                end
-              end
-        else
-          Result := Result + 'Unknown Traction Reply Operation';
-        end;
-
-        FreeAndNil(MultiFrame);
-      end;
-    end;
-
-    if LocalHelper.MTI = MTI_TRACTION_PROXY_PROTOCOL then
-    begin
-      MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
-      if Assigned(MultiFrame) then
-      begin
-        case MultiFrame.DataArray[0] of
-            TRACTION_PROXY_ALLOCATE : Result := Result + 'Allocate: Suggested Legacy Technology: ' + IntToStr(MultiFrame.DataArray[1]) + ' Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(2, 3) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(2, 3), 4) + '] Speed Steps = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 4));
-            TRACTION_PROXY_ATTACH   : Result := Result + 'Attach: Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 2) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 2), 4) + ']' ;
-            TRACTION_PROXY_DETACH   : Result := Result + 'Detach: Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 2) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 2), 4) + ']' ;
-            TRACTION_PROXY_MANAGE   :
-              begin
-                case MultiFrame.DataArray[1] of
-                    TRACTION_PROXY_MANAGE_RESERVE : Result := Result + 'Manage: Reserve';
-                    TRACTION_PROXY_MANAGE_RELEASE : Result := Result + 'Manage: Release'
-                else
-                  Result := Result + 'Unknown Traction Manage Command'
                 end;
-              end
-        else
-          Result := Result + 'Unknown Traction Proxy Command';
-        end;
-
-        FreeAndNil(MultiFrame);
-      end;
-    end;
-
-    if LocalHelper.MTI = MTI_TRACTION_PROXY_REPLY then
-    begin
-      MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
-      if Assigned(MultiFrame) then
-      begin
-         case MultiFrame.DataArray[0] of
-            TRACTION_PROXY_ALLOCATE :
-              begin
-                if MultiFrame.DataArray[1] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                  Result := Result + 'Flags = ' + IntToStr(MultiFrame.DataArray[1]) + ', Allocate: Technology = ' + TractionProxyTechnologyToStr(MultiFrame.DataArray[2]) + ', Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(3, 4)  and not $C000) +  ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(3, 4), 4) + '], Train NodeID ' + MultiFrame.ExtractDataBytesAsHex(5, 10) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(11, 12) + ']'
-                else
-                  Result := Result + 'Flags = ' + IntToStr(MultiFrame.DataArray[1]) + ', Allocate: Technology = ' + TractionProxyTechnologyToStr(MultiFrame.DataArray[2]) + ', Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(3, 4)  and not $C000) +  ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(3, 4), 4) + '], Train NodeID ' + MultiFrame.ExtractDataBytesAsHex(5, 10)
-              end;
-            TRACTION_PROXY_ATTACH   : Result := Result + 'Attach: ReplyCode = ' + IntToHex(MultiFrame.DataArray[1], 2);
-            TRACTION_PROXY_MANAGE   :
-              begin
-                case MultiFrame.DataArray[1] of
-                    TRACTION_PROXY_MANAGE_RESERVE : Result := Result + 'Manage: Reserve' + 'Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2);
-                else
-                  Result := Result + 'Unknown Traction Manage Command'
+              TRACTION_CONSIST :
+                begin
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach';
+                    TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach';
+                    TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query';
+                  end
                 end;
-              end
-        else
-          Result := Result + 'Unknown Traction Proxy Command';
-        end;
+              TRACTION_MANAGE :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_MANAGE_RESERVE : Result := Result + 'Traction Management Reserve';
+                      TRACTION_MANAGE_RELEASE : Result := Result + 'Traction Management Release'
+                  end
+                end
+          else
+            Result := Result + 'Unknown Traction Operation';
+          end;
 
-        FreeAndNil(MultiFrame);
+          FreeAndNil(MultiFrame);
+        end;
+      end;
+
+      // Traction Protocol Reply
+      if LocalHelper.MTI = MTI_TRACTION_REPLY then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
+        if Assigned(MultiFrame) then
+        begin
+          case MultiFrame.DataArray[0] of
+              TRACTION_QUERY_SPEED :
+                begin
+                  Result := Result + 'Query Speed Reply : Set Speed = ';
+                    Half := (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end;
+
+                    Result := Result + ': Status = ' + MultiFrame.ExtractDataBytesAsHex(3, 3);
+
+                    Result := Result + ': Commanded Speed = ';
+                    Half := (MultiFrame.DataArray[4] shl 8) or MultiFrame.DataArray[5];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end;
+
+                    Result := Result + ': Actual Speed = ';
+                    Half := (MultiFrame.DataArray[6] shl 8) or MultiFrame.DataArray[7];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end
+                end;
+              TRACTION_QUERY_FUNCTION : Result := Result + 'Query Function Reply - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ', Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5));
+              TRACTION_CONTROLLER_CONFIG :
+                begin;
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                      begin
+                        Result := Result + 'Controller Config Assign Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_QUERY :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12) + ' Alias = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(10, 11), 4)
+                        else
+                          Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12);
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_NOTIFY :
+                      begin
+                        Result := Result + 'Controller Config Notify Reply - Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
+                      end;
+                  end
+                end;
+              TRACTION_CONSIST :
+                begin
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach Reply';
+                    TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach Reply';
+                    TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query Reply';
+                  end
+                end;
+              TRACTION_MANAGE :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_MANAGE_RESERVE : Result := Result +  'Manage: Reserve' + 'Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2);
+                  end
+                end
+          else
+            Result := Result + 'Unknown Traction Reply Operation';
+          end;
+
+          FreeAndNil(MultiFrame);
+        end;
+      end;
+
+      if LocalHelper.MTI = MTI_TRACTION_PROXY_PROTOCOL then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
+        if Assigned(MultiFrame) then
+        begin
+          case MultiFrame.DataArray[0] of
+              TRACTION_PROXY_ALLOCATE : Result := Result + 'Allocate: Suggested Legacy Technology: ' + IntToStr(MultiFrame.DataArray[1]) + ' Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(2, 3) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(2, 3), 4) + '] Speed Steps = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 4));
+              TRACTION_PROXY_ATTACH   : Result := Result + 'Attach: Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 2) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 2), 4) + ']' ;
+              TRACTION_PROXY_DETACH   : Result := Result + 'Detach: Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 2) and not $C000) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 2), 4) + ']' ;
+              TRACTION_PROXY_MANAGE   :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_PROXY_MANAGE_RESERVE : Result := Result + 'Manage: Reserve';
+                      TRACTION_PROXY_MANAGE_RELEASE : Result := Result + 'Manage: Release'
+                  else
+                    Result := Result + 'Unknown Traction Manage Command'
+                  end;
+                end
+          else
+            Result := Result + 'Unknown Traction Proxy Command';
+          end;
+
+          FreeAndNil(MultiFrame);
+        end;
+      end;
+
+      if LocalHelper.MTI = MTI_TRACTION_PROXY_REPLY then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
+        if Assigned(MultiFrame) then
+        begin
+           case MultiFrame.DataArray[0] of
+              TRACTION_PROXY_ALLOCATE :
+                begin
+                  if MultiFrame.DataArray[1] and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                    Result := Result + 'Flags = ' + IntToStr(MultiFrame.DataArray[1]) + ', Allocate: Technology = ' + TractionProxyTechnologyToStr(MultiFrame.DataArray[2]) + ', Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(3, 4)  and not $C000) +  ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(3, 4), 4) + '], Train NodeID ' + MultiFrame.ExtractDataBytesAsHex(5, 10) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(11, 12) + ']'
+                  else
+                    Result := Result + 'Flags = ' + IntToStr(MultiFrame.DataArray[1]) + ', Allocate: Technology = ' + TractionProxyTechnologyToStr(MultiFrame.DataArray[2]) + ', Train ID = ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(3, 4)  and not $C000) +  ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(3, 4), 4) + '], Train NodeID ' + MultiFrame.ExtractDataBytesAsHex(5, 10)
+                end;
+              TRACTION_PROXY_ATTACH   : Result := Result + 'Attach: ReplyCode = ' + IntToHex(MultiFrame.DataArray[1], 2);
+              TRACTION_PROXY_MANAGE   :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_PROXY_MANAGE_RESERVE : Result := Result + 'Manage: Reserve' + 'Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2);
+                  else
+                    Result := Result + 'Unknown Traction Manage Command'
+                  end;
+                end
+          else
+            Result := Result + 'Unknown Traction Proxy Command';
+          end;
+
+          FreeAndNil(MultiFrame);
+        end;
       end;
     end;
+  finally
+    LocalHelper.Free
   end;
 end;
 
@@ -1108,20 +967,81 @@ const
   LF = #13#10;
 var
   i: Integer;
- // MTI: DWord;
+  HeaderOffset: Integer;
+  iHeader: Integer;
+  MTI: DWord;
 begin
   // ARGGGG... this unit assumes CAN MTIs........  Need to update
  // MTI := (ByteArray[17] shl 8) or ByteArray[18];
 //  MessageStr := MessageStr +  'MTI: ' + MTI_ToString(MTI) + LF + 'Header: ';
-  MessageStr := MessageStr + LF + 'TCP Header: ';
-  for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
-    MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
 
-  MessageStr := MessageStr + LF + 'TCP Message: ';
-  for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
-    MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
+  if Paused then Exit;
+  SynEditLog.BeginUpdate();
+  try
+    HeaderOffset := 0;
+    iHeader := 0;
+    repeat
+      SynEditLog.Lines.Add(MessageStr);
+      MessageStr := '  Header ' + IntToStr(iHeader) + ' : ';
+      for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
+        MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
+      SynEditLog.Lines.Add(MessageStr);
+      if Detailed then
+      begin
+        SynEditLog.Lines.Add('    Flags = $' + IntToHex(ExtractDataBytesAsInt(ByteArray, HeaderOffset, HeaderOffset + 1), 4));
+        SynEditLog.Lines.Add('    NumBytes = ' + IntToStr(ExtractDataBytesAsInt(ByteArray, HeaderOffset + 2, HeaderOffset + 4)));
+        SynEditLog.Lines.Add('    Originating/Gateway Node = 0x' + IntToHex(ExtractDataBytesAsInt(ByteArray, HeaderOffset + 5, HeaderOffset + 10), 12));
+        SynEditLog.Lines.Add('    Message Capture Time = ' + IntToStr(ExtractDataBytesAsInt(ByteArray, HeaderOffset + 11, HeaderOffset + 16)));
+      end;
 
-  PrintToSynEdit(MessageStr, SynEditLog,  Paused, Detailed, JMRIFormat);
+      if ByteArray[HeaderOffset] and %01000000 <> 0 then
+      begin
+        Inc(HeaderOffset, MAX_HEADER_ONLY_LEN);
+        Inc(iHeader);
+      end;
+    until ByteArray[HeaderOffset] and %01000000 = 0;
+
+    MessageStr := '  Msg: ';
+    for i := (MAX_HEADER_ONLY_LEN + HeaderOffset) to Length(ByteArray) - 1 do
+      MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
+    SynEditLog.Lines.Add(MessageStr);
+    if Detailed then
+    begin
+      MTI := ExtractDataBytesAsInt(ByteArray, MAX_HEADER_ONLY_LEN + HeaderOffset, MAX_HEADER_ONLY_LEN + HeaderOffset + 1);
+      // Assumes is an OLCB message since no Link messages are defined yet
+      SynEditLog.Lines.Add('    MTI = $' + IntToHex(MTI, 4) + ' ' + MTI_ToString((MTI shl 12) or $09000000));
+      SynEditLog.Lines.Add('    Source Node = 0x' + IntToHex(ExtractDataBytesAsInt(ByteArray, MAX_HEADER_ONLY_LEN + HeaderOffset + 2, MAX_HEADER_ONLY_LEN + HeaderOffset + 7), 12));
+      MessageStr := '';
+      if (MTI shl 12) and MTI_ADDRESSED_MASK <> 0 then
+      begin
+        SynEditLog.Lines.Add('    Destination Node = 0x' + IntToHex(ExtractDataBytesAsInt(ByteArray, MAX_HEADER_ONLY_LEN + HeaderOffset + 8, MAX_HEADER_ONLY_LEN + HeaderOffset + 13), 12));
+        for i := (MAX_HEADER_ONLY_LEN + HeaderOffset + 14) to Length(ByteArray) - 1 do
+        begin
+          if JMRIFormat then
+            MessageStr := MessageStr + ' ' + Char(ByteArray[i])
+          else
+            MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
+        end;
+      end else
+      begin
+        SynEditLog.Lines.Add('    Destination Node = [none]');
+        for i := (MAX_HEADER_ONLY_LEN + HeaderOffset + 8) to Length(ByteArray) - 1 do
+        begin
+          if JMRIFormat then
+            MessageStr := MessageStr + ' ' + Char(ByteArray[i])
+          else
+            MessageStr := MessageStr + ' ' + IntToHex(ByteArray[i], 2);
+        end;
+      end;
+      if Length(MessageStr) > 0 then
+        SynEditLog.Lines.Add('    Payload: ' + MessageStr)
+      else
+        SynEditLog.Lines.Add('    Payload: [empty]');
+    end;
+  finally
+    SynEditLog.CaretY := SynEditLog.LineHeight * SynEditLog.Lines.Count;
+     SynEditLog.EndUpdate;
+  end;
 end;
 
 { TMultiFrameBuffer }
@@ -1490,13 +1410,11 @@ end;
 
 
 initialization
-  LocalHelper := TLccMessageHelper.Create;
   MultiFrames := TMultiFrameBufferList.Create;
   LogStrings := TStringList.Create;
 
 finalization
   FreeAndNil(MultiFrames);
-  FreeAndNil(LocalHelper);
   FreeAndNil(LogStrings);
 
 end.

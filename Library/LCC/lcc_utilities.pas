@@ -29,10 +29,12 @@ uses
   function MTI2String(MTI: Word): string;
   function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
+  procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
   procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
   function NullArrayToString(var ANullArray: array of Byte): LccString;
   function EventIDToString(EventID: TEventID): string;
+  function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
 
 {$IFDEF FPC}
 type
@@ -202,6 +204,18 @@ begin
             (EventID1[7] = EventID2[7])
 end;
 
+procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID
+  );
+var
+  i: Integer;
+begin
+  EventID := NULL_EVENT_ID;
+  for i := 0 to 5 do
+    EventID[i] := NodeID[i];
+  EventID[6] := _Hi(LowBytes);
+  EventID[7] := _Lo(LowBytes);
+end;
+
 function NullNodeID(ANodeID: TNodeID): Boolean;
 begin
   Result := (ANodeID[0] = 0) and (ANodeID[1] = 0)
@@ -263,6 +277,23 @@ begin
       Result := Result + IntToHex(EventID[i], 2) + '.'
     else
       Result := Result + IntToHex(EventID[i], 2);
+  end;
+end;
+
+function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
+var
+  i, Offset, Shift: Integer;
+  ByteAsQ, ShiftedByte: QWord;
+begin
+  Result := 0;
+  Offset := EndByteIndex - StartByteIndex;
+  for i := StartByteIndex to EndByteIndex do
+  begin
+    Shift := Offset * 8;
+    ByteAsQ := QWord( DataArray[i]);
+    ShiftedByte := ByteAsQ shl Shift;
+    Result := Result or ShiftedByte;
+    Dec(Offset)
   end;
 end;
 

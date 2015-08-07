@@ -1,15 +1,17 @@
 object Form1: TForm1
-  Left = 427
+  Left = 339
   Height = 451
-  Top = 202
+  Top = 142
   Width = 742
   Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 422
+  ClientHeight = 451
   ClientWidth = 742
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '1.5'
+  LCLVersion = '1.4.0.4'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -21,12 +23,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 548
+      Left = 526
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 387
+      Left = 374
       Height = 44
       Top = 2
       Width = 22
@@ -34,7 +36,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 316
+      Left = 305
       Top = 2
       Action = ActionComPort
     end
@@ -44,17 +46,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 409
+      Left = 396
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButtonEthUseTCP: TToolButton
-      Left = 226
+      Left = 221
       Top = 2
       Action = ActionTCP
     end
     object ToolButtonSpace0: TToolButton
-      Left = 294
+      Left = 283
       Height = 44
       Top = 2
       Width = 22
@@ -62,12 +64,12 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonProperties: TToolButton
-      Left = 1
-      Top = 46
+      Left = 623
+      Top = 2
       Action = ActionPropertiesWindow
     end
     object ToolButtonSpace2: TToolButton
-      Left = 626
+      Left = 601
       Height = 44
       Top = 2
       Width = 22
@@ -75,15 +77,15 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonEthClient: TToolButton
-      Left = 116
+      Left = 113
       Top = 2
       Action = ActionEthernetClient
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 25
-    Top = 397
+    Height = 21
+    Top = 292
     Width = 742
     Panels = <    
       item
@@ -99,28 +101,18 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 211
+    Height = 244
     Top = 48
-    Width = 210
+    Width = 240
     Align = alLeft
-    ClientHeight = 211
-    ClientWidth = 210
+    ClientHeight = 244
+    ClientWidth = 240
     TabOrder = 2
-    object LabelMyNodes: TLabel
-      Left = 1
-      Height = 21
-      Top = 1
-      Width = 208
-      Align = alTop
-      Alignment = taCenter
-      Caption = 'My Nodes'
-      ParentColor = False
-    end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 188
-      Top = 22
-      Width = 208
+      Height = 219
+      Top = 24
+      Width = 238
       HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
       VertScrollBar.Page = 1
@@ -145,43 +137,47 @@ object Form1: TForm1
       OnFocusedChanged = LccNodeSelectorFocusedChanged
       TextLayout = tlCenter
     end
+    object Panel2: TPanel
+      Left = 1
+      Height = 23
+      Top = 1
+      Width = 238
+      Align = alTop
+      ClientHeight = 23
+      ClientWidth = 238
+      TabOrder = 1
+      object LabelMyNodes: TLabel
+        Left = 1
+        Height = 21
+        Top = 1
+        Width = 236
+        Align = alClient
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'My Nodes'
+        Layout = tlCenter
+        ParentColor = False
+      end
+    end
   end
   object SplitterMain: TSplitter
-    Left = 210
-    Height = 211
+    Left = 240
+    Height = 244
     Top = 48
     Width = 8
-  end
-  object CheckBoxAutoQueryInfo: TCheckBox
-    Left = 232
-    Height = 25
-    Top = 64
-    Width = 356
-    Caption = 'Automatically query new Nodes for information'
-    OnChange = CheckBoxAutoQueryInfoChange
-    TabOrder = 4
-  end
-  object CheckBoxAutoSendVerifyNodes: TCheckBox
-    Left = 233
-    Height = 25
-    Top = 90
-    Width = 393
-    Caption = 'Automatically send a Verify Nodes query on Connect'
-    OnChange = CheckBoxAutoSendVerifyNodesChange
-    TabOrder = 5
   end
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 259
+    Top = 313
     Width = 742
     Align = alBottom
     ClientHeight = 138
     ClientWidth = 742
-    TabOrder = 6
+    TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 21
+      Height = 17
       Top = 1
       Width = 724
       Align = alTop
@@ -192,8 +188,8 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 115
-      Top = 22
+      Height = 119
+      Top = 18
       Width = 740
       Align = alClient
       Columns = <      
@@ -211,30 +207,140 @@ object Form1: TForm1
         end      
         item
           Caption = 'Server Port'
-          Width = 240
+          Width = 242
         end>
       GridLines = True
       TabOrder = 0
       ViewStyle = vsReport
     end
   end
-  object CheckBoxEthHub: TCheckBox
-    Left = 233
-    Height = 25
-    Top = 128
-    Width = 337
-    Caption = 'Hub Mode [Ethernet Server] (In development)'
-    OnChange = CheckBoxEthHubChange
-    TabOrder = 7
-  end
-  object CheckBoxEthComportHub: TCheckBox
-    Left = 233
-    Height = 25
-    Top = 152
-    Width = 387
-    Caption = 'Hub Mode [Ethernet <-> Comport] (In developement)'
-    OnChange = CheckBoxEthComportHubChange
-    TabOrder = 8
+  object Panel1: TPanel
+    Left = 248
+    Height = 244
+    Top = 48
+    Width = 494
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 244
+    ClientWidth = 494
+    TabOrder = 5
+    object PageControlMain: TPageControl
+      Left = 0
+      Height = 244
+      Top = 0
+      Width = 494
+      ActivePage = TabSheetMain
+      Align = alClient
+      TabIndex = 0
+      TabOrder = 0
+      object TabSheetMain: TTabSheet
+        Caption = 'Main'
+        ClientHeight = 213
+        ClientWidth = 490
+        object CheckBoxEthComportHub: TCheckBox
+          Left = 8
+          Height = 24
+          Top = 184
+          Width = 378
+          Caption = 'Hub Mode [Ethernet <-> Comport] (In developement)'
+          OnChange = CheckBoxEthComportHubChange
+          TabOrder = 0
+        end
+        object CheckBoxEthHub: TCheckBox
+          Left = 8
+          Height = 24
+          Top = 160
+          Width = 329
+          Caption = 'Hub Mode [Ethernet Server] (In development)'
+          OnChange = CheckBoxEthHubChange
+          TabOrder = 1
+        end
+        object CheckBoxAutoSendVerifyNodes: TCheckBox
+          Left = 8
+          Height = 24
+          Top = 56
+          Width = 375
+          Caption = 'Automatically send a Verify Nodes query on Connect'
+          OnChange = CheckBoxAutoSendVerifyNodesChange
+          TabOrder = 2
+        end
+        object CheckBoxAutoQueryInfo: TCheckBox
+          Left = 8
+          Height = 24
+          Top = 32
+          Width = 431
+          Caption = 'Automatically query newly discovered nodes for information'
+          OnChange = CheckBoxAutoQueryInfoChange
+          TabOrder = 3
+        end
+        object CheckBoxDumbNode: TCheckBox
+          Left = 8
+          Height = 24
+          Top = 8
+          Width = 397
+          Caption = 'Make me a dumb node that only speaks when spoken to'
+          OnChange = CheckBoxDumbNodeChange
+          TabOrder = 4
+        end
+      end
+      object TabSheet1: TTabSheet
+        Caption = 'Send Msgs'
+      end
+      object TabSheetDebug: TTabSheet
+        Caption = 'Debug'
+        ClientHeight = 213
+        ClientWidth = 490
+        object Label1: TLabel
+          Left = 8
+          Height = 16
+          Top = 72
+          Width = 96
+          Caption = 'Outgoing Msgs'
+          ParentColor = False
+        end
+        object Label3: TLabel
+          Left = 194
+          Height = 16
+          Top = 72
+          Width = 8
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label4: TLabel
+          Left = 194
+          Height = 16
+          Top = 88
+          Width = 8
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label2: TLabel
+          Left = 8
+          Height = 16
+          Top = 88
+          Width = 147
+          Caption = 'Outgoing Waiting Msgs'
+          ParentColor = False
+        end
+        object ButtonShowOutgoingMessages: TButton
+          Left = 8
+          Height = 22
+          Top = 8
+          Width = 243
+          Caption = 'Show Outgoing Messages'
+          TabOrder = 0
+        end
+        object ButtonShowWaitingSchedulerMessages: TButton
+          Left = 8
+          Height = 22
+          Top = 36
+          Width = 243
+          Caption = 'Show Waiting Scheduler Messages'
+          OnClick = ButtonShowWaitingSchedulerMessagesClick
+          TabOrder = 1
+        end
+      end
+    end
   end
   object LccSettings: TLccSettings
     ComPort.AutoConnectAtBoot = False
@@ -261,8 +367,8 @@ object Form1: TForm1
     OnSaveToFile = LccSettingsSaveToFile
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
-    left = 256
-    top = 168
+    left = 624
+    top = 48
   end
   object LccComPort: TLccComPort
     Hub = False
@@ -273,8 +379,8 @@ object Form1: TForm1
     OnReceiveMessage = LccComPortReceiveMessage
     SchedulerPipelineSize = 1
     SleepCount = 0
-    left = 313
-    top = 184
+    left = 624
+    top = 96
   end
   object LccNodeManager: TLccNodeManager
     AutoInterrogateDiscoveredNodes = False
@@ -289,18 +395,19 @@ object Form1: TForm1
     OnLccNodeConfigMemOptionsReply = LccNodeManagerLccNodeConfigMemOptionsReply
     OnLccNodeConfigMemReadReply = LccNodeManagerLccNodeConfigMemReadReply
     OnLccNodeConfigMemWriteReply = LccNodeManagerLccNodeConfigMemWriteReply
+    OnLccNodeCreate = LccNodeManagerLccNodeCreate
     OnNodeIDChanged = LccNodeManagerNodeIDChanged
     OnLccNodeInitializationComplete = LccNodeManagerLccNodeInitializationComplete
     OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply
     OnLccNodeSimpleNodeIdentReply = LccNodeManagerLccNodeSimpleNodeIdentReply
     OnLccNodeVerifiedNodeID = LccNodeManagerLccNodeVerifiedNodeID
-    left = 256
-    top = 241
+    left = 624
+    top = 145
   end
   object ActionList: TActionList
     Images = ImageListMain
-    left = 344
-    top = 120
+    left = 624
+    top = 240
     object ActionToolsSettingsShowWin: TAction
       Caption = 'Settings...'
       ImageIndex = 0
@@ -718,10 +825,14 @@ object Form1: TForm1
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
     OnReceiveMessage = LccEthernetServerReceiveMessage
-    SchedulerPipelineSize = 1
+    OnSchedulerAddOutgoingMessage = LccEthernetServerSchedulerAddOutgoingMessage
+    OnSchedulerRemoveOutgoingMessage = LccEthernetServerSchedulerRemoveOutgoingMessage
+    OnSchedulerAddWaitingForReplyMessage = LccEthernetServerSchedulerAddWaitingForReplyMessage
+    OnSchedulerRemoveWaitingForReplyMessage = LccEthernetServerSchedulerRemoveWaitingForReplyMessage
+    SchedulerPipelineSize = 5
     SleepCount = 0
-    left = 400
-    top = 232
+    left = 552
+    top = 112
   end
   object ImageListNodeList: TImageList
     Height = 60
@@ -3461,16 +3572,22 @@ object Form1: TForm1
   object LccEthernetClient: TLccEthernetClient
     Hub = False
     Gridconnect = False
+    LccSettings = LccSettings
+    NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
-    SchedulerPipelineSize = 1
+    OnSchedulerAddOutgoingMessage = LccEthernetClientSchedulerAddOutgoingMessage
+    OnSchedulerRemoveOutgoingMessage = LccEthernetClientSchedulerRemoveOutgoingMessage
+    OnSchedulerAddWaitingForReplyMessage = LccEthernetClientSchedulerAddWaitingForReplyMessage
+    OnSchedulerRemoveWaitingForReplyMessage = LccEthernetClientSchedulerRemoveWaitingForReplyMessage
+    SchedulerPipelineSize = 5
     SleepCount = 0
-    left = 449
-    top = 177
+    left = 544
+    top = 192
   end
   object MainMenu: TMainMenu
-    left = 539
-    top = 145
+    left = 624
+    top = 192
     object MenuItemConnection: TMenuItem
       Caption = 'Connection'
       object MenuItemConnectionComport: TMenuItem

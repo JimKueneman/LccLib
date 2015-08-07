@@ -11,7 +11,7 @@ unit lcc_comport;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, contnrs,
   {$IFDEF FPC}
   LResources, Forms, Controls, Graphics, Dialogs,
   {$ENDIF}
@@ -154,6 +154,7 @@ type
     function OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
     function OpenComPortWithLccSettings: TLccComPortThread;
     procedure CloseComPort( ComPortThread: TLccComPortThread);
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure ClearSchedulerQueues;
   published
@@ -317,6 +318,28 @@ destructor TLccComPort.Destroy;
 begin
   FreeAndNil( FComPortThreads);
   inherited Destroy;
+end;
+
+procedure TLccComPort.FillWaitingMessageList(WaitingMessageList: TObjectList);
+var
+  L: TList;
+  ComPortThread: TLccComPortThread;
+  i, j: Integer;
+begin
+  if Assigned(WaitingMessageList) then
+  begin
+    L := ComPortThreads.LockList;
+    try
+      for i := 0 to L.Count - 1 do
+      begin
+        ComPortThread := TLccComPortThread( L[i]);
+        for j := 0 to ComPortThread.Scheduler.MessagesWaitingForReplyList.Count - 1 do
+          WaitingMessageList.Add( (ComPortThread.Scheduler.MessagesWaitingForReplyList[j] as TLccMessage).Clone);
+      end;
+    finally
+      ComPortThreads.UnlockList;
+    end;
+  end;
 end;
 
 function TLccComPort.FormatComPortString(ComPort: string): string;

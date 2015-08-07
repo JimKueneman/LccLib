@@ -5,7 +5,7 @@ unit lcc_common_classes;
 interface
 
 uses
-  Classes, SysUtils, lcc_messages;
+  Classes, SysUtils, lcc_messages, contnrs;
 
 type
    { TLccEthernetBaseThread }
@@ -23,6 +23,7 @@ type
   TLccHardwareConnectionManager = class(TComponent)
   public
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); virtual; abstract;
   end;
 
 implementation
