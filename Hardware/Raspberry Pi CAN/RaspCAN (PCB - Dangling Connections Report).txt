@@ -1,0 +1,15 @@
+Dangling Connections Report
+---------------------------
+
+Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Dangling Connections Report).txt
+Report Written:     Saturday, August 08, 2015
+Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
+Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
+Design Title:       
+Created:            8/7/2015 8:30:42 PM
+Last Saved:         8/8/2015 3:03:03 PM
+Editing Time:       176 min
+Units:              mil (precision 0)
+
+
+End Of Report.

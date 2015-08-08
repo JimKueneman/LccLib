@@ -435,7 +435,10 @@ begin
     OSXPrefCmd := TMenuItem.Create(Self);
     OSXPrefCmd.Action := ActionToolsPreferenceShowMac;
     OSXMenu.Add(OSXPrefCmd);
+    // Defaults
     ActionToolsSettingsShowWin.Visible := False;
+    CheckBoxDumbNode.Checked := True;
+
     {$ELSE}
     AppAboutCmd := TMenuItem.Create(Self);
     AppAboutCmd.Action := ActionHelpAboutShow;

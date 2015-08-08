@@ -982,7 +982,7 @@ begin
       OutgoingGridConnect.Add(MessageStr);
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'S: ' + MessageStr,
+        PrintToSynEdit( 'S EthSrv:' + MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
                         Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
@@ -997,7 +997,7 @@ begin
         OutgoingCircularArray.AddChunk(ByteArray);
         {$IFDEF LOGGING}
         if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-          PrintTCPToSynEdit( '...Sending TCP...',
+          PrintTCPToSynEdit( 'EthSrv ...Sending TCP...',
                           ByteArray,
                           Owner.LoggingFrame.SynEdit,
                           Owner.LoggingFrame.ActionLogPause.Checked,
@@ -1068,19 +1068,20 @@ begin
   begin
     // Called in the content of the main thread through Syncronize
     // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
 
     if Gridconnect then
     begin
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'R: ' + EthernetRec.MessageStr,
+        PrintToSynEdit( 'R EthSrv: ' + EthernetRec.MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
                         Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                         Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
       {$ENDIF}
+
+      if Assigned(OnReceiveMessage) then
+        OnReceiveMessage(Self, FEthernetRec);
 
       LocalMessage := nil;
       if (Scheduler <> nil) then
@@ -1109,13 +1110,17 @@ begin
     begin   // TCP Protocol
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame)  and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintTCPToSynEdit( '...Receiving TCP...',
+        PrintTCPToSynEdit( 'EthSrv ...Receiving TCP...',
                         EthernetRec.MessageArray,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
                         Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                         Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
       {$ENDIF}
+
+      if Assigned(OnReceiveMessage) then
+        OnReceiveMessage(Self, FEthernetRec);
+
       LocalMessage := nil;
       if (Scheduler <> nil) then
       begin

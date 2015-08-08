@@ -1,0 +1,22 @@
+Back Annotation Results Report
+------------------------------
+
+Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Back Annotation Results Report).txt
+Report Written:     Saturday, August 08, 2015
+Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
+Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
+Design Title:       
+Created:            8/7/2015 8:30:42 PM
+Last Saved:         8/8/2015 3:11:03 PM
+Editing Time:       184 min
+Units:              mil (precision 0)
+
+Back Annotate renames from the PCB design to all Schematic designs in project "RaspCAN".
+
+Change Value on Component 'J2' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'J2' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'J2' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'J2' - 'Distributor Part Number'. - RaspCAN.sch
+
+
+End Of Report.

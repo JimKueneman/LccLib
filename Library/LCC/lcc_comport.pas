@@ -687,7 +687,7 @@ begin
     MessageStr := AMessage.ConvertToGridConnectStr('');
     OutgoingGridConnect.Add(MessageStr);
     if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'S: ' + MessageStr,
+      PrintToSynEdit( 'S Comprt: ' + MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
                       Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
@@ -736,17 +736,17 @@ var
 begin
   if not IsTerminated then
   begin
-    // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FComPortRec);
-
     if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'R: ' + ComPortRec.MessageStr,
+      PrintToSynEdit( 'R Comprt : ' + ComPortRec.MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
                       Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                       Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+
+    // Called in the content of the main thread through Syncronize
+    // Send all raw GridConnect Messages to the event
+    if Assigned(OnReceiveMessage) then
+      OnReceiveMessage(Self, FComPortRec);
 
     LocalMessage := nil;
     if (Scheduler <> nil) and (Owner.NodeManager <> nil) then

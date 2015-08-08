@@ -1,0 +1,91 @@
+Net Completion Report
+---------------------
+
+Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Net Completion Report).txt
+Report Written:     Saturday, August 08, 2015
+Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
+Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
+Design Title:       
+Created:            8/7/2015 8:30:42 PM
+Last Saved:         8/8/2015 3:22:29 PM
+Editing Time:       195 min
+Units:              mil (precision 0)
+
+
+The following breaks in the circuit have been found:
+
+
+======================================================
+
+    Between C11.1 and C13.1 on net 'GND'
+
+    Between C13.1 and J10.14 on net 'GND'
+
+    Between J10.14 and J10.15 on net 'GND'
+
+    Between J10.14 and J10.11 on net 'GND'
+
+    Between C11.1 and C5.1 on net 'GND'
+
+    Between C5.1 and J4.3 on net 'GND'
+
+    Between C5.1 and U4.8 on net 'GND'
+
+    Between U4.8 and U4.19 on net 'GND'
+
+    Between C8.1 and J1.25 on net 'GND'
+
+    Between J1.25 and J1.30 on net 'GND'
+
+    Between J1.30 and J1.34 on net 'GND'
+
+    Between J1.34 and C15.1 on net 'GND'
+
+    Between C15.1 and U8.2 on net 'GND'
+
+    Between C8.1 and J1.20 on net 'GND'
+
+    Between J1.20 and J1.14 on net 'GND'
+
+    Between J1.14 and J1.9 on net 'GND'
+
+    Between J1.9 and J1.6 on net 'GND'
+
+    Between U8.2 and U9.3 on net 'GND'
+
+    Between U9.3 and R18.2 on net 'GND'
+
+    Between R18.2 and J1.39 on net 'GND'
+
+    Between J1.9 and J5.1 on net 'GND'
+
+    Between J5.1 and C9.1 on net 'GND'
+
+    Between C9.1 and U4.27 on net 'GND'
+
+    Between C5.1 and J10.7 on net 'GND'
+
+    Between J10.7 and J10.6 on net 'GND'
+
+    Between J10.6 and J10.3 on net 'GND'
+
+    Between J4.3 and J2.5 on net 'GND'
+
+    Between J1.6 and C2.1 on net 'GND'
+
+    Between J5.1 and J3.2 on net 'GND'
+
+    Between J3.2 and J3.1 on net 'GND'
+
+    Between J3.1 and C4.1 on net 'GND'
+
+    Between J10.15 and C1.1 on net 'GND'
+
+    Between C1.1 and U2.2 on net 'GND'
+
+    Between J2.5 and C16.1 on net 'GND'
+
+
+Total breaks found : 34
+
+End Of Report.

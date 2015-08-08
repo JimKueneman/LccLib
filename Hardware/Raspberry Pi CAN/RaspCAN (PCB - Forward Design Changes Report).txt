@@ -1,0 +1,22 @@
+Forward Design Changes Report
+-----------------------------
+
+Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Forward Design Changes Report).txt
+Report Written:     Saturday, August 08, 2015
+Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
+Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
+Design Title:       
+Created:            8/7/2015 8:30:42 PM
+Last Saved:         8/8/2015 4:27:06 PM
+Editing Time:       226 min
+Units:              mil (precision 0)
+
+Ignoring instance F1 ("Fiducial_S50") as it is defined for PCB only (no Schematic information).
+Ignoring instance F2 ("Fiducial_S50") as it is defined for PCB only (no Schematic information).
+Ignoring instance F3 ("Fiducial_S50") as it is defined for PCB only (no Schematic information).
+Ignoring instance F4 ("Fiducial_S50") as it is defined for PCB only (no Schematic information).
+
+The designs are the same, so no design changes to forward.
+
+
+End Of Report.

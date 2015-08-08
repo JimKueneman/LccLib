@@ -4,7 +4,7 @@ object Form1: TForm1
   Top = 142
   Width = 742
   Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 446
+  ClientHeight = 466
   ClientWidth = 742
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
@@ -23,12 +23,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 402
+      Left = 493
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 285
+      Left = 350
       Height = 44
       Top = 2
       Width = 22
@@ -36,7 +36,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 236
+      Left = 288
       Top = 2
       Action = ActionComPort
     end
@@ -46,17 +46,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 307
+      Left = 372
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButtonEthUseTCP: TToolButton
-      Left = 166
+      Left = 207
       Top = 2
       Action = ActionTCP
     end
     object ToolButtonSpace0: TToolButton
-      Left = 214
+      Left = 266
       Height = 44
       Top = 2
       Width = 22
@@ -64,12 +64,12 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonProperties: TToolButton
-      Left = 483
+      Left = 586
       Top = 2
       Action = ActionPropertiesWindow
     end
     object ToolButtonSpace2: TToolButton
-      Left = 461
+      Left = 564
       Height = 44
       Top = 2
       Width = 22
@@ -77,15 +77,15 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonEthClient: TToolButton
-      Left = 86
+      Left = 105
       Top = 2
       Action = ActionEthernetClient
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 23
-    Top = 285
+    Height = 15
+    Top = 313
     Width = 742
     Panels = <    
       item
@@ -101,16 +101,16 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 237
+    Height = 265
     Top = 48
     Width = 240
     Align = alLeft
-    ClientHeight = 237
+    ClientHeight = 265
     ClientWidth = 240
     TabOrder = 2
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 212
+      Height = 240
       Top = 24
       Width = 238
       HorzScrollBar.Page = 10
@@ -162,14 +162,14 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 240
-    Height = 237
+    Height = 265
     Top = 48
     Width = 8
   end
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 308
+    Top = 328
     Width = 742
     Align = alBottom
     ClientHeight = 138
@@ -177,7 +177,7 @@ object Form1: TForm1
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 13
+      Height = 16
       Top = 1
       Width = 724
       Align = alTop
@@ -188,8 +188,8 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 123
-      Top = 14
+      Height = 120
+      Top = 17
       Width = 740
       Align = alClient
       Columns = <      
@@ -216,17 +216,17 @@ object Form1: TForm1
   end
   object Panel1: TPanel
     Left = 248
-    Height = 237
+    Height = 265
     Top = 48
     Width = 494
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 237
+    ClientHeight = 265
     ClientWidth = 494
     TabOrder = 5
     object PageControlMain: TPageControl
       Left = 0
-      Height = 237
+      Height = 265
       Top = 0
       Width = 494
       ActivePage = TabSheetMain
@@ -235,31 +235,31 @@ object Form1: TForm1
       TabOrder = 0
       object TabSheetMain: TTabSheet
         Caption = 'Main'
-        ClientHeight = 211
-        ClientWidth = 486
+        ClientHeight = 226
+        ClientWidth = 488
         object CheckBoxAutoSendVerifyNodes: TCheckBox
           Left = 8
-          Height = 17
+          Height = 18
           Top = 56
-          Width = 270
+          Width = 352
           Caption = 'Automatically send a Verify Nodes query on Connect'
           OnChange = CheckBoxAutoSendVerifyNodesChange
           TabOrder = 0
         end
         object CheckBoxAutoQueryInfo: TCheckBox
           Left = 8
-          Height = 17
+          Height = 18
           Top = 32
-          Width = 305
+          Width = 401
           Caption = 'Automatically query newly discovered nodes for information'
           OnChange = CheckBoxAutoQueryInfoChange
           TabOrder = 1
         end
         object CheckBoxDumbNode: TCheckBox
           Left = 8
-          Height = 17
+          Height = 18
           Top = 8
-          Width = 286
+          Width = 376
           Caption = 'Make me a dumb node that only speaks when spoken to'
           OnChange = CheckBoxDumbNodeChange
           TabOrder = 2

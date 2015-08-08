@@ -854,21 +854,22 @@ var
 begin
   if not IsTerminated then
   begin
-    // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
 
     if Gridconnect then
     begin
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'R: ' + EthernetRec.MessageStr,
+        PrintToSynEdit( 'R EthCli : ' + EthernetRec.MessageStr,
                         Owner.LoggingFrame.SynEdit,
                         Owner.LoggingFrame.ActionLogPause.Checked,
                         Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                         Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
       {$ENDIF}
+      // Called in the content of the main thread through Syncronize
+      // Send all raw GridConnect Messages to the event
+      if Assigned(OnReceiveMessage) then
+        OnReceiveMessage(Self, FEthernetRec);
+
       LocalMessage := nil;
       if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
         if Scheduler.IncomingMsgGridConnectStr(FEthernetRec.MessageStr, LocalMessage) then // In goes a raw message
@@ -877,13 +878,18 @@ begin
     begin
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintTCPToSynEdit( '...Receiving TCP...',
+        PrintTCPToSynEdit( 'EthCli ...Receiving TCP...',
                           EthernetRec.MessageArray,
                           Owner.LoggingFrame.SynEdit,
                           Owner.LoggingFrame.ActionLogPause.Checked,
                           Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                           Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
       {$ENDIF}
+      // Called in the content of the main thread through Syncronize
+      // Send all raw GridConnect Messages to the event
+      if Assigned(OnReceiveMessage) then
+      OnReceiveMessage(Self, FEthernetRec);
+
       LocalMessage := nil;
       if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
         if Scheduler.IncomingMsgEthernet(FEthernetRec.MessageArray, LocalMessage) then // In goes a raw message
