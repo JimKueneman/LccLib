@@ -7,16 +7,56 @@ Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 3:11:03 PM
-Editing Time:       184 min
+Last Saved:         8/8/2015 8:01:40 PM
+Editing Time:       400 min
 Units:              mil (precision 0)
 
 Back Annotate renames from the PCB design to all Schematic designs in project "RaspCAN".
 
-Change Value on Component 'J2' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'J2' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'J2' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'J2' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'C11' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'C11' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'C11' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'C11' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'C13' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'C13' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'C13' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'C13' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'C15' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'C15' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'C15' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'C15' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'C5' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'C5' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'C5' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'C5' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'C9' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'C9' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'C9' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'C9' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'R20' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'R20' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'R20' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'R20' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'R21' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'R21' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'R21' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'R21' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'J10' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'J10' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'J10' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'J10' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'R2' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'R2' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'R2' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'R2' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'R6' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'R6' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'R6' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'R6' - 'Distributor Part Number'. - RaspCAN.sch
+Change Value on Component 'R7' - 'Manufacturer'. - RaspCAN.sch
+Change Value on Component 'R7' - 'Manufacturer Part Number'. - RaspCAN.sch
+Change Value on Component 'R7' - 'Distributor'. - RaspCAN.sch
+Change Value on Component 'R7' - 'Distributor Part Number'. - RaspCAN.sch
 
 
 End Of Report.

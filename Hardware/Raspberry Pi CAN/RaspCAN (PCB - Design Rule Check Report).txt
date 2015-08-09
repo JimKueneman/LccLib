@@ -1,0 +1,62 @@
+Design Rule Check Report
+------------------------
+
+Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Design Rule Check Report).txt
+Report Written:     Saturday, August 08, 2015
+Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
+Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
+Design Title:       
+Created:            8/7/2015 8:30:42 PM
+Last Saved:         8/8/2015 8:36:19 PM
+Editing Time:       427 min
+Units:              mil (precision 0)
+
+
+Results
+=======
+
+
+No errors found
+
+
+Settings
+========
+
+
+Spacings
+
+=========
+
+Tracks        Yes
+Pads and Vias Yes
+Shapes        Yes
+Text          Yes
+Board         Yes
+Drills        Yes
+Components    No
+
+
+Manufacturing
+
+==============
+
+Min Drill Hole Size  Yes
+Min Track Width      Yes
+Min Annular Ring     Yes
+Copper Text In Board Yes
+Mirrored Text        Yes
+Routing Areas        Yes
+Drill Breakout       Yes
+
+
+Nets
+
+=====
+
+Net Completion               No
+Dangling Tracks              No
+Net Track Length Differences No
+
+
+
+End Of Report.

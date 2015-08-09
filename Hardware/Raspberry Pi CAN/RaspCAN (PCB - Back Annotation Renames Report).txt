@@ -7,15 +7,55 @@ Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 3:11:03 PM
-Editing Time:       184 min
+Last Saved:         8/8/2015 8:01:40 PM
+Editing Time:       400 min
 Units:              mil (precision 0)
 
 Outstanding PCB renames awaiting back annotation to the Schematics design.
 
-Change Value on Component 'J2' - 'Manufacturer'.
-Change Value on Component 'J2' - 'Manufacturer Part Number'.
-Change Value on Component 'J2' - 'Distributor'.
-Change Value on Component 'J2' - 'Distributor Part Number'.
+Change Value on Component 'C11' - 'Manufacturer'.
+Change Value on Component 'C11' - 'Manufacturer Part Number'.
+Change Value on Component 'C11' - 'Distributor'.
+Change Value on Component 'C11' - 'Distributor Part Number'.
+Change Value on Component 'C13' - 'Manufacturer'.
+Change Value on Component 'C13' - 'Manufacturer Part Number'.
+Change Value on Component 'C13' - 'Distributor'.
+Change Value on Component 'C13' - 'Distributor Part Number'.
+Change Value on Component 'C15' - 'Manufacturer'.
+Change Value on Component 'C15' - 'Manufacturer Part Number'.
+Change Value on Component 'C15' - 'Distributor'.
+Change Value on Component 'C15' - 'Distributor Part Number'.
+Change Value on Component 'C5' - 'Manufacturer'.
+Change Value on Component 'C5' - 'Manufacturer Part Number'.
+Change Value on Component 'C5' - 'Distributor'.
+Change Value on Component 'C5' - 'Distributor Part Number'.
+Change Value on Component 'C9' - 'Manufacturer'.
+Change Value on Component 'C9' - 'Manufacturer Part Number'.
+Change Value on Component 'C9' - 'Distributor'.
+Change Value on Component 'C9' - 'Distributor Part Number'.
+Change Value on Component 'R20' - 'Manufacturer'.
+Change Value on Component 'R20' - 'Manufacturer Part Number'.
+Change Value on Component 'R20' - 'Distributor'.
+Change Value on Component 'R20' - 'Distributor Part Number'.
+Change Value on Component 'R21' - 'Manufacturer'.
+Change Value on Component 'R21' - 'Manufacturer Part Number'.
+Change Value on Component 'R21' - 'Distributor'.
+Change Value on Component 'R21' - 'Distributor Part Number'.
+Change Value on Component 'J10' - 'Manufacturer'.
+Change Value on Component 'J10' - 'Manufacturer Part Number'.
+Change Value on Component 'J10' - 'Distributor'.
+Change Value on Component 'J10' - 'Distributor Part Number'.
+Change Value on Component 'R2' - 'Manufacturer'.
+Change Value on Component 'R2' - 'Manufacturer Part Number'.
+Change Value on Component 'R2' - 'Distributor'.
+Change Value on Component 'R2' - 'Distributor Part Number'.
+Change Value on Component 'R6' - 'Manufacturer'.
+Change Value on Component 'R6' - 'Manufacturer Part Number'.
+Change Value on Component 'R6' - 'Distributor'.
+Change Value on Component 'R6' - 'Distributor Part Number'.
+Change Value on Component 'R7' - 'Manufacturer'.
+Change Value on Component 'R7' - 'Manufacturer Part Number'.
+Change Value on Component 'R7' - 'Distributor'.
+Change Value on Component 'R7' - 'Distributor Part Number'.
 
 End Of Report.

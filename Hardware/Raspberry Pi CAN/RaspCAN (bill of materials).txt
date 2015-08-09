@@ -16,9 +16,9 @@ L7805 D2-Pak                  SMS4                          ST Microelectronics 
 MCP2551                       SM                            Microchip           MCP2551-I/SN        Digikey             MCP2551-I/SN-ND     U8                 1
 PESD1CAN                      SM                            NXP Semiconductor   PESD1CAN,215        Digikey             568-4032-1-ND       U9                 1
 PicKit 3 Header 1x6           DIL                           3M                  929400-01-36-RK     Digikey             929400E-01-36-ND    J4                 1
-Power Jack 2.5mm x 5.5mm      SM                            CUI Inc             PJ-002BH-SMT        Digikey             CP-002BHPJCT-ND     J3                 1
+Power Jack 2.1mm x 5.5mm      SM                            CUI Inc             PJ-002AH-SMT        Digikey             CP-002AHPJCT-ND     J3                 1
 PTC 1000mA Trip-500mA Hold    SM1206                        Littelfuse Inc      1206L050/15YR       Digikey             F3733CT-ND          R1                 1
-Raspberry Pi 2 B Header 2x40  DIL                           TE Connectivity/AMP 2-826925-0          Mouser              571-2-826925-0      J1                 1
+Raspberry Pi 2 B Header 2x40  DIL                           3M                  929852-01-20-RB     Mouser              517-929852-01-20-RB J1                 1
 RJ45 Amphinol Dual SMT OpenLCBSM                            Amphenol            RJSSE-5080-02       Digikey             RJSSE-5080-02-ND    J10                1
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
                                                                                                                                                               28

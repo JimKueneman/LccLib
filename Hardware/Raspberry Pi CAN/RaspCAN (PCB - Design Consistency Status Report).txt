@@ -7,8 +7,8 @@ Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 4:27:06 PM
-Editing Time:       226 min
+Last Saved:         8/8/2015 8:11:25 PM
+Editing Time:       407 min
 Units:              mil (precision 0)
 
 
