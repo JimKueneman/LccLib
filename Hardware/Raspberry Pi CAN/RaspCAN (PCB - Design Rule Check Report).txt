@@ -2,13 +2,13 @@ Design Rule Check Report
 ------------------------
 
 Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Design Rule Check Report).txt
-Report Written:     Saturday, August 08, 2015
+Report Written:     Sunday, August 09, 2015
 Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 8:36:19 PM
-Editing Time:       427 min
+Last Saved:         8/9/2015 9:35:48 PM
+Editing Time:       662 min
 Units:              mil (precision 0)
 
 
@@ -53,8 +53,8 @@ Nets
 
 =====
 
-Net Completion               No
-Dangling Tracks              No
+Net Completion               Yes
+Dangling Tracks              Yes
 Net Track Length Differences No
 
 

@@ -2,61 +2,47 @@ Back Annotation Results Report
 ------------------------------
 
 Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Back Annotation Results Report).txt
-Report Written:     Saturday, August 08, 2015
+Report Written:     Sunday, August 09, 2015
 Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 8:01:40 PM
-Editing Time:       400 min
+Last Saved:         8/9/2015 9:09:31 PM
+Editing Time:       633 min
 Units:              mil (precision 0)
 
 Back Annotate renames from the PCB design to all Schematic designs in project "RaspCAN".
 
-Change Value on Component 'C11' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'C11' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'C11' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'C11' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'C13' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'C13' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'C13' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'C13' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'C15' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'C15' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'C15' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'C15' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'C5' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'C5' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'C5' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'C5' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'C9' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'C9' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'C9' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'C9' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'R20' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'R20' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'R20' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'R20' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'R21' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'R21' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'R21' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'R21' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'J10' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'J10' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'J10' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'J10' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'R2' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'R2' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'R2' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'R2' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'R6' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'R6' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'R6' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'R6' - 'Distributor Part Number'. - RaspCAN.sch
-Change Value on Component 'R7' - 'Manufacturer'. - RaspCAN.sch
-Change Value on Component 'R7' - 'Manufacturer Part Number'. - RaspCAN.sch
-Change Value on Component 'R7' - 'Distributor'. - RaspCAN.sch
-Change Value on Component 'R7' - 'Distributor Part Number'. - RaspCAN.sch
+Error: Could not find  Component " F2".
+Error: Could not find  Component " F4".
+Error: Could not find  Component " F1".
+Error: Could not find  Component " F3".
+Renamed Component from "R18" to "R1" in design "RaspCAN.sch".
+Renamed Component from "R6" to "R2" in design "RaspCAN.sch".
+Renamed Component from "R2" to "R3" in design "RaspCAN.sch".
+Renamed Component from "R7" to "R4" in design "RaspCAN.sch".
+Renamed Component from "R21" to "R5" in design "RaspCAN.sch".
+Renamed Component from "R1" to "R6" in design "RaspCAN.sch".
+Renamed Component from "R20" to "R7" in design "RaspCAN.sch".
+Renamed Component from "C15" to "C1" in design "RaspCAN.sch".
+Renamed Component from "C8" to "C2" in design "RaspCAN.sch".
+Renamed Component from "C2" to "C3" in design "RaspCAN.sch".
+Renamed Component from "C9" to "C4" in design "RaspCAN.sch".
+Renamed Component from "C4" to "C6" in design "RaspCAN.sch".
+Renamed Component from "C16" to "C7" in design "RaspCAN.sch".
+Renamed Component from "C11" to "C8" in design "RaspCAN.sch".
+Renamed Component from "C13" to "C9" in design "RaspCAN.sch".
+Renamed Component from "C1" to "C10" in design "RaspCAN.sch".
+Renamed Component from "U9" to "U1" in design "RaspCAN.sch".
+Renamed Component from "U8" to "U2" in design "RaspCAN.sch".
+Renamed Component from "U4" to "U3" in design "RaspCAN.sch".
+Renamed Component from "U2" to "U4" in design "RaspCAN.sch".
+Renamed Component from "J3" to "J1" in design "RaspCAN.sch".
+Renamed Component from "J5" to "J2" in design "RaspCAN.sch".
+Renamed Component from "J1" to "J3" in design "RaspCAN.sch".
+Renamed Component from "J2" to "J4" in design "RaspCAN.sch".
+Renamed Component from "J4" to "J5" in design "RaspCAN.sch".
+Renamed Component from "J10" to "J6" in design "RaspCAN.sch".
 
 
 End Of Report.

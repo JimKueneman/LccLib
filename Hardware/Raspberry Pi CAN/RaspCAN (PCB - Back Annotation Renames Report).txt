@@ -2,60 +2,46 @@ Back Annotation Renames Report
 ------------------------------
 
 Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Back Annotation Renames Report).txt
-Report Written:     Saturday, August 08, 2015
+Report Written:     Sunday, August 09, 2015
 Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 8:01:40 PM
-Editing Time:       400 min
+Last Saved:         8/9/2015 9:09:31 PM
+Editing Time:       633 min
 Units:              mil (precision 0)
 
 Outstanding PCB renames awaiting back annotation to the Schematics design.
 
-Change Value on Component 'C11' - 'Manufacturer'.
-Change Value on Component 'C11' - 'Manufacturer Part Number'.
-Change Value on Component 'C11' - 'Distributor'.
-Change Value on Component 'C11' - 'Distributor Part Number'.
-Change Value on Component 'C13' - 'Manufacturer'.
-Change Value on Component 'C13' - 'Manufacturer Part Number'.
-Change Value on Component 'C13' - 'Distributor'.
-Change Value on Component 'C13' - 'Distributor Part Number'.
-Change Value on Component 'C15' - 'Manufacturer'.
-Change Value on Component 'C15' - 'Manufacturer Part Number'.
-Change Value on Component 'C15' - 'Distributor'.
-Change Value on Component 'C15' - 'Distributor Part Number'.
-Change Value on Component 'C5' - 'Manufacturer'.
-Change Value on Component 'C5' - 'Manufacturer Part Number'.
-Change Value on Component 'C5' - 'Distributor'.
-Change Value on Component 'C5' - 'Distributor Part Number'.
-Change Value on Component 'C9' - 'Manufacturer'.
-Change Value on Component 'C9' - 'Manufacturer Part Number'.
-Change Value on Component 'C9' - 'Distributor'.
-Change Value on Component 'C9' - 'Distributor Part Number'.
-Change Value on Component 'R20' - 'Manufacturer'.
-Change Value on Component 'R20' - 'Manufacturer Part Number'.
-Change Value on Component 'R20' - 'Distributor'.
-Change Value on Component 'R20' - 'Distributor Part Number'.
-Change Value on Component 'R21' - 'Manufacturer'.
-Change Value on Component 'R21' - 'Manufacturer Part Number'.
-Change Value on Component 'R21' - 'Distributor'.
-Change Value on Component 'R21' - 'Distributor Part Number'.
-Change Value on Component 'J10' - 'Manufacturer'.
-Change Value on Component 'J10' - 'Manufacturer Part Number'.
-Change Value on Component 'J10' - 'Distributor'.
-Change Value on Component 'J10' - 'Distributor Part Number'.
-Change Value on Component 'R2' - 'Manufacturer'.
-Change Value on Component 'R2' - 'Manufacturer Part Number'.
-Change Value on Component 'R2' - 'Distributor'.
-Change Value on Component 'R2' - 'Distributor Part Number'.
-Change Value on Component 'R6' - 'Manufacturer'.
-Change Value on Component 'R6' - 'Manufacturer Part Number'.
-Change Value on Component 'R6' - 'Distributor'.
-Change Value on Component 'R6' - 'Distributor Part Number'.
-Change Value on Component 'R7' - 'Manufacturer'.
-Change Value on Component 'R7' - 'Manufacturer Part Number'.
-Change Value on Component 'R7' - 'Distributor'.
-Change Value on Component 'R7' - 'Distributor Part Number'.
+Rename Component from "F2" to "F1".
+Rename Component from "F4" to "F2".
+Rename Component from "F1" to "F3".
+Rename Component from "F3" to "F4".
+Rename Component from "R18" to "R1".
+Rename Component from "R6" to "R2".
+Rename Component from "R2" to "R3".
+Rename Component from "R7" to "R4".
+Rename Component from "R21" to "R5".
+Rename Component from "R1" to "R6".
+Rename Component from "R20" to "R7".
+Rename Component from "C15" to "C1".
+Rename Component from "C8" to "C2".
+Rename Component from "C2" to "C3".
+Rename Component from "C9" to "C4".
+Rename Component from "C4" to "C6".
+Rename Component from "C16" to "C7".
+Rename Component from "C11" to "C8".
+Rename Component from "C13" to "C9".
+Rename Component from "C1" to "C10".
+Rename Component from "U9" to "U1".
+Rename Component from "U8" to "U2".
+Rename Component from "U4" to "U3".
+Rename Component from "U2" to "U4".
+Rename Component from "J3" to "J1".
+Rename Component from "J5" to "J2".
+Rename Component from "J1" to "J3".
+Rename Component from "J2" to "J4".
+Rename Component from "J4" to "J5".
+Rename Component from "J10" to "J6".
 
 End Of Report.

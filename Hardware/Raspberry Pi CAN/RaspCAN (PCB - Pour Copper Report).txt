@@ -2,14 +2,47 @@ Pour Copper Report
 ------------------
 
 Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Pour Copper Report).txt
-Report Written:     Saturday, August 08, 2015
+Report Written:     Sunday, August 09, 2015
 Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 7:44:12 PM
-Editing Time:       389 min
+Last Saved:         8/9/2015 8:52:32 PM
+Editing Time:       625 min
 Units:              mil (precision 0)
 
+J1.9 at 2470,1635 has no thermal spokes
+J1.25 at 2470,2435 has no thermal spokes
+J1.39 at 2470,3135 has no thermal spokes
+J1.46 at 2120,1435 has no thermal spokes
+J1.54 at 2120,1835 has no thermal spokes
+J1.60 at 2120,2135 has no thermal spokes
+J1.70 at 2120,2635 has no thermal spokes
+J1.74 at 2120,2835 has no thermal spokes
+J4.3 at 3300,2610 has no thermal spokes
+J5.1 at 2800,1540 has no thermal spokes
+Via at 3545,3301 has too few spokes (can fit 1, requires 2)
+Via at 2766,3285 has too few spokes (can fit 1, requires 2)
+Via at 2912,3152 has too few spokes (can fit 1, requires 2)
+Via at 2805,2775 has too few spokes (can fit 1, requires 2)
+Via at 2650,2755 has too few spokes (can fit 1, requires 2)
+Via at 3425,2386 has too few spokes (can fit 1, requires 2)
+Via at 2688,2224 has too few spokes (can fit 1, requires 2)
+Via at 2763,1875 has too few spokes (can fit 1, requires 2)
+Via at 3052,1720 has too few spokes (can fit 1, requires 2)
+Via at 3542,1510 has too few spokes (can fit 1, requires 2)
+Via at 3590,2064 has too few spokes (can fit 1, requires 2)
+Via at 3876,1950 has too few spokes (can fit 1, requires 2)
+Via at 3868,2130 has too few spokes (can fit 1, requires 2)
+Via at 3332,1025 has too few spokes (can fit 1, requires 2)
+Via at 3867,2370 has too few spokes (can fit 1, requires 2)
+Via at 3885,2750 has too few spokes (can fit 1, requires 2)
+Via at 3111,2161 has too few spokes (can fit 1, requires 2)
+Via at 2655,1038 has too few spokes (can fit 1, requires 2)
+Pad at 3339,3014 has no thermal spokes
+Pad at 3935,1303 has no thermal spokes
+Pad at 4061,1051 has no thermal spokes
+Pad at 3176,1051 has no thermal spokes
+Pad at 3176,1302 has no thermal spokes
 
 End Of Report.
