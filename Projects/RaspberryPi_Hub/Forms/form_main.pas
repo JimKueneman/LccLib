@@ -11,14 +11,15 @@ uses
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
   form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType, types,
-  lcc_utilities;
+  lcc_utilities, lcc_raspberrypi_spiport;
 
 const
     BUNDLENAME  = 'Raspberry Pi Hub';
 
     STATUS_PANEL_ETHERNET = 0;
     STATUS_PANEL_COMPORT  = 1;
-    STATUS_PANEL_NODEID   = 2;
+    STATUS_PANEL_PISPIPORT = 2;
+    STATUS_PANEL_NODEID   = 3;
 
 
 type
@@ -60,6 +61,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionRaspberryPi: TAction;
     ActionToolsPreferenceShowMac: TAction;
     ActionHelpAboutShow: TAction;
     ActionEthernetClient: TAction;
@@ -75,9 +77,11 @@ type
     LccEthernetClient: TLccEthernetClient;
     LccEthernetServer: TLccEthernetServer;
     LccNodeSelectorProducer1: TLccNodeSelector;
+    LccPiSpiPort: TLccPiSpiPort;
     LccSettings: TLccSettings;
     ListViewServerConnections: TListView;
     MainMenu: TMainMenu;
+    MenuItemConnectonRPiSPI: TMenuItem;
     MenuItemConnectionDivider0: TMenuItem;
     MenuItemConnectionUseTCP: TMenuItem;
     MenuItemConnectionEthernetServer: TMenuItem;
@@ -92,6 +96,7 @@ type
     StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
     ToolButtonSettings: TToolButton;
     ToolButtonEthClient: TToolButton;
     ToolButtonSpace1: TToolButton;
@@ -105,6 +110,7 @@ type
     procedure ActionEthernetServerExecute(Sender: TObject);
     procedure ActionHelpAboutShowExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
+    procedure ActionRaspberryPiExecute(Sender: TObject);
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
     procedure ActionTCPExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
@@ -124,6 +130,9 @@ type
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
+    procedure LccPiSpiPortConnectionStateChange(Sender: TObject;
+      PiSpiPortRec: TLccPiSpiPortRec);
+    procedure LccPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
     procedure ToolButton1Click(Sender: TObject);
@@ -176,10 +185,10 @@ procedure TForm1.ActionEthernetClientExecute(Sender: TObject);
 begin
   if ActionEthernetClient.Checked then
   begin
-    LccEthernetClient.OpenEthernetConnectionWithLccSettings;
+    LccEthernetClient.OpenConnectionWithLccSettings;
   end else
   begin
-    LccEthernetClient.CloseEthernetConnection(nil);
+    LccEthernetClient.CloseConnection(nil);
   end
 end;
 
@@ -187,10 +196,10 @@ procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
 begin
   if ActionEthernetServer.Checked then
   begin
-    LccEthernetServer.OpenEthernetConnectionWithLccSettings;
+    LccEthernetServer.OpenConnectionWithLccSettings;
   end else
   begin
-    LccEthernetServer.CloseEthernetConnection(nil);
+    LccEthernetServer.CloseConnection(nil);
   end
 end;
 
@@ -210,6 +219,17 @@ begin
     FormLogging.Hide;
     FormLogging.FrameLccLogging.Paused := True;
   end;
+end;
+
+procedure TForm1.ActionRaspberryPiExecute(Sender: TObject);
+begin
+  if ActionRaspberryPi.Checked then
+  begin
+    LccPiSpiPort.OpenConnectionWithLccSettings;
+  end else
+  begin
+    LccPiSpiPort.CloseConnection(nil);
+  end
 end;
 
 procedure TForm1.ActionToolsSettingsShowWinExecute(Sender: TObject);
@@ -237,6 +257,8 @@ begin
     ActionComPort.Execute;                  // Force calling the OnExecute Event to clean up, but only if the Action is enabled
   if ActionEthernetServer.Checked then
     ActionEthernetServer.Execute;           // Force calling the OnExecute Event to clean up, but only if the Action is enabled
+  if ActionRaspberryPi.Checked then
+    ActionRaspberryPi.Execute;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -284,12 +306,15 @@ begin
     FormLogging.OnHideNotify := @FormLoggingHideNotify;
     LccSettings.FilePath := GetSettingsPath + 'Settings.ini';                     // Setup the file paths to the Settings Object
     LccSettings.LoadFromFile;                                                     // Read in the settings from the file to initialize the object
+
     FormSettings.FrameLccSettings.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
+    FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
+
     LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
     LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
     LccEthernetClient.LoggingFrame := FormLogging.FrameLccLogging;
-    LccEthernetClient.LccSettings := LccSettings;
-    FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
+    LccPiSpiPort.LoggingFrame := FormLogging.FrameLccLogging;
+
     FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
     ActionTCP.Checked := not LccSettings.Ethernet.GridConnect;
     LccEthernetServer.Gridconnect := LccSettings.Ethernet.GridConnect;
@@ -306,20 +331,20 @@ end;
 procedure TForm1.LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
   case ComPortRec.ConnectionState of
-    ccsComConnecting :
+    ccsPortConnecting :
     begin
       StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Connecting: ' + ComPortRec.ComPort;
       ActionTCP.Enabled := False;
     end;
-    ccsComConnected :
+    ccsPortConnected :
     begin
       StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Connected: ' + ComPortRec.ComPort;
     end;
-    ccsComDisconnecting :
+    ccsPortDisconnecting :
     begin
        StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Disconnecting: ' + ComPortRec.ComPort;
     end;
-    ccsComDisconnected :
+    ccsPortDisconnected :
     begin
        StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Disconnected:';
        ActionTCP.Enabled := True;
@@ -458,6 +483,7 @@ procedure TForm1.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: T
 begin
   LccComPort.SendMessage(EthernetRec.LccMessage);
   LccEthernetClient.SendMessage(EthernetRec.LccMessage);
+  LccPiSpiPort.SendMessage(EthernetRec.LccMessage);
 end;
 
 procedure TForm1.LccEthernetServerSchedulerClass(Sender: TObject;
@@ -466,11 +492,41 @@ begin
   SchedulerClass := TSchedulerPassThrough;
 end;
 
+procedure TForm1.LccPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccPiSpiPortRec);
+begin
+  case PiSpiPortRec.ConnectionState of
+    ccsPortConnecting :
+    begin
+      StatusBarMain.Panels[STATUS_PANEL_PISPIPORT].Text := 'Connecting: ' + PiSpiPortRec.Port;
+      ActionTCP.Enabled := False;
+    end;
+    ccsPortConnected :
+    begin
+      StatusBarMain.Panels[STATUS_PANEL_PISPIPORT].Text := 'Connected: ' + PiSpiPortRec.Port;
+    end;
+    ccsPortDisconnecting :
+    begin
+       StatusBarMain.Panels[STATUS_PANEL_PISPIPORT].Text := 'Disconnecting: ' + PiSpiPortRec.Port;
+    end;
+    ccsPortDisconnected :
+    begin
+       StatusBarMain.Panels[STATUS_PANEL_PISPIPORT].Text := 'Disconnected:';
+       ActionTCP.Enabled := True;
+    end;
+  end;
+end;
+
+procedure TForm1.LccPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
+begin
+  SchedulerClass := TSchedulerPassThrough;
+end;
+
 procedure TForm1.LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
 begin
-  ActionEthernetServer.Visible := IniFile.ReadBool('Custom Settings', 'EthernetServer', True);
-  ActionEthernetClient.Visible := IniFile.ReadBool('Custom Settings', 'EthernetClient', False);
-  ActionComPort.Visible := IniFile.ReadBool('Custom Settings', 'ComPort', False);
+  ActionEthernetServer.Visible := IniFile.ReadBool('CustomSettings', 'EthernetServer', True);
+  ActionEthernetClient.Visible := IniFile.ReadBool('CustomSettings', 'EthernetClient', False);
+  ActionComPort.Visible := IniFile.ReadBool('CustomSettings', 'ComPort', False);
+  ActionRaspberryPi.Visible := IniFile.ReadBool('CustomSettings', 'RaspberryPiSpi', True);
 
   ActionTCP.Visible := ActionEthernetClient.Visible or ActionEthernetServer.Visible;
   MenuItemConnectionDivider0.Visible := ActionTCP.Visible;
@@ -478,9 +534,10 @@ end;
 
 procedure TForm1.LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
 begin
-  IniFile.WriteBool('Custom Settings', 'EthernetServer', ActionEthernetServer.Visible);
-  IniFile.WriteBool('Custom Settings', 'EthernetClient', ActionEthernetClient.Visible);
-  IniFile.WriteBool('Custom Settings', 'ComPort', ActionComPort.Visible);
+  IniFile.WriteBool('CustomSettings', 'EthernetServer', ActionEthernetServer.Visible);
+  IniFile.WriteBool('CustomSettings', 'EthernetClient', ActionEthernetClient.Visible);
+  IniFile.WriteBool('CustomSettings', 'ComPort', ActionComPort.Visible);
+  IniFile.WriteBool('CustomSettings', 'RaspberryPiSpi', ActionRaspberryPi.Visible);
 end;
 
 procedure TForm1.ToolButton1Click(Sender: TObject);
@@ -495,6 +552,7 @@ begin
   FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
   FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
   FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
+  FormSettings.FrameLccSettings.UserSettings.PiSpiPort := ActionRaspberryPi.Visible;
   // Update from video series, need to resync with the Settings each time the
   // dialog is shown as the user may have changed the UI and hit cancel and not
   // just when the program starts up in the FormShow event

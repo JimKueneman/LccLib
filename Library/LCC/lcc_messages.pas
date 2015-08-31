@@ -33,7 +33,7 @@ TOnMessageEvent = procedure(Sender: TObject; LccMessage: TLccMessage) of object;
 TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,
                     ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,
                     ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
-                    ccsComConnecting, ccsComConnected, ccsComDisconnecting, ccsComDisconnected);
+                    ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);
 
 TFunctionStatesArray = array[0..28] of Word;
 

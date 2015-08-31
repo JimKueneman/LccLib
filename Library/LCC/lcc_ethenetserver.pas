@@ -146,7 +146,7 @@ type
     procedure DoReceiveMessage;
     procedure Execute; override;
   public
-    constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec); reintroduce;
+    constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec); reintroduce; virtual;
     destructor Destroy; override;
 
     property Gridconnect: Boolean read FGridConnect write FGridConnect;
@@ -206,9 +206,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
-    function OpenEthernetConnectionWithLccSettings: TLccEthernetListener;
-    procedure CloseEthernetConnection( EthernetThread: TLccEthernetServerThread);
+    function OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
+    function OpenConnectionWithLccSettings: TLccEthernetListener;
+    procedure CloseConnection( EthernetThread: TLccEthernetServerThread);
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage);  override;
     procedure ClearSchedulerQueues;
@@ -351,7 +351,12 @@ procedure TLccEthernetListener.Execute;
 
 var
   NewLink: TLccEthernetServerThread;
-
+  LocalName: string;
+  IpStrings: TStringList;
+  i: Integer;
+  {$IFNDEF WINDOWS}
+  Ip: array[0..15] of char;
+  {$ENDIF}
 begin
   FRunning := True;
 
@@ -362,14 +367,25 @@ begin
   Socket.HeartbeatRate := EthernetRec.HeartbeatRate;
   Socket.SetTimeout(0);
   SendConnectionNotification(ccsListenerConnecting);
-  {IpStrings := TStringList.Create;
-  try
-     Socket.ResolveNameToIP(Socket.LocalName, IpStrings) ;  // '192.168.0.8';
-     for i := 0 to IpStrings.Count - 1 do
-       FEthernetRec.ListenerIP := IpStrings[i];
-  finally
-    IpStrings.Free;
-  end;   }
+
+  if FEthernetRec.AutoResolveListenerIP then
+  begin
+    {$IFDEF WINDOWS}
+    LocalName := Socket.LocalName;
+    IpStrings := TStringList.Create;
+    try
+       Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
+       for i := 0 to IpStrings.Count - 1 do
+         FEthernetRec.ListenerIP := IpStrings[i];
+    finally
+      IpStrings.Free;
+    end;
+    {$ELSE}
+    ResolveUnixIp(Ip, 16);
+    FEthernetRec.ListenerIP := Ip;
+    {$ENDIF}
+  end;
+
   Socket.Bind(EthernetRec.ListenerIP, IntToStr(EthernetRec.ListenerPort));
   if Socket.LastError <> 0 then
   begin
@@ -492,7 +508,7 @@ end;
 
 { TLccEthernetServer }
 
-procedure TLccEthernetServer.CloseEthernetConnection(EthernetThread: TLccEthernetServerThread);
+procedure TLccEthernetServer.CloseConnection(EthernetThread: TLccEthernetServerThread);
 begin
   if Assigned(EthernetThread) then
   begin
@@ -594,6 +610,7 @@ begin
   inherited Destroy;
 end;
 
+
 procedure TLccEthernetServer.FillWaitingMessageList(WaitingMessageList: TObjectList);
 var
   i, j: Integer;
@@ -617,7 +634,7 @@ begin
   end;
 end;
 
-function TLccEthernetServer.OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
+function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
   Result.Owner := Self;
@@ -626,7 +643,7 @@ begin
   ListenerThread := Result;
 end;
 
-function TLccEthernetServer.OpenEthernetConnectionWithLccSettings: TLccEthernetListener;
+function TLccEthernetServer.OpenConnectionWithLccSettings: TLccEthernetListener;
 var
   AnEthernetRec: TLccEthernetRec;
 begin
@@ -643,7 +660,8 @@ begin
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
     AnEthernetRec.MessageArray := nil;
-    Result := OpenEthernetConnection(AnEthernetRec);
+    AnEthernetRec.AutoResolveListenerIP := LccSettings.Ethernet.AutoResolveListenerIP;
+    Result := OpenConnection(AnEthernetRec);
   end;
 end;
 

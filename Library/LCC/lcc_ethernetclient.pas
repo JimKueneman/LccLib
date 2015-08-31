@@ -31,18 +31,19 @@ type
 
 
   TLccEthernetRec = record
-    Thread: TLccConnectionThread;  // Thread owing the Record
+    Thread: TLccConnectionThread;    // Thread owing the Record
+    AutoResolveListenerIP: Boolean;  // Tries to autoresolve the local unique netword IP of the machine
     ClientIP,
     ListenerIP: LccString;
     ClientPort,
     ListenerPort: Word;
     HeartbeatRate: Integer;
     ConnectionState: TConnectionState; // Current State of the connection
-    MessageStr: LccString;           // Contains the string for the resuting message from the thread
-    MessageArray: TDynamicByteArray;  // Contains the TCP Protocol message bytes of not using GridConnect
+    MessageStr: LccString;             // Contains the string for the resuting message from the thread
+    MessageArray: TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
     ErrorCode: Integer;
     LccMessage: TLccMessage;
-    SuppressNotification: Boolean; // True to stop any Syncronoize() call being called
+    SuppressNotification: Boolean;    // True to stop any Syncronoize() call being called
   end;
 
 
@@ -167,10 +168,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
-    function OpenEthernetConnectionWithLccSettings: TLccEthernetClientThread;
+    function OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
+    function OpenConnectionWithLccSettings: TLccEthernetClientThread;
     procedure ClearSchedulerQueues;
-    procedure CloseEthernetConnection( EthernetThread: TLccEthernetClientThread);
+    procedure CloseConnection( EthernetThread: TLccEthernetClientThread);
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage); override;
   //  {$IFDEF FPC}
@@ -283,7 +284,7 @@ end;
 
 { TLccEthernetClient }
 
-procedure TLccEthernetClient.CloseEthernetConnection(EthernetThread: TLccEthernetClientThread);
+procedure TLccEthernetClient.CloseConnection(EthernetThread: TLccEthernetClientThread);
 //{$IFNDEF FPC}
 //var
  // List: TList<TLccEthernetThreadList>;
@@ -396,7 +397,7 @@ begin
   end;
 end;
 
-function TLccEthernetClient.OpenEthernetConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
+function TLccEthernetClient.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
 begin
   Result := TLccEthernetClientThread.Create(True, Self, AnEthernetRec);
   Result.OnConnectionStateChange := OnConnectionStateChange;
@@ -414,7 +415,7 @@ begin
   Result.Suspended := False;
 end;
 
-function TLccEthernetClient.OpenEthernetConnectionWithLccSettings: TLccEthernetClientThread;
+function TLccEthernetClient.OpenConnectionWithLccSettings: TLccEthernetClientThread;
 var
   AnEthernetRec: TLccEthernetRec;
 begin
@@ -431,7 +432,8 @@ begin
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
     AnEthernetRec.MessageArray := nil;
-    Result := OpenEthernetConnection(AnEthernetRec);
+    AnEthernetRec.AutoResolveListenerIP := False;
+    Result := OpenConnection(AnEthernetRec);
   end;
 end;
 

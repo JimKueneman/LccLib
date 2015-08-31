@@ -55,6 +55,14 @@ const
   STR_INI_ETHERNET_REMOTE_LISTENER_PORT = 'RemotePort';
   STR_INI_ETHERNET_LOCAL_CLIENT_PORT = 'LocalClientPort';
   STR_INI_ETHERNET_GRIDCONNECT = 'GridConnect';
+  STR_INI_ETHERNET_AUTORESOLVE_LISTENER = 'AutoResolveListener';
+
+  STR_INI_PISPIPORT_SECTION = 'PiSpi';
+  STR_INI_PISPIPORT_SPEED_KEY = 'Speed';
+  STR_INI_PISPIPORT_MODE_KEY = 'Mode';
+  STR_INI_PISPIPORT_BITS_KEY = 'Bits';
+  STR_INI_PISPIPORT_PORT_KEY = 'Port';
+
 
 
 type
@@ -88,6 +96,32 @@ type
     cpsb_2_StopBit                 // 2 Stop bits
   );
 
+type
+  TPiSpiMode = (psm_ClkIdleLo_DataRising,
+                psm_ClkIdleLo_DataFalling,
+                psm_ClkIdleHi_DataRising,
+                psm_ClkIdleHi_DataFalling,
+                psm_Unknown);
+
+  TPiSpiBits = (psb_8,
+                psb_16);
+
+  TPiSpiSpeed = (pss_7629Hz,
+                 pss_15_2kHz,
+                 pss_30_5kHz,
+                 pss_61kHz,
+                 pss_122kHz,
+                 pss_244kHz,
+                 pss_488kHz,
+                 pss_976kHz,
+                 pss_1_953MHz,
+                 pss_3_9Mhz,
+                 pss_7_8Mhz,
+                 pss_15_6Mhz,
+                 pss_31_2Mhz,
+                 pss_62_5Mhz,
+                 pss_125Mhz);
+
 const
   HI_FLOWCONTROL_TYPE = 3;
 
@@ -104,6 +138,25 @@ type
     property Owner: TLccSettings read FOwner write FOwner;
   public
     constructor Create(AnOwner: TLccSettings); virtual;
+  end;
+
+  { TPiSpiSettings }
+
+  TPiSpiSettings = class(TLccSettingBase)
+  private
+    FBits: TPiSpiBits;
+    FMode: TPiSpiMode;
+    FPort: string;
+    FSpeed: TPiSpiSpeed;
+  public
+    constructor Create(AnOwner: TLccSettings); override;
+    procedure LoadFromFile(IniFile: TIniFile);
+    procedure SaveToFile(IniFile: TIniFile);
+  published
+    property Port: string read FPort write FPort;
+    property Speed: TPiSpiSpeed read FSpeed write FSpeed;
+    property Mode: TPiSpiMode read FMode write FMode;
+    property Bits: TPiSpiBits read FBits write FBits;
   end;
 
   { TComPortSettings }
@@ -190,6 +243,7 @@ type
 
   TEthernetSettings = class(TLccSettingBase)
   private
+    FAutoResolveListenerIP: Boolean;
     FGridConnect: Boolean;
     FLocalClientIP: string;
     FLocalClientPort: Integer;
@@ -202,6 +256,7 @@ type
     procedure LoadFromFile(IniFile: TIniFile);
     procedure SaveToFile(IniFile: TIniFile);
   published
+    property AutoResolveListenerIP: Boolean read FAutoResolveListenerIP write FAutoResolveListenerIP;
     property GridConnect: Boolean read FGridConnect write FGridConnect;
     property LocalClientIP: string read FLocalClientIP write FLocalClientIP;
     property RemoteListenerIP: string read FRemoteListenerIP write FRemoteListenerIP;
@@ -226,6 +281,7 @@ type
     FLogging: TLoggingSettings;
     FOnLoadFromFile: TOnCustomSettingFileOperations;
     FOnSaveToFile: TOnCustomSettingFileOperations;
+    FPiSpiPort: TPiSpiSettings;
     FThrottle: TThrottleSettings;
   protected
     property Lock: TCriticalSection read FLock write FLock;
@@ -242,6 +298,7 @@ type
     property FilePath: string read FFilePath write FFilePath;
     property General: TGeneralSettings read FGeneral write FGeneral;
     property Logging: TLoggingSettings read FLogging write FLogging;
+    property PiSpiPort: TPiSpiSettings read FPiSpiPort write FPiSpiPort;
     property OnLoadFromFile: TOnCustomSettingFileOperations read FOnLoadFromFile write FOnLoadFromFile;
     property OnSaveToFile: TOnCustomSettingFileOperations read FOnSaveToFile write FOnSaveToFile;
     property Throttle: TThrottleSettings read FThrottle write FThrottle;
@@ -257,6 +314,32 @@ begin
  // {$I TLccSettings.lrs}
   {$ENDIF}
   RegisterComponents('LCC',[TLccSettings]);
+end;
+
+{ TPiSpiSettings }
+
+constructor TPiSpiSettings.Create(AnOwner: TLccSettings);
+begin
+  inherited Create(AnOwner);
+  FSpeed := pss_3_9Mhz;
+  FMode := psm_ClkIdleLo_DataFalling;
+  FBits := psb_8;
+end;
+
+procedure TPiSpiSettings.LoadFromFile(IniFile: TIniFile);
+begin
+  FPort := IniFile.ReadString(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_PORT_KEY, '');
+  FSpeed := TPiSpiSpeed( IniFile.ReadInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_SPEED_KEY, 9));
+  FMode := TPiSpiMode( IniFile.ReadInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_MODE_KEY, 1));
+  FBits := TPiSpiBits( IniFile.ReadInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_BITS_KEY, 0));
+end;
+
+procedure TPiSpiSettings.SaveToFile(IniFile: TIniFile);
+begin
+  IniFile.WriteString(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_PORT_KEY, FPort);
+  IniFile.WriteInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_SPEED_KEY, Integer( FSpeed));
+  IniFile.WriteInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_MODE_KEY, Integer( FMode));
+  IniFile.WriteInteger(STR_INI_PISPIPORT_SECTION, STR_INI_PISPIPORT_BITS_KEY, Integer( FBits));
 end;
 
 { TLccSettingBase }
@@ -307,6 +390,7 @@ end;
 
 procedure TEthernetSettings.LoadFromFile(IniFile: TIniFile);
 begin
+  FAutoResolveListenerIP := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, False);
   FGridConnect := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, False);
   FLocalClientIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, '127.0.0.1');
   FLocalListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, '127.0.0.1');
@@ -318,6 +402,7 @@ end;
 
 procedure TEthernetSettings.SaveToFile(IniFile: TIniFile);
 begin
+  IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, FAutoResolveListenerIP);
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, FGridConnect);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, FLocalClientIP);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, FLocalListenerIP);
@@ -464,6 +549,7 @@ begin
   FThrottle := TThrottleSettings.Create(Self);
   FEthernet := TEthernetSettings.Create(Self);
   FLogging := TLoggingSettings.Create(Self);
+  FPiSpiPort := TPiSpiSettings.Create(Self);
 end;
 
 destructor TLccSettings.Destroy;
@@ -474,6 +560,7 @@ begin
   FreeAndNil(FEthernet);
   FreeAndNil(FLogging);
   FreeAndNil(FLock);
+  FreeAndNil(FPiSpiPort);
   inherited Destroy;
 end;
 
@@ -500,6 +587,7 @@ begin
    Throttle.LoadFromFile(IniFile);
    Ethernet.LoadFromFile(IniFile);
    Logging.LoadFromFile(IniFile);
+   PiSpiPort.LoadFromFile(IniFile);
    DoLoadFromFile(IniFile);
   finally
     IniFile.Free;
@@ -517,6 +605,7 @@ begin
     Throttle.SaveToFile(IniFile);
     Ethernet.SaveToFile(IniFile);
     Logging.SaveToFile(IniFile);
+    PiSpiPort.SaveToFile(IniFile);
     DoSaveToFile(IniFile);
   finally
     IniFile.Free;

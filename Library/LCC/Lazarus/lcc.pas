@@ -12,7 +12,8 @@ uses
   lcc_ethenetserver, lcc_ethernetclient, lcc_gridconnect, lcc_math_float16, 
   lcc_message_scheduler, lcc_messages, lcc_nodemanager, lcc_tcp_protocol, 
   lcc_threaded_stringlist, lcc_threadedcirculararray, lcc_utilities, 
-  lcc_common_classes, lcc_nodeselector, LazarusPackageIntf;
+  lcc_common_classes, lcc_nodeselector, lcc_raspberrypi_spiport, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -25,6 +26,7 @@ begin
   RegisterUnit('lcc_ethernetclient', @lcc_ethernetclient.Register);
   RegisterUnit('lcc_nodemanager', @lcc_nodemanager.Register);
   RegisterUnit('lcc_nodeselector', @lcc_nodeselector.Register);
+  RegisterUnit('lcc_raspberrypi_spiport', @lcc_raspberrypi_spiport.Register);
 end;
 
 initialization

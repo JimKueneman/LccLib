@@ -1,34 +1,34 @@
 object Form1: TForm1
-  Left = 339
+  Left = 366
   Height = 274
-  Top = 142
-  Width = 732
+  Top = 225
+  Width = 874
   Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 254
-  ClientWidth = 732
+  ClientHeight = 245
+  ClientWidth = 874
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.5'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
     Top = 0
-    Width = 732
+    Width = 874
     ButtonHeight = 44
     Caption = 'ToolBar1'
     Images = ImageListMain
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 402
+      Left = 675
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 285
+      Left = 514
       Height = 44
       Top = 2
       Width = 22
@@ -36,7 +36,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 236
+      Left = 316
       Top = 2
       Action = ActionComPort
     end
@@ -46,17 +46,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 307
+      Left = 536
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButtonEthUseTCP: TToolButton
-      Left = 166
+      Left = 226
       Top = 2
       Action = ActionTCP
     end
     object ToolButtonSpace0: TToolButton
-      Left = 214
+      Left = 294
       Height = 44
       Top = 2
       Width = 22
@@ -64,28 +64,36 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonEthClient: TToolButton
-      Left = 86
+      Left = 116
       Top = 2
       Action = ActionEthernetClient
     end
     object ToolButton1: TToolButton
-      Left = 461
+      Left = 753
       Top = 2
       Caption = 'ToolButton1'
       OnClick = ToolButton1Click
     end
+    object ToolButton2: TToolButton
+      Left = 387
+      Top = 2
+      Action = ActionRaspberryPi
+    end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 23
-    Top = 231
-    Width = 732
+    Height = 25
+    Top = 220
+    Width = 874
     Panels = <    
       item
-        Width = 220
+        Width = 300
       end    
       item
-        Width = 220
+        Width = 300
+      end    
+      item
+        Width = 300
       end    
       item
         Width = 500
@@ -94,18 +102,18 @@ object Form1: TForm1
   end
   object PanelAddOns: TPanel
     Left = 0
-    Height = 183
+    Height = 172
     Top = 48
-    Width = 732
+    Width = 874
     Align = alClient
-    ClientHeight = 183
-    ClientWidth = 732
+    ClientHeight = 172
+    ClientWidth = 874
     TabOrder = 2
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 13
+      Height = 21
       Top = 1
-      Width = 714
+      Width = 856
       Align = alTop
       BorderSpacing.Left = 8
       BorderSpacing.Right = 8
@@ -114,9 +122,9 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 168
-      Top = 14
-      Width = 730
+      Height = 149
+      Top = 22
+      Width = 872
       Align = alClient
       Columns = <      
         item
@@ -133,7 +141,7 @@ object Form1: TForm1
         end      
         item
           Caption = 'Server Port'
-          Width = 242
+          Width = 372
         end>
       GridLines = True
       TabOrder = 0
@@ -148,6 +156,7 @@ object Form1: TForm1
     ComPort.Port = 'COM1'
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = False
     Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'
@@ -161,6 +170,9 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_7629Hz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataRising
+    PiSpiPort.Bits = psb_8
     OnLoadFromFile = LccSettingsLoadFromFile
     OnSaveToFile = LccSettingsSaveToFile
     Throttle.AutoLoadFDI = True
@@ -226,6 +238,12 @@ object Form1: TForm1
     object ActionToolsPreferenceShowMac: TAction
       Caption = 'Preferences...'
       OnExecute = ActionToolsPreferenceShowMacExecute
+    end
+    object ActionRaspberryPi: TAction
+      AutoCheck = True
+      Caption = 'Raspberry Pi SPI'
+      ImageIndex = 9
+      OnExecute = ActionRaspberryPiExecute
     end
   end
   object ImageListMain: TImageList
@@ -618,6 +636,10 @@ object Form1: TForm1
     top = 120
     object MenuItemConnection: TMenuItem
       Caption = 'Connection'
+      object MenuItemConnectonRPiSPI: TMenuItem
+        Action = ActionRaspberryPi
+        AutoCheck = True
+      end
       object MenuItemConnectionComport: TMenuItem
         Action = ActionComPort
         AutoCheck = True
@@ -651,5 +673,15 @@ object Form1: TForm1
     object MenuItemHelp: TMenuItem
       Caption = 'Help'
     end
+  end
+  object LccPiSpiPort: TLccPiSpiPort
+    Hub = False
+    LccSettings = LccSettings
+    OnConnectionStateChange = LccPiSpiPortConnectionStateChange
+    OnSchedulerClass = LccPiSpiPortSchedulerClass
+    SchedulerPipelineSize = 1
+    SleepCount = 0
+    left = 488
+    top = 120
   end
 end

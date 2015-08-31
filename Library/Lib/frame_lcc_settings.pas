@@ -8,7 +8,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, Spin,
-  Buttons, synaser, lcc_app_common_settings, Dialogs, LResources;
+  Buttons, synaser, lcc_app_common_settings, Dialogs, LResources,
+  lcc_raspberrypi_spiport;
 
 type
 
@@ -22,13 +23,16 @@ type
     function GetComPort: Boolean;
     function GetEthernetClient: Boolean;
     function GetEthernetServer: Boolean;
+    function GetPiSpiPort: Boolean;
     procedure SetComPort(AValue: Boolean);
     procedure SetEthernetClient(AValue: Boolean);
     procedure SetEthernetServer(AValue: Boolean);
+    procedure SetPiSpiPort(AValue: Boolean);
   public
     property OwnerSettings: TFrameLccSettings read FOwnerSettings write FOwnerSettings;
   published
     property ComPort: Boolean read GetComPort write SetComPort;
+    property PiSpiPort: Boolean read GetPiSpiPort write SetPiSpiPort;
     property EthernetClient: Boolean read GetEthernetClient write SetEthernetClient;
     property EthernetServer: Boolean read GetEthernetServer write SetEthernetServer;
   end;
@@ -36,17 +40,21 @@ type
   { TFrameLccSettings }
 
   TFrameLccSettings = class(TFrame)
-    BitBtnRescanPorts: TBitBtn;
+    BitBtnRescanComPorts: TBitBtn;
+    BitBtnRescanPiSpiPorts: TBitBtn;
     ButtonCancel: TButton;
     ButtonOk: TButton;
     ButtonSetLoopbackClient: TButton;
     ButtonSetLoopbackServer: TButton;
     ButtonSetLoopbackRemote: TButton;
+    CheckBoxAutoResolveLocalAddress: TCheckBox;
     ComboBoxComPort: TComboBox;
+    ComboBoxPiSpiPort: TComboBox;
     EditLocalClientIP: TEdit;
     EditLocalListenerIP: TEdit;
     EditRemoteListenerIP: TEdit;
     GroupBoxComPort: TGroupBox;
+    GroupBoxPiSpiPort: TGroupBox;
     GroupBoxEthernetClient: TGroupBox;
     GroupBoxEthernetServer: TGroupBox;
     LabelLocalIP: TLabel;
@@ -58,11 +66,13 @@ type
     SpinEditLocalClientPort: TSpinEdit;
     SpinEditLocalListenerPort: TSpinEdit;
     SpinEditRemoteListenerPort: TSpinEdit;
-    procedure BitBtnRescanPortsClick(Sender: TObject);
+    procedure BitBtnRescanPiSpiPortsClick(Sender: TObject);
+    procedure BitBtnRescanComPortsClick(Sender: TObject);
     procedure ButtonOkClick(Sender: TObject);
     procedure ButtonSetLoopbackClientClick(Sender: TObject);
     procedure ButtonSetLoopbackRemoteClick(Sender: TObject);
     procedure ButtonSetLoopbackServerClick(Sender: TObject);
+    procedure CheckBoxAutoResolveLocalAddressChange(Sender: TObject);
     procedure ComboBoxComPortChange(Sender: TObject);
     procedure EditRemoteListenerIPExit(Sender: TObject);
     procedure EditRemoteListenerIPKeyPress(Sender: TObject; var Key: char);
@@ -76,15 +86,18 @@ type
     FEthernetClient: Boolean;
     FEthernetServer: Boolean;
     FLccSettings: TLccSettings;
+    FPiSpiPort: Boolean;
     FUserSettings: TUserSettings;
     { private declarations }
     procedure SetComPort(AValue: Boolean);
     procedure SetEthernetClient(AValue: Boolean);
     procedure SetEthernetServer(AValue: Boolean);
+    procedure SetPiSpiPort(AValue: Boolean);
     property LockSetting: Boolean read FLockSetting write FLockSetting;
   protected
     procedure PositionButtons;
     property ComPort: Boolean read FComPort write SetComPort;
+    property PiSpiPort: Boolean read FPiSpiPort write SetPiSpiPort;
     property EthernetClient: Boolean read FEthernetClient write SetEthernetClient;
     property EthernetServer: Boolean read FEthernetServer write SetEthernetServer;
   public
@@ -93,6 +106,7 @@ type
     destructor Destroy; override;
     procedure SyncWithLccSettings;
     procedure ScanComPorts;
+    procedure ScanPiSpi;
     procedure StoreSettings;
   published
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
@@ -119,6 +133,11 @@ begin
   Result := OwnerSettings.EthernetServer;
 end;
 
+function TUserSettings.GetPiSpiPort: Boolean;
+begin
+  Result := OwnerSettings.PiSpiPort
+end;
+
 
 procedure TUserSettings.SetComPort(AValue: Boolean);
 begin
@@ -136,11 +155,21 @@ begin
   OwnerSettings.EthernetServer := AValue
 end;
 
+procedure TUserSettings.SetPiSpiPort(AValue: Boolean);
+begin
+ OwnerSettings.PiSpiPort := AValue
+end;
+
 { TFrameLccSettings }
 
-procedure TFrameLccSettings.BitBtnRescanPortsClick(Sender: TObject);
+procedure TFrameLccSettings.BitBtnRescanComPortsClick(Sender: TObject);
 begin
   ScanComPorts;
+end;
+
+procedure TFrameLccSettings.BitBtnRescanPiSpiPortsClick(Sender: TObject);
+begin
+  ScanPiSpi;
 end;
 
 procedure TFrameLccSettings.ButtonOkClick(Sender: TObject);
@@ -161,6 +190,11 @@ end;
 procedure TFrameLccSettings.ButtonSetLoopbackServerClick(Sender: TObject);
 begin
   EditLocalListenerIP.Text := '127.0.0.1';
+end;
+
+procedure TFrameLccSettings.CheckBoxAutoResolveLocalAddressChange(Sender: TObject);
+begin
+  EditLocalListenerIP.Enabled := not CheckBoxAutoResolveLocalAddress.Checked;
 end;
 
 procedure TFrameLccSettings.ComboBoxComPortChange(Sender: TObject);
@@ -199,6 +233,24 @@ begin
   end;
 end;
 
+procedure TFrameLccSettings.ScanPiSpi;
+begin
+  if Assigned(LccSettings) then
+  begin
+    LockSetting := True;
+    try
+      ComboBoxPiSpiPort.Items.Delimiter := ';';
+      ComboBoxPiSpiPort.Items.DelimitedText := StringReplace(GetSpiPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
+
+      ComboBoxPiSpiPort.ItemIndex := ComboBoxPiSpiPort.Items.IndexOf(LccSettings.ComPort.Port);
+      if (ComboBoxPiSpiPort.ItemIndex < 0) and (ComboBoxPiSpiPort.Items.Count > 0) then
+        ComboBoxPiSpiPort.ItemIndex := 0;
+    finally
+      LockSetting := False;
+    end;
+  end;
+end;
+
 procedure TFrameLccSettings.SetComPort(AValue: Boolean);
 begin
   FComPort:=AValue;
@@ -220,6 +272,14 @@ begin
   FEthernetServer:=AValue;
   if csDesigning in ComponentState then Exit;
   GroupBoxEthernetServer.Visible := AValue;
+  PositionButtons;
+end;
+
+procedure TFrameLccSettings.SetPiSpiPort(AValue: Boolean);
+begin
+  FPiSpiPort:=AValue;
+  if csDesigning in ComponentState then Exit;
+  GroupBoxPiSpiPort.Visible := FPiSpiPort;
   PositionButtons;
 end;
 
@@ -248,6 +308,8 @@ begin
       LccSettings.Ethernet.RemoteListenerPort := SpinEditRemoteListenerPort.Value;
       LccSettings.Ethernet.LocalListenerIP := EditLocalListenerIP.Text;
       LccSettings.Ethernet.LocalListenerPort := SpinEditLocalListenerPort.Value;
+      LccSettings.Ethernet.AutoResolveListenerIP := CheckBoxAutoResolveLocalAddress.Checked;
+      LccSettings.PiSpiPort.Port := ComboBoxPiSpiPort.Caption;
       LccSettings.SaveToFile;
     end;
   end;
@@ -317,13 +379,21 @@ begin
   begin
     LockSetting := True;
     try
-      BitBtnRescanPorts.Click;
+      BitBtnRescanComPorts.Click;
+      BitBtnRescanPiSpiPorts.Click;
       EditLocalClientIP.Text := LccSettings.Ethernet.LocalClientIP;
       SpinEditLocalClientPort.Value := LccSettings.Ethernet.LocalClientPort;
       EditRemoteListenerIP.Text := LccSettings.Ethernet.RemoteListenerIP;
       SpinEditRemoteListenerPort.Value := LccSettings.Ethernet.RemoteListenerPort;
       EditLocalListenerIP.Text := LccSettings.Ethernet.LocalListenerIP;
       SpinEditLocalListenerPort.Value := LccSettings.Ethernet.LocalListenerPort;
+      CheckBoxAutoResolveLocalAddress.Checked := LccSettings.Ethernet.AutoResolveListenerIP;
+      ComboBoxPiSpiPort.ItemIndex := ComboBoxPiSpiPort.Items.IndexOf(LccSettings.PiSpiPort.Port);
+      if (ComboBoxPiSpiPort.ItemIndex < 0) and (ComboBoxPiSpiPort.Items.Count > 0) then
+        ComboBoxPiSpiPort.ItemIndex := 0;
+      ComboBoxComPort.ItemIndex := ComboBoxComPort.Items.IndexOf(LccSettings.ComPort.Port);
+      if (ComboBoxComPort.ItemIndex < 0) and (ComboBoxComPort.Items.Count > 0) then
+        ComboBoxComPort.ItemIndex := 0;
     finally
       LockSetting := False;
     end;

@@ -12,7 +12,7 @@ uses
   Windows,
   {$ELSE}
     {$IFDEF FPC}
-    LclIntf,
+    LclIntf, baseUnix, sockets,
     {$ELSE}
     strutils,
     {$ENDIF}
@@ -35,6 +35,7 @@ uses
   function NullArrayToString(var ANullArray: array of Byte): LccString;
   function EventIDToString(EventID: TEventID): string;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
+  procedure ResolveUnixIp(var buf: array of char; const len: longint);
 
 {$IFDEF FPC}
 type
@@ -296,6 +297,61 @@ begin
     Dec(Offset)
   end;
 end;
+
+{$IFNDEF WINDOWS}
+procedure ResolveUnixIp(var buf: array of char; const len: longint);
+const
+  CN_GDNS_ADDR = '127.0.0.1';
+  CN_GDNS_PORT = 53;
+var
+  s: string;
+  sock: longint;
+  err: longint;
+  HostAddr: TSockAddr;
+  l: Integer;
+  UnixAddr: TInetSockAddr;
+
+begin
+  err := 0;
+  Assert(len >= 16);
+
+  sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
+  assert(sock <> -1);
+
+  UnixAddr.sin_family := AF_INET;
+  UnixAddr.sin_port := htons(CN_GDNS_PORT);
+  UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+  if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
+  begin
+    try
+      l := SizeOf(HostAddr);
+      if (fpgetsockname(sock, @HostAddr, @l) = 0) then
+      begin
+        s := NetAddrToStr(HostAddr.sin_addr);
+        StrPCopy(PChar(Buf), s);
+      end
+      else
+      begin
+        err:=socketError;
+      end;
+    finally
+      if (fpclose(sock) <> 0) then
+      begin
+        err := socketError;
+      end;
+    end;
+  end else
+  begin
+    err:=socketError;
+  end;
+
+  if (err <> 0) then
+  begin
+    // report error
+  end;
+end;
+{$ENDIF}
 
 {$IFDEF FPC}
 { TCriticalSection }

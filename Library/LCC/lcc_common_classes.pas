@@ -10,10 +10,13 @@ uses
 type
    { TLccEthernetBaseThread }
 
+  { TLccConnectionThread }
+
   TLccConnectionThread = class(TThread)
   private
     FGridConnect: Boolean;
   public
+    constructor Create(CreateSuspended: Boolean; const StackSize: SizeUInt = DefaultStackSize); virtual;
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
   end;
 
@@ -27,6 +30,13 @@ type
   end;
 
 implementation
+
+{ TLccConnectionThread }
+
+constructor TLccConnectionThread.Create(CreateSuspended: Boolean; const StackSize: SizeUInt);
+begin
+  inherited Create(CreateSuspended, StackSize);
+end;
 
 end.
 

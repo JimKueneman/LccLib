@@ -424,7 +424,7 @@ begin
     AComPortRec.MessageStr := '';
     AComPortRec.Thread := nil;
     AComPortRec.SuppressNotification := False;
-    AComPortRec.ConnectionState := ccsComDisconnected;
+    AComPortRec.ConnectionState := ccsPortDisconnected;
 
     Result := OpenComPort(AComPortRec);
   end;
@@ -538,7 +538,7 @@ procedure TLccComPortThread.Execute;
     FComPortRec.MessageStr := Serial.LastErrorDesc;
     if not FComPortRec.SuppressNotification then
       Synchronize(@DoErrorMessage);
-    SendConnectionNotification(ccsComDisconnected);
+    SendConnectionNotification(ccsPortDisconnected);
     Terminate;
   end;
 
@@ -552,7 +552,7 @@ var
 begin
   FRunning := True;
 
-  SendConnectionNotification(ccsComConnecting);
+  SendConnectionNotification(ccsPortConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Serial := TBlockSerial.Create;                                                // Create the Serial object in the context of the thread
   Serial.LinuxLock:=False;
@@ -574,11 +574,11 @@ begin
       Running := False;
     end
     else begin
-      SendConnectionNotification(ccsComConnected);
+      SendConnectionNotification(ccsPortConnected);
       try
         try
           LocalSleepCount := 0;
-          while not IsTerminated and (FComPortRec.ConnectionState = ccsComConnected) do
+          while not IsTerminated and (FComPortRec.ConnectionState = ccsPortConnected) do
           begin
 
             // Transmit new message on every N (SleepCount) Receive trys
@@ -637,7 +637,7 @@ begin
              {$ENDIF}
           end;
         finally
-          SendConnectionNotification(ccsComDisconnecting);
+          SendConnectionNotification(ccsPortDisconnecting);
 
           if Serial.InstanceActive then
             Serial.CloseSocket;
@@ -645,7 +645,7 @@ begin
           GridConnectHelper.Free;
         end;
       finally
-        SendConnectionNotification(ccsComDisconnected);
+        SendConnectionNotification(ccsPortDisconnected);
         Owner.ComPortThreads.Remove(Self);
         FRunning := False;
       end;
@@ -687,7 +687,7 @@ begin
     MessageStr := AMessage.ConvertToGridConnectStr('');
     OutgoingGridConnect.Add(MessageStr);
     if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'S Comprt: ' + MessageStr,
+      PrintToSynEdit( 'S ComPort: ' + MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
                       Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
@@ -737,7 +737,7 @@ begin
   if not IsTerminated then
   begin
     if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'R Comprt : ' + ComPortRec.MessageStr,
+      PrintToSynEdit( 'R ComPort : ' + ComPortRec.MessageStr,
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
                       Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,

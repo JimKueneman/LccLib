@@ -1,20 +1,19 @@
 object FrameLccSettings: TFrameLccSettings
   Left = 0
-  Height = 360
+  Height = 475
   Top = 0
-  Width = 490
-  ClientHeight = 360
-  ClientWidth = 490
+  Width = 560
+  ClientHeight = 475
+  ClientWidth = 560
   Color = clDefault
-  LCLVersion = '1.4.0.4'
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 484
-  DesignTop = 260
+  DesignLeft = 440
+  DesignTop = 61
   object ButtonOk: TButton
-    Left = 335
+    Left = 401
     Height = 22
-    Top = 320
+    Top = 440
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Ok'
@@ -23,9 +22,9 @@ object FrameLccSettings: TFrameLccSettings
     TabOrder = 0
   end
   object ButtonCancel: TButton
-    Left = 189
+    Left = 257
     Height = 22
-    Top = 320
+    Top = 440
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Cancel'
@@ -34,17 +33,17 @@ object FrameLccSettings: TFrameLccSettings
   end
   object GroupBoxComPort: TGroupBox
     Left = 8
-    Height = 65
+    Height = 81
     Top = 8
-    Width = 465
+    Width = 544
     Anchors = [akTop, akLeft, akRight]
     Caption = 'COM Port'
-    ClientHeight = 42
-    ClientWidth = 457
+    ClientHeight = 58
+    ClientWidth = 540
     TabOrder = 2
     object ComboBoxComPort: TComboBox
       Left = 17
-      Height = 20
+      Height = 35
       Top = 9
       Width = 226
       ItemHeight = 0
@@ -52,52 +51,52 @@ object FrameLccSettings: TFrameLccSettings
       Style = csDropDownList
       TabOrder = 0
     end
-    object BitBtnRescanPorts: TBitBtn
+    object BitBtnRescanComPorts: TBitBtn
       Left = 259
       Height = 22
-      Top = 8
+      Top = 16
       Width = 144
       Caption = 'Rescan Ports'
-      OnClick = BitBtnRescanPortsClick
+      OnClick = BitBtnRescanComPortsClick
       TabOrder = 1
     end
   end
   object GroupBoxEthernetClient: TGroupBox
     Left = 8
-    Height = 144
-    Top = 80
-    Width = 465
+    Height = 152
+    Top = 168
+    Width = 544
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Client'
-    ClientHeight = 121
-    ClientWidth = 457
+    ClientHeight = 129
+    ClientWidth = 540
     TabOrder = 3
     object LabelLocalIP: TLabel
       Left = 8
-      Height = 16
+      Height = 21
       Top = 8
-      Width = 88
+      Width = 100
       Caption = 'Local Client IP'
       ParentColor = False
     end
     object EditLocalClientIP: TEdit
       Left = 27
-      Height = 22
+      Height = 31
       Top = 28
       Width = 149
       TabOrder = 0
     end
     object LabelLocalPort: TLabel
       Left = 192
-      Height = 16
+      Height = 21
       Top = 8
-      Width = 103
+      Width = 116
       Caption = 'Local Client Port'
       ParentColor = False
     end
     object SpinEditLocalClientPort: TSpinEdit
       Left = 208
-      Height = 16
+      Height = 31
       Top = 28
       Width = 101
       MaxValue = 65535
@@ -115,15 +114,15 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemoteIP: TLabel
       Left = 8
-      Height = 16
+      Height = 21
       Top = 64
-      Width = 117
+      Width = 132
       Caption = 'Remote Listener IP'
       ParentColor = False
     end
     object EditRemoteListenerIP: TEdit
       Left = 27
-      Height = 22
+      Height = 31
       Top = 86
       Width = 149
       OnExit = EditRemoteListenerIPExit
@@ -132,7 +131,7 @@ object FrameLccSettings: TFrameLccSettings
     end
     object SpinEditRemoteListenerPort: TSpinEdit
       Left = 208
-      Height = 16
+      Height = 31
       Top = 86
       Width = 101
       MaxValue = 65535
@@ -152,50 +151,50 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemotePort: TLabel
       Left = 192
-      Height = 16
+      Height = 21
       Top = 64
-      Width = 131
+      Width = 148
       Caption = 'Remote Listener Port'
       ParentColor = False
     end
   end
   object GroupBoxEthernetServer: TGroupBox
     Left = 8
-    Height = 80
-    Top = 240
-    Width = 465
+    Height = 112
+    Top = 320
+    Width = 544
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Server'
-    ClientHeight = 57
-    ClientWidth = 457
+    ClientHeight = 89
+    ClientWidth = 540
     TabOrder = 4
     object LabelLocalIP1: TLabel
       Left = 8
-      Height = 16
-      Top = 8
-      Width = 102
+      Height = 21
+      Top = 0
+      Width = 115
       Caption = 'Local Listener IP'
       ParentColor = False
     end
     object EditLocalListenerIP: TEdit
       Left = 27
-      Height = 22
-      Top = 28
+      Height = 31
+      Top = 20
       Width = 149
       TabOrder = 0
     end
     object LabelLocalPort1: TLabel
       Left = 192
-      Height = 16
-      Top = 8
-      Width = 116
+      Height = 21
+      Top = 0
+      Width = 131
       Caption = 'Local Listener Port'
       ParentColor = False
     end
     object SpinEditLocalListenerPort: TSpinEdit
       Left = 208
-      Height = 16
-      Top = 28
+      Height = 31
+      Top = 20
       Width = 101
       MaxValue = 65535
       TabOrder = 1
@@ -204,11 +203,50 @@ object FrameLccSettings: TFrameLccSettings
     object ButtonSetLoopbackServer: TButton
       Left = 336
       Height = 22
-      Top = 24
+      Top = 16
       Width = 91
       Caption = 'Loopback'
       OnClick = ButtonSetLoopbackServerClick
       TabOrder = 2
+    end
+    object CheckBoxAutoResolveLocalAddress: TCheckBox
+      Left = 32
+      Height = 25
+      Top = 56
+      Width = 178
+      Caption = 'Auto Resolve Address'
+      OnChange = CheckBoxAutoResolveLocalAddressChange
+      TabOrder = 3
+    end
+  end
+  object GroupBoxPiSpiPort: TGroupBox
+    Left = 8
+    Height = 81
+    Top = 88
+    Width = 544
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Rasberry Pi SPI Port'
+    ClientHeight = 58
+    ClientWidth = 540
+    TabOrder = 5
+    object ComboBoxPiSpiPort: TComboBox
+      Left = 17
+      Height = 35
+      Top = 9
+      Width = 226
+      ItemHeight = 0
+      OnChange = ComboBoxComPortChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object BitBtnRescanPiSpiPorts: TBitBtn
+      Left = 259
+      Height = 22
+      Top = 16
+      Width = 144
+      Caption = 'Rescan Ports'
+      OnClick = BitBtnRescanPiSpiPortsClick
+      TabOrder = 1
     end
   end
 end
