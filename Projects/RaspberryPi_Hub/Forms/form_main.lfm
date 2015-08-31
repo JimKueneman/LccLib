@@ -674,15 +674,15 @@ object Form1: TForm1
       Caption = 'Help'
     end
   end
-  object LccPiSpiPort: TLccPiSpiPort
+  object LccRaspberryPiSpiPort: TLccRaspberryPiSpiPort
     Hub = False
     LccSettings = LccSettings
-    OnConnectionStateChange = LccPiSpiPortConnectionStateChange
-    OnReceiveMessage = LccPiSpiPortReceiveMessage
-    OnSchedulerClass = LccPiSpiPortSchedulerClass
+    OnConnectionStateChange = LccRaspberryPiSpiPortConnectionStateChange
+    OnReceiveMessage = LccRaspberryPiSpiPortReceiveMessage
+    OnSchedulerClass = LccRaspberryPiSpiPortSchedulerClass
     SchedulerPipelineSize = 1
     SleepCount = 0
-    left = 488
+    left = 480
     top = 120
   end
 end
