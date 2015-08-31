@@ -2,13 +2,13 @@ Design Consistency Status Report
 --------------------------------
 
 Report File:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN (PCB - Design Consistency Status Report).txt
-Report Written:     Saturday, August 08, 2015
+Report Written:     Sunday, August 09, 2015
 Project Path:       W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.prj
 Design Path:        W:\LccLib\Hardware\Raspberry Pi CAN\RaspCAN.pcb
 Design Title:       
 Created:            8/7/2015 8:30:42 PM
-Last Saved:         8/8/2015 8:11:25 PM
-Editing Time:       407 min
+Last Saved:         8/9/2015 9:10:11 PM
+Editing Time:       634 min
 Units:              mil (precision 0)
 
 

@@ -1,25 +1,27 @@
 Component                     Package   Value               Manuf               Manuf Part No       Distrib             Distrib Part No     Ref Name         Qty
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-2x5 Header                    SM                            Molex Inc           0015912100          Digikey             WM17451-ND          J2                 1
+2x5 Header                    SM                            Molex Inc           0015912100          Digikey             WM17451-ND          J4                 1
 8Mhz Crystal                  SM                            ECS Inc             ECS-80-20-5PXDU-TR  Digikey             XC1526CT-ND         XTAL1              1
-10 ohm 5%                     SM1206                        Panasonic           ERJ-8GEYJ100V       Digikey             P10ECT-ND           R20 R21            2
-10k ohm 5%                    SM1206                        Panasonic           ERJ-8GEYJ103V       Digikey             P10KECT-ND          R18 R2             2
-10uF 25V X7R                  SM1206                        Taiyo Yuden         TMK316B7106KL-TD    Digikey             587-2399-1-ND       C15 C1 C2          7
-                                                                                                                                            C4 C8 C5            
-                                                                                                                                            C9                  
-20pF 50V NPO                  SM1206                        Yayeo               CC1206JRNPO9BN200   Digikey             311-1153-1-ND       C11 C13            2
-56 ohm 5%                     SM1206                        Panasonic           ERJ-8GEYJ560V       Digikey             P56ECT-ND           R6 R7              2
-100nF 50V X7R                 SM1206                        TDK                 C3216X7R1H104K      Digikey             445-4007-1-ND       C16                1
-dsPIC33EP32GP502              SM                            Microchip           DSPIC33EP32GP502-I/SODigikey             DSPIC33EP32GP502-I/SO-NDU4                 1
-FTDI UART Header 1x6          DIL                           3M                  929400-01-36-RK     Digikey             929400E-01-36-ND    J5                 1
-L7805 D2-Pak                  SMS4                          ST Microelectronics L7805ABD2T-TR       Digikey             497-1170-1-ND       U2                 1
-MCP2551                       SM                            Microchip           MCP2551-I/SN        Digikey             MCP2551-I/SN-ND     U8                 1
-PESD1CAN                      SM                            NXP Semiconductor   PESD1CAN,215        Digikey             568-4032-1-ND       U9                 1
-PicKit 3 Header 1x6           DIL                           3M                  929400-01-36-RK     Digikey             929400E-01-36-ND    J4                 1
-Power Jack 2.1mm x 5.5mm      SM                            CUI Inc             PJ-002AH-SMT        Digikey             CP-002AHPJCT-ND     J3                 1
-PTC 1000mA Trip-500mA Hold    SM1206                        Littelfuse Inc      1206L050/15YR       Digikey             F3733CT-ND          R1                 1
-Raspberry Pi 2 B Header 2x40  DIL                           3M                  929852-01-20-RB     Mouser              517-929852-01-20-RB J1                 1
-RJ45 Amphinol Dual SMT OpenLCBSM                            Amphenol            RJSSE-5080-02       Digikey             RJSSE-5080-02-ND    J10                1
+10 ohm 5%                     SM1206                        Panasonic           ERJ-8GEYJ100V       Digikey             P10ECT-ND           R7 R5              2
+10k ohm 5%                    SM1206                        Panasonic           ERJ-8GEYJ103V       Digikey             P10KECT-ND          R1 R3              2
+10uF 25V X7R                  SM1206                        Taiyo Yuden         TMK316B7106KL-TD    Digikey             587-2399-1-ND       C1 C10 C3          7
+                                                                                                                                            C2 C6 C5            
+                                                                                                                                            C4                  
+20pF 50V NPO                  SM1206                        Yayeo               CC1206JRNPO9BN200   Digikey             311-1153-1-ND       C8 C9              2
+56 ohm 5%                     SM1206                        Panasonic           ERJ-8GEYJ560V       Digikey             P56ECT-ND           R2 R4              2
+100nF 50V X7R                 SM1206                        TDK                 C3216X7R1H104K      Digikey             445-4007-1-ND       C7                 1
+dsPIC33EP32GP502              SM                            Microchip           DSPIC33EP32GP502-I/SODigikey             DSPIC33EP32GP502-I/SO-NDU3                 1
+Fiducial_S50                  F                                                                                                             F3 F1 F4           4
+                                                                                                                                            F2                  
+FTDI UART Header 1x6          DIL                           3M                  929400-01-36-RK     Digikey             929400E-01-36-ND    J2                 1
+L7805 D2-Pak                  SMS4                          ST Microelectronics L7805ABD2T-TR       Digikey             497-1170-1-ND       U4                 1
+MCP2551                       SM                            Microchip           MCP2551-I/SN        Digikey             MCP2551-I/SN-ND     U2                 1
+PESD1CAN                      SM                            NXP Semiconductor   PESD1CAN,215        Digikey             568-4032-1-ND       U1                 1
+PicKit 3 Header 1x6           DIL                           3M                  929400-01-36-RK     Digikey             929400E-01-36-ND    J5                 1
+Power Jack 2.1mm x 5.5mm      SM                            CUI Inc             PJ-002AH-SMT        Digikey             CP-002AHPJCT-ND     J1                 1
+PTC 1000mA Trip-500mA Hold    SM1206                        Littelfuse Inc      1206L050/15YR       Digikey             F3733CT-ND          R6                 1
+Raspberry Pi 2 B Header 2x20  DIL                           3M                  929852-01-20-RB     Mouser              517-929852-01-20-RB J3                 1
+RJ45 Amphinol Dual SMT OpenLCBSM                            Amphenol            RJSSE-5080-02       Digikey             RJSSE-5080-02-ND    J6                 1
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                                                                                                              28
+                                                                                                                                                              32
 PCB Artist Bill of Materials is provided for reference only and must be verified by the user.
