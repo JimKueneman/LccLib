@@ -77,7 +77,7 @@ type
     LccEthernetClient: TLccEthernetClient;
     LccEthernetServer: TLccEthernetServer;
     LccNodeSelectorProducer1: TLccNodeSelector;
-    LccPiSpiPort: TLccPiSpiPort;
+    LccPiSpiPort: TLccRaspberryPiSpiPort;
     LccSettings: TLccSettings;
     ListViewServerConnections: TListView;
     MainMenu: TMainMenu;
@@ -131,7 +131,9 @@ type
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccPiSpiPortConnectionStateChange(Sender: TObject;
-      PiSpiPortRec: TLccPiSpiPortRec);
+      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+    procedure LccPiSpiPortReceiveMessage(Sender: TObject;
+      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
     procedure LccPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
@@ -492,7 +494,7 @@ begin
   SchedulerClass := TSchedulerPassThrough;
 end;
 
-procedure TForm1.LccPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccPiSpiPortRec);
+procedure TForm1.LccPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
 begin
   case PiSpiPortRec.ConnectionState of
     ccsPortConnecting :
@@ -514,6 +516,11 @@ begin
        ActionTCP.Enabled := True;
     end;
   end;
+end;
+
+procedure TForm1.LccPiSpiPortReceiveMessage(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+begin
+  LccEthernetServer.SendMessage(PiSpiPortRec.LccMessage);
 end;
 
 procedure TForm1.LccPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);

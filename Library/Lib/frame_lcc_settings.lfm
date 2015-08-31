@@ -6,6 +6,7 @@ object FrameLccSettings: TFrameLccSettings
   ClientHeight = 475
   ClientWidth = 560
   Color = clDefault
+  LCLVersion = '1.5'
   ParentColor = False
   TabOrder = 0
   DesignLeft = 440

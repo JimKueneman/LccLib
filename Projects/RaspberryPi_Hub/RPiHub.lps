@@ -10,7 +10,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="28" Y="11"/>
-        <UsageCount Value="168"/>
+        <UsageCount Value="170"/>
       </Unit0>
       <Unit1>
         <Filename Value="Forms/form_main.pas"/>
@@ -18,8 +18,8 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="13"/>
-        <CursorPos Y="228"/>
+        <TopLine Value="515"/>
+        <CursorPos X="64" Y="521"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -30,7 +30,7 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="7"/>
         <CursorPos X="30" Y="11"/>
         <UsageCount Value="217"/>
@@ -68,7 +68,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="14"/>
         <CursorPos X="16"/>
-        <UsageCount Value="165"/>
+        <UsageCount Value="167"/>
       </Unit5>
       <Unit6>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
@@ -414,18 +414,19 @@
         <ComponentName Value="FrameLccSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2"/>
-        <CursorPos X="23" Y="12"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="100"/>
+        <CursorPos X="18" Y="109"/>
         <UsageCount Value="18"/>
+        <Loaded Value="True"/>
       </Unit56>
       <Unit57>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="750"/>
-        <CursorPos X="98" Y="763"/>
-        <UsageCount Value="19"/>
+        <TopLine Value="671"/>
+        <CursorPos X="22" Y="679"/>
+        <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit57>
       <Unit58>
@@ -452,135 +453,124 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="744" TopLine="736"/>
+        <Caret Line="698" TopLine="687"/>
       </Position1>
       <Position2>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="745" TopLine="736"/>
+        <Caret Line="699" TopLine="687"/>
       </Position2>
       <Position3>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="746" TopLine="736"/>
+        <Caret Line="755" TopLine="746"/>
       </Position3>
       <Position4>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="749" TopLine="736"/>
+        <Caret Line="757" TopLine="746"/>
       </Position4>
       <Position5>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="751" TopLine="736"/>
+        <Caret Line="759" TopLine="746"/>
       </Position5>
       <Position6>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="752" TopLine="736"/>
+        <Caret Line="765" Column="33" TopLine="758"/>
       </Position6>
       <Position7>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="696" TopLine="687"/>
+        <Caret Line="744" TopLine="735"/>
       </Position7>
       <Position8>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="697" TopLine="687"/>
+        <Caret Line="745" TopLine="735"/>
       </Position8>
       <Position9>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="698" TopLine="687"/>
+        <Caret Line="746" TopLine="735"/>
       </Position9>
       <Position10>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="699" TopLine="687"/>
+        <Caret Line="749" TopLine="735"/>
       </Position10>
       <Position11>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="755" TopLine="746"/>
+        <Caret Line="751" TopLine="735"/>
       </Position11>
       <Position12>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="757" TopLine="746"/>
+        <Caret Line="752" TopLine="736"/>
       </Position12>
       <Position13>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="759" TopLine="746"/>
+        <Caret Line="753" TopLine="737"/>
       </Position13>
       <Position14>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="765" Column="33" TopLine="758"/>
+        <Caret Line="756" TopLine="747"/>
       </Position14>
       <Position15>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="744" TopLine="735"/>
+        <Caret Line="758" TopLine="747"/>
       </Position15>
       <Position16>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="745" TopLine="735"/>
+        <Caret Line="760" TopLine="747"/>
       </Position16>
       <Position17>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="746" TopLine="735"/>
+        <Caret Line="762" TopLine="747"/>
       </Position17>
       <Position18>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="749" TopLine="735"/>
+        <Caret Line="763" TopLine="747"/>
       </Position18>
       <Position19>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="751" TopLine="735"/>
+        <Caret Line="765" TopLine="749"/>
       </Position19>
       <Position20>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="752" TopLine="736"/>
+        <Caret Line="767" TopLine="751"/>
       </Position20>
       <Position21>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="753" TopLine="737"/>
+        <Caret Line="769" TopLine="753"/>
       </Position21>
       <Position22>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="756" TopLine="747"/>
+        <Caret Line="767" TopLine="753"/>
       </Position22>
       <Position23>
-        <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="758" TopLine="747"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="230" TopLine="211"/>
       </Position23>
       <Position24>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="760" TopLine="747"/>
+        <Caret Line="772" Column="25" TopLine="756"/>
       </Position24>
       <Position25>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="762" TopLine="747"/>
+        <Caret Line="155" Column="27" TopLine="146"/>
       </Position25>
       <Position26>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="763" TopLine="747"/>
+        <Caret Line="296" Column="21" TopLine="284"/>
       </Position26>
       <Position27>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="765" TopLine="749"/>
+        <Caret Line="131" Column="28" TopLine="121"/>
       </Position27>
       <Position28>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="767" TopLine="751"/>
+        <Caret Line="160" Column="30" TopLine="152"/>
       </Position28>
       <Position29>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="769" TopLine="753"/>
+        <Caret Line="193" Column="76" TopLine="184"/>
       </Position29>
       <Position30>
-        <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Caret Line="767" TopLine="753"/>
+        <Filename Value="../../Library/Lib/frame_lcc_settings.pas"/>
+        <Caret Line="12" Column="23" TopLine="2"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <Line Value="764"/>
-      </Item1>
-    </BreakPoints>
-  </Debugging>
 </CONFIG>

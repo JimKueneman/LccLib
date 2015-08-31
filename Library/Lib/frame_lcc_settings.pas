@@ -106,7 +106,7 @@ type
     destructor Destroy; override;
     procedure SyncWithLccSettings;
     procedure ScanComPorts;
-    procedure ScanPiSpi;
+    procedure ScanRaspberryPiSpi;
     procedure StoreSettings;
   published
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
@@ -169,7 +169,7 @@ end;
 
 procedure TFrameLccSettings.BitBtnRescanPiSpiPortsClick(Sender: TObject);
 begin
-  ScanPiSpi;
+  ScanRaspberryPiSpi;
 end;
 
 procedure TFrameLccSettings.ButtonOkClick(Sender: TObject);
@@ -233,14 +233,14 @@ begin
   end;
 end;
 
-procedure TFrameLccSettings.ScanPiSpi;
+procedure TFrameLccSettings.ScanRaspberryPiSpi;
 begin
   if Assigned(LccSettings) then
   begin
     LockSetting := True;
     try
       ComboBoxPiSpiPort.Items.Delimiter := ';';
-      ComboBoxPiSpiPort.Items.DelimitedText := StringReplace(GetSpiPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
+      ComboBoxPiSpiPort.Items.DelimitedText := StringReplace(GetRaspberryPiSpiPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
 
       ComboBoxPiSpiPort.ItemIndex := ComboBoxPiSpiPort.Items.IndexOf(LccSettings.ComPort.Port);
       if (ComboBoxPiSpiPort.ItemIndex < 0) and (ComboBoxPiSpiPort.Items.Count > 0) then

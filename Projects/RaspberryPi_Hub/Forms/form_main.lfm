@@ -678,6 +678,7 @@ object Form1: TForm1
     Hub = False
     LccSettings = LccSettings
     OnConnectionStateChange = LccPiSpiPortConnectionStateChange
+    OnReceiveMessage = LccPiSpiPortReceiveMessage
     OnSchedulerClass = LccPiSpiPortSchedulerClass
     SchedulerPipelineSize = 1
     SleepCount = 0
