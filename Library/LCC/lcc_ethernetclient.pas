@@ -32,7 +32,7 @@ type
 
   TLccEthernetRec = record
     Thread: TLccConnectionThread;    // Thread owing the Record
-    AutoResolveListenerIP: Boolean;  // Tries to autoresolve the local unique netword IP of the machine
+    AutoResolveIP: Boolean;          // Tries to autoresolve the local unique netword IP of the machine
     ClientIP,
     ListenerIP: LccString;
     ClientPort,
@@ -432,7 +432,7 @@ begin
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
     AnEthernetRec.MessageArray := nil;
-    AnEthernetRec.AutoResolveListenerIP := False;
+    AnEthernetRec.AutoResolveIP := LccSettings.Ethernet.AutoResolveClientIP;
     Result := OpenConnection(AnEthernetRec);
   end;
 end;
@@ -571,10 +571,16 @@ var
   SynaBytes: TSynaBytes;
   RcvByte: Byte;
   LocalSleepCount: Integer;
+  LocalName: string;
+  IpStrings: TStringList;
+  {$IFNDEF WINDOWS}
+  Ip: array[0..15] of char;
+  {$ENDIF}
 begin
   FRunning := True;
 
   SendConnectionNotification(ccsClientConnecting);
+
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
@@ -593,6 +599,26 @@ begin
   end else
   begin
     RetryCount := 0;
+
+    if FEthernetRec.AutoResolveIP then
+    begin
+      {$IFDEF WINDOWS}
+      LocalName := Socket.LocalName;
+      IpStrings := TStringList.Create;
+      try
+         Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
+         for i := 0 to IpStrings.Count - 1 do
+           FEthernetRec.ClientIP := IpStrings[i];
+      finally
+        IpStrings.Free;
+      end;
+      {$ELSE}
+      ResolveUnixIp(Ip, 16);
+      FEthernetRec.ClientIP := Ip;
+      {$ENDIF}
+    end;
+
+
     Socket.Connect(EthernetRec.ListenerIP, IntToStr(EthernetRec.ListenerPort));
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin

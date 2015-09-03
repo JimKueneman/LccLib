@@ -56,6 +56,7 @@ const
   STR_INI_ETHERNET_LOCAL_CLIENT_PORT = 'LocalClientPort';
   STR_INI_ETHERNET_GRIDCONNECT = 'GridConnect';
   STR_INI_ETHERNET_AUTORESOLVE_LISTENER = 'AutoResolveListener';
+  STR_INI_ETHERNET_AUTORESOLVE_CLIENT = 'AutoResolveClient';
 
   STR_INI_PISPIPORT_SECTION = 'PiSpi';
   STR_INI_PISPIPORT_SPEED_KEY = 'Speed';
@@ -243,6 +244,7 @@ type
 
   TEthernetSettings = class(TLccSettingBase)
   private
+    FAutoResolveClientIP: Boolean;
     FAutoResolveListenerIP: Boolean;
     FGridConnect: Boolean;
     FLocalClientIP: string;
@@ -257,6 +259,7 @@ type
     procedure SaveToFile(IniFile: TIniFile);
   published
     property AutoResolveListenerIP: Boolean read FAutoResolveListenerIP write FAutoResolveListenerIP;
+    property AutoResolveClientIP: Boolean read FAutoResolveClientIP write FAutoResolveClientIP;
     property GridConnect: Boolean read FGridConnect write FGridConnect;
     property LocalClientIP: string read FLocalClientIP write FLocalClientIP;
     property RemoteListenerIP: string read FRemoteListenerIP write FRemoteListenerIP;
@@ -391,6 +394,7 @@ end;
 procedure TEthernetSettings.LoadFromFile(IniFile: TIniFile);
 begin
   FAutoResolveListenerIP := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, False);
+  FAutoResolveClientIP := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_CLIENT, False);
   FGridConnect := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, False);
   FLocalClientIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, '127.0.0.1');
   FLocalListenerIP := IniFile.ReadString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, '127.0.0.1');
@@ -403,6 +407,7 @@ end;
 procedure TEthernetSettings.SaveToFile(IniFile: TIniFile);
 begin
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, FAutoResolveListenerIP);
+  IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_CLIENT, FAutoResolveClientIP);
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, FGridConnect);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_CLIENT_IP, FLocalClientIP);
   IniFile.WriteString(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_LOCAL_LISTENER_IP, FLocalListenerIP);

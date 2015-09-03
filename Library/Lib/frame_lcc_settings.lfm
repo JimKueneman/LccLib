@@ -1,20 +1,19 @@
 object FrameLccSettings: TFrameLccSettings
   Left = 0
-  Height = 475
+  Height = 495
   Top = 0
-  Width = 560
-  ClientHeight = 475
-  ClientWidth = 560
+  Width = 576
+  ClientHeight = 495
+  ClientWidth = 576
   Color = clDefault
-  LCLVersion = '1.5'
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 440
-  DesignTop = 61
+  DesignLeft = 502
+  DesignTop = 129
   object ButtonOk: TButton
-    Left = 401
+    Left = 424
     Height = 22
-    Top = 440
+    Top = 432
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Ok'
@@ -23,9 +22,9 @@ object FrameLccSettings: TFrameLccSettings
     TabOrder = 0
   end
   object ButtonCancel: TButton
-    Left = 257
+    Left = 280
     Height = 22
-    Top = 440
+    Top = 432
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Cancel'
@@ -34,17 +33,17 @@ object FrameLccSettings: TFrameLccSettings
   end
   object GroupBoxComPort: TGroupBox
     Left = 8
-    Height = 81
+    Height = 73
     Top = 8
-    Width = 544
+    Width = 560
     Anchors = [akTop, akLeft, akRight]
     Caption = 'COM Port'
-    ClientHeight = 58
-    ClientWidth = 540
+    ClientHeight = 51
+    ClientWidth = 552
     TabOrder = 2
     object ComboBoxComPort: TComboBox
       Left = 17
-      Height = 35
+      Height = 20
       Top = 9
       Width = 226
       ItemHeight = 0
@@ -63,41 +62,43 @@ object FrameLccSettings: TFrameLccSettings
     end
   end
   object GroupBoxEthernetClient: TGroupBox
+    Tag = 2
     Left = 8
     Height = 152
     Top = 168
-    Width = 544
+    Width = 560
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Client'
-    ClientHeight = 129
-    ClientWidth = 540
+    ClientHeight = 130
+    ClientWidth = 552
     TabOrder = 3
     object LabelLocalIP: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 8
-      Width = 100
+      Width = 88
       Caption = 'Local Client IP'
       ParentColor = False
     end
     object EditLocalClientIP: TEdit
       Left = 27
-      Height = 31
+      Height = 22
       Top = 28
       Width = 149
+      Enabled = False
       TabOrder = 0
     end
     object LabelLocalPort: TLabel
       Left = 192
-      Height = 21
+      Height = 16
       Top = 8
-      Width = 116
+      Width = 103
       Caption = 'Local Client Port'
       ParentColor = False
     end
     object SpinEditLocalClientPort: TSpinEdit
       Left = 208
-      Height = 31
+      Height = 16
       Top = 28
       Width = 101
       MaxValue = 65535
@@ -115,16 +116,16 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemoteIP: TLabel
       Left = 8
-      Height = 21
-      Top = 64
-      Width = 132
+      Height = 16
+      Top = 80
+      Width = 117
       Caption = 'Remote Listener IP'
       ParentColor = False
     end
     object EditRemoteListenerIP: TEdit
       Left = 27
-      Height = 31
-      Top = 86
+      Height = 22
+      Top = 102
       Width = 149
       OnExit = EditRemoteListenerIPExit
       OnKeyPress = EditRemoteListenerIPKeyPress
@@ -132,8 +133,8 @@ object FrameLccSettings: TFrameLccSettings
     end
     object SpinEditRemoteListenerPort: TSpinEdit
       Left = 208
-      Height = 31
-      Top = 86
+      Height = 16
+      Top = 102
       Width = 101
       MaxValue = 65535
       OnExit = SpinEditRemoteListenerPortExit
@@ -144,7 +145,7 @@ object FrameLccSettings: TFrameLccSettings
     object ButtonSetLoopbackRemote: TButton
       Left = 336
       Height = 22
-      Top = 80
+      Top = 96
       Width = 91
       Caption = 'Loopback'
       OnClick = ButtonSetLoopbackRemoteClick
@@ -152,49 +153,62 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemotePort: TLabel
       Left = 192
-      Height = 21
-      Top = 64
-      Width = 148
+      Height = 16
+      Top = 80
+      Width = 131
       Caption = 'Remote Listener Port'
       ParentColor = False
     end
+    object CheckBoxAutoResolveLocalAddressClient: TCheckBox
+      Left = 40
+      Height = 18
+      Top = 56
+      Width = 158
+      Caption = 'Auto Resolve Address'
+      Checked = True
+      OnChange = CheckBoxAutoResolveLocalAddressClientChange
+      State = cbChecked
+      TabOrder = 6
+    end
   end
   object GroupBoxEthernetServer: TGroupBox
+    Tag = 3
     Left = 8
-    Height = 112
-    Top = 320
-    Width = 544
+    Height = 96
+    Top = 328
+    Width = 560
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Server'
-    ClientHeight = 89
-    ClientWidth = 540
+    ClientHeight = 74
+    ClientWidth = 552
     TabOrder = 4
     object LabelLocalIP1: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 0
-      Width = 115
+      Width = 102
       Caption = 'Local Listener IP'
       ParentColor = False
     end
     object EditLocalListenerIP: TEdit
       Left = 27
-      Height = 31
+      Height = 22
       Top = 20
       Width = 149
+      Enabled = False
       TabOrder = 0
     end
     object LabelLocalPort1: TLabel
       Left = 192
-      Height = 21
+      Height = 16
       Top = 0
-      Width = 131
+      Width = 116
       Caption = 'Local Listener Port'
       ParentColor = False
     end
     object SpinEditLocalListenerPort: TSpinEdit
       Left = 208
-      Height = 31
+      Height = 16
       Top = 20
       Width = 101
       MaxValue = 65535
@@ -210,29 +224,32 @@ object FrameLccSettings: TFrameLccSettings
       OnClick = ButtonSetLoopbackServerClick
       TabOrder = 2
     end
-    object CheckBoxAutoResolveLocalAddress: TCheckBox
-      Left = 32
-      Height = 25
-      Top = 56
-      Width = 178
+    object CheckBoxAutoResolveLocalAddressServer: TCheckBox
+      Left = 40
+      Height = 18
+      Top = 48
+      Width = 158
       Caption = 'Auto Resolve Address'
-      OnChange = CheckBoxAutoResolveLocalAddressChange
+      Checked = True
+      OnChange = CheckBoxAutoResolveLocalAddressServerChange
+      State = cbChecked
       TabOrder = 3
     end
   end
   object GroupBoxPiSpiPort: TGroupBox
+    Tag = 1
     Left = 8
-    Height = 81
+    Height = 73
     Top = 88
-    Width = 544
+    Width = 560
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Rasberry Pi SPI Port'
-    ClientHeight = 58
-    ClientWidth = 540
+    ClientHeight = 51
+    ClientWidth = 552
     TabOrder = 5
     object ComboBoxPiSpiPort: TComboBox
       Left = 17
-      Height = 35
+      Height = 20
       Top = 9
       Width = 226
       ItemHeight = 0

@@ -35,7 +35,9 @@ uses
   function NullArrayToString(var ANullArray: array of Byte): LccString;
   function EventIDToString(EventID: TEventID): string;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
+  {$IFNDEF WINDOWS}
   procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  {$ENDIF}
 
 {$IFDEF FPC}
 type

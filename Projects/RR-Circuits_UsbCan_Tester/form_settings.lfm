@@ -1,0 +1,60 @@
+object FormSettings: TFormSettings
+  Left = 535
+  Height = 521
+  Top = 214
+  Width = 635
+  Caption = 'Settings'
+  ClientHeight = 521
+  ClientWidth = 635
+  OnShow = FormShow
+  LCLVersion = '1.4.0.4'
+  inline FrameLccSettings: TFrameLccSettings
+    Height = 521
+    Width = 635
+    Align = alClient
+    ClientHeight = 521
+    ClientWidth = 635
+    inherited ButtonOk: TButton
+      Left = 480
+      Top = 472
+    end
+    inherited ButtonCancel: TButton
+      Left = 334
+      Top = 472
+    end
+    inherited GroupBoxComPort: TGroupBox
+      Width = 610
+      ClientWidth = 602
+    end
+    inherited GroupBoxEthernetClient: TGroupBox
+      Height = 168
+      Width = 610
+      ClientHeight = 146
+      ClientWidth = 602
+      inherited LabelRemoteIP: TLabel
+        Top = 88
+      end
+      inherited EditRemoteListenerIP: TEdit
+        Top = 110
+      end
+      inherited SpinEditRemoteListenerPort: TSpinEdit
+        Top = 110
+      end
+      inherited ButtonSetLoopbackRemote: TButton
+        Top = 104
+      end
+      inherited LabelRemotePort: TLabel
+        Top = 88
+      end
+    end
+    inherited GroupBoxEthernetServer: TGroupBox
+      Top = 352
+      Width = 610
+      ClientWidth = 602
+    end
+    inherited GroupBoxPiSpiPort: TGroupBox
+      Width = 609
+      ClientWidth = 601
+    end
+  end
+end

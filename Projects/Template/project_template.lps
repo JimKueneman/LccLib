@@ -33,8 +33,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="371"/>
-        <CursorPos X="7" Y="375"/>
+        <TopLine Value="275"/>
+        <CursorPos X="12" Y="302"/>
         <UsageCount Value="54"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -176,7 +176,7 @@
         <UsageCount Value="10"/>
       </Unit21>
     </Units>
-    <JumpHistory Count="16" HistoryIndex="15">
+    <JumpHistory Count="21" HistoryIndex="20">
       <Position1>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
         <Caret Line="2547" Column="5" TopLine="2522"/>
@@ -240,6 +240,26 @@
       <Position16>
         <Filename Value="form_settings.pas"/>
       </Position16>
+      <Position17>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="375" Column="7" TopLine="372"/>
+      </Position17>
+      <Position18>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="179" Column="28" TopLine="160"/>
+      </Position18>
+      <Position19>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="194" Column="27" TopLine="178"/>
+      </Position19>
+      <Position20>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="197" Column="28" TopLine="181"/>
+      </Position20>
+      <Position21>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="289" Column="5" TopLine="273"/>
+      </Position21>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
