@@ -7,17 +7,21 @@ unit lcc_raspberrypi_spiport;
 interface
 
 uses
-  Classes, SysUtils, contnrs,
-  {$IFDEF FPC}
-  LResources, Forms, Controls, Graphics, Dialogs, baseUnix,
+  Classes, SysUtils,
+  {$IFDEF ARMCPU}
+    {$IFDEF FPC}
+    LResources, Forms, Controls, Graphics, Dialogs, baseUnix,
+    {$ENDIF}
+    {$IFDEF LOGGING}
+    frame_lcc_logging, lcc_detailed_logging,
+    {$ENDIF}
+    lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
+    lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
+    lcc_common_classes, file_utilities,
   {$ENDIF}
-  {$IFDEF LOGGING}
-  frame_lcc_logging, lcc_detailed_logging,
-  {$ENDIF}
-  lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
-  lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes, file_utilities;
+  contnrs;
 
+{$IFDEF ARMCPU}
 const
   // Clock Phase
   SPI_CPHA           =     $01;
@@ -273,9 +277,6 @@ type
   end;
 
 
-
-
-  {$IFNDEF MSWINDOWS}
   function GetRaspberryPiSpiPortNames: string;
   {$ENDIF}
 
@@ -285,11 +286,13 @@ implementation
 
 procedure Register;
 begin
+  {$IFDEF ARMCPU}
  // {$I TLccRaspberryPiSpiPort.lrs}
   RegisterComponents('LCC',[TLccRaspberryPiSpiPort]);
+  {$ENDIF}
 end;
 
-{$IFNDEF MSWINDOWS}
+{$IFDEF ARMCPU}
 function GetRaspberryPiSpiPortNames: string;
 var
   Index: Integer;
@@ -590,8 +593,6 @@ begin
   end;
   FreeAndNil( RaspberryPiSpiPortThread);
 end;
-
-{$ENDIF}
 
 { TLccRaspberryPiSpiPortThread }
 
@@ -976,6 +977,8 @@ initialization
   RegisterClass(TLccRaspberryPiSpiPort);
 
 finalization
+
+{$ENDIF}
 
 end.
 
