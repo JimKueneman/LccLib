@@ -2,10 +2,10 @@ object FormTemplate: TFormTemplate
   Left = 347
   Height = 441
   Top = 212
-  Width = 718
+  Width = 741
   Caption = 'RR CirKits'
-  ClientHeight = 441
-  ClientWidth = 718
+  ClientHeight = 421
+  ClientWidth = 741
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnResize = FormResize
@@ -15,7 +15,7 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 46
     Top = 0
-    Width = 718
+    Width = 741
     AutoSize = True
     ButtonHeight = 44
     Caption = 'ToolBarMain'
@@ -28,17 +28,17 @@ object FormTemplate: TFormTemplate
       Action = ActionComPortConnect
     end
     object ToolButtonEthernetClient: TToolButton
-      Left = 63
+      Left = 50
       Top = 2
       Action = ActionEthenetClientConnect
     end
     object ToolButtonEthernetServer: TToolButton
-      Left = 165
+      Left = 130
       Top = 2
       Action = ActionEthernetServerConnect
     end
     object ToolButtonSeparator: TToolButton
-      Left = 269
+      Left = 215
       Height = 44
       Top = 2
       Width = 20
@@ -46,21 +46,21 @@ object FormTemplate: TFormTemplate
       Style = tbsSeparator
     end
     object ToolButtonMsgTrace: TToolButton
-      Left = 361
+      Left = 290
       Top = 2
       Action = ActionMsgTrace
     end
     object ToolButtonLccLogIn: TToolButton
-      Left = 289
+      Left = 235
       Top = 2
       Action = ActionLccLogin
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 426
-    Width = 718
+    Height = 23
+    Top = 398
+    Width = 741
     Panels = <    
       item
         Text = 'Disconnected'
@@ -74,62 +74,124 @@ object FormTemplate: TFormTemplate
   end
   object PanelAppSpace: TPanel
     Left = 0
-    Height = 237
+    Height = 209
     Top = 46
-    Width = 718
+    Width = 741
     Align = alClient
-    ClientHeight = 237
-    ClientWidth = 718
+    ClientHeight = 209
+    ClientWidth = 741
     TabOrder = 2
     object PanelOutgoing: TPanel
       Left = 1
-      Height = 235
+      Height = 207
       Top = 1
       Width = 319
       Align = alLeft
-      ClientHeight = 235
+      ClientHeight = 207
       ClientWidth = 319
       TabOrder = 0
       object MemoOutgoing: TMemo
         Left = 1
-        Height = 233
+        Height = 155
         Top = 1
         Width = 317
         Align = alClient
+        ScrollBars = ssAutoBoth
         TabOrder = 0
+      end
+      object Panel1: TPanel
+        Left = 1
+        Height = 50
+        Top = 156
+        Width = 317
+        Align = alBottom
+        ClientHeight = 50
+        ClientWidth = 317
+        TabOrder = 1
+        object ButtonSaveToFileOutgoing: TButton
+          Left = 65
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'SaveToFile...'
+          OnClick = ButtonSaveToFileOutgoingClick
+          TabOrder = 0
+        end
+        object ButtonLoadFromFileOutgoing: TButton
+          Left = 193
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'Load from File...'
+          OnClick = ButtonLoadFromFileOutgoingClick
+          TabOrder = 1
+        end
       end
     end
     object PanelIncoming: TPanel
       Left = 442
-      Height = 235
+      Height = 207
       Top = 1
-      Width = 275
+      Width = 298
       Align = alClient
-      ClientHeight = 235
-      ClientWidth = 275
+      ClientHeight = 207
+      ClientWidth = 298
       TabOrder = 1
       object MemoIncoming: TMemo
         Left = 1
-        Height = 233
+        Height = 155
         Top = 1
-        Width = 273
+        Width = 296
         Align = alClient
+        ScrollBars = ssAutoBoth
         TabOrder = 0
+      end
+      object Panel2: TPanel
+        Left = 1
+        Height = 50
+        Top = 156
+        Width = 296
+        Align = alBottom
+        ClientHeight = 50
+        ClientWidth = 296
+        TabOrder = 1
+        object ButtonLoadFromFileInComing: TButton
+          Left = 168
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'Load from File...'
+          OnClick = ButtonLoadFromFileInComingClick
+          TabOrder = 0
+        end
+        object ButtonSaveToFileInComing: TButton
+          Left = 40
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'SaveToFile...'
+          OnClick = ButtonSaveToFileInComingClick
+          TabOrder = 1
+        end
       end
     end
     object PanelCenter: TPanel
       Left = 320
-      Height = 235
+      Height = 207
       Top = 1
       Width = 122
       Align = alLeft
-      ClientHeight = 235
+      ClientHeight = 207
       ClientWidth = 122
       TabOrder = 2
       object ButtonSend: TButton
         Left = 8
         Height = 22
-        Top = 203
+        Top = 175
         Width = 104
         Anchors = [akLeft, akBottom]
         Caption = 'Send ->'
@@ -138,8 +200,8 @@ object FormTemplate: TFormTemplate
       end
       object SpinEditDelay: TSpinEdit
         Left = 16
-        Height = 16
-        Top = 162
+        Height = 21
+        Top = 129
         Width = 74
         Alignment = taRightJustify
         Anchors = [akLeft, akBottom]
@@ -149,9 +211,9 @@ object FormTemplate: TFormTemplate
       end
       object Label1: TLabel
         Left = 8
-        Height = 16
-        Top = 138
-        Width = 96
+        Height = 13
+        Top = 113
+        Width = 73
         Anchors = [akLeft, akBottom]
         Caption = 'Msg Delay (ms)'
         ParentColor = False
@@ -167,7 +229,7 @@ object FormTemplate: TFormTemplate
       end
       object SpinEditRepeat: TSpinEdit
         Left = 16
-        Height = 16
+        Height = 21
         Top = 66
         Width = 74
         Alignment = taRightJustify
@@ -177,9 +239,9 @@ object FormTemplate: TFormTemplate
       end
       object Label2: TLabel
         Left = 8
-        Height = 16
+        Height = 13
         Top = 48
-        Width = 85
+        Width = 67
         Caption = 'Repeat Count'
         ParentColor = False
       end
@@ -189,25 +251,25 @@ object FormTemplate: TFormTemplate
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 283
-    Width = 718
+    Top = 255
+    Width = 741
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 288
-    Width = 718
+    Top = 260
+    Width = 741
     Align = alBottom
     ClientHeight = 138
-    ClientWidth = 718
+    ClientWidth = 741
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 13
       Top = 1
-      Width = 700
+      Width = 723
       Align = alTop
       BorderSpacing.Left = 8
       BorderSpacing.Right = 8
@@ -216,9 +278,9 @@ object FormTemplate: TFormTemplate
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
-      Width = 716
+      Height = 123
+      Top = 14
+      Width = 739
       Align = alClient
       Columns = <      
         item
@@ -32386,5 +32448,17 @@ object FormTemplate: TFormTemplate
     object MenuItemHelp: TMenuItem
       Caption = 'Help'
     end
+  end
+  object OpenDialog: TOpenDialog
+    DefaultExt = '.txt'
+    Filter = 'Message File|*.txt'
+    left = 150
+    top = 131
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = '.txt'
+    Filter = 'Message File|*.txt'
+    left = 200
+    top = 137
   end
 end

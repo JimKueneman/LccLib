@@ -37,6 +37,10 @@ type
     ActionEthenetClientConnect: TAction;
     ActionEthernetServerConnect: TAction;
     ActionList: TActionList;
+    ButtonSaveToFileOutgoing: TButton;
+    ButtonLoadFromFileOutgoing: TButton;
+    ButtonLoadFromFileInComing: TButton;
+    ButtonSaveToFileInComing: TButton;
     ButtonSend: TButton;
     ButtonSend1: TButton;
     ImageListToolbar: TImageList;
@@ -54,12 +58,15 @@ type
     MenuItemToolsSettings: TMenuItem;
     MenuItemTools: TMenuItem;
     MenuItemHelp: TMenuItem;
+    OpenDialog: TOpenDialog;
+    Panel1: TPanel;
     PanelCenter: TPanel;
     PanelIncoming: TPanel;
     PanelOutgoing: TPanel;
     Panel2: TPanel;
     PanelAddOns: TPanel;
     PanelAppSpace: TPanel;
+    SaveDialog: TSaveDialog;
     SpinEditRepeat: TSpinEdit;
     SpinEditDelay: TSpinEdit;
     SplitterApp: TSplitter;
@@ -77,6 +84,10 @@ type
     procedure ActionMsgTraceExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
+    procedure ButtonLoadFromFileInComingClick(Sender: TObject);
+    procedure ButtonLoadFromFileOutgoingClick(Sender: TObject);
+    procedure ButtonSaveToFileInComingClick(Sender: TObject);
+    procedure ButtonSaveToFileOutgoingClick(Sender: TObject);
     procedure ButtonSend1Click(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -246,6 +257,30 @@ begin
     FormSettings.FrameLccSettings.StoreSettings;
 end;
 
+procedure TFormTemplate.ButtonLoadFromFileInComingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoIncoming.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonLoadFromFileOutgoingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoOutgoing.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSaveToFileInComingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoIncoming.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSaveToFileOutgoingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoOutgoing.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
 procedure TFormTemplate.ButtonSend1Click(Sender: TObject);
 begin
   MemoOutgoing.Lines.BeginUpdate;
@@ -269,12 +304,18 @@ begin
   try
     for j := 0 to SpinEditRepeat.Value - 1 do
     begin
+      if SpinEditDelay.Value = 0 then
+        LccComPort.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+
       for i := 0 to MemoOutgoing.Lines.Count - 1 do
       begin;
         if Msg.LoadByGridConnectStr(MemoOutgoing.Lines[i]) then
         begin
-          if ActionComPortConnect.Checked then
-            LccComPort.SendMessage(Msg);
+          if SpinEditDelay.Value > 0 then
+          begin
+            if ActionComPortConnect.Checked then
+              LccComPort.SendMessage(Msg);
+          end;
           if ActionEthernetServerConnect.Checked then
             LccEthernetServer.SendMessage(Msg);
           if ActionEthenetClientConnect.Checked then
