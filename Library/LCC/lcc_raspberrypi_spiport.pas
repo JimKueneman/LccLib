@@ -2,7 +2,6 @@ unit lcc_raspberrypi_spiport;
 
 {$mode objfpc}{$H+}
 
-<<<<<<< HEAD
 {$DEFINE LOGGING}
 
 interface
@@ -279,16 +278,6 @@ type
   {$IFNDEF MSWINDOWS}
   function GetRaspberryPiSpiPortNames: string;
   {$ENDIF}
-=======
-interface
-
-uses
-  Classes, SysUtils;
-
-
-function GetRaspberryPiSpiPortNames: string;
-
->>>>>>> 806736a64f32dbdc5a1f599616ddcb6870291b54
 
 procedure Register;
 
@@ -296,7 +285,6 @@ implementation
 
 procedure Register;
 begin
-<<<<<<< HEAD
  // {$I TLccRaspberryPiSpiPort.lrs}
   RegisterComponents('LCC',[TLccRaspberryPiSpiPort]);
 end;
@@ -989,14 +977,5 @@ initialization
 
 finalization
 
-=======
-end;
-
-function GetRaspberryPiSpiPortNames: string;
-begin
-  result := ''
-end;
-
->>>>>>> 806736a64f32dbdc5a1f599616ddcb6870291b54
 end.
 
