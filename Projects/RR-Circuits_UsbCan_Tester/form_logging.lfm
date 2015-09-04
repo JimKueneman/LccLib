@@ -1,0 +1,19 @@
+object FormLogging: TFormLogging
+  Left = 422
+  Height = 258
+  Top = 179
+  Width = 735
+  Caption = 'LCC Message Logging'
+  ClientHeight = 258
+  ClientWidth = 735
+  OnHide = FormHide
+  LCLVersion = '1.4.0.4'
+  inline FrameLccLogging: TFrameLccLogging
+    Left = 0
+    Height = 258
+    Top = 0
+    Width = 735
+    Align = alClient
+    TabOrder = 0
+  end
+end

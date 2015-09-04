@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  ActnList, Menus, LCLType, StdCtrls, ExtCtrls, lcc_app_common_settings,
+  ActnList, Menus, LCLType, StdCtrls, ExtCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_ethernetclient, lcc_nodemanager, lcc_ethenetserver,
   form_settings, file_utilities, lcc_messages, form_logging, lcc_defines,
-  lcc_utilities, frame_lcc_logging;
+  lcc_utilities, frame_lcc_logging, lcc_message_scheduler;
 
 const
   BUNDLENAME             = 'LCCAppTemplate';
@@ -37,21 +37,38 @@ type
     ActionEthenetClientConnect: TAction;
     ActionEthernetServerConnect: TAction;
     ActionList: TActionList;
+    ButtonSaveToFileOutgoing: TButton;
+    ButtonLoadFromFileOutgoing: TButton;
+    ButtonLoadFromFileInComing: TButton;
+    ButtonSaveToFileInComing: TButton;
+    ButtonSend: TButton;
+    ButtonSend1: TButton;
     ImageListToolbar: TImageList;
+    Label1: TLabel;
+    Label2: TLabel;
     LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
     LccEthernetClient: TLccEthernetClient;
     LccEthernetServer: TLccEthernetServer;
-    LccNodeManager: TLccNodeManager;
     LccSettings: TLccSettings;
     ListViewServerConnections: TListView;
     MainMenu: TMainMenu;
+    MemoOutgoing: TMemo;
+    MemoIncoming: TMemo;
     MenuItemToolsSettings: TMenuItem;
     MenuItemTools: TMenuItem;
     MenuItemHelp: TMenuItem;
+    OpenDialog: TOpenDialog;
+    Panel1: TPanel;
+    PanelCenter: TPanel;
+    PanelIncoming: TPanel;
+    PanelOutgoing: TPanel;
     Panel2: TPanel;
     PanelAddOns: TPanel;
     PanelAppSpace: TPanel;
+    SaveDialog: TSaveDialog;
+    SpinEditRepeat: TSpinEdit;
+    SpinEditDelay: TSpinEdit;
     SplitterApp: TSplitter;
     StatusBarMain: TStatusBar;
     ToolBarMain: TToolBar;
@@ -64,21 +81,40 @@ type
     procedure ActionComPortConnectExecute(Sender: TObject);
     procedure ActionEthenetClientConnectExecute(Sender: TObject);
     procedure ActionEthernetServerConnectExecute(Sender: TObject);
-    procedure ActionLccLoginExecute(Sender: TObject);
     procedure ActionMsgTraceExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
+    procedure ButtonLoadFromFileInComingClick(Sender: TObject);
+    procedure ButtonLoadFromFileOutgoingClick(Sender: TObject);
+    procedure ButtonSaveToFileInComingClick(Sender: TObject);
+    procedure ButtonSaveToFileOutgoingClick(Sender: TObject);
+    procedure ButtonSend1Click(Sender: TObject);
+    procedure ButtonSendClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccComPortReceiveMessage(Sender: TObject;
+      ComPortRec: TLccComPortRec);
+    procedure LccComPortSchedulerClass(Sender: TObject;
+      var SchedulerClass: TSchedulerBaseClass);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetClientReceiveMessage(Sender: TObject;
+      EthernetRec: TLccEthernetRec);
+    procedure LccEthernetClientSchedulerClass(Sender: TObject;
+      var SchedulerClass: TSchedulerBaseClass);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerReceiveMessage(Sender: TObject;
+      EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerSchedulerClass(Sender: TObject;
+      var SchedulerClass: TSchedulerBaseClass);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccGetRootNodeClass(Sender: TObject; var NodeClass: TLccOwnedNodeClass);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerRequestMessageSend(Sender: TObject; LccMessage: TLccMessage);
+    procedure SpinEditDelayChange(Sender: TObject);
   private
     FAppAboutCmd: TMenuItem;
     FShownOnce: Boolean;
@@ -201,13 +237,6 @@ begin
   end;
 end;
 
-procedure TFormTemplate.ActionLccLoginExecute(Sender: TObject);
-begin
-  LccNodeManager.Enabled := ActionLccLogin.Checked;
-  if not LccNodeManager.Enabled then
-    StatusBarMain.Panels[1].Text := 'Disconnected';
-end;
-
 procedure TFormTemplate.ActionMsgTraceExecute(Sender: TObject);
 begin
   if ActionMsgTrace.Checked then
@@ -228,6 +257,77 @@ begin
     FormSettings.FrameLccSettings.StoreSettings;
 end;
 
+procedure TFormTemplate.ButtonLoadFromFileInComingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoIncoming.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonLoadFromFileOutgoingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoOutgoing.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSaveToFileInComingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoIncoming.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSaveToFileOutgoingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoOutgoing.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSend1Click(Sender: TObject);
+begin
+  MemoOutgoing.Lines.BeginUpdate;
+  try
+    MemoOutgoing.Lines.Add(':X17000352N;');
+    MemoOutgoing.Lines.Add(':X16000352N;');
+    MemoOutgoing.Lines.Add(':X14000352N;');
+    MemoOutgoing.Lines.Add(':X10700352N;');
+    MemoOutgoing.Lines.Add(':X19490352N;');
+  finally
+    MemoOutgoing.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormTemplate.ButtonSendClick(Sender: TObject);
+var
+  Msg: TLccMessage;
+  i, j: Integer;
+begin
+  Msg := TLccMessage.Create;
+  try
+    for j := 0 to SpinEditRepeat.Value - 1 do
+    begin
+      if SpinEditDelay.Value = 0 then
+        LccComPort.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+
+      for i := 0 to MemoOutgoing.Lines.Count - 1 do
+      begin;
+        if Msg.LoadByGridConnectStr(MemoOutgoing.Lines[i]) then
+        begin
+          if SpinEditDelay.Value > 0 then
+          begin
+            if ActionComPortConnect.Checked then
+              LccComPort.SendMessage(Msg);
+          end;
+          if ActionEthernetServerConnect.Checked then
+            LccEthernetServer.SendMessage(Msg);
+          if ActionEthenetClientConnect.Checked then
+            LccEthernetClient.SendMessage(Msg);
+        end;
+      end;
+    end;
+  finally
+    Msg.Free;
+  end;
+end;
+
 procedure TFormTemplate.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   if ActionComPortConnect.Checked then
@@ -236,6 +336,11 @@ begin
     ActionEthenetClientConnect.Execute;
   if ActionEthernetServerConnect.Checked then
     ActionEthernetServerConnect.Execute;
+end;
+
+procedure TFormTemplate.FormResize(Sender: TObject);
+begin
+  PanelOutgoing.Width := ((ClientWidth - PanelCenter.Width)  div 2);
 end;
 
 procedure TFormTemplate.FormShow(Sender: TObject);
@@ -277,6 +382,8 @@ begin
       LccSettings.LoadFromFile;
     FormLogging.OnHideNotifyEvent := @OnTraceFormHideEvent;
     FormSettings.FrameLccSettings.LccSettings := LccSettings;
+    FormSettings.FrameLccSettings.UserSettings.RaspberryPiSpiPort := False;
+    FormSettings.FrameLccSettings.UserSettings.ResizeParentForm := True;
     ActionLccLogin.Enabled := False;
     PanelAddOns.Visible := False;
     ShownOnce := True;
@@ -316,6 +423,21 @@ begin
   ShowMessage('Error Connecting to ComPort: ' + ComPortRec.ComPort + ': ' + ComPortRec.MessageStr);
 end;
 
+procedure TFormTemplate.LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+begin
+  MemoIncoming.Lines.BeginUpdate;
+  try
+    MemoIncoming.Lines.Add(ComPortRec.MessageStr);
+  finally
+    MemoIncoming.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormTemplate.LccComPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
+begin
+  SchedulerClass := TSchedulerPassThrough;
+end;
+
 procedure TFormTemplate.LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
@@ -347,6 +469,22 @@ end;
 procedure TFormTemplate.LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   ShowMessage('Error Connecting to Server: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort) + ': ' + EthernetRec.MessageStr);
+end;
+
+procedure TFormTemplate.LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  MemoIncoming.Lines.BeginUpdate;
+  try
+    MemoIncoming.Lines.Add(EthernetRec.MessageStr);
+  finally
+    MemoIncoming.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormTemplate.LccEthernetClientSchedulerClass(Sender: TObject;
+  var SchedulerClass: TSchedulerBaseClass);
+begin
+  SchedulerClass := TSchedulerPassThrough;
 end;
 
 procedure TFormTemplate.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -401,6 +539,22 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TFormTemplate.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  MemoIncoming.Lines.BeginUpdate;
+  try
+    MemoIncoming.Lines.Add(EthernetRec.MessageStr);
+  finally
+    MemoIncoming.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormTemplate.LccEthernetServerSchedulerClass(Sender: TObject;
+  var SchedulerClass: TSchedulerBaseClass);
+begin
+  SchedulerClass := TSchedulerPassThrough;
 end;
 
 procedure TFormTemplate.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -462,6 +616,13 @@ procedure TFormTemplate.OnTraceFormHideEvent(Sender: TObject);
 begin
   if ActionMsgTrace.Visible then
     ActionMsgTrace.Execute;
+end;
+
+procedure TFormTemplate.SpinEditDelayChange(Sender: TObject);
+begin
+  LccComPort.SleepCount := SpinEditDelay.Value;
+  LccEthernetClient.SleepCount := SpinEditDelay.Value;
+  LccEthernetServer.SleepCount := SpinEditDelay.Value;
 end;
 
 end.

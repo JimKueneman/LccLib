@@ -360,7 +360,6 @@ var
 begin
   FRunning := True;
 
-  SendConnectionNotification(ccsListenerConnecting);
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
@@ -368,7 +367,7 @@ begin
   Socket.SetTimeout(0);
   SendConnectionNotification(ccsListenerConnecting);
 
-  if FEthernetRec.AutoResolveListenerIP then
+  if FEthernetRec.AutoResolveIP then
   begin
     {$IFDEF WINDOWS}
     LocalName := Socket.LocalName;
@@ -385,6 +384,8 @@ begin
     FEthernetRec.ListenerIP := Ip;
     {$ENDIF}
   end;
+
+  SendConnectionNotification(ccsListenerConnecting);
 
   Socket.Bind(EthernetRec.ListenerIP, IntToStr(EthernetRec.ListenerPort));
   if Socket.LastError <> 0 then
@@ -660,7 +661,7 @@ begin
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
     AnEthernetRec.MessageArray := nil;
-    AnEthernetRec.AutoResolveListenerIP := LccSettings.Ethernet.AutoResolveListenerIP;
+    AnEthernetRec.AutoResolveIP := LccSettings.Ethernet.AutoResolveListenerIP;
     Result := OpenConnection(AnEthernetRec);
   end;
 end;

@@ -6,7 +6,7 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="project_template"/>
+      <Title Value="rr_cirkits"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
@@ -36,9 +36,9 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
-        <Filename Value="project_template.lpr"/>
+        <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
@@ -64,13 +64,17 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="..\..\Library\LCC\lcc_raspberrypi_spiport.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="Compiled_Binaries\$(TargetCPU)-$(TargetOS)\project_template.app\Contents\MacOS\project_template"/>
+      <Filename Value="Compiled_Binaries\$(TargetCPU)-$(TargetOS)\rr_cirkits.app\Contents\MacOS\rr_cirkits"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

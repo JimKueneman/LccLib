@@ -9,7 +9,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, Spin,
   Buttons, synaser, lcc_app_common_settings, Dialogs, LResources,
-  lcc_raspberrypi_spiport;
+  lcc_raspberrypi_spiport, contnrs;
 
 type
 
@@ -23,18 +23,21 @@ type
     function GetComPort: Boolean;
     function GetEthernetClient: Boolean;
     function GetEthernetServer: Boolean;
-    function GetPiSpiPort: Boolean;
+    function GetRaspberryPiSpiPort: Boolean;
+    function GetResizeParentForm: Boolean;
     procedure SetComPort(AValue: Boolean);
     procedure SetEthernetClient(AValue: Boolean);
     procedure SetEthernetServer(AValue: Boolean);
-    procedure SetPiSpiPort(AValue: Boolean);
+    procedure SetRaspberryPiSpiPort(AValue: Boolean);
+    procedure SetResizeParentForm(AValue: Boolean);
   public
     property OwnerSettings: TFrameLccSettings read FOwnerSettings write FOwnerSettings;
   published
     property ComPort: Boolean read GetComPort write SetComPort;
-    property PiSpiPort: Boolean read GetPiSpiPort write SetPiSpiPort;
+    property RaspberryPiSpiPort: Boolean read GetRaspberryPiSpiPort write SetRaspberryPiSpiPort;
     property EthernetClient: Boolean read GetEthernetClient write SetEthernetClient;
     property EthernetServer: Boolean read GetEthernetServer write SetEthernetServer;
+    property ResizeParentForm: Boolean read GetResizeParentForm write SetResizeParentForm;
   end;
 
   { TFrameLccSettings }
@@ -47,7 +50,8 @@ type
     ButtonSetLoopbackClient: TButton;
     ButtonSetLoopbackServer: TButton;
     ButtonSetLoopbackRemote: TButton;
-    CheckBoxAutoResolveLocalAddress: TCheckBox;
+    CheckBoxAutoResolveLocalAddressClient: TCheckBox;
+    CheckBoxAutoResolveLocalAddressServer: TCheckBox;
     ComboBoxComPort: TComboBox;
     ComboBoxPiSpiPort: TComboBox;
     EditLocalClientIP: TEdit;
@@ -72,7 +76,8 @@ type
     procedure ButtonSetLoopbackClientClick(Sender: TObject);
     procedure ButtonSetLoopbackRemoteClick(Sender: TObject);
     procedure ButtonSetLoopbackServerClick(Sender: TObject);
-    procedure CheckBoxAutoResolveLocalAddressChange(Sender: TObject);
+    procedure CheckBoxAutoResolveLocalAddressClientChange(Sender: TObject);
+    procedure CheckBoxAutoResolveLocalAddressServerChange(Sender: TObject);
     procedure ComboBoxComPortChange(Sender: TObject);
     procedure EditRemoteListenerIPExit(Sender: TObject);
     procedure EditRemoteListenerIPKeyPress(Sender: TObject; var Key: char);
@@ -87,12 +92,14 @@ type
     FEthernetServer: Boolean;
     FLccSettings: TLccSettings;
     FPiSpiPort: Boolean;
+    FResizeParentForm: Boolean;
     FUserSettings: TUserSettings;
     { private declarations }
     procedure SetComPort(AValue: Boolean);
     procedure SetEthernetClient(AValue: Boolean);
     procedure SetEthernetServer(AValue: Boolean);
     procedure SetPiSpiPort(AValue: Boolean);
+    procedure SetResizeParentForm(AValue: Boolean);
     property LockSetting: Boolean read FLockSetting write FLockSetting;
   protected
     procedure PositionButtons;
@@ -100,6 +107,7 @@ type
     property PiSpiPort: Boolean read FPiSpiPort write SetPiSpiPort;
     property EthernetClient: Boolean read FEthernetClient write SetEthernetClient;
     property EthernetServer: Boolean read FEthernetServer write SetEthernetServer;
+    property ResizeParentForm: Boolean read FResizeParentForm write SetResizeParentForm;
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
@@ -115,6 +123,11 @@ type
 implementation
 
 {$R *.lfm}
+
+function GroupBoxSort(Item1, Item2: Pointer): Integer;
+begin
+  Result := TGroupBox( Item1).Tag - TGroupBox( Item2).Tag;
+end;
 
 { TUserSettings }
 
@@ -133,9 +146,14 @@ begin
   Result := OwnerSettings.EthernetServer;
 end;
 
-function TUserSettings.GetPiSpiPort: Boolean;
+function TUserSettings.GetRaspberryPiSpiPort: Boolean;
 begin
   Result := OwnerSettings.PiSpiPort
+end;
+
+function TUserSettings.GetResizeParentForm: Boolean;
+begin
+  Result := OwnerSettings.ResizeParentForm;
 end;
 
 
@@ -155,9 +173,14 @@ begin
   OwnerSettings.EthernetServer := AValue
 end;
 
-procedure TUserSettings.SetPiSpiPort(AValue: Boolean);
+procedure TUserSettings.SetRaspberryPiSpiPort(AValue: Boolean);
 begin
  OwnerSettings.PiSpiPort := AValue
+end;
+
+procedure TUserSettings.SetResizeParentForm(AValue: Boolean);
+begin
+  OwnerSettings.ResizeParentForm := AValue
 end;
 
 { TFrameLccSettings }
@@ -192,9 +215,15 @@ begin
   EditLocalListenerIP.Text := '127.0.0.1';
 end;
 
-procedure TFrameLccSettings.CheckBoxAutoResolveLocalAddressChange(Sender: TObject);
+procedure TFrameLccSettings.CheckBoxAutoResolveLocalAddressClientChange(
+  Sender: TObject);
 begin
-  EditLocalListenerIP.Enabled := not CheckBoxAutoResolveLocalAddress.Checked;
+  EditLocalClientIP.Enabled := not CheckBoxAutoResolveLocalAddressClient.Checked;
+end;
+
+procedure TFrameLccSettings.CheckBoxAutoResolveLocalAddressServerChange(Sender: TObject);
+begin
+  EditLocalListenerIP.Enabled := not CheckBoxAutoResolveLocalAddressServer.Checked;
 end;
 
 procedure TFrameLccSettings.ComboBoxComPortChange(Sender: TObject);
@@ -283,6 +312,12 @@ begin
   PositionButtons;
 end;
 
+procedure TFrameLccSettings.SetResizeParentForm(AValue: Boolean);
+begin
+  FResizeParentForm := AValue;
+  PositionButtons;
+end;
+
 procedure TFrameLccSettings.SpinEditRemoteListenerPortExit(Sender: TObject);
 begin
   StoreSettings;
@@ -308,7 +343,8 @@ begin
       LccSettings.Ethernet.RemoteListenerPort := SpinEditRemoteListenerPort.Value;
       LccSettings.Ethernet.LocalListenerIP := EditLocalListenerIP.Text;
       LccSettings.Ethernet.LocalListenerPort := SpinEditLocalListenerPort.Value;
-      LccSettings.Ethernet.AutoResolveListenerIP := CheckBoxAutoResolveLocalAddress.Checked;
+      LccSettings.Ethernet.AutoResolveListenerIP := CheckBoxAutoResolveLocalAddressServer.Checked;
+      LccSettings.Ethernet.AutoResolveClientIP := CheckBoxAutoResolveLocalAddressClient.Checked;
       LccSettings.PiSpiPort.Port := ComboBoxPiSpiPort.Caption;
       LccSettings.SaveToFile;
     end;
@@ -329,47 +365,67 @@ end;
 
 procedure TFrameLccSettings.PositionButtons;
 
-  procedure PositionEthernetGroupsBoxes(Offset: Integer);
-  begin
-    if GroupBoxEthernetClient.Visible then
+const
+  MARGIN = 8;
+var
+  VisibleGroupBoxes: TObjectList;
+  GroupBox, PrevGroupBox: TGroupBox;
+  i: Integer;
+  ParentControl: TWinControl;
+begin
+  VisibleGroupBoxes := TObjectList.Create;
+  try
+    VisibleGroupBoxes.OwnsObjects := False;
+
+    for i := 0 to ControlCount - 1 do
     begin
-      GroupBoxEthernetClient.Top := Offset + 8;
-      if GroupBoxEthernetServer.Visible then
+      if Controls[i] is TGroupBox then
       begin
-        GroupBoxEthernetServer.Top := GroupBoxEthernetClient.Top + GroupBoxEthernetClient.Height + 8;
-        ButtonCancel.Top := GroupBoxEthernetServer.Top + GroupBoxEthernetServer.Height + 8;
-        ButtonOk.Top := ButtonCancel.Top;
-        Height := ButtonOk.Top + ButtonOk.Height + 8;
-      end else
-      begin
-        ButtonCancel.Top := GroupBoxEthernetClient.Top + GroupBoxEthernetClient.Height + 8;
-        ButtonOk.Top := ButtonCancel.Top;
-        Height := ButtonOk.Top + ButtonOk.Height + 8;
-      end;
-    end else
-    begin
-      if GroupBoxEthernetServer.Visible then
-      begin
-        GroupBoxEthernetServer.Top := Offset + 8;
-        ButtonCancel.Top := GroupBoxEthernetServer.Top + GroupBoxEthernetServer.Height + 8;
-        ButtonOk.Top := ButtonCancel.Top;
-        Height := ButtonOk.Top + ButtonOk.Height + 8;
-      end else
-      begin
-        ButtonCancel.Top := Offset + 8;
-        ButtonOk.Top := ButtonCancel.Top;
-        Height := ButtonOk.Top + ButtonOk.Height + 8;
+        GroupBox := (Controls[i] as TGroupBox);
+        if GroupBox.Visible then
+          VisibleGroupBoxes.Add(GroupBox);
       end;
     end;
-  end;
 
-begin
-  if GroupBoxComPort.Visible then
-  begin
-    PositionEthernetGroupsBoxes(GroupBoxComPort.Top + GroupBoxComPort.Height);
-  end else
-  begin
-    PositionEthernetGroupsBoxes(0);
+    VisibleGroupBoxes.Sort(@GroupBoxSort);
+
+    PrevGroupBox := nil;
+    for i := 0 to VisibleGroupBoxes.Count - 1 do
+    begin
+      GroupBox := VisibleGroupBoxes[i] as TGroupBox;
+      if not Assigned(PrevGroupBox) then
+        GroupBox.Top := MARGIN
+      else begin
+        GroupBox.Top := PrevGroupBox.Top + PrevGroupBox.Height + MARGIN;
+      end;
+      PrevGroupBox := GroupBox;
+    end;
+
+    if Assigned(PrevGroupBox) then
+    begin
+      ButtonOk.Top := PrevGroupBox.Top + PrevGroupBox.Height + MARGIN;
+      ButtonCancel.Top := PrevGroupBox.Top + PrevGroupBox.Height + MARGIN;
+    end else
+    begin
+      ButtonOk.Top := MARGIN;
+      ButtonCancel.Top := MARGIN;
+    end;
+
+    if ResizeParentForm then
+    begin
+      ParentControl := Parent;
+      while (ParentControl <> nil) do
+      begin
+        if ParentControl is TForm then
+        begin
+          ParentControl.ClientHeight := ButtonOk.Top + ButtonOk.Height + MARGIN;
+          Break;
+        end;
+        ParentControl := ParentControl.Parent;
+      end;
+    end;
+  finally
+    FreeAndNil(VisibleGroupBoxes)
   end;
 end;
 
@@ -387,13 +443,15 @@ begin
       SpinEditRemoteListenerPort.Value := LccSettings.Ethernet.RemoteListenerPort;
       EditLocalListenerIP.Text := LccSettings.Ethernet.LocalListenerIP;
       SpinEditLocalListenerPort.Value := LccSettings.Ethernet.LocalListenerPort;
-      CheckBoxAutoResolveLocalAddress.Checked := LccSettings.Ethernet.AutoResolveListenerIP;
+      CheckBoxAutoResolveLocalAddressServer.Checked := LccSettings.Ethernet.AutoResolveListenerIP;
+      CheckBoxAutoResolveLocalAddressClient.Checked := LccSettings.Ethernet.AutoResolveClientIP;
       ComboBoxPiSpiPort.ItemIndex := ComboBoxPiSpiPort.Items.IndexOf(LccSettings.PiSpiPort.Port);
       if (ComboBoxPiSpiPort.ItemIndex < 0) and (ComboBoxPiSpiPort.Items.Count > 0) then
         ComboBoxPiSpiPort.ItemIndex := 0;
       ComboBoxComPort.ItemIndex := ComboBoxComPort.Items.IndexOf(LccSettings.ComPort.Port);
       if (ComboBoxComPort.ItemIndex < 0) and (ComboBoxComPort.Items.Count > 0) then
         ComboBoxComPort.ItemIndex := 0;
+      PositionButtons;
     finally
       LockSetting := False;
     end;

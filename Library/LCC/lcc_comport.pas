@@ -156,6 +156,7 @@ type
     procedure CloseComPort( ComPortThread: TLccComPortThread);
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage); override;
+    procedure SendMessageRawGridConnect(GridConnectStr: ansistring);
     procedure ClearSchedulerQueues;
   published
     { Published declarations }
@@ -449,6 +450,20 @@ begin
   end;
 end;
 
+procedure TLccComPort.SendMessageRawGridConnect(GridConnectStr: ansistring);
+var
+  List: TList;
+  i: Integer;
+begin
+  List := ComPortThreads.LockList;
+  try
+    for i := 0 to List.Count - 1 do
+      TLccComPortThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
+  finally
+    ComPortThreads.UnlockList;
+  end;
+end;
+
 procedure TLccComPort.SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
 begin
   if FOnSchedulerRemoveOutgoingMessage <> AValue then
@@ -589,8 +604,17 @@ begin
               try
                 if TxList.Count > 0 then
                 begin
-                  TxStr := TxList[0];
-                  TxList.Delete(0);
+                  if SleepCount = 0 then
+                  begin
+                    TxStr := '';
+                    for i := 0 to TxList.Count - 1 do
+                      TxStr := TxStr + TxList[i];
+                    TxList.Clear;
+                  end else
+                  begin
+                    TxStr := TxList[0];
+                    TxList.Delete(0);
+                  end;
                 end;
               finally
                 OutgoingGridConnect.UnlockList;
