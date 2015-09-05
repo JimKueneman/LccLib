@@ -47,7 +47,6 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_settings"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>
@@ -67,6 +66,7 @@
       <Unit4>
         <Filename Value="..\..\Library\LCC\lcc_raspberrypi_spiport.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="lcc_raspberrypi_spiport"/>
       </Unit4>
     </Units>
   </ProjectOptions>
