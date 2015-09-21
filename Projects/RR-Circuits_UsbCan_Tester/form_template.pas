@@ -43,6 +43,7 @@ type
     ButtonSaveToFileInComing: TButton;
     ButtonSend: TButton;
     ButtonSend1: TButton;
+    CheckBoxLockUpdate: TCheckBox;
     ImageListToolbar: TImageList;
     Label1: TLabel;
     Label2: TLabel;
@@ -90,6 +91,7 @@ type
     procedure ButtonSaveToFileOutgoingClick(Sender: TObject);
     procedure ButtonSend1Click(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
+    procedure CheckBoxLockUpdateChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -326,6 +328,14 @@ begin
   finally
     Msg.Free;
   end;
+end;
+
+procedure TFormTemplate.CheckBoxLockUpdateChange(Sender: TObject);
+begin
+  if CheckBoxLockUpdate.Checked then
+    MemoIncoming.Lines.BeginUpdate
+  else
+    MemoIncoming.Lines.EndUpdate;;
 end;
 
 procedure TFormTemplate.FormCloseQuery(Sender: TObject; var CanClose: boolean);

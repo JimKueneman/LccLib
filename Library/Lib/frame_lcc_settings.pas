@@ -264,10 +264,12 @@ end;
 
 procedure TFrameLccSettings.ScanRaspberryPiSpi;
 begin
+  {$IFDEF ARMCPU}
   if Assigned(LccSettings) then
   begin
     LockSetting := True;
     try
+
       ComboBoxPiSpiPort.Items.Delimiter := ';';
       ComboBoxPiSpiPort.Items.DelimitedText := StringReplace(GetRaspberryPiSpiPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
 
@@ -278,6 +280,7 @@ begin
       LockSetting := False;
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TFrameLccSettings.SetComPort(AValue: Boolean);
