@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils,
-  {$IFDEF ARMCPU}
+  {$IFDEF CPUARM}
     {$IFDEF FPC}
     LResources, Forms, Controls, Graphics, Dialogs, baseUnix,
     {$ENDIF}
@@ -21,7 +21,7 @@ uses
   {$ENDIF}
   contnrs;
 
-{$IFDEF ARMCPU}
+{$IFDEF CPUARM}
 const
   // Clock Phase
   SPI_CPHA           =     $01;
@@ -286,13 +286,13 @@ implementation
 
 procedure Register;
 begin
-  {$IFDEF ARMCPU}
+  {$IFDEF CPUARM}
  // {$I TLccRaspberryPiSpiPort.lrs}
   RegisterComponents('LCC',[TLccRaspberryPiSpiPort]);
   {$ENDIF}
 end;
 
-{$IFDEF ARMCPU}
+{$IFDEF CPUARM}
 function GetRaspberryPiSpiPortNames: string;
 var
   Index: Integer;
@@ -748,12 +748,6 @@ begin
               TxList.Delete(0);
               Inc(i)
             end;
-         {   if i mod 2 <> 0 then   // If using Ping Pong in the Slave we need an even number of messages
-            begin
-              FillChar(GridConnectBuffer, SizeOf(GridConnectBuffer), 0);
-              LoadSpiTxBuffer(TxBuffer, GridConnectBuffer, i);
-              Inc(i);
-            end; }
           finally
             OutgoingGridConnect.UnlockList;
           end;
@@ -761,9 +755,11 @@ begin
         end;
         Inc(LocalSleepCount);
 
+        // if nothing to send still pump receive messages by sending nulls
         ByteCount := i*30;
         if ByteCount = 0 then
-          ByteCount := 30;  // If using Ping Pong in the Slave we need an even number of messages
+          ByteCount := 30;
+
         if RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, ByteCount) then
         begin
          for i := 0 to ByteCount-1 do

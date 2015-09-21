@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 366
+  Left = 1011
   Height = 274
-  Top = 225
+  Top = 862
   Width = 874
   Caption = 'Lcc Raspberry Pi Hub'
   ClientHeight = 245
@@ -157,6 +157,7 @@ object Form1: TForm1
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
     Ethernet.AutoResolveListenerIP = False
+    Ethernet.AutoResolveClientIP = False
     Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'

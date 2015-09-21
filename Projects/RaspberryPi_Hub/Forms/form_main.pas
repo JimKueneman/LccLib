@@ -559,7 +559,7 @@ begin
   FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
   FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
   FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
-  FormSettings.FrameLccSettings.UserSettings.PiSpiPort := ActionRaspberryPi.Visible;
+  FormSettings.FrameLccSettings.UserSettings.RaspberryPiSpiPort := ActionRaspberryPi.Visible;
   // Update from video series, need to resync with the Settings each time the
   // dialog is shown as the user may have changed the UI and hit cancel and not
   // just when the program starts up in the FormShow event
