@@ -92,7 +92,6 @@ type
     FOSXPrefCmd: TMenuItem;
     {$ENDIF}
   private
-    FVirtualNodeCreateCount: Integer;
     { private declarations }
     property AppAboutCmd: TMenuItem read FAppAboutCmd write FAppAboutCmd;
     {$IFDEF DARWIN}
@@ -105,7 +104,6 @@ type
     procedure OnTraceFormHideEvent(Sender: TObject);
   public
     { public declarations }
-    property VirtualNodeCreateCount: Integer read FVirtualNodeCreateCount write FVirtualNodeCreateCount;
     procedure CreateVirtualNode(Offset: Integer);
   end;
 
@@ -214,7 +212,6 @@ begin
   if not LccNodeManager.Enabled then
     StatusBarMain.Panels[1].Text := 'Disconnected';
   ButtonCreateVirtualNodes.Enabled := LccNodeManager.Enabled;
-  ButtonReleaseVirtualNodes.Enabled := LccNodeManager.Enabled;
 end;
 
 procedure TFormTemplate.ActionMsgTraceExecute(Sender: TObject);
@@ -239,16 +236,11 @@ end;
 
 procedure TFormTemplate.ButtonCreateVirtualNodesClick(Sender: TObject);
 var
-  ANodeID: TNodeID;
-  OwnedNode: TLccOwnedNode;
+  i: Integer;
 begin
   LccNodeManager.ClearOwned;
-  VirtualNodeCreateCount := SpinEditVNodes.Value;
-  if VirtualNodeCreateCount > 0 then
-  begin
-    CreateVirtualNode(VirtualNodeCreateCount + 1);
-    Dec(FVirtualNodeCreateCount);
-  end;
+  for i := 0 to SpinEditVNodes.Value - 1 do
+    CreateVirtualNode(i + 1);
 end;
 
 procedure TFormTemplate.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -437,12 +429,12 @@ begin
     end;
     StatusBarMain.Panels[1].Text := '0x' +IntToHex(LccSourceNode.NodeID[1], 3) + IntToHex(LccSourceNode.NodeID[0], 3) + ': 0x' + IntToHex(LccSourceNode.AliasID, 4)
   end;
-
+  {
   if VirtualNodeCreateCount > 0 then
   begin
     CreateVirtualNode(VirtualNodeCreateCount + 1);
     Dec(FVirtualNodeCreateCount);
-  end;
+  end; }
 end;
 
 procedure TFormTemplate.LccNodeManagerLccGetRootNodeClass(Sender: TObject; var NodeClass: TLccOwnedNodeClass);
