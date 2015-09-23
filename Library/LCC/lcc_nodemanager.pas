@@ -622,6 +622,8 @@ type
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
     procedure Login(NewNodeID, RegenerateAliasSeed: Boolean);
+    procedure LoginWithLccSettings(RegenerateAliasSeed: Boolean);
+    procedure LoginWithNodeID(ANodeID: TNodeId; RegenerateAliasSeed: Boolean);
 
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -632,6 +634,7 @@ type
   public
    constructor Create(AnOwner: TComponent); override;
   end;
+  TLccDefaultRootNodeClass = class of TLccDefaultRootNode;
 
 
   { TLccNodeManager }
@@ -761,6 +764,7 @@ type
     function CreateNodeBySourceMessage(LccMessage: TLccMessage): TLccNode;
     function CreateNodeByDestMessage(LccMessage: TLccMessage): TLccNode;
     function CreateOwnedNode: TLccOwnedNode;
+    function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
     function EqualEventID(var Event1, Event2: TEventID): Boolean;
     function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
@@ -1177,11 +1181,25 @@ begin
 end;
 
 procedure TLccOwnedNode.Login(NewNodeID, RegenerateAliasSeed: Boolean);
+begin
+  if NewNodeID then
+    GenerateNewNodeID;
+
+  Configuration.LoadFromFile;
+  if Assigned(OwnerManager) then
+    OwnerManager.DoNodeIDChanged(Self);
+  LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
+  SendAliasLoginRequest;
+  DuplicateAliasDetected := False;
+  LoginTimer.Enabled := True;
+end;
+
+procedure TLccOwnedNode.LoginWithLccSettings(RegenerateAliasSeed: Boolean);
 var
   TempNodeID: TNodeID;
   TempID, TempID1, TempID2: QWord;
 begin
-  if Assigned(OwnerManager.LccSettings) then
+  if Assigned(OwnerManager.LccSettings)then
   begin
     if OwnerManager.LccSettings.General.NodeIDAsVal = 0 then
     begin
@@ -1202,11 +1220,25 @@ begin
       FNodeID[0] := TempNodeID[0];
       FNodeID[1] := TempNodeID[1];
     end;
+
+    Configuration.LoadFromFile;
+    if Assigned(OwnerManager) then
+      OwnerManager.DoNodeIDChanged(Self);
+    LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
+    SendAliasLoginRequest;
+    DuplicateAliasDetected := False;
+    LoginTimer.Enabled := True;
   end else
-  begin
-    if NewNodeID then
-      GenerateNewNodeID;
-  end;
+    Login(True, True)
+end;
+
+procedure TLccOwnedNode.LoginWithNodeID(ANodeID: TNodeId; RegenerateAliasSeed: Boolean);
+begin
+  FNodeID[0] := ANodeID[0];
+  FNodeID[1] := ANodeID[1];
+  FSeedNodeID[0] := ANodeID[0];
+  FSeedNodeID[1] := ANodeID[1];
+
   Configuration.LoadFromFile;
   if Assigned(OwnerManager) then
     OwnerManager.DoNodeIDChanged(Self);
@@ -2216,7 +2248,7 @@ begin
     if FEnabled then
     begin
       if Assigned(RootNode) then
-        RootNode.Login(True, False);
+        RootNode.LoginWithLccSettings(False);
     end else
     begin
       if Assigned(NetworkTree) then
@@ -2682,6 +2714,13 @@ end;
 function TLccNodeManager.CreateOwnedNode: TLccOwnedNode;
 begin
   Result := TLccOwnedNode.Create(Self);
+  Result.OwnerManager := Self;
+  OwnedNodeList.Add(Result);
+end;
+
+function TLccNodeManager.CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
+begin
+  Result := OwnedNodeClass.Create(Self);
   Result.OwnerManager := Self;
   OwnedNodeList.Add(Result);
 end;
