@@ -2792,7 +2792,8 @@ begin
       begin
         Result := OwnedNodes[i];
         Break;
-      end
+      end;
+      Inc(i)
     end;
   end;
 end;
@@ -2812,7 +2813,8 @@ begin
       begin
         Result := OwnedNodes[i];
         Break;
-      end
+      end;
+      Inc(i)
     end;
   end;
 end;

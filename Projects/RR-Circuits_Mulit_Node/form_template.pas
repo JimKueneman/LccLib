@@ -37,7 +37,6 @@ type
     ActionEthenetClientConnect: TAction;
     ActionEthernetServerConnect: TAction;
     ActionList: TActionList;
-    ButtonReleaseVirtualNodes: TButton;
     ButtonCreateVirtualNodes: TButton;
     ImageListToolbar: TImageList;
     Label1: TLabel;
