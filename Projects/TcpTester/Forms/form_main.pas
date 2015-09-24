@@ -265,11 +265,11 @@ begin
   if ActionEthernetClient.Checked then
   begin
     LccNodeManager.HardwareConnection := LccEthernetClient;     // Connect the Node Manager to the Comport Link
-    LccEthernetClient.OpenEthernetConnectionWithLccSettings;
+    LccEthernetClient.OpenConnectionWithLccSettings;
   end else
   begin
     LccNodeManager.HardwareConnection := nil;                         // DisConnect the Node Manager  Link
-    LccEthernetClient.CloseEthernetConnection(nil);
+    LccEthernetClient.CloseConnection(nil);
   end
 end;
 
@@ -278,11 +278,11 @@ begin
   if ActionEthernetServer.Checked then
   begin
     LccNodeManager.HardwareConnection := LccEthernetServer;     // Connect the Node Manager to the Comport Link
-    LccEthernetServer.OpenEthernetConnectionWithLccSettings;
+    LccEthernetServer.OpenConnectionWithLccSettings;
   end else
   begin
     LccNodeManager.HardwareConnection := nil;          // DisConnect the Node Manager  Link
-    LccEthernetServer.CloseEthernetConnection(nil);
+    LccEthernetServer.CloseConnection(nil);
   end
 end;
 
@@ -483,26 +483,26 @@ end;
 procedure TForm1.LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
   case ComPortRec.ConnectionState of
-    ccsComConnecting :
+    ccsPortConnecting :
     begin
       StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Connecting: ' + ComPortRec.ComPort;
       ActionTCP.Enabled := False;
       Label3.Caption := '0';
       Label4.Caption := '0';
     end;
-    ccsComConnected :
+    ccsPortConnected :
     begin
       StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Connected: ' + ComPortRec.ComPort;
       LccNodeSelector.LccNodes.Clear;
       LccNodeManager.Enabled := True;
     end;
-    ccsComDisconnecting :
+    ccsPortDisconnecting :
     begin
        LccNodeSelector.LccNodes.Clear;
        LccNodeManager.Enabled := False;
        StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Disconnecting: ' + ComPortRec.ComPort;
     end;
-    ccsComDisconnected :
+    ccsPortDisconnected :
     begin
        StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Disconnected:';
        ActionTCP.Enabled := True;
@@ -989,4 +989,4 @@ begin
 end;
 
 end.
-
+

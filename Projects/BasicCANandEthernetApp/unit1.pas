@@ -76,11 +76,11 @@ procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
 begin
   if ActionEthernetServer.Checked then
   begin
-    LccEthernetServer1.OpenEthernetConnectionWithLccSettings;
+    LccEthernetServer1.OpenConnectionWithLccSettings;
     LccNodeManager1.HardwareConnection := LccEthernetServer1;     // Connect the Node Manager to the Comport Link
   end else
   begin
-    LccEthernetServer1.CloseEthernetConnection(nil);
+    LccEthernetServer1.CloseConnection(nil);
     LccNodeManager1.HardwareConnection := nil;          // DisConnect the Node Manager  Link
   end
 end;
@@ -155,21 +155,21 @@ end;
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
   case ComPortRec.ConnectionState of
-    ccsComConnecting :
+    ccsPortConnecting :
     begin
       StatusBar1.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
       ActionEthernetServer.Enabled := False;    // Disable Ethernet if Comport active
     end;
-    ccsComConnected :
+    ccsPortConnected :
     begin
       StatusBar1.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
       ActionLogin.Enabled := True;          // Allow the user to be able to Login
     end;
-    ccsComDisconnecting :
+    ccsPortDisconnecting :
     begin
        StatusBar1.Panels[0].Text := 'Disconnecting ComPort: ' + ComPortRec.ComPort;
     end;
-    ccsComDisconnected :
+    ccsPortDisconnected :
     begin
        StatusBar1.Panels[0].Text := 'Disconnected:';
        StatusBar1.Panels[1].Text := 'Disconnected';

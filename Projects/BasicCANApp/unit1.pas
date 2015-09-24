@@ -108,20 +108,20 @@ end;
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
   case ComPortRec.ConnectionState of
-    ccsComConnecting :
+    ccsPortConnecting :
     begin
       StatusBar1.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
     end;
-    ccsComConnected :
+    ccsPortConnected :
     begin
       StatusBar1.Panels[0].Text := 'Connected ComPort: ' + ComPortRec.ComPort;
       ActionLogin.Enabled := True;          // Allow the user to be able to Login
     end;
-    ccsComDisconnecting :
+    ccsPortDisconnecting :
     begin
        StatusBar1.Panels[0].Text := 'Disconnecting ComPort: ' + ComPortRec.ComPort;
     end;
-    ccsComDisconnected :
+    ccsPortDisconnected :
     begin
        StatusBar1.Panels[0].Text := 'Disconnected:';
        StatusBar1.Panels[1].Text := 'Disconnected';
