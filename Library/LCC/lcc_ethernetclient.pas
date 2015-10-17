@@ -8,14 +8,9 @@ unit lcc_ethernetclient;
   {$DEFINE LOGGING}
 {$ENDIF}
 
-{$IFDEF WINDOWS}   // Lazarus
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-{$IFDEF MSWINDOWS} // Delphi
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-
 interface
+
+{$I lcc_compilers.inc}
 
 uses
   Classes, SysUtils,
@@ -31,7 +26,7 @@ uses
   lcc_can_message_assembler_disassembler, lcc_message_scheduler,
   lcc_nodemanager, lcc_messages, lcc_defines, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_utilities, lcc_app_common_settings, synabyte,
-  lcc_common_classes;
+  lcc_common_classes, lcc_compiler_types;
 
 type
   TLccEthernetClient = class;   // Forward
@@ -589,7 +584,7 @@ var
   LocalName: string;
   IpStrings: TStringList;
   {$IFNDEF WINDOWS}
-  Ip: array[0..15] of char;
+  Ip: array[0..15] of LccChar;
   {$ENDIF}
 begin
   FRunning := True;

@@ -8,14 +8,9 @@ unit lcc_ethenetserver;
   {$DEFINE LOGGING}
 {$ENDIF}
 
-{$IFDEF WINDOWS}   // Lazarus
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-{$IFDEF MSWINDOWS} // Delphi
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-
 interface
+
+{$I lcc_compilers.inc}
 
 uses
   Classes, SysUtils,
@@ -31,7 +26,7 @@ uses
   lcc_can_message_assembler_disassembler, lcc_message_scheduler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
   lcc_defines, lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
-  lcc_common_classes;
+  lcc_common_classes, lcc_compiler_types;
 
 type
   TLccEthernetServerThread = class;     // Forward
@@ -362,11 +357,11 @@ procedure TLccEthernetListener.Execute;
 
 var
   NewLink: TLccEthernetServerThread;
-  LocalName: string;
+  LocalName: LccString;
   IpStrings: TStringList;
   i: Integer;
   {$IFNDEF WINDOWS}
-  Ip: array[0..15] of char;
+  Ip: array[0..15] of LccChar;
   {$ENDIF}
 begin
   FRunning := True;

@@ -47,6 +47,7 @@ contains
   lcc_threadedcirculararray in '..\lcc_threadedcirculararray.pas',
   lcc_utilities in '..\lcc_utilities.pas',
   lcc_app_common_settings in '..\lcc_app_common_settings.pas',
-  lcc_common_classes in '..\lcc_common_classes.pas';
+  lcc_common_classes in '..\lcc_common_classes.pas',
+  lcc_compiler_types in '..\lcc_compiler_types.pas';
 
 end.

@@ -1,0 +1,21 @@
+
+{$IFDEF FPC}
+{$mode objfpc}{$H+}
+{$ENDIF}
+
+{$IFDEF WINDOWS}   // Lazarus
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+{$IFDEF MSWINDOWS} // Delphi
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+
+{$IFNDEF FPC}
+  {$IFDEF IOS}
+    {$DEFINE LCC_MOBILE}
+  {$ENDIF}
+  {$IFDEF ANDROID}
+    {$DEFINE LCC_MOBILE}
+  {$ENDIF}
+{$ENDIF}
+

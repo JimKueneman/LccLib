@@ -910,10 +910,10 @@ procedure Register;
 begin
 {$IFDEF FPC}
   {$I TLccNodeManager.lrs}
-  RegisterComponents('LCC',[TLccNodeManager]);
 //  {$I TLccNetworkTree.lrs}
   RegisterComponents('LCC',[TLccNetworkTree]);
 {$ENDIF}
+ RegisterComponents('LCC',[TLccNodeManager]);
 end;
 
 { TACDIMfg }

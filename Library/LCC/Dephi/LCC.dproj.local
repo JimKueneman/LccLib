@@ -1,9 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2015/10/16 09:46:16.181,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas=</Transaction>
-    <Transaction>2015/10/16 09:47:04.353,=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas</Transaction>
-    <Transaction>2015/10/16 09:50:50.812,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas=</Transaction>
-    <Transaction>2015/10/16 10:13:28.150,=xmlrtl.dcp</Transaction>
+	<Transactions>
+    <Transaction>2015/10/16 09:46:16.000.181,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas=</Transaction>
+    <Transaction>2015/10/16 09:47:04.000.353,=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas</Transaction>
+    <Transaction>2015/10/16 09:50:50.000.812,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodeselector.pas=</Transaction>
+    <Transaction>2015/10/16 10:13:28.000.150,=xmlrtl.dcp</Transaction>
+    <Transaction>2015/10/16 19:29:28.000.688,=\\vmware-host\Shared Folders\LccLib\Library\LCC\Dephi\Unit1.pas</Transaction>
+    <Transaction>2015/10/16 19:29:53.000.244,\\vmware-host\Shared Folders\LccLib\Library\LCC\Dephi\Unit1.pas=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.pas</Transaction>
+    <Transaction>2015/10/16 19:45:58.000.309,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.pas=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.pas</Transaction>
+    <Transaction>2015/10/16 19:48:23.000.966,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.inc=</Transaction>
+    <Transaction>2015/10/16 19:48:37.000.654,=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.pas</Transaction>
+    <Transaction>2015/10/16 21:35:52.000.177,\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compiler_types.pas=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compilers.pas</Transaction>
   </Transactions>
 </BorlandProject>

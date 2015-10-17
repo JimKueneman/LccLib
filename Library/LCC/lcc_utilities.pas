@@ -1,18 +1,8 @@
 unit lcc_utilities;
 
-{$IFDEF FPC}
-{$mode objfpc}{$H+}
-{$ENDIF}
-
-{$IFDEF WINDOWS}   // Lazarus
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-{$IFDEF MSWINDOWS} // Delphi
-  {$DEFINE LCC_WINDOWS}
-{$ENDIF}
-
-
 interface
+
+{$I lcc_compilers.inc}
 
 uses
   Classes, SysUtils,
@@ -22,10 +12,10 @@ uses
     {$IFDEF FPC}
     LclIntf, baseUnix, sockets,
     {$ELSE}
-    strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno,
+    strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
-  Types, lcc_defines;
+  Types, lcc_defines, lcc_compiler_types;
 
   function GetTickCount : DWORD;
   function _Lo(Data: DWORD): Byte;
@@ -34,17 +24,17 @@ uses
   function _Highest(Data: DWORD): Byte;
   function _Highest1(Data: QWord): Byte;
   function _Highest2(Data: QWord): Byte;
-  function MTI2String(MTI: Word): string;
+  function MTI2String(MTI: Word): LccString;
   function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
   procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
   function NullArrayToString(var ANullArray: array of Byte): LccString;
-  function EventIDToString(EventID: TEventID): string;
+  function EventIDToString(EventID: TEventID): LccString;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
   {$IFNDEF LCC_WINDOWS}
-  procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
   {$ENDIF}
 
 {$IFDEF FPC}
@@ -113,7 +103,7 @@ begin
   Result := Byte((Data shr 40) and $00000000000000FF);
 end;
 
-function MTI2String(MTI: Word): string;
+function MTI2String(MTI: Word): LccString;
 begin
   case MTI of
   {  MTI_CID0 : Result := 'Check ID 0';
@@ -235,11 +225,7 @@ end;
 
 procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
 var
-  {$IFDEF FPC}
-  CharPtr: PAnsiChar;
-  {$ELSE}
-  CharPtr: PChar;
-  {$ENDIF}
+  CharPtr: PLccChar;
   Len, i: Integer;
 begin
   {$IFDEF FPC}
@@ -278,7 +264,7 @@ begin
   end;
 end;
 
-function EventIDToString(EventID: TEventID): string;
+function EventIDToString(EventID: TEventID): LccString;
 var
   i: Integer;
 begin
@@ -311,7 +297,7 @@ end;
 
 {$IFNDEF LCC_WINDOWS}
   {$IFDEF FPC}
-  procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
   const
     CN_GDNS_ADDR = '127.0.0.1';
     CN_GDNS_PORT = 53;
@@ -367,10 +353,10 @@ end;
   type
     array4int = array[1..4] of byte;
 
-  function StrToHostAddr(IP : AnsiString) : in_addr ;
+  function StrToHostAddr(IP : LccString) : in_addr ;
 
     Var
-      Dummy : AnsiString;
+      Dummy : LccString;
       I,j,k     : Longint;
       Temp : in_addr;
 
@@ -395,8 +381,8 @@ end;
        strtohostaddr.s_addr:=ntohl(Temp.s_addr);
     end;
 
-    function NetAddrToStr (Entry : in_addr) : AnsiString;
-    Var Dummy : Ansistring;
+    function NetAddrToStr (Entry : in_addr) : LccString;
+    Var Dummy : LccString;
         i,j   : Longint;
     begin
       NetAddrToStr:='';
@@ -410,17 +396,18 @@ end;
        end;
     end;
 
-  procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
   const
     CN_GDNS_ADDR = '127.0.0.1';
     CN_GDNS_PORT = 53;
   var
-    s: string;
+    s: LccString;
     sock: longint;
     err: longint;
     HostAddr: SockAddr;
     l: Cardinal;
     UnixAddr: sockaddr_in;
+    i: Integer;
 
   begin
     err := 0;
@@ -440,7 +427,13 @@ end;
         if (getsockname(sock, HostAddr, l) = 0) then
         begin
           s := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr);
-          StrPCopy(PAnsiChar(buf[0]), s);
+          {$IFDEF LCC_MOBILE}
+          for i := 0 to Length(s) do    // Copy the null
+            buf[i] := s[i];      // Starts at zero on mobile
+          {$ELSE}
+          for i := 0 to Length(s) + 1 do    // Copy the null
+            buf[i] := s[i+1];    // Starts at 1 as legacy
+          {$ENDIF}
         end
         else
         begin
