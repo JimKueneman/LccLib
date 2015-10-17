@@ -3,13 +3,13 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="63">
+    <Units Count="66">
       <Unit0>
         <Filename Value="RPiHub.lpr"/>
         <IsPartOfProject Value="True"/>
         <TopLine Value="3"/>
         <CursorPos X="28" Y="11"/>
-        <UsageCount Value="177"/>
+        <UsageCount Value="180"/>
       </Unit0>
       <Unit1>
         <Filename Value="Forms/form_main.pas"/>
@@ -17,8 +17,9 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="478"/>
-        <CursorPos Y="486"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="264"/>
+        <CursorPos X="15" Y="270"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -29,7 +30,8 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <CursorPos X="25" Y="13"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="3" Y="9"/>
         <UsageCount Value="217"/>
       </Unit2>
       <Unit3>
@@ -60,7 +62,7 @@
         <ResourceBaseClass Value="Form"/>
         <TopLine Value="14"/>
         <CursorPos X="16"/>
-        <UsageCount Value="174"/>
+        <UsageCount Value="177"/>
       </Unit5>
       <Unit6>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
@@ -397,8 +399,30 @@
         <CursorPos X="41" Y="15"/>
         <UsageCount Value="10"/>
       </Unit62>
+      <Unit63>
+        <Filename Value="../../../Library/LCC/Lazarus/lcc.pas"/>
+        <UnitName Value="LCC"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="44" Y="16"/>
+        <UsageCount Value="10"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="../../../Library/LCC/lcc_app_common_settings.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="61" Y="8"/>
+        <UsageCount Value="10"/>
+      </Unit65>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="1">
+      <Position1>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="480" Column="9" TopLine="478"/>
+      </Position1>
+    </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

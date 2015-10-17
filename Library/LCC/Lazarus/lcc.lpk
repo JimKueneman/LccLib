@@ -2,17 +2,15 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="LCC"/>
+    <Type Value="RunAndDesignTime"/>
     <Author Value="Jim Kueneman"/>
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
         <IncludeFiles Value=".."/>
-        <OtherUnitFiles Value="../../Synapse_LCC;../../Lib;.."/>
+        <OtherUnitFiles Value="../../Synapse_LCC;..;../../Lib"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Other>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
@@ -110,7 +108,6 @@
         <UnitName Value="lcc_compiler_types"/>
       </Item21>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="SynEdit"/>
