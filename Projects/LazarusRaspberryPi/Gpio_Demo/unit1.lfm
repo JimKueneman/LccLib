@@ -1,0 +1,74 @@
+object Form1: TForm1
+  Left = 339
+  Height = 240
+  Top = 153
+  Width = 432
+  Caption = 'PiGpio sample application'
+  ClientHeight = 240
+  ClientWidth = 432
+  OnActivate = FormActivate
+  OnClose = FormClose
+  LCLVersion = '1.2.6.0'
+  object LogMemo: TMemo
+    Left = 27
+    Height = 207
+    Top = 17
+    Width = 269
+    Lines.Strings = (
+      'Log:'
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+  object GPIO23switch: TToggleBox
+    Left = 312
+    Height = 23
+    Top = 24
+    Width = 104
+    Caption = 'GPIO 23 Out'
+    OnChange = GPIO23switchChange
+    TabOrder = 1
+  end
+  object SpeedButton: TButton
+    Left = 312
+    Height = 25
+    Top = 64
+    Width = 104
+    Caption = 'Out Speed test'
+    OnClick = SpeedButtonClick
+    TabOrder = 2
+  end
+  object GPIO25In: TButton
+    Left = 312
+    Height = 25
+    Top = 104
+    Width = 106
+    Caption = 'GPIO 25 In Read'
+    OnClick = GPIO25InClick
+    TabOrder = 3
+  end
+  object GPIO18Pwm: TToggleBox
+    Left = 304
+    Height = 23
+    Top = 145
+    Width = 78
+    Caption = 'GPIO 18 Pwm'
+    OnChange = GPIO18PwmChange
+    TabOrder = 4
+  end
+  object Direction: TToggleBox
+    Left = 388
+    Height = 23
+    Top = 145
+    Width = 28
+    Caption = 'U/D'
+    OnChange = DirectionChange
+    TabOrder = 5
+  end
+  object Timer1: TTimer
+    Interval = 25
+    OnTimer = Timer1Timer
+    left = 230
+    top = 3
+  end
+end
