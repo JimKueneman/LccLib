@@ -17,10 +17,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1"/>
-        <CursorPos X="12" Y="240"/>
+        <CursorPos X="23" Y="3"/>
         <UsageCount Value="183"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -105,13 +106,10 @@
       <Unit13>
         <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
         <UnitName Value="lcc_utilities"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="329"/>
         <CursorPos X="37" Y="344"/>
         <UsageCount Value="52"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
@@ -232,7 +230,7 @@
       </Unit33>
       <Unit34>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/socketsh.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1"/>
         <CursorPos X="21" Y="159"/>
@@ -241,7 +239,7 @@
       </Unit34>
       <Unit35>
         <Filename Value="/usr/local/share/fpcsrc/rtl/unix/ctypes.inc"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="9"/>
         <CursorPos X="3" Y="28"/>
@@ -251,7 +249,7 @@
       <Unit36>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/sockets.pas"/>
         <UnitName Value="Sockets"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
         <TopLine Value="634"/>
         <CursorPos X="32" Y="653"/>
@@ -261,7 +259,7 @@
       <Unit37>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/so32dll.pas"/>
         <UnitName Value="SO32Dll"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1186"/>
         <CursorPos X="21" Y="1205"/>
@@ -280,7 +278,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="24" HistoryIndex="23">
       <Position1>
         <Filename Value="unit1.pas"/>
         <Caret Line="53" Column="35" TopLine="29"/>
@@ -366,37 +364,17 @@
         <Caret Line="105" Column="29" TopLine="82"/>
       </Position21>
       <Position22>
-        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="393" Column="17" TopLine="384"/>
-      </Position22>
-      <Position23>
-        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="408" Column="32" TopLine="397"/>
-      </Position23>
-      <Position24>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/socketsh.inc"/>
         <Caret Line="215" Column="45" TopLine="197"/>
-      </Position24>
-      <Position25>
-        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="358" Column="15" TopLine="340"/>
-      </Position25>
-      <Position26>
-        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="324" Column="21" TopLine="309"/>
-      </Position26>
-      <Position27>
-        <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="358" Column="16" TopLine="329"/>
-      </Position27>
-      <Position28>
+      </Position22>
+      <Position23>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/sockets.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
-      </Position28>
-      <Position29>
+      </Position23>
+      <Position24>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/sockets.pas"/>
         <Caret Line="653" Column="32" TopLine="634"/>
-      </Position29>
+      </Position24>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

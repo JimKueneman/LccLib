@@ -89,7 +89,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Library\Lib;Forms"/>
+      <OtherUnitFiles Value="..\..\..\Library\Lib;Forms"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'darwin' then
@@ -122,6 +122,9 @@ if TargetOS = 'linux' then
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
@@ -136,4 +139,4 @@ if TargetOS = 'linux' then
       </Item3>
     </Exceptions>
   </Debugging>
-</CONFIG>
+</CONFIG>

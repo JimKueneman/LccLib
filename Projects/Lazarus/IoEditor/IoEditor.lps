@@ -24,6 +24,7 @@
         <CursorPos X="12" Y="285"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms/form_settings.pas"/>
@@ -406,15 +407,11 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="1" HistoryIndex="0">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="319" Column="51" TopLine="310"/>
       </Position1>
-      <Position2>
-        <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="192" Column="28" TopLine="269"/>
-      </Position2>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
