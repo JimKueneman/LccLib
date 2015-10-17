@@ -468,14 +468,22 @@ var
   Temp: QWord;
 begin
   NodeID := Trim(NodeID);
+  {$IFDEF FPC}
   Temp := StrToQWord(NodeID);
+  {$ELSE}
+  Temp := StrToInt64(NodeID);
+  {$ENDIF}
   ANodeID[0] :=  Temp and $0000000000FFFFFF;
   ANodeID[1] := (Temp and $0000FFFFFF000000) shr 24;
 end;
 
 function TGeneralSettings.NodeIDAsVal: QWord;
 begin
-  Result := StrToQWord(NodeID)
+ {$IFDEF FPC}
+  Result := StrToQWord(NodeID);
+  {$ELSE}
+  Result := StrToInt64(NodeID);
+  {$ENDIF}
 end;
 
 procedure TGeneralSettings.SaveToFile(IniFile: TIniFile);

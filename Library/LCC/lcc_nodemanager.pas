@@ -9,17 +9,18 @@ unit lcc_nodemanager;
 interface
 
 uses
-  Classes, SysUtils, FileUtil,
+  Classes, SysUtils,
   {$IFDEF FPC}
-  laz2_DOM, laz2_XMLRead, LResources, ExtCtrls, ComCtrls,
+  laz2_DOM, laz2_XMLRead, LResources, ExtCtrls, ComCtrls, FileUtil, lcc_nodeselector,
   {$ENDIF}
   {$IFNDEF FPC}
   Types,
   FMX.Types,
   System.Generics.Collections,
+  Xml.XMLDoc, Xml.xmldom, Xml.XMLIntf,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes, lcc_defines, lcc_nodeselector;
+  lcc_common_classes, lcc_defines;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -76,7 +77,9 @@ type
   TConfigurationMemory = class;
   TLccOwnedNode = class;
   TLccOwnedNodeClass = class of TLccOwnedNode;
+  {$IFDEF FPC}
   TLccNetworkTree = class;
+  {$ENDIF}
 
   TOnLccNodeMessage = procedure(Sender: TObject; LccSourceNode: TLccNode) of object;
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
@@ -211,7 +214,9 @@ type
 
     property PackedFormat: TSimpleNodeInfoPacked read GetPackedFormat;
 
+    {$IFDEF FPC}
     function LoadFromXml(CdiFilePath: string): Boolean;
+    {$ENDIF}
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
@@ -534,7 +539,9 @@ type
     FFunctionConfiguration: TFunctionConfiguration;
     {$ENDIF}
     FiStartupSequence: Word;
+    {$IFDEF FPC}
     FLccGuiNode: TLccGuiNode;
+    {$ENDIF}
     FNodeID: TNodeID;
     FProtocolSupport: TProtocolSupport;
     FSimpleNodeInfo: TSimpleNodeInfo;
@@ -564,7 +571,9 @@ type
     property FDI: TFDI read FFDI write FFDI;
     property FunctionConfiguration: TFunctionConfiguration read FFunctionConfiguration write FFunctionConfiguration;
     {$ENDIF}
+    {$IFDEF FPC}
     property LccGuiNode: TLccGuiNode read FLccGuiNode write FLccGuiNode;
+    {$ENDIF}
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: string read GetNodeIDStr;
     property ProtocolSupport: TProtocolSupport read FProtocolSupport;
@@ -687,7 +696,9 @@ type
     FOnRequestMessageSend: TOnMessageEvent;
     FOwnedNodeList: TList;
     FRootNode: TLccOwnedNode;
+    {$IFDEF FPC}
     FTLccNetworkTree: TLccNetworkTree;
+    {$ENDIF}
     FUserMessage: TLccMessage;
     FWorkerMessage: TLccMessage;
     FAutoSendVerifyNodesOnStart: Boolean;
@@ -766,7 +777,9 @@ type
     function CreateOwnedNode: TLccOwnedNode;
     function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
     function EqualEventID(var Event1, Event2: TEventID): Boolean;
+    {$IFDEF FPC}
     function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
+    {$ENDIF}
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
     procedure NodeIDStringToNodeID(ANodeIDStr: string; var ANodeID: TNodeID);
@@ -782,7 +795,9 @@ type
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
     property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
+    {$IFDEF FPC}
     property NetworkTree: TLccNetworkTree read FTLccNetworkTree write FTLccNetworkTree;
+    {$ENDIF}
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
@@ -822,10 +837,11 @@ type
     property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
 
-
+{$IFDEF FPC}
 type
   TLccNetworkTreePropeties = (tp_NodeID, tp_AliasID, tp_ConsumedEvents, tp_ProducedEvents, tp_Snip, tp_Protocols, tp_Acid);
   TLccNetworkTreePropetiesSet = set of TLccNetworkTreePropeties;
+
 
  { TLccNetworkTree }
 
@@ -871,6 +887,7 @@ type
     property ShowRootNode: Boolean read FShowRootNode write SetShowRootNode;
     property ShowLocallNodes: Boolean read FShowLocalNodes write SetShowLocalNodes;
   end;
+{$ENDIF}
 
 var
   TotalSNIPMessages: DWord;
@@ -891,14 +908,12 @@ implementation
 
 procedure Register;
 begin
-  {$IFDEF FPC}
+{$IFDEF FPC}
   {$I TLccNodeManager.lrs}
-  {$ENDIF}
   RegisterComponents('LCC',[TLccNodeManager]);
-  {$IFDEF FPC}
 //  {$I TLccNetworkTree.lrs}
-  {$ENDIF}
   RegisterComponents('LCC',[TLccNetworkTree]);
+{$ENDIF}
 end;
 
 { TACDIMfg }
@@ -1022,7 +1037,11 @@ begin
   // Setup a basic CDI
   CDI.AStream.Clear;
   for i := 0 to MAX_CDI_ARRAY - 1 do
+  {$IFDEF FPC}
     CDI.AStream.WriteByte(CDI_ARRAY[i]);
+  {$ELSE}
+    CDI.AStream.Write(CDI_ARRAY[i], 1);
+  {$ENDIF}
   CDI.Valid := True;
 
   // Setup the Configuraion Memory Options:
@@ -2053,6 +2072,7 @@ function TCDI.LoadFromXml(CdiFilePath: string): Boolean;
 var
   XmlFile: TStringList;
   i, j, AsciiArrayCount: Integer;
+  AByte: Byte;
 begin
   Result := False;
   if FileExists(CdiFilePath) then
@@ -2069,7 +2089,12 @@ begin
         begin
           for j := 1 to Length(XmlFile[i]) do
           begin
+            {$IFDEF FPC}
             AStream.WriteByte(Ord(XmlFile[i][j]));
+            {$ELSE}
+            AByte := Ord(XmlFile[i][j]);
+            AStream.Write(AByte, 1);
+            {$ENDIF}
             Inc(AsciiArrayCount)
           end;
         end
@@ -2251,8 +2276,10 @@ begin
         RootNode.LoginWithLccSettings(False);
     end else
     begin
+      {$IFDEF FPC}
       if Assigned(NetworkTree) then
         NetworkTree.Connected := False;
+      {$ENDIF}
       Clear;
       ClearOwned;
       RootNode.SendAMR;
@@ -2272,8 +2299,10 @@ end;
 
 procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoAliasIDChanged(LccNode);
+  {$ENDIF}
   if Assigned(OnAliasIDChanged) then
     OnAliasIDChanged(Self, LccNode);
 end;
@@ -2313,16 +2342,20 @@ end;
 
 procedure TLccNodeManager.DoCreateLccNode(SourceLccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoCreateLccNode(SourceLccNode);
+  {$ENDIF}
   if Assigned(OnLccNodeCreate) then
     OnLccNodeCreate(Self, SourceLccNode)
 end;
 
 procedure TLccNodeManager.DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoConsumerIdentified(SourceLccNode, Event, State);
+  {$ENDIF}
   if Assigned(OnLccNodeConsumerIdentified) then
     OnLccNodeConsumerIdentified(Self, SourceLccNode, Event, State);
 end;
@@ -2341,8 +2374,10 @@ begin
     if Assigned(CdiParser) then
       CdiParser.NotifyLccNodeDestroy(LccNode);
   end;
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoDestroyLccNode(LccNode);
+  {$ENDIF}
   if Assigned(OnLccNodeDestroy) then
     OnLccNodeDestroy(Self, LccNode);
 end;
@@ -2378,8 +2413,10 @@ end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoNodeIDChanged(LccNode);
+  {$ENDIF}
   if Assigned(OnNodeIDChanged) then
     OnNodeIDChanged(Self, LccNode);
 end;
@@ -2392,16 +2429,20 @@ end;
 
 procedure TLccNodeManager.DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoProducerIdentified(SourceLccNode, Event, State);
+  {$ENDIF}
   if Assigned(OnLccNodeProducerIdentified) then
     OnLccNodeProducerIdentified(Self, SourceLccNode, Event, State);
 end;
 
 procedure TLccNodeManager.DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoProtocolIdentifyReply(SourceLccNode, DestLccNode);
+  {$ENDIF}
   if Assigned(OnLccNodeProtocolIdentifyReply) then
     OnLccNodeProtocolIdentifyReply(Self, SourceLccNode, DestLccNode);
 end;
@@ -2422,8 +2463,10 @@ end;
 
 procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode);
+  {$ENDIF}
   if Assigned(OnLccNodeSimpleNodeIdentReply) then
     OnLccNodeSimpleNodeIdentReply(Self, SourceLccNode, DestLccNode);
 end;
@@ -2533,8 +2576,10 @@ end;
 
 procedure TLccNodeManager.DoVerifiedNodeID(SourceLccNode: TLccNode);
 begin
+  {$IFDEF FPC}
   if Assigned(NetworkTree) then
     NetworkTree.DoVerifiedNodeID(SourceLccNode);
+  {$ENDIF}
   if Assigned(OnLccNodeVerifiedNodeID) then
     OnLccNodeVerifiedNodeID(Self, SourceLccNode);
 end;
@@ -2630,6 +2675,7 @@ begin
      end;
   end;
 
+ {$IFDEF FPC}
  case Operation of
    opInsert :
        begin
@@ -2643,7 +2689,7 @@ begin
            NetworkTree := nil
        end;
    end;
-
+  {$ENDIF}
 end;
 
 constructor TLccNodeManager.Create(AnOwner: TComponent);
@@ -2742,6 +2788,7 @@ begin
   end;
 end;
 
+{$IFDEF FPC}
 function TLccNodeManager.FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
 var
   i: Integer;
@@ -2759,6 +2806,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 function TLccNodeManager.FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
 var
@@ -3028,6 +3076,7 @@ begin
     Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
 end;
 
+{$IFDEF FPC}
 function TSimpleNodeInfo.LoadFromXml(CdiFilePath: string): Boolean;
 var
   XMLDoc: TXMLDocument;
@@ -3065,6 +3114,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 function TSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
 
@@ -3954,7 +4004,11 @@ begin
     Done := False;
     while (i + Address < AStream.Size) and not Done do
     begin
+      {$IFDEF FPC}
       C := Chr(AStream.ReadByte);
+      {$ELSE}
+      AStream.Read(C, 1);
+      {$ENDIF}
       if C <> #0 then
         Result := Result + C
       else
@@ -3982,11 +4036,19 @@ begin
     AStream.Size := Address + WriteCount;
   AStream.Position := Address;
   for i := iStart to LccMessage.DataCount - 1 do
+  begin
+    {$IFDEF FPC}
      AStream.WriteByte(LccMessage.DataArrayIndexer[i]);
+    {$ELSE}
+    AByte := LccMessage.DataArrayIndexer[i];
+    AStream.Write(AByte, 1);
+    {$ENDIF}
+  end;
   if AutoSaveOnWrite then
     AStream.SaveToFile(FilePath);
 end;
 
+{$IFDEF FPC}
 { TLccNetworkTree }
 
 constructor TLccNetworkTree.Create(AnOwner: TComponent);
@@ -4543,11 +4605,15 @@ begin
   end;
 end;
 
+{$ENDIF}
+
 initialization
   TotalSNIPMessages := 0;
   TotalSTNIPMessage := 0;
   RegisterClass(TLccNodeManager);
+  {$IFDEF FPC}
   RegisterClass(TLccNetworkTree);
+  {$ENDIF}
 
 finalization
 

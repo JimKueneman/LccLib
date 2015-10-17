@@ -1,16 +1,15 @@
 unit lcc_nodeselector;
 
+{$IFDEF FPC}
 {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  {$IFDEF FPC}
-  LCLType,
-  LMessages,
-  {$ENDIF}
-  ComCtrls, ExtCtrls, Menus, StdCtrls, Types, contnrs, lcc_defines;
+  Classes, SysUtils,
+  LCLType, LMessages, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList, ComCtrls, ExtCtrls, Menus, StdCtrls,
+  Types, contnrs, lcc_defines;
 
 type
   TLccNodeSelectorBase = class;
@@ -130,6 +129,7 @@ type
     procedure Delete(Index: Integer);
   end;
 
+
   { TLccNodeSelectorBase }
 
   TLccNodeSelectorBase = class(TScrollBox)
@@ -236,10 +236,8 @@ implementation
 
 procedure Register;
 begin
-  {$IFDEF FPC}
  // {$I TLccNodeSelector.lrs}
-  {$ENDIF}
-  RegisterComponents('LCC',[TLccNodeSelector]);
+   RegisterComponents('LCC',[TLccNodeSelector]);
 end;
 
 procedure EmptyRect(var ARect: TRect);

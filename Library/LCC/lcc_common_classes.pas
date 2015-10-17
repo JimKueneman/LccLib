@@ -1,11 +1,19 @@
 unit lcc_common_classes;
 
+{$IFDEF FPC}
 {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
 
 uses
-  Classes, SysUtils, lcc_messages, contnrs;
+  Classes, SysUtils,
+  {$IFDEF FPC}
+  contnrs,
+  {$ELSE}
+  System.Generics.Collections,
+  {$ENDIF}
+   lcc_messages;
 
 type
    { TLccEthernetBaseThread }
@@ -16,7 +24,6 @@ type
   private
     FGridConnect: Boolean;
   public
-    constructor Create(CreateSuspended: Boolean; const StackSize: SizeUInt = DefaultStackSize); virtual;
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
   end;
 
@@ -26,17 +33,17 @@ type
   TLccHardwareConnectionManager = class(TComponent)
   public
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
+    {$IFDEF FPC}
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); virtual; abstract;
+    {$ELSE}
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); virtual; abstract;
+    {$ENDIF}
   end;
 
 implementation
 
 { TLccConnectionThread }
 
-constructor TLccConnectionThread.Create(CreateSuspended: Boolean; const StackSize: SizeUInt);
-begin
-  inherited Create(CreateSuspended, StackSize);
-end;
 
 end.
 

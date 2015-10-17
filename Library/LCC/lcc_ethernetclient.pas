@@ -8,12 +8,19 @@ unit lcc_ethernetclient;
   {$DEFINE LOGGING}
 {$ENDIF}
 
+{$IFDEF WINDOWS}   // Lazarus
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+{$IFDEF MSWINDOWS} // Delphi
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+
 interface
 
 uses
-  Classes, SysUtils, contnrs,
+  Classes, SysUtils,
   {$IFDEF FPC}
-  LResources, Forms, Controls, Graphics, Dialogs,
+  LResources, Forms, Controls, Graphics, Dialogs, contnrs,
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
@@ -172,7 +179,11 @@ type
     function OpenConnectionWithLccSettings: TLccEthernetClientThread;
     procedure ClearSchedulerQueues;
     procedure CloseConnection( EthernetThread: TLccEthernetClientThread);
+    {$IFDEF FPC}
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
+    {$ELSE}
+    procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); override;
+    {$ENDIF}
     procedure SendMessage(AMessage: TLccMessage); override;
   //  {$IFDEF FPC}
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
@@ -374,7 +385,11 @@ begin
   inherited Destroy;
 end;
 
+{$IFDEF FPC}
 procedure TLccEthernetClient.FillWaitingMessageList(WaitingMessageList: TObjectList);
+{$ELSE}
+procedure TLccEthernetClient.FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>);
+{$ENDIF}
 var
   i, j: Integer;
   L: TList;
@@ -602,7 +617,7 @@ begin
 
     if FEthernetRec.AutoResolveIP then
     begin
-      {$IFDEF WINDOWS}
+      {$IFDEF LCC_WINDOWS}
       LocalName := Socket.LocalName;
       IpStrings := TStringList.Create;
       try

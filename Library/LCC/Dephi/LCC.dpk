@@ -29,7 +29,8 @@ package LCC;
 
 requires
   rtl,
-  fmx;
+  fmx,
+  xmlrtl;
 
 contains
   lcc_can_message_assembler_disassembler in '..\lcc_can_message_assembler_disassembler.pas',
@@ -45,6 +46,7 @@ contains
   lcc_threaded_stringlist in '..\lcc_threaded_stringlist.pas',
   lcc_threadedcirculararray in '..\lcc_threadedcirculararray.pas',
   lcc_utilities in '..\lcc_utilities.pas',
-  lcc_app_common_settings in '..\lcc_app_common_settings.pas';
+  lcc_app_common_settings in '..\lcc_app_common_settings.pas',
+  lcc_common_classes in '..\lcc_common_classes.pas';
 
 end.

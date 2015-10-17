@@ -4,17 +4,25 @@ unit lcc_utilities;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
+{$IFDEF WINDOWS}   // Lazarus
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+{$IFDEF MSWINDOWS} // Delphi
+  {$DEFINE LCC_WINDOWS}
+{$ENDIF}
+
+
 interface
 
 uses
   Classes, SysUtils,
-  {$IFDEF MSWINDOWS}
-  Windows,
+  {$IFDEF LCC_WINDOWS}
+   Windows,
   {$ELSE}
     {$IFDEF FPC}
     LclIntf, baseUnix, sockets,
     {$ELSE}
-    strutils,
+    strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno,
     {$ENDIF}
   {$ENDIF}
   Types, lcc_defines;
@@ -35,7 +43,7 @@ uses
   function NullArrayToString(var ANullArray: array of Byte): LccString;
   function EventIDToString(EventID: TEventID): string;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
-  {$IFNDEF WINDOWS}
+  {$IFNDEF LCC_WINDOWS}
   procedure ResolveUnixIp(var buf: array of char; const len: longint);
   {$ENDIF}
 
@@ -54,6 +62,7 @@ type
 
 implementation
 
+
 function GetTickCount : DWORD;
  {On Windows, this is number of milliseconds since Windows was
    started. On non-Windows platforms, LCL returns number of
@@ -64,7 +73,7 @@ function GetTickCount : DWORD;
    running for at least approx. 25 days, override it too.}
 begin
 {$IFDEF FPC}
-  {$IFDEF MSWINDOWS}
+  {$IFDEF LCC_WINDOWS}
     Result := Windows.GetTickCount mod High(LongInt);
   {$ELSE}
     Result := LclIntf.GetTickCount mod High(LongInt);
@@ -300,59 +309,160 @@ begin
   end;
 end;
 
-{$IFNDEF WINDOWS}
-procedure ResolveUnixIp(var buf: array of char; const len: longint);
-const
-  CN_GDNS_ADDR = '127.0.0.1';
-  CN_GDNS_PORT = 53;
-var
-  s: string;
-  sock: longint;
-  err: longint;
-  HostAddr: TSockAddr;
-  l: Integer;
-  UnixAddr: TInetSockAddr;
+{$IFNDEF LCC_WINDOWS}
+  {$IFDEF FPC}
+  procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  const
+    CN_GDNS_ADDR = '127.0.0.1';
+    CN_GDNS_PORT = 53;
+  var
+    s: string;
+    sock: longint;
+    err: longint;
+    HostAddr: TSockAddr;
+    l: Integer;
+    UnixAddr: TInetSockAddr;
 
-begin
-  err := 0;
-  Assert(len >= 16);
-
-  sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
-  assert(sock <> -1);
-
-  UnixAddr.sin_family := AF_INET;
-  UnixAddr.sin_port := htons(CN_GDNS_PORT);
-  UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
-
-  if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
   begin
-    try
-      l := SizeOf(HostAddr);
-      if (fpgetsockname(sock, @HostAddr, @l) = 0) then
-      begin
-        s := NetAddrToStr(HostAddr.sin_addr);
-        StrPCopy(PChar(Buf), s);
-      end
-      else
-      begin
-        err:=socketError;
+    err := 0;
+    Assert(len >= 16);
+
+    sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
+    assert(sock <> -1);
+
+    UnixAddr.sin_family := AF_INET;
+    UnixAddr.sin_port := htons(CN_GDNS_PORT);
+    UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+    if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
+    begin
+      try
+        l := SizeOf(HostAddr);
+        if (fpgetsockname(sock, @HostAddr, @l) = 0) then
+        begin
+          s := NetAddrToStr(HostAddr.sin_addr);
+          StrPCopy(PChar(Buf), s);
+        end
+        else
+        begin
+          err:=socketError;
+        end;
+      finally
+        if (fpclose(sock) <> 0) then
+        begin
+          err := socketError;
+        end;
       end;
-    finally
-      if (fpclose(sock) <> 0) then
-      begin
-        err := socketError;
-      end;
+    end else
+    begin
+      err:=socketError;
     end;
-  end else
-  begin
-    err:=socketError;
-  end;
 
-  if (err <> 0) then
-  begin
-    // report error
+    if (err <> 0) then
+    begin
+      // report error
+    end;
   end;
-end;
+  {$ELSE}
+  type
+    array4int = array[1..4] of byte;
+
+  function StrToHostAddr(IP : AnsiString) : in_addr ;
+
+    Var
+      Dummy : AnsiString;
+      I,j,k     : Longint;
+      Temp : in_addr;
+
+    begin
+      strtohostaddr.s_addr:=0;              //:=NoAddress;
+      For I:=1 to 4 do
+        begin
+          If I<4 Then
+            begin
+              J:=Pos('.',IP);
+              If J=0 then
+                exit;
+              Dummy:=Copy(IP,1,J-1);
+              Delete (IP,1,J);
+            end
+           else
+             Dummy:=IP;
+          Val (Dummy,k,J);
+          array4int(temp.s_addr)[i]:=k;
+          If J<>0 then Exit;
+       end;
+       strtohostaddr.s_addr:=ntohl(Temp.s_addr);
+    end;
+
+    function NetAddrToStr (Entry : in_addr) : AnsiString;
+    Var Dummy : Ansistring;
+        i,j   : Longint;
+    begin
+      NetAddrToStr:='';
+      j:=entry.s_addr;
+      For I:=1 to 4 do
+       begin
+         Str(array4int(j)[i],Dummy);
+         NetAddrToStr:=result+Dummy;
+         If I<4 Then
+           NetAddrToStr:=result+'.';
+       end;
+    end;
+
+  procedure ResolveUnixIp(var buf: array of char; const len: longint);
+  const
+    CN_GDNS_ADDR = '127.0.0.1';
+    CN_GDNS_PORT = 53;
+  var
+    s: string;
+    sock: longint;
+    err: longint;
+    HostAddr: SockAddr;
+    l: Cardinal;
+    UnixAddr: sockaddr_in;
+
+  begin
+    err := 0;
+    Assert(len >= 16);
+
+    sock := socket(AF_INET, SOCK_DGRAM, 0);
+    assert(sock <> -1);
+
+    UnixAddr.sin_family := AF_INET;
+    UnixAddr.sin_port := htons(CN_GDNS_PORT);
+    UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+    if (Connect(sock, psockaddr(@UnixAddr)^, SizeOf(UnixAddr)) = 0) then
+    begin
+      try
+        l := SizeOf(HostAddr);
+        if (getsockname(sock, HostAddr, l) = 0) then
+        begin
+          s := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr);
+          StrPCopy(PAnsiChar(buf[0]), s);
+        end
+        else
+        begin
+          err:=errno;
+        end;
+      finally
+        if (__close(sock) <> 0) then
+        begin
+          err := errno;
+        end;
+      end;
+    end else
+    begin
+      err:=errno;
+    end;
+
+    if (err <> 0) then
+    begin
+      // report error
+    end;
+  end;
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF FPC}

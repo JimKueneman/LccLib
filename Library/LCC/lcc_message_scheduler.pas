@@ -7,8 +7,9 @@ unit lcc_message_scheduler;
 interface
 
 uses
-  Classes, SysUtils, lcc_messages, contnrs,
+  Classes, SysUtils, lcc_messages,
   {$IFDEF FPC}
+    contnrs,
   {$ELSE}
     System.Generics.Collections,
     Types,
