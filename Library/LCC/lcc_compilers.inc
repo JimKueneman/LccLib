@@ -1,8 +1,4 @@
 
-{$IFDEF FPC}
-{$mode objfpc}{$H+}
-{$ENDIF}
-
 {$IFDEF WINDOWS}   // Lazarus
   {$DEFINE LCC_WINDOWS}
 {$ENDIF}
@@ -18,4 +14,4 @@
     {$DEFINE LCC_MOBILE}
   {$ENDIF}
 {$ENDIF}
-
+

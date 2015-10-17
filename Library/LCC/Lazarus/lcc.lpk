@@ -2,7 +2,6 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="LCC"/>
-    <Type Value="RunAndDesignTime"/>
     <Author Value="Jim Kueneman"/>
     <CompilerOptions>
       <Version Value="11"/>
@@ -11,10 +10,13 @@
         <OtherUnitFiles Value="../../Synapse_LCC;../../Lib;.."/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="20">
+    <Files Count="21">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -103,7 +105,12 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="lcc_raspberrypi_spiport"/>
       </Item20>
+      <Item21>
+        <Filename Value="../lcc_compiler_types.pas"/>
+        <UnitName Value="lcc_compiler_types"/>
+      </Item21>
     </Files>
+    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="SynEdit"/>
