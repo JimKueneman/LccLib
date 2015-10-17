@@ -7,9 +7,8 @@ unit frame_lcc_settings;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, Spin,
-  Buttons, synaser, lcc_app_common_settings, Dialogs, LResources,
-  lcc_raspberrypi_spiport, contnrs;
+  Classes, SysUtils, Forms, Controls, StdCtrls, Spin,
+  Buttons, synaser, lcc_app_common_settings, Dialogs, LResources, contnrs;
 
 type
 
@@ -87,7 +86,6 @@ type
     FLockSetting: Boolean;
   private
     FComPort: Boolean;
-    FEthernet: Boolean;
     FEthernetClient: Boolean;
     FEthernetServer: Boolean;
     FLccSettings: TLccSettings;

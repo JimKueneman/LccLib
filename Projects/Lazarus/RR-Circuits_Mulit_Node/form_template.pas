@@ -104,7 +104,7 @@ type
     procedure OnTraceFormHideEvent(Sender: TObject);
   public
     { public declarations }
-    procedure CreateVirtualNode(Offset: Integer);
+    procedure CreateVirtualNode(Offset: Int64);
   end;
 
 var
@@ -236,11 +236,15 @@ end;
 
 procedure TFormTemplate.ButtonCreateVirtualNodesClick(Sender: TObject);
 var
-  i: Integer;
+  i: Int64;
 begin
   LccNodeManager.ClearOwned;
-  for i := 0 to SpinEditVNodes.Value - 1 do
+  i := 0;
+  while i < SpinEditVNodes.Value do
+  begin
     CreateVirtualNode(i + 1);
+    Inc(i);
+  end;
 end;
 
 procedure TFormTemplate.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -449,6 +453,8 @@ var
 begin
   if LccSourceNode is TMyRootNode then                                          // If it is our Root Node then set its NodeID we saved
   begin
+    Temp[0] := 0;
+    Temp[1] := 0;
     LccSettings.General.NodeIDAsTNodeID(Temp);
     if not EqualNodeID(Temp, LccSourceNode.NodeID, True) then
     begin
@@ -483,7 +489,7 @@ begin
     ActionMsgTrace.Execute;
 end;
 
-procedure TFormTemplate.CreateVirtualNode(Offset: Integer);
+procedure TFormTemplate.CreateVirtualNode(Offset: Int64);
 var
   ANodeID: TNodeID;
   OwnedNode: TLccOwnedNode;

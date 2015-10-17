@@ -133,8 +133,8 @@ begin
 end;
 
 procedure TFrameLccLogging.Loaded;
-var
- Markup: TSynEditMarkupHighlightAllCaret;
+//var
+// Markup: TSynEditMarkupHighlightAllCaret;
 begin
   inherited Loaded;
  { Markup := SynEdit.MarkupByClass[TSynEditMarkupHighlightAllCaret] as TSynEditMarkupHighlightAllCaret;

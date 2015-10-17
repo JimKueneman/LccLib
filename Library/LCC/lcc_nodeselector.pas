@@ -97,7 +97,7 @@ type
     property Nodes[Index: Integer]: TLccGuiNode read GetNodes write SetNodes; default;
     property OwnerSelector: TLccNodeSelectorBase read FOwnerSelector;
 
-    constructor Create;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear;
     function Add(ANodeID: TNodeID; AnAliasID: Word): TLccGuiNode;
@@ -122,7 +122,7 @@ type
     property Count: Integer read GetCount;
     property Nodes[Index: Integer]: TLccGuiNode read GetNodes write SetNodes; default;
 
-    constructor Create;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Add(Node: TLccGuiNode);
     procedure Clear;
@@ -258,9 +258,9 @@ begin
     NodeList.Clear;
 end;
 
-constructor TLccGuiVisibleNodeList.Create;
+constructor TLccGuiVisibleNodeList.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FNodeList := TObjectList.Create;
   NodeList.OwnsObjects := False;
 end;
@@ -371,7 +371,7 @@ begin
     end;
   end;
 
-  EmptyRect(TextBox);
+  TextBox := Rect(0, 0, 0, 0);
   for i := 0 to Length(TextRects) - 1 do
     UnionRect(TextBox, TextBox, TextRects[i]);
 
@@ -649,8 +649,8 @@ end;
 constructor TLccNodeSelectorBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FLccNodes := TLccGuiNodeList.Create;
-  LccVisibleNodes := TLccGuiVisibleNodeList.Create;
+  FLccNodes := TLccGuiNodeList.Create(AOwner);
+  LccVisibleNodes := TLccGuiVisibleNodeList.Create(AOwner);
   LccVisibleNodes.FOwnerSelector := Self;
   FLccNodes.FOwnerSelector := Self;
   FDefaultNodeHeight := 44;
@@ -1054,9 +1054,9 @@ begin
   end;
 end;
 
-constructor TLccGuiNodeList.Create;
+constructor TLccGuiNodeList.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FNodeList := TObjectList.Create;
   NodeList.OwnsObjects := True;
 end;

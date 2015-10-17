@@ -5,7 +5,7 @@ unit form_settings;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   ActnList, ExtCtrls, frame_lcc_settings, lcc_app_common_settings;
 
 type
