@@ -1,14 +1,14 @@
 object Form1: TForm1
-  Left = 392
+  Left = 535
   Height = 472
-  Top = 228
+  Top = 305
   Width = 1013
   Caption = 'Form1'
   ClientHeight = 472
   ClientWidth = 1013
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.2.6.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -26,24 +26,23 @@ object Form1: TForm1
     end
     object ToolButton2: TToolButton
       Left = 72
-      Height = 44
       Top = 2
-      Width = 58
+      Width = 10
       Caption = 'ToolButton2'
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 234
+      Left = 186
       Top = 2
       Action = ActionComPort
     end
     object ToolButton4: TToolButton
-      Left = 296
+      Left = 248
       Top = 2
       Action = ActionLogin
     end
     object ToolButton5: TToolButton
-      Left = 130
+      Left = 82
       Top = 2
       Action = ActionEthernetServer
     end
@@ -66,8 +65,9 @@ object Form1: TForm1
       Top = 375
     end
     inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 14
+      Left = 15
       Top = 379
+      Width = 127
       OnChange = nil
     end
     inherited CheckBoxJMRIFormat: TCheckBox
@@ -163,7 +163,7 @@ object Form1: TForm1
         Left = 152
         Height = 18
         Top = 8
-        Width = 134
+        Width = 133
         Action = ActionShowLocalNodes
         TabOrder = 2
       end
@@ -181,7 +181,7 @@ object Form1: TForm1
         Left = 8
         Height = 18
         Top = 8
-        Width = 157
+        Width = 156
         Action = ActionConnectNetworkTree
         TabOrder = 0
       end
@@ -209,6 +209,9 @@ object Form1: TForm1
     ComPort.Port = 'COM1'
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = False
+    Ethernet.AutoResolveClientIP = False
+    Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'
     Ethernet.LocalListenerIP = '127.0.0.1'
@@ -221,6 +224,9 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_3_9Mhz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataFalling
+    PiSpiPort.Bits = psb_8
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
     left = 184

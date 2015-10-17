@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
   ComCtrls, ExtCtrls, StdCtrls, lcc_app_common_settings, lcc_comport,
   lcc_nodemanager, Unit2, file_utilities, frame_lcc_logging,
-  lcc_messages, lcc_ethenetserver, lcc_ethernetclient;
+  lcc_messages, lcc_ethenetserver, lcc_ethernetclient, lcc_nodeselector;
 
 type
 
@@ -178,6 +178,7 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+
   // Setup the file paths to the Settings Object
   LccSettings1.FilePath := GetSettingsPath + 'Settings.ini';
 

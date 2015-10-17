@@ -649,8 +649,8 @@ end;
 constructor TLccNodeSelectorBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FLccNodes := TLccGuiNodeList.Create(AOwner);
-  LccVisibleNodes := TLccGuiVisibleNodeList.Create(AOwner);
+  FLccNodes := TLccGuiNodeList.Create(nil);
+  LccVisibleNodes := TLccGuiVisibleNodeList.Create(nil);
   LccVisibleNodes.FOwnerSelector := Self;
   FLccNodes.FOwnerSelector := Self;
   FDefaultNodeHeight := 44;
