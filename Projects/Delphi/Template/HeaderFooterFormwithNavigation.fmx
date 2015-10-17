@@ -1,0 +1,194 @@
+object HeaderFooterwithNavigation: THeaderFooterwithNavigation
+  Left = 0
+  Top = 0
+  Caption = 'HeaderFooter'
+  ClientHeight = 567
+  ClientWidth = 384
+  FormFactor.Width = 1440
+  FormFactor.Height = 900
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object TopToolBar: TToolBar
+    Anchors = []
+    Size.Width = 384.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object ToolBarLabel: TLabel
+      Action = TitleAction
+      Align = Contents
+      Enabled = True
+      Size.Width = 384.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toollabel'
+      TextSettings.HorzAlign = Center
+      Visible = True
+    end
+    object btnBack: TSpeedButton
+      Action = PreviousTabAction1
+      Align = MostLeft
+      Enabled = True
+      ImageIndex = -1
+      Size.Width = 65.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'backtoolbutton'
+      Visible = True
+    end
+    object btnNext: TSpeedButton
+      Action = NextTabAction1
+      Align = MostRight
+      Enabled = True
+      ImageIndex = -1
+      Position.X = 340.000000000000000000
+      Size.Width = 44.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'nexttoolbutton'
+      Visible = True
+    end
+  end
+  object TabControl1: TTabControl
+    Align = Client
+    FullSize = True
+    Size.Width = 384.000000000000000000
+    Size.Height = 479.000000000000000000
+    Size.PlatformDefault = False
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
+    TabOrder = 1
+    TabPosition = None
+    object TabItem1: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 8.000000000000000000
+      Size.Height = 8.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Caption Tab Item #1'
+      object LabelStatus: TLabel
+        Align = Bottom
+        Margins.Left = 8.000000000000000000
+        Margins.Right = 8.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 462.000000000000000000
+        Size.Width = 368.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Disconnected'
+      end
+    end
+    object TabItem2: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 8.000000000000000000
+      Size.Height = 8.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Caption Tab Item #2'
+    end
+  end
+  object BottomToolBar: TToolBar
+    Align = Bottom
+    Anchors = [akLeft]
+    Position.Y = 523.000000000000000000
+    Size.Width = 384.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'bottomtoolbar'
+    TabOrder = 2
+    object SpeedButtonConnect: TSpeedButton
+      Action = ActionConnect
+      Align = Left
+      Enabled = True
+      ImageIndex = -1
+      Size.Width = 81.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toolbuttonlabel'
+      Visible = True
+    end
+  end
+  object ActionList1: TActionList
+    Left = 176
+    Top = 56
+    object TitleAction: TControlAction
+      Category = 'Tab'
+      Text = 'TitleAction'
+      OnUpdate = TitleActionUpdate
+    end
+    object PreviousTabAction1: TPreviousTabAction
+      Category = 'Tab'
+      TabControl = TabControl1
+      ShortCut = 137
+    end
+    object NextTabAction1: TNextTabAction
+      Category = 'Tab'
+      TabControl = TabControl1
+    end
+    object ActionConnect: TAction
+      Category = 'Action'
+      AutoCheck = True
+      Text = 'Connect'
+      OnExecute = ActionConnectExecute
+    end
+  end
+  object LccEthernetServer1: TLccEthernetServer
+    Hub = False
+    Gridconnect = False
+    LccSettings = LccSettings1
+    NodeManager = LccNodeManager1
+    OnConnectionStateChange = LccEthernetServer1ConnectionStateChange
+    OnErrorMessage = LccEthernetServer1ErrorMessage
+    SchedulerPipelineSize = 1
+    SleepCount = 0
+    Left = 288
+    Top = 244
+  end
+  object LccSettings1: TLccSettings
+    ComPort.AutoConnectAtBoot = False
+    ComPort.BaudRate = 333333
+    ComPort.DataBits = cpdb_8_Bits
+    ComPort.Parity = cpp_None
+    ComPort.Port = 'COM1'
+    ComPort.StopBits = cpsb_1_StopBit
+    ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = True
+    Ethernet.AutoResolveClientIP = False
+    Ethernet.GridConnect = True
+    Ethernet.LocalClientIP = '127.0.0.1'
+    Ethernet.RemoteListenerIP = '127.0.0.1'
+    Ethernet.LocalListenerIP = '127.0.0.1'
+    Ethernet.LocalClientPort = 12022
+    Ethernet.RemoteListenerPort = 12021
+    Ethernet.LocalListenerPort = 12021
+    General.AliasID = '0x000'
+    General.NodeID = '0x000000000000'
+    General.SchedulerPipelineSize = 5
+    Logging.Detailed = False
+    Logging.Enabled = False
+    Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_3_9Mhz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataFalling
+    PiSpiPort.Bits = psb_8
+    Throttle.AutoLoadFDI = True
+    Throttle.AutoScrollDelta = 2
+    Left = 136
+    Top = 212
+  end
+  object LccNodeManager1: TLccNodeManager
+    AutoInterrogateDiscoveredNodes = False
+    AutoSendVerifyNodesOnStart = False
+    Enabled = False
+    CAN = False
+    LccSettings = LccSettings1
+    Left = 296
+    Top = 300
+  end
+end
