@@ -6,6 +6,8 @@ unit lcc_raspberrypi_spiport;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils,
   {$IFDEF CPUARM}

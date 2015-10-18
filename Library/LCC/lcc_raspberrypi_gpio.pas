@@ -11,6 +11,8 @@ unit lcc_raspberrypi_gpio;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils;
 
