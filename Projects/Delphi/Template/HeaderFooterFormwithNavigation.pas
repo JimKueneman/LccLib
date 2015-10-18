@@ -29,17 +29,7 @@ type
     SpeedButtonConnect: TSpeedButton;
     ActionConnect: TAction;
     LabelStatus: TLabel;
-    TreeView1: TTreeView;
-    TreeViewItem1: TTreeViewItem;
-    TreeViewItem2: TTreeViewItem;
-    TreeViewItem3: TTreeViewItem;
-    TreeViewItem4: TTreeViewItem;
-    TreeViewItem5: TTreeViewItem;
-    TreeViewItem6: TTreeViewItem;
-    TreeViewItem7: TTreeViewItem;
-    TreeViewItem8: TTreeViewItem;
-    TreeViewItem9: TTreeViewItem;
-    TreeViewItem10: TTreeViewItem;
+    LccNetworkTree1: TLccNetworkTree;
     procedure FormCreate(Sender: TObject);
     procedure TitleActionUpdate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
