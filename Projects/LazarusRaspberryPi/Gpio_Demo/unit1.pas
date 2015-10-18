@@ -25,6 +25,7 @@ type
     GPIO18Pwm: TToggleBox;
     Direction: TToggleBox;
     procedure DirectionChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure GPIO18PwmChange(Sender: TObject);
     procedure GPIO25InClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -85,11 +86,14 @@ begin
   if not GPIO_Driver.MapIo then
   begin
      LogMemo.Lines.Add('Error mapping gpio registry');
+     Exit;
   end
   else
   begin
     GpF := GpIo_Driver.CreatePort(GPIO_BASE, CLOCK_BASE, GPIO_PWM);
-  end ;
+    if not Assigned(GpF) then
+      Exit;
+  end;
   Timer1.Enabled:= True;
   Timer1.Interval:= 25;     //25 ms controll interval
   Pin := P22;
@@ -103,12 +107,16 @@ end;
 
 procedure TForm1.GPIO25InClick(Sender: TObject);
 begin
+  if not Assigned(GpF) then Exit;
+
   If GpF.GetBit(Pin) then LogMemo.Lines.Add('In: '+IntToStr(1))
                      else LogMemo.Lines.Add('In: '+IntToStr(0));
 end;
 
 procedure TForm1.GPIO18PwmChange(Sender: TObject);
 begin
+  if not Assigned(GpF) then Exit;
+
   if GPIO18Pwm.Checked then
   begin
     GpF.SetPinMode(Ppwm,PWM_OUTPUT);
@@ -126,17 +134,26 @@ begin
   if Direction.Checked then d:=10 else d:=-10;
 end;
 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  GpIo_Driver := TIoDriver.Create;
+end;
+
  
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-    GpF.SetPinMode(Ppwm,INPUT);
-    GpF.ClearBit(Pout);
-    GpIo_Driver.UnmapIoRegisrty(GpF);
+  GpF.SetPinMode(Ppwm,INPUT);
+  GpF.ClearBit(Pout);
+  GpIo_Driver.UnmapIoRegisrty(GpF);
+  if Assigned(GPIO_Driver) then
+    GPIO_Driver.Free;
 end;
  
 procedure TForm1.GPIO23switchChange(Sender: TObject);
 
 Begin
+  if not Assigned(GpF) then Exit;
+
   Timer1.Enabled := False;
   if GPIO23switch.Checked then
   begin
@@ -155,6 +172,8 @@ var
   k,v: comp;
   ido:TDateTime;
 begin
+  if not Assigned(GpF) then Exit;
+
   ido:= Time;
   k:= TimeStampToMSecs(DateTimeToTimeStamp(ido));
   LogMemo.Lines.Add('Start: '+TimeToStr(ido));
@@ -167,12 +186,12 @@ begin
   v:= TimeStampToMSecs(DateTimeToTimeStamp(ido));
   LogMemo.Lines.Add('Stop: '+TimeToStr(ido)+' Frequency: '+
                                 IntToStr(p div (Int64(v-k)))+' kHz');
-
-
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
+  if not Assigned(GpF) then Exit;
+
   If PWM then Begin
     If (d > 0) and (i+d < 1024) then begin
           i:=i+d;
@@ -186,4 +205,4 @@ begin
 end;
 
  
-end.
+end.

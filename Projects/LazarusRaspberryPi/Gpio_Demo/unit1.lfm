@@ -8,7 +8,8 @@ object Form1: TForm1
   ClientWidth = 432
   OnActivate = FormActivate
   OnClose = FormClose
-  LCLVersion = '1.2.6.0'
+  OnCreate = FormCreate
+  LCLVersion = '1.5'
   object LogMemo: TMemo
     Left = 27
     Height = 207

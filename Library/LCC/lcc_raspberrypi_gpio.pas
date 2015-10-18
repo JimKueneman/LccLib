@@ -130,8 +130,8 @@ const
   O_Sync = 0;   // Dummy for anything but the RPi
 {$ENDIF}
 begin
- Result := True;
- fd := fpopen('/dev/mem', O_RdWr or O_Sync); // Open the master /dev/memory device
+  Result := True;
+  fd := fpopen('/dev/mem', O_RdWr or O_Sync); // Open the master /dev/memory device
   if fd < 0 then
   begin
     Result := False; // unsuccessful memory mapping
