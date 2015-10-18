@@ -6,8 +6,10 @@ unit lcc_gridconnect;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
-  Classes, SysUtils, lcc_defines;
+  Classes, SysUtils, lcc_defines, lcc_compiler_types;
 
 const
   // :X19170640N0501010107015555;#0  Example.....
@@ -59,7 +61,7 @@ begin
   i := 0;
   while GridConnectBuffer[i] <> Ord(#0) do
   begin
-    Result := Result + Char( GridConnectBuffer[i]);
+    Result := Result + LccString( Char( GridConnectBuffer[i]));
     Inc(i);
     if i > MAX_GRID_CONNECT_LEN then
       Break

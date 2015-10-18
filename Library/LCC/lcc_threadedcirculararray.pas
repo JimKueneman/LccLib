@@ -6,6 +6,8 @@ unit lcc_threadedcirculararray;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes,
   {$IFDEF FPC}

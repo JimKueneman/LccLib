@@ -20,7 +20,7 @@ uses
   {$ENDIF}
   lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
   lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes, file_utilities;
+  lcc_common_classes, file_utilities, lcc_compiler_types;
 
 type
   TLccComPortThread = class;             // Forward

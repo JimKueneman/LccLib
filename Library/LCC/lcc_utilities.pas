@@ -259,7 +259,7 @@ begin
   i := 0;
   while ANullArray[i] <> 0 do
   begin
-    Result := Result + Chr( ANullArray[i]);
+    Result := Result + LccString( Chr( ANullArray[i]));
     Inc(i);
   end;
 end;
@@ -272,9 +272,9 @@ begin
   for i := 0 to MAX_EVENT_LEN - 1 do
   begin
     if i < MAX_EVENT_LEN - 1 then
-      Result := Result + IntToHex(EventID[i], 2) + '.'
+      Result := Result + LccString( IntToHex(EventID[i], 2)) + '.'
     else
-      Result := Result + IntToHex(EventID[i], 2);
+      Result := Result + LccString( IntToHex(EventID[i], 2));
   end;
 end;
 
@@ -351,48 +351,48 @@ end;
   end;
   {$ELSE}
   type
-    array4int = array[1..4] of byte;
+    TArray4Int = array[1..4] of byte;
+    PArray4Int = ^TArray4Int;
 
-  function StrToHostAddr(IP : LccString) : in_addr ;
+  function StrToHostAddr(IP : LccString): in_addr ;
 
     Var
-      Dummy : LccString;
-      I,j,k     : Longint;
-      Temp : in_addr;
-
+      Dummy: LccString;
+      I, j, k: Longint;
+      Temp: in_addr;
     begin
-      strtohostaddr.s_addr:=0;              //:=NoAddress;
-      For I:=1 to 4 do
+      strtohostaddr.s_addr := 0;              //:=NoAddress;
+      For I := 1 to 4 do
         begin
-          If I<4 Then
+          If I < 4 Then
             begin
-              J:=Pos('.',IP);
-              If J=0 then
+              J := Pos('.', String( IP));
+              If J = 0 then
                 exit;
-              Dummy:=Copy(IP,1,J-1);
-              Delete (IP,1,J);
+              Dummy := Copy(String( IP) , 1, J-1);
+              Delete(IP, 1, J);
             end
            else
              Dummy:=IP;
-          Val (Dummy,k,J);
-          array4int(temp.s_addr)[i]:=k;
-          If J<>0 then Exit;
+          k := StrToInt(string( Dummy));
+          PArray4Int(temp.s_addr)^[i] := k;
        end;
        strtohostaddr.s_addr:=ntohl(Temp.s_addr);
     end;
 
     function NetAddrToStr (Entry : in_addr) : LccString;
-    Var Dummy : LccString;
-        i,j   : Longint;
+    Var
+      Dummy: LccString;
+      i, j: Longint;
     begin
-      NetAddrToStr:='';
-      j:=entry.s_addr;
-      For I:=1 to 4 do
+      NetAddrToStr := '';
+      j := entry.s_addr;
+      For i := 1 to 4 do
        begin
-         Str(array4int(j)[i],Dummy);
-         NetAddrToStr:=result+Dummy;
-         If I<4 Then
-           NetAddrToStr:=result+'.';
+         Dummy := LccString( IntToStr( PArray4Int(j)^[i]));
+         NetAddrToStr := Result + Dummy;
+         If i < 4 Then
+           NetAddrToStr := Result + '.';
        end;
     end;
 

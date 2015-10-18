@@ -48,6 +48,15 @@ contains
   lcc_utilities in '..\lcc_utilities.pas',
   lcc_app_common_settings in '..\lcc_app_common_settings.pas',
   lcc_common_classes in '..\lcc_common_classes.pas',
-  lcc_compiler_types in '..\lcc_compiler_types.pas';
+  lcc_compiler_types in '..\lcc_compiler_types.pas',
+  synafpc in '..\..\Synapse_LCC\synafpc.pas',
+  synaip in '..\..\Synapse_LCC\synaip.pas',
+  synacode in '..\..\Synapse_LCC\synacode.pas',
+  synabyte in '..\..\Synapse_LCC\synabyte.pas',
+  synsock in '..\..\Synapse_LCC\synsock.pas',
+  blcksock in '..\..\Synapse_LCC\blcksock.pas',
+  synautil in '..\..\Synapse_LCC\synautil.pas';
 
 end.
+
+

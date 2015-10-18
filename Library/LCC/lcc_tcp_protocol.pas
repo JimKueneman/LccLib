@@ -6,6 +6,8 @@ unit lcc_tcp_protocol;
 
 interface
 
+{$I lcc_compilers.inc}
+
  uses
   Classes, SysUtils,
   {$IFNDEF FPC}

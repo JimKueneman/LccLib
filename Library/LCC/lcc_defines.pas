@@ -23,6 +23,8 @@ unit lcc_defines;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   {$IFNDEF FPC}
   Types,
@@ -39,13 +41,6 @@ type
   TEventState = (evs_Valid, evs_InValid, evs_Unknown);
   TIsNodeTestType = (ntt_Dest, ntt_Source);
   TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
-
-{$IFDEF FPC}
-type
-  LccString = AnsiString;
-{$ELSE}
-  LccString = String;
-{$ENDIF}
 
 const
   // Full CAN MTI

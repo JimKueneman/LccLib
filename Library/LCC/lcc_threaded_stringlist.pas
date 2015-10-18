@@ -1,4 +1,4 @@
-unit lcc_threaded_stringlist;
+﻿unit lcc_threaded_stringlist;
 
 {$IFDEF FPC}
 {$mode objfpc}{$H+}

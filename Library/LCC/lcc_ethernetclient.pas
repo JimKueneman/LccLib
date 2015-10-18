@@ -24,8 +24,8 @@ uses
   {$ENDIF}
   lcc_gridconnect, blcksock, synsock, lcc_threaded_stringlist,
   lcc_can_message_assembler_disassembler, lcc_message_scheduler,
-  lcc_nodemanager, lcc_messages, lcc_defines, lcc_threadedcirculararray,
-  lcc_tcp_protocol, lcc_utilities, lcc_app_common_settings, synabyte,
+  lcc_nodemanager, lcc_messages, lcc_threadedcirculararray,
+  lcc_tcp_protocol, lcc_utilities, lcc_app_common_settings,
   lcc_common_classes, lcc_compiler_types;
 
 type
@@ -429,6 +429,7 @@ function TLccEthernetClient.OpenConnectionWithLccSettings: TLccEthernetClientThr
 var
   AnEthernetRec: TLccEthernetRec;
 begin
+  Result := nil;
   if Assigned(LccSettings) then
   begin
     AnEthernetRec.ConnectionState := ccsListenerDisconnected;
@@ -436,8 +437,8 @@ begin
     AnEthernetRec.Thread := nil;
     AnEthernetRec.MessageStr := '';
     AnEthernetRec.ListenerPort := LccSettings.Ethernet.RemoteListenerPort;
-    AnEthernetRec.ListenerIP := LccSettings.Ethernet.RemoteListenerIP;
-    AnEthernetRec.ClientIP := LccSettings.Ethernet.LocalClientIP;
+    AnEthernetRec.ListenerIP := LccString( LccSettings.Ethernet.RemoteListenerIP);
+    AnEthernetRec.ClientIP := LccString( LccSettings.Ethernet.LocalClientIP);
     AnEthernetRec.ClientPort := LccSettings.Ethernet.LocalClientPort;
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
@@ -550,7 +551,7 @@ procedure TLccEthernetClientThread.Execute;
     if Assigned(Socket) then
     begin
       Socket.GetSinLocal;
-      FEthernetRec.ClientIP := Socket.GetLocalSinIP;
+      FEthernetRec.ClientIP := LccString( Socket.GetLocalSinIP);
       FEthernetRec.ClientPort := Socket.GetLocalSinPort;
     end;
     if not FEthernetRec.SuppressNotification then
@@ -561,7 +562,7 @@ procedure TLccEthernetClientThread.Execute;
   begin
     Owner.EthernetThreads.Remove(Self);
     FEthernetRec.ErrorCode := Socket.LastError;
-    FEthernetRec.MessageStr := Socket.LastErrorDesc;
+    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
     if not FEthernetRec.SuppressNotification then
       Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
     SendConnectionNotification(ccsClientDisconnected);
@@ -578,12 +579,12 @@ var
   RetryCount: Integer;
   Peer: TVarSin;
   DynamicByteArray: TDynamicByteArray;
-  SynaBytes: TSynaBytes;
   RcvByte: Byte;
   LocalSleepCount: Integer;
+  {$IFDEF LCC_WINDOWS}
   LocalName: string;
   IpStrings: TStringList;
-  {$IFNDEF WINDOWS}
+  {$ELSE}
   Ip: array[0..15] of LccChar;
   {$ENDIF}
 begin
@@ -618,7 +619,7 @@ begin
       try
          Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
          for i := 0 to IpStrings.Count - 1 do
-           FEthernetRec.ClientIP := IpStrings[i];
+           FEthernetRec.ClientIP := LccString( IpStrings[i]);
       finally
         IpStrings.Free;
       end;
@@ -629,7 +630,7 @@ begin
     end;
 
 
-    Socket.Connect(EthernetRec.ListenerIP, IntToStr(EthernetRec.ListenerPort));
+    Socket.Connect(String( EthernetRec.ListenerIP), String( IntToStr(EthernetRec.ListenerPort)));
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin
       Socket.ResetLastError;
@@ -665,7 +666,7 @@ begin
                 try
                   if TxList.Count > 0 then
                   begin
-                    TxStr := TxList[0];
+                    TxStr := LccString( TxList[0]);
                     TxList.Delete(0);
                   end;
                 finally
@@ -674,6 +675,7 @@ begin
 
                 if TxStr <> '' then
                 begin
+                  GridConnectStr[0] := 0;
                   StringToGridConnectBuffer(TxStr, GridConnectStr);
                   for i := 0 to Length(TxStr) - 1 do
                     Socket.SendByte(GridConnectStr[i]);
@@ -728,7 +730,6 @@ begin
               end;
               Inc(LocalSleepCount);
 
-          //    SynaBytes := Socket.RecvPacket(1);
               RcvByte := Socket.RecvByte(1);
               case Socket.LastError of
                 0 :
@@ -736,22 +737,6 @@ begin
                     DynamicByteArray := nil;
                     if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
                       Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
-
-                    // I get a random "0" at the beginning of the message in Lazarus OSX at least
-             (*       DynamicByteArray := nil;
-                    {$IFDEF UNICODE}
-                    for i := 0 to SynaBytes.Length - 1 do
-                    {$ELSE}
-                    for i := 0 to Length(SynaBytes) - 1 do
-                    {$ENDIF}
-                    begin
-                      {$IFDEF UNICODE}
-                      if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(SynaBytes.Bytes[i], FEthernetRec.MessageArray) then
-                      {$ELSE}
-                      if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(Ord(SynaBytes[i]), FEthernetRec.MessageArray) then
-                      {$ENDIF}
-                        Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
-                    end            *)
                   end;
                 WSAETIMEDOUT :
                   begin
@@ -813,7 +798,7 @@ begin
     if Gridconnect then
     begin
       MessageStr := AMessage.ConvertToGridConnectStr('');
-      OutgoingGridConnect.Add(MessageStr);
+      OutgoingGridConnect.Add(String( MessageStr));
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'S: ' + MessageStr,
@@ -948,4 +933,4 @@ initialization
 finalization
 
 end.
-
+

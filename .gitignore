@@ -20,3 +20,5 @@ Projects/Lazarus/Template/lib
 Projects/Lazarus/Template/Compiled_Binaries
 Projects/Delphi/Template/iOSSimulator
 Projects/Delphi/Template/OSX32
+Projects/LazarusRaspberryPi/Gpio_Demo/Compiled_Binaries
+Projects/LazarusRaspberryPi/Gpio_Demo/lib

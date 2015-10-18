@@ -8,8 +8,42 @@ interface
 
 uses
   Classes, SysUtils,
-  LCLType, LMessages, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList, ComCtrls, ExtCtrls, Menus, StdCtrls,
-  Types, contnrs, lcc_defines;
+  {$IFDEF FPC}
+  LCLType,
+  LMessages,
+  FileUtil,
+  Forms,
+  Controls,
+  Graphics,
+  Dialogs,
+  ActnList,
+  ComCtrls,
+  ExtCtrls,
+  Menus,
+  StdCtrls,
+  {$ELSE}
+  System.UIConsts,
+  System.UITypes,
+  System.Generics.Collections,
+  FMX.Types,
+  FMX.Controls,
+  FMX.Graphics,
+  FMX.Forms,
+  FMX.Dialogs,
+  FMX.TabControl,
+  System.Actions,
+  FMX.ActnList,
+  FMX.Objects,
+  FMX.ExtCtrls,
+  FMX.StdCtrls,
+  FMX.ImgList,
+  FMX.Controls.Presentation,
+  FMX.TreeView,
+  FMX.Layouts,
+  {$ENDIF}
+  Types, contnrs,
+  lcc_compiler_types,
+  lcc_defines;
 
 type
   TLccNodeSelectorBase = class;
@@ -139,7 +173,7 @@ type
     FCalculatedHorzScrollRange: Integer;
     FImages: TImageList;
     FOnSort: TOnLccSelectorSort;
-    FTextLayout: TTextLayout;
+    FTextLayout: TLccTextLayout;
     FCaptionIndent: Integer;
     FCaptionLineCount: Integer;
     FDefaultNodeHeight: Integer;
@@ -152,7 +186,7 @@ type
     procedure SetAlignment(AValue: TAlignment);
     procedure SetCalculatedHorzScrollRange(AValue: Integer);
     procedure SetFocusedNode(AValue: TLccGuiNode);
-    procedure SetTextLayout(AValue: TTextLayout);
+    procedure SetTextLayout(AValue: TLccTextLayout);
     procedure SetCaptionIndent(AValue: Integer);
     procedure SetCaptionLineCount(AValue: Integer);
     procedure SetDefaultNodeHeight(AValue: Integer);
@@ -172,7 +206,7 @@ type
     property LccVisibleNodes: TLccGuiVisibleNodeList read FLccVisibleNodes write FLccVisibleNodes;
     property OnFocusedChanged: TOnLccSelectorFocusedChanged read OnFocusChanged write OnFocusChanged;
     property OnSort: TOnLccSelectorSort read FOnSort write FOnSort;
-    property TextLayout: TTextLayout read FTextLayout write SetTextLayout;
+    property TextLayout: TLccTextLayout read FTextLayout write SetTextLayout;
     property UpdateLock: Integer read FUpdateLock write FUpdateLock;
 
     function AdjustedClientWidth: Integer;
@@ -942,7 +976,7 @@ begin
 end;
 
 
-procedure TLccNodeSelectorBase.SetTextLayout(AValue: TTextLayout);
+procedure TLccNodeSelectorBase.SetTextLayout(AValue: TLccTextLayout);
 begin
   if FTextLayout = AValue then Exit;
   FTextLayout := AValue;

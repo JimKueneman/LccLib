@@ -6,6 +6,8 @@ unit lcc_messages;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
@@ -14,7 +16,8 @@ uses
   {$IFNDEF FPC}
   Types,
   {$ENDIF}
-  lcc_defines, lcc_math_float16, lcc_utilities, lcc_threadedcirculararray, strutils;
+  lcc_defines, lcc_math_float16, lcc_utilities, lcc_threadedcirculararray, strutils,
+  lcc_compiler_types;
 
 const
   CAN_BYTE_COUNT = 8;
@@ -88,15 +91,15 @@ private
   function GetHasSourceNodeID: Boolean;
   function GetIsDatagram: Boolean;
   function GetIsStream: Boolean;
-  function GetDataArrayIndexer(iIndex: Word): Byte;
+  function GetDataArrayIndexer(iIndex: DWord): Byte;
 
-  procedure SetDataArrayIndexer(iIndex: Word; const Value: Byte);protected
+  procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);protected
   FSourceID: TNodeID;
 public
   property CAN: TLccCANMessage read FCAN write FCAN;
   property DestID: TNodeID read FDestID write FDestID;
   property DataArray: TLccByteArray read FDataArray write FDataArray;
-  property DataArrayIndexer[iIndex: Word]: Byte read GetDataArrayIndexer write SetDataArrayIndexer;
+  property DataArrayIndexer[iIndex: DWord]: Byte read GetDataArrayIndexer write SetDataArrayIndexer;
   property DataCount: Integer read FDataCount write FDataCount;
   property HasDestination: Boolean read GetHasDestination;
   property HasDestNodeID: Boolean read GetHasDestNodeID;
@@ -122,14 +125,14 @@ public
   function ExtractDataBytesAsEventID(StartIndex: Integer): PEventID;
   function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
   function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): PNodeID;
-  function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
+  function ExtractDataBytesAsString(StartIndex, Count: Integer): LccString;
 
-  function LoadByGridConnectStr(GridConnectStr: string): Boolean;
+  function LoadByGridConnectStr(GridConnectStr: LccString): Boolean;
   function LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
-  function ConvertToGridConnectStr(Delimiter: string): string;
+  function ConvertToGridConnectStr(Delimiter: LccString): LccString;
   function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
   procedure Copy(TargetMessage: TLccMessage);
-  class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): string;
+  class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): LccString;
   procedure ZeroFields;
 
   // CAN
@@ -196,7 +199,7 @@ public
   procedure LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadConfigMemRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ConfigMemSize: Byte);
   procedure LoadConfigMemWriteInteger(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; IntegerSize: Byte; DataInteger: Integer);
-  procedure LoadConfigMemWriteString(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; AString: string);
+  procedure LoadConfigMemWriteString(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; AString: LccString);
   procedure LoadConfigMemWriteArray(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ArraySize: Integer; AnArray: array of Byte);
   // MTIs
   procedure LoadOptionalInteractionRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word; AnMTI: Word);
@@ -294,7 +297,7 @@ begin
   FDataArray[StartByteIndex+1] := _Lo(AWord);
 end;
 
-function TLccMessage.GetDataArrayIndexer(iIndex: Word): Byte;
+function TLccMessage.GetDataArrayIndexer(iIndex: DWord): Byte;
 begin
   Result := FDataArray[iIndex]
 end;
@@ -365,7 +368,7 @@ begin
   ANodeID[0] := (DataArray[StartIndex+3] shl 16) or (DataArray[StartIndex+4] shl 8) or DataArray[StartIndex+5];
 end;
 
-function TLccMessage.ExtractDataBytesAsString(StartIndex, Count: Integer): String;
+function TLccMessage.ExtractDataBytesAsString(StartIndex, Count: Integer): LccString;
 var
   i: Integer;
 begin
@@ -373,16 +376,16 @@ begin
   for i := StartIndex to Count - 1 do
   begin
     if DataArray[i] <> Ord(#0) then
-      Result := Result + Chr( DataArray[i])
+      Result := Result + LccString( Chr( DataArray[i]))
     else
       Break
   end;
 end;
 
-function TLccMessage.LoadByGridConnectStr(GridConnectStr: string): Boolean;
+function TLccMessage.LoadByGridConnectStr(GridConnectStr: LccString): Boolean;
 var
   x, n, SemiColon, i: Integer;
-  ByteStr: string;
+  ByteStr: LccString;
   DestHi, DestLo: Byte;
   ZeroIndex: Boolean;
 begin
@@ -395,18 +398,18 @@ begin
     {$ELSE}
     ZeroIndex := Low(GridConnectStr) = 0;
     {$ENDIF}
-    GridConnectStr := UpperCase(GridConnectStr);
-    x := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
+    GridConnectStr := LccString( UpperCase( String(GridConnectStr)));
+    x := Pos('X', String( GridConnectStr));                                              // Find were the "X" is in the string
     if ZeroIndex then Dec(x);
     if x > 0 then
     begin
-      n := PosEx('N', GridConnectStr, x);                                       // Find where the "N" is in the string
+      n := PosEx('N', String( GridConnectStr), x);                                       // Find where the "N" is in the string
       if ZeroIndex then Dec(n);
       if n > 0 then
       begin
         GridConnectStr[n] := #0;                                                // Set the "N" to a null to create a null string of the MTI
         Inc(n);                                                                 // Move just pass where the "N" was
-        SemiColon := PosEx(';', GridConnectStr, n);                             // Look for the terminating ";"
+        SemiColon := PosEx(';', String( GridConnectStr), n);                             // Look for the terminating ";"
         if ZeroIndex then Dec(SemiColon);
         if SemiColon > 0 then
         begin
@@ -435,9 +438,9 @@ begin
             if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
             begin
               ByteStr := GridConnectStr[n] + GridConnectStr[n+1];
-              DestHi := StrToInt('$'+ByteStr);
+              DestHi := StrToInt('$' + String( ByteStr));
               ByteStr := GridConnectStr[n+2] + GridConnectStr[n+3];
-              DestLo := StrToInt('$'+ByteStr);
+              DestLo := StrToInt('$' + String( ByteStr));
               CAN.FramingBits := DestHi and $30;
               CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
               Inc(n, 4);
@@ -458,7 +461,7 @@ begin
           while i < SemiColon do
           begin
             ByteStr := GridConnectStr[i] + GridConnectStr[i+1];
-            FDataArray[FDataCount] := StrToInt('$'+ByteStr);
+            FDataArray[FDataCount] := StrToInt('$' + String(ByteStr));
             Inc(i, 2);
             Inc(FDataCount);
           end;
@@ -509,7 +512,7 @@ begin
   end;
 end;
 
-function TLccMessage.ConvertToGridConnectStr(Delimiter: string): string;
+function TLccMessage.ConvertToGridConnectStr(Delimiter: LccString): LccString;
 var
   i, iFrameCount, Offset: Integer;
   LocalMTI: DWord;
@@ -527,17 +530,17 @@ begin
     begin
       LocalMTI := CAN.MTI or CAN.SourceAlias  or $10000000;
       LocalMTI := LocalMTI or (DWord( CAN.DestAlias) shl 12);
-      Result := ':X' + IntToHex(LocalMTI, 8) + 'N';
+      Result := ':X' + LccString( IntToHex(LocalMTI, 8)) + 'N';
       for i := 0 to DataCount - 1 do
-        Result := Result + IntToHex(DataArray[i], 2);
+        Result := Result + LccString( IntToHex(DataArray[i], 2));
       Result := Result + ';' + Delimiter
     end else
     begin
       if DataCount < 9 then
       begin
-        Result := Result + ':X' + IntToHex(DWord( $1A000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8) + 'N';
+        Result := Result + ':X' + LccString( IntToHex(DWord( $1A000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8) + 'N');
         for i := 0 to DataCount - 1 do
-          Result := Result + IntToHex(DataArray[i], 2);
+          Result := Result + LccString( IntToHex(DataArray[i], 2));
         Result := Result + ';'
       end else
       begin
@@ -545,16 +548,16 @@ begin
         while Offset < DataCount do
         begin
           if Offset = 0 then
-            Result := Result + ':X' + IntToHex(DWord( $1B000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8) + 'N'
+            Result := Result + ':X' + LccString( IntToHex(DWord( $1B000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8)) + 'N'
           else
           if Offset + 8 >= DataCount then
-            Result := Result + ':X' + IntToHex(DWord( $1D000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8) + 'N'
+            Result := Result + ':X' + LccString( IntToHex(DWord( $1D000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8)) + 'N'
           else
-            Result := Result + ':X' + IntToHex(DWord( $1C000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8) + 'N';
+            Result := Result + ':X' + LccString( IntToHex(DWord( $1C000000 or (CAN.DestAlias shl 12) or CAN.SourceAlias), 8)) + 'N';
 
           for i := 0 to 7 do
           begin
-            Result := Result + IntToHex(DataArray[Offset], 2);
+            Result := Result + LccString( IntToHex(DataArray[Offset], 2));
             Inc(Offset);
             if Offset >= DataCount then
               Break;
@@ -584,9 +587,9 @@ begin
     begin
       // Datagram or Stream
       LocalMTI := LocalMTI or (DWord( CAN.DestAlias) shl 12);
-      Result := ':X' + IntToHex(LocalMTI, 8) + 'N';
+      Result := ':X' + LccString( IntToHex(LocalMTI, 8) + 'N');
       for i := 0 to DataCount - 1 do
-        Result := Result + IntToHex(DataArray[i], 2);
+        Result := Result + LccString( IntToHex(DataArray[i], 2));
     end else
     begin
       if HasDestination then
@@ -601,28 +604,28 @@ begin
 
           for iFrameCount := 0 to FrameCount - 1 do
           begin
-            Result := Result + ':X' + IntToHex(LocalMTI, 8) + 'N';
+            Result := Result + ':X' + LccString( IntToHex(LocalMTI, 8)) + 'N';
 
             if MTI = MTI_SIMPLE_NODE_INFO_REPLY then
             begin
-              Result := Result + IntToHex(((CAN.DestAlias shr 8)) and $00FF, 2);
+              Result := Result + LccString( IntToHex(((CAN.DestAlias shr 8)) and $00FF, 2));
             end else
             begin
               if iFrameCount = 0 then
-                Result := Result + IntToHex(((CAN.DestAlias shr 8) or $10) and $00FF, 2)
+                Result := Result + LccString( IntToHex(((CAN.DestAlias shr 8) or $10) and $00FF, 2))
               else
               if iFrameCount = FrameCount - 1 then
-                Result := Result + IntToHex(((CAN.DestAlias shr 8) or $20) and $00FF, 2)
+                Result := Result + LccString( IntToHex(((CAN.DestAlias shr 8) or $20) and $00FF, 2))
               else
-                Result := Result + IntToHex(((CAN.DestAlias shr 8) or $30) and $00FF, 2);
+                Result := Result + LccString( IntToHex(((CAN.DestAlias shr 8) or $30) and $00FF, 2));
             end;
 
-            Result := Result + IntToHex(CAN.DestAlias and $00FF, 2);
+            Result := Result + LccString( IntToHex(CAN.DestAlias and $00FF, 2));
 
             i := Offset;
             while i < DataCount do
             begin
-              Result := Result + IntToHex(DataArray[i], 2);
+              Result := Result + LccString( IntToHex(DataArray[i], 2));
               Inc(i);
               if (i - Offset) = 6 then
               begin
@@ -635,19 +638,19 @@ begin
           end;
         end else
         begin
-          Result := ':X' + IntToHex(LocalMTI, 8) + 'N';
-          Result := Result + IntToHex((CAN.DestAlias shr 8) or CAN.FramingBits and $00FF, 2);
-          Result := Result + IntToHex(CAN.DestAlias and $00FF, 2);
+          Result := ':X' + LccString( IntToHex(LocalMTI, 8) + 'N');
+          Result := Result + LccString( IntToHex((CAN.DestAlias shr 8) or CAN.FramingBits and $00FF, 2));
+          Result := Result + LccString( IntToHex(CAN.DestAlias and $00FF, 2));
           for i := 0 to DataCount - 1 do
-            Result := Result + IntToHex(DataArray[i], 2);
+            Result := Result + LccString( IntToHex(DataArray[i], 2));
           Result := Result  + ';'                    // Single Frame message
         end;
       end else
       begin
         // Non destination messages can't have multiple frames
-        Result := ':X' + IntToHex(LocalMTI, 8) + 'N';
+        Result := ':X' + LccString( IntToHex(LocalMTI, 8) + 'N');
         for i := 0 to DataCount - 1 do
-          Result := Result + IntToHex(DataArray[i], 2);
+          Result := Result + LccString( IntToHex(DataArray[i], 2));
         Result := Result  + ';'
       end;
     end;
@@ -725,7 +728,7 @@ begin
   end
 end;
 
-class function TLccMessage.ConvertToLccTcpString(var ByteArray: TDynamicByteArray): string;
+class function TLccMessage.ConvertToLccTcpString(var ByteArray: TDynamicByteArray): LccString;
 const
   LF = #13#10;
 var
@@ -734,11 +737,11 @@ begin
   Result := '';
   Result := Result + LF + 'TCP Header: ';
   for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+    Result := Result + ' ' + LccString( IntToHex(ByteArray[i], 2));
 
   Result := Result + LF + 'TCP Message: ';
   for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+    Result := Result + ' ' + LccString( IntToHex(ByteArray[i], 2));
 end;
 
 procedure TLccMessage.Copy(TargetMessage: TLccMessage);
@@ -887,7 +890,7 @@ begin
   MTI := MTI_VERIFY_NODE_ID_NUMBER_DEST;
 end;
 
-procedure TLccMessage.SetDataArrayIndexer(iIndex: Word; const Value: Byte);
+procedure TLccMessage.SetDataArrayIndexer(iIndex: DWord; const Value: Byte);
 begin
   FDataArray[iIndex] := Value
 end;
@@ -1727,7 +1730,7 @@ end;
 
 procedure TLccMessage.LoadConfigMemWriteString(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte;
-  ConfigMemAddress: DWord; AString: string);
+  ConfigMemAddress: DWord; AString: LccString);
 var
   i, iDatagram, DatagramCount, iStringPos, DatagramLength, StrLength: Integer;
 begin

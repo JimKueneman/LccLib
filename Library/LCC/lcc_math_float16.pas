@@ -7,6 +7,8 @@ unit lcc_math_float16;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils;
 

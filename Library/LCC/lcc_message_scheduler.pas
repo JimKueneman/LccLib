@@ -6,6 +6,8 @@ unit lcc_message_scheduler;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils, lcc_messages,
   {$IFDEF FPC}
@@ -18,7 +20,8 @@ uses
   lcc_utilities,
   lcc_can_message_assembler_disassembler,
   lcc_threadedcirculararray,
-  lcc_common_classes;
+  lcc_common_classes,
+  lcc_compiler_types;
 
 type
 
@@ -93,7 +96,7 @@ type
     procedure ClearPermenentErrorQueue; virtual;
     procedure ClearSentQueue; virtual;
     function IncomingMsg(LccMessage: TLccMessage): Boolean; virtual;
-    function IncomingMsgGridConnectStr(GridConnectStr: string; var LccMessage: TLccMessage): Boolean; virtual;
+    function IncomingMsgGridConnectStr(GridConnectStr: LccString; var LccMessage: TLccMessage): Boolean; virtual;
     function IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; var LccMessage: TLccMessage): Boolean; virtual;
     procedure OutgoingMsg(LccMessage: TLccMessage); virtual;
     procedure SendMessage(LccMessage: TLccMessage);
@@ -532,7 +535,7 @@ begin
     LccMessage := nil;
 end;
 
-function TSchedulerBase.IncomingMsgGridConnectStr(GridConnectStr: string; var LccMessage: TLccMessage): Boolean;
+function TSchedulerBase.IncomingMsgGridConnectStr(GridConnectStr: LccString; var LccMessage: TLccMessage): Boolean;
 begin
   Result := False;
   LccMessage := WorkerMessageIncoming;
@@ -578,7 +581,7 @@ begin
     MsgDisAssembler.OutgoingMsgToMsgList(LccMessage, GridConnectStrings);
     for iString := 0 to GridConnectStrings.Count - 1 do
     begin
-      if WorkerMessageOutgoing.LoadByGridConnectStr(GridConnectStrings[iString]) then
+      if WorkerMessageOutgoing.LoadByGridConnectStr( LccString( GridConnectStrings[iString])) then
        SendMessageFunc(WorkerMessageOutgoing)
     end;
   end else

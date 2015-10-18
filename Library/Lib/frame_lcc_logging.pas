@@ -9,7 +9,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Buttons, Menus, LCLType, StdCtrls, ActnList, SynEditKeyCmds, SynEdit,
-  SynEditMarkupHighAll, LResources, lcc_defines, lcc_app_common_settings;
+  SynEditMarkupHighAll, LResources, lcc_defines, lcc_app_common_settings,
+  lcc_compiler_types;
 
 type
 

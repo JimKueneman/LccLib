@@ -6,6 +6,8 @@ unit lcc_common_classes;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils,
   {$IFDEF FPC}

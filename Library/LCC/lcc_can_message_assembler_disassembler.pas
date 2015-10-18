@@ -8,6 +8,8 @@ unit lcc_can_message_assembler_disassembler;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils, lcc_messages,
   {$IFDEF FPC}
@@ -15,7 +17,7 @@ uses
     System.Generics.Collections,
     Types,
   {$ENDIF}
-  lcc_defines;
+  lcc_defines, lcc_compiler_types;
 
 // TLccMessageQueue holds TLccMessages that are being received piece-meal over
 // an interface such as CAN where it can't sent entire message arrays and decodes
@@ -57,14 +59,14 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: string; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: LccString; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
 
 TLccMessageDisAssembler = class
 public
-  function OutgoingMsgToGridConnect(Msg: TLccMessage): string;
+  function OutgoingMsgToGridConnect(Msg: TLccMessage): LccString;
   procedure OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 end;
 
@@ -82,17 +84,16 @@ var
 
 { TLccMessageDisAssembler }
 
-function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): string;
+function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): LccString;
 begin
   // Unsure if there is anything special to do here yet
   Result := Msg.ConvertToGridConnectStr('');
 end;
 
-procedure TLccMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage;
-  MsgList: TStringList);
+procedure TLccMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 begin
   if Assigned(MsgList) then
-    MsgList.Text := Msg.ConvertToGridConnectStr(#13);
+    MsgList.Text := String( Msg.ConvertToGridConnectStr(#13));
 end;
 
 { TLccMessageAssembler }
@@ -205,7 +206,7 @@ begin
   end;
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: string; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: LccString; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;
