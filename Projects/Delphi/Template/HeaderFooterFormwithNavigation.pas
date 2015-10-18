@@ -7,7 +7,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Graphics, FMX.Forms, FMX.Dialogs, FMX.TabControl, System.Actions, FMX.ActnList,
   FMX.Objects, FMX.StdCtrls, lcc_nodemanager, lcc_app_common_settings,
   lcc_common_classes, lcc_ethenetserver, FMX.Controls.Presentation, lcc_ethernetclient,
-  lcc_messages;
+  lcc_messages, FMX.TreeView, FMX.Layouts;
 
 type
   THeaderFooterwithNavigation = class(TForm)
@@ -29,6 +29,17 @@ type
     SpeedButtonConnect: TSpeedButton;
     ActionConnect: TAction;
     LabelStatus: TLabel;
+    TreeView1: TTreeView;
+    TreeViewItem1: TTreeViewItem;
+    TreeViewItem2: TTreeViewItem;
+    TreeViewItem3: TTreeViewItem;
+    TreeViewItem4: TTreeViewItem;
+    TreeViewItem5: TTreeViewItem;
+    TreeViewItem6: TTreeViewItem;
+    TreeViewItem7: TTreeViewItem;
+    TreeViewItem8: TTreeViewItem;
+    TreeViewItem9: TTreeViewItem;
+    TreeViewItem10: TTreeViewItem;
     procedure FormCreate(Sender: TObject);
     procedure TitleActionUpdate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);

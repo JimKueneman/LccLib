@@ -29,6 +29,10 @@ inherited HeaderFooterwithNavigation_LgXhdpiPh: THeaderFooterwithNavigation_LgXh
         Position.Y = 582.000000000000000000
         Size.Width = 434.000000000000000000
       end
+      inherited TreeView1: TTreeView
+        Viewport.Width = 225.000000000000000000
+        Viewport.Height = 209.000000000000000000
+      end
     end
   end
   inherited BottomToolBar: TToolBar

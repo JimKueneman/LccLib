@@ -16,6 +16,7 @@ uses
   {$IFNDEF FPC}
   Types,
   FMX.Types,
+  FMX.Treeview,
   System.Generics.Collections,
   Xml.XMLDoc, Xml.xmldom, Xml.XMLIntf,
   {$ENDIF}
@@ -837,10 +838,15 @@ type
     property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
 
-{$IFDEF FPC}
 type
   TLccNetworkTreePropeties = (tp_NodeID, tp_AliasID, tp_ConsumedEvents, tp_ProducedEvents, tp_Snip, tp_Protocols, tp_Acid);
   TLccNetworkTreePropetiesSet = set of TLccNetworkTreePropeties;
+
+  {$IFDEF FPC}
+  TLccTreeviewItem = TTreeNode;
+  {$ELSE}
+  TLccTreeViewItem = TTreeViewItem;
+  {$ENDIF}
 
 
  { TLccNetworkTree }
@@ -858,8 +864,12 @@ type
     procedure SetShowLocalNodes(AValue: Boolean);
     procedure SetShowRootNode(AValue: Boolean);
   protected
-    function FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TTreeNode;
-    function FindOrCreateNewTreeNodeByName(AParent: TTreeNode; AName: string; FindOnly: Boolean): TTreeNode;
+    function AddChildNode(ParentNode: TLccTreeViewItem; ACaption: string; AnObject: TObject): TLccTreeViewItem;
+    function FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem;
+    function FindNodeByCaption(ACaption: String): TLccTreeViewItem;
+    function FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: String): TLccTreeViewItem;
+    function FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TLccTreeViewItem;
+    function FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: string; FindOnly: Boolean): TLccTreeViewItem;
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;
@@ -887,22 +897,12 @@ type
     property ShowRootNode: Boolean read FShowRootNode write SetShowRootNode;
     property ShowLocallNodes: Boolean read FShowLocalNodes write SetShowLocalNodes;
   end;
-{$ENDIF}
 
 var
   TotalSNIPMessages: DWord;
   TotalSTNIPMessage: DWord;
 
 procedure Register;
-
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
-// ******************************************************************************
 
 implementation
 
@@ -911,9 +911,9 @@ begin
 {$IFDEF FPC}
   {$I TLccNodeManager.lrs}
 //  {$I TLccNetworkTree.lrs}
-  RegisterComponents('LCC',[TLccNetworkTree]);
 {$ENDIF}
  RegisterComponents('LCC',[TLccNodeManager]);
+ RegisterComponents('LCC',[TLccNetworkTree]);
 end;
 
 { TACDIMfg }
@@ -4048,8 +4048,23 @@ begin
     AStream.SaveToFile(FilePath);
 end;
 
-{$IFDEF FPC}
 { TLccNetworkTree }
+
+function TLccNetworkTree.AddChildNode(ParentNode: TLccTreeViewItem; ACaption: string; AnObject: TObject): TLccTreeViewItem;
+begin
+  Result := nil;
+  {$IFDEF FPC}
+  Result := Items.AddChild(ParentNode, ACaption);
+  {$ELSE}
+  if ParentNode = nil then
+    Result := TLccTreeViewItem.Create(Self)
+  else
+    Result := TLccTreeViewItem.Create(ParentNode);
+  Result.Text := ACaption;
+  Result.Data := AnObject;
+  Result.Parent := Self
+  {$ENDIF}
+end;
 
 constructor TLccNetworkTree.Create(AnOwner: TComponent);
 begin
@@ -4067,7 +4082,7 @@ procedure TLccNetworkTree.DirectScanLocalNodes;
 var
   i, j: Integer;
   Node: TLccOwnedNode;
-  TreeNode: TTreeNode;
+  TreeNode: TLccTreeViewItem;
 begin
   if Connected then
   begin
@@ -4215,7 +4230,7 @@ end;
 
 procedure TLccNetworkTree.DoAliasIDChanged(LccNode: TLccNode);
 var
-  Node: TTreeNode;
+  Node: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4227,7 +4242,7 @@ begin
 
       end
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
@@ -4235,7 +4250,7 @@ end;
 
 procedure TLccNetworkTree.DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 var
-  Node, EventNode, Child: TTreeNode;
+  Node, EventNode, Child: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4248,7 +4263,7 @@ begin
         begin  // Remove the node if not suppose to show Consumed Events
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Consumed Events', True);
           if Assigned(EventNode) then
-            Delete(EventNode);
+            {$IFDEF FPC}Items.Delete(EventNode);{$ELSE}EventNode.Free{$ENDIF}
         end else
         begin
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Consumed Events', False);
@@ -4257,7 +4272,7 @@ begin
         end;
       end
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
@@ -4265,7 +4280,7 @@ end;
 
 procedure TLccNetworkTree.DoCreateLccNode(SourceLccNode: TLccNode);
 var
-  Node: TTreeNode;
+  Node: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4277,7 +4292,7 @@ begin
 
       end;
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
@@ -4285,17 +4300,17 @@ end;
 
 procedure TLccNetworkTree.DoDestroyLccNode(LccNode: TLccNode);
 var
-  Node: TTreeNode;
+  Node: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
     if Connected then
     begin
-      Node := Items.FindNodeWithData(LccNode);
+      Node := FindNodeByData(LccNode);
       if Node <> nil then
-        Items.Delete(Node);
+        {$IFDEF FPC}Items.Delete(Node);{$ELSE}Node.Free{$ENDIF}
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
@@ -4303,7 +4318,7 @@ end;
 
 procedure TLccNetworkTree.DoNodeIDChanged(LccNode: TLccNode);
 var
-  Node: TTreeNode;
+  Node: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4313,7 +4328,7 @@ begin
       if Assigned(Node) then
         Node.Text := LccNode.NodeIDStr;
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate
   end;
@@ -4321,7 +4336,7 @@ end;
 
 procedure TLccNetworkTree.DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 var
-  Node, EventNode, Child: TTreeNode;
+  Node, EventNode, Child: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4334,7 +4349,7 @@ begin
         begin  // Remove the node if not suppose to show Consumed Events
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Produced Events', True);
           if Assigned(EventNode) then
-            Delete(EventNode);
+            {$IFDEF FPC}Items.Delete(EventNode);{$ELSE}EventNode.Free{$ENDIF}
         end else
         begin
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Produced Events', False);
@@ -4343,7 +4358,7 @@ begin
         end;
       end
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate
   end;
@@ -4351,7 +4366,7 @@ end;
 
 procedure TLccNetworkTree.DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode);
 var
-  Node, PIP, Child: TTreeNode;
+  Node, PIP, Child: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4365,47 +4380,47 @@ begin
         begin
           PIP.DeleteChildren;
           if SourceLccNode.ProtocolSupport.ACDI then
-            Items.AddChild(PIP, 'ACDI');
+            AddChildNode(PIP, 'ACDI', nil);
           if SourceLccNode.ProtocolSupport.CDI then
-            Items.AddChild(PIP, 'CDI');
+            AddChildNode(PIP, 'CDI', nil);
           if SourceLccNode.ProtocolSupport.Datagram then
-            Items.AddChild(PIP, 'Datagram');
+            AddChildNode(PIP, 'Datagram', nil);
           if SourceLccNode.ProtocolSupport.FDisplay then
-            Items.AddChild(PIP, 'Display');
+            AddChildNode(PIP, 'Display', nil);
           if SourceLccNode.ProtocolSupport.EventExchange then
-            Items.AddChild(PIP, 'Events');
+            AddChildNode(PIP, 'Events', nil);
           {$IFDEF TRACTION}
           if SourceLccNode.ProtocolSupport.FDI then
-            Items.AddChild(PIP, 'FDI');
+            Items.AddChild(PIP, 'FDI', nil);
           {$ENDIF}
           if SourceLccNode.ProtocolSupport.Identification then
-            Items.AddChild(PIP, 'Identification');
+            AddChildNode(PIP, 'Identification', nil);
           if SourceLccNode.ProtocolSupport.MemConfig then
-            Items.AddChild(PIP, 'MemConfig');
+            AddChildNode(PIP, 'MemConfig', nil);
           if SourceLccNode.ProtocolSupport.RemoteButton then
-            Items.AddChild(PIP, 'RemoteButton');
+            AddChildNode(PIP, 'RemoteButton', nil);
           if SourceLccNode.ProtocolSupport.Reservation then
-            Items.AddChild(PIP, 'Reservation');
+            AddChildNode(PIP, 'Reservation', nil);
 
           if SourceLccNode.ProtocolSupport.SimpleNodeInfo then
-            Items.AddChild(PIP, 'SNIP (SNII)');
+            AddChildNode(PIP, 'SNIP (SNII)', nil);
           if SourceLccNode.ProtocolSupport.Stream then
-            Items.AddChild(PIP, 'Stream');
+            AddChildNode(PIP, 'Stream', nil);
           if SourceLccNode.ProtocolSupport.Teach_Learn then
-            Items.AddChild(PIP, 'Teach Learn');
+            AddChildNode(PIP, 'Teach Learn', nil);
           {$IFDEF TRACTION}
           if SourceLccNode.ProtocolSupport.TractionControl then
-            Items.AddChild(PIP, 'TractionControl');
+            AddChildNode(PIP, 'TractionControl', nil);
           if SourceLccNode.ProtocolSupport.TractionProxy then
-            Items.AddChild(PIP, 'TractionProxy');
+            AddChildNode(PIP, 'TractionProxy', nil);
           if SourceLccNode.ProtocolSupport.SimpleTrainNodeInfo then
-            Items.AddChild(PIP, 'Simple Train PIP Information Protocol (STNIP');
+            AddChildNode(PIP, 'Simple Train PIP Information Protocol (STNIP', nil);
           if SourceLccNode.ProtocolSupport.FunctionConfiguration then
-            Items.AddChild(PIP, 'Function Configuration');
+            AddChildNode(PIP, 'Function Configuration', nil);
           {$ENDIF}
         end;
       end else
-        Items.Clear;
+        {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
     end;
   finally
     EndUpdate
@@ -4414,7 +4429,7 @@ end;
 
 procedure TLccNetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode);
 var
-  Node, SNIP, Child: TTreeNode;
+  Node, SNIP, Child: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4427,17 +4442,17 @@ begin
         if Assigned(SNIP) then
         begin
           SNIP.DeleteChildren;
-          Items.AddChild(SNIP, 'Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.Version));
-          Items.AddChild(SNIP, 'Manufacturer: ' + SourceLccNode.SimpleNodeInfo.Manufacturer);
-          Items.AddChild(SNIP, 'Model: ' + SourceLccNode.SimpleNodeInfo.Model);
-          Items.AddChild(SNIP, 'Software Version: '+ SourceLccNode.SimpleNodeInfo.SoftwareVersion);
-          Items.AddChild(SNIP, 'Hardware Version: ' + SourceLccNode.SimpleNodeInfo.HardwareVersion);
-          Items.AddChild(SNIP, 'User Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.UserVersion));
-          Items.AddChild(SNIP, 'User Name: ' + SourceLccNode.SimpleNodeInfo.UserName);
-          Items.AddChild(SNIP, 'User Description: ' + SourceLccNode.SimpleNodeInfo.UserDescription);
+          AddChildNode(SNIP, 'Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.Version), nil);
+          AddChildNode(SNIP, 'Manufacturer: ' + SourceLccNode.SimpleNodeInfo.Manufacturer, nil);
+          AddChildNode(SNIP, 'Model: ' + SourceLccNode.SimpleNodeInfo.Model, nil);
+          AddChildNode(SNIP, 'Software Version: '+ SourceLccNode.SimpleNodeInfo.SoftwareVersion, nil);
+          AddChildNode(SNIP, 'Hardware Version: ' + SourceLccNode.SimpleNodeInfo.HardwareVersion, nil);
+          AddChildNode(SNIP, 'User Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.UserVersion), nil);
+          AddChildNode(SNIP, 'User Name: ' + SourceLccNode.SimpleNodeInfo.UserName, nil);
+          AddChildNode(SNIP, 'User Description: ' + SourceLccNode.SimpleNodeInfo.UserDescription, nil);
         end;
       end else
-        Items.Clear;
+        {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
     end;
   finally
     Endupdate;
@@ -4446,7 +4461,7 @@ end;
 
 procedure TLccNetworkTree.DoVerifiedNodeID(SourceLccNode: TLccNode);
 var
-  Node: TTreeNode;
+  Node: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4463,7 +4478,7 @@ begin
         end;
       end;
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate
   end
@@ -4491,7 +4506,7 @@ end;
 
 procedure TLccNetworkTree.ShowAliasIDChild(LccNode: TLccNode);
 var
-  Node, AliasIDNode, Child: TTreeNode;
+  Node, AliasIDNode, Child: TLccTreeViewItem;
 begin
   BeginUpdate;
   try
@@ -4502,7 +4517,7 @@ begin
       begin
         AliasIDNode := FindOrCreateNewTreeNodeByName(Node, 'AliasID', True);
         if Assigned(AliasIDNode) then
-          Items.Delete(AliasIDNode);
+          {$IFDEF FPC}Items.Delete(AliasIDNode);{$ELSE}AliasIDNode.Free{$ENDIF}
       end else
       begin
         AliasIDNode := FindOrCreateNewTreeNodeByName(Node, 'AliasID', False);
@@ -4526,7 +4541,7 @@ begin
 
       DirectScanLocalNodes;
     end else
-      Items.Clear;
+      {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   end;
 end;
 
@@ -4540,7 +4555,7 @@ begin
   else begin
     BeginUpdate;
     try
-      Items.Clear;
+     {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
     finally
       EndUpdate;
     end;
@@ -4551,7 +4566,7 @@ procedure TLccNetworkTree.SetNetworkTreeProperties(AValue: TLccNetworkTreePropet
 begin
   if FNetworkTreeProperties = AValue then Exit;
   FNetworkTreeProperties := AValue;
-  Items.Clear;
+  {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   ScanNetwork;
 end;
 
@@ -4561,7 +4576,7 @@ begin
   FShowLocalNodes:=AValue;
   BeginUpdate;
   try
-    Items.Clear;
+    {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
@@ -4574,38 +4589,129 @@ begin
   FShowRootNode:=AValue;
   BeginUpdate;
   try
-    Items.Clear;
+    {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
   finally
     EndUpdate;
   end;
   ScanNetwork;
 end;
 
-function TLccNetworkTree.FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TTreeNode;
+function TLccNetworkTree.FindNodeByCaption(ACaption: String): TLccTreeViewItem;
+{$IFNDEF FPC}
+  function LocalFind(ParentNode: TLccTreeViewItem; TestCaption: String): TLccTreeViewItem;
+  var
+    i: Integer;
+  begin
+    for i := 0 to ParentNode.ChildrenCount - 1 do
+    begin
+      if CompareStr(ACaption, ParentNode.Items[i].Text) = 0 then
+      begin
+        Result := ParentNode.Items[i] as TLccTreeViewItem;
+        Break
+      end else
+      begin
+        if ParentNode.ChildrenCount > 0 then
+        begin
+          Result := LocalFind(ParentNode.Items[0], TestCaption);
+          if Assigned(Result) then
+            break
+        end
+      end
+    end;
+  end;
+{$ENDIF}
+
 begin
-  Result := Items.FindNodeWithData(LccNode);
-  if not Assigned(Result) and not NullNodeID(LccNode.NodeID) then
-    Result := Items.AddChildObject(nil, LccNode.NodeIDStr, LccNode);          // Add a new item
+  Result := nil;
+  {$IFDEF FPC}
+  Result := Items.FindNodeWithText(ACaption);
+  {$ELSE}
+  if ChildrenCount > 0 then
+    Result := LocalFind(Items[0], ACaption)
+  {$ENDIF}
 end;
 
-function TLccNetworkTree.FindOrCreateNewTreeNodeByName(AParent: TTreeNode; AName: string; FindOnly: Boolean): TTreeNode;
+function TLccNetworkTree.FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: String): TLccTreeViewItem;
+{$IFNDEF FPC}
+var
+  i: Integer;
+{$ENDIF}
+begin
+  Result := nil;
+  {$IFDEF FPC}
+  Result := ParentNode.FindNode(ACaption);
+  {$ELSE}
+  for i := 0 to ParentNode.ChildrenCount - 1 do
+  begin
+    if CompareStr(ParentNode.Items[i].Text, ACaption) = 0 then
+    begin
+      Result := ParentNode.Items[i];
+      break
+    end;
+  end;
+  {$ENDIF}
+end;
+
+function TLccNetworkTree.FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem;
+{$IFNDEF FPC}
+  function LocalFind(ParentNode: TLccTreeViewItem; TestLccNode: TLccNode): TLccTreeViewItem;
+  var
+    i: Integer;
+    Obj: TObject;
+  begin
+    for i := 0 to ParentNode.ChildrenCount - 1 do
+    begin
+      Obj := ParentNode.Items[i].Data.AsObject;
+      if Obj = TestLccNode then
+      begin
+        Result := ParentNode.Items[i] as TLccTreeViewItem;
+        Break
+      end else
+      begin
+        if ParentNode.ChildrenCount > 0 then
+        begin
+          Result := LocalFind(ParentNode.Items[0], TestLccNode);
+          if Assigned(Result) then
+            break
+        end
+      end
+    end;
+  end;
+{$ENDIF}
+
+begin
+  Result := nil;
+  {$IFDEF FPC}
+  Result := Items.FindNodeWithData(TestLccNode);
+  {$ELSE}
+  if ChildrenCount > 0 then
+    Result := LocalFind(Items[0], TestLccNode)
+  {$ENDIF}
+end;
+
+function TLccNetworkTree.FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TLccTreeViewItem;
+begin
+  Result := FindNodeByData(LccNode);
+  if not Assigned(Result) and not NullNodeID(LccNode.NodeID) then
+    Result := AddChildNode(nil, LccNode.NodeIDStr, LccNode);          // Add a new item
+end;
+
+function TLccNetworkTree.FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: string; FindOnly: Boolean): TLccTreeViewItem;
 begin
   if AParent = nil then
   begin
-    Result := Items.FindNodeWithText(AName);
+    Result := FindNodeByCaption(AName);
     if FindOnly then Exit;
     if not Assigned(Result) then
-      Result := Items.AddChildObject(nil, AName, nil);          // Add a new item
+      Result := AddChildNode(nil, AName, nil);          // Add a new item
   end else
   begin
-    Result := AParent.FindNode(AName);
+    Result := FindNodeByCaptionAndParent(AParent, AName);
     if FindOnly then Exit;
     if not Assigned(Result) then
-      Result := Items.AddChildObject(AParent, AName, nil);          // Add a new item
+      Result := AddChildNode(AParent, AName, nil);          // Add a new item
   end;
 end;
-
-{$ENDIF}
 
 initialization
   TotalSNIPMessages := 0;
