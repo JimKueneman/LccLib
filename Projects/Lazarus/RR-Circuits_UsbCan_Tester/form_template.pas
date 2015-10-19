@@ -335,7 +335,7 @@ begin
   if CheckBoxLockUpdate.Checked then
     MemoIncoming.Lines.BeginUpdate
   else
-    MemoIncoming.Lines.EndUpdate;;
+    MemoIncoming.Lines.EndUpdate;
 end;
 
 procedure TFormTemplate.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -435,11 +435,13 @@ end;
 
 procedure TFormTemplate.LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
-  MemoIncoming.Lines.BeginUpdate;
+  if not CheckBoxLockUpdate.Checked then
+    MemoIncoming.Lines.BeginUpdate;
   try
     MemoIncoming.Lines.Add(ComPortRec.MessageStr);
   finally
-    MemoIncoming.Lines.EndUpdate;
+    if not CheckBoxLockUpdate.Checked then
+      MemoIncoming.Lines.EndUpdate;
   end;
 end;
 
@@ -483,11 +485,13 @@ end;
 
 procedure TFormTemplate.LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
-  MemoIncoming.Lines.BeginUpdate;
+  if not CheckBoxLockUpdate.Checked then
+    MemoIncoming.Lines.BeginUpdate;
   try
     MemoIncoming.Lines.Add(EthernetRec.MessageStr);
   finally
-    MemoIncoming.Lines.EndUpdate;
+    if not CheckBoxLockUpdate.Checked then
+      MemoIncoming.Lines.EndUpdate;
   end;
 end;
 
@@ -553,11 +557,13 @@ end;
 
 procedure TFormTemplate.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
-  MemoIncoming.Lines.BeginUpdate;
+  if not CheckBoxLockUpdate.Checked then
+    MemoIncoming.Lines.BeginUpdate;
   try
     MemoIncoming.Lines.Add(EthernetRec.MessageStr);
   finally
-    MemoIncoming.Lines.EndUpdate;
+    if not CheckBoxLockUpdate.Checked then
+      MemoIncoming.Lines.EndUpdate;
   end;
 end;
 
