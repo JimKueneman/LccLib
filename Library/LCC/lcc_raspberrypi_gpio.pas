@@ -67,6 +67,7 @@ const
   PWM0_SERIAL     = $0002;  // Run in serial mode
   PWM0_ENABLE     = $0001;  // Channel Enable
 
+{$IFDEF CPUARM}
 
 type
 
@@ -105,8 +106,11 @@ var
 
 procedure delayNanoseconds (howLong : LongWord);
 
+{$ENDIF}
 
 implementation
+
+{$IFDEF CPUARM}
 
 uses
   baseUnix, Unix;
@@ -271,6 +275,8 @@ begin
   pwmf := Pointer(LongWord(Self.FPwm) + port);
   pwmf^ := value and $FFFFFBFF; // $400 complemens
 end;
+
+{$ENDIF}
 
 end.
 

@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="35">
+    <Units Count="38">
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -25,12 +25,11 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="274"/>
-        <CursorPos Y="276"/>
+        <UnitName Value="form_template"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="12" Y="10"/>
         <UsageCount Value="132"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -225,7 +224,6 @@
       </Unit32>
       <Unit33>
         <Filename Value="C:/lazarus/lcl/stdctrls.pp"/>
-        <UnitName Value="StdCtrls"/>
         <WindowIndex Value="1"/>
         <TopLine Value="759"/>
         <CursorPos X="3" Y="692"/>
@@ -233,73 +231,83 @@
       </Unit33>
       <Unit34>
         <Filename Value="C:/lazarus/lcl/controls.pp"/>
-        <UnitName Value="Controls"/>
         <TopLine Value="2126"/>
         <CursorPos X="15" Y="2139"/>
         <UsageCount Value="10"/>
       </Unit34>
+      <Unit35>
+        <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
+        <TopLine Value="8"/>
+        <CursorPos X="3" Y="24"/>
+        <UsageCount Value="10"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
+        <UnitName Value="lcc_ethenetserver"/>
+        <TopLine Value="204"/>
+        <CursorPos X="50" Y="221"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <UnitName Value="lcc_comport"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="444"/>
+        <CursorPos Y="461"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit37>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="12" HistoryIndex="11">
       <Position1>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="144" Column="3" TopLine="126"/>
+        <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
       </Position1>
       <Position2>
         <Filename Value="form_template.pas"/>
-        <Caret Line="338" Column="33" TopLine="333"/>
+        <Caret Line="10" Column="12"/>
       </Position2>
       <Position3>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="7" Column="27"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="461" TopLine="448"/>
       </Position3>
       <Position4>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="296" Column="33" TopLine="271"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="463" TopLine="448"/>
       </Position4>
       <Position5>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="337" Column="42" TopLine="311"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="464" TopLine="448"/>
       </Position5>
       <Position6>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="338" Column="33" TopLine="311"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="465" TopLine="448"/>
       </Position6>
       <Position7>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="439" Column="4" TopLine="415"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="616" TopLine="603"/>
       </Position7>
       <Position8>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="444" Column="35" TopLine="417"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="618" TopLine="603"/>
       </Position8>
       <Position9>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="26" Column="36"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="620" TopLine="603"/>
       </Position9>
       <Position10>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="296" Column="33" TopLine="269"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="621" TopLine="603"/>
       </Position10>
       <Position11>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="338" Column="33" TopLine="311"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="616" TopLine="606"/>
       </Position11>
       <Position12>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="444" Column="35" TopLine="417"/>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <Caret Line="634" TopLine="610"/>
       </Position12>
-      <Position13>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="494" Column="35" TopLine="467"/>
-      </Position13>
-      <Position14>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="566" Column="35" TopLine="539"/>
-      </Position14>
-      <Position15>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="296" Column="33" TopLine="280"/>
-      </Position15>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
