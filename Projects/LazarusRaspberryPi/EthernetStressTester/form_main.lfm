@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 1011
-  Height = 274
-  Top = 862
-  Width = 874
-  Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 245
-  ClientWidth = 874
+  Left = 309
+  Height = 643
+  Top = 239
+  Width = 899
+  Caption = 'Lcc Raspberry Stress Tester'
+  ClientHeight = 614
+  ClientWidth = 899
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -16,7 +16,7 @@ object Form1: TForm1
     Left = 0
     Height = 48
     Top = 0
-    Width = 874
+    Width = 899
     ButtonHeight = 44
     Caption = 'ToolBar1'
     Images = ImageListMain
@@ -38,12 +38,12 @@ object Form1: TForm1
     object ToolButtonComPort: TToolButton
       Left = 316
       Top = 2
-      Action = ActionComPort
+      Action = ActionComPortConnect
     end
     object ToolButtonEthServer: TToolButton
       Left = 1
       Top = 2
-      Action = ActionEthernetServer
+      Action = ActionEthernetServerConnect
     end
     object ToolButtonLogWindow: TToolButton
       Left = 536
@@ -66,7 +66,7 @@ object Form1: TForm1
     object ToolButtonEthClient: TToolButton
       Left = 116
       Top = 2
-      Action = ActionEthernetClient
+      Action = ActionEthernetClientConnect
     end
     object ToolButton1: TToolButton
       Left = 753
@@ -77,14 +77,14 @@ object Form1: TForm1
     object ToolButton2: TToolButton
       Left = 387
       Top = 2
-      Action = ActionRaspberryPi
+      Action = ActionRaspberryPiConnect
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
     Height = 25
-    Top = 220
-    Width = 874
+    Top = 589
+    Width = 899
     Panels = <    
       item
         Width = 300
@@ -103,17 +103,17 @@ object Form1: TForm1
   object PanelAddOns: TPanel
     Left = 0
     Height = 172
-    Top = 48
-    Width = 874
-    Align = alClient
+    Top = 417
+    Width = 899
+    Align = alBottom
     ClientHeight = 172
-    ClientWidth = 874
+    ClientWidth = 899
     TabOrder = 2
     object LabelServerConnections: TLabel
       Left = 9
       Height = 21
       Top = 1
-      Width = 856
+      Width = 881
       Align = alTop
       BorderSpacing.Left = 8
       BorderSpacing.Right = 8
@@ -124,7 +124,7 @@ object Form1: TForm1
       Left = 1
       Height = 149
       Top = 22
-      Width = 872
+      Width = 897
       Align = alClient
       Columns = <      
         item
@@ -141,11 +141,194 @@ object Form1: TForm1
         end      
         item
           Caption = 'Server Port'
-          Width = 372
+          Width = 545
         end>
       GridLines = True
       TabOrder = 0
       ViewStyle = vsReport
+    end
+  end
+  object PanelAppSpace: TPanel
+    Left = 0
+    Height = 369
+    Top = 48
+    Width = 899
+    Align = alClient
+    ClientHeight = 369
+    ClientWidth = 899
+    TabOrder = 3
+    object PanelOutgoing: TPanel
+      Left = 1
+      Height = 367
+      Top = 1
+      Width = 319
+      Align = alLeft
+      ClientHeight = 367
+      ClientWidth = 319
+      TabOrder = 0
+      object MemoOutgoing: TMemo
+        Left = 1
+        Height = 315
+        Top = 1
+        Width = 317
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+      object Panel1: TPanel
+        Left = 1
+        Height = 50
+        Top = 316
+        Width = 317
+        Align = alBottom
+        ClientHeight = 50
+        ClientWidth = 317
+        TabOrder = 1
+        object ButtonSaveToFileOutgoing: TButton
+          Left = 65
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'SaveToFile...'
+          OnClick = ButtonSaveToFileOutgoingClick
+          TabOrder = 0
+        end
+        object ButtonLoadFromFileOutgoing: TButton
+          Left = 193
+          Height = 25
+          Top = 16
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'Load from File...'
+          OnClick = ButtonLoadFromFileOutgoingClick
+          TabOrder = 1
+        end
+      end
+    end
+    object PanelIncoming: TPanel
+      Left = 442
+      Height = 367
+      Top = 1
+      Width = 456
+      Align = alClient
+      ClientHeight = 367
+      ClientWidth = 456
+      TabOrder = 1
+      object MemoIncoming: TMemo
+        Left = 1
+        Height = 303
+        Top = 1
+        Width = 454
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+      object Panel2: TPanel
+        Left = 1
+        Height = 62
+        Top = 304
+        Width = 454
+        Align = alBottom
+        ClientHeight = 62
+        ClientWidth = 454
+        TabOrder = 1
+        object ButtonLoadFromFileInComing: TButton
+          Left = 326
+          Height = 25
+          Top = 28
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'Load from File...'
+          OnClick = ButtonLoadFromFileInComingClick
+          TabOrder = 0
+        end
+        object ButtonSaveToFileInComing: TButton
+          Left = 198
+          Height = 25
+          Top = 28
+          Width = 110
+          Anchors = [akTop, akRight]
+          Caption = 'SaveToFile...'
+          OnClick = ButtonSaveToFileInComingClick
+          TabOrder = 1
+        end
+        object CheckBoxLockUpdate: TCheckBox
+          Left = 312
+          Height = 25
+          Top = 8
+          Width = 131
+          Anchors = [akTop, akRight]
+          Caption = 'Lock UI Update'
+          TabOrder = 2
+        end
+      end
+    end
+    object PanelCenter: TPanel
+      Left = 320
+      Height = 367
+      Top = 1
+      Width = 122
+      Align = alLeft
+      ClientHeight = 367
+      ClientWidth = 122
+      TabOrder = 2
+      object ButtonSend: TButton
+        Left = 8
+        Height = 22
+        Top = 335
+        Width = 104
+        Anchors = [akLeft, akBottom]
+        Caption = 'Send ->'
+        OnClick = ButtonSendClick
+        TabOrder = 0
+      end
+      object SpinEditDelay: TSpinEdit
+        Left = 16
+        Height = 31
+        Top = 279
+        Width = 74
+        Alignment = taRightJustify
+        Anchors = [akLeft, akBottom]
+        MaxValue = 1000
+        TabOrder = 1
+      end
+      object Label1: TLabel
+        Left = 8
+        Height = 21
+        Top = 248
+        Width = 111
+        Anchors = [akLeft, akBottom]
+        Caption = 'Msg Delay (ms)'
+        ParentColor = False
+      end
+      object ButtonSend1: TButton
+        Left = 8
+        Height = 22
+        Top = 8
+        Width = 104
+        Caption = '<- Generate'
+        OnClick = ButtonSend1Click
+        TabOrder = 2
+      end
+      object SpinEditRepeat: TSpinEdit
+        Left = 16
+        Height = 31
+        Top = 66
+        Width = 74
+        Alignment = taRightJustify
+        MinValue = 1
+        TabOrder = 3
+        Value = 1
+      end
+      object Label2: TLabel
+        Left = 8
+        Height = 21
+        Top = 40
+        Width = 96
+        Caption = 'Repeat Count'
+        ParentColor = False
+      end
     end
   end
   object LccSettings: TLccSettings
@@ -202,17 +385,17 @@ object Form1: TForm1
       ImageIndex = 0
       OnExecute = ActionToolsSettingsShowWinExecute
     end
-    object ActionComPort: TAction
+    object ActionComPortConnect: TAction
       AutoCheck = True
       Caption = 'ComPort'
       ImageIndex = 10
-      OnExecute = ActionComPortExecute
+      OnExecute = ActionComPortConnectExecute
     end
-    object ActionEthernetServer: TAction
+    object ActionEthernetServerConnect: TAction
       AutoCheck = True
       Caption = 'Ethernet Server'
       ImageIndex = 5
-      OnExecute = ActionEthernetServerExecute
+      OnExecute = ActionEthernetServerConnectExecute
     end
     object ActionLogWindow: TAction
       AutoCheck = True
@@ -226,11 +409,11 @@ object Form1: TForm1
       ImageIndex = 8
       OnExecute = ActionTCPExecute
     end
-    object ActionEthernetClient: TAction
+    object ActionEthernetClientConnect: TAction
       AutoCheck = True
       Caption = 'Ethernet Client'
       ImageIndex = 1
-      OnExecute = ActionEthernetClientExecute
+      OnExecute = ActionEthernetClientConnectExecute
     end
     object ActionHelpAboutShow: TAction
       Caption = 'About...'
@@ -240,11 +423,11 @@ object Form1: TForm1
       Caption = 'Preferences...'
       OnExecute = ActionToolsPreferenceShowMacExecute
     end
-    object ActionRaspberryPi: TAction
+    object ActionRaspberryPiConnect: TAction
       AutoCheck = True
       Caption = 'Raspberry Pi SPI'
       ImageIndex = 9
-      OnExecute = ActionRaspberryPiExecute
+      OnExecute = ActionRaspberryPiConnectExecute
     end
   end
   object ImageListMain: TImageList
@@ -638,19 +821,19 @@ object Form1: TForm1
     object MenuItemConnection: TMenuItem
       Caption = 'Connection'
       object MenuItemConnectonRPiSPI: TMenuItem
-        Action = ActionRaspberryPi
+        Action = ActionRaspberryPiConnect
         AutoCheck = True
       end
       object MenuItemConnectionComport: TMenuItem
-        Action = ActionComPort
+        Action = ActionComPortConnect
         AutoCheck = True
       end
       object MenuItemConnectionEthernetServer: TMenuItem
-        Action = ActionEthernetServer
+        Action = ActionEthernetServerConnect
         AutoCheck = True
       end
       object MenuItemConnectionEthernetClient: TMenuItem
-        Action = ActionEthernetClient
+        Action = ActionEthernetClientConnect
         AutoCheck = True
       end
       object MenuItemConnectionDivider0: TMenuItem
@@ -685,5 +868,13 @@ object Form1: TForm1
     SleepCount = 0
     left = 480
     top = 120
+  end
+  object SaveDialog: TSaveDialog
+    left = 159
+    top = 230
+  end
+  object OpenDialog: TOpenDialog
+    left = 243
+    top = 241
   end
 end

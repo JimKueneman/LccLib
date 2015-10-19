@@ -1,21 +1,21 @@
 object FormTemplate: TFormTemplate
   Left = 347
-  Height = 441
+  Height = 578
   Top = 212
-  Width = 747
+  Width = 755
   Caption = 'RR CirKits'
-  ClientHeight = 441
-  ClientWidth = 747
+  ClientHeight = 549
+  ClientWidth = 755
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '1.2.6.0'
+  LCLVersion = '1.5'
   object ToolBarMain: TToolBar
     Left = 0
     Height = 46
     Top = 0
-    Width = 747
+    Width = 755
     AutoSize = True
     ButtonHeight = 44
     Caption = 'ToolBarMain'
@@ -28,38 +28,39 @@ object FormTemplate: TFormTemplate
       Action = ActionComPortConnect
     end
     object ToolButtonEthernetClient: TToolButton
-      Left = 63
+      Left = 72
       Top = 2
       Action = ActionEthenetClientConnect
     end
     object ToolButtonEthernetServer: TToolButton
-      Left = 165
+      Left = 182
       Top = 2
       Action = ActionEthernetServerConnect
     end
     object ToolButtonSeparator: TToolButton
-      Left = 269
+      Left = 297
+      Height = 44
       Top = 2
       Width = 10
       Caption = 'ToolButtonSpace'
       Style = tbsSeparator
     end
     object ToolButtonMsgTrace: TToolButton
-      Left = 351
+      Left = 386
       Top = 2
       Action = ActionMsgTrace
     end
     object ToolButtonLccLogIn: TToolButton
-      Left = 279
+      Left = 307
       Top = 2
       Action = ActionLccLogin
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 426
-    Width = 747
+    Height = 25
+    Top = 524
+    Width = 755
     Panels = <    
       item
         Text = 'Disconnected'
@@ -73,25 +74,25 @@ object FormTemplate: TFormTemplate
   end
   object PanelAppSpace: TPanel
     Left = 0
-    Height = 237
+    Height = 335
     Top = 46
-    Width = 747
+    Width = 755
     Align = alClient
-    ClientHeight = 237
-    ClientWidth = 747
+    ClientHeight = 335
+    ClientWidth = 755
     TabOrder = 2
     object PanelOutgoing: TPanel
       Left = 1
-      Height = 235
+      Height = 333
       Top = 1
       Width = 319
       Align = alLeft
-      ClientHeight = 235
+      ClientHeight = 333
       ClientWidth = 319
       TabOrder = 0
       object MemoOutgoing: TMemo
         Left = 1
-        Height = 183
+        Height = 281
         Top = 1
         Width = 317
         Align = alClient
@@ -101,7 +102,7 @@ object FormTemplate: TFormTemplate
       object Panel1: TPanel
         Left = 1
         Height = 50
-        Top = 184
+        Top = 282
         Width = 317
         Align = alBottom
         ClientHeight = 50
@@ -131,18 +132,18 @@ object FormTemplate: TFormTemplate
     end
     object PanelIncoming: TPanel
       Left = 442
-      Height = 235
+      Height = 333
       Top = 1
-      Width = 304
+      Width = 312
       Align = alClient
-      ClientHeight = 235
-      ClientWidth = 304
+      ClientHeight = 333
+      ClientWidth = 312
       TabOrder = 1
       object MemoIncoming: TMemo
         Left = 1
-        Height = 171
+        Height = 269
         Top = 1
-        Width = 302
+        Width = 310
         Align = alClient
         ScrollBars = ssAutoBoth
         TabOrder = 0
@@ -150,14 +151,14 @@ object FormTemplate: TFormTemplate
       object Panel2: TPanel
         Left = 1
         Height = 62
-        Top = 172
-        Width = 302
+        Top = 270
+        Width = 310
         Align = alBottom
         ClientHeight = 62
-        ClientWidth = 302
+        ClientWidth = 310
         TabOrder = 1
         object ButtonLoadFromFileInComing: TButton
-          Left = 174
+          Left = 182
           Height = 25
           Top = 28
           Width = 110
@@ -167,7 +168,7 @@ object FormTemplate: TFormTemplate
           TabOrder = 0
         end
         object ButtonSaveToFileInComing: TButton
-          Left = 46
+          Left = 54
           Height = 25
           Top = 28
           Width = 110
@@ -177,10 +178,10 @@ object FormTemplate: TFormTemplate
           TabOrder = 1
         end
         object CheckBoxLockUpdate: TCheckBox
-          Left = 176
-          Height = 18
+          Left = 168
+          Height = 25
           Top = 8
-          Width = 115
+          Width = 131
           Anchors = [akTop, akRight]
           Caption = 'Lock UI Update'
           OnChange = CheckBoxLockUpdateChange
@@ -190,17 +191,17 @@ object FormTemplate: TFormTemplate
     end
     object PanelCenter: TPanel
       Left = 320
-      Height = 235
+      Height = 333
       Top = 1
       Width = 122
       Align = alLeft
-      ClientHeight = 235
+      ClientHeight = 333
       ClientWidth = 122
       TabOrder = 2
       object ButtonSend: TButton
         Left = 8
         Height = 22
-        Top = 203
+        Top = 301
         Width = 104
         Anchors = [akLeft, akBottom]
         Caption = 'Send ->'
@@ -209,8 +210,8 @@ object FormTemplate: TFormTemplate
       end
       object SpinEditDelay: TSpinEdit
         Left = 16
-        Height = 16
-        Top = 162
+        Height = 31
+        Top = 245
         Width = 74
         Alignment = taRightJustify
         Anchors = [akLeft, akBottom]
@@ -220,9 +221,9 @@ object FormTemplate: TFormTemplate
       end
       object Label1: TLabel
         Left = 8
-        Height = 16
-        Top = 138
-        Width = 96
+        Height = 21
+        Top = 216
+        Width = 111
         Anchors = [akLeft, akBottom]
         Caption = 'Msg Delay (ms)'
         ParentColor = False
@@ -238,7 +239,7 @@ object FormTemplate: TFormTemplate
       end
       object SpinEditRepeat: TSpinEdit
         Left = 16
-        Height = 16
+        Height = 31
         Top = 66
         Width = 74
         Alignment = taRightJustify
@@ -248,9 +249,9 @@ object FormTemplate: TFormTemplate
       end
       object Label2: TLabel
         Left = 8
-        Height = 16
-        Top = 48
-        Width = 85
+        Height = 21
+        Top = 40
+        Width = 96
         Caption = 'Repeat Count'
         ParentColor = False
       end
@@ -260,25 +261,25 @@ object FormTemplate: TFormTemplate
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 283
-    Width = 747
+    Top = 381
+    Width = 755
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 288
-    Width = 747
+    Top = 386
+    Width = 755
     Align = alBottom
     ClientHeight = 138
-    ClientWidth = 747
+    ClientWidth = 755
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 21
       Top = 1
-      Width = 729
+      Width = 737
       Align = alTop
       BorderSpacing.Left = 8
       BorderSpacing.Right = 8
@@ -287,9 +288,9 @@ object FormTemplate: TFormTemplate
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
-      Width = 745
+      Height = 115
+      Top = 22
+      Width = 753
       Align = alClient
       Columns = <      
         item
@@ -306,7 +307,7 @@ object FormTemplate: TFormTemplate
         end      
         item
           Caption = 'Server Port'
-          Width = 218
+          Width = 253
         end>
       GridLines = True
       TabOrder = 0

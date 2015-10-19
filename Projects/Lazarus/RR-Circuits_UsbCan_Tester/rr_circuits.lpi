@@ -54,7 +54,6 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_template"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -66,7 +65,6 @@
       <Unit4>
         <Filename Value="..\..\Library\LCC\lcc_raspberrypi_spiport.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="lcc_raspberrypi_spiport"/>
       </Unit4>
     </Units>
   </ProjectOptions>
@@ -111,9 +109,6 @@ if TargetOS = 'linux' then
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

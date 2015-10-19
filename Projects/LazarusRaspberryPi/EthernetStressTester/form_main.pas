@@ -14,7 +14,7 @@ uses
   lcc_utilities, lcc_raspberrypi_spiport;
 
 const
-    BUNDLENAME  = 'Raspberry Pi Hub';
+    BUNDLENAME  = 'RaspberryPi StressTest';
 
     STATUS_PANEL_ETHERNET = 0;
     STATUS_PANEL_COMPORT  = 1;
@@ -61,17 +61,26 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    ActionRaspberryPi: TAction;
+    ActionRaspberryPiConnect: TAction;
     ActionToolsPreferenceShowMac: TAction;
     ActionHelpAboutShow: TAction;
-    ActionEthernetClient: TAction;
+    ActionEthernetClientConnect: TAction;
     ActionTCP: TAction;
     ActionLogWindow: TAction;
-    ActionEthernetServer: TAction;
-    ActionComPort: TAction;
+    ActionEthernetServerConnect: TAction;
+    ActionComPortConnect: TAction;
     ActionToolsSettingsShowWin: TAction;
     ActionList: TActionList;
+    ButtonLoadFromFileInComing: TButton;
+    ButtonLoadFromFileOutgoing: TButton;
+    ButtonSaveToFileInComing: TButton;
+    ButtonSaveToFileOutgoing: TButton;
+    ButtonSend: TButton;
+    ButtonSend1: TButton;
+    CheckBoxLockUpdate: TCheckBox;
     ImageListMain: TImageList;
+    Label1: TLabel;
+    Label2: TLabel;
     LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
     LccEthernetClient: TLccEthernetClient;
@@ -81,6 +90,8 @@ type
     LccSettings: TLccSettings;
     ListViewServerConnections: TListView;
     MainMenu: TMainMenu;
+    MemoIncoming: TMemo;
+    MemoOutgoing: TMemo;
     MenuItemConnectonRPiSPI: TMenuItem;
     MenuItemConnectionDivider0: TMenuItem;
     MenuItemConnectionUseTCP: TMenuItem;
@@ -92,7 +103,17 @@ type
     MenuItemToolsSettings: TMenuItem;
     MenuItemTools: TMenuItem;
     MenuItemHelp: TMenuItem;
+    OpenDialog: TOpenDialog;
+    Panel1: TPanel;
+    Panel2: TPanel;
     PanelAddOns: TPanel;
+    PanelAppSpace: TPanel;
+    PanelCenter: TPanel;
+    PanelIncoming: TPanel;
+    PanelOutgoing: TPanel;
+    SaveDialog: TSaveDialog;
+    SpinEditDelay: TSpinEdit;
+    SpinEditRepeat: TSpinEdit;
     StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
@@ -105,15 +126,21 @@ type
     ToolButtonEthServer: TToolButton;
     ToolButtonEthUseTCP: TToolButton;
     ToolButtonSpace0: TToolButton;
-    procedure ActionComPortExecute(Sender: TObject);
-    procedure ActionEthernetClientExecute(Sender: TObject);
-    procedure ActionEthernetServerExecute(Sender: TObject);
+    procedure ActionComPortConnectExecute(Sender: TObject);
+    procedure ActionEthernetClientConnectExecute(Sender: TObject);
+    procedure ActionEthernetServerConnectExecute(Sender: TObject);
     procedure ActionHelpAboutShowExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
-    procedure ActionRaspberryPiExecute(Sender: TObject);
+    procedure ActionRaspberryPiConnectExecute(Sender: TObject);
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
     procedure ActionTCPExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
+    procedure ButtonLoadFromFileInComingClick(Sender: TObject);
+    procedure ButtonLoadFromFileOutgoingClick(Sender: TObject);
+    procedure ButtonSaveToFileInComingClick(Sender: TObject);
+    procedure ButtonSaveToFileOutgoingClick(Sender: TObject);
+    procedure ButtonSend1Click(Sender: TObject);
+    procedure ButtonSendClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -172,9 +199,9 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.ActionComPortExecute(Sender: TObject);
+procedure TForm1.ActionComPortConnectExecute(Sender: TObject);
 begin
-  if ActionComPort.Checked then
+  if ActionComPortConnect.Checked then
   begin
     LccComPort.OpenComPortWithLccSettings;
   end else
@@ -183,9 +210,9 @@ begin
   end;
 end;
 
-procedure TForm1.ActionEthernetClientExecute(Sender: TObject);
+procedure TForm1.ActionEthernetClientConnectExecute(Sender: TObject);
 begin
-  if ActionEthernetClient.Checked then
+  if ActionEthernetClientConnect.Checked then
   begin
     LccEthernetClient.OpenConnectionWithLccSettings;
   end else
@@ -194,9 +221,9 @@ begin
   end
 end;
 
-procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
+procedure TForm1.ActionEthernetServerConnectExecute(Sender: TObject);
 begin
-  if ActionEthernetServer.Checked then
+  if ActionEthernetServerConnect.Checked then
   begin
     LccEthernetServer.OpenConnectionWithLccSettings;
   end else
@@ -223,9 +250,9 @@ begin
   end;
 end;
 
-procedure TForm1.ActionRaspberryPiExecute(Sender: TObject);
+procedure TForm1.ActionRaspberryPiConnectExecute(Sender: TObject);
 begin
-  if ActionRaspberryPi.Checked then
+  if ActionRaspberryPiConnect.Checked then
   begin
     LccRaspberryPiSpiPort.OpenConnectionWithLccSettings;
   end else
@@ -252,15 +279,98 @@ begin
   ShowSettingsDialog;
 end;
 
+procedure TForm1.ButtonLoadFromFileInComingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoIncoming.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TForm1.ButtonLoadFromFileOutgoingClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    MemoOutgoing.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TForm1.ButtonSaveToFileInComingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoIncoming.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
+procedure TForm1.ButtonSaveToFileOutgoingClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    MemoOutgoing.Lines.SaveToFile(SaveDialog.FileName);
+end;
+
+procedure TForm1.ButtonSend1Click(Sender: TObject);
+begin
+  MemoOutgoing.Lines.BeginUpdate;
+  try
+    MemoOutgoing.Lines.Add(':X17000352N;');
+    MemoOutgoing.Lines.Add(':X16000352N;');
+    MemoOutgoing.Lines.Add(':X14000352N;');
+    MemoOutgoing.Lines.Add(':X10700352N;');
+    MemoOutgoing.Lines.Add(':X19490352N;');
+  finally
+    MemoOutgoing.Lines.EndUpdate;
+  end;
+end;
+
+procedure TForm1.ButtonSendClick(Sender: TObject);
+var
+  Msg: TLccMessage;
+  i, j: Integer;
+begin
+  Msg := TLccMessage.Create;
+  try
+    for j := 0 to SpinEditRepeat.Value - 1 do
+    begin
+      if SpinEditDelay.Value = 0 then
+      begin
+        if ActionComPortConnect.Checked then
+          LccComPort.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+        if ActionRaspberryPiConnect.Checked then
+          LccRaspberryPiSpiPort.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+        if ActionEthernetClientConnect.Checked then
+          LccEthernetClient.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+        if ActionEthernetServerConnect.Checked then
+          LccEthernetServer.SendMessageRawGridConnect(MemoOutgoing.Lines.Text);
+      end else
+      begin
+        for i := 0 to MemoOutgoing.Lines.Count - 1 do
+        begin;
+          if Msg.LoadByGridConnectStr(MemoOutgoing.Lines[i]) then
+          begin
+            if SpinEditDelay.Value > 0 then
+            begin
+              if ActionComPortConnect.Checked then
+                LccComPort.SendMessage(Msg);
+              if ActionEthernetServerConnect.Checked then
+                LccEthernetServer.SendMessage(Msg);
+              if ActionEthernetClientConnect.Checked then
+                LccEthernetClient.SendMessage(Msg);
+              if ActionRaspberryPiConnect.Checked then
+                LccRaspberryPiSpiPort.SendMessage(Msg);
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    Msg.Free;
+  end;
+end;
+
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   // Before shutdown clean up and disconnect from connections
-  if ActionComPort.Checked then
-    ActionComPort.Execute;                  // Force calling the OnExecute Event to clean up, but only if the Action is enabled
-  if ActionEthernetServer.Checked then
-    ActionEthernetServer.Execute;           // Force calling the OnExecute Event to clean up, but only if the Action is enabled
-  if ActionRaspberryPi.Checked then
-    ActionRaspberryPi.Execute;
+  if ActionComPortConnect.Checked then
+    ActionComPortConnect.Execute;                  // Force calling the OnExecute Event to clean up, but only if the Action is enabled
+  if ActionEthernetServerConnect.Checked then
+    ActionEthernetServerConnect.Execute;           // Force calling the OnExecute Event to clean up, but only if the Action is enabled
+  if ActionRaspberryPiConnect.Checked then
+    ActionRaspberryPiConnect.Execute;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -357,7 +467,7 @@ end;
 procedure TForm1.LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
 begin
   ShowMessage('Error on ' + ComPortRec.ComPort + ' Message: ' + ComPortRec.MessageStr);
-  ActionComPort.Checked := False;
+  ActionComPortConnect.Checked := False;
 end;
 
 procedure TForm1.LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
@@ -378,7 +488,7 @@ begin
     ccsClientConnecting :
       begin
         StatusBarMain.Panels[STATUS_PANEL_ETHERNET].Text := 'Connecting Ethernet: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-        ActionEthernetServer.Enabled := False;
+        ActionEthernetServerConnect.Enabled := False;
         ActionTCP.Enabled := False;
       end;
     ccsClientConnected :
@@ -392,9 +502,9 @@ begin
     ccsClientDisconnected :
       begin
          StatusBarMain.Panels[STATUS_PANEL_ETHERNET].Text := 'Disconnected';
-         ActionEthernetClient.Checked := False;
-    //     ActionComPort.Enabled := True;        // Reinable Comport
-         ActionEthernetServer.Enabled := True;
+         ActionEthernetClientConnect.Checked := False;
+    //     ActionComPortConnect.Enabled := True;        // Reinable Comport
+         ActionEthernetServerConnect.Enabled := True;
          ActionTCP.Enabled := True;
       end;
   end;
@@ -403,7 +513,7 @@ end;
 procedure TForm1.LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   ShowMessage('Error on ' + EthernetRec.ClientIP + ' Message: ' + EthernetRec.MessageStr);
-  ActionEthernetClient.Checked := False;
+  ActionEthernetClientConnect.Checked := False;
 end;
 
 procedure TForm1.LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -427,7 +537,7 @@ begin
     ccsListenerConnecting :
       begin
         StatusBarMain.Panels[STATUS_PANEL_ETHERNET].Text := 'Connecting Ethernet: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-        ActionEthernetClient.Enabled := False;
+        ActionEthernetClientConnect.Enabled := False;
         ActionTCP.Enabled := False;
       end;
     ccsListenerConnected :
@@ -441,8 +551,8 @@ begin
     ccsListenerDisconnected :
       begin
          StatusBarMain.Panels[STATUS_PANEL_ETHERNET].Text := 'Disconnected';
-         ActionEthernetServer.Checked := False;
-         ActionEthernetClient.Enabled := True;
+         ActionEthernetServerConnect.Checked := False;
+         ActionEthernetClientConnect.Enabled := True;
          ActionTCP.Enabled := True;
       end;
     ccsListenerClientConnecting :
@@ -478,7 +588,7 @@ end;
 procedure TForm1.LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   ShowMessage('Error on ' + EthernetRec.ListenerIP + ' Message: ' + EthernetRec.MessageStr);
-  ActionEthernetServer.Checked := False;
+  ActionEthernetServerConnect.Checked := False;
 end;
 
 procedure TForm1.LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -530,21 +640,21 @@ end;
 
 procedure TForm1.LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
 begin
-  ActionEthernetServer.Visible := IniFile.ReadBool('CustomSettings', 'EthernetServer', True);
-  ActionEthernetClient.Visible := IniFile.ReadBool('CustomSettings', 'EthernetClient', False);
-  ActionComPort.Visible := IniFile.ReadBool('CustomSettings', 'ComPort', False);
-  ActionRaspberryPi.Visible := IniFile.ReadBool('CustomSettings', 'RaspberryPiSpi', True);
+  ActionEthernetServerConnect.Visible := IniFile.ReadBool('CustomSettings', 'EthernetServer', True);
+  ActionEthernetClientConnect.Visible := IniFile.ReadBool('CustomSettings', 'EthernetClient', False);
+  ActionComPortConnect.Visible := IniFile.ReadBool('CustomSettings', 'ComPort', False);
+  ActionRaspberryPiConnect.Visible := IniFile.ReadBool('CustomSettings', 'RaspberryPiSpi', True);
 
-  ActionTCP.Visible := ActionEthernetClient.Visible or ActionEthernetServer.Visible;
+  ActionTCP.Visible := ActionEthernetClientConnect.Visible or ActionEthernetServerConnect.Visible;
   MenuItemConnectionDivider0.Visible := ActionTCP.Visible;
 end;
 
 procedure TForm1.LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
 begin
-  IniFile.WriteBool('CustomSettings', 'EthernetServer', ActionEthernetServer.Visible);
-  IniFile.WriteBool('CustomSettings', 'EthernetClient', ActionEthernetClient.Visible);
-  IniFile.WriteBool('CustomSettings', 'ComPort', ActionComPort.Visible);
-  IniFile.WriteBool('CustomSettings', 'RaspberryPiSpi', ActionRaspberryPi.Visible);
+  IniFile.WriteBool('CustomSettings', 'EthernetServer', ActionEthernetServerConnect.Visible);
+  IniFile.WriteBool('CustomSettings', 'EthernetClient', ActionEthernetClientConnect.Visible);
+  IniFile.WriteBool('CustomSettings', 'ComPort', ActionComPortConnect.Visible);
+  IniFile.WriteBool('CustomSettings', 'RaspberryPiSpi', ActionRaspberryPiConnect.Visible);
 end;
 
 procedure TForm1.ToolButton1Click(Sender: TObject);
@@ -556,10 +666,10 @@ end;
 
 procedure TForm1.ShowSettingsDialog;
 begin
-  FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClient.Visible;
-  FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPort.Visible;
-  FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServer.Visible;
-  FormSettings.FrameLccSettings.UserSettings.RaspberryPiSpiPort := ActionRaspberryPi.Visible;
+  FormSettings.FrameLccSettings.UserSettings.EthernetClient := ActionEthernetClientConnect.Visible;
+  FormSettings.FrameLccSettings.UserSettings.ComPort := ActionComPortConnect.Visible;
+  FormSettings.FrameLccSettings.UserSettings.EthernetServer := ActionEthernetServerConnect.Visible;
+  FormSettings.FrameLccSettings.UserSettings.RaspberryPiSpiPort := ActionRaspberryPiConnect.Visible;
   // Update from video series, need to resync with the Settings each time the
   // dialog is shown as the user may have changed the UI and hit cancel and not
   // just when the program starts up in the FormShow event

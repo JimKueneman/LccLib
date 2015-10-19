@@ -95,7 +95,7 @@ begin
   inherited Create;
   FLock := TCriticalSection.Create;
   FStringList := TStringList.Create;
-  FStringList.Duplicates := dupIgnore;
+  FStringList.Duplicates := dupAccept;    // Duplicate GridConnect messages are OK
 end;
 
 destructor TThreadStringList.Destroy;

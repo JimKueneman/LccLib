@@ -180,6 +180,7 @@ type
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); override;
     {$ENDIF}
     procedure SendMessage(AMessage: TLccMessage); override;
+    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
   //  {$IFDEF FPC}
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
   //  {$ELSE}
@@ -462,6 +463,20 @@ begin
       if not EthernetThread.IsTerminated then
         EthernetThread.Scheduler.OutgoingMsg(AMessage);
     end;
+  finally
+    EthernetThreads.UnlockList;
+  end;
+end;
+
+procedure TLccEthernetClient.SendMessageRawGridConnect(GridConnectStr: ansistring);
+var
+  List: TList;
+  i: Integer;
+begin
+  List := EthernetThreads.LockList;
+  try  // TODO
+  //  for i := 0 to List.Count - 1 do
+ //     TLccEthernetClientThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
   finally
     EthernetThreads.UnlockList;
   end;
@@ -933,4 +948,4 @@ initialization
 finalization
 
 end.
-
+

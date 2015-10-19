@@ -156,7 +156,7 @@ type
     procedure CloseComPort( ComPortThread: TLccComPortThread);
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage); override;
-    procedure SendMessageRawGridConnect(GridConnectStr: ansistring);
+    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
     procedure ClearSchedulerQueues;
   published
     { Published declarations }
@@ -454,11 +454,22 @@ procedure TLccComPort.SendMessageRawGridConnect(GridConnectStr: ansistring);
 var
   List: TList;
   i: Integer;
+  OldText, NewText: ansistring;
 begin
   List := ComPortThreads.LockList;
   try
     for i := 0 to List.Count - 1 do
-      TLccComPortThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
+    begin
+      TLccComPortThread(List[i]).OutgoingGridConnect.Delimiter := Chr(10);
+      OldText := TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+      if OldText <> '' then
+      begin
+        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+        NewText := TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := OldText + Chr(10) + NewText
+      end else
+        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+    end;
   finally
     ComPortThreads.UnlockList;
   end;

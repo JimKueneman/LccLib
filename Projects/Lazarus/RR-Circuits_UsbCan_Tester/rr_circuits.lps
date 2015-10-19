@@ -7,8 +7,6 @@
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="43" Y="18"/>
         <UsageCount Value="132"/>
       </Unit0>
@@ -27,12 +25,9 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="280"/>
-        <CursorPos X="33" Y="296"/>
+        <TopLine Value="274"/>
+        <CursorPos Y="276"/>
         <UsageCount Value="132"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -48,7 +43,6 @@
       <Unit4>
         <Filename Value="../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="lcc_raspberrypi_spiport"/>
         <WindowIndex Value="1"/>
         <TopLine Value="282"/>
         <CursorPos X="21" Y="289"/>
@@ -56,7 +50,6 @@
       </Unit4>
       <Unit5>
         <Filename Value="../../Library/LCC/lcc_comport.pas"/>
-        <UnitName Value="lcc_comport"/>
         <WindowIndex Value="1"/>
         <TopLine Value="634"/>
         <CursorPos X="37" Y="646"/>
@@ -67,7 +60,6 @@
         <ComponentName Value="FrameLccSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="frame_lcc_settings"/>
         <WindowIndex Value="1"/>
         <CursorPos X="35" Y="6"/>
         <UsageCount Value="62"/>
@@ -206,7 +198,6 @@
       </Unit28>
       <Unit29>
         <Filename Value="../../Library/LCC/lcc_threaded_stringlist.pas"/>
-        <UnitName Value="lcc_threaded_stringlist"/>
         <WindowIndex Value="1"/>
         <TopLine Value="121"/>
         <CursorPos Y="132"/>
@@ -248,10 +239,7 @@
         <UsageCount Value="10"/>
       </Unit34>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
         <Filename Value="form_template.pas"/>
         <Caret Line="144" Column="3" TopLine="126"/>
@@ -262,7 +250,7 @@
       </Position2>
       <Position3>
         <Filename Value="form_template.pas"/>
-        <Caret Line="7" Column="27" TopLine="1"/>
+        <Caret Line="7" Column="27"/>
       </Position3>
       <Position4>
         <Filename Value="form_template.pas"/>
@@ -286,7 +274,7 @@
       </Position8>
       <Position9>
         <Filename Value="form_template.pas"/>
-        <Caret Line="26" Column="36" TopLine="1"/>
+        <Caret Line="26" Column="36"/>
       </Position9>
       <Position10>
         <Filename Value="form_template.pas"/>
@@ -308,7 +296,10 @@
         <Filename Value="form_template.pas"/>
         <Caret Line="566" Column="35" TopLine="539"/>
       </Position14>
+      <Position15>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="296" Column="33" TopLine="280"/>
+      </Position15>
     </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

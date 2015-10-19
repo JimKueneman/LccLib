@@ -258,6 +258,7 @@ type
     function OpenConnectionWithLccSettings: TLccRaspberryPiSpiPortThread;
     procedure CloseConnection(PiSpiPortThread: TLccRaspberryPiSpiPortThread);
     procedure SendMessage(AMessage: TLccMessage); override;
+    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
     procedure ClearSchedulerQueues;
   published
     { Published declarations }
@@ -517,6 +518,31 @@ begin
   end;
 end;
 
+procedure TLccRaspberryPiSpiPort.SendMessageRawGridConnect(GridConnectStr: ansistring);
+var
+  List: TList;
+  i: Integer;
+  OldText, NewText: ansistring;
+begin
+  List := RaspberryPiSpiPortThreads.LockList;
+  try
+    for i := 0 to List.Count - 1 do
+    begin
+      TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.Delimiter := Chr(10);
+      OldText := TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+      if OldText <> '' then
+      begin
+        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+        NewText := TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := OldText + Chr(10) + NewText
+      end else
+        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+    end;
+  finally
+    RaspberryPiSpiPortThreads.UnlockList;
+  end;
+end;
+
 procedure TLccRaspberryPiSpiPort.ClearSchedulerQueues;
 var
   i: Integer;
@@ -688,16 +714,19 @@ procedure TLccRaspberryPiSpiPortThread.Execute;
   end;
 
   const
-    TX_BUFFER_LEN = 30 * 32;  // Spi buffer holds 32 GridConnect strings
+    GRIDCONNECT_STR_LEN = 32;    // Number of GC strings message to send in one TX cycle
+    GRIDCONNECT_CHAR_LEN = 30;  // 30 characters in the GC string
+    TX_BUFFER_LEN = GRIDCONNECT_CHAR_LEN * GRIDCONNECT_STR_LEN;  // Spi buffer holds GRIDCONNECT_STR_LEN GridConnect strings
+
   type
-    TRaspberryPiBuffer = array[0..TX_BUFFER_LEN] of byte;
+    TRaspberryPiBuffer = array[0..TX_BUFFER_LEN-1] of byte;
 
   procedure LoadSpiTxBuffer(var TxBuffer: TRaspberryPiBuffer; var GridConnect: TGridConnectString; Index: Integer);
   var
     i, Offset: Integer;
   begin
-    Offset := 30 * Index;
-    for i := 0 to 30-1 do
+    Offset := GRIDCONNECT_CHAR_LEN * Index;
+    for i := 0 to GRIDCONNECT_CHAR_LEN-1 do
       TxBuffer[Offset + i] := GridConnect[i];
   end;
 var
@@ -740,15 +769,17 @@ begin
           TxList := OutgoingGridConnect.LockList;
           try
             i := 0;
-            while i < TxList.Count do
+            while TxList.Count > 0 do
             begin
               FillChar(GridConnectBuffer, SizeOf(GridConnectBuffer), 0);
-              s := TxList[i];
-              for j := 0 to Length(s) - 1 do
+              s := TxList[0];
+              for j := 0 to Length(s)-1 do
                 GridConnectBuffer[j] := Ord(s[j+1]);
               LoadSpiTxBuffer(TxBuffer, GridConnectBuffer, i);
               TxList.Delete(0);
-              Inc(i)
+              Inc(i);
+              if i > GRIDCONNECT_STR_LEN-1 then
+                Break
             end;
           finally
             OutgoingGridConnect.UnlockList;
@@ -758,9 +789,9 @@ begin
         Inc(LocalSleepCount);
 
         // if nothing to send still pump receive messages by sending nulls
-        ByteCount := i*30;
+        ByteCount := i*GRIDCONNECT_CHAR_LEN;
         if ByteCount = 0 then
-          ByteCount := 30;
+          ByteCount := GRIDCONNECT_CHAR_LEN;
 
         if RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, ByteCount) then
         begin
