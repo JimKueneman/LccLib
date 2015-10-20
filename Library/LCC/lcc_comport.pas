@@ -453,6 +453,7 @@ end;
 procedure TLccComPort.SendMessageRawGridConnect(GridConnectStr: ansistring);
 var
   List: TList;
+  StrList: TStringList;
   i: Integer;
   OldText, NewText: ansistring;
 begin
@@ -460,15 +461,20 @@ begin
   try
     for i := 0 to List.Count - 1 do
     begin
-      TLccComPortThread(List[i]).OutgoingGridConnect.Delimiter := Chr(10);
-      OldText := TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+      StrList := TLccComPortThread(List[i]).OutgoingGridConnect.LockList;
+      try
+        StrList.Delimiter := Chr(10);
+        OldText := StrList.DelimitedText;
       if OldText <> '' then
       begin
-        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
-        NewText := TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText;
-        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := OldText + Chr(10) + NewText
+        StrList.DelimitedText := GridConnectStr;
+        NewText := StrList.DelimitedText;
+        StrList.DelimitedText := OldText + Chr(10) + NewText
       end else
-        TLccComPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+        StrList.DelimitedText := GridConnectStr;
+      finally
+         TLccComPortThread(List[i]).OutgoingGridConnect.UnlockList;
+      end;
     end;
   finally
     ComPortThreads.UnlockList;

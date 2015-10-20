@@ -521,6 +521,7 @@ end;
 procedure TLccRaspberryPiSpiPort.SendMessageRawGridConnect(GridConnectStr: ansistring);
 var
   List: TList;
+  StrList: TStringList;
   i: Integer;
   OldText, NewText: ansistring;
 begin
@@ -528,15 +529,20 @@ begin
   try
     for i := 0 to List.Count - 1 do
     begin
-      TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.Delimiter := Chr(10);
-      OldText := TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText;
+      StrList := TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.LockList;
+      try
+        StrList.Delimiter := Chr(10);
+        OldText := StrList.DelimitedText;
       if OldText <> '' then
       begin
-        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
-        NewText := TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText;
-        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := OldText + Chr(10) + NewText
+        StrList.DelimitedText := GridConnectStr;
+        NewText := StrList.DelimitedText;
+        StrList.DelimitedText := OldText + Chr(10) + NewText
       end else
-        TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.DelimitedText := GridConnectStr;
+        StrList.DelimitedText := GridConnectStr;
+      finally
+         TLccRaspberryPiSpiPortThread(List[i]).OutgoingGridConnect.UnlockList;
+      end;
     end;
   finally
     RaspberryPiSpiPortThreads.UnlockList;
