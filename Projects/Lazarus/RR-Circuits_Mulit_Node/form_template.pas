@@ -122,16 +122,20 @@ begin
   // Define what Protcol this Node Supports
 
   // Common Protocols
-  // We support CDI so we must support datagrams
-  ProtocolSupport.Datagram := True;
-  // We support CDI so we must support datagrams
-  ProtocolSupport.MemConfig := True;
-  // We Support CDI
-  ProtocolSupport.CDI := True;
-  // We support Events
-  ProtocolSupport.EventExchange := True;
-  // We Support SNIP
-  ProtocolSupport.SimpleNodeInfo := True;
+
+  ProtocolSupport.Datagram := True;                   // We support CDI so we must support datagrams
+  ProtocolSupport.MemConfig := True;                  // We support CDI so we must support datagrams
+  ProtocolSupport.CDI := True;                        // We Support CDI
+  ProtocolSupport.EventExchange := True;              // We support Events
+  ProtocolSupport.SimpleNodeInfo := True;             // We Support SNIP
+  ProtocolSupport.ACDI := False;                      // We don't support ACDI
+  ProtocolSupport.Stream := False;
+  ProtocolSupport.RemoteButton := False;
+  ProtocolSupport.Reservation := False;
+  ProtocolSupport.Teach_Learn := False;
+  ProtocolSupport.Display := False;
+  ProtocolSupport.Identification := False;
+  ProtocolSupport.Valid := True;
 
   // Setup the SNIP constants, this information MUST be idential to the information
   // in the  <identification> tag of the CDI to comply with the LCC specs
@@ -143,11 +147,53 @@ begin
   SimpleNodeInfo.UserVersion := 1;
   SimpleNodeInfo.UserDescription := '';
   SimpleNodeInfo.UserName := '';
+  ProtocolSupport.Valid := True;
+
+  // When the node ID is generated the defined events will be generated from the
+  // NodeID + StartIndex and incremented up to Count - 1
+  EventsConsumed.AutoGenerate.Enable := True;
+  EventsConsumed.AutoGenerate.Count := 10;
+  EventsConsumed.AutoGenerate.StartIndex := 0;
+  EventsConsumed.AutoGenerate.DefaultState := evs_InValid;
+
+  // When the node ID is generated the defined events will be generated from the
+  // NodeID + StartIndex and incremented up to Count - 1
+  EventsProduced.AutoGenerate.Enable := True;
+  EventsProduced.AutoGenerate.Count := 10;
+  EventsProduced.AutoGenerate.StartIndex := 0;
+  EventsProduced.AutoGenerate.DefaultState := evs_InValid;
+
+  Configuration.FilePath := GetSettingsPath + 'configuration.dat';
+  Configuration.Valid := True;
 
   // Load a CDI XML file from the same folder that the Setting.ini is stored
-//  CDI.AStream.LoadFromFile( GetSettingsPath + 'TemplateCDI.xml');
-//  CDI.Valid := True;
+  CDI.LoadFromXml( GetSettingsPath + 'example_cdi.xml');
+  CDI.Valid := True;
 
+  // Setup the Configuraion Memory Options:
+  ConfigMemOptions.HighSpace := MSI_CDI;
+  ConfigMemOptions.LowSpace := MSI_ACDI_USER;
+  ConfigMemOptions.SupportACDIMfgRead := False;
+  ConfigMemOptions.SupportACDIUserRead := False;
+  ConfigMemOptions.SupportACDIUserWrite := False;
+  ConfigMemOptions.UnAlignedReads := True;
+  ConfigMemOptions.UnAlignedWrites := True;
+  ConfigMemOptions.WriteArbitraryBytes := True;
+  ConfigMemOptions.WriteLenFourBytes := True;
+  ConfigMemOptions.WriteLenOneByte := True;
+  ConfigMemOptions.WriteLenSixyFourBytes := True;
+  ConfigMemOptions.WriteLenTwoBytes := True;
+  ConfigMemOptions.WriteStream := False;
+  ConfigMemOptions.WriteUnderMask := False;
+  ConfigMemOptions.Valid := True;
+
+  // Setup the Configuration Memory Addres Space Information
+  ConfigMemAddressSpaceInfo.Add(MSI_CDI, True, True, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_ALL, True, True, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_CONFIG, True, False, True, $00000000, $FFFFFFFF);
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_MFG, False, True, True, $00000000, $FFFFFFFF);      // We don't support ACDI in this object
+  ConfigMemAddressSpaceInfo.Add(MSI_ACDI_USER, False, False, True, $00000000, $FFFFFFFF);    // We don't support ACDI in this object
+  ConfigMemAddressSpaceInfo.Valid := True;
 end;
 
 { TFormTemplate }
@@ -296,6 +342,9 @@ begin
       LccSettings.LoadFromFile;
     FormLogging.OnHideNotifyEvent := @OnTraceFormHideEvent;
     FormSettings.FrameLccSettings.LccSettings := LccSettings;
+    LccComPort.LoggingFrame := FormLogging.FrameLccLogging;
+    LccEthernetClient.LoggingFrame := FormLogging.FrameLccLogging;
+    LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
     ActionLccLogin.Enabled := False;
     PanelAddOns.Visible := False;
     ShownOnce := True;

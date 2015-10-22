@@ -5997,7 +5997,11 @@ begin
       begin
         FNonBlockMode := Value.Enabled;
         x := Ord(FNonBlockMode);
+        {$IFDEF FPC}
         synsock.IoctlSocket(FSocket, Integer( FIONBIO), x);
+        {$ELSE}
+        synsock.IoctlSocket(FSocket, FIONBIO, x);
+        {$ENDIF}
       end;
     SOT_RecvTimeout:
       begin

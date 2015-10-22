@@ -47,7 +47,6 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_settings"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>
@@ -107,9 +106,6 @@ if TargetOS = 'linux' then
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

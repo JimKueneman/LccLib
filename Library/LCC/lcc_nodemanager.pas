@@ -13,13 +13,23 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  laz2_DOM, laz2_XMLRead, LResources, ExtCtrls, ComCtrls, FileUtil, lcc_nodeselector,
+  laz2_DOM,
+  laz2_XMLRead,
+  LResources,
+  ExtCtrls,
+  ComCtrls,
+  FileUtil,
+  lcc_nodeselector,
+  Dialogs,
   {$ELSE}
+  FMX.Dialogs,
   Types,
   FMX.Types,
   FMX.Treeview,
   System.Generics.Collections,
-  Xml.XMLDoc, Xml.xmldom, Xml.XMLIntf,
+  Xml.XMLDoc,
+  Xml.xmldom,
+  Xml.XMLIntf,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
   lcc_common_classes, lcc_defines, lcc_compiler_types;
@@ -258,10 +268,26 @@ type
     property State: TEventState read FState write FState;
   end;
 
+  { TLccEventAutoGenerate }
+
+  TLccEventAutoGenerate = class
+  private
+    FEnable: Boolean;
+    FCount: Integer;
+    FDefaultState: TEventState;
+    FStartIndex: Integer;
+  public
+    property Enable: Boolean read FEnable write FEnable;
+    property Count: Integer read FCount write FCount;
+    property DefaultState: TEventState read FDefaultState write FDefaultState;
+    property StartIndex: Integer read FStartIndex write FStartIndex;
+  end;
+
   { TLccEvents }
 
   TLccEvents = class(TNodeProtocolBase)
   private
+    FAutoGenerate: TLccEventAutoGenerate;
     {$IFDEF FPC}
     FEventList: TList;
     {$ELSE}
@@ -284,6 +310,8 @@ type
     procedure Clear;
     function Supports(Event: TEventID): TLccEvent;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+
+    property AutoGenerate: TLccEventAutoGenerate read FAutoGenerate write FAutoGenerate;
     property Count: Integer read GetCount;
     property Event[Index: Integer]: TLccEvent read GetEvent; default;
     property EventIDAsStr[Index: Integer]: LccString read GetEventIDAsStr;
@@ -1220,6 +1248,8 @@ procedure TLccOwnedNode.LoginWithLccSettings(RegenerateAliasSeed: Boolean);
 var
   TempNodeID: TNodeID;
   TempID, TempID1, TempID2: QWord;
+  TempEventID: TEventID;
+  i: Integer;
 begin
   TempNodeID[0] := 0;
   TempNodeID[1] := 0;
@@ -1243,6 +1273,26 @@ begin
       OwnerManager.LccSettings.General.NodeIDAsTNodeID(TempNodeID);
       FNodeID[0] := TempNodeID[0];
       FNodeID[1] := TempNodeID[1];
+    end;
+
+    if EventsProduced.AutoGenerate.Enable then
+    begin
+      for i := 0 to EventsProduced.AutoGenerate.Count - 1 do
+      begin
+        NodeIDToEventID(NodeID, EventsProduced.AutoGenerate.StartIndex + i, TempEventID);
+        EventsProduced.Add(TempEventID, EventsProduced.AutoGenerate.DefaultState);
+      end;
+      EventsProduced.Valid := True;
+    end;
+
+    if EventsConsumed.AutoGenerate.Enable then
+    begin
+      for i := 0 to EventsConsumed.AutoGenerate.Count - 1 do
+      begin
+        NodeIDToEventID(NodeID, EventsConsumed.AutoGenerate.StartIndex + i, TempEventID);
+        EventsConsumed.Add(TempEventID, EventsConsumed.AutoGenerate.DefaultState);
+      end;
+      EventsConsumed.Valid := True;
     end;
 
     Configuration.LoadFromFile;
@@ -1834,12 +1884,14 @@ begin
     FEventList := TObjectList<TLccEvent>.Create;
     EventList.OwnsObjects := False;
   {$ENDIF}
+  FAutoGenerate := TLccEventAutoGenerate.Create;
 end;
 
 destructor TLccEvents.Destroy;
 begin
   Clear;
   FreeAndNil(FEventList);
+  FreeAndNil(FAutoGenerate);
   inherited Destroy;
 end;
 
@@ -4006,7 +4058,7 @@ end;
 procedure TConfiguration.LoadFromFile;
 begin
   if FileExists(String( FilePath)) then
-    AStream.LoadFromFile(String( FilePath));
+    AStream.LoadFromFile(String( FilePath))
 end;
 
 function TConfiguration.ReadAsString(Address: DWord): LccString;
@@ -4066,7 +4118,12 @@ begin
     {$ENDIF}
   end;
   if AutoSaveOnWrite then
-    AStream.SaveToFile(String( FilePath));
+  begin
+    if FileExists(String( FilePath)) then
+      AStream.SaveToFile(String( FilePath))
+    else
+      ShowMessage('Attempt to write to configuration failed, file path not valid');
+  end;
 end;
 
 { TLccNetworkTree }

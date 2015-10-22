@@ -29,10 +29,6 @@ inherited HeaderFooterwithNavigation_LgXhdpiPh: THeaderFooterwithNavigation_LgXh
         Position.Y = 582.000000000000000000
         Size.Width = 434.000000000000000000
       end
-      inherited LccNetworkTree1: TLccNetworkTree
-        Viewport.Width = 148.000000000000000000
-        Viewport.Height = 148.000000000000000000
-      end
     end
   end
   inherited BottomToolBar: TToolBar

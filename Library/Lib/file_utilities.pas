@@ -1,14 +1,21 @@
 unit file_utilities;
 
+{$IFDEF FPC}
 {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
+
+{$I ..\Lcc\lcc_compilers.inc}
 
 uses
   {$IFDEF DARWIN}
   CFBase, CFBundle, CFURL, CFString,
   {$ENDIF}
-  Classes, SysUtils, Forms;
+  {$IFNDEF FPC}
+    FMX.Forms,
+  {$ENDIF}
+  Classes, SysUtils;
 
 const
   PATH_OSX_RESOURCES = 'Contents/Resources/';
@@ -32,15 +39,29 @@ function GetSettingsPath: string;
 {$ENDIF}
 begin
   // Under OSX we get the path of the executable
-  {$IFDEF DARWIN}
-  Result := GetApplicationPath + PATH_OSX_RESOURCES;
+  {$IFDEF FPC}
+    {$IFDEF DARWIN}
+    Result := GetApplicationPath + PATH_OSX_RESOURCES;
+    {$ENDIF}
+      // Under Windows we get the path of the executable
+    {$IFDEF Windows}
+    Result := GetApplicationPath;
+    {$ENDIF}
+    {$IFDEF Linux}
+    Result := GetAppConfigDir(False);
+    {$ENDIF}
+  {$ELSE}
+     Result := 'TODO...';
+    {$IFDEF DARWIN}
+  //  Result := GetApplicationPath + PATH_OSX_RESOURCES;
+    {$ENDIF}
+    {$IFDEF Linux}
+  //  Result := GetAppConfigDir(False);
+    {$ENDIF}
   {$ENDIF}
-    // Under Windows we get the path of the executable
-  {$IFDEF Windows}
-  Result := GetApplicationPath;
-  {$ENDIF}
-  {$IFDEF Linux}
-  Result := GetAppConfigDir(False);
+
+  {$IFDEF LCC_WINDOWS}
+    Result := GetApplicationPath;
   {$ENDIF}
 end;
 
@@ -53,23 +74,27 @@ var
   pathStr: shortstring;
 {$ENDIF}
 begin
-  // Under OSX we get the path of the executable
-  {$IFDEF DARWIN}
-  pathRef := CFBundleCopyBundleURL(CFBundleGetMainBundle());
-  pathCFStr := CFURLCopyFileSystemPath(pathRef, kCFURLPOSIXPathStyle);
-  CFStringGetPascalString(pathCFStr, @pathStr, 255, CFStringGetSystemEncoding());
-  CFRelease(pathRef);
-  CFRelease(pathCFStr);
-  Result := pathStr + '/';
-//  Result := ExtractFilePath(Result);
+  {$IFDEF FPC}
+    // Under OSX we get the path of the executable
+    {$IFDEF DARWIN}
+    pathRef := CFBundleCopyBundleURL(CFBundleGetMainBundle());
+    pathCFStr := CFURLCopyFileSystemPath(pathRef, kCFURLPOSIXPathStyle);
+    CFStringGetPascalString(pathCFStr, @pathStr, 255, CFStringGetSystemEncoding());
+    CFRelease(pathRef);
+    CFRelease(pathCFStr);
+    Result := pathStr + '/';
+    {$ENDIF}
+      // Under Windows we get the path of the executable
+    {$IFDEF Windows}
+    Result := ExtractFilePath(Application.ExeName);
+    {$ENDIF}
+    {$IFDEF Linux}
+    Result := PATH_UNIX_APPLICATION;    // Linux is typically hardcoded to a path
+    {$ENDIF}
+  {$ELSE}
+  //  Result := ExtractFilePath(Application.);
   {$ENDIF}
-    // Under Windows we get the path of the executable
-  {$IFDEF Windows}
-  Result := ExtractFilePath(Application.ExeName);
-  {$ENDIF}
-  {$IFDEF Linux}
-  Result := PATH_UNIX_APPLICATION;    // Linux is typically hardcoded to a path
-  {$ENDIF}
+
 end;
 
 end.

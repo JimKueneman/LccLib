@@ -19,10 +19,6 @@ inherited HeaderFooterwithNavigation_iPhone4in: THeaderFooterwithNavigation_iPho
         Position.Y = 443.000000000000000000
         Size.Width = 304.000000000000000000
       end
-      inherited LccNetworkTree1: TLccNetworkTree
-        Viewport.Width = 148.000000000000000000
-        Viewport.Height = 148.000000000000000000
-      end
     end
   end
   inherited BottomToolBar: TToolBar

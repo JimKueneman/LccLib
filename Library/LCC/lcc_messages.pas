@@ -398,22 +398,22 @@ begin
     {$ELSE}
     ZeroIndex := Low(GridConnectStr) = 0;
     {$ENDIF}
-    GridConnectStr := LccString( UpperCase( String(GridConnectStr)));
-    x := Pos('X', String( GridConnectStr));                                              // Find were the "X" is in the string
+    GridConnectStr := LccString( UpperCase( LccString(GridConnectStr)));
+    x := Pos('X', LccString( GridConnectStr));                                              // Find were the "X" is in the string
     if ZeroIndex then Dec(x);
     if x > 0 then
     begin
-      n := PosEx('N', String( GridConnectStr), x);                                       // Find where the "N" is in the string
+      n := PosEx('N', LccString( GridConnectStr), x);                                       // Find where the "N" is in the string
       if ZeroIndex then Dec(n);
       if n > 0 then
       begin
         GridConnectStr[n] := #0;                                                // Set the "N" to a null to create a null string of the MTI
         Inc(n);                                                                 // Move just pass where the "N" was
-        SemiColon := PosEx(';', String( GridConnectStr), n);                             // Look for the terminating ";"
+        SemiColon := PosEx(';', LccString( GridConnectStr), n);                             // Look for the terminating ";"
         if ZeroIndex then Dec(SemiColon);
         if SemiColon > 0 then
         begin
-          CAN.MTI := StrToInt('$' + PChar( @GridConnectStr[x+1]));          // Convert the string MTI into a number  ;
+          CAN.MTI := StrToInt('$' + StrPas(PLccChar( @GridConnectStr[x+1])));    // Convert the string MTI into a number  ;
           CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
           CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
           CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
@@ -438,9 +438,9 @@ begin
             if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
             begin
               ByteStr := GridConnectStr[n] + GridConnectStr[n+1];
-              DestHi := StrToInt('$' + String( ByteStr));
+              DestHi := StrToInt('$' + LccString( ByteStr));
               ByteStr := GridConnectStr[n+2] + GridConnectStr[n+3];
-              DestLo := StrToInt('$' + String( ByteStr));
+              DestLo := StrToInt('$' + LccString( ByteStr));
               CAN.FramingBits := DestHi and $30;
               CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
               Inc(n, 4);
