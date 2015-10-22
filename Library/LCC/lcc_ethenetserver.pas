@@ -23,7 +23,7 @@ uses
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
   lcc_gridconnect, blcksock, synsock, lcc_threaded_stringlist,
-  lcc_can_message_assembler_disassembler, lcc_message_scheduler,
+  lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
   lcc_common_classes, lcc_compiler_types;
@@ -37,30 +37,20 @@ type
   TLccEthernetServerThread =  class(TLccConnectionThread)
     private
       FEthernetRec: TLccEthernetRec;
-      FMsgAssembler: TLccMessageAssembler;
-      FMsgDisAssembler: TLccMessageDisAssembler;
       FOnClientDisconnect: TOnEthernetRecFunc;
       FOnErrorMessage: TOnEthernetRecFunc;
       FOnConnectionStateChange: TOnEthernetRecFunc;
       FOnReceiveMessage: TOnEthernetReceiveFunc;
-      FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-      FOnSchedulerClass: TOnSchedulerClassEvent;
-      FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
       FOnSendMessage: TOnMessageEvent;
       FOutgoingCircularArray: TThreadedCirularArray;
       FOutgoingGridConnect: TThreadStringList;
       FOwner: TLccEthernetServer;
       FRunning: Boolean;
-      FScheduler: TSchedulerBase;
       FSleepCount: Integer;
       FSocket: TTCPBlockSocket;
       FSocketHandleForListener: TSocket;
       FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
-      FWorkerMsg: TLccMessage;
       function GetIsTerminated: Boolean;
-      function GetScheduler: TSchedulerBase;
     protected
       procedure DoClientDisconnect;
       procedure DoConnectionState;
@@ -78,22 +68,13 @@ type
       property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
       property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-      property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-      property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-      property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-      property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
       property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
       property OutgoingCircularArray: TThreadedCirularArray read FOutgoingCircularArray write FOutgoingCircularArray;
       property Owner: TLccEthernetServer read FOwner write FOwner;
       property Running: Boolean read FRunning write FRunning;
       property IsTerminated: Boolean read GetIsTerminated;
-      property Scheduler: TSchedulerBase read GetScheduler;
       property SleepCount: Integer read FSleepCount write FSleepCount;
       property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
-      property MsgAssembler: TLccMessageAssembler read FMsgAssembler write FMsgAssembler;
-      property MsgDisAssembler: TLccMessageDisAssembler read FMsgDisAssembler write FMsgDisAssembler;
-      property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec); reintroduce;
       destructor Destroy; override;
@@ -122,19 +103,12 @@ type
     FOnConnectionStateChange: TOnEthernetRecFunc;
     FOnErrorMessage: TOnEthernetRecFunc;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
-    FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-    FOnSchedulerClass: TOnSchedulerClassEvent;
-    FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
     FOnSendMessage: TOnMessageEvent;
     FOwner: TLccEthernetServer;
     FRunning: Boolean;
-    FSchedulerPipelineSize: Integer;
     FSleepCount: Integer;
     FSocket: TTCPBlockSocket;
     function GetIsTerminated: Boolean;
-    procedure SetSchedulerPipelineSize(AValue: Integer);
   protected
     property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
     property Owner: TLccEthernetServer read FOwner write FOwner;
@@ -157,12 +131,6 @@ type
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
     property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-    property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-    property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-    property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-    property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
-    property SchedulerPipelineSize: Integer read FSchedulerPipelineSize write SetSchedulerPipelineSize;
     property SleepCount: Integer read FSleepCount write FSleepCount;
   end;
 
@@ -181,21 +149,9 @@ type
     FOnErrorMessage: TOnEthernetRecFunc;
     FOnConnectionStateChange: TOnEthernetRecFunc;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
-    FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-    FOnSchedulerClass: TOnSchedulerClassEvent;
-    FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
     FOnSendMessage: TOnMessageEvent;
-    FSchedulerPipelineSize: Integer;
     FSleepCount: Integer;
- //   procedure SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
- //   procedure SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
- //   procedure SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
- //   procedure SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
- //   procedure SetOnSendMessage(AValue: TOnMessageEvent);
     procedure SetGridConnect(AValue: Boolean);
-    procedure SetSchedulerPipelineSize(AValue: Integer);
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
@@ -211,14 +167,8 @@ type
     function OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
     function OpenConnectionWithLccSettings: TLccEthernetListener;
     procedure CloseConnection( EthernetThread: TLccEthernetServerThread);
-    {$IFDEF FPC}
-    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
-    {$ELSE}
-    procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); override;
-    {$ENDIF}
     procedure SendMessage(AMessage: TLccMessage);  override;
     procedure SendMessageRawGridConnect(GridConnectStr: String); override;
-    procedure ClearSchedulerQueues;
 
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
@@ -235,12 +185,6 @@ type
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
     property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-    property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-    property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-    property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-    property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
-    property SchedulerPipelineSize: Integer read FSchedulerPipelineSize write SetSchedulerPipelineSize;
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
@@ -281,13 +225,7 @@ begin
   Result.OnConnectionStateChange := OnConnectionStateChange;
   Result.OnErrorMessage := OnErrorMessage;
   Result.OnReceiveMessage := OnReceiveMessage;
-  Result.OnSchedulerClass := OnSchedulerClass;
   Result.OnSendMessage := OnSendMessage;
-  Result.OnSchedulerRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  Result.OnSchedulerAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  Result.OnSchedulerRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  Result.OnSchedulerAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  Result.Scheduler.PipelineSize := FSchedulerPipelineSize;
   Result.SleepCount := FSleepCount;
   Result.GridConnect := FGridConnect;
   Result.Start;
@@ -319,8 +257,6 @@ begin
 end;
 
 procedure TLccEthernetListener.DoReceiveMessage;
-//var
-//  LocalMessage: TLccMessage;
 begin
   if not IsTerminated then
   begin
@@ -328,11 +264,6 @@ begin
     // Send all raw GridConnect Messages to the event
     if Assigned(OnReceiveMessage) then
       OnReceiveMessage(Self, FEthernetRec);
-
- //   LocalMessage := nil;
- //   if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
- //     if Scheduler.IncomingMsgGridConnectStr(FEthernetRec.MessageStr, LocalMessage) then // In goes a raw message
-  //      Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
   end
 end;
 
@@ -452,12 +383,6 @@ begin
   Result := Terminated;
 end;
 
-procedure TLccEthernetListener.SetSchedulerPipelineSize(AValue: Integer);
-begin
-  if FSchedulerPipelineSize=AValue then Exit;
-  FSchedulerPipelineSize:=AValue;
-end;
-
 { TLccEthernetThreadList }
 
 function TLccEthernetThreadList.GetCount: Integer;
@@ -535,19 +460,6 @@ begin
   end;
 end;
 
-procedure TLccEthernetServer.SetSchedulerPipelineSize(AValue: Integer);
-begin
-  if (AValue < 1) or (AValue > 10) then
-    AValue := 1;
-
-  if AValue <> FSchedulerPipelineSize then
-  begin
-    FSchedulerPipelineSize:=AValue;
-    UpdateThreadsEvents;
-    UpdateListenerEvents(ListenerThread, True);
-  end;
-end;
-
 procedure TLccEthernetServer.SetSleepCount(AValue: Integer);
 begin
     if AValue <> FSleepCount then
@@ -567,13 +479,7 @@ begin
     AListenerThread.OnConnectionStateChange := OnConnectionStateChange;
     AListenerThread.OnErrorMessage := OnErrorMessage;
     AListenerThread.OnReceiveMessage := OnReceiveMessage;
-    AListenerThread.OnSchedulerClass := OnSchedulerClass;
     AListenerThread.OnSendMessage := OnSendMessage;
-    AListenerThread.OnSchedulerRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-    AListenerThread.OnSchedulerAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-    AListenerThread.OnSchedulerRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-    AListenerThread.OnSchedulerAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-    AListenerThread.SchedulerPipelineSize := FSchedulerPipelineSize;
     AListenerThread.GridConnect := FGridConnect;
   end;
 end;
@@ -581,11 +487,6 @@ end;
 procedure TLccEthernetServer.UpdateThreadEvents(EthernetThread: TLccEthernetServerThread);
 begin
   EthernetThread.OnSendMessage := OnSendMessage;
-  EthernetThread.Scheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  EthernetThread.Scheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  EthernetThread.Scheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  EthernetThread.Scheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  EthernetThread.Scheduler.PipelineSize := FSchedulerPipelineSize;
   EthernetThread.SleepCount := SleepCount;
   EthernetThread.GridConnect := FGridConnect;
 end;
@@ -608,7 +509,6 @@ constructor TLccEthernetServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FEthernetThreads := TLccEthernetThreadList.Create;
-  FSchedulerPipelineSize := 1;
   FHub := False;
 end;
 
@@ -616,34 +516,6 @@ destructor TLccEthernetServer.Destroy;
 begin
   FreeAndNil( FEthernetThreads);
   inherited Destroy;
-end;
-
-
-{$IFDEF FPC}
-procedure TLccEthernetServer.FillWaitingMessageList(WaitingMessageList: TObjectList);
-{$ELSE}
-procedure TLccEthernetServer.FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>);
-{$ENDIF}
-var
-  i, j: Integer;
-  L: TList;
-  EthernetThread: TLccEthernetServerThread;
-begin
-  if Assigned(WaitingMessageList) then
-  begin
-    WaitingMessageList.Clear;
-      L := EthernetThreads.LockList;
-    try
-      for i := 0 to L.Count - 1 do
-      begin
-        EthernetThread := TLccEthernetServerThread( L[i]);
-        for j := 0 to EthernetThread.Scheduler.MessagesWaitingForReplyList.Count - 1 do
-          WaitingMessageList.Add( (EthernetThread.Scheduler.MessagesWaitingForReplyList[j] as TLccMessage).Clone);
-      end;
-    finally
-      EthernetThreads.UnlockList;
-    end;
-  end;
 end;
 
 function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
@@ -690,7 +562,7 @@ begin
     begin
       EthernetThread := TLccEthernetServerThread( L[i]);
       if not EthernetThread.IsTerminated then
-        EthernetThread.Scheduler.OutgoingMsg(AMessage);
+        EthernetThread.SendMessage(AMessage);
     end;
   finally
     EthernetThreads.UnlockList;
@@ -720,80 +592,6 @@ begin
     UpdateListenerEvents(ListenerThread, True);
   end;
 
-end;
-
-{
-procedure TLccEthernetServer.SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if @FOnSchedulerRemoveOutgoingMessage <> @AValue then
-  begin
-    FOnSchedulerRemoveOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccEthernetServer.SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if @FOnSchedulerAddOutgoingMessage <> @AValue then
-  begin
-    FOnSchedulerAddOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccEthernetServer.SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
-begin
-  if @FOnSchedulerAddWaitingForReplyMessage <> @AValue then
-  begin
-    FOnSchedulerAddWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccEthernetServer.SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
-begin
-  if @FOnSchedulerRemoveWaitingForReplyMessage <> @AValue then
-  begin
-    FOnSchedulerRemoveWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccEthernetServer.SetOnSendMessage(AValue: TOnMessageEvent);
-begin
-  if @FOnSendMessage <> @AValue then
-  begin
-    FOnSendMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-}
-
-procedure TLccEthernetServer.ClearSchedulerQueues;
-var
-  i: Integer;
-  L: TList;
-  EthernetThread: TLccEthernetServerThread;
-begin
-  L := EthernetThreads.LockList;
-  try
-    for i := 0 to L.Count - 1 do
-    begin
-      EthernetThread := TLccEthernetServerThread( L[i]);
-      begin
-        EthernetThread.Scheduler.ClearPermenentErrorQueue;
-        EthernetThread.Scheduler.ClearQueue;
-        EthernetThread.Scheduler.ClearSentQueue;
-      end;
-    end;
-  finally
-    EthernetThreads.UnlockList;
-  end;
 end;
 
 { TLccEthernetServerThread }
@@ -993,45 +791,28 @@ begin
   Result := Terminated;
 end;
 
-function TLccEthernetServerThread.GetScheduler: TSchedulerBase;
-var
-  SchedulerClass: TSchedulerBaseClass;
-begin
-  if not Assigned(FScheduler) then
-  begin
-    SchedulerClass := TSchedulerSimplePipeline;
-    if Assigned(OnSchedulerClass) then
-      OnSchedulerClass(Owner, SchedulerClass);
-    FScheduler := SchedulerClass.Create(Owner, {$IFDEF FPC}@{$ENDIF}SendMessage);
-    FScheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-    FScheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-    FScheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-    FScheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-    FScheduler.OwnerThread := Self;
-  end;
-  Result := FScheduler
-end;
-
-
 procedure TLccEthernetServerThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: String;
+  i: Integer;
   ByteArray: TDynamicByteArray;
 begin
   if not IsTerminated then
   begin
     if Gridconnect then
     begin
-      MessageStr := AMessage.ConvertToGridConnectStr('');
-      OutgoingGridConnect.Add(MessageStr);
-      {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'S EthSrv:' + MessageStr,
-                        Owner.LoggingFrame.SynEdit,
-                        Owner.LoggingFrame.ActionLogPause.Checked,
-                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-      {$ENDIF}
+      MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
+      for i := 0 to MsgStringList.Count - 1 do
+      begin
+        OutgoingGridConnect.Add(MsgStringList[i]);
+        {$IFDEF LOGGING}
+        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
+          PrintToSynEdit( 'S EthSrv:' + MsgStringList[i],
+                          Owner.LoggingFrame.SynEdit,
+                          Owner.LoggingFrame.ActionLogPause.Checked,
+                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
+                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+        {$ENDIF}
+      end;
       DoSendMessage(AMessage);
     end else
     begin
@@ -1063,9 +844,6 @@ begin
   FEthernetRec.LccMessage := TLccMessage.Create;
   FOutgoingGridConnect := TThreadStringList.Create;
   OutgoingCircularArray := TThreadedCirularArray.Create;
-  FMsgAssembler := TLccMessageAssembler.Create;
-  FMsgDisAssembler := TLccMessageDisAssembler.Create;
-  FWorkerMsg := TLccMessage.Create;
   FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
 end;
 
@@ -1073,9 +851,6 @@ destructor TLccEthernetServerThread.Destroy;
 begin
   FreeAndNil(FOutgoingGridConnect);
   FreeAndNil(FEthernetRec.LccMessage);
-  FreeAndNil(FMsgAssembler);
-  FreeandNil(FMsgDisAssembler);
-  FreeAndNIl(FWorkerMsg);
   FreeAndNil(FOutgoingCircularArray);
   FreeAndNil(FTcpDecodeStateMachine);
   inherited Destroy;
@@ -1104,7 +879,6 @@ end;
 
 procedure TLccEthernetServerThread.DoReceiveMessage;
 var
-  LocalMessage: TLccMessage;
   L: TList;
   i: Integer;
 begin
@@ -1127,26 +901,22 @@ begin
       if Assigned(OnReceiveMessage) then
         OnReceiveMessage(Self, FEthernetRec);
 
-      LocalMessage := nil;
-      if (Scheduler <> nil) then
+      if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) = imgcr_True then // In goes a raw message
       begin
-        if Scheduler.IncomingMsgGridConnectStr(FEthernetRec.MessageStr, LocalMessage) then // In goes a raw message
-        begin
-          if (Owner.NodeManager <> nil) then
-            Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+        if (Owner.NodeManager <> nil) then
+          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-          if Owner.Hub then
-          begin
-            L := Owner.EthernetThreads.LockList;
-            try
-              for i := 0 to L.Count - 1 do
-              begin
-                if TLccEthernetServerThread(L[i]) <> Self then
-                  TLccEthernetServerThread(L[i]).SendMessage(LocalMessage);
-              end;
-            finally
-              Owner.EthernetThreads.UnlockList;
-            end
+        if Owner.Hub then
+        begin
+          L := Owner.EthernetThreads.LockList;
+          try
+            for i := 0 to L.Count - 1 do
+            begin
+              if TLccEthernetServerThread(L[i]) <> Self then
+                TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
+            end;
+          finally
+            Owner.EthernetThreads.UnlockList;
           end
         end
       end
@@ -1165,30 +935,25 @@ begin
       if Assigned(OnReceiveMessage) then
         OnReceiveMessage(Self, FEthernetRec);
 
-      LocalMessage := nil;
-      if (Scheduler <> nil) then
+      if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
       begin
-        if Scheduler.IncomingMsgEthernet(FEthernetRec.MessageArray, LocalMessage) then // In goes a raw message
-        begin
-          if (Owner.NodeManager <> nil) then
-            Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+        if (Owner.NodeManager <> nil) then
+          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-          if Owner.Hub then
-          begin
-            L := Owner.EthernetThreads.LockList;
-            try
-              for i := 0 to L.Count - 1 do
-              begin
-                if TLccEthernetServerThread(L[i]) <> Self then
-                  TLccEthernetServerThread(L[i]).SendMessage(LocalMessage);
-              end;
-            finally
-              Owner.EthernetThreads.UnlockList;
-            end
+        if Owner.Hub then
+        begin
+          L := Owner.EthernetThreads.LockList;
+          try
+            for i := 0 to L.Count - 1 do
+            begin
+              if TLccEthernetServerThread(L[i]) <> Self then
+                TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
+            end;
+          finally
+            Owner.EthernetThreads.UnlockList;
           end
         end
       end
-
     end;
   end
 end;

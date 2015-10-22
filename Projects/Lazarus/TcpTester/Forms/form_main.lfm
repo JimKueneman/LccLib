@@ -229,9 +229,9 @@ object Form1: TForm1
       Height = 265
       Top = 0
       Width = 494
-      ActivePage = TabSheetMain
+      ActivePage = TabSheetDebug
       Align = alClient
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 0
       object TabSheetMain: TTabSheet
         Caption = 'Main'
@@ -270,16 +270,8 @@ object Form1: TForm1
       end
       object TabSheetDebug: TTabSheet
         Caption = 'Debug'
-        ClientHeight = 213
-        ClientWidth = 490
-        object Label1: TLabel
-          Left = 8
-          Height = 16
-          Top = 72
-          Width = 96
-          Caption = 'Outgoing Msgs'
-          ParentColor = False
-        end
+        ClientHeight = 226
+        ClientWidth = 488
         object Label3: TLabel
           Left = 194
           Height = 16
@@ -296,31 +288,6 @@ object Form1: TForm1
           Caption = '0'
           ParentColor = False
         end
-        object Label2: TLabel
-          Left = 8
-          Height = 16
-          Top = 88
-          Width = 147
-          Caption = 'Outgoing Waiting Msgs'
-          ParentColor = False
-        end
-        object ButtonShowOutgoingMessages: TButton
-          Left = 8
-          Height = 22
-          Top = 8
-          Width = 243
-          Caption = 'Show Outgoing Messages'
-          TabOrder = 0
-        end
-        object ButtonShowWaitingSchedulerMessages: TButton
-          Left = 8
-          Height = 22
-          Top = 36
-          Width = 243
-          Caption = 'Show Waiting Scheduler Messages'
-          OnClick = ButtonShowWaitingSchedulerMessagesClick
-          TabOrder = 1
-        end
       end
     end
   end
@@ -332,6 +299,8 @@ object Form1: TForm1
     ComPort.Port = 'COM1'
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = False
+    Ethernet.AutoResolveClientIP = False
     Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'
@@ -345,6 +314,9 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_3_9Mhz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataFalling
+    PiSpiPort.Bits = psb_8
     OnLoadFromFile = LccSettingsLoadFromFile
     OnSaveToFile = LccSettingsSaveToFile
     Throttle.AutoLoadFDI = True
@@ -358,7 +330,6 @@ object Form1: TForm1
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccComPortConnectionStateChange
     OnErrorMessage = LccComPortErrorMessage
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 624
     top = 96
@@ -805,11 +776,6 @@ object Form1: TForm1
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
-    OnSchedulerAddOutgoingMessage = LccEthernetServerSchedulerAddOutgoingMessage
-    OnSchedulerRemoveOutgoingMessage = LccEthernetServerSchedulerRemoveOutgoingMessage
-    OnSchedulerAddWaitingForReplyMessage = LccEthernetServerSchedulerAddWaitingForReplyMessage
-    OnSchedulerRemoveWaitingForReplyMessage = LccEthernetServerSchedulerRemoveWaitingForReplyMessage
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 552
     top = 112
@@ -3556,11 +3522,6 @@ object Form1: TForm1
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
-    OnSchedulerAddOutgoingMessage = LccEthernetClientSchedulerAddOutgoingMessage
-    OnSchedulerRemoveOutgoingMessage = LccEthernetClientSchedulerRemoveOutgoingMessage
-    OnSchedulerAddWaitingForReplyMessage = LccEthernetClientSchedulerAddWaitingForReplyMessage
-    OnSchedulerRemoveWaitingForReplyMessage = LccEthernetClientSchedulerRemoveWaitingForReplyMessage
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 544
     top = 192

@@ -2,6 +2,7 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="LCC"/>
+    <Type Value="RunAndDesignTime"/>
     <Author Value="Jim Kueneman"/>
     <CompilerOptions>
       <Version Value="11"/>
@@ -10,13 +11,10 @@
         <OtherUnitFiles Value="../../Synapse_LCC;..;../../Lib"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Other>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="22">
+    <Files Count="21">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -63,58 +61,53 @@
         <UnitName Value="lcc_math_float16"/>
       </Item10>
       <Item11>
-        <Filename Value="../lcc_message_scheduler.pas"/>
-        <UnitName Value="lcc_message_scheduler"/>
-      </Item11>
-      <Item12>
         <Filename Value="../lcc_messages.pas"/>
         <UnitName Value="lcc_messages"/>
-      </Item12>
-      <Item13>
+      </Item11>
+      <Item12>
         <Filename Value="../lcc_nodemanager.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lcc_nodemanager"/>
-      </Item13>
-      <Item14>
+      </Item12>
+      <Item13>
         <Filename Value="../lcc_tcp_protocol.pas"/>
         <UnitName Value="lcc_tcp_protocol"/>
-      </Item14>
-      <Item15>
+      </Item13>
+      <Item14>
         <Filename Value="../lcc_threaded_stringlist.pas"/>
         <UnitName Value="lcc_threaded_stringlist"/>
-      </Item15>
-      <Item16>
+      </Item14>
+      <Item15>
         <Filename Value="../lcc_threadedcirculararray.pas"/>
         <UnitName Value="lcc_threadedcirculararray"/>
-      </Item16>
-      <Item17>
+      </Item15>
+      <Item16>
         <Filename Value="../lcc_utilities.pas"/>
         <UnitName Value="lcc_utilities"/>
-      </Item17>
-      <Item18>
+      </Item16>
+      <Item17>
         <Filename Value="../lcc_common_classes.pas"/>
         <UnitName Value="lcc_common_classes"/>
-      </Item18>
-      <Item19>
+      </Item17>
+      <Item18>
         <Filename Value="../lcc_nodeselector.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lcc_nodeselector"/>
-      </Item19>
-      <Item20>
+      </Item18>
+      <Item19>
         <Filename Value="../lcc_raspberrypi_spiport.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lcc_raspberrypi_spiport"/>
-      </Item20>
-      <Item21>
+      </Item19>
+      <Item20>
         <Filename Value="../lcc_compiler_types.pas"/>
         <UnitName Value="lcc_compiler_types"/>
-      </Item21>
-      <Item22>
+      </Item20>
+      <Item21>
         <Filename Value="../lcc_raspberrypi_gpio.pas"/>
         <UnitName Value="lcc_raspberrypi_gpio"/>
-      </Item22>
+      </Item21>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="SynEdit"/>

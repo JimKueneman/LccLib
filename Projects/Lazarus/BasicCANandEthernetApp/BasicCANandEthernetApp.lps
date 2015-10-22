@@ -17,13 +17,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="58" Y="9"/>
         <UsageCount Value="147"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit2.pas"/>
@@ -57,23 +53,17 @@
       </Unit5>
       <Unit6>
         <Filename Value="../../Library/LCC/lcc_comport.pas"/>
-        <UnitName Value="lcc_comport"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="269"/>
         <CursorPos X="49" Y="22"/>
         <UsageCount Value="10"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../Library/LCC/lcc_messages.pas"/>
-        <UnitName Value="lcc_messages"/>
         <CursorPos X="3" Y="27"/>
         <UsageCount Value="38"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="90" Y="22"/>
         <UsageCount Value="72"/>
       </Unit8>
@@ -84,7 +74,6 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <TopLine Value="617"/>
         <CursorPos Y="632"/>
         <UsageCount Value="10"/>
@@ -111,9 +100,10 @@
       </Unit13>
       <Unit14>
         <Filename Value="unit1.lfm"/>
-        <TopLine Value="52"/>
-        <CursorPos X="16" Y="63"/>
-        <UsageCount Value="1"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="347"/>
+        <CursorPos Y="375"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit14>
       <Unit15>
@@ -178,8 +168,6 @@
       </Unit24>
       <Unit25>
         <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <UnitName Value="lcc_utilities"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="432"/>
         <CursorPos X="29" Y="445"/>
         <UsageCount Value="36"/>
@@ -248,62 +236,47 @@
       </Unit36>
       <Unit37>
         <Filename Value="../../Library/LCC/lcc_defines.pas"/>
-        <UnitName Value="lcc_defines"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="435"/>
-        <CursorPos X="1" Y="1"/>
         <UsageCount Value="27"/>
       </Unit37>
       <Unit38>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/socketsh.inc"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="153"/>
         <CursorPos X="20" Y="169"/>
         <UsageCount Value="10"/>
       </Unit38>
       <Unit39>
         <Filename Value="/usr/local/share/fpcsrc/rtl/unix/ctypes.inc"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="19"/>
         <CursorPos X="34" Y="31"/>
         <UsageCount Value="10"/>
       </Unit39>
       <Unit40>
         <Filename Value="/usr/local/share/fpcsrc/rtl/win/sockets.pp"/>
-        <UnitName Value="Sockets"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="94"/>
         <CursorPos X="26" Y="110"/>
         <UsageCount Value="10"/>
       </Unit40>
       <Unit41>
         <Filename Value="/usr/local/share/fpcsrc/rtl/wince/windows.pp"/>
-        <UnitName Value="windows"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="25"/>
         <CursorPos X="5" Y="38"/>
         <UsageCount Value="10"/>
       </Unit41>
       <Unit42>
         <Filename Value="/Developer/lazarus/components/lazreport/source/lr_class.pas"/>
-        <UnitName Value="LR_Class"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="3858"/>
         <CursorPos X="21" Y="3874"/>
         <UsageCount Value="10"/>
       </Unit42>
       <Unit43>
         <Filename Value="/usr/local/share/fpcsrc/rtl/morphos/graphics.pas"/>
-        <UnitName Value="graphics"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="2178"/>
         <CursorPos X="40" Y="2199"/>
         <UsageCount Value="10"/>
       </Unit43>
       <Unit44>
         <Filename Value="../../Library/LCC/lcc_nodeselector.pas"/>
-        <UnitName Value="lcc_nodeselector"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="390"/>
         <CursorPos X="26" Y="156"/>
         <UsageCount Value="11"/>
@@ -312,7 +285,6 @@
         <Filename Value="/Developer/lazarus/lcl/graphics.pp"/>
         <UnitName Value="Graphics"/>
         <EditorIndex Value="2"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="108"/>
         <CursorPos X="62" Y="135"/>
         <UsageCount Value="11"/>
@@ -323,20 +295,16 @@
         <UnitName Value="lcc_comport"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="3"/>
         <CursorPos X="3" Y="19"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit46>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
     <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="unit1.pas"/>
-        <Caret Line="7" Column="36" TopLine="1"/>
+        <Caret Line="7" Column="36"/>
       </Position1>
       <Position2>
         <Filename Value="unit1.pas"/>
@@ -344,17 +312,15 @@
       </Position2>
       <Position3>
         <Filename Value="unit1.pas"/>
-        <Caret Line="9" Column="48" TopLine="1"/>
+        <Caret Line="9" Column="48"/>
       </Position3>
       <Position4>
         <Filename Value="unit1.pas"/>
-        <Caret Line="9" Column="58" TopLine="1"/>
+        <Caret Line="9" Column="58"/>
       </Position4>
       <Position5>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
       </Position5>
     </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

@@ -6,7 +6,7 @@
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Android</Platform>
         <TargetedPlatforms>1119</TargetedPlatforms>
         <AppType>Package</AppType>
     </PropertyGroup>
@@ -158,7 +158,6 @@
         <DCCReference Include="..\lcc_ethernetclient.pas"/>
         <DCCReference Include="..\lcc_gridconnect.pas"/>
         <DCCReference Include="..\lcc_math_float16.pas"/>
-        <DCCReference Include="..\lcc_message_scheduler.pas"/>
         <DCCReference Include="..\lcc_messages.pas"/>
         <DCCReference Include="..\lcc_nodemanager.pas"/>
         <DCCReference Include="..\lcc_tcp_protocol.pas"/>
@@ -585,13 +584,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Android">True</Platform>

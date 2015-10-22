@@ -281,7 +281,6 @@ object Form1: TForm1
     Ethernet.LocalListenerPort = 12021
     General.AliasID = '0x000'
     General.NodeID = '0x020112FAA1C8'
-    General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
@@ -296,7 +295,6 @@ object Form1: TForm1
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccComPortConnectionStateChange
     OnErrorMessage = LccComPortErrorMessage
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 313
     top = 184
@@ -556,7 +554,6 @@ object Form1: TForm1
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 313
     top = 241

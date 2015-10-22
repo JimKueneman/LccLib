@@ -8,7 +8,6 @@
         <Filename Value="NetworkTree.lpr"/>
         <IsPartOfProject Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="28" Y="17"/>
         <UsageCount Value="185"/>
       </Unit0>
@@ -19,13 +18,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <EditorIndex Value="0"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="42" Y="10"/>
         <UsageCount Value="185"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit2.pas"/>
@@ -71,7 +67,6 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <WindowIndex Value="1"/>
         <TopLine Value="4093"/>
         <CursorPos X="41" Y="4105"/>
@@ -106,7 +101,6 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../Library/LCC/lcc_utilities.pas"/>
-        <UnitName Value="lcc_utilities"/>
         <WindowIndex Value="1"/>
         <TopLine Value="329"/>
         <CursorPos X="37" Y="344"/>
@@ -226,13 +220,16 @@
       <Unit33>
         <Filename Value="unit1.lfm"/>
         <HasResources Value="True"/>
-        <UsageCount Value="9"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="485"/>
+        <CursorPos Y="506"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit33>
       <Unit34>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/socketsh.inc"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="21" Y="159"/>
         <UsageCount Value="16"/>
       </Unit34>
@@ -245,7 +242,6 @@
       </Unit35>
       <Unit36>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/sockets.pas"/>
-        <UnitName Value="Sockets"/>
         <WindowIndex Value="1"/>
         <TopLine Value="634"/>
         <CursorPos X="32" Y="653"/>
@@ -253,7 +249,6 @@
       </Unit36>
       <Unit37>
         <Filename Value="/usr/local/share/fpcsrc/rtl/os2/so32dll.pas"/>
-        <UnitName Value="SO32Dll"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1186"/>
         <CursorPos X="21" Y="1205"/>
@@ -261,7 +256,6 @@
       </Unit37>
       <Unit38>
         <Filename Value="../../Library/Synapse_LCC/blcksock.pas"/>
-        <UnitName Value="blcksock"/>
         <WindowIndex Value="1"/>
         <TopLine Value="134"/>
         <CursorPos X="45" Y="148"/>
@@ -280,7 +274,6 @@
       </Unit39>
       <Unit40>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_gpio.pas"/>
-        <UnitName Value="lcc_raspberrypi_gpio"/>
         <WindowIndex Value="1"/>
         <TopLine Value="237"/>
         <CursorPos X="89" Y="258"/>
@@ -289,7 +282,6 @@
       <Unit41>
         <Filename Value="/usr/local/share/fpcsrc/rtl/bsd/ostypes.inc"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="5" Y="214"/>
         <UsageCount Value="10"/>
       </Unit41>
@@ -302,16 +294,11 @@
       </Unit42>
       <Unit43>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <UnitName Value="lcc_raspberrypi_spiport"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="17" Y="11"/>
         <UsageCount Value="10"/>
       </Unit43>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
     <JumpHistory Count="25" HistoryIndex="24">
       <Position1>
         <Filename Value="unit1.pas"/>
@@ -395,7 +382,7 @@
       </Position20>
       <Position21>
         <Filename Value="unit1.pas"/>
-        <Caret Line="3" Column="23" TopLine="1"/>
+        <Caret Line="3" Column="23"/>
       </Position21>
       <Position22>
         <Filename Value="unit1.pas"/>
@@ -403,17 +390,16 @@
       </Position22>
       <Position23>
         <Filename Value="unit1.pas"/>
-        <Caret Line="17" Column="3" TopLine="1"/>
+        <Caret Line="17" Column="3"/>
       </Position23>
       <Position24>
         <Filename Value="unit1.pas"/>
-        <Caret Line="11" Column="61" TopLine="1"/>
+        <Caret Line="11" Column="61"/>
       </Position24>
       <Position25>
         <Filename Value="unit1.pas"/>
-        <Caret Line="10" Column="42" TopLine="1"/>
+        <Caret Line="10" Column="42"/>
       </Position25>
     </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

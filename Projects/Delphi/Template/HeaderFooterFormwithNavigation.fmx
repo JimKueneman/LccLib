@@ -9,6 +9,7 @@ object HeaderFooterwithNavigation: THeaderFooterwithNavigation
   FormFactor.Height = 900
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
+  OnCloseQuery = FormCloseQuery
   DesignerMasterStyle = 0
   object TopToolBar: TToolBar
     Anchors = []
@@ -154,7 +155,6 @@ object HeaderFooterwithNavigation: THeaderFooterwithNavigation
     NodeManager = LccNodeManager
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
-    SchedulerPipelineSize = 1
     SleepCount = 0
     Left = 304
     Top = 124

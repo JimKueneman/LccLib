@@ -7,7 +7,9 @@
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="11" Y="10"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <CursorPos X="37" Y="17"/>
         <UsageCount Value="217"/>
       </Unit0>
       <Unit1>
@@ -18,13 +20,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_main"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
-        <CursorPos X="12" Y="285"/>
+        <TopLine Value="134"/>
+        <CursorPos X="3" Y="147"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms/form_settings.pas"/>
@@ -67,7 +67,6 @@
       </Unit6>
       <Unit7>
         <Filename Value="../../Library/LCC/lcc_messages.pas"/>
-        <UnitName Value="lcc_messages"/>
         <WindowIndex Value="1"/>
         <TopLine Value="83"/>
         <CursorPos X="19" Y="87"/>
@@ -75,10 +74,9 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <WindowIndex Value="1"/>
         <TopLine Value="2839"/>
-        <CursorPos X="1" Y="2828"/>
+        <CursorPos Y="2828"/>
         <UsageCount Value="100"/>
       </Unit8>
       <Unit9>
@@ -331,20 +329,22 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="5"/>
+        <CursorPos X="23" Y="23"/>
         <ExtraEditorCount Value="1"/>
         <ExtraEditor1>
+          <EditorIndex Value="-1"/>
           <WindowIndex Value="1"/>
-          <TopLine Value="5"/>
-          <CursorPos X="23" Y="23"/>
+          <TopLine Value="536"/>
+          <CursorPos Y="557"/>
         </ExtraEditor1>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit50>
       <Unit51>
         <Filename Value="../../Library/Lib/file_utilities.pas"/>
-        <UnitName Value="file_utilities"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="31" Y="12"/>
         <UsageCount Value="13"/>
       </Unit51>
@@ -404,10 +404,7 @@
         <UsageCount Value="10"/>
       </Unit60>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
-    <JumpHistory Count="1" HistoryIndex="0">
+    <JumpHistory Count="1">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="319" Column="51" TopLine="310"/>
@@ -439,5 +436,4 @@
       </Item3>
     </BreakPoints>
   </Debugging>
-  <EditorMacros Count="0"/>
 </CONFIG>

@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType, types,
+  form_properties, IniFiles, form_about, LCLType, types,
   lcc_utilities;
 
 const
@@ -73,15 +73,11 @@ type
     ActionComPort: TAction;
     ActionToolsSettingsShowWin: TAction;
     ActionList: TActionList;
-    ButtonShowOutgoingMessages: TButton;
-    ButtonShowWaitingSchedulerMessages: TButton;
     CheckBoxDumbNode: TCheckBox;
     CheckBoxAutoQueryInfo: TCheckBox;
     CheckBoxAutoSendVerifyNodes: TCheckBox;
     ImageListMain: TImageList;
     ImageListNodeList: TImageList;
-    Label1: TLabel;
-    Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     LabelMyNodes: TLabel;
@@ -142,7 +138,6 @@ type
     procedure ActionShowNodePropertiesExecute(Sender: TObject);
     procedure ActionTCPExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
-    procedure ButtonShowWaitingSchedulerMessagesClick(Sender: TObject);
     procedure CheckBoxAutoSendVerifyNodesChange(Sender: TObject);
     procedure CheckBoxAutoQueryInfoChange(Sender: TObject);
     procedure CheckBoxDumbNodeChange(Sender: TObject);
@@ -318,27 +313,6 @@ end;
 procedure TForm1.ActionToolsSettingsShowWinExecute(Sender: TObject);
 begin
   ShowSettingsDialog;
-end;
-
-procedure TForm1.ButtonShowWaitingSchedulerMessagesClick(Sender: TObject);
-var
-  i: Integer;
-  LccMessage: TLccMessage;
-  Msg: string;
-begin
-  LccNodeManager.HardwareConnection.FillWaitingMessageList(WaitingMessageList);
-  if WaitingMessageList.Count > 0 then
-  begin
-    Msg := '';
-    for i := 0 to WaitingMessageList.Count - 1 do
-    begin
-      LccMessage := WaitingMessageList[i] as TLccMessage;
-      Msg := MTI2String(LccMessage.MTI) + #13+#10;
-    end;
-    WaitingMessageList.Clear;
-  end else
-    Msg := 'No Message Found';
-  ShowMessage(Msg);
 end;
 
 procedure TForm1.ActionShowNodePropertiesExecute(Sender: TObject);
@@ -989,4 +963,4 @@ begin
 end;
 
 end.
-
+

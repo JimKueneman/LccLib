@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="22">
+    <Units Count="24">
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,7 +18,6 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_settings"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
         <WindowIndex Value="1"/>
         <TopLine Value="2"/>
         <CursorPos X="25" Y="11"/>
@@ -33,11 +32,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="275"/>
         <CursorPos X="12" Y="302"/>
         <UsageCount Value="54"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -76,7 +75,6 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1758"/>
         <CursorPos X="43" Y="1772"/>
@@ -157,11 +155,24 @@
         <CursorPos X="35" Y="187"/>
         <UsageCount Value="10"/>
       </Unit21>
+      <Unit22>
+        <Filename Value="../../../Library/Lib/frame_lcc_settings.pas"/>
+        <ComponentName Value="FrameLccSettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="frame_lcc_settings"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="form_template.lfm"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="32240"/>
+        <CursorPos X="51" Y="32249"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit23>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory HistoryIndex="-1"/>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

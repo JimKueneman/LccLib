@@ -42,6 +42,7 @@ type
       var NodeClass: TLccOwnedNodeClass);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject;
       LccSourceNode: TLccNode);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
   public
@@ -91,6 +92,11 @@ begin
     Button1.Text := 'Lcc Logout'
   else
     Button1.Text := 'Lcc Login';
+end;
+
+procedure THeaderFooterwithNavigation.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+   LccEthernetServer.CloseConnection(nil);
 end;
 
 procedure THeaderFooterwithNavigation.FormCreate(Sender: TObject);

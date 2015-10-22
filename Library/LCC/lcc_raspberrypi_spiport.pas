@@ -19,7 +19,7 @@ uses
     {$ENDIF}
     lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
     lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-    lcc_common_classes, file_utilities, lcc_compiler_types,
+    lcc_common_classes, file_utilities, lcc_compiler_types, lcc_can_message_assembler_disassembler,
   {$ENDIF}
   contnrs;
 
@@ -153,11 +153,7 @@ type
   TLccRaspberryPiSpiPortThread = class(TLccConnectionThread)
     private
       FOnErrorMessage: TOnRaspberryPiSpiChangeFunc;
-      FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
       FOnSchedulerClass: TOnSchedulerClassEvent;
-      FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
       FRaspberryPiSpiPortRec: TLccRaspberryPiSpiPortRec;
       FOnConnectionStateChange: TOnRaspberryPiSpiChangeFunc;
       FOnReceiveMessage: TOnRaspberryPiSpiReceiveFunc;
@@ -185,10 +181,6 @@ type
       property OnReceiveMessage: TOnRaspberryPiSpiReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
       property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-      property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-      property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-      property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-      property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
       property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
       property Owner: TLccRaspberryPiSpiPort read FOwner write FOwner;
       property Running: Boolean read FRunning write FRunning;
@@ -689,7 +681,7 @@ begin
 
     LocalMessage := nil;
     if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
-      if Scheduler.IncomingMsgGridConnectStr(FRaspberryPiSpiPortRec.MessageStr, LocalMessage) then // In goes a raw message
+      if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
         Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
   end
 end;
@@ -828,7 +820,7 @@ end;
 
 procedure TLccRaspberryPiSpiPortThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: LccString;
+  i: Integer;
 begin
   if not IsTerminated then
   begin
@@ -844,9 +836,7 @@ begin
   end;
 end;
 
-constructor TLccRaspberryPiSpiPortThread.Create(CreateSuspended: Boolean;
-  AnOwner: TLccRaspberryPiSpiPort;
-  const APiSpiPortRec: TLccRaspberryPiSpiPortRec);
+constructor TLccRaspberryPiSpiPortThread.Create(CreateSuspended: Boolean; AnOwner: TLccRaspberryPiSpiPort; const APiSpiPortRec: TLccRaspberryPiSpiPortRec);
 begin
   inherited Create(CreateSuspended);
   FOwner := AnOwner;

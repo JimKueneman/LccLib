@@ -10,10 +10,10 @@ uses
   lcc_app_common_settings, lcc_can_message_assembler_disassembler, 
   lcc_cdi_parser, lcc_comport, lcc_defines, lcc_detailed_logging, 
   lcc_ethenetserver, lcc_ethernetclient, lcc_gridconnect, lcc_math_float16, 
-  lcc_message_scheduler, lcc_messages, lcc_nodemanager, lcc_tcp_protocol, 
-  lcc_threaded_stringlist, lcc_threadedcirculararray, lcc_utilities, 
-  lcc_common_classes, lcc_nodeselector, lcc_raspberrypi_spiport, 
-  lcc_compiler_types, lcc_raspberrypi_gpio, LazarusPackageIntf;
+  lcc_messages, lcc_nodemanager, lcc_tcp_protocol, lcc_threaded_stringlist, 
+  lcc_threadedcirculararray, lcc_utilities, lcc_common_classes, 
+  lcc_nodeselector, lcc_raspberrypi_spiport, lcc_compiler_types, 
+  lcc_raspberrypi_gpio, LazarusPackageIntf;
 
 implementation
 

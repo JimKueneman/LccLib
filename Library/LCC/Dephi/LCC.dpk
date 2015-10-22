@@ -39,7 +39,6 @@ contains
   lcc_ethernetclient in '..\lcc_ethernetclient.pas',
   lcc_gridconnect in '..\lcc_gridconnect.pas',
   lcc_math_float16 in '..\lcc_math_float16.pas',
-  lcc_message_scheduler in '..\lcc_message_scheduler.pas',
   lcc_messages in '..\lcc_messages.pas',
   lcc_nodemanager in '..\lcc_nodemanager.pas',
   lcc_tcp_protocol in '..\lcc_tcp_protocol.pas',

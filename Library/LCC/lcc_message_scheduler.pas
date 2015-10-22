@@ -47,10 +47,6 @@ type
     FMsgDisAssembler: TLccMessageDisAssembler;
     FOwnerThread: TLccConnectionThread;
     FSendMessageFunc: TLccSendMessageFunc;                                      // Points back to the owner Threads SendMessage function
-    FOnRemoveOutgoingMessage: TOnMessageEvent;
-    FOnAddOutgoingMessage: TOnMessageEvent;
-    FOnAddWaitingForReplyMessage: TOnMessageEvent;
-    FOnRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
     FPipelineSize: Integer;
     FWorkerMessageIncoming: TLccMessage;
     FWorkerMessageOutgoing: TLccMessage;
@@ -62,10 +58,6 @@ type
     property WorkerMessageOutgoing: TLccMessage read FWorkerMessageOutgoing write FWorkerMessageOutgoing;
 
     procedure CheckForNextMessageToSend;
-    procedure DoMessageOutgoingAdd(LccMessage: TLccMessage);   // Push message on the stack
-    procedure DoMessageOutgoingRemove(LccMessage: TLccMessage; DoFree: Boolean);    // Pop message from stack
-    procedure DoMessageWaitingForReplyAdd(LccMessage: TLccMessage);  // Push message on the Waiting List
-    procedure DoMessageWaitingForReplyRemove(LccMessageInWaiting, LccMessageReply: TLccMessage; DoFree: Boolean); // Message on Waiting List received a reply
     procedure DoMessagePermanentErrorAdd(LccMessage: TLccMessage);
     procedure DoMessagePermanentErrorRemove(LccMessage: TLccMessage; DoFree: Boolean);
     function ExistingSimilarMessageIsWaiting(LccMessage: TLccMessage): Boolean;
@@ -83,10 +75,6 @@ type
     property MessagesWaitingForReplyList: TObjectList<TLccMessage> read FMessagesWaitingForReplyLIst write FMessagesWaitingForReplyLIst;
     {$ENDIF}
     property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc write FSendMessageFunc;
-    property OnAddOutgoingMessage: TOnMessageEvent read FOnAddOutgoingMessage write FOnAddOutgoingMessage;
-    property OnRemoveOutgoingMessage: TOnMessageEvent read FOnRemoveOutgoingMessage write FOnRemoveOutgoingMessage;
-    property OnAddWaitingForReplyMessage: TOnMessageEvent read FOnAddWaitingForReplyMessage write FOnAddWaitingForReplyMessage;
-    property OnRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnRemoveWaitingForReplyMessage write FOnRemoveWaitingForReplyMessage;
     property OwnerThread: TLccConnectionThread read FOwnerThread write FOwnerThread;
     property PipelineSize: Integer read FPipelineSize write FPipelineSize;
 
@@ -96,8 +84,7 @@ type
     procedure ClearPermenentErrorQueue; virtual;
     procedure ClearSentQueue; virtual;
     function IncomingMsg(LccMessage: TLccMessage): Boolean; virtual;
-    function IncomingMsgGridConnectStr(GridConnectStr: String; var LccMessage: TLccMessage): Boolean; virtual;
-    function IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; var LccMessage: TLccMessage): Boolean; virtual;
+    function IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; LccMessage: TLccMessage): Boolean; virtual;
     procedure OutgoingMsg(LccMessage: TLccMessage); virtual;
     procedure SendMessage(LccMessage: TLccMessage);
   end;
@@ -131,7 +118,6 @@ var
 
   procedure RemoveAndNext;
   begin
-    DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, True);
     CheckForNextMessageToSend;
   end;
 
@@ -144,13 +130,10 @@ var
         RemoveAndNext;
       end else
       begin  // Move it to the back of the list to try later
-        DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, False);
-        DoMessageOutgoingAdd(WaitingMessage);
         CheckForNextMessageToSend;
       end
     end else
     begin   // Permanent error
-      DoMessageWaitingForReplyRemove(WaitingMessage, LccMessage, False);
       DoMessagePermanentErrorAdd(LccMessage);
       CheckForNextMessageToSend;
     end
@@ -208,7 +191,6 @@ procedure TSchedulerSimplePipeline.OutgoingMsg(LccMessage: TLccMessage);
 begin
   if IsMessageWithPotentialReply(LccMessage) then
   begin
-    DoMessageOutgoingAdd(LccMessage.Clone);
     CheckForNextMessageToSend;
   end else
     SendMessage(LccMessage);  // Send it
@@ -216,27 +198,6 @@ end;
 
 
 { TSchedulerBase }
-
-procedure TSchedulerBase.DoMessageOutgoingAdd(LccMessage: TLccMessage);
-begin
-
-   //     if LccMessage.MTI = MTI_DATAGRAM then
-   // beep;
-
-  MessagesOutgoingList.Add(LccMessage);
-  if Assigned(OnAddOutgoingMessage) then
-    OnAddOutgoingMessage(Self, LccMessage);
-end;
-
-procedure TSchedulerBase.DoMessageOutgoingRemove(LccMessage: TLccMessage;
-  DoFree: Boolean);
-begin
-  MessagesOutgoingList.Remove(LccMessage);
-  if Assigned(OnRemoveOutgoingMessage) then
-    OnRemoveOutgoingMessage(Self, LccMessage);
-  if DoFree then
-    LccMessage.Free
-end;
 
 procedure TSchedulerBase.DoMessagePermanentErrorAdd(LccMessage: TLccMessage);
 begin
@@ -249,23 +210,6 @@ begin
   MessagesPermanentErrorList.Remove(LccMessage);
   if DoFree then
     LccMessage.Free
-end;
-
-procedure TSchedulerBase.DoMessageWaitingForReplyAdd(LccMessage: TLccMessage);
-begin
-  MessagesWaitingForReplyList.Add(LccMessage);
-  if Assigned(OnAddWaitingForReplyMessage) then
-    OnAddWaitingForReplyMessage(Self, LccMessage);
-end;
-
-procedure TSchedulerBase.DoMessageWaitingForReplyRemove(LccMessageInWaiting,
-  LccMessageReply: TLccMessage; DoFree: Boolean);
-begin
-  MessagesWaitingForReplyList.Remove(LccMessageInWaiting);
-  if Assigned(OnRemoveWaitingForReplyMessage) then
-    OnRemoveWaitingForReplyMessage(Self, LccMessageInWaiting, LccMessageReply);
-  if DoFree then
-    LccMessageInWaiting.Free
 end;
 
 function TSchedulerBase.ExistingSimilarMessageIsWaiting(LccMessage: TLccMessage): Boolean;
@@ -482,8 +426,6 @@ begin
       {$ENDIF}
       if not ExistingSimilarMessageIsWaiting(OutgoingMessage) then
       begin
-        DoMessageOutgoingRemove(OutgoingMessage, False);
-        DoMessageWaitingForReplyAdd(OutgoingMessage);
         SendMessage(OutgoingMessage);
         Done := True;
       end;
@@ -521,7 +463,7 @@ begin
   Result := True
 end;
 
-function TSchedulerBase.IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; var LccMessage: TLccMessage): Boolean;
+function TSchedulerBase.IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; LccMessage: TLccMessage): Boolean;
 begin
   Result := False;
   LccMessage := WorkerMessageIncoming;
@@ -533,38 +475,6 @@ begin
       LccMessage := nil
   end else
     LccMessage := nil;
-end;
-
-function TSchedulerBase.IncomingMsgGridConnectStr(GridConnectStr: String; var LccMessage: TLccMessage): Boolean;
-begin
-  Result := False;
-  LccMessage := WorkerMessageIncoming;
-  case  MsgAssembler.IncomingMessageGridConnect(GridConnectStr, LccMessage) of
-   imgcr_True :
-     begin
-       if IncomingMsg(LccMessage) then
-         Result := True
-       else
-         LccMessage := nil;
-     end;
-   imgcr_False :
-     begin
-       LccMessage := nil;
-     end;
-   imgcr_Error :
-     begin
-       Result := True;
-     end;
-  end;
-  {
-  if MsgAssembler.IncomingMessageGridConnect(GridConnectStr, LccMessage) then    // LocalMessage may change if a multiframe message is found
-  begin
-    if IncomingMsg(LccMessage) then
-      Result := True
-    else
-      LccMessage := nil
-  end else
-    LccMessage := nil}
 end;
 
 procedure TSchedulerBase.OutgoingMsg(LccMessage: TLccMessage);

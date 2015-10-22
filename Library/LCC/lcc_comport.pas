@@ -18,9 +18,9 @@ uses
   {$IFDEF LOGGING}
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
+  lcc_gridconnect, synaser, lcc_threaded_stringlist,
   lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes, file_utilities, lcc_compiler_types;
+  lcc_common_classes, file_utilities, lcc_compiler_types, lcc_can_message_assembler_disassembler;
 
 type
   TLccComPortThread = class;             // Forward
@@ -53,20 +53,13 @@ type
       FOnComErrorMessage: TOnComChangeFunc;
       FOnConnectionStateChange: TOnComChangeFunc;
       FOnReceiveMessage: TOnComReceiveFunc;
-      FOnSchedulerClass: TOnSchedulerClassEvent;
-      FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-      FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-      FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
       FOnSendMessage: TOnMessageEvent;
       FOutgoingGridConnect: TThreadStringList;
       FOwner: TLccComPort;
       FRunning: Boolean;
-      FScheduler: TSchedulerBase;
       FSerial: TBlockSerial;                                                      // Serial object
       FSleepCount: Integer;
       function GetIsTerminated: Boolean;
-      function GetScheduler: TSchedulerBase;
     protected
       procedure DoConnectionState;
       procedure DoErrorMessage;
@@ -81,16 +74,10 @@ type
       property OnErrorMessage: TOnComChangeFunc read FOnComErrorMessage write FOnComErrorMessage;
       property OnReceiveMessage: TOnComReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-      property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-      property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-      property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-      property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
       property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
       property Owner: TLccComPort read FOwner write FOwner;
       property Running: Boolean read FRunning write FRunning;
       property IsTerminated: Boolean read GetIsTerminated;
-      property Scheduler: TSchedulerBase read GetScheduler;
       property SleepCount: Integer read FSleepCount write FSleepCount;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec); reintroduce;
@@ -122,20 +109,9 @@ type
     FOnErrorMessage: TOnComChangeFunc;
     FOnConnectionStateChange: TOnComChangeFunc;
     FOnReceiveMessage: TOnComReceiveFunc;
-    FOnSchedulerClass: TOnSchedulerClassEvent;
-    FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-    FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
     FOnSendMessage: TOnMessageEvent;
-    FSchedulerPipelineSize: Integer;
     FSleepCount: Integer;
-    procedure SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
     procedure SetOnSendMessage(AValue: TOnMessageEvent);
-    procedure SetSchedulerPipelineSize(AValue: Integer);
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
@@ -154,10 +130,8 @@ type
     function OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
     function OpenComPortWithLccSettings: TLccComPortThread;
     procedure CloseComPort( ComPortThread: TLccComPortThread);
-    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); override;
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
-    procedure ClearSchedulerQueues;
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
@@ -168,12 +142,6 @@ type
     property OnErrorMessage: TOnComChangeFunc read FOnErrorMessage write FOnErrorMessage;
     property OnReceiveMessage: TOnComReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-    property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-    property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-    property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-    property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
-    property SchedulerPipelineSize: Integer read FSchedulerPipelineSize write SetSchedulerPipelineSize;
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
@@ -255,18 +223,6 @@ begin
     ComPortThreads.CloseComPorts;
 end;
 
-procedure TLccComPort.SetSchedulerPipelineSize(AValue: Integer);
-begin
-  if (AValue < 1) or (AValue > 10) then
-    AValue := 1;
-
-  if AValue <> FSchedulerPipelineSize then
-  begin
-    FSchedulerPipelineSize:=AValue;
-    UpdateThreadsEvents;
-  end;
-end;
-
 procedure TLccComPort.SetSleepCount(AValue: Integer);
 var
   i: Integer;
@@ -286,11 +242,6 @@ end;
 procedure TLccComPort.UpdateThreadEvents(ComPortThread: TLccComPortThread);
 begin
   ComPortThread.OnSendMessage := OnSendMessage;
-  ComPortThread.Scheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  ComPortThread.Scheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  ComPortThread.Scheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  ComPortThread.Scheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  ComPortThread.Scheduler.PipelineSize := FSchedulerPipelineSize;
 end;
 
 procedure TLccComPort.UpdateThreadsEvents;
@@ -311,7 +262,6 @@ constructor TLccComPort.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FComPortThreads := TLccComPortThreadList.Create;
-  FSchedulerPipelineSize := 1;
   FHub := False;
 end;
 
@@ -319,28 +269,6 @@ destructor TLccComPort.Destroy;
 begin
   FreeAndNil( FComPortThreads);
   inherited Destroy;
-end;
-
-procedure TLccComPort.FillWaitingMessageList(WaitingMessageList: TObjectList);
-var
-  L: TList;
-  ComPortThread: TLccComPortThread;
-  i, j: Integer;
-begin
-  if Assigned(WaitingMessageList) then
-  begin
-    L := ComPortThreads.LockList;
-    try
-      for i := 0 to L.Count - 1 do
-      begin
-        ComPortThread := TLccComPortThread( L[i]);
-        for j := 0 to ComPortThread.Scheduler.MessagesWaitingForReplyList.Count - 1 do
-          WaitingMessageList.Add( (ComPortThread.Scheduler.MessagesWaitingForReplyList[j] as TLccMessage).Clone);
-      end;
-    finally
-      ComPortThreads.UnlockList;
-    end;
-  end;
 end;
 
 function TLccComPort.FormatComPortString(ComPort: string): string;
@@ -362,13 +290,7 @@ begin
   Result.OnConnectionStateChange := OnConnectionStateChange;
   Result.OnErrorMessage := OnErrorMessage;
   Result.OnReceiveMessage := OnReceiveMessage;
-  Result.OnSchedulerClass := OnSchedulerClass;
   Result.OnSendMessage := OnSendMessage;
-  Result.OnSchedulerAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  Result.OnSchedulerRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  Result.OnSchedulerAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  Result.OnSchedulerRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  Result.Scheduler.PipelineSize := FSchedulerPipelineSize;
   Result.SleepCount := SleepCount;
   ComPortThreads.Add(Result);
   Result.Suspended := False;
@@ -443,7 +365,7 @@ begin
     begin
       ComPortThread := TLccComPortThread( L[i]);
       if not ComPortThread.IsTerminated then
-        ComPortThread.Scheduler.OutgoingMsg(AMessage);
+        ComPortThread.SendMessage(AMessage);
     end;
   finally
     ComPortThreads.UnlockList;
@@ -481,46 +403,6 @@ begin
   end;
 end;
 
-procedure TLccComPort.SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerRemoveOutgoingMessage <> AValue then
-  begin
-    FOnSchedulerRemoveOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccComPort.SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerAddOutgoingMessage <> AValue then
-  begin
-    FOnSchedulerAddOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccComPort.SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerAddWaitingForReplyMessage <> AValue then
-  begin
-    FOnSchedulerAddWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccComPort.SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
-begin
-  if FOnSchedulerRemoveWaitingForReplyMessage <> AValue then
-  begin
-    FOnSchedulerRemoveWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
 procedure TLccComPort.SetOnSendMessage(AValue: TOnMessageEvent);
 begin
   if FOnSendMessage <> AValue then
@@ -528,28 +410,6 @@ begin
     FOnSendMessage:=AValue;
     if not (csDesigning in ComponentState) then
       UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccComPort.ClearSchedulerQueues;
-var
-  i: Integer;
-  L: TList;
-  ComPortThread: TLccComPortThread;
-begin
-  L := ComPortThreads.LockList;
-  try
-    for i := 0 to L.Count - 1 do
-    begin
-      ComPortThread := TLccComPortThread( L[i]);
-      begin
-        ComPortThread.Scheduler.ClearPermenentErrorQueue;
-        ComPortThread.Scheduler.ClearQueue;
-        ComPortThread.Scheduler.ClearSentQueue;
-      end;
-    end;
-  finally
-    ComPortThreads.UnlockList;
   end;
 end;
 
@@ -699,40 +559,24 @@ begin
   Result := Terminated;
 end;
 
-function TLccComPortThread.GetScheduler: TSchedulerBase;
-var
-  SchedulerClass: TSchedulerBaseClass;
-begin
-  if not Assigned(FScheduler) then
-  begin
-    SchedulerClass := TSchedulerSimplePipeline;
-    if Assigned(OnSchedulerClass) then
-      OnSchedulerClass(Owner, SchedulerClass);
-    FScheduler := SchedulerClass.Create(Owner, @SendMessage);
-    FScheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-    FScheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-    FScheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-    FScheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-    FScheduler.OwnerThread := Self;
-  end;
-  Result := FScheduler
-end;
-
-
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: String;
+  i: Integer;
 begin
   if not IsTerminated then
   begin
-    MessageStr := AMessage.ConvertToGridConnectStr('');
-    OutgoingGridConnect.Add(MessageStr);
+    MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
+
+    for i := 0 to MsgStringList.Count - 1 do
+    begin
+    OutgoingGridConnect.Add(MsgStringList[i]);
     if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'S ComPort: ' + MessageStr,
+      PrintToSynEdit( 'S ComPort: ' + MsgStringList[i],
                       Owner.LoggingFrame.SynEdit,
                       Owner.LoggingFrame.ActionLogPause.Checked,
                       Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
                       Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+    end;
     DoSendMessage(AMessage);
   end;
 end;
@@ -772,8 +616,6 @@ begin
 end;
 
 procedure TLccComPortThread.DoReceiveMessage;
-var
-  LocalMessage: TLccMessage;
 begin
   if not IsTerminated then
   begin
@@ -789,10 +631,9 @@ begin
     if Assigned(OnReceiveMessage) then
       OnReceiveMessage(Self, FComPortRec);
 
-    LocalMessage := nil;
-    if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
-      if Scheduler.IncomingMsgGridConnectStr(FComPortRec.MessageStr, LocalMessage) then // In goes a raw message
-        Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+    if Owner.NodeManager <> nil then
+      if MsgAssembler.IncomingMessageGridConnect(FComPortRec.MessageStr, WorkerMsg) = imgcr_True then   // In goes a raw message
+        Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
   end
 end;
 

@@ -59,7 +59,7 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: String; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
@@ -206,7 +206,7 @@ begin
   end;
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;

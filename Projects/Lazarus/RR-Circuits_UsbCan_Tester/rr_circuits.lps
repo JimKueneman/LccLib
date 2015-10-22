@@ -26,7 +26,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
-        <IsVisibleTab Value="True"/>
         <CursorPos X="50" Y="18"/>
         <UsageCount Value="132"/>
         <Loaded Value="True"/>
@@ -186,6 +185,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <ExtraEditorCount Value="1"/>
+        <ExtraEditor1>
+          <EditorIndex Value="-1"/>
+          <TopLine Value="32404"/>
+          <CursorPos Y="32431"/>
+        </ExtraEditor1>
         <UsageCount Value="44"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit27>
@@ -237,7 +241,6 @@
       </Unit34>
       <Unit35>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <UnitName Value="lcc_raspberrypi_spiport"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="550"/>
         <CursorPos Y="552"/>
@@ -245,7 +248,6 @@
       </Unit35>
       <Unit36>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="204"/>
         <CursorPos X="50" Y="221"/>
@@ -254,6 +256,7 @@
       <Unit37>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
         <UnitName Value="lcc_comport"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="453"/>
         <CursorPos X="22" Y="470"/>

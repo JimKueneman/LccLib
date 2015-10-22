@@ -68,17 +68,17 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\Redist\iossim32\libcgunwind.1.0.dylib">
+        <DeployFile Include="iOSSimulator\Debug\HeaderFooterNavigation.info.plist" Condition="'$(Config)'=='Debug'">
             <RemoteDir>HeaderFooterNavigation.app\</RemoteDir>
-            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
+            <RemoteName>Info.plist</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="iOSSimulator\Debug\HeaderFooterNavigation.info.plist" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\Redist\iossim32\libcgunwind.1.0.dylib">
             <RemoteDir>HeaderFooterNavigation.app\</RemoteDir>
-            <RemoteName>Info.plist</RemoteName>
+            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>

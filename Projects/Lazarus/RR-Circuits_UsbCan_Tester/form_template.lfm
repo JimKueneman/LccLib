@@ -32384,8 +32384,6 @@ object FormTemplate: TFormTemplate
     OnConnectionStateChange = LccComPortConnectionStateChange
     OnErrorMessage = LccComPortErrorMessage
     OnReceiveMessage = LccComPortReceiveMessage
-    OnSchedulerClass = LccComPortSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 280
     top = 144
@@ -32397,8 +32395,6 @@ object FormTemplate: TFormTemplate
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
     OnReceiveMessage = LccEthernetClientReceiveMessage
-    OnSchedulerClass = LccEthernetClientSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 280
     top = 200
@@ -32409,8 +32405,6 @@ object FormTemplate: TFormTemplate
     LccSettings = LccSettings
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnReceiveMessage = LccEthernetServerReceiveMessage
-    OnSchedulerClass = LccEthernetServerSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 280
     top = 256
@@ -32434,7 +32428,6 @@ object FormTemplate: TFormTemplate
     Ethernet.LocalListenerPort = 12021
     General.AliasID = '0x000'
     General.NodeID = '0x000000000000'
-    General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
