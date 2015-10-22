@@ -96,7 +96,7 @@ type
     procedure ClearPermenentErrorQueue; virtual;
     procedure ClearSentQueue; virtual;
     function IncomingMsg(LccMessage: TLccMessage): Boolean; virtual;
-    function IncomingMsgGridConnectStr(GridConnectStr: LccString; var LccMessage: TLccMessage): Boolean; virtual;
+    function IncomingMsgGridConnectStr(GridConnectStr: String; var LccMessage: TLccMessage): Boolean; virtual;
     function IncomingMsgEthernet(var LccTcpMessage: TDynamicByteArray; var LccMessage: TLccMessage): Boolean; virtual;
     procedure OutgoingMsg(LccMessage: TLccMessage); virtual;
     procedure SendMessage(LccMessage: TLccMessage);
@@ -535,7 +535,7 @@ begin
     LccMessage := nil;
 end;
 
-function TSchedulerBase.IncomingMsgGridConnectStr(GridConnectStr: LccString; var LccMessage: TLccMessage): Boolean;
+function TSchedulerBase.IncomingMsgGridConnectStr(GridConnectStr: String; var LccMessage: TLccMessage): Boolean;
 begin
   Result := False;
   LccMessage := WorkerMessageIncoming;
@@ -581,7 +581,7 @@ begin
     MsgDisAssembler.OutgoingMsgToMsgList(LccMessage, GridConnectStrings);
     for iString := 0 to GridConnectStrings.Count - 1 do
     begin
-      if WorkerMessageOutgoing.LoadByGridConnectStr( LccString( GridConnectStrings[iString])) then
+      if WorkerMessageOutgoing.LoadByGridConnectStr( GridConnectStrings[iString]) then
        SendMessageFunc(WorkerMessageOutgoing)
     end;
   end else

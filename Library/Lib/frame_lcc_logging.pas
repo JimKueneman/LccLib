@@ -58,7 +58,7 @@ type
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
 
     constructor Create(TheOwner: TComponent); override;
-    procedure AddLine(ALine: LccString);
+    procedure AddLine(ALine: String);
     procedure SyncwithLccSettings;
   end;
 
@@ -105,7 +105,7 @@ begin
   FPaused := False;
 end;
 
-procedure TFrameLccLogging.AddLine(ALine: LccString);
+procedure TFrameLccLogging.AddLine(ALine: String);
 begin
   SynEdit.Lines.BeginUpdate;
   try

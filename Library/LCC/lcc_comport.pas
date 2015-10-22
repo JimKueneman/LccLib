@@ -28,7 +28,7 @@ type
 
   TLccComPortRec = record
     Thread: TLccComPortThread;           // Thread owing the Record
-    ComPort: LccString;                  // Comport
+    ComPort: String;                     // Comport
     Baud: Integer;                       // Define connection speed. Baud rate can be from 50 to 4000000 bits per second. (it depends on your hardware!))
     Bits: Integer;                       // Number of bits in communication.
     Parity: Char;                        // Define communication parity (N - None, O - Odd, E - Even, M - Mark or S - Space)
@@ -36,7 +36,7 @@ type
     SoftwareHandshake: Boolean;          // Enable XON/XOFF handshake.
     HardwareHandShake: Boolean;          // Enable CTS/RTS handshake
     ConnectionState: TConnectionState;   // Current State of the connection
-    MessageStr: LccString;               // Contains the string for the resuting message from the thread
+    MessageStr: String;                  // Contains the string for the resuting message from the thread
     LccMessage: TLccMessage;
     SuppressNotification: Boolean;       // True to stop any Syncronoize() call being called
   end;
@@ -575,7 +575,7 @@ procedure TLccComPortThread.Execute;
   end;
 
 var
-  TxStr, RcvStr: LccString;
+  TxStr, RcvStr: String;
   i: Integer;
   GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
@@ -721,7 +721,7 @@ end;
 
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: LccString;
+  MessageStr: String;
 begin
   if not IsTerminated then
   begin

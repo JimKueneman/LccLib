@@ -43,8 +43,8 @@ type
     function GridConnect_DecodeMachine(NextChar: Byte; var GridConnectStrPtr: PGridConnectString): Boolean;
   end;
 
-  procedure StringToGridConnectBuffer(GridConnectStr: LccString; var GridConnectBuffer: TGridConnectString);
-  function GridConnectBufferToString(var GridConnectBuffer: TGridConnectString): LccString;
+  procedure StringToGridConnectBuffer(GridConnectStr: String; var GridConnectBuffer: TGridConnectString);
+  function GridConnectBufferToString(var GridConnectBuffer: TGridConnectString): String;
 implementation
 
 const
@@ -53,7 +53,7 @@ const
   GRIDCONNECT_STATE_SYNC_FIND_HEADER = 2;
   GRIDCONNECT_STATE_SYNC_FIND_DATA = 4;
 
-function GridConnectBufferToString(var GridConnectBuffer: TGridConnectString): LccString;
+function GridConnectBufferToString(var GridConnectBuffer: TGridConnectString): String;
 var
   i: Integer;
 begin
@@ -61,14 +61,14 @@ begin
   i := 0;
   while GridConnectBuffer[i] <> Ord(#0) do
   begin
-    Result := Result + LccString( Char( GridConnectBuffer[i]));
+    Result := Result + Char( GridConnectBuffer[i]);
     Inc(i);
     if i > MAX_GRID_CONNECT_LEN then
       Break
   end;
 end;
 
-procedure StringToGridConnectBuffer(GridConnectStr: LccString; var GridConnectBuffer: TGridConnectString);
+procedure StringToGridConnectBuffer(GridConnectStr: String; var GridConnectBuffer: TGridConnectString);
 var
   i, Len: Integer;
   GridConnectStrPtr: PChar;

@@ -35,7 +35,7 @@ type
   TLccHardwareConnectionManager = class(TComponent)
   public
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
-    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); virtual; abstract;
+    procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;
     {$IFDEF FPC}
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList); virtual; abstract;
     {$ELSE}

@@ -201,33 +201,33 @@ type
 
   TSimpleNodeInfo = class(TNodeProtocolBase)
   private
-    FHardwareVersion: LccString;
-    FManufacturer: LccString;
-    FModel: LccString;
-    FSoftwareVersion: LccString;
+    FHardwareVersion: String;
+    FManufacturer: String;
+    FModel: String;
+    FSoftwareVersion: String;
     FPackedInfo: TSimpleNodeInfoPacked;
-    FUserDescription: LccString;
-    FUserName: LccString;
+    FUserDescription: String;
+    FUserName: String;
     FUserVersion: Word;
     FVersion: Word;
 
     function GetPackedFormat: TSimpleNodeInfoPacked;
-    function GetUserDescription: LccString;
-    function GetUserName: LccString;
+    function GetUserDescription: String;
+    function GetUserName: String;
   public
     property Version: Word read FVersion write FVersion;
-    property Manufacturer: LccString read FManufacturer write FManufacturer;
-    property Model: LccString read FModel write FModel;
-    property HardwareVersion: LccString read FHardwareVersion write FHardwareVersion;
-    property SoftwareVersion: LccString read FSoftwareVersion write FSoftwareVersion;
+    property Manufacturer: String read FManufacturer write FManufacturer;
+    property Model: String read FModel write FModel;
+    property HardwareVersion: String read FHardwareVersion write FHardwareVersion;
+    property SoftwareVersion: String read FSoftwareVersion write FSoftwareVersion;
     property UserVersion: Word read FUserVersion write FUserVersion;
-    property UserName: LccString read GetUserName write FUserName;
-    property UserDescription: LccString read GetUserDescription write FUserDescription;
+    property UserName: String read GetUserName write FUserName;
+    property UserDescription: String read GetUserDescription write FUserDescription;
 
     property PackedFormat: TSimpleNodeInfoPacked read GetPackedFormat;
 
     {$IFDEF FPC}
-    function LoadFromXml(CdiFilePath: LccString): Boolean;
+    function LoadFromXml(CdiFilePath: String): Boolean;
     {$ENDIF}
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -295,7 +295,7 @@ type
     {$ENDIF}
     function GetCount: Integer;
     function GetEvent(Index: Integer): TLccEvent;
-    function GetEventIDAsStr(Index: Integer): LccString;
+    function GetEventIDAsStr(Index: Integer): String;
   protected
     {$IFDEF FPC}
       property EventList: TList read FEventList write FEventList;
@@ -314,7 +314,7 @@ type
     property AutoGenerate: TLccEventAutoGenerate read FAutoGenerate write FAutoGenerate;
     property Count: Integer read GetCount;
     property Event[Index: Integer]: TLccEvent read GetEvent; default;
-    property EventIDAsStr[Index: Integer]: LccString read GetEventIDAsStr;
+    property EventIDAsStr[Index: Integer]: String read GetEventIDAsStr;
   end;
 
   { TStreamBasedProtocol }
@@ -370,7 +370,7 @@ type
   protected
     procedure DoLoadComplete(LccMessage: TLccMessage); override;
   public
-    function LoadFromXml(CdiFilePath: LccString): Boolean;
+    function LoadFromXml(CdiFilePath: String): Boolean;
   end;
 
   { TACDIMfg }
@@ -393,14 +393,14 @@ type
   TConfiguration = class(TStreamBasedProtocol)
   private
     FAutoSaveOnWrite: Boolean;
-    FFilePath: LccString;
+    FFilePath: String;
   public
     property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
-    property FilePath: LccString read FFilePath write FFilePath;
+    property FilePath: String read FFilePath write FFilePath;
 
     constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); override;
     procedure WriteRequest(LccMessage: TLccMessage); override;
-    function ReadAsString(Address: DWord): LccString;
+    function ReadAsString(Address: DWord): String;
     procedure LoadFromFile;
   end;
 
@@ -417,7 +417,7 @@ type
     FDataTypeBit: Byte;
     FDataTypeEvent: TEventID;
     FDataTypeInteger: Integer;
-    FDataTypeString: LccString;
+    FDataTypeString: String;
     FInProcessAddress: DWord;
     function GetDataRawIndexer(iIndex: Word): Byte;
 
@@ -436,7 +436,7 @@ type
     property DataTypeInteger: Integer read FDataTypeInteger;
     property DataTypeEvent: TEventID read FDataTypeEvent;
     property DataTypeBit: Byte read FDataTypeBit;
-    property DataTypeString: LccString read FDataTypeString;
+    property DataTypeString: String read FDataTypeString;
     procedure Initialize(AnAddress: DWord; AnAddressSpace: Byte; DataSize: Integer; ADataType: TLccConfigDataType);
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -581,8 +581,8 @@ type
     {$ENDIF}
     FConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo;
     FUserMsgInFlight: TMessageInFlightSet;
-    function GetAliasIDStr: LccString;
-    function GetNodeIDStr: LccString;
+    function GetAliasIDStr: String;
+    function GetNodeIDStr: String;
     procedure SetOwnerManager(AValue: TLccNodeManager); override;
   protected
 
@@ -590,7 +590,7 @@ type
     procedure SendAckReply(LccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
   public
     property AliasID: Word read FAliasID;
-    property AliasIDStr: LccString read GetAliasIDStr;
+    property AliasIDStr: String read GetAliasIDStr;
     property CDI: TCDI read FCDI write FCDI;
     property ConfigurationMem: TConfigurationMemory read FConfigurationMem write FConfigurationMem;
     property ConfigMemOptions: TConfigurationMemOptions read FConfigMemOptions write FConfigMemOptions;
@@ -605,7 +605,7 @@ type
     property LccGuiNode: TLccGuiNode read FLccGuiNode write FLccGuiNode;
     {$ENDIF}
     property NodeID: TNodeID read FNodeID;
-    property NodeIDStr: LccString read GetNodeIDStr;
+    property NodeIDStr: String read GetNodeIDStr;
     property ProtocolSupport: TProtocolSupport read FProtocolSupport;
     property iStartupSequence: Word read FiStartupSequence write FiStartupSequence;
     property SimpleNodeInfo: TSimpleNodeInfo read FSimpleNodeInfo;
@@ -812,8 +812,8 @@ type
     {$ENDIF}
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
-    procedure NodeIDStringToNodeID(ANodeIDStr: LccString; var ANodeID: TNodeID);
-    function NodeIDToNodeIDStr(ANodeID: TNodeID): LccString;
+    procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
+    function NodeIDToNodeIDStr(ANodeID: TNodeID): String;
     function ProcessMessage(LccMessage: TLccMessage): Boolean;
     procedure SendLccMessage(LccMessage: TLccMessage);
 
@@ -893,12 +893,12 @@ type
     procedure SetShowLocalNodes(AValue: Boolean);
     procedure SetShowRootNode(AValue: Boolean);
   protected
-    function AddChildNode(ParentNode: TLccTreeViewItem; ACaption: LccString; AnObject: TObject): TLccTreeViewItem;
+    function AddChildNode(ParentNode: TLccTreeViewItem; ACaption: String; AnObject: TObject): TLccTreeViewItem;
     function FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem;
-    function FindNodeByCaption(ACaption: LccString): TLccTreeViewItem;
-    function FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: LccString): TLccTreeViewItem;
+    function FindNodeByCaption(ACaption: String): TLccTreeViewItem;
+    function FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: String): TLccTreeViewItem;
     function FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TLccTreeViewItem;
-    function FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: LccString; FindOnly: Boolean): TLccTreeViewItem;
+    function FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: String; FindOnly: Boolean): TLccTreeViewItem;
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;
@@ -1904,7 +1904,7 @@ begin
   {$ENDIF}
 end;
 
-function TLccEvents.GetEventIDAsStr(Index: Integer): LccString;
+function TLccEvents.GetEventIDAsStr(Index: Integer): String;
 begin
   Result := EventIDToString(Event[Index].ID);
 end;
@@ -2055,7 +2055,7 @@ begin
           begin
             InProcessAddress := InProcessAddress + DWord((LccMessage.DataCount - iStart));
             for i := 0 to LccMessage.DataCount - iStart - 1 do
-              FDataTypeString := FDataTypeString + LccChar( LccMessage.DataArrayIndexer[i+iStart]);
+              FDataTypeString := FDataTypeString + Chr(LccMessage.DataArrayIndexer[i+iStart]);
 
             RemainingCount := DataCount - Length(FDataTypeString);           // Strings are 1 indexed
             if RemainingCount > 64 then
@@ -2126,7 +2126,7 @@ begin
   end;
 end;
 
-function TCDI.LoadFromXml(CdiFilePath: LccString): Boolean;
+function TCDI.LoadFromXml(CdiFilePath: String): Boolean;
 var
   XmlFile: TStringList;
   i, j: Integer;
@@ -2692,14 +2692,14 @@ begin
   end;
 end;
 
-procedure TLccNodeManager.NodeIDStringToNodeID(ANodeIDStr: LccString; var ANodeID: TNodeID);
+procedure TLccNodeManager.NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
 var
-  TempStr: LccString;
+  TempStr: String;
   TempNodeID: QWord;
 begin
-  ANodeIDStr := LccString( Trim( String( ANodeIDStr)));
-  TempStr := LccString( StringReplace(String( ANodeIDStr), '0x', '', [rfReplaceAll, rfIgnoreCase]));
-  TempStr := LccString( StringReplace(String( TempStr), '$', '', [rfReplaceAll, rfIgnoreCase]));
+  ANodeIDStr := Trim( String( ANodeIDStr));
+  TempStr := StringReplace(String( ANodeIDStr), '0x', '', [rfReplaceAll, rfIgnoreCase]);
+  TempStr := StringReplace(String( TempStr), '$', '', [rfReplaceAll, rfIgnoreCase]);
   try
     TempNodeID := StrToInt64('$' + String( TempStr));
     ANodeID[0] := DWord( TempNodeID and $0000000000FFFFFF);
@@ -2710,10 +2710,10 @@ begin
   end;
 end;
 
-function TLccNodeManager.NodeIDToNodeIDStr(ANodeID: TNodeID): LccString;
+function TLccNodeManager.NodeIDToNodeIDStr(ANodeID: TNodeID): String;
 begin
-  Result := LccString( IntToHex(ANodeID[1], 6));
-  Result := Result + LccString( IntToHex(ANodeID[0], 6));
+  Result := IntToHex(ANodeID[1], 6);
+  Result := Result + IntToHex(ANodeID[0], 6);
 end;
 
 procedure TLccNodeManager.Notification(AComponent: TComponent; Operation: TOperation);
@@ -3120,22 +3120,22 @@ begin
   Result := FPackedInfo;
 end;
 
-function TSimpleNodeInfo.GetUserDescription: LccString;
+function TSimpleNodeInfo.GetUserDescription: String;
 begin
   Result := FUserDescription;
   if Owner is TLccOwnedNode then
-    Result := LccString( (Owner as TLccOwnedNode).Configuration.ReadAsString(64));
+    Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(64);
 end;
 
-function TSimpleNodeInfo.GetUserName: LccString;
+function TSimpleNodeInfo.GetUserName: String;
 begin
   Result := FUserName;
   if Owner is TLccOwnedNode then
-    Result := LccString( (Owner as TLccOwnedNode).Configuration.ReadAsString(1));
+    Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
 end;
 
 {$IFDEF FPC}
-function TSimpleNodeInfo.LoadFromXml(CdiFilePath: LccString): Boolean;
+function TSimpleNodeInfo.LoadFromXml(CdiFilePath: String): Boolean;
 var
   XMLDoc: TXMLDocument;
   CdiNode, IdentificationNode, ChildNode: TDOMNode;
@@ -3456,16 +3456,16 @@ begin
   ConfigMemOptions.OwnerManager := AValue;
 end;
 
-function TLccNode.GetNodeIDStr: LccString;
+function TLccNode.GetNodeIDStr: String;
 begin
-  Result := LccString( IntToHex(NodeID[1], 6));
-  Result := Result + LccString( IntToHex(NodeID[0], 6));
+  Result := IntToHex(NodeID[1], 6);
+  Result := Result + IntToHex(NodeID[0], 6);
   Result := '0x' + Result
 end;
 
-function TLccNode.GetAliasIDStr: LccString;
+function TLccNode.GetAliasIDStr: String;
 begin
-  Result := '0x' + LccString( IntToHex(FAliasID, 4));
+  Result := '0x' + IntToHex(FAliasID, 4);
 end;
 
 function TLccNode.ExtractAddressSpace(LccMessage: TLccMessage): Byte;
@@ -4061,10 +4061,10 @@ begin
     AStream.LoadFromFile(String( FilePath))
 end;
 
-function TConfiguration.ReadAsString(Address: DWord): LccString;
+function TConfiguration.ReadAsString(Address: DWord): String;
 var
   i: DWord;
-  C: LccChar;
+  C: Char;
   Done: Boolean;
 begin
   Result := '';
@@ -4128,7 +4128,7 @@ end;
 
 { TLccNetworkTree }
 
-function TLccNetworkTree.AddChildNode(ParentNode: TLccTreeViewItem; ACaption: LccString; AnObject: TObject): TLccTreeViewItem;
+function TLccNetworkTree.AddChildNode(ParentNode: TLccTreeViewItem; ACaption: String; AnObject: TObject): TLccTreeViewItem;
 begin
   {$IFDEF FPC}
   Result := Items.AddChild(ParentNode, ACaption);
@@ -4518,12 +4518,12 @@ begin
         if Assigned(SNIP) then
         begin
           SNIP.DeleteChildren;
-          AddChildNode(SNIP, 'Version = ' + LccString( IntToStr(SourceLccNode.SimpleNodeInfo.Version)), nil);
+          AddChildNode(SNIP, 'Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.Version), nil);
           AddChildNode(SNIP, 'Manufacturer: ' + SourceLccNode.SimpleNodeInfo.Manufacturer, nil);
           AddChildNode(SNIP, 'Model: ' + SourceLccNode.SimpleNodeInfo.Model, nil);
           AddChildNode(SNIP, 'Software Version: '+ SourceLccNode.SimpleNodeInfo.SoftwareVersion, nil);
           AddChildNode(SNIP, 'Hardware Version: ' + SourceLccNode.SimpleNodeInfo.HardwareVersion, nil);
-          AddChildNode(SNIP, 'User Version = ' + LccString( IntToStr(SourceLccNode.SimpleNodeInfo.UserVersion)), nil);
+          AddChildNode(SNIP, 'User Version = ' + IntToStr(SourceLccNode.SimpleNodeInfo.UserVersion), nil);
           AddChildNode(SNIP, 'User Name: ' + SourceLccNode.SimpleNodeInfo.UserName, nil);
           AddChildNode(SNIP, 'User Description: ' + SourceLccNode.SimpleNodeInfo.UserDescription, nil);
         end;
@@ -4598,7 +4598,7 @@ begin
       begin
         AliasIDNode := FindOrCreateNewTreeNodeByName(Node, 'AliasID', False);
         if Assigned(AliasIDNode) then
-          FindOrCreateNewTreeNodeByName(AliasIDNode, '0x' + LccString( IntToHex(LccNode.AliasID, 4)), False);
+          FindOrCreateNewTreeNodeByName(AliasIDNode, '0x' + IntToHex(LccNode.AliasID, 4), False);
       end;
     end;
   finally
@@ -4672,9 +4672,9 @@ begin
   ScanNetwork;
 end;
 
-function TLccNetworkTree.FindNodeByCaption(ACaption: LccString): TLccTreeViewItem;
+function TLccNetworkTree.FindNodeByCaption(ACaption: String): TLccTreeViewItem;
 {$IFNDEF FPC}
-  function LocalFind(ParentNode: TLccTreeViewItem; TestCaption: LccString): TLccTreeViewItem;
+  function LocalFind(ParentNode: TLccTreeViewItem; TestCaption: String): TLccTreeViewItem;
   var
     i: Integer;
   begin
@@ -4708,7 +4708,7 @@ begin
   {$ENDIF}
 end;
 
-function TLccNetworkTree.FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: LccString): TLccTreeViewItem;
+function TLccNetworkTree.FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: String): TLccTreeViewItem;
 {$IFNDEF FPC}
 var
   i: Integer;
@@ -4774,7 +4774,7 @@ begin
     Result := AddChildNode(nil, LccNode.NodeIDStr, LccNode);          // Add a new item
 end;
 
-function TLccNetworkTree.FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: LccString; FindOnly: Boolean): TLccTreeViewItem;
+function TLccNetworkTree.FindOrCreateNewTreeNodeByName(AParent: TLccTreeViewItem; AName: String; FindOnly: Boolean): TLccTreeViewItem;
 begin
   if AParent = nil then
   begin

@@ -4,26 +4,55 @@ File_1=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\Synapse_LCC\ss
 File_2=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_nodemanager.pas',0,1,1,23,11,0,0,,
 File_3=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_tcp_protocol.pas',0,1,1,23,9,0,0,,
 File_4=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_threadedcirculararray.pas',0,1,1,23,9,0,0,,
-File_5=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas',0,1,378,54,392,0,0,,
-File_6=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,1,1,11,0,0,,
-File_7=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_threaded_stringlist.pas',0,1,1,1,1,0,0,,
-File_8=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compiler_types.pas',0,1,3,1,10,0,0,,
-File_9=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_defines.pas',0,1,1,23,26,0,0,,
-File_10=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas',0,1,587,21,601,0,0,,
-File_11=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas',0,1,1,1,1,0,0,,
-File_12=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',0,1,1,23,9,0,0,,
-File_13=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_math_float16.pas',0,1,1,23,10,0,0,,
-File_14=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas',0,1,1,23,9,0,0,,
+File_5=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,1,1,11,0,0,,
+File_6=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_threaded_stringlist.pas',0,1,1,1,1,0,0,,
+File_7=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_compiler_types.pas',0,1,3,1,10,0,0,,
+File_8=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_defines.pas',0,1,1,23,26,0,0,,
+File_9=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',0,1,1,23,9,0,0,,
+File_10=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_math_float16.pas',0,1,1,23,10,0,0,,
 
 [Modules]
-Module0=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
-Module1=Z:\LccLib\Library\Synapse_LCC\blcksock.pas
-Module2=Z:\LccLib\Library\Synapse_LCC\sswin32.inc
-Module3=default.htm
-Count=4
+Module0=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas
+Module1=default.htm
+Module2=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas
+Module3=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_common_classes.pas
+Module4=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas
+Module5=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
+Module6=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas
+Module7=Z:\LccLib\Library\Synapse_LCC\blcksock.pas
+Module8=Z:\LccLib\Library\Synapse_LCC\sswin32.inc
+Count=9
 EditWindowCount=1
 
+[\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[default.htm]
+ModuleType=TURLModule
+
+[\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_common_classes.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
 [Z:\LccLib\Library\LCC\lcc_nodemanager.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -36,16 +65,18 @@ FormOnTop=0
 [Z:\LccLib\Library\Synapse_LCC\sswin32.inc]
 ModuleType=TSourceModule
 
-[default.htm]
-ModuleType=TURLModule
-
 [EditWindow0]
-ViewCount=4
-CurrentEditView=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
+ViewCount=9
+CurrentEditView=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas
 View0=0
 View1=1
 View2=2
 View3=3
+View4=4
+View5=5
+View6=6
+View7=7
+View8=8
 PercentageSizes=1
 Create=1
 Visible=1
@@ -64,13 +95,13 @@ BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=2093
 LeftPanelClients=DockSite2
-LeftPanelData=00000800010100000000B60D000000000000012D0800000000000001000000006E1A000009000000446F636B5369746532FFFFFFFF
+LeftPanelData=000008000101000000008B0D000000000000012D0800000000000001000000001D1A000009000000446F636B5369746532FFFFFFFF
 RightPanelSize=2685
 RightPanelClients=DockSite3
 RightPanelData=00000800010000000000B42100000000000000540E0000000000000100000000B421000009000000446F636B5369746533FFFFFFFF
-BottomPanelSize=1712
+BottomPanelSize=1793
 BottomPanelClients=DockSite1,MessageView
-BottomPanelData=0000080001020100000009000000446F636B5369746531504B00000000000002B0060000000000000100000000504B00000F0000004D65737361676556696577466F726DFFFFFFFF
+BottomPanelData=0000080001020100000009000000446F636B5369746531504B0000000000000201070000000000000100000000504B00000F0000004D65737361676556696577466F726DFFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0,GraphDrawingModel
 BottomMiddelPanelData=0000080001020200000009000000446F636B536974653010000000477261706844726177696E67566965779E1D00000000000002F406000000000000FFFFFFFF
@@ -93,15 +124,70 @@ EditViewName=Z:\LccLib\Library\Synapse_LCC\blcksock.pas
 [View2]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
-CursorX=47
-CursorY=22
-TopLine=2
+CursorX=65
+CursorY=4677
+TopLine=4663
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
 
 [View3]
+CustomEditViewType=TEditView
+Module=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas
+CursorX=73
+CursorY=471
+TopLine=468
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas
+
+[View4]
+CustomEditViewType=TEditView
+Module=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas
+CursorX=73
+CursorY=701
+TopLine=701
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas
+
+[View5]
+CustomEditViewType=TEditView
+Module=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas
+CursorX=64
+CursorY=423
+TopLine=410
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas
+
+[View6]
+CustomEditViewType=TEditView
+Module=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_common_classes.pas
+CursorX=63
+CursorY=38
+TopLine=24
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_common_classes.pas
+
+[View7]
+CustomEditViewType=TEditView
+Module=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas
+CursorX=15
+CursorY=422
+TopLine=401
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas
+
+[View8]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\Synapse_LCC\sswin32.inc
 CursorX=3
@@ -186,11 +272,11 @@ State=0
 Left=0
 Top=0
 Width=2685
-Height=6346
+Height=6261
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2685
-ClientHeight=6346
+ClientHeight=6261
 TBDockHeight=5907
 LRDockWidth=2347
 Dockable=1
@@ -205,12 +291,12 @@ State=0
 Left=0
 Top=23
 Width=10000
-Height=1459
+Height=1544
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=10000
-ClientHeight=1459
-TBDockHeight=1459
+ClientHeight=1544
+TBDockHeight=1544
 LRDockWidth=2770
 Dockable=1
 StayOnTop=0
@@ -608,11 +694,11 @@ State=0
 Left=0
 Top=0
 Width=2093
-Height=6728
+Height=6643
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2093
-ClientHeight=6728
+ClientHeight=6643
 TBDockHeight=3683
 LRDockWidth=1896
 Dockable=1
@@ -699,11 +785,11 @@ State=0
 Left=0
 Top=23
 Width=2093
-Height=6728
+Height=6643
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2093
-ClientHeight=6728
+ClientHeight=6643
 TBDockHeight=8612
 LRDockWidth=2093
 Dockable=1
@@ -723,11 +809,11 @@ State=0
 Left=0
 Top=23
 Width=2685
-Height=6728
+Height=6643
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2685
-ClientHeight=6728
+ClientHeight=6643
 TBDockHeight=5198
 LRDockWidth=2685
 Dockable=1

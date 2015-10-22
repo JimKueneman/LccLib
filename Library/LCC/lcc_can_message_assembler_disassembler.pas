@@ -59,14 +59,14 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: LccString; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
 
 TLccMessageDisAssembler = class
 public
-  function OutgoingMsgToGridConnect(Msg: TLccMessage): LccString;
+  function OutgoingMsgToGridConnect(Msg: TLccMessage): String;
   procedure OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 end;
 
@@ -84,7 +84,7 @@ var
 
 { TLccMessageDisAssembler }
 
-function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): LccString;
+function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): String;
 begin
   // Unsure if there is anything special to do here yet
   Result := Msg.ConvertToGridConnectStr('');
@@ -206,7 +206,7 @@ begin
   end;
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: LccString; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; var LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;

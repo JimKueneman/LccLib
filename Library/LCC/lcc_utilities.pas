@@ -24,17 +24,17 @@ uses
   function _Highest(Data: DWORD): Byte;
   function _Highest1(Data: QWord): Byte;
   function _Highest2(Data: QWord): Byte;
-  function MTI2String(MTI: Word): LccString;
+  function MTI2String(MTI: Word): String;
   function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
-  procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
-  function NullArrayToString(var ANullArray: array of Byte): LccString;
-  function EventIDToString(EventID: TEventID): LccString;
+  procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
+  function NullArrayToString(var ANullArray: array of Byte): String;
+  function EventIDToString(EventID: TEventID): String;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
   {$IFNDEF LCC_WINDOWS}
-  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
+  function ResolveUnixIp: String;
   {$ENDIF}
 
 {$IFDEF FPC}
@@ -103,7 +103,7 @@ begin
   Result := Byte((Data shr 40) and $00000000000000FF);
 end;
 
-function MTI2String(MTI: Word): LccString;
+function MTI2String(MTI: Word): String;
 begin
   case MTI of
   {  MTI_CID0 : Result := 'Check ID 0';
@@ -206,14 +206,14 @@ begin
             (EventID1[7] = EventID2[7])
 end;
 
-procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID
-  );
-var
-  i: Integer;
+procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
 begin
-  EventID := NULL_EVENT_ID;
-  for i := 0 to 5 do
-    EventID[i] := NodeID[i];
+  EventID[0]     := _Higher( NodeID[1]); // But these all need the 48 Bit Full ID in the Byte Fields
+  EventID[1] := _Hi(     NodeID[1]);
+  EventID[2] := _Lo(     NodeID[1]);
+  EventID[3] := _Higher( NodeID[0]);
+  EventID[4] := _Hi(     NodeID[0]);
+  EventID[5] := _Lo(     NodeID[0]);
   EventID[6] := _Hi(LowBytes);
   EventID[7] := _Lo(LowBytes);
 end;
@@ -223,9 +223,9 @@ begin
   Result := (ANodeID[0] = 0) and (ANodeID[1] = 0)
 end;
 
-procedure StringToNullArray(AString: LccString; var ANullArray: array of Byte; var iIndex: Integer);
+procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
 var
-  CharPtr: PLccChar;
+  CharPtr: PChar;
   Len, i: Integer;
 begin
   {$IFDEF FPC}
@@ -251,7 +251,7 @@ begin
   end;
 end;
 
-function NullArrayToString(var ANullArray: array of Byte): LccString;
+function NullArrayToString(var ANullArray: array of Byte): String;
 var
   i: Integer;
 begin
@@ -259,12 +259,12 @@ begin
   i := 0;
   while ANullArray[i] <> 0 do
   begin
-    Result := Result + LccString( Chr( ANullArray[i]));
+    Result := Result + Chr( ANullArray[i]);
     Inc(i);
   end;
 end;
 
-function EventIDToString(EventID: TEventID): LccString;
+function EventIDToString(EventID: TEventID): String;
 var
   i: Integer;
 begin
@@ -272,9 +272,9 @@ begin
   for i := 0 to MAX_EVENT_LEN - 1 do
   begin
     if i < MAX_EVENT_LEN - 1 then
-      Result := Result + LccString( IntToHex(EventID[i], 2)) + '.'
+      Result := Result + IntToHex(EventID[i], 2) + '.'
     else
-      Result := Result + LccString( IntToHex(EventID[i], 2));
+      Result := Result + IntToHex(EventID[i], 2);
   end;
 end;
 
@@ -297,12 +297,11 @@ end;
 
 {$IFNDEF LCC_WINDOWS}
   {$IFDEF FPC}
-  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
+  function ResolveUnixIp: String;
   const
     CN_GDNS_ADDR = '127.0.0.1';
     CN_GDNS_PORT = 53;
   var
-    s: string;
     sock: longint;
     err: longint;
     HostAddr: TSockAddr;
@@ -311,7 +310,6 @@ end;
 
   begin
     err := 0;
-    Assert(len >= 16);
 
     sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
     assert(sock <> -1);
@@ -326,8 +324,7 @@ end;
         l := SizeOf(HostAddr);
         if (fpgetsockname(sock, @HostAddr, @l) = 0) then
         begin
-          s := NetAddrToStr(HostAddr.sin_addr);
-          StrPCopy(PChar(Buf), s);
+          Result := NetAddrToStr(HostAddr.sin_addr);
         end
         else
         begin
@@ -354,10 +351,10 @@ end;
     TArray4Int = array[1..4] of byte;
     PArray4Int = ^TArray4Int;
 
-  function StrToHostAddr(IP : LccString): in_addr ;
+  function StrToHostAddr(IP : String): in_addr ;
 
     Var
-      Dummy: LccString;
+      Dummy: String;
       I, j, k: Longint;
       Temp: in_addr;
     begin
@@ -380,28 +377,27 @@ end;
        strtohostaddr.s_addr:=ntohl(Temp.s_addr);
     end;
 
-    function NetAddrToStr (Entry : in_addr) : LccString;
+    function NetAddrToStr (Entry : in_addr) : String;
     Var
-      Dummy: LccString;
+      Dummy: String;
       i, j: Longint;
     begin
       NetAddrToStr := '';
       j := entry.s_addr;
       For i := 1 to 4 do
        begin
-         Dummy := LccString( IntToStr( PArray4Int(j)^[i]));
+         Dummy := IntToStr( PArray4Int(j)^[i]);
          NetAddrToStr := Result + Dummy;
          If i < 4 Then
            NetAddrToStr := Result + '.';
        end;
     end;
 
-  procedure ResolveUnixIp(var buf: array of LccChar; const len: longint);
+  function ResolveUnixIp: String;
   const
     CN_GDNS_ADDR = '127.0.0.1';
     CN_GDNS_PORT = 53;
   var
-    s: LccString;
     sock: longint;
     err: longint;
     HostAddr: SockAddr;
@@ -411,7 +407,6 @@ end;
 
   begin
     err := 0;
-    Assert(len >= 16);
 
     sock := socket(AF_INET, SOCK_DGRAM, 0);
     assert(sock <> -1);
@@ -425,16 +420,7 @@ end;
       try
         l := SizeOf(HostAddr);
         if (getsockname(sock, HostAddr, l) = 0) then
-        begin
-          s := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr);
-          {$IFDEF LCC_MOBILE}
-          for i := 0 to Length(s) do    // Copy the null
-            buf[i] := s[i];      // Starts at zero on mobile
-          {$ELSE}
-          for i := 0 to Length(s) + 1 do    // Copy the null
-            buf[i] := s[i+1];    // Starts at 1 as legacy
-          {$ENDIF}
-        end
+          Result := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr)
         else
         begin
           err:=errno;

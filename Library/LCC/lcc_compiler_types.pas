@@ -9,27 +9,6 @@ uses
 
 {$I lcc_compilers.inc}
 
-{$IFDEF FPC}
-type
-  LccString = ansistring;
-  LccChar = ansichar;
-  PLccString = ^ansistring;
-  PLccChar = ^ansichar;
-{$ELSE}
-  {$IFDEF LCC_MOBILE}
-  type
-    LccString = string;
-    LccChar = char;
-    PLccString = ^string;
-    PLccChar = ^char;
-  {$ELSE}
-  type
-    LccString = ansistring;
-    LccChar = ansichar;
-    PLccString = ^ansistring;
-    PLccChar = ^ansichar;
-  {$ENDIF}
-{$ENDIF}
 
 {$IFDEF FPC}
 type
@@ -41,4 +20,4 @@ type
 
 implementation
 
-end.
+end.

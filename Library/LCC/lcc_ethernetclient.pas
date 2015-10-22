@@ -36,12 +36,12 @@ type
     Thread: TLccConnectionThread;    // Thread owing the Record
     AutoResolveIP: Boolean;          // Tries to autoresolve the local unique netword IP of the machine
     ClientIP,
-    ListenerIP: LccString;
+    ListenerIP: String;
     ClientPort,
     ListenerPort: Word;
     HeartbeatRate: Integer;
     ConnectionState: TConnectionState; // Current State of the connection
-    MessageStr: LccString;             // Contains the string for the resuting message from the thread
+    MessageStr: String;                // Contains the string for the resuting message from the thread
     MessageArray: TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
     ErrorCode: Integer;
     LccMessage: TLccMessage;
@@ -180,7 +180,7 @@ type
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); override;
     {$ENDIF}
     procedure SendMessage(AMessage: TLccMessage); override;
-    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
+    procedure SendMessageRawGridConnect(GridConnectStr: String); override;
   //  {$IFDEF FPC}
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
   //  {$ELSE}
@@ -438,8 +438,8 @@ begin
     AnEthernetRec.Thread := nil;
     AnEthernetRec.MessageStr := '';
     AnEthernetRec.ListenerPort := LccSettings.Ethernet.RemoteListenerPort;
-    AnEthernetRec.ListenerIP := LccString( LccSettings.Ethernet.RemoteListenerIP);
-    AnEthernetRec.ClientIP := LccString( LccSettings.Ethernet.LocalClientIP);
+    AnEthernetRec.ListenerIP := LccSettings.Ethernet.RemoteListenerIP;
+    AnEthernetRec.ClientIP := LccSettings.Ethernet.LocalClientIP;
     AnEthernetRec.ClientPort := LccSettings.Ethernet.LocalClientPort;
     AnEthernetRec.HeartbeatRate := 0;
     AnEthernetRec.ErrorCode := 0;
@@ -468,10 +468,10 @@ begin
   end;
 end;
 
-procedure TLccEthernetClient.SendMessageRawGridConnect(GridConnectStr: ansistring);
+procedure TLccEthernetClient.SendMessageRawGridConnect(GridConnectStr: String);
 var
   List: TList;
-  i: Integer;
+ // i: Integer;
 begin
   List := EthernetThreads.LockList;
   try  // TODO
@@ -566,7 +566,7 @@ procedure TLccEthernetClientThread.Execute;
     if Assigned(Socket) then
     begin
       Socket.GetSinLocal;
-      FEthernetRec.ClientIP := LccString( Socket.GetLocalSinIP);
+      FEthernetRec.ClientIP := Socket.GetLocalSinIP;
       FEthernetRec.ClientPort := Socket.GetLocalSinPort;
     end;
     if not FEthernetRec.SuppressNotification then
@@ -577,7 +577,7 @@ procedure TLccEthernetClientThread.Execute;
   begin
     Owner.EthernetThreads.Remove(Self);
     FEthernetRec.ErrorCode := Socket.LastError;
-    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
+    FEthernetRec.MessageStr := Socket.LastErrorDesc;
     if not FEthernetRec.SuppressNotification then
       Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
     SendConnectionNotification(ccsClientDisconnected);
@@ -585,7 +585,7 @@ procedure TLccEthernetClientThread.Execute;
   end;
 
 var
-  TxStr: LccString;
+  TxStr: String;
   i: Integer;
   GridConnectStrPtr: PGridConnectString;
   GridConnectStr: TGridConnectString;
@@ -600,7 +600,7 @@ var
   LocalName: string;
   IpStrings: TStringList;
   {$ELSE}
-  Ip: array[0..15] of LccChar;
+  Ip: String;
   {$ENDIF}
 begin
   FRunning := True;
@@ -634,13 +634,12 @@ begin
       try
          Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
          for i := 0 to IpStrings.Count - 1 do
-           FEthernetRec.ClientIP := LccString( IpStrings[i]);
+           FEthernetRec.ClientIP := IpStrings[i];
       finally
         IpStrings.Free;
       end;
       {$ELSE}
-      ResolveUnixIp(Ip, 16);
-      FEthernetRec.ClientIP := Ip;
+      FEthernetRec.ClientIP := ResolveUnixIp;
       {$ENDIF}
     end;
 
@@ -681,7 +680,7 @@ begin
                 try
                   if TxList.Count > 0 then
                   begin
-                    TxStr := LccString( TxList[0]);
+                    TxStr := TxList[0];
                     TxList.Delete(0);
                   end;
                 finally
@@ -805,7 +804,7 @@ end;
 
 procedure TLccEthernetClientThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: LccString;
+  MessageStr: String;
   ByteArray: TDynamicByteArray;
 begin
   if not IsTerminated then

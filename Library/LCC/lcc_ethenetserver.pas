@@ -217,7 +217,7 @@ type
     procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); override;
     {$ENDIF}
     procedure SendMessage(AMessage: TLccMessage);  override;
-    procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
+    procedure SendMessageRawGridConnect(GridConnectStr: String); override;
     procedure ClearSchedulerQueues;
 
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
@@ -349,7 +349,7 @@ procedure TLccEthernetListener.Execute;
   begin
     Owner.EthernetThreads.Remove(Self);
     FEthernetRec.ErrorCode := Socket.LastError;
-    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
+    FEthernetRec.MessageStr := Socket.LastErrorDesc;
     if not FEthernetRec.SuppressNotification then
       Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
     SendConnectionNotification(ccsListenerDisconnected);
@@ -359,11 +359,11 @@ procedure TLccEthernetListener.Execute;
 var
   NewLink: TLccEthernetServerThread;
   {$IFDEF LCC_WINDOWS}
-  LocalName: LccString;
+  LocalName: String;
   IpStrings: TStringList;
   i: Integer;
   {$ELSE}
-  Ip: array[0..15] of LccChar;
+  Ip: String;
   {$ENDIF}
 begin
   FRunning := True;
@@ -378,19 +378,17 @@ begin
   if FEthernetRec.AutoResolveIP then
   begin
     {$IFDEF LCC_WINDOWS}
-    LocalName := LccString( Socket.LocalName);
+    LocalName := Socket.LocalName;
     IpStrings := TStringList.Create;
     try
        Socket.ResolveNameToIP(String( LocalName), IpStrings) ;  // '192.168.0.8';
        for i := 0 to IpStrings.Count - 1 do
-         FEthernetRec.ListenerIP := LccString( IpStrings[i]);
+         FEthernetRec.ListenerIP := IpStrings[i];
     finally
       IpStrings.Free;
     end;
     {$ELSE}
-    Ip[0] := #0;
-    ResolveUnixIp(Ip, 16);
-    FEthernetRec.ListenerIP := Ip;
+    FEthernetRec.ListenerIP := ResolveUnixIp;
     {$ENDIF}
   end;
 
@@ -669,7 +667,7 @@ begin
     AnEthernetRec.Thread := nil;
     AnEthernetRec.MessageStr := '';
     AnEthernetRec.ListenerPort := LccSettings.Ethernet.LocalListenerPort;
-    AnEthernetRec.ListenerIP := LccString( LccSettings.Ethernet.LocalListenerIP);
+    AnEthernetRec.ListenerIP := LccSettings.Ethernet.LocalListenerIP;
     AnEthernetRec.ClientIP := '';
     AnEthernetRec.ClientPort := 0;
     AnEthernetRec.HeartbeatRate := 0;
@@ -699,10 +697,10 @@ begin
   end;
 end;
 
-procedure TLccEthernetServer.SendMessageRawGridConnect(GridConnectStr: ansistring);
+procedure TLccEthernetServer.SendMessageRawGridConnect(GridConnectStr: String);
 var
   List: TList;
-  i: Integer;
+ // i: Integer;
 begin
   List := EthernetThreads.LockList;
   try            // TODO
@@ -813,7 +811,7 @@ procedure TLccEthernetServerThread.Execute;
   begin
     Owner.EthernetThreads.Remove(Self);
     FEthernetRec.ErrorCode := Socket.LastError;
-    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
+    FEthernetRec.MessageStr := Socket.LastErrorDesc;
     if not FEthernetRec.SuppressNotification then
       Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
     SendConnectionNotification(ccsListenerClientDisconnected);
@@ -821,7 +819,7 @@ procedure TLccEthernetServerThread.Execute;
   end;
 
 var
-  TxStr: LccString;
+  TxStr: String;
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
@@ -849,9 +847,9 @@ begin
     FRunning := False
   end else
   begin
-    FEthernetRec.ClientIP := LccString( Socket.GetRemoteSinIP);
+    FEthernetRec.ClientIP := Socket.GetRemoteSinIP;
     FEthernetRec.ClientPort := Socket.GetRemoteSinPort;
-    FEthernetRec.ListenerIP := LccString( Socket.GetLocalSinIP);
+    FEthernetRec.ListenerIP := Socket.GetLocalSinIP;
     FEthernetRec.ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
@@ -880,7 +878,7 @@ begin
                 try
                   if TxList.Count > 0 then
                   begin
-                    TxStr := LccString( TxList[0]);
+                    TxStr := TxList[0];
                     TxList.Delete(0);
                   end;
                 finally
@@ -916,7 +914,7 @@ begin
                   end;
                 WSAECONNRESET   :
                   begin
-                    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
+                    FEthernetRec.MessageStr := Socket.LastErrorDesc;
                     Socket.ResetLastError;
                     Synchronize({$IFDEF FPC}@{$ENDIF}DoClientDisconnect);
                     FEthernetRec.MessageStr := '';
@@ -963,7 +961,7 @@ begin
                   end;
                 WSAECONNRESET   :
                   begin
-                    FEthernetRec.MessageStr := LccString( Socket.LastErrorDesc);
+                    FEthernetRec.MessageStr := Socket.LastErrorDesc;
                     Socket.ResetLastError;
                     Synchronize({$IFDEF FPC}@{$ENDIF}DoClientDisconnect);
                     FEthernetRec.MessageStr := '';
@@ -1017,7 +1015,7 @@ end;
 
 procedure TLccEthernetServerThread.SendMessage(AMessage: TLccMessage);
 var
-  MessageStr: LccString;
+  MessageStr: String;
   ByteArray: TDynamicByteArray;
 begin
   if not IsTerminated then
@@ -1025,7 +1023,7 @@ begin
     if Gridconnect then
     begin
       MessageStr := AMessage.ConvertToGridConnectStr('');
-      OutgoingGridConnect.Add( string( MessageStr));
+      OutgoingGridConnect.Add(MessageStr);
       {$IFDEF LOGGING}
       if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
         PrintToSynEdit( 'S EthSrv:' + MessageStr,
