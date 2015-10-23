@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler;
+  form_properties;
 
 type
 
@@ -599,4 +599,4 @@ begin
 end;
 
 end.
-
+

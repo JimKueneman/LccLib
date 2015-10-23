@@ -78,8 +78,6 @@ type
     CheckBoxAutoSendVerifyNodes: TCheckBox;
     ImageListMain: TImageList;
     ImageListNodeList: TImageList;
-    Label3: TLabel;
-    Label4: TLabel;
     LabelMyNodes: TLabel;
     LabelServerConnections: TLabel;
     LccComPort: TLccComPort;
@@ -149,23 +147,14 @@ type
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetClientSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetClientSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetClientSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetClientSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetServerSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetServerSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure LccEthernetServerSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
     procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemReadReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemWriteReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
-    procedure LccNodeManagerLccNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
@@ -461,8 +450,6 @@ begin
     begin
       StatusBarMain.Panels[STATUS_PANEL_COMPORT].Text := 'Connecting: ' + ComPortRec.ComPort;
       ActionTCP.Enabled := False;
-      Label3.Caption := '0';
-      Label4.Caption := '0';
     end;
     ccsPortConnected :
     begin
@@ -499,8 +486,6 @@ begin
   //      ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
         ActionEthernetServer.Enabled := False;
         ActionTCP.Enabled := False;
-        Label3.Caption := '0';
-        Label4.Caption := '0';
       end;
     ccsClientConnected :
       begin
@@ -531,26 +516,6 @@ begin
   ActionEthernetClient.Checked := False;
 end;
 
-procedure TForm1.LccEthernetClientSchedulerAddOutgoingMessage(Sender: TObject;LccMessage: TLccMessage);
-begin
-  Label3.Caption := IntToStr( StrToInt(Label3.Caption) + 1);
-end;
-
-procedure TForm1.LccEthernetClientSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  Label4.Caption := IntToStr( StrToInt(Label4.Caption) + 1);
-end;
-
-procedure TForm1.LccEthernetClientSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  Label3.Caption := IntToStr( StrToInt(Label3.Caption) - 1);
-end;
-
-procedure TForm1.LccEthernetClientSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
-begin
-  Label4.Caption := IntToStr( StrToInt(Label4.Caption) - 1);
-end;
-
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 var
   ListItem: TListItem;
@@ -563,8 +528,6 @@ begin
   //      ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
         ActionEthernetClient.Enabled := False;
         ActionTCP.Enabled := False;
-        Label3.Caption := '0';
-        Label4.Caption := '0';
       end;
     ccsListenerConnected :
       begin
@@ -622,26 +585,6 @@ begin
   ActionEthernetServer.Checked := False;
 end;
 
-procedure TForm1.LccEthernetServerSchedulerAddOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-   Label3.Caption := IntToStr( StrToInt(Label3.Caption) + 1);
-end;
-
-procedure TForm1.LccEthernetServerSchedulerAddWaitingForReplyMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  Label4.Caption := IntToStr( StrToInt(Label4.Caption) + 1);
-end;
-
-procedure TForm1.LccEthernetServerSchedulerRemoveOutgoingMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-   Label3.Caption := IntToStr( StrToInt(Label3.Caption) - 1);
-end;
-
-procedure TForm1.LccEthernetServerSchedulerRemoveWaitingForReplyMessage(Sender: TObject; LccMessage, LccMessageReply: TLccMessage);
-begin
-  Label4.Caption := IntToStr( StrToInt(Label4.Caption) - 1);
-end;
-
 procedure TForm1.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
   if LccNodeManager.Enabled and not ActionTCP.Checked then
@@ -685,30 +628,6 @@ begin
   FormNodeProperties.LccCdiParser.DoConfigMemReadReply(LccSourceNode);
 end;
 
-procedure TForm1.LccNodeManagerLccNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
-var
-  EventID: TEventID;
-  i: Integer;
-  EventOffset: Word;
-begin
-  if LccSourceNode = LccNodeManager.RootNode then
-  begin
-    EventOffset := 0;
-    for i := 0 to 9 do
-    begin
-      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
-      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
-      Inc(EventOffset);
-    end;
-    for i := 0 to 9 do
-    begin
-      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
-      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
-      Inc(EventOffset);
-    end;
-  end;
-end;
-
 procedure TForm1.LccNodeManagerLccNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TestForDuplicateAndAdd(LccSourceNode);
@@ -749,6 +668,10 @@ begin
 end;
 
 procedure TForm1.LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+var
+  EventID: TEventID;
+  i: Integer;
+  EventOffset: Word;
 begin
   if LccNodeManager.Enabled then
   begin
@@ -759,6 +682,23 @@ begin
        else
          StatusBarMain.Panels[STATUS_PANEL_NODEID].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
      end;
+  end;
+
+  if LccSourceNode = LccNodeManager.RootNode then
+  begin
+    EventOffset := 0;
+    for i := 0 to 9 do
+    begin
+      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
+      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
+      Inc(EventOffset);
+    end;
+    for i := 0 to 9 do
+    begin
+      NodeIDToEventID(LccSourceNode.NodeID, EventOffset,  EventID);
+      LccSourceNode.EventsConsumed.Add(EventID, evs_Unknown);
+      Inc(EventOffset);
+    end;
   end;
 end;
 

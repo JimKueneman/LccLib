@@ -40,7 +40,6 @@ const
   STR_INI_JMRI_FORMAT = 'JMRI_Format';
   STR_INI_LOGGING     = 'Logging';
   STR_INI_DETAILED_LOGGING = 'DetailedLogging';
-  STR_INI_PIPELINE = 'SchedulerPipelineSize';
   STR_INI_CV_BLOCK_READ = 'CvBlockRead';
   STR_FUNCTION_ACCESS = 'FunctionAccessType';
 
@@ -211,7 +210,6 @@ type
     FAliasID: string;
     FCVBlockRead: Word;                                                         // For Train Configuration eventually
     FNodeID: string;
-    FSchedulerPipelineSize: Integer;
     procedure SetAliasID(AValue: string);                                       // Set from a separate thread possibly
   public
     constructor Create(AnOwner: TLccSettings); override;
@@ -224,7 +222,6 @@ type
   published
     property AliasID: string read FAliasID write SetAliasID;
     property NodeID: string read FNodeID write FNodeID;
-    property SchedulerPipelineSize: Integer read FSchedulerPipelineSize write FSchedulerPipelineSize;
   end;
 
   { TThrottleSettings }
@@ -455,14 +452,12 @@ begin
   inherited Create(AnOwner);
   FAliasID := '0x000';
   FNodeID := '0x000000000000';
-  FSchedulerPipelineSize := 5;
 end;
 
 procedure TGeneralSettings.LoadFromFile(IniFile: TIniFile);
 begin
   AliasID := IniFile.ReadString(STR_INT_GENERAL_SECTION, STR_INI_ALIASID, '0x000');
   NodeID := IniFile.ReadString(STR_INT_GENERAL_SECTION, STR_INI_NODEID, '0x000000000000');
-  FSchedulerPipelineSize := IniFile.ReadInteger(STR_INT_GENERAL_SECTION, STR_INI_PIPELINE, 1);
 end;
 
 procedure TGeneralSettings.NodeIDAsTNodeID(var ANodeID: TNodeID);
@@ -492,7 +487,6 @@ procedure TGeneralSettings.SaveToFile(IniFile: TIniFile);
 begin
   IniFile.WriteString(STR_INT_GENERAL_SECTION, STR_INI_ALIASID, FAliasID);
   IniFile.WriteString(STR_INT_GENERAL_SECTION, STR_INI_NODEID, FNodeID);
-  IniFile.WriteInteger(STR_INT_GENERAL_SECTION, STR_INI_PIPELINE, FSchedulerPipelineSize);
 end;
 
 function TGeneralSettings.AliasIDAsVal: Word;

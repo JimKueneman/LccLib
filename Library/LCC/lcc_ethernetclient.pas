@@ -117,9 +117,7 @@ type
     FOnConnectionStateChange: TOnEthernetRecFunc;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
-    FSchedulerPipelineSize: Integer;
     FSleepCount: Integer;
-    procedure SetSchedulerPipelineSize(AValue: Integer);
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
@@ -269,18 +267,6 @@ begin
  // {$ENDIF}
 end;
 
-procedure TLccEthernetClient.SetSchedulerPipelineSize(AValue: Integer);
-begin
-  if (AValue < 1) or (AValue > 10) then
-    AValue := 1;
-
-  if AValue <> FSchedulerPipelineSize then
-  begin
-    FSchedulerPipelineSize := AValue;
-    UpdateThreadsEvents;
-  end;
-end;
-
 procedure TLccEthernetClient.SetSleepCount(AValue: Integer);
 begin
   if FSleepCount <> AValue then
@@ -315,7 +301,6 @@ constructor TLccEthernetClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FEthernetThreads := TLccEthernetThreadList.Create;
-  FSchedulerPipelineSize := 1;
   FHub := False;
 end;
 

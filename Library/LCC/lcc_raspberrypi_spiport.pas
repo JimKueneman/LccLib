@@ -153,7 +153,6 @@ type
   TLccRaspberryPiSpiPortThread = class(TLccConnectionThread)
     private
       FOnErrorMessage: TOnRaspberryPiSpiChangeFunc;
-      FOnSchedulerClass: TOnSchedulerClassEvent;
       FRaspberryPiSpiPortRec: TLccRaspberryPiSpiPortRec;
       FOnConnectionStateChange: TOnRaspberryPiSpiChangeFunc;
       FOnReceiveMessage: TOnRaspberryPiSpiReceiveFunc;
@@ -197,11 +196,6 @@ type
 
   TLccRaspberryPiSpiPort = class(TLccHardwareConnectionManager)
   private
-    FOnSchedulerAddOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerAddWaitingForReplyMessage: TOnMessageEvent;
-    FOnSchedulerClass: TOnSchedulerClassEvent;
-    FOnSchedulerRemoveOutgoingMessage: TOnMessageEvent;
-    FOnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent;
     FRaspberryPiSpiPortThreads: TLccRaspberryPiSpiPortThreadList;
     FHub: Boolean;
     FLccSettings: TLccSettings;
@@ -211,14 +205,8 @@ type
     FOnConnectionStateChange: TOnRaspberryPiSpiChangeFunc;
     FOnReceiveMessage: TOnRaspberryPiSpiReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
-    FSchedulerPipelineSize: Integer;
     FSleepCount: Integer;
-    procedure SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
-    procedure SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
     procedure SetOnSendMessage(AValue: TOnMessageEvent);
-    procedure SetSchedulerPipelineSize(AValue: Integer);
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
@@ -239,7 +227,6 @@ type
     procedure CloseConnection(PiSpiPortThread: TLccRaspberryPiSpiPortThread);
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure SendMessageRawGridConnect(GridConnectStr: ansistring); override;
-    procedure ClearSchedulerQueues;
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
@@ -250,12 +237,6 @@ type
     property OnErrorMessage: TOnRaspberryPiSpiChangeFunc read FOnErrorMessage write FOnErrorMessage;
     property OnReceiveMessage: TOnRaspberryPiSpiReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-    property OnSchedulerAddOutgoingMessage: TOnMessageEvent read FOnSchedulerAddOutgoingMessage write FOnSchedulerAddOutgoingMessage;
-    property OnSchedulerRemoveOutgoingMessage: TOnMessageEvent read FOnSchedulerRemoveOutgoingMessage write FOnSchedulerRemoveOutgoingMessage;
-    property OnSchedulerAddWaitingForReplyMessage: TOnMessageEvent read FOnSchedulerAddWaitingForReplyMessage write FOnSchedulerAddWaitingForReplyMessage;
-    property OnSchedulerRemoveWaitingForReplyMessage: TOnMessageRemoveWaitingForReplyEvent read FOnSchedulerRemoveWaitingForReplyMessage write FOnSchedulerRemoveWaitingForReplyMessage;
-    property SchedulerPipelineSize: Integer read FSchedulerPipelineSize write SetSchedulerPipelineSize;
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
@@ -302,46 +283,6 @@ end;
 
 { TLccRaspberryPiSpiPort }
 
-procedure TLccRaspberryPiSpiPort.SetOnSchedulerRemoveOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerRemoveOutgoingMessage <> AValue then
-  begin
-    FOnSchedulerRemoveOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccRaspberryPiSpiPort.SetOnSchedulerAddOutgoingMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerAddOutgoingMessage <> AValue then
-  begin
-    FOnSchedulerAddOutgoingMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccRaspberryPiSpiPort.SetOnSchedulerAddWaitingForReplyMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSchedulerAddWaitingForReplyMessage <> AValue then
-  begin
-    FOnSchedulerAddWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccRaspberryPiSpiPort.SetOnSchedulerRemoveWaitingForReplyMessage(AValue: TOnMessageRemoveWaitingForReplyEvent);
-begin
-  if FOnSchedulerRemoveWaitingForReplyMessage <> AValue then
-  begin
-    FOnSchedulerRemoveWaitingForReplyMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
 procedure TLccRaspberryPiSpiPort.SetOnSendMessage(AValue: TOnMessageEvent);
 begin
   if FOnSendMessage <> AValue then
@@ -349,18 +290,6 @@ begin
     FOnSendMessage:=AValue;
     if not (csDesigning in ComponentState) then
       UpdateThreadsEvents;
-  end;
-end;
-
-procedure TLccRaspberryPiSpiPort.SetSchedulerPipelineSize(AValue: Integer);
-begin
-  if (AValue < 1) or (AValue > 10) then
-    AValue := 1;
-
-  if AValue <> FSchedulerPipelineSize then
-  begin
-    FSchedulerPipelineSize:=AValue;
-    UpdateThreadsEvents;
   end;
 end;
 
@@ -383,11 +312,6 @@ end;
 procedure TLccRaspberryPiSpiPort.UpdateThreadEvents(PiSpiPortThread: TLccRaspberryPiSpiPortThread);
 begin
   PiSpiPortThread.OnSendMessage := OnSendMessage;
-  PiSpiPortThread.Scheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  PiSpiPortThread.Scheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  PiSpiPortThread.Scheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  PiSpiPortThread.Scheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  PiSpiPortThread.Scheduler.PipelineSize := FSchedulerPipelineSize;
 end;
 
 procedure TLccRaspberryPiSpiPort.UpdateThreadsEvents;
@@ -408,7 +332,6 @@ constructor TLccRaspberryPiSpiPort.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FRaspberryPiSpiPortThreads := TLccRaspberryPiSpiPortThreadList.Create;
-  FSchedulerPipelineSize := 1;
   FHub := False;
 end;
 
@@ -437,13 +360,7 @@ begin
   Result.OnConnectionStateChange := OnConnectionStateChange;
   Result.OnErrorMessage := OnErrorMessage;
   Result.OnReceiveMessage := OnReceiveMessage;
-  Result.OnSchedulerClass := OnSchedulerClass;
   Result.OnSendMessage := OnSendMessage;
-  Result.OnSchedulerAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-  Result.OnSchedulerRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-  Result.OnSchedulerAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-  Result.OnSchedulerRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-  Result.Scheduler.PipelineSize := FSchedulerPipelineSize;
   Result.SleepCount := SleepCount;
   RaspberryPiSpiPortThreads.Add(Result);
   Result.Suspended := False;
@@ -529,28 +446,6 @@ begin
   end;
 end;
 
-procedure TLccRaspberryPiSpiPort.ClearSchedulerQueues;
-var
-  i: Integer;
-  L: TList;
-  PiSpiPortThread: TLccRaspberryPiSpiPortThread;
-begin
-  L := RaspberryPiSpiPortThreads.LockList;
-  try
-    for i := 0 to L.Count - 1 do
-    begin
-      PiSpiPortThread := TLccRaspberryPiSpiPortThread( L[i]);
-      begin
-        PiSpiPortThread.Scheduler.ClearPermenentErrorQueue;
-        PiSpiPortThread.Scheduler.ClearQueue;
-        PiSpiPortThread.Scheduler.ClearSentQueue;
-      end;
-    end;
-  finally
-    RaspberryPiSpiPortThreads.UnlockList;
-  end;
-end;
-
 { TLccRaspberryPiSpiPortThreadList }
 
 function TLccRaspberryPiSpiPortThreadList.GetCount: Integer;
@@ -615,25 +510,6 @@ begin
    Result := Terminated;
 end;
 
-function TLccRaspberryPiSpiPortThread.GetScheduler: TSchedulerBase;
-var
-  SchedulerClass: TSchedulerBaseClass;
-begin
-  if not Assigned(FScheduler) then
-  begin
-    SchedulerClass := TSchedulerSimplePipeline;
-    if Assigned(OnSchedulerClass) then
-      OnSchedulerClass(Owner, SchedulerClass);
-    FScheduler := SchedulerClass.Create(Owner, @SendMessage);
-    FScheduler.OnAddOutgoingMessage := OnSchedulerAddOutgoingMessage;
-    FScheduler.OnRemoveOutgoingMessage := OnSchedulerRemoveOutgoingMessage;
-    FScheduler.OnAddWaitingForReplyMessage := OnSchedulerAddWaitingForReplyMessage;
-    FScheduler.OnRemoveWaitingForReplyMessage := OnSchedulerRemoveWaitingForReplyMessage;
-    FScheduler.OwnerThread := Self;
-  end;
-  Result := FScheduler
-end;
-
 procedure TLccRaspberryPiSpiPortThread.DoConnectionState;
 begin
   if Assigned(OnConnectionStateChange) then
@@ -668,7 +544,7 @@ begin
       OnReceiveMessage(Self, FRaspberryPiSpiPortRec);
 
     LocalMessage := nil;
-    if (Scheduler <> nil) and (Owner.NodeManager <> nil) then
+    if Owner.NodeManager <> nil then
       if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
         Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
   end

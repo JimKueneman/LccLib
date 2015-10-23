@@ -3,7 +3,7 @@ object Form1: TForm1
   Height = 466
   Top = 142
   Width = 742
-  Caption = 'Lcc Raspberry Pi Hub'
+  Caption = 'Lcc TCP Tester'
   ClientHeight = 466
   ClientWidth = 742
   Menu = MainMenu
@@ -229,9 +229,9 @@ object Form1: TForm1
       Height = 265
       Top = 0
       Width = 494
-      ActivePage = TabSheetDebug
+      ActivePage = TabSheetMain
       Align = alClient
-      TabIndex = 2
+      TabIndex = 0
       TabOrder = 0
       object TabSheetMain: TTabSheet
         Caption = 'Main'
@@ -270,24 +270,6 @@ object Form1: TForm1
       end
       object TabSheetDebug: TTabSheet
         Caption = 'Debug'
-        ClientHeight = 226
-        ClientWidth = 488
-        object Label3: TLabel
-          Left = 194
-          Height = 16
-          Top = 72
-          Width = 8
-          Caption = '0'
-          ParentColor = False
-        end
-        object Label4: TLabel
-          Left = 194
-          Height = 16
-          Top = 88
-          Width = 8
-          Caption = '0'
-          ParentColor = False
-        end
       end
     end
   end
@@ -310,7 +292,6 @@ object Form1: TForm1
     Ethernet.LocalListenerPort = 12021
     General.AliasID = '0x000'
     General.NodeID = '0x020112FAA1C8'
-    General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
@@ -347,7 +328,6 @@ object Form1: TForm1
     OnLccNodeConfigMemOptionsReply = LccNodeManagerLccNodeConfigMemOptionsReply
     OnLccNodeConfigMemReadReply = LccNodeManagerLccNodeConfigMemReadReply
     OnLccNodeConfigMemWriteReply = LccNodeManagerLccNodeConfigMemWriteReply
-    OnLccNodeCreate = LccNodeManagerLccNodeCreate
     OnNodeIDChanged = LccNodeManagerNodeIDChanged
     OnLccNodeInitializationComplete = LccNodeManagerLccNodeInitializationComplete
     OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply

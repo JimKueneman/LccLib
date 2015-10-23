@@ -27,8 +27,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="534"/>
-        <CursorPos Y="550"/>
+        <TopLine Value="587"/>
+        <CursorPos X="3" Y="610"/>
         <UsageCount Value="132"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -186,11 +186,12 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="32404"/>
+        <CursorPos Y="32431"/>
         <ExtraEditorCount Value="1"/>
         <ExtraEditor1>
           <EditorIndex Value="-1"/>
-          <TopLine Value="32404"/>
-          <CursorPos Y="32431"/>
         </ExtraEditor1>
         <UsageCount Value="44"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
@@ -281,13 +282,13 @@
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
         <UnitName Value="lcc_ethernetclient"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="606"/>
+        <TopLine Value="607"/>
         <CursorPos Y="621"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit39>
     </Units>
-    <JumpHistory Count="27" HistoryIndex="26">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="form_template.pas"/>
         <Caret Line="10" Column="12"/>
@@ -396,6 +397,10 @@
         <Filename Value="form_template.pas"/>
         <Caret Line="484" TopLine="468"/>
       </Position27>
+      <Position28>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="551" TopLine="535"/>
+      </Position28>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

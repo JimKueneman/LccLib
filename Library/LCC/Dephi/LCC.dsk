@@ -15,13 +15,13 @@ File_10=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_math_
 Module0=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_common_classes.pas
 Module1=c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Classes.pas
 Module2=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethenetserver.pas
-Module3=default.htm
-Module4=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas
-Module5=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas
-Module6=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
-Module7=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas
-Module8=Z:\LccLib\Library\Synapse_LCC\blcksock.pas
-Module9=Z:\LccLib\Library\Synapse_LCC\sswin32.inc
+Module3=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas
+Module4=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas
+Module5=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
+Module6=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas
+Module7=Z:\LccLib\Library\Synapse_LCC\blcksock.pas
+Module8=Z:\LccLib\Library\Synapse_LCC\sswin32.inc
+Module9=default.htm
 Count=10
 EditWindowCount=1
 
@@ -39,9 +39,6 @@ FormOnTop=0
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
-
-[default.htm]
-ModuleType=TURLModule
 
 [\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas]
 ModuleType=TSourceModule
@@ -70,6 +67,9 @@ FormOnTop=0
 
 [Z:\LccLib\Library\Synapse_LCC\sswin32.inc]
 ModuleType=TSourceModule
+
+[default.htm]
+ModuleType=TURLModule
 
 [EditWindow0]
 ViewCount=10
