@@ -45,6 +45,8 @@ type
   TOnComChangeFunc = procedure(Sender: TObject; ComPortRec: TLccComPortRec) of object;
   TOnComReceiveFunc = procedure(Sender: TObject; ComPortRec: TLccComPortRec) of object;
 
+
+
   { TLccComPortThread }
 
   TLccComPortThread =  class(TLccConnectionThread)
@@ -54,12 +56,8 @@ type
       FOnConnectionStateChange: TOnComChangeFunc;
       FOnReceiveMessage: TOnComReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
-      FOutgoingGridConnect: TThreadStringList;
       FOwner: TLccComPort;
-      FRunning: Boolean;
       FSerial: TBlockSerial;                                                      // Serial object
-      FSleepCount: Integer;
-      function GetIsTerminated: Boolean;
     protected
       procedure DoConnectionState;
       procedure DoErrorMessage;
@@ -74,11 +72,7 @@ type
       property OnErrorMessage: TOnComChangeFunc read FOnComErrorMessage write FOnComErrorMessage;
       property OnReceiveMessage: TOnComReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
       property Owner: TLccComPort read FOwner write FOwner;
-      property Running: Boolean read FRunning write FRunning;
-      property IsTerminated: Boolean read GetIsTerminated;
-      property SleepCount: Integer read FSleepCount write FSleepCount;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec); reintroduce;
       destructor Destroy; override;
@@ -554,11 +548,6 @@ begin
   end;
 end;
 
-function TLccComPortThread.GetIsTerminated: Boolean;
-begin
-  Result := Terminated;
-end;
-
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
 var
   i: Integer;
@@ -589,13 +578,11 @@ begin
   FComPortRec := AComPortRec;
   FComPortRec.Thread := Self;
   FComPortRec.LccMessage := TLccMessage.Create;
-  FOutgoingGridConnect := TThreadStringList.Create;
   GridConnect := True;
 end;
 
 destructor TLccComPortThread.Destroy;
 begin
-  FreeAndNil( FOutgoingGridConnect);
   FreeAndNil(FComPortRec.LccMessage);
   inherited Destroy;
 end;

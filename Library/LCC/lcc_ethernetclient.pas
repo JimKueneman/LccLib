@@ -62,14 +62,9 @@ type
       FOnConnectionStateChange: TOnEthernetRecFunc;
       FOnReceiveMessage: TOnEthernetReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
-      FOutgoingCircularArray: TThreadedCirularArray;
-      FOutgoingGridConnect: TThreadStringList;
       FOwner: TLccEthernetClient;
-      FRunning: Boolean;
-      FSleepCount: Integer;
       FSocket: TTCPBlockSocket;
       FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
-      function GetIsTerminated: Boolean;
     protected
       procedure DoConnectionState;
       procedure DoErrorMessage;
@@ -84,12 +79,7 @@ type
       property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
       property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
-      property OutgoingCircularArray: TThreadedCirularArray read FOutgoingCircularArray write FOutgoingCircularArray;
       property Owner: TLccEthernetClient read FOwner write FOwner;
-      property Running: Boolean read FRunning write FRunning;
-      property IsTerminated: Boolean read GetIsTerminated;
-      property SleepCount: Integer read FSleepCount write FSleepCount;
       property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; const AnEthernetRec: TLccEthernetRec); reintroduce;
@@ -624,11 +614,6 @@ begin
   end;
 end;
 
-function TLccEthernetClientThread.GetIsTerminated: Boolean;
-begin
-  Result := Terminated;
-end;
-
 procedure TLccEthernetClientThread.SendMessage(AMessage: TLccMessage);
 var
   ByteArray: TDynamicByteArray;
@@ -681,16 +666,12 @@ begin
   FEthernetRec := AnEthernetRec;
   FEthernetRec.Thread := Self;
   FEthernetRec.LccMessage := TLccMessage.Create;
-  FOutgoingGridConnect := TThreadStringList.Create;
-  OutgoingCircularArray := TThreadedCirularArray.Create;
   FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
 end;
 
 destructor TLccEthernetClientThread.Destroy;
 begin
-  FreeAndNil(FOutgoingGridConnect);
   FreeAndNil(FEthernetRec.LccMessage);
-  FreeAndNil(FOutgoingCircularArray);
   FreeAndNil(FTcpDecodeStateMachine);
   inherited Destroy;
 end;

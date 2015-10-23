@@ -17,7 +17,7 @@ uses
     {$IFDEF LOGGING}
     frame_lcc_logging, lcc_detailed_logging,
     {$ENDIF}
-    lcc_gridconnect, synaser, lcc_threaded_stringlist, lcc_message_scheduler,
+    lcc_gridconnect, synaser, lcc_threaded_stringlist,
     lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
     lcc_common_classes, file_utilities, lcc_compiler_types, lcc_can_message_assembler_disassembler,
   {$ENDIF}
@@ -158,14 +158,8 @@ type
       FOnConnectionStateChange: TOnRaspberryPiSpiChangeFunc;
       FOnReceiveMessage: TOnRaspberryPiSpiReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
-      FOutgoingGridConnect: TThreadStringList;
       FOwner: TLccRaspberryPiSpiPort;
-      FRunning: Boolean;
       FRaspberryPiSpi: TRaspberryPiSpi;                          // PiSpi object
-      FScheduler: TSchedulerBase;
-      FSleepCount: Integer;
-      function GetIsTerminated: Boolean;
-      function GetScheduler: TSchedulerBase;
     protected
       procedure DoConnectionState;
       procedure DoErrorMessage;
@@ -180,13 +174,7 @@ type
       property OnErrorMessage: TOnRaspberryPiSpiChangeFunc read FOnErrorMessage write FOnErrorMessage;
       property OnReceiveMessage: TOnRaspberryPiSpiReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property OnSchedulerClass: TOnSchedulerClassEvent read FOnSchedulerClass write FOnSchedulerClass;
-      property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
       property Owner: TLccRaspberryPiSpiPort read FOwner write FOwner;
-      property Running: Boolean read FRunning write FRunning;
-      property IsTerminated: Boolean read GetIsTerminated;
-      property Scheduler: TSchedulerBase read GetScheduler;
-      property SleepCount: Integer read FSleepCount write FSleepCount;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccRaspberryPiSpiPort; const APiSpiPortRec: TLccRaspberryPiSpiPortRec); reintroduce; virtual;
       destructor Destroy; override;
@@ -843,13 +831,11 @@ begin
   FRaspberryPiSpiPortRec := APiSpiPortRec;
   FRaspberryPiSpiPortRec.Thread := Self;
   FRaspberryPiSpiPortRec.LccMessage := TLccMessage.Create;
-  FOutgoingGridConnect := TThreadStringList.Create;
   GridConnect := True;
 end;
 
 destructor TLccRaspberryPiSpiPortThread.Destroy;
 begin
-  FreeAndNil(FOutgoingGridConnect);
   FreeAndNil(FRaspberryPiSpiPortRec.LccMessage);
   inherited Destroy;
 end;

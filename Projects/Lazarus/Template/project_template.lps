@@ -3,12 +3,12 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="24">
+    <Units Count="33">
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos X="27" Y="10"/>
-        <UsageCount Value="54"/>
+        <UsageCount Value="56"/>
       </Unit0>
       <Unit1>
         <Filename Value="form_settings.pas"/>
@@ -21,7 +21,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="2"/>
         <CursorPos X="25" Y="11"/>
-        <UsageCount Value="54"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -34,9 +34,10 @@
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
         <TopLine Value="275"/>
-        <CursorPos X="12" Y="302"/>
-        <UsageCount Value="54"/>
+        <CursorPos X="21" Y="287"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -44,7 +45,7 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UsageCount Value="54"/>
+        <UsageCount Value="56"/>
       </Unit3>
       <Unit4>
         <Filename Value="/Developer/lazarus/components/codetools/directorycacher.pas"/>
@@ -160,7 +161,6 @@
         <ComponentName Value="FrameLccSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="frame_lcc_settings"/>
         <EditorIndex Value="-1"/>
         <UsageCount Value="10"/>
       </Unit22>
@@ -172,6 +172,75 @@
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit23>
+      <Unit24>
+        <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
+        <UnitName Value="lcc_ethernetclient"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="47"/>
+        <CursorPos Y="65"/>
+        <UsageCount Value="10"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
+        <UnitName Value="lcc_common_classes"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="71"/>
+        <CursorPos X="52" Y="87"/>
+        <UsageCount Value="10"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
+        <UnitName Value="lcc_ethenetserver"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="33"/>
+        <CursorPos Y="45"/>
+        <UsageCount Value="10"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="../../../Library/LCC/lcc_compiler_types.pas"/>
+        <UnitName Value="lcc_compiler_types"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
+        <UnitName Value="lcc_raspberrypi_spiport"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="383"/>
+        <CursorPos X="67" Y="395"/>
+        <UsageCount Value="10"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <UnitName Value="lcc_comport"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="569"/>
+        <CursorPos Y="577"/>
+        <UsageCount Value="10"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
+        <UnitName Value="lcc_messages"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="18"/>
+        <CursorPos Y="34"/>
+        <UsageCount Value="10"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="../../../Library/LCC/lcc_threadedcirculararray.pas"/>
+        <UnitName Value="lcc_threadedcirculararray"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="11"/>
+        <CursorPos X="24" Y="27"/>
+        <UsageCount Value="10"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="../../../Library/LCC/lcc_threaded_stringlist.pas"/>
+        <UnitName Value="lcc_threaded_stringlist"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="29"/>
+        <UsageCount Value="10"/>
+      </Unit32>
     </Units>
     <JumpHistory HistoryIndex="-1"/>
   </ProjectSession>

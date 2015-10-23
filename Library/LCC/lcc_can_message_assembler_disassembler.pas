@@ -93,7 +93,7 @@ end;
 procedure TLccMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 begin
   if Assigned(MsgList) then
-    MsgList.Text := String( Msg.ConvertToGridConnectStr(#13));
+    MsgList.Text := Msg.ConvertToGridConnectStr(#13);
 end;
 
 { TLccMessageAssembler }

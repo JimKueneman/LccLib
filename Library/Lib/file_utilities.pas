@@ -52,6 +52,9 @@ begin
     {$ENDIF}
   {$ELSE}
      Result := 'TODO...';
+
+
+
     {$IFDEF DARWIN}
   //  Result := GetApplicationPath + PATH_OSX_RESOURCES;
     {$ENDIF}
@@ -67,11 +70,16 @@ end;
 
 
 function GetApplicationPath: string;
-{$IFDEF DARWIN}
+{$IFDEF FPC}
+  {$IFDEF DARWIN}
+  var
+    pathRef: CFURLRef;
+    pathCFStr: CFStringRef;
+    pathStr: shortstring;
+  {$ENDIF}
+{$ELSE}
 var
-  pathRef: CFURLRef;
-  pathCFStr: CFStringRef;
-  pathStr: shortstring;
+  LModuleName: string;
 {$ENDIF}
 begin
   {$IFDEF FPC}
@@ -92,7 +100,11 @@ begin
     Result := PATH_UNIX_APPLICATION;    // Linux is typically hardcoded to a path
     {$ENDIF}
   {$ELSE}
-  //  Result := ExtractFilePath(Application.);
+     LModuleName := GetModuleName(MainInstance);
+     // UNC issue in Vista.
+     if Pos('\\?\', LModuleName) = 1 then
+       Delete(LModuleName, 1, 4);
+     Result := ExtractFilePath(LModuleName);
   {$ENDIF}
 
 end;

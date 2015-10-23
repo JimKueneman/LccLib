@@ -9,7 +9,7 @@ uses
   ActnList, Menus, LCLType, StdCtrls, ExtCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_ethernetclient, lcc_nodemanager, lcc_ethenetserver,
   form_settings, file_utilities, lcc_messages, form_logging, lcc_defines,
-  lcc_utilities, frame_lcc_logging, lcc_message_scheduler;
+  lcc_utilities, frame_lcc_logging;
 
 const
   BUNDLENAME             = 'LCCAppTemplate';
@@ -97,21 +97,12 @@ type
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
-    procedure LccComPortReceiveMessage(Sender: TObject;
-      ComPortRec: TLccComPortRec);
-    procedure LccComPortSchedulerClass(Sender: TObject;
-      var SchedulerClass: TSchedulerBaseClass);
+    procedure LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetClientReceiveMessage(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
-    procedure LccEthernetClientSchedulerClass(Sender: TObject;
-      var SchedulerClass: TSchedulerBaseClass);
+    procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerReceiveMessage(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerSchedulerClass(Sender: TObject;
-      var SchedulerClass: TSchedulerBaseClass);
+    procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccGetRootNodeClass(Sender: TObject; var NodeClass: TLccOwnedNodeClass);
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -445,11 +436,6 @@ begin
   end;
 end;
 
-procedure TFormTemplate.LccComPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
-end;
-
 procedure TFormTemplate.LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
@@ -493,12 +479,6 @@ begin
     if not CheckBoxLockUpdate.Checked then
       MemoIncoming.Lines.EndUpdate;
   end;
-end;
-
-procedure TFormTemplate.LccEthernetClientSchedulerClass(Sender: TObject;
-  var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
 end;
 
 procedure TFormTemplate.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -565,12 +545,6 @@ begin
     if not CheckBoxLockUpdate.Checked then
       MemoIncoming.Lines.EndUpdate;
   end;
-end;
-
-procedure TFormTemplate.LccEthernetServerSchedulerClass(Sender: TObject;
-  var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
 end;
 
 procedure TFormTemplate.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
