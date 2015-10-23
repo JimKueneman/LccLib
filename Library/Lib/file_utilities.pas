@@ -6,7 +6,7 @@ unit file_utilities;
 
 interface
 
-{$I ..\Lcc\lcc_compilers.inc}
+{$I lcc_compilers.inc}
 
 uses
   {$IFDEF DARWIN}

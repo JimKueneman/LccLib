@@ -72,7 +72,6 @@ object Form1: TForm1
       Left = 753
       Top = 2
       Caption = 'ToolButton1'
-      OnClick = ToolButton1Click
     end
     object ToolButton2: TToolButton
       Left = 387
@@ -350,7 +349,6 @@ object Form1: TForm1
     Ethernet.LocalListenerPort = 12021
     General.AliasID = '0x000'
     General.NodeID = '0x020112FAA1C8'
-    General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
@@ -370,8 +368,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccComPortConnectionStateChange
     OnErrorMessage = LccComPortErrorMessage
     OnReceiveMessage = LccComPortReceiveMessage
-    OnSchedulerClass = LccComPortSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 424
     top = 120
@@ -796,8 +792,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
     OnReceiveMessage = LccEthernetServerReceiveMessage
-    OnSchedulerClass = LccEthernetServerSchedulerClass
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 192
     top = 120
@@ -809,8 +803,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
     OnReceiveMessage = LccEthernetClientReceiveMessage
-    OnSchedulerClass = LccEthernetClientSchedulerClass
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 360
     top = 120
@@ -863,8 +855,6 @@ object Form1: TForm1
     LccSettings = LccSettings
     OnConnectionStateChange = LccRaspberryPiSpiPortConnectionStateChange
     OnReceiveMessage = LccRaspberryPiSpiPortReceiveMessage
-    OnSchedulerClass = LccRaspberryPiSpiPortSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 480
     top = 120

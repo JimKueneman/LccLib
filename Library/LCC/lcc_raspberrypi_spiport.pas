@@ -135,12 +135,12 @@ type
 
   TLccRaspberryPiSpiPortRec = record
     Thread: TLccRaspberryPiSpiPortThread;         // Thread owing the Record
-    Port: LccString;                    // Spiport
+    Port: String;                    // Spiport
     Mode: TPiSpiMode;
     Bits: TPiSpiBits;
     Speed: TPiSpiSpeed;
     ConnectionState: TConnectionState;   // Current State of the connection
-    MessageStr: LccString;               // Contains the string for the resuting message from the thread
+    MessageStr: String;               // Contains the string for the resuting message from the thread
     LccMessage: TLccMessage;
     SuppressNotification: Boolean;       // True to stop any Syncronoize() call being called
   end;
@@ -408,7 +408,7 @@ begin
     begin
       PiSpiPortThread := TLccRaspberryPiSpiPortThread( L[i]);
       if not PiSpiPortThread.IsTerminated then
-        PiSpiPortThread.Scheduler.OutgoingMsg(AMessage);
+        PiSpiPortThread.SendMessage(AMessage);
     end;
   finally
     RaspberryPiSpiPortThreads.UnlockList;
@@ -505,11 +505,6 @@ end;
 
 { TLccRaspberryPiSpiPortThread }
 
-function TLccRaspberryPiSpiPortThread.GetIsTerminated: Boolean;
-begin
-   Result := Terminated;
-end;
-
 procedure TLccRaspberryPiSpiPortThread.DoConnectionState;
 begin
   if Assigned(OnConnectionStateChange) then
@@ -545,7 +540,7 @@ begin
 
     LocalMessage := nil;
     if Owner.NodeManager <> nil then
-      if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
+      if MsgAssembler.IncomingMessageGridConnect(FRaspberryPiSpiPortRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
         Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
   end
 end;
@@ -688,15 +683,19 @@ var
 begin
   if not IsTerminated then
   begin
-    MessageStr := AMessage.ConvertToGridConnectStr('');
-    OutgoingGridConnect.Add(MessageStr);
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'S PiSpi: ' + MessageStr,
-                      Owner.LoggingFrame.SynEdit,
-                      Owner.LoggingFrame.ActionLogPause.Checked,
-                      Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                      Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-    DoSendMessage(AMessage);
+   MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
+
+   for i := 0 to MsgStringList.Count - 1 do
+   begin
+   OutgoingGridConnect.Add(MsgStringList[i]);
+   if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
+     PrintToSynEdit( 'S ComPort: ' + MsgStringList[i],
+                     Owner.LoggingFrame.SynEdit,
+                     Owner.LoggingFrame.ActionLogPause.Checked,
+                     Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
+                     Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+   end;
+   DoSendMessage(AMessage);
   end;
 end;
 
