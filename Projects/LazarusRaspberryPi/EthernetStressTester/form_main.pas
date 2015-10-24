@@ -154,10 +154,8 @@ type
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
-    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
     procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
   private

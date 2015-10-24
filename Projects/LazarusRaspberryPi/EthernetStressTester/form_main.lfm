@@ -352,7 +352,7 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
-    PiSpiPort.Speed = pss_7629Hz
+    PiSpiPort.Speed = pss_7_8Mhz
     PiSpiPort.Mode = psm_ClkIdleLo_DataRising
     PiSpiPort.Bits = psb_8
     OnLoadFromFile = LccSettingsLoadFromFile

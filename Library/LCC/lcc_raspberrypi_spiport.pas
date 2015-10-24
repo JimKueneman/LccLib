@@ -526,23 +526,29 @@ var
 begin
   if not IsTerminated then
   begin
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'R PiSpiPort : ' + RaspberryPiSpiPortRec.MessageStr,
-                      Owner.LoggingFrame.SynEdit,
-                      Owner.LoggingFrame.ActionLogPause.Checked,
-                      Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                      Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+    if GridConnect then
+    begin
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
+        PrintToSynEdit( 'R PiSpiPort : ' + RaspberryPiSpiPortRec.MessageStr,
+                        Owner.LoggingFrame.SynEdit,
+                        Owner.LoggingFrame.ActionLogPause.Checked,
+                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
+                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
 
-    // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FRaspberryPiSpiPortRec);
+      // Called in the content of the main thread through Syncronize
+      // Send all raw GridConnect Messages to the event
+      if Assigned(OnReceiveMessage) then
+        OnReceiveMessage(Self, FRaspberryPiSpiPortRec);
 
-    LocalMessage := nil;
-    if Owner.NodeManager <> nil then
-      if MsgAssembler.IncomingMessageGridConnect(FRaspberryPiSpiPortRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
-        Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-  end
+      LocalMessage := nil;
+      if Owner.NodeManager <> nil then
+        if MsgAssembler.IncomingMessageGridConnect(FRaspberryPiSpiPortRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
+          Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+    end else
+    begin
+    //  Fill in TCP Code from Ethernet
+    end;
+  end;
 end;
 
 procedure TLccRaspberryPiSpiPortThread.DoSendMessage(AMessage: TLccMessage);
@@ -683,19 +689,25 @@ var
 begin
   if not IsTerminated then
   begin
-   MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
+    if GridConnect then
+    begin
+      MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
 
-   for i := 0 to MsgStringList.Count - 1 do
-   begin
-   OutgoingGridConnect.Add(MsgStringList[i]);
-   if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-     PrintToSynEdit( 'S ComPort: ' + MsgStringList[i],
-                     Owner.LoggingFrame.SynEdit,
-                     Owner.LoggingFrame.ActionLogPause.Checked,
-                     Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                     Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-   end;
-   DoSendMessage(AMessage);
+      for i := 0 to MsgStringList.Count - 1 do
+      begin
+      OutgoingGridConnect.Add(MsgStringList[i]);
+      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
+        PrintToSynEdit( 'S ComPort: ' + MsgStringList[i],
+                        Owner.LoggingFrame.SynEdit,
+                        Owner.LoggingFrame.ActionLogPause.Checked,
+                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
+                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+      end;
+      DoSendMessage(AMessage);
+    end else
+    begin
+    //  Fill in for TCP
+    end;
   end;
 end;
 
