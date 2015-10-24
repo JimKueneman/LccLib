@@ -12,7 +12,9 @@ uses
   {$IFDEF DARWIN}
   CFBase, CFBundle, CFURL, CFString,
   {$ENDIF}
-  {$IFNDEF FPC}
+  {$IFDEF FPC}
+    Forms,
+  {$ELSE}
     FMX.Forms,
   {$ENDIF}
   Classes, SysUtils;

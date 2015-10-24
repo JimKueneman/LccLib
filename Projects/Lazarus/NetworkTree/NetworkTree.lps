@@ -18,10 +18,12 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
         <CursorPos X="42" Y="10"/>
         <UsageCount Value="185"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit2.pas"/>
@@ -29,8 +31,12 @@
         <ComponentName Value="Form2"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit2"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="1"/>
         <CursorPos X="39" Y="18"/>
         <UsageCount Value="185"/>
+        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="../../Library/LCC/lcc_rootnode.pas"/>
@@ -264,8 +270,7 @@
       <Unit39>
         <Filename Value="../../../Library/LCC/lcc_nodeselector.pas"/>
         <UnitName Value="lcc_nodeselector"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
         <TopLine Value="648"/>
         <CursorPos X="62" Y="672"/>

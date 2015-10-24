@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="61">
+    <Units Count="62">
       <Unit0>
         <Filename Value="IoEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -21,10 +21,10 @@
         <UnitName Value="form_main"/>
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="134"/>
-        <CursorPos X="3" Y="147"/>
+        <CursorPos X="3" Y="10"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms/form_settings.pas"/>
@@ -403,12 +403,29 @@
         <CursorPos X="12" Y="294"/>
         <UsageCount Value="10"/>
       </Unit60>
+      <Unit61>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+        <UnitName Value="lcc_comport"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="5"/>
+        <CursorPos X="39" Y="23"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit61>
     </Units>
-    <JumpHistory Count="1">
+    <JumpHistory Count="3" HistoryIndex="2">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="319" Column="51" TopLine="310"/>
       </Position1>
+      <Position2>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="147" Column="3" TopLine="134"/>
+      </Position2>
+      <Position3>
+        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
+      </Position3>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

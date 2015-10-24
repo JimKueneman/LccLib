@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="40">
+    <Units Count="42">
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -27,10 +27,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="587"/>
-        <CursorPos X="3" Y="610"/>
+        <TopLine Value="586"/>
+        <CursorPos X="14" Y="598"/>
         <UsageCount Value="132"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -245,7 +246,7 @@
       <Unit35>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
         <UnitName Value="lcc_raspberrypi_spiport"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="178"/>
         <CursorPos Y="180"/>
         <UsageCount Value="10"/>
@@ -254,7 +255,7 @@
       <Unit36>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
         <UnitName Value="lcc_ethenetserver"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="768"/>
         <CursorPos Y="783"/>
         <UsageCount Value="10"/>
@@ -263,7 +264,7 @@
       <Unit37>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
         <UnitName Value="lcc_comport"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="44"/>
         <CursorPos Y="60"/>
         <UsageCount Value="10"/>
@@ -272,7 +273,7 @@
       <Unit38>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
         <UnitName Value="lcc_common_classes"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="20"/>
         <CursorPos Y="31"/>
         <UsageCount Value="10"/>
@@ -281,14 +282,29 @@
       <Unit39>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
         <UnitName Value="lcc_ethernetclient"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="607"/>
         <CursorPos Y="621"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit39>
+      <Unit40>
+        <Filename Value="../../../Library/Lib/file_utilities.pas"/>
+        <UnitName Value="file_utilities"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="91" Y="23"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="C:/lazarus/ide/lazarus.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="24"/>
+        <CursorPos X="25" Y="48"/>
+        <UsageCount Value="10"/>
+      </Unit41>
     </Units>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="form_template.pas"/>
         <Caret Line="10" Column="12"/>
@@ -401,6 +417,9 @@
         <Filename Value="form_template.pas"/>
         <Caret Line="551" TopLine="535"/>
       </Position28>
+      <Position29>
+        <Filename Value="../../../Library/Lib/file_utilities.pas"/>
+      </Position29>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
