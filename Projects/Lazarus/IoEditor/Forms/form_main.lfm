@@ -1,14 +1,14 @@
 object Form1: TForm1
-  Left = 269
+  Left = 477
   Height = 532
-  Top = 112
+  Top = 137
   Width = 1015
   Caption = 'Form1'
   ClientHeight = 532
   ClientWidth = 1015
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.5'
+  LCLVersion = '1.4.0.4'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -20,12 +20,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 251
+      Left = 328
       Top = 2
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 138
+      Left = 226
       Height = 44
       Top = 2
       Width = 18
@@ -33,7 +33,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 67
+      Left = 164
       Top = 2
       Action = ActionComPort
     end
@@ -43,15 +43,20 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButton4: TToolButton
-      Left = 156
+      Left = 244
       Top = 2
       Action = ActionLogWindow
+    end
+    object ToolButton6: TToolButton
+      Left = 62
+      Top = 2
+      Action = ActionEthernetClient
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 25
-    Top = 507
+    Height = 15
+    Top = 517
     Width = 1015
     Panels = <    
       item
@@ -67,16 +72,16 @@ object Form1: TForm1
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 459
+    Height = 469
     Top = 48
     Width = 210
     Align = alLeft
-    ClientHeight = 459
+    ClientHeight = 469
     ClientWidth = 210
     TabOrder = 2
     object LabelMyNodes: TLabel
       Left = 1
-      Height = 21
+      Height = 16
       Top = 1
       Width = 208
       Align = alTop
@@ -86,8 +91,8 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 344
-      Top = 22
+      Height = 359
+      Top = 17
       Width = 208
       HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
@@ -117,7 +122,7 @@ object Form1: TForm1
     object PanelNodeUserInfo: TPanel
       Left = 1
       Height = 92
-      Top = 366
+      Top = 376
       Width = 208
       Align = alBottom
       ClientHeight = 92
@@ -125,7 +130,7 @@ object Form1: TForm1
       TabOrder = 1
       object EditUserName: TEdit
         Left = 16
-        Height = 31
+        Height = 22
         Top = 24
         Width = 176
         Anchors = [akTop, akLeft, akRight]
@@ -133,7 +138,7 @@ object Form1: TForm1
       end
       object EditUserDesc: TEdit
         Left = 16
-        Height = 31
+        Height = 22
         Top = 64
         Width = 176
         Anchors = [akTop, akLeft, akRight]
@@ -141,17 +146,17 @@ object Form1: TForm1
       end
       object LabelUseName: TLabel
         Left = 8
-        Height = 21
+        Height = 16
         Top = 8
-        Width = 78
+        Width = 68
         Caption = 'User Name'
         ParentColor = False
       end
       object LabelUserDesc: TLabel
         Left = 8
-        Height = 21
+        Height = 16
         Top = 48
-        Width = 116
+        Width = 105
         Caption = 'User Description'
         ParentColor = False
       end
@@ -159,13 +164,13 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 210
-    Height = 459
+    Height = 469
     Top = 48
     Width = 8
   end
   object PageControl1: TPageControl
     Left = 554
-    Height = 459
+    Height = 469
     Top = 48
     Width = 461
     ActivePage = TabSheet2
@@ -177,15 +182,15 @@ object Form1: TForm1
     end
     object TabSheet2: TTabSheet
       Caption = 'TabSheet2'
-      ClientHeight = 420
+      ClientHeight = 430
       ClientWidth = 455
       object PanelMain: TPanel
         Left = 0
-        Height = 420
+        Height = 430
         Top = 0
         Width = 455
         Align = alClient
-        ClientHeight = 420
+        ClientHeight = 430
         ClientWidth = 455
         TabOrder = 0
         object TrackBar1: TTrackBar
@@ -203,12 +208,12 @@ object Form1: TForm1
   end
   object Panel1: TPanel
     Left = 218
-    Height = 459
+    Height = 469
     Top = 48
     Width = 336
     Align = alLeft
     Caption = 'Panel1'
-    ClientHeight = 459
+    ClientHeight = 469
     ClientWidth = 336
     TabOrder = 5
     object LccNodeSelectorProducer: TLccNodeSelector
@@ -245,7 +250,7 @@ object Form1: TForm1
     end
     object LccNodeSelectorConsumer: TLccNodeSelector
       Left = 1
-      Height = 242
+      Height = 252
       Top = 216
       Width = 334
       HorzScrollBar.Page = 10
@@ -273,6 +278,9 @@ object Form1: TForm1
     ComPort.Port = 'COM1'
     ComPort.StopBits = cpsb_1_StopBit
     ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = False
+    Ethernet.AutoResolveClientIP = False
+    Ethernet.GridConnect = False
     Ethernet.LocalClientIP = '127.0.0.1'
     Ethernet.RemoteListenerIP = '127.0.0.1'
     Ethernet.LocalListenerIP = '127.0.0.1'
@@ -284,6 +292,9 @@ object Form1: TForm1
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_3_9Mhz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataFalling
+    PiSpiPort.Bits = psb_8
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
     left = 264
@@ -346,6 +357,12 @@ object Form1: TForm1
       Caption = 'Log Window'
       ImageIndex = 1
       OnExecute = ActionLogWindowExecute
+    end
+    object ActionEthernetClient: TAction
+      AutoCheck = True
+      Caption = 'Ethernet Client'
+      ImageIndex = 2
+      OnExecute = ActionEthernetClientExecute
     end
   end
   object ImageList1: TImageList
@@ -3292,5 +3309,15 @@ object Form1: TForm1
       Caption = 'Properties...'
       OnExecute = ActionShowNodePropertiesExecute
     end
+  end
+  object LccEthernetClient: TLccEthernetClient
+    Hub = False
+    Gridconnect = True
+    LccSettings = LccSettings
+    NodeManager = LccNodeManager
+    OnConnectionStateChange = LccEthernetClientConnectionStateChange
+    SleepCount = 0
+    left = 104
+    top = 112
   end
 end

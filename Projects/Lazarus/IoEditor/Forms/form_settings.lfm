@@ -1,83 +1,98 @@
 object FormSettings: TFormSettings
   Left = 470
-  Height = 370
+  Height = 502
   Top = 215
-  Width = 584
+  Width = 600
   Caption = 'FormSettings'
-  ClientHeight = 370
-  ClientWidth = 584
+  ClientHeight = 502
+  ClientWidth = 600
   LCLVersion = '1.4.0.4'
   inline FrameLccSettings1: TFrameLccSettings
-    Height = 370
-    Width = 584
+    Height = 502
+    Width = 600
     Align = alClient
-    ClientHeight = 370
-    ClientWidth = 584
+    ClientHeight = 502
+    ClientWidth = 600
     inherited ButtonOk: TButton
-      Left = 429
+      Left = 445
     end
     inherited ButtonCancel: TButton
-      Left = 283
+      Left = 299
     end
     inherited GroupBoxComPort: TGroupBox
-      Width = 559
-      ClientHeight = 47
-      ClientWidth = 555
+      Width = 575
+      ClientHeight = 51
+      ClientWidth = 567
       inherited ComboBoxComPort: TComboBox
-        Height = 21
-        ItemHeight = 13
+        Height = 20
       end
     end
     inherited GroupBoxEthernetClient: TGroupBox
-      Width = 559
-      ClientHeight = 126
-      ClientWidth = 555
+      Width = 575
+      ClientHeight = 138
+      ClientWidth = 567
       inherited LabelLocalIP: TLabel
-        Height = 13
-        Width = 67
+        Height = 16
+        Width = 88
       end
       inherited EditLocalClientIP: TEdit
-        Height = 21
+        Height = 22
       end
       inherited LabelLocalPort: TLabel
-        Height = 13
-        Width = 77
+        Height = 16
+        Width = 103
       end
       inherited SpinEditLocalClientPort: TSpinEdit
-        Height = 21
+        Height = 16
       end
       inherited LabelRemoteIP: TLabel
-        Height = 13
-        Width = 91
+        Height = 16
+        Width = 117
       end
       inherited EditRemoteListenerIP: TEdit
-        Height = 21
+        Height = 22
       end
       inherited SpinEditRemoteListenerPort: TSpinEdit
-        Height = 21
+        Height = 16
       end
       inherited LabelRemotePort: TLabel
-        Height = 13
-        Width = 101
+        Height = 16
+        Width = 131
+      end
+      inherited CheckBoxAutoResolveLocalAddressClient: TCheckBox
+        Height = 18
+        Width = 158
       end
     end
     inherited GroupBoxEthernetServer: TGroupBox
-      Width = 559
-      ClientHeight = 62
-      ClientWidth = 555
+      Width = 575
+      ClientHeight = 74
+      ClientWidth = 567
       inherited LabelLocalIP1: TLabel
-        Height = 13
-        Width = 78
+        Height = 16
+        Width = 102
       end
       inherited EditLocalListenerIP: TEdit
-        Height = 21
+        Height = 22
       end
       inherited LabelLocalPort1: TLabel
-        Height = 13
-        Width = 88
+        Height = 16
+        Width = 116
       end
       inherited SpinEditLocalListenerPort: TSpinEdit
-        Height = 21
+        Height = 16
+      end
+      inherited CheckBoxAutoResolveLocalAddressServer: TCheckBox
+        Height = 18
+        Width = 158
+      end
+    end
+    inherited GroupBoxPiSpiPort: TGroupBox
+      Width = 576
+      ClientHeight = 51
+      ClientWidth = 568
+      inherited ComboBoxPiSpiPort: TComboBox
+        Height = 20
       end
     end
   end

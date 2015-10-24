@@ -52,6 +52,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionEthernetClient: TAction;
     ActionShowNodeProperties: TAction;
     ActionEditUserStrings: TAction;
     ActionListSelector: TActionList;
@@ -68,6 +69,7 @@ type
     LabelUserDesc: TLabel;
     LabelMyNodes: TLabel;
     LccComPort: TLccComPort;
+    LccEthernetClient: TLccEthernetClient;
     LccEthernetServer: TLccEthernetServer;
     LccNodeManager: TLccNodeManager;
     LccNodeSelector: TLccNodeSelector;
@@ -95,9 +97,11 @@ type
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
     TrackBar1: TTrackBar;
     procedure ActionComPortExecute(Sender: TObject);
     procedure ActionEditUserStringsExecute(Sender: TObject);
+    procedure ActionEthernetClientExecute(Sender: TObject);
     procedure ActionEthernetServerExecute(Sender: TObject);
     procedure ActionLogWindowExecute(Sender: TObject);
     procedure ActionSettingsExecute(Sender: TObject);
@@ -106,6 +110,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
@@ -180,6 +185,19 @@ begin
   end;
 end;
 
+procedure TForm1.ActionEthernetClientExecute(Sender: TObject);
+begin
+  if ActionEthernetClient.Checked then
+  begin
+    LccNodeManager.HardwareConnection := LccEthernetClient;     // Connect the Node Manager to the Comport Link
+    LccEthernetClient.OpenConnectionWithLccSettings;
+  end else
+  begin
+    LccNodeManager.HardwareConnection := nil;          // DisConnect the Node Manager  Link
+    LccEthernetClient.CloseConnection(nil);
+  end
+end;
+
 procedure TForm1.ActionEthernetServerExecute(Sender: TObject);
 begin
   if ActionEthernetServer.Checked then
@@ -190,7 +208,6 @@ begin
   begin
     LccNodeManager.HardwareConnection := nil;          // DisConnect the Node Manager  Link
     LccEthernetServer.CloseConnection(nil);
-
   end
 end;
 
@@ -246,10 +263,10 @@ begin
   FormSettings.FrameLccSettings1.LccSettings := LccSettings;                    // Connect the Settings Object to the Settings UI frame
   LccComPort.LoggingFrame := FormLogging.FrameLccLogging;                       // Connect the LoggingFrame to the Connections
   LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
+  LccEthernetClient.LoggingFrame := FormLogging.FrameLccLogging;
   FormLogging.FrameLccLogging.LccSettings := LccSettings;                       // Allow Logging frame to partake in the Settings to persist logging option
   FormLogging.FrameLccLogging.SyncwithLccSettings;                              // Load the Settings into the Logging Frame
   FormLogging.FrameLccLogging.Paused := True;                                   // Start off Paused since it is hidden
-  FormSettings.FrameLccSettings1.UserSettings.EthernetClient := False;          // Update from video series don't show settings that are not valid
   FormSettings.ClientHeight := FormSettings.FrameLccSettings1.ButtonOk.Top + FormSettings.FrameLccSettings1.ButtonOk.Height + 8; // Now resize the form to fit its child controls
   LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;
@@ -268,6 +285,7 @@ begin
     begin
       StatusBar1.Panels[0].Text := 'Connecting ComPort: ' + ComPortRec.ComPort;
       ActionEthernetServer.Enabled := False;    // Disable Ethernet if Comport active
+      ActionEthernetClient.Enabled := False;
     end;
     ccsPortConnected :
     begin
@@ -288,6 +306,7 @@ begin
        StatusBar1.Panels[1].Text := 'Disconnected';
        ActionComPort.Checked := False;
        ActionEthernetServer.Enabled := True;  // Reinable Ethernet
+       ActionEthernetClient.Enabled := True;
     end;
   end;
 end;
@@ -298,6 +317,40 @@ begin
   ActionComPort.Checked := False;
 end;
 
+procedure TForm1.LccEthernetClientConnectionStateChange(Sender: TObject;
+  EthernetRec: TLccEthernetRec);
+begin
+  case EthernetRec.ConnectionState of
+    ccsClientConnected :
+    begin
+      StatusBar1.Panels[0].Text := 'Connected: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+      LccNodeSelector.LccNodes.Clear;
+      LccNodeManager.Enabled := True;
+    end;
+    ccsClientConnecting :
+    begin
+      StatusBar1.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+      ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
+      ActionEthernetServer.Enabled := False;
+    end;
+    ccsClientDisconnected :
+    begin
+       StatusBar1.Panels[0].Text := 'Disconnected:';
+       StatusBar1.Panels[1].Text := 'Disconnected';
+       ActionEthernetServer.Checked := False;
+       ActionComPort.Enabled := True;        // Reinable Comport
+       ActionEthernetServer.Enabled := True;;
+    end;
+    ccsClientDisconnecting :
+    begin
+       LccNodeSelector.LccNodes.Clear;
+       LccNodeManager.Enabled := False;
+       StatusBar1.Panels[1].Text := 'Disconnecting';
+       StatusBar1.Panels[0].Text := 'Disconnecting';
+    end;
+  end;
+end;
+
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
@@ -305,6 +358,7 @@ begin
     begin
       StatusBar1.Panels[0].Text := 'Connecting Ethernet: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
       ActionComPort.Enabled := False;  // Disable Comport if Ethernet is active
+      ActionEthernetClient.Enabled := False;
     end;
     ccsListenerConnected :
     begin
@@ -325,6 +379,7 @@ begin
        StatusBar1.Panels[1].Text := 'Disconnected';
        ActionEthernetServer.Checked := False;
        ActionComPort.Enabled := True;        // Reinable Comport
+       ActionEthernetClient.Enabled := True;
     end;
     ccsListenerClientConnecting :
     begin
