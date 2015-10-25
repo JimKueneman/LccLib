@@ -55,6 +55,9 @@ type
     ButtonSetLoopbackRemote: TButton;
     CheckBoxAutoResolveLocalAddressClient: TCheckBox;
     CheckBoxAutoResolveLocalAddressServer: TCheckBox;
+    ComboBoxSpiSpeed: TComboBox;
+    ComboBoxSpiMode: TComboBox;
+    ComboBoxSpiBits: TComboBox;
     ComboBoxComPort: TComboBox;
     ComboBoxPiSpiPort: TComboBox;
     EditLocalClientIP: TEdit;
@@ -64,6 +67,9 @@ type
     GroupBoxPiSpiPort: TGroupBox;
     GroupBoxEthernetClient: TGroupBox;
     GroupBoxEthernetServer: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     LabelLocalIP: TLabel;
     LabelLocalIP1: TLabel;
     LabelLocalPort: TLabel;
@@ -351,6 +357,9 @@ begin
       LccSettings.Ethernet.AutoResolveListenerIP := CheckBoxAutoResolveLocalAddressServer.Checked;
       LccSettings.Ethernet.AutoResolveClientIP := CheckBoxAutoResolveLocalAddressClient.Checked;
       LccSettings.PiSpiPort.Port := ComboBoxPiSpiPort.Caption;
+      LccSettings.PiSpiPort.Speed := TPiSpiSpeed( ComboBoxSpiSpeed.ItemIndex);
+      LccSettings.PiSpiPort.Mode := TPiSpiMode( ComboBoxSpiMode.ItemIndex);
+      LccSettings.PiSpiPort.Bits := TPiSpiBits( ComboBoxSpiBits.ItemIndex);
       LccSettings.SaveToFile;
     end;
   end;
@@ -456,6 +465,9 @@ begin
       ComboBoxComPort.ItemIndex := ComboBoxComPort.Items.IndexOf(LccSettings.ComPort.Port);
       if (ComboBoxComPort.ItemIndex < 0) and (ComboBoxComPort.Items.Count > 0) then
         ComboBoxComPort.ItemIndex := 0;
+      ComboBoxSpiSpeed.ItemIndex := Integer(   LccSettings.PiSpiPort.Speed);
+      ComboBoxSpiMode.ItemIndex := Integer(   LccSettings.PiSpiPort.Mode);
+      ComboBoxSpiBits.ItemIndex := Integer(   LccSettings.PiSpiPort.Bits);
       PositionButtons;
     finally
       LockSetting := False;

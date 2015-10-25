@@ -1,19 +1,19 @@
 object FrameLccSettings: TFrameLccSettings
   Left = 0
-  Height = 495
+  Height = 613
   Top = 0
-  Width = 576
-  ClientHeight = 495
-  ClientWidth = 576
+  Width = 593
+  ClientHeight = 613
+  ClientWidth = 593
   Color = clDefault
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 502
-  DesignTop = 129
+  DesignLeft = 569
+  DesignTop = 308
   object ButtonOk: TButton
-    Left = 416
+    Left = 451
     Height = 22
-    Top = 456
+    Top = 584
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Ok'
@@ -22,9 +22,9 @@ object FrameLccSettings: TFrameLccSettings
     TabOrder = 0
   end
   object ButtonCancel: TButton
-    Left = 280
+    Left = 315
     Height = 22
-    Top = 456
+    Top = 584
     Width = 126
     Anchors = [akTop, akRight]
     Caption = 'Cancel'
@@ -35,11 +35,11 @@ object FrameLccSettings: TFrameLccSettings
     Left = 8
     Height = 73
     Top = 8
-    Width = 560
+    Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'COM Port'
     ClientHeight = 50
-    ClientWidth = 556
+    ClientWidth = 573
     TabOrder = 2
     object ComboBoxComPort: TComboBox
       Left = 17
@@ -65,12 +65,12 @@ object FrameLccSettings: TFrameLccSettings
     Tag = 2
     Left = 8
     Height = 160
-    Top = 168
-    Width = 560
+    Top = 312
+    Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Client'
     ClientHeight = 137
-    ClientWidth = 556
+    ClientWidth = 573
     TabOrder = 3
     object LabelLocalIP: TLabel
       Left = 8
@@ -175,12 +175,12 @@ object FrameLccSettings: TFrameLccSettings
     Tag = 3
     Left = 8
     Height = 96
-    Top = 336
-    Width = 560
+    Top = 480
+    Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Server'
     ClientHeight = 73
-    ClientWidth = 556
+    ClientWidth = 573
     TabOrder = 4
     object LabelLocalIP1: TLabel
       Left = 8
@@ -239,13 +239,13 @@ object FrameLccSettings: TFrameLccSettings
   object GroupBoxPiSpiPort: TGroupBox
     Tag = 1
     Left = 8
-    Height = 73
+    Height = 216
     Top = 88
-    Width = 560
+    Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Rasberry Pi SPI Port'
-    ClientHeight = 50
-    ClientWidth = 556
+    ClientHeight = 193
+    ClientWidth = 573
     TabOrder = 5
     object ComboBoxPiSpiPort: TComboBox
       Left = 17
@@ -265,6 +265,90 @@ object FrameLccSettings: TFrameLccSettings
       Caption = 'Rescan Ports'
       OnClick = BitBtnRescanPiSpiPortsClick
       TabOrder = 1
+    end
+    object ComboBoxSpiSpeed: TComboBox
+      Left = 15
+      Height = 33
+      Top = 80
+      Width = 249
+      ItemHeight = 0
+      ItemIndex = 9
+      Items.Strings = (
+        '7.629 Hz'
+        '15.20 kHz'
+        '30.50 kHz'
+        '61.00 kHz'
+        '122.0 kHz'
+        '244.0 kHz'
+        '488.0 kHz'
+        '976.0 kHz'
+        '1.953 MHz'
+        '3.900 Mhz'
+        '7.800 Mhz'
+        '15.60 Mhz'
+        '31.20 Mhz'
+        '62.50 Mhz'
+        '125.0 Mhz'
+      )
+      Style = csDropDownList
+      TabOrder = 2
+      Text = '3.900 Mhz'
+    end
+    object Label1: TLabel
+      Left = 8
+      Height = 21
+      Top = 56
+      Width = 67
+      Caption = 'SPI Clock'
+      ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 8
+      Height = 21
+      Top = 120
+      Width = 40
+      Caption = 'Mode'
+      ParentColor = False
+    end
+    object ComboBoxSpiMode: TComboBox
+      Left = 16
+      Height = 33
+      Top = 144
+      Width = 249
+      ItemHeight = 0
+      ItemIndex = 1
+      Items.Strings = (
+        'Clock Idle Lo / DataRising'
+        'Clock Idle Lo / DataFalling'
+        'Clock Idle Hi / DataRising'
+        'Clock Idle Hi / DataFalling  '
+      )
+      Style = csDropDownList
+      TabOrder = 3
+      Text = 'Clock Idle Lo / DataFalling'
+    end
+    object Label3: TLabel
+      Left = 304
+      Height = 21
+      Top = 56
+      Width = 27
+      Caption = 'Bits'
+      ParentColor = False
+    end
+    object ComboBoxSpiBits: TComboBox
+      Left = 312
+      Height = 33
+      Top = 80
+      Width = 172
+      ItemHeight = 0
+      ItemIndex = 0
+      Items.Strings = (
+        '8 Bits'
+        '16 Bits'
+      )
+      Style = csDropDownList
+      TabOrder = 4
+      Text = '8 Bits'
     end
   end
 end
