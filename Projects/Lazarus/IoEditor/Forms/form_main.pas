@@ -253,6 +253,8 @@ begin
     ActionComPort.Execute;                  // Force calling the OnExecute Event to clean up, but only if the Action is enabled
   if ActionEthernetServer.Checked then
     ActionEthernetServer.Execute;           // Force calling the OnExecute Event to clean up, but only if the Action is enabled
+  if ActionEthernetClient.Checked then
+    ActionEthernetClient.Execute;
 end;
 
 procedure TForm1.FormShow(Sender: TObject);

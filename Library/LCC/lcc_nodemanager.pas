@@ -1554,6 +1554,9 @@ begin
              OwnerManager.DoRequestMessageSend(LccMessage);
              Result := True;
            end;
+         MTI_DATAGRAM_OK_REPLY :
+           begin
+           end;
          MTI_DATAGRAM :
            begin
              case LccMessage.DataArrayIndexer[0] of
