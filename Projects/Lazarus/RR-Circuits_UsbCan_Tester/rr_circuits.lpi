@@ -103,6 +103,7 @@ if TargetOS = 'linux' then
     <Linking>
       <Debugging>
         <UseValgrind Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
       </Debugging>
       <Options>
         <Win32>

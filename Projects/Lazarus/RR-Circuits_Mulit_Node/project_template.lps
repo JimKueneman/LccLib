@@ -29,9 +29,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
         <IsVisibleTab Value="True"/>
-        <CursorPos X="17" Y="5"/>
+        <TopLine Value="342"/>
+        <CursorPos X="42" Y="24"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -180,7 +182,6 @@
       </Unit25>
       <Unit26>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="860"/>
         <CursorPos Y="866"/>
@@ -211,7 +212,6 @@
       </Unit29>
       <Unit30>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1714"/>
         <CursorPos X="24" Y="3689"/>
@@ -281,7 +281,6 @@
       </Unit39>
       <Unit40>
         <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
-        <UnitName Value="lcc_messages"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="454"/>
         <CursorPos Y="480"/>
@@ -302,7 +301,6 @@
       </Unit42>
       <Unit43>
         <Filename Value="../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
-        <UnitName Value="lcc_can_message_assembler_disassembler"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="309"/>
         <CursorPos Y="371"/>
@@ -317,7 +315,6 @@
       </Unit44>
       <Unit45>
         <Filename Value="../../../Library/LCC/lcc_message_scheduler.pas"/>
-        <UnitName Value="lcc_message_scheduler"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="464"/>
         <CursorPos X="7" Y="470"/>
@@ -325,7 +322,6 @@
       </Unit45>
       <Unit46>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <UnitName Value="lcc_comport"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="570"/>
         <CursorPos X="9" Y="580"/>
@@ -333,7 +329,6 @@
       </Unit46>
       <Unit47>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <UnitName Value="lcc_ethernetclient"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="661"/>
         <CursorPos X="14" Y="664"/>
@@ -341,7 +336,6 @@
       </Unit47>
       <Unit48>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <UnitName Value="lcc_common_classes"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="31"/>
         <CursorPos Y="80"/>
@@ -349,7 +343,6 @@
       </Unit48>
       <Unit49>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <UnitName Value="lcc_raspberrypi_spiport"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="51"/>
         <CursorPos X="54" Y="20"/>
