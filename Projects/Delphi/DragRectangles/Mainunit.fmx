@@ -1,0 +1,34 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = Single
+  Caption = 'Form33'
+  ClientHeight = 480
+  ClientWidth = 640
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object Layout1: TLayout
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    HitTest = True
+    Position.X = 30.000000000000000000
+    Position.Y = 30.000000000000000000
+    Size.Width = 579.000000000000000000
+    Size.Height = 421.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    OnMouseMove = Layout1MouseMove
+    OnMouseUp = Layout1MouseUp
+    object Rectangle1: TRectangle
+      Align = Client
+      Fill.Color = claAntiquewhite
+      HitTest = False
+      Size.Width = 579.000000000000000000
+      Size.Height = 421.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+end
