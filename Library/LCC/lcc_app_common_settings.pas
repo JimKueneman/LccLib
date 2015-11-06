@@ -18,7 +18,7 @@ uses
   Types,
   System.SyncObjs,
   {$ENDIF}
-  IniFiles, lcc_defines;
+  IniFiles, lcc_defines, lcc_raspberrypi;
 
  // Classes, SysUtils, FileUtil, IniFiles;
 
@@ -97,32 +97,6 @@ type
     cpsb_1_5_StopBit,              // 1.5 Stop bit
     cpsb_2_StopBit                 // 2 Stop bits
   );
-
-type
-  TPiSpiMode = (psm_ClkIdleLo_DataRising,
-                psm_ClkIdleLo_DataFalling,
-                psm_ClkIdleHi_DataRising,
-                psm_ClkIdleHi_DataFalling,
-                psm_Unknown);
-
-  TPiSpiBits = (psb_8,
-                psb_16);
-
-  TPiSpiSpeed = (pss_7629Hz,
-                 pss_15_2kHz,
-                 pss_30_5kHz,
-                 pss_61kHz,
-                 pss_122kHz,
-                 pss_244kHz,
-                 pss_488kHz,
-                 pss_976kHz,
-                 pss_1_953MHz,
-                 pss_3_9Mhz,
-                 pss_7_8Mhz,
-                 pss_15_6Mhz,
-                 pss_31_2Mhz,
-                 pss_62_5Mhz,
-                 pss_125Mhz);
 
 const
   HI_FLOWCONTROL_TYPE = 3;

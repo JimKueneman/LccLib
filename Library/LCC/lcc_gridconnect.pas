@@ -9,7 +9,7 @@ interface
 {$I lcc_compilers.inc}
 
 uses
-  Classes, SysUtils, lcc_defines, lcc_compiler_types;
+  Classes, SysUtils, lcc_defines;
 
 const
   // :X19170640N0501010107015555;#0  Example.....
@@ -59,7 +59,7 @@ var
 begin
   Result := '';
   i := 0;
-  while GridConnectBuffer[i] <> Ord(#0) do
+  while (GridConnectBuffer[i] <> Ord(#0)) and (GridConnectBuffer[i] <> Ord(#10)) and (GridConnectBuffer[i] <> Ord(#13)) do
   begin
     Result := Result + Char( GridConnectBuffer[i]);
     Inc(i);
