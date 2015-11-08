@@ -11,7 +11,8 @@ uses
   { you can add units after this };
 
 const
-  GRIDCONNECT_STR_COUNT = 32;
+  GRIDCONNECT_STR_COUNT_IDLE = 16;
+  GRIDCONNECT_STR_COUNT = 16;
   GRIDCONNECT_CHAR_COUNT = 30;
 
 type
@@ -23,14 +24,12 @@ type
     FGridConnectHelper: TGridConnectHelper;
     FSocket: TTCPBlockSocket;
     FInBuffer: TStringList;
-    FOutBuffer: TStringList;
   public
     constructor Create;
     destructor Destroy; override;
     property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
     property Socket: TTCPBlockSocket read FSocket write FSocket;
     property InBuffer: TStringList read FInBuffer write FInBuffer;
-    property OutBuffer: TStringList read FOutBuffer write FOutBuffer;
   end;
 
   { TRPiCAN }
@@ -38,14 +37,17 @@ type
   TRPiCAN = class(TCustomApplication)
   private
     FClientConnections: TObjectList;
+    FGridConnectHelper: TGridConnectHelper;
     FListening: Boolean;
     FListenSocket: TTCPBlockSocket;
     FRaspberryPiInBuffer: TStringList;
     FRaspberryPiSpi: TRaspberryPiSpi;
     FSocketHandleForListener: TSocket;
     FTxBufferNull: TPiSpiBuffer;
+    FVerbose: Boolean;
     function GetClientConnection(Index: Integer): TClientConnection;
     procedure SetClientConnection(Index: Integer; AValue: TClientConnection);
+    procedure SetVerbose(AValue: Boolean);
   protected
     property TxBufferNull: TPiSpiBuffer read FTxBufferNull write FTxBufferNull;
     property ClientConnections: TObjectList read FClientConnections write FClientConnections;
@@ -53,11 +55,13 @@ type
     procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
   public
     property ClientConnection[Index: Integer]: TClientConnection read GetClientConnection write SetClientConnection;
+    property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
     property Listening: Boolean read FListening write FListening;
     property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
     property SocketHandleForListener: TSocket read FSocketHandleForListener write FSocketHandleForListener;
     property RaspberryPiInBuffer: TStringList read FRaspberryPiInBuffer write FRaspberryPiInBuffer;
+    property Verbose: Boolean read FVerbose write SetVerbose;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -125,7 +129,6 @@ constructor TClientConnection.Create;
 begin
   Inherited;
   InBuffer := TStringList.Create;
-  OutBuffer := TStringList.Create;
   GridConnectHelper := TGridConnectHelper.Create;
 end;
 
@@ -133,12 +136,9 @@ destructor TClientConnection.Destroy;
 begin
   FreeAndNil(FSocket);
   FreeAndNil(FInBuffer);
-  FreeAndNil(FOutBuffer);
   FreeAndNil(FGridConnectHelper);
   inherited Destroy;
 end;
-
-
 
 function TRPiCAN.GetClientConnection(Index: Integer): TClientConnection;
 begin
@@ -148,6 +148,16 @@ end;
 procedure TRPiCAN.SetClientConnection(Index: Integer; AValue: TClientConnection);
 begin
   ClientConnections[Index] := AValue;
+end;
+
+procedure TRPiCAN.SetVerbose(AValue: Boolean);
+begin
+  if FVerbose = AValue then Exit;
+  FVerbose := AValue;
+  if FVerbose then
+    WriteLn('Verbose on')
+  else
+    WriteLn('Verbose off');
 end;
 
 { TRPiCAN }
@@ -174,7 +184,7 @@ begin
 
   { add your program here }
   RaspberryPiSpi.Mode := psm_ClkIdleLo_DataFalling;
-  RaspberryPiSpi.Speed := pss_976kHz;
+  RaspberryPiSpi.Speed := pss_1_953MHz;
   RaspberryPiSpi.Bits := psb_8;
   if RaspberryPiSpi.OpenSpi('/dev/spidev0.0') then
   begin
@@ -190,9 +200,13 @@ begin
           DoCheckClientReceive;
           DoHandleRaspberryPiHub;
           DoHandleEthernetClientHub;
+          DoIdleRaspberryPiRx;
 
           if KeyPressed then
+          begin
             C := ReadKey;
+           if C = 'v' then Verbose := not Verbose
+          end;
 
         until C = 'q';
       finally
@@ -215,16 +229,24 @@ end;
 
 procedure TRPiCAN.ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
 var
-  iRxBuffer, iRxChar: Integer;
+  iRxBuffer, iRxChar, Sum: Integer;
   IncomingArray: array[0..GRIDCONNECT_CHAR_COUNT-1] of ansiChar;
 begin
-  iRxChar := 1;
-  for iRxBuffer := 1 to Count do
+  iRxBuffer := 1;
+  while iRxBuffer <= Count do
   begin
+    Sum := 0;
     for iRxChar := 1 to GRIDCONNECT_CHAR_COUNT do
+    begin
+      Inc(Sum, RxBuffer[iRxBuffer-1]);
       IncomingArray[iRxChar - 1] := AnsiChar( RxBuffer[iRxBuffer - 1]);
+      Inc(iRxBuffer);
+    end;
     if IncomingArray[0] = ':' then
-      RaspberryPiInBuffer.Add(IncomingArray);
+      RaspberryPiInBuffer.Add(PAnsiChar( @IncomingArray[0]))
+    else
+    if Sum > 0 then
+      beep;
   end;
 end;
 
@@ -238,6 +260,7 @@ begin
   ListenSocket := TTCPBlockSocket.Create;
   ClientConnections := TObjectList.Create;
   RaspberryPiInBuffer := TStringList.Create;
+  GridConnectHelper := TGridConnectHelper.Create;
   for i := 0 to Length(TxBufferNull) - 1 do
     FTxBufferNull[i] := $00
 end;
@@ -250,6 +273,7 @@ begin
   FreeAndNil(FListenSocket);
   FreeAndNil(FClientConnections);
   FreeAndNil(FRaspberryPiInBuffer);
+  FreeAndNil(FGridConnectHelper);
   inherited Destroy;
 end;
 
@@ -323,7 +347,8 @@ begin
             begin
               GridConnectStr := GridConnectBufferToString(GridConnectStrPtr^);
               LocalConnection.InBuffer.Add(GridConnectStr);
-              WriteLn(GridConnectStr);
+              if Verbose then
+                WriteLn(GridConnectStr);
             end;
           end;
         WSAETIMEDOUT :
@@ -364,7 +389,7 @@ begin
       // Sends to ALL Ethernet connections
       for iSpiStr := 0 to RaspberryPiInBuffer.Count - 1 do
       begin
-        OutString := RaspberryPiInBuffer[i];
+        OutString := RaspberryPiInBuffer[iSpiStr];
         // TODO: If Filter Allows then...
         for iChar := 1 to Length(OutString) do
           OutConnection.Socket.SendByte( Ord(OutString[iChar]));
@@ -403,7 +428,7 @@ begin
       begin
         iTxBuffer := 1;
         RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, GRIDCONNECT_CHAR_COUNT*GRIDCONNECT_STR_COUNT);
-        ExtractSpiRxBuffer(RxBuffer, GRIDCONNECT_CHAR_COUNT*GRIDCONNECT_STR_COUNT);
+        ExtractSpiRxBuffer(PPiSpiBuffer( @RxBuffer[1])^, GRIDCONNECT_CHAR_COUNT*GRIDCONNECT_STR_COUNT);
       end;
       OutString := InConnection.InBuffer[iStr];
       // TODO: If Filter Allows then..
@@ -421,7 +446,7 @@ begin
     if iTxBuffer > 1 then
     begin
       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, GRIDCONNECT_CHAR_COUNT*(iTxBuffer div GRIDCONNECT_CHAR_COUNT));
-      ExtractSpiRxBuffer(RxBuffer, GRIDCONNECT_CHAR_COUNT*(iTxBuffer div GRIDCONNECT_CHAR_COUNT));
+      ExtractSpiRxBuffer(PPiSpiBuffer( @RxBuffer[1])^, GRIDCONNECT_CHAR_COUNT*(iTxBuffer div GRIDCONNECT_CHAR_COUNT));
     end;
   end;
 end;
@@ -430,8 +455,8 @@ procedure TRPiCAN.DoIdleRaspberryPiRx;
 var
   RxBuffer: TPiSpiBuffer;
 begin
-  RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, GRIDCONNECT_CHAR_COUNT*5);
-  ExtractSpiRxBuffer(RxBuffer, GRIDCONNECT_CHAR_COUNT*5);
+  RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, GRIDCONNECT_CHAR_COUNT*GRIDCONNECT_STR_COUNT_IDLE);
+  ExtractSpiRxBuffer(PPiSpiBuffer(@RxBuffer[1])^, GRIDCONNECT_CHAR_COUNT*GRIDCONNECT_STR_COUNT);
 end;
 
 procedure TRPiCAN.OpenListenSocket;
