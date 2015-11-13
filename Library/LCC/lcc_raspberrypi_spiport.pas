@@ -21,7 +21,10 @@ uses
     lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
     lcc_common_classes, file_utilities, lcc_compiler_types, lcc_can_message_assembler_disassembler,
   {$ENDIF}
-  contnrs, lcc_raspberrypi;
+  {$IFDEF CPUARM}
+  lcc_raspberrypi,
+  {$ENDIF}
+  contnrs ;
 
 {$IFDEF CPUARM}
 type

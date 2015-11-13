@@ -85,6 +85,8 @@ type
 
   TSpiIocTransfer = _spi_ioc_transfer;
 
+{$ENDIF}
+
 type
   TPiSpiMode = (psm_ClkIdleLo_DataRising,
                 psm_ClkIdleLo_DataFalling,
@@ -111,6 +113,8 @@ type
                  pss_62_5Mhz,
                  pss_125Mhz);
 
+
+ {$IFDEF CPUARM}
   { TRaspberryPiSpi }
   TRaspberryPiSpi = class
   private
@@ -143,6 +147,8 @@ type
 
 
 implementation
+
+{$IFDEF CPUARM}
 
 function GetRaspberryPiSpiPortNames: string;
 var
@@ -310,6 +316,8 @@ begin
       Result := True
   end;
 end;
+
+{$ENDIF}
 
 end.
 
