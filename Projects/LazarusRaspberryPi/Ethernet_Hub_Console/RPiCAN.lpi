@@ -47,7 +47,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../Library/LCC;../../../Library/Synapse_LCC"/>
+      <OtherUnitFiles Value="../../../Library/LCC;../../../Library/Synapse_LCC;../../../Library/Lib"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

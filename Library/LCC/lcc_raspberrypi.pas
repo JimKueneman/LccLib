@@ -133,9 +133,11 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    function CopyStringToBuffer(AString: ansistring; Buffer: PPiSpiBuffer; Offset, BufferLen: Integer): Integer;
     function OpenSpi(SpiDevicePath: string): Boolean;
     procedure CloseSpi;
     function Transfer(TxBuffer: PPiSpiBuffer; RxBuffer: PPiSpiBuffer; Count: Integer): Boolean;
+    procedure ZeroBuffer(Buffer: PPiSpiBuffer; Count: Integer);
   end;
 
   function GetRaspberryPiSpiPortNames: string;
@@ -146,8 +148,6 @@ implementation
 
 function GetRaspberryPiSpiPortNames: string;
 var
-  Index: Integer;
-  Data: string;
   TmpPorts: String;
   sr : TSearchRec;
 begin
@@ -245,6 +245,20 @@ begin
   inherited Destroy;
 end;
 
+function TRaspberryPiSpi.CopyStringToBuffer(AString: ansistring; Buffer: PPiSpiBuffer; Offset, BufferLen: Integer): Integer;
+var
+  i, iBufferIndex: Integer;
+begin
+  iBufferIndex := Offset;
+  for i := 0 to Length(AString) - 1 do
+  begin
+    if iBufferIndex < BufferLen then
+      Buffer^[Offset + i] := Ord( AString[i+1]);
+    Inc(iBufferIndex);
+  end;
+  Result := Offset + Length(AString);
+end;
+
 function TRaspberryPiSpi.OpenSpi(SpiDevicePath: string): Boolean;
 begin
   Result := False;
@@ -309,6 +323,14 @@ begin
     if IOCtlResult > -1 then
       Result := True
   end;
+end;
+
+procedure TRaspberryPiSpi.ZeroBuffer(Buffer: PPiSpiBuffer; Count: Integer);
+var
+  i: Integer;
+begin
+  for i := 0 to Count - 1 do
+    Buffer^[i] := 0;
 end;
 
 end.
