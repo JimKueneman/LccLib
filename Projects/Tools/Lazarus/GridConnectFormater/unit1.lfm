@@ -1,0 +1,23 @@
+object Form1: TForm1
+  Left = 596
+  Height = 285
+  Top = 162
+  Width = 494
+  Caption = 'Form1'
+  ClientHeight = 285
+  ClientWidth = 494
+  LCLVersion = '1.4.0.4'
+  object Button1: TButton
+    Left = 40
+    Height = 25
+    Top = 48
+    Width = 75
+    Caption = 'Button1'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object OpenDialog1: TOpenDialog
+    left = 121
+    top = 78
+  end
+end

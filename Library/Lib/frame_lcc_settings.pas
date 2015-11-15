@@ -9,10 +9,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin,
   Buttons, synaser, lcc_app_common_settings, Dialogs, LResources,
-  {$IFDEF CPUARM}
-  lcc_raspberrypi_spiport,
-  {$ENDIF}
-  contnrs;
+  lcc_raspberrypi, contnrs;
 
 type
 
