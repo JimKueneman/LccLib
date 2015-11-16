@@ -49,7 +49,6 @@ implementation
 
 const
   GRIDCONNECT_STATE_SYNC_START = 0;
-  GRIDCONNECT_STATE_SYNC_FIND_X = 1;
   GRIDCONNECT_STATE_SYNC_FIND_HEADER = 2;
   GRIDCONNECT_STATE_SYNC_FIND_DATA = 4;
 
@@ -108,7 +107,6 @@ begin
       GRIDCONNECT_STATE_SYNC_START :                                            // Find a starting ':'
         begin
           if (NextChar = Ord('X')) or (NextChar = Ord('x')) then
-       //   if NextChar = Ord(':') then
           begin
             ReceiveGridConnectBufferIndex := 0;
             FReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := Ord(':');
@@ -116,22 +114,17 @@ begin
             FReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := Ord('X');
             Inc(FReceiveGridConnectBufferIndex);
             GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_HEADER;
-        //    GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_X
+          end else
+          if (NextChar = Ord('R')) or (NextChar = Ord('r')) then
+          begin
+            ReceiveGridConnectBufferIndex := 0;
+            FReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := Ord(':');
+            Inc(FReceiveGridConnectBufferIndex);
+            FReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := Ord('R');
+            Inc(FReceiveGridConnectBufferIndex);
+            GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_HEADER;
           end
         end;
-  {    GRIDCONNECT_STATE_SYNC_FIND_X :
-        begin
-          if NextChar <> Ord(':') then                                               // Handle double ":"'s by doing nothing if the next byte is a ":", just wait for the next byte to see if it is a "X"
-          begin
-            if (NextChar = Ord('X')) or (NextChar = Ord('x')) then
-            begin
-              FReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := Ord('X');
-              Inc(FReceiveGridConnectBufferIndex);
-              GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_HEADER
-            end else
-               GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START          // Error, start over
-          end
-        end;    }
       GRIDCONNECT_STATE_SYNC_FIND_HEADER :
         begin
           if ReceiveGridConnectBufferIndex < 11 then

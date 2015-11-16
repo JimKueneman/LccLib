@@ -309,7 +309,17 @@ begin
   for i := 0 to Count - 1 do
   begin
     if GridConnectHelperRPi.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
-      RaspberryPiInBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
+    begin
+      case GridConnectStrPtr^[1] of
+        Ord('X') : RaspberryPiInBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
+        Ord('R') : begin
+                     if GridConnectStrPtr^[2] = Ord('1') then
+                       WriteLn('XOn')
+                     else
+                       WriteLn('XOff');
+                   end;
+      end;
+    end;
   end;
 end;
 
@@ -359,6 +369,7 @@ procedure TRPiCAN.DoBootLoad;
 var
   TxBuffer, RxBuffer: TPiSpiBuffer;
   FilePath: string;
+  IgnoreAddressStart, IgnoreAddressEnd: DWord;
   RxOffset, i, j: Integer;
   IntelParser: TIntelHexParser;
   IntelHexInfo: TIntelHexInfo;
@@ -428,25 +439,36 @@ begin
            Inc(RxOffset);
            BootInfo.ApplicationName := ansistring( PChar( @RxBuffer[RxOffset]));
 
-           WriteLn('Structure Size: ' + IntToStr(BootInfo.StructSize));
-           WriteLn('Erase Block Size: ' + IntToStr(BootInfo.EraseBlockSize));
-           WriteLn('Write Block Size: ' + IntToStr(BootInfo.WriteBufferSize));
-           WriteLn('Flash Size: ' + IntToStr(BootInfo.ProgramFlashSize));
-           WriteLn('Bootloader Address: ' + IntToStr(BootInfo.BootloaderAddress));
-           WriteLn('Bootloader Size: ' + IntToStr(BootInfo.BootloaderSize));
-           WriteLn('Configruation Address: ' + IntToStr(BootInfo.ConfigurationAdddress));
-           WriteLn('McuFamily: ' + IntToStr(BootInfo.McuFamily));
-           WriteLn('Revision: ' + IntToStr(BootInfo.Revision[1]) + '.' + IntToStr(BootInfo.Revision[0]));
-           WriteLn('App Name: ' + BootInfo.ApplicationName);
-
            IntelHexInfo.AddressIncrement := 2;
            IntelHexInfo.BytesPerInstruction := 3;
            IntelHexInfo.DoubleAddress := True;
            IntelHexInfo.HexType := iht_INH24_dsPIC33;
 
+           WriteLn('Structure Size: ' + IntToStr(BootInfo.StructSize));
+           WriteLn('Erase Block Size (bytes): ' + IntToStr(BootInfo.EraseBlockSize) + ' [0x' + IntToHex(BootInfo.EraseBlockSize, 8) + ']');
+           WriteLn('Write Block Size (bytes): ' + IntToStr(BootInfo.WriteBufferSize) + ' [0x' + IntToHex(BootInfo.WriteBufferSize, 8) + ']');
+           WriteLn('Flash Size (bytes): ' + IntToStr(BootInfo.ProgramFlashSize) + ' [0x' + IntToHex(BootInfo.ProgramFlashSize, 8) + ']' + ' [0x' + IntToHex(BootInfo.ProgramFlashSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement, 8) + ' User Addresses]');
+           WriteLn('Bootloader Address: 0x' + IntToHex(BootInfo.BootloaderAddress, 8));
+           WriteLn('Bootloader Size (bytes): ' + IntToStr(BootInfo.BootloaderSize) + ' [0x' + IntToHex(BootInfo.BootloaderSize, 8) + ']');
+           WriteLn('Configruation Address: 0x' + IntToHex(BootInfo.ConfigurationAdddress, 8));
+           WriteLn('McuFamily: ' + IntToStr(BootInfo.McuFamily));
+           WriteLn('Revision: ' + IntToStr(BootInfo.Revision[1]) + '.' + IntToStr(BootInfo.Revision[0]));
+           WriteLn('App Name: ' + BootInfo.ApplicationName);
+
            // Add an ignore space where the bootloader is so we don't overwrite it
            Group := IgnoreList.AddGroup;
-           Group.AddBound(BootInfo.BootloaderAddress, BootInfo.BootloaderAddress + (BootInfo.BootloaderSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement));
+           IgnoreAddressStart := BootInfo.BootloaderAddress;
+           IgnoreAddressEnd := BootInfo.BootloaderAddress + (BootInfo.BootloaderSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
+           WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
+           Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
+           if BootInfo.ConfigurationAdddress > 0 then
+           begin
+             IgnoreAddressStart := BootInfo.ConfigurationAdddress;
+             IgnoreAddressEnd := BootInfo.ConfigurationAdddress + (BootInfo.EraseBlockSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
+             WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
+             Group := IgnoreList.AddGroup;
+             Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
+           end;
            WriteLn('Parsing Intel HEX file');
            if IntelParser.ParseHex(FilePath, IntelHexInfo, BootInfo.EraseBlockSize, BootInfo.WriteBufferSize, 1, IgnoreList, False) then
            begin
