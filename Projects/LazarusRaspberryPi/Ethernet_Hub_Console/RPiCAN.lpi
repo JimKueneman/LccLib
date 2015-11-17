@@ -33,6 +33,7 @@
       <Unit0>
         <Filename Value="RPiCAN.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="RPiCAN"/>
       </Unit0>
       <Unit1>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>

@@ -60,12 +60,25 @@ type
     FGridConnectHelper: TGridConnectHelper;
     FSocket: TTCPBlockSocket;
     FInBuffer: TStringList;
+    FXOn: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
     property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
     property Socket: TTCPBlockSocket read FSocket write FSocket;
     property InBuffer: TStringList read FInBuffer write FInBuffer;
+    property XOn: Boolean read FXOn write FXon;
+  end;
+
+  { TRPiClientConnection }
+
+  TRPiClientConnection = class(TClientConnection)
+  private
+    FOutBuffer: TStringList;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property OutBuffer: TStringList read FOutBuffer write FOutBuffer;
   end;
 
   { TRPiCAN }
@@ -74,49 +87,41 @@ type
   private
     FBootloading: Boolean;
     FClientConnections: TObjectList;
-    FGridConnectHelper: TGridConnectHelper;
-    FGridConnectHelperRPi: TGridConnectHelper;
     FListening: Boolean;
     FListenSocket: TTCPBlockSocket;
-    FRaspberryPiInBuffer: TStringList;
+    FRaspberryPiConnection: TRPiClientConnection;
     FRaspberryPiSpi: TRaspberryPiSpi;
-    FSocketHandleForListener: TSocket;
     FTxBufferNull: TPiSpiBuffer;
     FVerbose: Boolean;
-    FXOn: Boolean;
-    function GetClientConnection(Index: Integer): TClientConnection;
-    procedure SetClientConnection(Index: Integer; AValue: TClientConnection);
+    function GetEthernetConnection(Index: Integer): TClientConnection;
+    procedure SetEthenetConnection(Index: Integer; AValue: TClientConnection);
     procedure SetVerbose(AValue: Boolean);
   protected
     property TxBufferNull: TPiSpiBuffer read FTxBufferNull write FTxBufferNull;
     property ClientConnections: TObjectList read FClientConnections write FClientConnections;
-    procedure DoRun; override;
-    procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
-  public
-    property Bootloading: Boolean read FBootloading write FBootloading;
-    property ClientConnection[Index: Integer]: TClientConnection read GetClientConnection write SetClientConnection;
-    property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
-    property GridConnectHelperRPi: TGridConnectHelper read FGridConnectHelperRPi write FGridConnectHelperRPi;
-    property Listening: Boolean read FListening write FListening;
-    property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
-    property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
-    property SocketHandleForListener: TSocket read FSocketHandleForListener write FSocketHandleForListener;
-    property RaspberryPiInBuffer: TStringList read FRaspberryPiInBuffer write FRaspberryPiInBuffer;
-    property Verbose: Boolean read FVerbose write SetVerbose;
-    property XOn: Boolean read FXOn write FXon;
-
-    constructor Create(TheOwner: TComponent); override;
-    destructor Destroy; override;
+    property RaspberryPiConnection: TRPiClientConnection read FRaspberryPiConnection write FRaspberryPiConnection;
 
     procedure CloseListenSocket;
     procedure DoBootLoad;
     procedure DoCheckForNewClients;
     procedure DoCheckEthernetClientsForIncomingMessages;
+    procedure DoCheckRaspberryPiForIncomingMessages;
     procedure DoDispatchToEthernetClientsAndClearMessages;
     procedure DoDispatchToRaspberryPi;
-    procedure DoCheckRaspberryPiForIncomingMessages;
+    procedure DoRun; override;
+    procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
     procedure OpenListenSocket;
     procedure WriteHelp; virtual;
+  public
+    property Bootloading: Boolean read FBootloading write FBootloading;
+    property EthernetConnection[Index: Integer]: TClientConnection read GetEthernetConnection write SetEthenetConnection;
+    property Listening: Boolean read FListening write FListening;
+    property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
+    property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
+    property Verbose: Boolean read FVerbose write SetVerbose;
+
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 function Low(X: DWord): Byte;
@@ -188,6 +193,20 @@ begin
   end;
 end;
 
+{ TRPiClientConnection }
+
+constructor TRPiClientConnection.Create;
+begin
+  inherited Create;
+  FOutBuffer := TStringList.Create;
+end;
+
+destructor TRPiClientConnection.Destroy;
+begin
+  FreeAndNil(FOutBuffer);
+  inherited Destroy;
+end;
+
 constructor TClientConnection.Create;
 begin
   Inherited;
@@ -203,12 +222,12 @@ begin
   inherited Destroy;
 end;
 
-function TRPiCAN.GetClientConnection(Index: Integer): TClientConnection;
+function TRPiCAN.GetEthernetConnection(Index: Integer): TClientConnection;
 begin
   Result := TClientConnection( ClientConnections[Index]);
 end;
 
-procedure TRPiCAN.SetClientConnection(Index: Integer; AValue: TClientConnection);
+procedure TRPiCAN.SetEthenetConnection(Index: Integer; AValue: TClientConnection);
 begin
   ClientConnections[Index] := AValue;
 end;
@@ -310,10 +329,10 @@ begin
   GridConnectStrPtr := nil;
   for i := 0 to Count - 1 do
   begin
-    if GridConnectHelperRPi.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
+    if RaspberryPiConnection.GridConnectHelper.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
     begin
       case GridConnectStrPtr^[1] of
-        Ord('X') : RaspberryPiInBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
+        Ord('X') : RaspberryPiConnection.InBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
         Ord('R') : begin
                      if GridConnectStrPtr^[2] = Ord('1') then
                      begin
@@ -344,9 +363,7 @@ begin
   RaspberryPiSpi := TRaspberryPiSpi.Create;
   ListenSocket := TTCPBlockSocket.Create;
   ClientConnections := TObjectList.Create;
-  RaspberryPiInBuffer := TStringList.Create;
-  GridConnectHelper := TGridConnectHelper.Create;
-  GridConnectHelperRPi := TGridConnectHelper.Create;
+  RaspberryPiConnection := TRPiClientConnection.Create;
   for i := 0 to Length(TxBufferNull) - 1 do
     FTxBufferNull[i] := $00
 end;
@@ -359,9 +376,7 @@ begin
   FreeAndNil(FRaspberryPiSpi);
   FreeAndNil(FListenSocket);
   FreeAndNil(FClientConnections);
-  FreeAndNil(FRaspberryPiInBuffer);
-  FreeAndNil(FGridConnectHelper);
-  FreeAndNil(FGridConnectHelperRPi);
+  FreeAndNil(FRaspberryPiConnection);
   inherited Destroy;
 end;
 
@@ -640,8 +655,8 @@ var
 begin
   for i := ClientConnections.Count - 1 downto 0 do
   begin
-    LocalConnection := ClientConnection[i];
-    LocalSocket := ClientConnection[i].Socket;
+    LocalConnection := EthernetConnection[i];
+    LocalSocket := EthernetConnection[i].Socket;
 
     // Pull all bytes from the sockets incoming buffer
     Done := False;
@@ -697,9 +712,9 @@ begin
     SourceConnection := TClientConnection( ClientConnections[i]);
 
     // Send any buffered incoming RPi message to this out connection
-    for iSpiStr := 0 to RaspberryPiInBuffer.Count - 1 do
+    for iSpiStr := 0 to RaspberryPiConnection.InBuffer.Count - 1 do
     begin
-      OutString := RaspberryPiInBuffer[iSpiStr];
+      OutString := RaspberryPiConnection.InBuffer[iSpiStr];
       // TODO: If Filter Allows then...
       for iChar := 1 to Length(OutString) do
         SourceConnection.Socket.SendByte( Ord(OutString[iChar]));
@@ -729,7 +744,7 @@ begin
     SourceConnection.InBuffer.Clear;
   end;
   // The RPi messages have been dispatched to all Connections
-  RaspberryPiInBuffer.Clear;
+  RaspberryPiConnection.InBuffer.Clear;
 end;
 
 // ****************************************************************************
