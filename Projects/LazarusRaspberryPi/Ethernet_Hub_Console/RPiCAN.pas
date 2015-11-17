@@ -83,6 +83,7 @@ type
     FSocketHandleForListener: TSocket;
     FTxBufferNull: TPiSpiBuffer;
     FVerbose: Boolean;
+    FXOn: Boolean;
     function GetClientConnection(Index: Integer): TClientConnection;
     procedure SetClientConnection(Index: Integer; AValue: TClientConnection);
     procedure SetVerbose(AValue: Boolean);
@@ -102,6 +103,7 @@ type
     property SocketHandleForListener: TSocket read FSocketHandleForListener write FSocketHandleForListener;
     property RaspberryPiInBuffer: TStringList read FRaspberryPiInBuffer write FRaspberryPiInBuffer;
     property Verbose: Boolean read FVerbose write SetVerbose;
+    property XOn: Boolean read FXOn write FXon;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -314,9 +316,16 @@ begin
         Ord('X') : RaspberryPiInBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
         Ord('R') : begin
                      if GridConnectStrPtr^[2] = Ord('1') then
-                       WriteLn('XOn')
-                     else
-                       WriteLn('XOff');
+                     begin
+                       XOn := True;
+                       if Verbose then
+                         WriteLn('XOn')
+                     end else
+                     begin
+                       XOn := False;
+                       if Verbose then
+                         WriteLn('XOff');
+                     end
                    end;
       end;
     end;
