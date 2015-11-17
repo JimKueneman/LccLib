@@ -336,14 +336,12 @@ begin
         Ord('R') : begin
                      if GridConnectStrPtr^[2] = Ord('1') then
                      begin
-                       XOn := True;
-                       if Verbose then
-                         WriteLn('XOn')
+                       RaspberryPiConnection.XOn := True;
+                       if Verbose then WriteLn('XOn')
                      end else
                      begin
-                       XOn := False;
-                       if Verbose then
-                         WriteLn('XOff');
+                       RaspberryPiConnection.XOn := False;
+                       if Verbose then WriteLn('XOff');
                      end
                    end;
       end;
@@ -480,10 +478,10 @@ begin
            WriteLn('App Name: ' + BootInfo.ApplicationName);
 
            // Add an ignore space where the bootloader is so we don't overwrite it
-           Group := IgnoreList.AddGroup;
            IgnoreAddressStart := BootInfo.BootloaderAddress;
            IgnoreAddressEnd := BootInfo.BootloaderAddress + (BootInfo.BootloaderSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
            WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
+           Group := IgnoreList.AddGroup;
            Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
            if BootInfo.ConfigurationAdddress > 0 then
            begin
