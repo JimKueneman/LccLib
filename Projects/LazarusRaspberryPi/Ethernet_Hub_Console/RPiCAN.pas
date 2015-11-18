@@ -14,9 +14,9 @@ uses
   { you can add units after this };
 
 const
-  GRIDCONNECT_STR_COUNT = 8;
-  GRIDCONNECT_CHAR_COUNT = 30;
-  MAX_RAWBUFFER_BYTES = GRIDCONNECT_CHAR_COUNT * GRIDCONNECT_STR_COUNT;
+  LCC_MESSAGES_PER_SPI_PACKET = 8;
+  BYTES_PER_LCC_GRIDCONNECT_MESSAGE = 30;
+  BYTES_PER_SPI_PACKET = BYTES_PER_LCC_GRIDCONNECT_MESSAGE * LCC_MESSAGES_PER_SPI_PACKET;
 
 const
   CMD_LINK               = $EF;
@@ -53,17 +53,21 @@ type
 
 type
 
+  TRPiCAN = class;
+
   { TClientConnection }
 
   TClientConnection = class
   private
     FFiltered: Boolean;
     FGridConnectHelper: TGridConnectHelper;
+    FRPiCAN: TRPiCAN;
     FSocket: TTCPBlockSocket;
     FInBuffer: TStringList;
     FXOn: Boolean;
+    procedure SetXon(AValue: Boolean);
   public
-    constructor Create;
+    constructor Create(ARPiCAN: TRPiCAN); virtual;
     destructor Destroy; override;
     function FilterMessage(GridConnectMsg: string): Boolean;
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); virtual;
@@ -71,9 +75,10 @@ type
 
     property Filtered: Boolean read FFiltered write FFiltered;
     property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
-    property Socket: TTCPBlockSocket read FSocket write FSocket;
     property InBuffer: TStringList read FInBuffer write FInBuffer;
-    property XOn: Boolean read FXOn write FXon;
+    property RPiCAN: TRPiCAN read FRPiCAN write FRPiCAN;
+    property Socket: TTCPBlockSocket read FSocket write FSocket;
+    property XOn: Boolean read FXOn write SetXon;
   end;
 
   { TRPiClientConnection }
@@ -83,7 +88,7 @@ type
     FOutBuffer: TStringList;
     FRaspberryPiSpi: TRaspberryPiSpi;
   public
-    constructor Create;
+    constructor Create(ARPiCAN: TRPiCAN); override;
     destructor Destroy; override;
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); override;
     procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
@@ -204,9 +209,9 @@ end;
 
 { TRPiClientConnection }
 
-constructor TRPiClientConnection.Create;
+constructor TRPiClientConnection.Create(ARPiCAN: TRPiCAN);
 begin
-  inherited Create;
+  inherited Create(ARPiCAN);
   FOutBuffer := TStringList.Create;
 end;
 
@@ -219,29 +224,39 @@ end;
 procedure TRPiClientConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
 var
   RxBuffer, TxBuffer: TPiSpiBuffer;
-  iPacket, iFrameString, iChar, iTxBuffer, TotalPacketCount, iStrOffset: Integer;
+  iSpiPacket, iLccMessage, iChar, iTxBuffer, SpiPacketCount, iString: Integer;
   OutString: ansistring;
 begin
+  // Double buffer it so we can deal with the handshake
+  for iString := 0 to GridConnectMsgList.Count - 1 do
+    OutBuffer.Add(GridConnectMsgList[iString]);
 
-    TotalPacketCount := GridConnectMsgList.Count div GRIDCONNECT_STR_COUNT;
-    if GridConnectMsgList.Count mod GRIDCONNECT_STR_COUNT <> 0 then
-      TotalPacketCount := TotalPacketCount + 1;
+  if XOn then
+  begin
+    // Calculate how many Spi Packet Bursts we need to send
+    SpiPacketCount := OutBuffer.Count div LCC_MESSAGES_PER_SPI_PACKET;
+    // Do we have a partial packet to send?
+    if OutBuffer.Count mod LCC_MESSAGES_PER_SPI_PACKET <> 0 then
+      SpiPacketCount := SpiPacketCount + 1;
 
-    iStrOffset := 0;
-    for iPacket := 0 to TotalPacketCount - 1 do
+    iString := 0;
+    // Run through all the necessary Spi Packets to send all the messages
+    for iSpiPacket := 0 to SpiPacketCount - 1 do
     begin
       iTxBuffer := 0;
-      for iFrameString := 0 to GRIDCONNECT_STR_COUNT - 1 do
+      // Fill up the Spi Packet with as many Lcc Messages as will fit
+      for iLccMessage := 0 to LCC_MESSAGES_PER_SPI_PACKET - 1 do
       begin
-        if iStrOffset < GridConnectMsgList.Count then
-          OutString := GridConnectMsgList[iStrOffset]
+        // Grab the next string in the String List or a null string if we hit the end of the list
+        if iString < OutBuffer.Count then
+          OutString := OutBuffer[iString]
         else
           OutString := '';
-        Inc(iStrOffset);
+        Inc(iString);
 
-
+        // Move the string into the Spi Transmit Buffer or fill it with nulls
         iChar := 0;
-        while iChar < GRIDCONNECT_CHAR_COUNT do
+        while iChar < BYTES_PER_LCC_GRIDCONNECT_MESSAGE do
         begin
           if iChar < Length(OutString) then
             TxBuffer[iTxBuffer] := Ord( OutString[iChar + 1])
@@ -251,15 +266,19 @@ begin
           Inc(iTxBuffer);
         end;
       end;
-      RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, MAX_RAWBUFFER_BYTES);
-      ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
+      // Transfer the packet
+      RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
+      // Data may have been sent back when the packet was transmitted
+      ExtractSpiRxBuffer(RxBuffer, BYTES_PER_SPI_PACKET);
     end;
   end;
+end;
 
 procedure TRPiClientConnection.ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
 var
   i: Integer;
   GridConnectStrPtr: PGridConnectString;
+  MessageStr: ansistring;
 begin
   GridConnectStrPtr := nil;
   for i := 0 to Count - 1 do
@@ -267,13 +286,12 @@ begin
     if GridConnectHelper.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
     begin
       case GridConnectStrPtr^[1] of
-        Ord('X') : InBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
-        Ord('R') : begin
-                     if GridConnectStrPtr^[2] = Ord('1') then
-                       XOn := True
-                     else
-                       XOn := False;
+        Ord('X') : begin
+                     MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
+                     InBuffer.Add(MessageStr);
+                     if RPiCAN.Verbose then WriteLn(MessageStr);
                    end;
+        Ord('R') : XOn := GridConnectStrPtr^[2] = Ord('0');
       end;
     end;
   end;
@@ -284,16 +302,18 @@ var
   RxBuffer: TPiSpiBuffer;
 begin
   Result := True;
-  RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, MAX_RAWBUFFER_BYTES);
-  ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
+  RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, BYTES_PER_SPI_PACKET);
+  ExtractSpiRxBuffer(RxBuffer, BYTES_PER_SPI_PACKET);
 end;
 
-constructor TClientConnection.Create;
+constructor TClientConnection.Create(ARPiCAN: TRPiCAN);
 begin
   Inherited;
+  FRPiCAN := ARPiCAN;
   InBuffer := TStringList.Create;
   GridConnectHelper := TGridConnectHelper.Create;
   Filtered := False;
+  XOn := True;
 end;
 
 destructor TClientConnection.Destroy;
@@ -336,8 +356,8 @@ begin
           begin
             GridConnectStr := GridConnectBufferToString(GridConnectStrPtr^);
             InBuffer.Add(GridConnectStr);
-        //    if Verbose then
-        //      WriteLn(GridConnectStr);
+            if RPiCAN.Verbose then
+              WriteLn(GridConnectStr);
           end;
         end;
       WSAETIMEDOUT :
@@ -357,6 +377,14 @@ begin
       end;
     end;
   until Done;
+end;
+
+procedure TClientConnection.SetXon(AValue: Boolean);
+begin
+  if FXOn = AValue then Exit;
+  FXOn := AValue;
+  if RPiCAN.Verbose then
+    if XOn then WriteLn('XOn') else WriteLn('XOff);
 end;
 
 function TClientConnection.FilterMessage(GridConnectMsg: string): Boolean;
@@ -410,6 +438,10 @@ begin
     WriteHelp;
     Terminate;
     Exit;
+  end;
+
+  if HasOption('c', 'clock') then begin
+     GetOptionValue('c', 'clock');
   end;
 
   { add your program here }
@@ -528,10 +560,10 @@ begin
        WriteLn('Requsting bootloader mode');
 
        // Tell the micro to go into boot loader mode
-       RaspberryPiSpi.ZeroBuffer(@TxBuffer, MAX_RAWBUFFER_BYTES);
+       RaspberryPiSpi.ZeroBuffer(@TxBuffer, BYTES_PER_SPI_PACKET);
        TxBuffer[0] := Ord(':');
        TxBuffer[1] := Ord('B');
-       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, MAX_RAWBUFFER_BYTES);
+       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
        Delay(DELAY_BOOTLOADER_MS);
 
        // Tell the micro to get ready for bootloader syncronization
@@ -767,7 +799,7 @@ begin
   for iClient := ClientConnections.Count - 1 downto 0 do
   begin
     if not TClientConnection( ClientConnections[iClient]).PollForIncomingMessage then
-     ClientConnections.Delete(iClient);
+      ClientConnections.Delete(iClient);
   end;
 end;
 
