@@ -67,6 +67,7 @@ type
     destructor Destroy; override;
     function FilterMessage(GridConnectMsg: string): Boolean;
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); virtual;
+    function PollForIncomingMessage: Boolean; virtual;
 
     property Filtered: Boolean read FFiltered write FFiltered;
     property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
@@ -85,6 +86,9 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); override;
+    procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
+    function PollForIncomingMessage: Boolean; override;
+
     property OutBuffer: TStringList read FOutBuffer write FOutBuffer;
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
   end;
@@ -97,28 +101,21 @@ type
     FClientConnections: TObjectList;
     FListening: Boolean;
     FListenSocket: TTCPBlockSocket;
-    FRaspberryPiConnection: TRPiClientConnection;
     FRaspberryPiSpi: TRaspberryPiSpi;
-    FTxBufferNull: TPiSpiBuffer;
     FVerbose: Boolean;
     function GetEthernetConnection(Index: Integer): TClientConnection;
     procedure SetEthenetConnection(Index: Integer; AValue: TClientConnection);
     procedure SetVerbose(AValue: Boolean);
   protected
-    property TxBufferNull: TPiSpiBuffer read FTxBufferNull write FTxBufferNull;
     property ClientConnections: TObjectList read FClientConnections write FClientConnections;
-    property RaspberryPiConnection: TRPiClientConnection read FRaspberryPiConnection write FRaspberryPiConnection;
 
     procedure CloseListenSocket;
+    procedure CreateRaspberryPiClient;
     procedure DoRunBootloader;
     procedure DoCheckForNewClients;
-    procedure DoCheckEthernetClientsForIncomingMessages;
-    procedure DoCheckRaspberryPiForIncomingMessages;
+    procedure DoPollClientInputs;
     procedure DoDispatchToClients;
-    procedure DoDispatchToEthernetClientsAndClearMessages;
-    procedure DoDispatchToRaspberryPi;
     procedure DoRun; override;
-    procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
     procedure OpenListenSocket;
     procedure WriteHelp; virtual;
   public
@@ -132,6 +129,9 @@ type
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
+
+var
+  GlobalBufferNull: TPiSpiBuffer;
 
 function Low(X: DWord): Byte;
 begin
@@ -219,7 +219,7 @@ end;
 procedure TRPiClientConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
 var
   RxBuffer, TxBuffer: TPiSpiBuffer;
-  i, iPacket, iFrameString, iChar, iTxBuffer, TotalPacketCount, iStrOffset: Integer;
+  iPacket, iFrameString, iChar, iTxBuffer, TotalPacketCount, iStrOffset: Integer;
   OutString: ansistring;
 begin
 
@@ -255,6 +255,37 @@ begin
       ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
     end;
   end;
+
+procedure TRPiClientConnection.ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
+var
+  i: Integer;
+  GridConnectStrPtr: PGridConnectString;
+begin
+  GridConnectStrPtr := nil;
+  for i := 0 to Count - 1 do
+  begin
+    if GridConnectHelper.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
+    begin
+      case GridConnectStrPtr^[1] of
+        Ord('X') : InBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
+        Ord('R') : begin
+                     if GridConnectStrPtr^[2] = Ord('1') then
+                       XOn := True
+                     else
+                       XOn := False;
+                   end;
+      end;
+    end;
+  end;
+end;
+
+function TRPiClientConnection.PollForIncomingMessage: Boolean;
+var
+  RxBuffer: TPiSpiBuffer;
+begin
+  Result := True;
+  RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, MAX_RAWBUFFER_BYTES);
+  ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
 end;
 
 constructor TClientConnection.Create;
@@ -279,11 +310,53 @@ var
 begin
   if Socket.Socket <> INVALID_SOCKET then
     for iString := 0 to GridConnectMsgList.Count - 1 do
-      if FilterMessage(GridConnectMsgList[i]) then
+      if FilterMessage(GridConnectMsgList[iString]) then
       begin
-        for iChar := 1 to Length(GridConnectMsgList[i]) do
+        for iChar := 1 to Length(GridConnectMsgList[iString]) do
           Socket.SendByte( Ord(GridConnectMsgList[iString][iChar]));
       end;
+end;
+
+function TClientConnection.PollForIncomingMessage: Boolean;
+var
+  RcvByte: Byte;
+  GridConnectStrPtr: PGridConnectString;
+  GridConnectStr: string;
+  Done: Boolean;
+begin
+  Result := True;
+  Done := False;   // Pull all bytes from the sockets incoming buffer
+  repeat
+    RcvByte := Socket.RecvByte(1);
+    case Socket.LastError of
+      0 :
+        begin
+          GridConnectStrPtr := nil;
+          if GridConnectHelper.GridConnect_DecodeMachine(RcvByte, GridConnectStrPtr) then
+          begin
+            GridConnectStr := GridConnectBufferToString(GridConnectStrPtr^);
+            InBuffer.Add(GridConnectStr);
+        //    if Verbose then
+        //      WriteLn(GridConnectStr);
+          end;
+        end;
+      WSAETIMEDOUT :
+        begin
+          Done := True;
+        end;
+      WSAECONNRESET   :
+        begin
+          WriteLn(Socket.LastErrorDesc + ',' + Socket.GetRemoteSinIP + ':' + IntToStr(Socket.GetRemoteSinPort));
+          Done := True;
+          Result := False; // Failure of the socket
+        end;
+    else begin
+        WriteLn(Socket.LastErrorDesc + ',' + Socket.GetRemoteSinIP + ':' + IntToStr(Socket.GetRemoteSinPort));
+        Done := True;
+        Result := False; // Failure of the socket
+      end;
+    end;
+  until Done;
 end;
 
 function TClientConnection.FilterMessage(GridConnectMsg: string): Boolean;
@@ -348,6 +421,7 @@ begin
     WriteLn('Connected To Spi');
 
     OpenListenSocket;
+    CreateRaspberryPiClient;
     if Listening then
     begin
       try
@@ -356,10 +430,8 @@ begin
             DoRunBootloader
           else begin
             DoCheckForNewClients;
-            DoCheckRaspberryPiForIncomingMessages;
-            DoCheckEthernetClientsForIncomingMessages;
-            DoDispatchToRaspberryPi;
-            DoDispatchToEthernetClientsAndClearMessages;
+            DoPollClientInputs;
+            DoDispatchToClients;
           end;
 
           if KeyPressed then
@@ -390,37 +462,6 @@ begin
   Terminate;
 end;
 
-// ****************************************************************************
-// Runs the raw RPi SPI receive buffer and extracts valid LCC messages from the
-// array and stores them in the RPi Buffer
-// ***************************************************************************
-procedure TRPiCAN.ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
-var
-  i: Integer;
-  GridConnectStrPtr: PGridConnectString;
-begin
-  GridConnectStrPtr := nil;
-  for i := 0 to Count - 1 do
-  begin
-    if RaspberryPiConnection.GridConnectHelper.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
-    begin
-      case GridConnectStrPtr^[1] of
-        Ord('X') : RaspberryPiConnection.InBuffer.Add(GridConnectBufferToString(GridConnectStrPtr^));
-        Ord('R') : begin
-                     if GridConnectStrPtr^[2] = Ord('1') then
-                     begin
-                       RaspberryPiConnection.XOn := True;
-                       if Verbose then WriteLn('XOn')
-                     end else
-                     begin
-                       RaspberryPiConnection.XOn := False;
-                       if Verbose then WriteLn('XOff');
-                     end
-                   end;
-      end;
-    end;
-  end;
-end;
 
 // ****************************************************************************
 // Create the main object
@@ -434,10 +475,6 @@ begin
   RaspberryPiSpi := TRaspberryPiSpi.Create;
   ListenSocket := TTCPBlockSocket.Create;
   ClientConnections := TObjectList.Create;
-  RaspberryPiConnection := TRPiClientConnection.Create;
-
-  for i := 0 to Length(TxBufferNull) - 1 do
-    FTxBufferNull[i] := $00
 end;
 
 // ****************************************************************************
@@ -445,10 +482,9 @@ end;
 // ***************************************************************************
 destructor TRPiCAN.Destroy;
 begin
+  FreeAndNil(FClientConnections);
   FreeAndNil(FRaspberryPiSpi);
   FreeAndNil(FListenSocket);
-  FreeAndNil(FClientConnections);
-  FreeAndNil(FRaspberryPiConnection);
   inherited Destroy;
 end;
 
@@ -459,6 +495,15 @@ procedure TRPiCAN.CloseListenSocket;
 begin
   if Listening then
     ListenSocket.CloseSocket;
+end;
+
+procedure TRPiCAN.CreateRaspberryPiClient;
+var
+  RaspberryPiConnection: TRPiClientConnection;
+begin
+  RaspberryPiConnection := TRPiClientConnection.Create;
+  RaspberryPiConnection.RaspberryPiSpi := RaspberryPiSpi;
+  ClientConnections.Add(RaspberryPiConnection);
 end;
 
 procedure TRPiCAN.DoRunBootloader;
@@ -497,7 +542,7 @@ begin
        // The micro must reply in the next packet block
        // Now we are bit banging the SPI so the count can be variable
        Delay(DELAY_BOOTLOADER_MS);
-       RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, 1);
+       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
        if RxBuffer[0] = CMD_LINK then
        begin
          WriteLn('Requesting microcontroller information');
@@ -508,7 +553,7 @@ begin
 
          // The micro must reply in this next packet block
          Delay(DELAY_BOOTLOADER_MS);
-         RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, 62);
+         RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 62);
          if RxBuffer[0] = CMD_REQUEST_FLASH_DATA then
          begin
            WriteLn('Microcontroller information returned');
@@ -602,7 +647,7 @@ begin
                    // Now we are bit banging the SPI so the count can be variable
                    repeat
                      Delay(DELAY_BOOTLOADER_MS);
-                     RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, 1);
+                     RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
                    until RxBuffer[0] = CMD_ERASE_BLOCKS;
                  end;
 
@@ -628,7 +673,7 @@ begin
                      // Now we are bit banging the SPI so the count can be variable
                      repeat
                        Delay(DELAY_BOOTLOADER_MS);
-                       RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, 1);
+                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
                      until RxBuffer[0] = CMD_WRITE_BLOCK;
                    end else
                    begin
@@ -645,7 +690,7 @@ begin
                      // Now we are bit banging the SPI so the count can be variable
                      repeat
                        Delay(DELAY_BOOTLOADER_MS);
-                       RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, 1);
+                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
                      until RxBuffer[0] = CMD_WRITE;
                    end;
                  end;
@@ -715,170 +760,15 @@ end;
 // pump on the RPi SPI to ensure we flush out the microcontroller and save the
 // messages coming from the SPI to the RPi Buffer
 // ***************************************************************************
-procedure TRPiCAN.DoCheckEthernetClientsForIncomingMessages;
+procedure TRPiCAN.DoPollClientInputs;
 var
-  i: Integer;
-  LocalSocket: TTCPBlockSocket;
-  LocalConnection: TClientConnection;
-  RcvByte: Byte;
-  GridConnectStrPtr: PGridConnectString;
-  GridConnectStr: string;
-  Done: Boolean;
+  iClient: Integer;
 begin
-  for i := ClientConnections.Count - 1 downto 0 do
+  for iClient := ClientConnections.Count - 1 downto 0 do
   begin
-    LocalConnection := EthernetConnection[i];
-    LocalSocket := EthernetConnection[i].Socket;
-
-    // Pull all bytes from the sockets incoming buffer
-    Done := False;
-    repeat
-      RcvByte := LocalSocket.RecvByte(1);
-      case LocalSocket.LastError of
-        0 :
-          begin
-            GridConnectStrPtr := nil;
-            if LocalConnection.GridConnectHelper.GridConnect_DecodeMachine(RcvByte, GridConnectStrPtr) then
-            begin
-              GridConnectStr := GridConnectBufferToString(GridConnectStrPtr^);
-              LocalConnection.InBuffer.Add(GridConnectStr);
-              if Verbose then
-                WriteLn(GridConnectStr);
-            end;
-          end;
-        WSAETIMEDOUT :
-          begin
-            Done := True;
-          end;
-        WSAECONNRESET   :
-          begin
-            WriteLn(LocalSocket.LastErrorDesc + ',' + LocalSocket.GetRemoteSinIP + ':' + IntToStr(LocalSocket.GetRemoteSinPort));
-            ClientConnections.Delete(i);
-            Done := True;
-          end;
-      else begin
-          WriteLn(LocalSocket.LastErrorDesc + ',' + LocalSocket.GetRemoteSinIP + ':' + IntToStr(LocalSocket.GetRemoteSinPort));
-          ClientConnections.Delete(i);
-          Done := True;
-        end;
-      end;
-    until Done;
+    if not TClientConnection( ClientConnections[iClient]).PollForIncomingMessage then
+     ClientConnections.Delete(iClient);
   end;
-end;
-
-// ****************************************************************************
-// Do not call anything that will change the number of strings in the incoming
-// buffers of the connections or RPi in this function
-// ***************************************************************************
-procedure TRPiCAN.DoDispatchToEthernetClientsAndClearMessages;
-var
-  i, j, iStr, iChar, iSpiStr: Integer;
-  SourceConnection: TClientConnection;
-  DestinationConnection: TClientConnection;
-  OutString: string;
-begin
-  // Dispatch the messages to all other connections
-  for i := 0 to ClientConnections.Count - 1 do
-  begin
-    // Grab a connecton to grab its incoming messages as the source
-    SourceConnection := TClientConnection( ClientConnections[i]);
-
-    // Send any buffered incoming RPi message to this out connection
-    for iSpiStr := 0 to RaspberryPiConnection.InBuffer.Count - 1 do
-    begin
-      OutString := RaspberryPiConnection.InBuffer[iSpiStr];
-      // TODO: If Filter Allows then...
-      for iChar := 1 to Length(OutString) do
-        SourceConnection.Socket.SendByte( Ord(OutString[iChar]));
-    end;
-
-    // Now run through all the connections (including the RPi) and dispatch them
-    // to the other connections and RPi
-    for j := 0 to ClientConnections.Count - 1 do
-    begin
-      // Grab the connection to send the message to
-      DestinationConnection := TClientConnection( ClientConnections[j]);
-
-      // Don't send it back to the source socket
-      if j <> i then
-      begin
-        // Send an buffered incoming messages from the in connection to the out connection
-        for iStr := 0 to SourceConnection.InBuffer.Count - 1 do
-        begin
-          OutString := SourceConnection.InBuffer[iStr];
-          // TODO: If Filter Allows then...
-          for iChar := 1 to Length(OutString) do
-            DestinationConnection.Socket.SendByte( Ord(OutString[iChar]));
-        end;
-      end;
-    end;
-    // The sources message are dispatched to all connections and RPi, get the next one
-    SourceConnection.InBuffer.Clear;
-  end;
-  // The RPi messages have been dispatched to all Connections
-  RaspberryPiConnection.InBuffer.Clear;
-end;
-
-// ****************************************************************************
-// Enumerates the Ethernet Connection Buffers and send the outgoing messages to
-// the RPi SPI to the micro controller.  Need to eventually have a filter to not
-// overwhelm the micro with messages it does not care about
-// ***************************************************************************
-procedure TRPiCAN.DoDispatchToRaspberryPi;
-var
-  RxBuffer, TxBuffer: TPiSpiBuffer;
-  i, j, iStr, iChar, iTxBuffer, PacketCount, iStrOffset: Integer;
-  SourceConnection: TClientConnection;
-  OutString: ansistring;
-begin
-  for i := 0 to ClientConnections.Count - 1 do
-  begin
-    SourceConnection := TClientConnection( ClientConnections[i]);
-
-    PacketCount := SourceConnection.InBuffer.Count div GRIDCONNECT_STR_COUNT;
-    if SourceConnection.InBuffer.Count mod GRIDCONNECT_STR_COUNT <> 0 then
-      PacketCount := PacketCount + 1;
-
-    iStrOffset := 0;
-    for j := 0 to PacketCount - 1 do
-    begin
-      iTxBuffer := 0;
-      for iStr := 0 to GRIDCONNECT_STR_COUNT - 1 do
-      begin
-        if iStrOffset < SourceConnection.InBuffer.Count then
-          OutString := SourceConnection.InBuffer[iStrOffset]
-        else
-          OutString := '';
-        Inc(iStrOffset);
-
-
-        iChar := 0;
-        while iChar < GRIDCONNECT_CHAR_COUNT do
-        begin
-          if iChar < Length(OutString) then
-            TxBuffer[iTxBuffer] := Ord( OutString[iChar + 1])
-          else
-            TxBuffer[iTxBuffer] := $00 ;
-          Inc(iChar);
-          Inc(iTxBuffer);
-        end;
-      end;
-      RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, MAX_RAWBUFFER_BYTES);
-      ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
-    end;
-  end;
-end;
-
-// ****************************************************************************
-// Sends nulls down the SPI to flush any waiting messages in the microcontroller
-// to the RPi
-// ***************************************************************************
-procedure TRPiCAN.DoCheckRaspberryPiForIncomingMessages;
-var
-  RxBuffer: TPiSpiBuffer;
-begin
-  RaspberryPiSpi.Transfer(@TxBufferNull, @RxBuffer, MAX_RAWBUFFER_BYTES);
-  ExtractSpiRxBuffer(RxBuffer, MAX_RAWBUFFER_BYTES);
 end;
 
 procedure TRPiCAN.DoDispatchToClients;
@@ -941,7 +831,9 @@ end;
 // ***************************************************************************
 var
   Application: TRPiCAN;
+  i: Integer;
 begin
+  for i := 0 to Length(GlobalBufferNull) - 1 do GlobalBufferNull[i] := $00;
   Application := TRPiCAN.Create(nil);
   Application.Title := 'RPi CAN Hub';
   Application.Run;
