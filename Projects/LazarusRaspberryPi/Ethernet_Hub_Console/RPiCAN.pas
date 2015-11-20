@@ -18,6 +18,8 @@ const
   BYTES_PER_LCC_GRIDCONNECT_MESSAGE = 30;
   BYTES_PER_SPI_PACKET = BYTES_PER_LCC_GRIDCONNECT_MESSAGE * LCC_MESSAGES_PER_SPI_PACKET;
 
+  FORCED_SPI_CS_HI_DELAY_MS = 1;   // Force the CS to stay high for at least a millisecond.  Sucks stalling...
+
 const
   CMD_LINK               = $EF;
   CMD_UNLINK             = $EE;
@@ -224,12 +226,12 @@ end;
 procedure TRPiClientConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
 var
   RxBuffer, TxBuffer: TPiSpiBuffer;
-  iSpiPacket, iLccMessage, iChar, iTxBuffer, SpiPacketCount, iString: Integer;
+  iSpiPacket, iLccMessage, iChar, iTxBuffer, SpiPacketCount, i: Integer;
   OutString: ansistring;
 begin
   // Double buffer it so we can deal with the handshake
-  for iString := 0 to GridConnectMsgList.Count - 1 do
-    OutBuffer.Add(GridConnectMsgList[iString]);
+  for i := 0 to GridConnectMsgList.Count - 1 do
+    OutBuffer.Add(GridConnectMsgList[i]);
 
   if XOn then
   begin
@@ -239,37 +241,41 @@ begin
     if OutBuffer.Count mod LCC_MESSAGES_PER_SPI_PACKET <> 0 then
       SpiPacketCount := SpiPacketCount + 1;
 
-    iString := 0;
     // Run through all the necessary Spi Packets to send all the messages
     for iSpiPacket := 0 to SpiPacketCount - 1 do
     begin
-      iTxBuffer := 0;
-      // Fill up the Spi Packet with as many Lcc Messages as will fit
-      for iLccMessage := 0 to LCC_MESSAGES_PER_SPI_PACKET - 1 do
+      // The micro could have signaled us to stop when we sent the last packet
+      if XOn then
       begin
-        // Grab the next string in the String List or a null string if we hit the end of the list
-        if iString < OutBuffer.Count then
-          OutString := OutBuffer[iString]
-        else
-          OutString := '';
-        Inc(iString);
-
-        // Move the string into the Spi Transmit Buffer or fill it with nulls
-        iChar := 0;
-        while iChar < BYTES_PER_LCC_GRIDCONNECT_MESSAGE do
+        iTxBuffer := 0;
+        // Fill up the Spi Packet with as many Lcc Messages as will fit
+        for iLccMessage := 0 to LCC_MESSAGES_PER_SPI_PACKET - 1 do
         begin
-          if iChar < Length(OutString) then
-            TxBuffer[iTxBuffer] := Ord( OutString[iChar + 1])
-          else
-            TxBuffer[iTxBuffer] := $00 ;
-          Inc(iChar);
-          Inc(iTxBuffer);
+          // Grab the next string in the String List or a null string if we hit the end of the list
+          if OutBuffer.Count > 0 then
+          begin
+            OutString := OutBuffer[0];
+            OutBuffer.Delete(0);          // Painfully slow but anyother way is very complex
+          end else
+            OutString := '';
+
+          // Move the string into the Spi Transmit Buffer or fill it with nulls
+          iChar := 0;
+          while iChar < BYTES_PER_LCC_GRIDCONNECT_MESSAGE do
+          begin
+            if iChar < Length(OutString) then
+              TxBuffer[iTxBuffer] := Ord( OutString[iChar + 1])
+            else
+              TxBuffer[iTxBuffer] := $00 ;
+            Inc(iChar);
+            Inc(iTxBuffer);
+          end;
         end;
+        // Transfer the packet
+        RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
+        // Data may have been sent back when the packet was transmitted
+        ExtractSpiRxBuffer(RxBuffer, BYTES_PER_SPI_PACKET);
       end;
-      // Transfer the packet
-      RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
-      // Data may have been sent back when the packet was transmitted
-      ExtractSpiRxBuffer(RxBuffer, BYTES_PER_SPI_PACKET);
     end;
   end;
 end;
@@ -291,10 +297,13 @@ begin
                      InBuffer.Add(MessageStr);
                      if RPiCAN.Verbose then WriteLn(MessageStr);
                    end;
-        Ord('R') : XOn := GridConnectStrPtr^[2] = Ord('0');
+        Ord('R') : XOn := GridConnectStrPtr^[2] <> Ord('0');
+        end;
       end;
     end;
-  end;
+
+  Delay(FORCED_SPI_CS_HI_DELAY_MS);
+
 end;
 
 function TRPiClientConnection.PollForIncomingMessage: Boolean;
@@ -308,12 +317,12 @@ end;
 
 constructor TClientConnection.Create(ARPiCAN: TRPiCAN);
 begin
-  Inherited;
+  inherited Create;
   FRPiCAN := ARPiCAN;
   InBuffer := TStringList.Create;
   GridConnectHelper := TGridConnectHelper.Create;
   Filtered := False;
-  XOn := True;
+  FXOn := True;
 end;
 
 destructor TClientConnection.Destroy;
@@ -384,7 +393,7 @@ begin
   if FXOn = AValue then Exit;
   FXOn := AValue;
   if RPiCAN.Verbose then
-    if XOn then WriteLn('XOn') else WriteLn('XOff);
+    if XOn then WriteLn('XOn') else WriteLn('XOff');
 end;
 
 function TClientConnection.FilterMessage(GridConnectMsg: string): Boolean;
@@ -533,7 +542,7 @@ procedure TRPiCAN.CreateRaspberryPiClient;
 var
   RaspberryPiConnection: TRPiClientConnection;
 begin
-  RaspberryPiConnection := TRPiClientConnection.Create;
+  RaspberryPiConnection := TRPiClientConnection.Create(Self);
   RaspberryPiConnection.RaspberryPiSpi := RaspberryPiSpi;
   ClientConnections.Add(RaspberryPiConnection);
 end;
@@ -770,7 +779,7 @@ begin
         if ClientSocket.LastError = 0 then
         begin
           WriteLn('Client Connected: ' + ClientSocket.GetRemoteSinIP + ':' + IntToStr(ClientSocket.GetRemoteSinPort));
-          LocalClientConnection := TClientConnection.Create;
+          LocalClientConnection := TClientConnection.Create(Self);
           try
             LocalClientConnection.Socket := ClientSocket;
             ClientConnections.Add(LocalClientConnection)
