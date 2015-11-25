@@ -5,7 +5,11 @@ unit lcc_raspberrypi;
 interface
 
 uses
-  Classes, SysUtils, BaseUnix;
+  Classes, SysUtils
+  {$IFDEF CPUARM}
+  , BaseUnix
+  {$ENDIF}
+  ;
 
 {$IFDEF CPUARM}
 const
