@@ -52,11 +52,12 @@ type
     iht_INHX32          // 32 bit extension which added the 0x04 type to define the upper 2 bytes of the 32 bit address, the correct MCU address is used in this format so there is no manipulating the address needed
   );
 
+
   TIntelHexInfo = record
     HexType: TIntelHexType;       // The format of the HEX file
     AddressIncrement: Byte;       // Address increment for a single instruction (can be the same as the bytes per address or not, depends on the MCU)
     BytesPerInstruction: Byte;    // Number of Bytes in each address offset increase
-    DoubleAddress: Boolean;       // True if the HEX address is double the physical address
+    DoubleAddress: Boolean;       // True if the HEX address is double the physical address; used in Parsing he HEX file ONLY
   end;
 
 
@@ -460,7 +461,7 @@ var
   i: Integer;
 begin
   for i := 0 to Length(FDataBlock) - 1 do
-    DataBlock[i] := $AA; //AByte
+    DataBlock[i] := $00; //AByte
 end;
 
 function TBaseBlock.JumpToInstruction(Address: DWord): PByte;

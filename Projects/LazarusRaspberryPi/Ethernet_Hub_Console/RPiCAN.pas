@@ -35,7 +35,7 @@ const
   CMD_SET_ADDRESS_WRITE  = $00;
   CMD_SET_ADDRESS_ERASE  = $01;
 
-  DELAY_BOOTLOADER_MS = 1;
+  DELAY_BOOTLOADER_MS = 30;
 
 type
   TRevision = array[0..1] of Byte;
@@ -582,8 +582,7 @@ begin
 
        // The micro must reply in the next packet block
        // Now we are bit banging the SPI so the count can be variable
-       Delay(DELAY_BOOTLOADER_MS);
-       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
+       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
        if RxBuffer[0] = CMD_LINK then
        begin
          WriteLn('Requesting microcontroller information');
@@ -656,6 +655,12 @@ begin
            begin
              WriteLn('File parsed');
 
+       {      for i := 0 to IntelParser.PhysicalAddressBlockList.Count - 1 do
+             begin
+               WriteLn('Start: 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressStart, 8));
+               WriteLn('End  : 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressLast, 8));
+             end; }
+
              WriteLn('Building Write Block List');
              if IntelParser.BuildWriteBlockList = ERROR_WRITE_BLOCK_OK then
              begin
@@ -676,6 +681,8 @@ begin
                    TxBuffer[5] := Low( IntelParser.PhysicalEraseBlockList[i].AddressStart);
                    RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
 
+                   // No Reply defined
+
                    WriteLn('Erasing: ' + IntToStr(IntelParser.PhysicalEraseBlockList[i].BlockCount) + ' blocks');
                    TxBuffer[0] := CMD_ERASE_BLOCKS;
                    TxBuffer[1] := Highest( IntelParser.PhysicalEraseBlockList[i].BlockCount);
@@ -687,8 +694,8 @@ begin
                    // The micro must reply in the next packet block
                    // Now we are bit banging the SPI so the count can be variable
                    repeat
-                     Delay(DELAY_BOOTLOADER_MS);
-                     RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
+                     Delay(DELAY_BOOTLOADER_MS * 2 * IntelParser.PhysicalEraseBlockList[i].BlockCount);
+                     RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
                    until RxBuffer[0] = CMD_ERASE_BLOCKS;
                  end;
 
@@ -703,6 +710,8 @@ begin
                    TxBuffer[5] := Low( IntelParser.PhysicalWriteBlockList[i].AddressStart);
                    RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
 
+                   // No Reply Defined
+
                    if IntelParser.PhysicalWriteBlockList[i].ByteCount = BootInfo.WriteBufferSize then
                    begin
                      WriteLn('Writing Block: ' + IntToStr(IntelParser.PhysicalWriteBlockList[i].ByteCount) + ' bytes');
@@ -714,7 +723,7 @@ begin
                      // Now we are bit banging the SPI so the count can be variable
                      repeat
                        Delay(DELAY_BOOTLOADER_MS);
-                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
+                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
                      until RxBuffer[0] = CMD_WRITE_BLOCK;
                    end else
                    begin
@@ -731,10 +740,13 @@ begin
                      // Now we are bit banging the SPI so the count can be variable
                      repeat
                        Delay(DELAY_BOOTLOADER_MS);
-                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 1);
+                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
                      until RxBuffer[0] = CMD_WRITE;
                    end;
                  end;
+                 // Reboot the Microcontroller
+                 TxBuffer[0] := CMD_RESET;
+                 RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
                end else
                   WriteLn('Failed to Build Erase Blocks');
              end else
