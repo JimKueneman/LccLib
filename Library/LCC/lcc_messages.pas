@@ -11,12 +11,18 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  ExtCtrls,
+    {$IFNDEF FPC_CONSOLE_APP}
+    ExtCtrls,
+    {$ENDIF}
   {$ENDIF}
   {$IFNDEF FPC}
   Types,
   {$ENDIF}
-  lcc_defines, lcc_math_float16, lcc_utilities, lcc_threadedcirculararray, strutils,
+  lcc_defines,
+  lcc_math_float16,
+  lcc_utilities,
+  lcc_threadedcirculararray,
+  strutils,
   lcc_compiler_types;
 
 const

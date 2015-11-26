@@ -2,17 +2,23 @@ unit lcc_compiler_types;
 
 interface
 
+{$I lcc_compilers.inc}
+
 {$IFDEF FPC}
-uses
-  Graphics;
+  {$IFNDEF FPC_CONSOLE_APP}
+  uses
+    Graphics;
+  {$ENDIF}
 {$ENDIF}
 
 {$I lcc_compilers.inc}
 
 
 {$IFDEF FPC}
-type
-  TLccTextLayout = TTextLayout;
+  {$IFNDEF FPC_CONSOLE_APP}
+  type
+    TLccTextLayout = TTextLayout;
+  {$ENDIF}
 {$ELSE}
 type
   TLccTextLayout = (tlTop, tlCenter, tlBottom);

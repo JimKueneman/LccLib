@@ -1,4 +1,5 @@
 
+
 {$IFDEF WINDOWS}   // Lazarus
   {$DEFINE LCC_WINDOWS}
 {$ENDIF}
@@ -14,4 +15,4 @@
     {$DEFINE LCC_MOBILE}
   {$ENDIF}
 {$ENDIF}
-
+

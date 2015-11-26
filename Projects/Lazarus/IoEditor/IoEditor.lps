@@ -19,10 +19,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_main"/>
-        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
         <TopLine Value="539"/>
-        <CursorPos X="7" Y="557"/>
+        <CursorPos X="27" Y="546"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -422,10 +421,11 @@
       <Unit62>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
         <UnitName Value="lcc_nodemanager"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="2507"/>
-        <CursorPos X="16" Y="2515"/>
+        <TopLine Value="2503"/>
+        <CursorPos X="18" Y="2514"/>
         <UsageCount Value="26"/>
         <Loaded Value="True"/>
       </Unit62>

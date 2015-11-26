@@ -11,14 +11,26 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  FileUtil, Forms, Controls, Graphics, Dialogs, Menus, ActnList, ExtCtrls, Buttons,
+  FileUtil,
+  {$IFNDEF FPC_CONSOLE_APP}
+    Forms,
+    Controls,
+    Graphics,
+    Dialogs,
+    Menus,
+    ActnList,
+    ExtCtrls,
+    Buttons,
+  {$ENDIF}
   lcc_utilities,
   {$ENDIF}
   {$IFNDEF FPC}
   Types,
   System.SyncObjs,
   {$ENDIF}
-  IniFiles, lcc_defines, lcc_raspberrypi;
+  IniFiles,
+  lcc_defines,
+  lcc_raspberrypi;
 
  // Classes, SysUtils, FileUtil, IniFiles;
 

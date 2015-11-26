@@ -10,7 +10,10 @@ uses
    Windows,
   {$ELSE}
     {$IFDEF FPC}
-    LclIntf, baseUnix, sockets,
+      {$IFNDEF FPC_CONSOLE_APP}
+      LclIntf,
+      {$ENDIF}
+      baseUnix, sockets,
     {$ELSE}
     strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
     {$ENDIF}
@@ -61,12 +64,24 @@ function GetTickCount : DWORD;
    so "wrap" value here so it fits within LongInt.
   Also, since same thing could happen with Windows that has been
    running for at least approx. 25 days, override it too.}
+var
+  tp: timespec;
 begin
 {$IFDEF FPC}
-  {$IFDEF LCC_WINDOWS}
-    Result := Windows.GetTickCount mod High(LongInt);
+  {$IFNDEF FPC_CONSOLE_APP}
+    {$IFDEF LCC_WINDOWS}
+      Result := Windows.GetTickCount mod High(LongInt);
+    {$ELSE}
+      Result := LclIntf.GetTickCount mod High(LongInt);
+    {$ENDIF}
   {$ELSE}
-    Result := LclIntf.GetTickCount mod High(LongInt);
+    {$IFDEF LCC_WINDOWS}
+    Result := GetTickCount64;
+    {$ELSE}
+      Result := 0;
+    //  clock_gettime(CLOCK_MONOTONIC,  <at> tp);
+    //  Result := (Int64(tp.tv_sec) * 1000) + (tp.tv_nsec div 1000000);
+    {$ENDIF}
   {$ENDIF}
 {$ELSE}
   Result := TThread.GetTickCount;

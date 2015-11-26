@@ -15,12 +15,16 @@ uses
   {$IFDEF FPC}
   laz2_DOM,
   laz2_XMLRead,
-  LResources,
-  ExtCtrls,
-  ComCtrls,
+    {$IFNDEF FPC_CONSOLE_APP}
+    LResources,
+    ExtCtrls,
+    ComCtrls,
+    lcc_nodeselector,
+    Dialogs,
+    {$ELSE}
+    fptimer,
+    {$ENDIF}
   FileUtil,
-  lcc_nodeselector,
-  Dialogs,
   {$ELSE}
   FMX.Dialogs,
   Types,
@@ -89,9 +93,9 @@ type
   TConfigurationMemory = class;
   TLccOwnedNode = class;
   TLccOwnedNodeClass = class of TLccOwnedNode;
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   TLccNetworkTree = class;
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
 
   TOnLccNodeMessage = procedure(Sender: TObject; LccSourceNode: TLccNode) of object;
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
@@ -570,7 +574,9 @@ type
     {$ENDIF}
     FiStartupSequence: Word;
     {$IFDEF FPC}
-    FLccGuiNode: TLccGuiNode;
+      {$IFNDEF FPC_CONSOLE_APP}
+      FLccGuiNode: TLccGuiNode;
+      {$ENDIF}
     {$ENDIF}
     FNodeID: TNodeID;
     FProtocolSupport: TProtocolSupport;
@@ -601,9 +607,9 @@ type
     property FDI: TFDI read FFDI write FFDI;
     property FunctionConfiguration: TFunctionConfiguration read FFunctionConfiguration write FFunctionConfiguration;
     {$ENDIF}
-    {$IFDEF FPC}
+    {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     property LccGuiNode: TLccGuiNode read FLccGuiNode write FLccGuiNode;
-    {$ENDIF}
+    {$ENDIF} {$ENDIF}
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
     property ProtocolSupport: TProtocolSupport read FProtocolSupport;
@@ -631,13 +637,21 @@ type
     FDuplicateAliasDetected: Boolean;
     FInitialized: Boolean;
     FLogInAliasID: Word;
+    {$IFNDEF FPC_CONSOLE_APP}
     FLoginTimer: TTimer;
+    {$ELSE}
+    FLogInTimer: TFPTimer;
+    {$ENDIF}
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
   protected
     property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
     property LogInAliasID: Word read FLogInAliasID write FLogInAliasID;
+    {$IFNDEF FPC_CONSOLE_APP}
     property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
+    {$ELSE}
+    property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;
+    {$ENDIF}
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
     function CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
@@ -726,9 +740,9 @@ type
     FOnRequestMessageSend: TOnMessageEvent;
     FOwnedNodeList: TList;
     FRootNode: TLccOwnedNode;
-    {$IFDEF FPC}
+    {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     FTLccNetworkTree: TLccNetworkTree;
-    {$ENDIF}
+    {$ENDIF} {$ENDIF}
     FUserMessage: TLccMessage;
     FWorkerMessage: TLccMessage;
     FAutoSendVerifyNodesOnStart: Boolean;
@@ -800,6 +814,10 @@ type
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
 
+    {$IFDEF FPC_CONSOLE_APP}
+    procedure CreateRootNode;
+    {$ENDIF}
+
     procedure Clear;
     procedure ClearOwned;
     function CreateNodeBySourceMessage(LccMessage: TLccMessage): TLccNode;
@@ -807,9 +825,9 @@ type
     function CreateOwnedNode: TLccOwnedNode;
     function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
     function EqualEventID(var Event1, Event2: TEventID): Boolean;
-    {$IFDEF FPC}
+    {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
-    {$ENDIF}
+    {$ENDIF} {$ENDIF}
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
     procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
@@ -825,9 +843,9 @@ type
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
     property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
-    {$IFDEF FPC}
+    {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     property NetworkTree: TLccNetworkTree read FTLccNetworkTree write FTLccNetworkTree;
-    {$ENDIF}
+    {$ENDIF} {$ENDIF}
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
@@ -871,13 +889,13 @@ type
   TLccNetworkTreePropeties = (tp_NodeID, tp_AliasID, tp_ConsumedEvents, tp_ProducedEvents, tp_Snip, tp_Protocols, tp_Acid);
   TLccNetworkTreePropetiesSet = set of TLccNetworkTreePropeties;
 
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   TLccTreeviewItem = TTreeNode;
-  {$ELSE}
+  {$ENDIF} {$ELSE}
   TLccTreeViewItem = TTreeViewItem;
   {$ENDIF}
 
-
+ {$IFNDEF FPC_CONSOLE_APP}
  { TLccNetworkTree }
 
   TLccNetworkTree = class(TTreeView)
@@ -926,6 +944,7 @@ type
     property ShowRootNode: Boolean read FShowRootNode write SetShowRootNode;
     property ShowLocallNodes: Boolean read FShowLocalNodes write SetShowLocalNodes;
   end;
+  {$ENDIF}
 
 var
   TotalSNIPMessages: DWord;
@@ -937,12 +956,14 @@ implementation
 
 procedure Register;
 begin
-{$IFDEF FPC}
+  {$IFNDEF FPC_CONSOLE_APP}
+  {$IFDEF FPC}
   {$I TLccNodeManager.lrs}
-//  {$I TLccNetworkTree.lrs}
-{$ENDIF}
- RegisterComponents('LCC',[TLccNodeManager]);
- RegisterComponents('LCC',[TLccNetworkTree]);
+  //  {$I TLccNetworkTree.lrs}
+  {$ENDIF}
+  RegisterComponents('LCC',[TLccNodeManager]);
+  RegisterComponents('LCC',[TLccNetworkTree]);
+  {$ENDIF}
 end;
 
 { TACDIMfg }
@@ -1180,10 +1201,15 @@ end;
 constructor TLccOwnedNode.Create(AnOwner: TComponent);
 begin
   inherited Create(AnOwner);
+  {$IFNDEF FPC_CONSOLE_APP}
   LoginTimer := TTimer.Create(Self);
+  {$ELSE}
+  LoginTimer := TFPTimer.Create(Self);
+  {$ENDIF}
   LoginTimer.Enabled := False;
   LoginTimer.Interval := 800;
   LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
+
   LogInAliasID := 0;
   FACDIMfg := TACDIMfg.Create(Self, MSI_ACDI_MFG);
   FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER);
@@ -2337,10 +2363,10 @@ begin
         RootNode.LoginWithLccSettings(False);
     end else
     begin
-      {$IFDEF FPC}
+      {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
       if Assigned(NetworkTree) then
         NetworkTree.Connected := False;
-      {$ENDIF}
+      {$ENDIF} {$ENDIF}
       Clear;
       ClearOwned;
       RootNode.SendAMR;
@@ -2360,10 +2386,10 @@ end;
 
 procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoAliasIDChanged(LccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnAliasIDChanged) then
     OnAliasIDChanged(Self, LccNode);
 end;
@@ -2403,20 +2429,20 @@ end;
 
 procedure TLccNodeManager.DoCreateLccNode(SourceLccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoCreateLccNode(SourceLccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeCreate) then
     OnLccNodeCreate(Self, SourceLccNode)
 end;
 
 procedure TLccNodeManager.DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoConsumerIdentified(SourceLccNode, Event, State);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeConsumerIdentified) then
     OnLccNodeConsumerIdentified(Self, SourceLccNode, Event, State);
 end;
@@ -2435,10 +2461,10 @@ begin
     if Assigned(CdiParser) then
       CdiParser.NotifyLccNodeDestroy(LccNode);
   end;
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoDestroyLccNode(LccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeDestroy) then
     OnLccNodeDestroy(Self, LccNode);
 end;
@@ -2474,10 +2500,10 @@ end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoNodeIDChanged(LccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnNodeIDChanged) then
     OnNodeIDChanged(Self, LccNode);
 end;
@@ -2490,20 +2516,20 @@ end;
 
 procedure TLccNodeManager.DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoProducerIdentified(SourceLccNode, Event, State);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeProducerIdentified) then
     OnLccNodeProducerIdentified(Self, SourceLccNode, Event, State);
 end;
 
 procedure TLccNodeManager.DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoProtocolIdentifyReply(SourceLccNode, DestLccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeProtocolIdentifyReply) then
     OnLccNodeProtocolIdentifyReply(Self, SourceLccNode, DestLccNode);
 end;
@@ -2524,10 +2550,10 @@ end;
 
 procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeSimpleNodeIdentReply) then
     OnLccNodeSimpleNodeIdentReply(Self, SourceLccNode, DestLccNode);
 end;
@@ -2637,10 +2663,10 @@ end;
 
 procedure TLccNodeManager.DoVerifiedNodeID(SourceLccNode: TLccNode);
 begin
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoVerifiedNodeID(SourceLccNode);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeVerifiedNodeID) then
     OnLccNodeVerifiedNodeID(Self, SourceLccNode);
 end;
@@ -2736,7 +2762,7 @@ begin
      end;
   end;
 
- {$IFDEF FPC}
+ {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
  case Operation of
    opInsert :
        begin
@@ -2750,7 +2776,7 @@ begin
            NetworkTree := nil
        end;
    end;
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
 end;
 
 constructor TLccNodeManager.Create(AnOwner: TComponent);
@@ -2832,6 +2858,20 @@ begin
   OwnedNodeList.Add(Result);
 end;
 
+{$IFDEF FPC_CONSOLE_APP}
+procedure TLccNodeManager.CreateRootNode;
+var
+  RootNodeClass: TLccOwnedNodeClass;
+begin
+  inherited Loaded;
+  RootNodeClass := nil;
+  DoGetRootNodeClass(RootNodeClass);
+  FRootNode := RootNodeClass.Create(Self);
+  FRootNode.OwnerManager := Self;
+  DoCreateLccNode(FRootNode);
+end;
+{$ENDIF}
+
 function TLccNodeManager.EqualEventID(var Event1, Event2: TEventID): Boolean;
 var
   i: Integer;
@@ -2849,7 +2889,7 @@ begin
   end;
 end;
 
-{$IFDEF FPC}
+{$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
 function TLccNodeManager.FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
 var
   i: Integer;
@@ -2867,7 +2907,7 @@ begin
     end;
   end;
 end;
-{$ENDIF}
+{$ENDIF} {$ENDIF}
 
 function TLccNodeManager.FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
 var
@@ -4124,11 +4164,14 @@ begin
   begin
     if FileExists(String( FilePath)) then
       AStream.SaveToFile(String( FilePath))
+    {$IFNDEF FPC_CONSOLE_APP}
     else
       ShowMessage('Attempt to write to configuration failed, file path not valid');
+    {$ENDIF}
   end;
 end;
 
+{$IFNDEF FPC_CONSOLE_APP}
 { TLccNetworkTree }
 
 function TLccNetworkTree.AddChildNode(ParentNode: TLccTreeViewItem; ACaption: String; AnObject: TObject): TLccTreeViewItem;
@@ -4793,14 +4836,15 @@ begin
       Result := AddChildNode(AParent, AName, nil);          // Add a new item
   end;
 end;
+{$ENDIF}
 
 initialization
   TotalSNIPMessages := 0;
   TotalSTNIPMessage := 0;
   RegisterClass(TLccNodeManager);
-  {$IFDEF FPC}
+  {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   RegisterClass(TLccNetworkTree);
-  {$ENDIF}
+  {$ENDIF} {$ENDIF}
 
 finalization
 
