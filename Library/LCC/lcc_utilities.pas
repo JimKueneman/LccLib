@@ -66,6 +66,7 @@ function GetTickCount : DWORD;
    running for at least approx. 25 days, override it too.}
 var
   tp: timespec;
+  Hour, Minute, Second, MilliSecond: Word;
 begin
 {$IFDEF FPC}
   {$IFNDEF FPC_CONSOLE_APP}
@@ -78,9 +79,8 @@ begin
     {$IFDEF LCC_WINDOWS}
     Result := GetTickCount64;
     {$ELSE}
-      Result := 0;
-    //  clock_gettime(CLOCK_MONOTONIC,  <at> tp);
-    //  Result := (Int64(tp.tv_sec) * 1000) + (tp.tv_nsec div 1000000);
+    DecodeTime(Now, Hour, Minute, Second, MilliSecond);
+    Result := (((Hour*3600) + (Minute*60) + Second) * 1000) + MilliSecond;
     {$ENDIF}
   {$ENDIF}
 {$ELSE}
