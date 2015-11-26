@@ -104,8 +104,11 @@ type
 
   TRPiCAN = class(TCustomApplication)
   private
+    FBootloadHexPath: string;
     FBootloading: Boolean;
     FClientConnections: TObjectList;
+    FHubOnly: Boolean;
+    FSpiDevicePath: string;
     FListening: Boolean;
     FListenSocket: TTCPBlockSocket;
     FRaspberryPiSpi: TRaspberryPiSpi;
@@ -127,7 +130,10 @@ type
     procedure WriteHelp; virtual;
   public
     property Bootloading: Boolean read FBootloading write FBootloading;
+    property BootloadHexPath: string read FBootloadHexPath write FBootloadHexPath;
+    property SpiDevicePath: string read FSpiDevicePath write FSpiDevicePath;
     property EthernetConnection[Index: Integer]: TClientConnection read GetEthernetConnection write SetEthenetConnection;
+    property HubOnly: Boolean read FHubOnly write FHubOnly;
     property Listening: Boolean read FListening write FListening;
     property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
@@ -435,7 +441,7 @@ var
   ErrorMsg: String;
 begin
   // quick check parameters
-  ErrorMsg := CheckOptions('h', 'help');
+  ErrorMsg := CheckOptions('h b s v o', 'help bootfile spidriver verbose onlyhub');
   if ErrorMsg <> '' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -449,53 +455,96 @@ begin
     Exit;
   end;
 
+  FVerbose := HasOption('v', 'verbose');
+  FHubOnly := HasOption('o', 'onlyhub');
+
   if HasOption('c', 'clock') then begin
      GetOptionValue('c', 'clock');
+  end;
+
+  if HasOption('b', 'bootfile') then
+  begin
+    BootloadHexPath := GetOptionValue('b', 'bootfile');
+    if FileExists(BootloadHexPath) then
+      Bootloading := True
+    else begin
+      ShowException(Exception.Create('Can not find bootloader HEX file: ' + BootloadHexPath + ' Usage: rpican -b myhexfile.hex'));
+      Terminate;
+      Exit;
+    end;
+  end;
+
+  if HasOption('s', 'spidriver') then
+  begin
+     if FileExists(GetOptionValue('s', 'spidriver')) then
+       SpiDevicePath := GetOptionValue('s', 'spidriver');
   end;
 
   { add your program here }
   RaspberryPiSpi.Mode := psm_ClkIdleLo_DataFalling;
   RaspberryPiSpi.Speed := pss_976kHz;
   RaspberryPiSpi.Bits := psb_8;
-  if RaspberryPiSpi.OpenSpi('/dev/spidev0.0') then
+  if HubOnly then
   begin
-    WriteLn('Connected To Spi');
-
     OpenListenSocket;
-    CreateRaspberryPiClient;
     if Listening then
     begin
-      try
-        repeat
-          if Bootloading then
-            DoRunBootloader
-          else begin
-            DoCheckForNewClients;
-            DoPollClientInputs;
-            DoDispatchToClients;
-          end;
+      repeat
+        DoCheckForNewClients;
+        DoPollClientInputs;
+        DoDispatchToClients;
 
-          if KeyPressed then
-          begin
-            case ReadKey of
-              'v', 'V' : Verbose := not Verbose;
-              'q', 'Q' : Terminate;
-              'b', 'B' : BootLoading := True;
-            end;
+        if KeyPressed then
+        begin
+          case ReadKey of
+            'v', 'V' : Verbose := not Verbose;
+            'q', 'Q' : Terminate;
           end;
-
-        until Terminated;
-      finally
-        ListenSocket.CloseSocket;
-      end;
-    end else
-    begin
-      WriteLn('Listener Socket Failed');
+        end;
+      until Terminated;
     end;
-    RaspberryPiSpi.CloseSpi;
   end else
   begin
-    WriteLn('Unable to connect to Spi');
+    if RaspberryPiSpi.OpenSpi(SpiDevicePath) then
+    begin
+      WriteLn('Connected To Spi');
+
+      OpenListenSocket;
+      CreateRaspberryPiClient;
+      if Listening then
+      begin
+        try
+          repeat
+            if Bootloading then
+              DoRunBootloader
+            else begin
+              DoCheckForNewClients;
+              DoPollClientInputs;
+              DoDispatchToClients;
+            end;
+
+            if KeyPressed then
+            begin
+              case ReadKey of
+                'v', 'V' : Verbose := not Verbose;
+                'q', 'Q' : Terminate;
+              end;
+            end;
+
+          until Terminated;
+        finally
+          ListenSocket.CloseSocket;
+        end;
+      end else
+      begin
+        WriteLn('Listener Socket Failed');
+      end;
+      RaspberryPiSpi.CloseSpi;
+    end else
+    begin
+      WriteLn('Unable to connect to Spi');
+    end;
+
   end;
 
   // stop program loop
@@ -516,6 +565,8 @@ begin
   RaspberryPiSpi := TRaspberryPiSpi.Create;
   ListenSocket := TTCPBlockSocket.Create;
   ClientConnections := TObjectList.Create;
+  SpiDevicePath := '/dev/spidev0.0';
+  HubOnly := False;
 end;
 
 // ****************************************************************************
@@ -550,7 +601,6 @@ end;
 procedure TRPiCAN.DoRunBootloader;
 var
   TxBuffer, RxBuffer: TPiSpiBuffer;
-  FilePath: string;
   IgnoreAddressStart, IgnoreAddressEnd: DWord;
   RxOffset, i, j: Integer;
   IntelParser: TIntelHexParser;
@@ -559,213 +609,216 @@ var
   BootInfo: TBootInfo;
   Group: TIgnoreBoundsList;
 begin
-  FilePath := './EthernetCanHub.hex';
-  WriteLn('Locating hex file: ' + FilePath);
-  if FileExists(FilePath) then
-  begin
-     IntelParser := TIntelHexParser.Create;
-     IgnoreList := TIgnoreBoundsGroups.Create;
-     try
-       WriteLn('Requsting bootloader mode');
+  try
+    WriteLn('Entering Booloader Mode');
+    if Verbose then WriteLn('Locating hex file: ' + BootloadHexPath);
+    if FileExists(BootloadHexPath) then
+    begin
+       IntelParser := TIntelHexParser.Create;
+       IgnoreList := TIgnoreBoundsGroups.Create;
+       try
+         if Verbose then WriteLn('Requsting bootloader mode');
 
-       // Tell the micro to go into boot loader mode
-       RaspberryPiSpi.ZeroBuffer(@TxBuffer, BYTES_PER_SPI_PACKET);
-       TxBuffer[0] := Ord(':');
-       TxBuffer[1] := Ord('B');
-       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
-       Delay(DELAY_BOOTLOADER_MS);
-
-       // Tell the micro to get ready for bootloader syncronization
-       TxBuffer[0] := CMD_SYNC;
-       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
-       Delay(DELAY_BOOTLOADER_MS);
-
-       // The micro must reply in the next packet block
-       // Now we are bit banging the SPI so the count can be variable
-       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
-       if RxBuffer[0] = CMD_LINK then
-       begin
-         WriteLn('Requesting microcontroller information');
-         // Tell the micro to return information about the micro
-         TxBuffer[0] := CMD_REQUEST_FLASH_DATA;
+         // Tell the micro to go into boot loader mode
+         RaspberryPiSpi.ZeroBuffer(@TxBuffer, BYTES_PER_SPI_PACKET);
+         TxBuffer[0] := Ord(':');
+         TxBuffer[1] := Ord('B');
+         RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET);
          Delay(DELAY_BOOTLOADER_MS);
+
+         // Tell the micro to get ready for bootloader syncronization
+         TxBuffer[0] := CMD_SYNC;
          RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
-
-         // The micro must reply in this next packet block
          Delay(DELAY_BOOTLOADER_MS);
-         RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 62);
-         if RxBuffer[0] = CMD_REQUEST_FLASH_DATA then
+
+         // The micro must reply in the next packet block
+         // Now we are bit banging the SPI so the count can be variable
+         RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
+         if RxBuffer[0] = CMD_LINK then
          begin
-           WriteLn('Microcontroller information returned');
-           RxOffset := 1;
-           BootInfo.StructSize := (RxBuffer[RxOffset] shl 8) or RxBuffer[RxOffset+1];
-           Inc(RxOffset, 2);
-           BootInfo.EraseBlockSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.WriteBufferSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.ProgramFlashSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.BootloaderAddress := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.BootloaderSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.ConfigurationAdddress := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
-           Inc(RxOffset, 4);
-           BootInfo.McuFamily := RxBuffer[RxOffset];
-           Inc(RxOffset);
-           BootInfo.Revision[0] := RxBuffer[RxOffset];
-           Inc(RxOffset);
-           BootInfo.Revision[1] := RxBuffer[RxOffset];
-           Inc(RxOffset);
-           BootInfo.ApplicationName := ansistring( PChar( @RxBuffer[RxOffset]));
+           if Verbose then WriteLn('Requesting microcontroller information');
+           // Tell the micro to return information about the micro
+           TxBuffer[0] := CMD_REQUEST_FLASH_DATA;
+           Delay(DELAY_BOOTLOADER_MS);
+           RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
 
-           IntelHexInfo.AddressIncrement := 2;
-           IntelHexInfo.BytesPerInstruction := 3;
-           IntelHexInfo.DoubleAddress := True;
-           IntelHexInfo.HexType := iht_INH24_dsPIC33;
-
-           WriteLn('Structure Size: ' + IntToStr(BootInfo.StructSize));
-           WriteLn('Erase Block Size (bytes): ' + IntToStr(BootInfo.EraseBlockSize) + ' [0x' + IntToHex(BootInfo.EraseBlockSize, 8) + ']');
-           WriteLn('Write Block Size (bytes): ' + IntToStr(BootInfo.WriteBufferSize) + ' [0x' + IntToHex(BootInfo.WriteBufferSize, 8) + ']');
-           WriteLn('Flash Size (bytes): ' + IntToStr(BootInfo.ProgramFlashSize) + ' [0x' + IntToHex(BootInfo.ProgramFlashSize, 8) + ']' + ' [0x' + IntToHex(BootInfo.ProgramFlashSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement, 8) + ' User Addresses]');
-           WriteLn('Bootloader Address: 0x' + IntToHex(BootInfo.BootloaderAddress, 8));
-           WriteLn('Bootloader Size (bytes): ' + IntToStr(BootInfo.BootloaderSize) + ' [0x' + IntToHex(BootInfo.BootloaderSize, 8) + ']');
-           WriteLn('Configruation Address: 0x' + IntToHex(BootInfo.ConfigurationAdddress, 8));
-           WriteLn('McuFamily: ' + IntToStr(BootInfo.McuFamily));
-           WriteLn('Revision: ' + IntToStr(BootInfo.Revision[1]) + '.' + IntToStr(BootInfo.Revision[0]));
-           WriteLn('App Name: ' + BootInfo.ApplicationName);
-
-           // Add an ignore space where the bootloader is so we don't overwrite it
-           IgnoreAddressStart := BootInfo.BootloaderAddress;
-           IgnoreAddressEnd := BootInfo.BootloaderAddress + (BootInfo.BootloaderSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
-           WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
-           Group := IgnoreList.AddGroup;
-           Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
-           if BootInfo.ConfigurationAdddress > 0 then
+           // The micro must reply in this next packet block
+           Delay(DELAY_BOOTLOADER_MS);
+           RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 62);
+           if RxBuffer[0] = CMD_REQUEST_FLASH_DATA then
            begin
-             IgnoreAddressStart := BootInfo.ConfigurationAdddress;
-             IgnoreAddressEnd := BootInfo.ConfigurationAdddress + (BootInfo.EraseBlockSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
+             if Verbose then WriteLn('Microcontroller information returned');
+             RxOffset := 1;
+             BootInfo.StructSize := (RxBuffer[RxOffset] shl 8) or RxBuffer[RxOffset+1];
+             Inc(RxOffset, 2);
+             BootInfo.EraseBlockSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.WriteBufferSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.ProgramFlashSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.BootloaderAddress := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.BootloaderSize := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.ConfigurationAdddress := (RxBuffer[RxOffset] shl 24) or (RxBuffer[RxOffset+1] shl 16) or (RxBuffer[RxOffset+2] shl 8) or RxBuffer[RxOffset+3];
+             Inc(RxOffset, 4);
+             BootInfo.McuFamily := RxBuffer[RxOffset];
+             Inc(RxOffset);
+             BootInfo.Revision[0] := RxBuffer[RxOffset];
+             Inc(RxOffset);
+             BootInfo.Revision[1] := RxBuffer[RxOffset];
+             Inc(RxOffset);
+             BootInfo.ApplicationName := ansistring( PChar( @RxBuffer[RxOffset]));
+
+             IntelHexInfo.AddressIncrement := 2;
+             IntelHexInfo.BytesPerInstruction := 3;
+             IntelHexInfo.DoubleAddress := True;
+             IntelHexInfo.HexType := iht_INH24_dsPIC33;
+
+             if Verbose then WriteLn('Structure Size: ' + IntToStr(BootInfo.StructSize));
+             if Verbose then WriteLn('Erase Block Size (bytes): ' + IntToStr(BootInfo.EraseBlockSize) + ' [0x' + IntToHex(BootInfo.EraseBlockSize, 8) + ']');
+             if Verbose then  WriteLn('Write Block Size (bytes): ' + IntToStr(BootInfo.WriteBufferSize) + ' [0x' + IntToHex(BootInfo.WriteBufferSize, 8) + ']');
+             if Verbose then WriteLn('Flash Size (bytes): ' + IntToStr(BootInfo.ProgramFlashSize) + ' [0x' + IntToHex(BootInfo.ProgramFlashSize, 8) + ']' + ' [0x' + IntToHex(BootInfo.ProgramFlashSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement, 8) + ' User Addresses]');
+             if Verbose then WriteLn('Bootloader Address: 0x' + IntToHex(BootInfo.BootloaderAddress, 8));
+             if Verbose then WriteLn('Bootloader Size (bytes): ' + IntToStr(BootInfo.BootloaderSize) + ' [0x' + IntToHex(BootInfo.BootloaderSize, 8) + ']');
+             if Verbose then WriteLn('Configruation Address: 0x' + IntToHex(BootInfo.ConfigurationAdddress, 8));
+             if Verbose then WriteLn('McuFamily: ' + IntToStr(BootInfo.McuFamily));
+             if Verbose then WriteLn('Revision: ' + IntToStr(BootInfo.Revision[1]) + '.' + IntToStr(BootInfo.Revision[0]));
+             if Verbose then WriteLn('App Name: ' + BootInfo.ApplicationName);
+
+             // Add an ignore space where the bootloader is so we don't overwrite it
+             IgnoreAddressStart := BootInfo.BootloaderAddress;
+             IgnoreAddressEnd := BootInfo.BootloaderAddress + (BootInfo.BootloaderSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
              WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
              Group := IgnoreList.AddGroup;
              Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
-           end;
-           WriteLn('Parsing Intel HEX file');
-           if IntelParser.ParseHex(FilePath, IntelHexInfo, BootInfo.EraseBlockSize, BootInfo.WriteBufferSize, 1, IgnoreList, False) then
-           begin
-             WriteLn('File parsed');
-
-       {      for i := 0 to IntelParser.PhysicalAddressBlockList.Count - 1 do
+             if BootInfo.ConfigurationAdddress > 0 then
              begin
-               WriteLn('Start: 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressStart, 8));
-               WriteLn('End  : 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressLast, 8));
-             end; }
-
-             WriteLn('Building Write Block List');
-             if IntelParser.BuildWriteBlockList = ERROR_WRITE_BLOCK_OK then
+               IgnoreAddressStart := BootInfo.ConfigurationAdddress;
+               IgnoreAddressEnd := BootInfo.ConfigurationAdddress + (BootInfo.EraseBlockSize div IntelHexInfo.BytesPerInstruction * IntelHexInfo.AddressIncrement);
+               if Verbose then WriteLn('Ignoring from: 0x' + IntToHex(IgnoreAddressStart, 8) + ' to: 0x' + IntToHex(IgnoreAddressEnd, 8));
+               Group := IgnoreList.AddGroup;
+               Group.AddBound(IgnoreAddressStart, IgnoreAddressEnd);
+             end;
+             if Verbose then WriteLn('Parsing Intel HEX file');
+             if IntelParser.ParseHex(BootloadHexPath, IntelHexInfo, BootInfo.EraseBlockSize, BootInfo.WriteBufferSize, 1, IgnoreList, False) then
              begin
-               WriteLn('Write block lists built');
-               WriteLn('Building Erase Block List');
-               if IntelParser.BuildEraseBlockList = ERROR_ERASE_BLOCK_OK then
+               if Verbose then WriteLn('File parsed');
+
+         {      for i := 0 to IntelParser.PhysicalAddressBlockList.Count - 1 do
                begin
-                 WriteLn('Erase block lists built');
+                 WriteLn('Start: 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressStart, 8));
+                 WriteLn('End  : 0x' + IntToHex( IntelParser.PhysicalAddressBlockList[i].AddressLast, 8));
+               end; }
 
-                 for i := 0 to IntelParser.PhysicalEraseBlockList.Count - 1 do
+               if Verbose then WriteLn('Building Write Block List');
+               if IntelParser.BuildWriteBlockList = ERROR_WRITE_BLOCK_OK then
+               begin
+                 if Verbose then WriteLn('Write block lists built');
+                 if Verbose then WriteLn('Building Erase Block List');
+                 if IntelParser.BuildEraseBlockList = ERROR_ERASE_BLOCK_OK then
                  begin
-                   WriteLn('Setting Erase Address: ' + IntToHex(IntelParser.PhysicalEraseBlockList[i].AddressStart, 8));
-                   TxBuffer[0] := CMD_SET_ADDRESS;
-                   TxBuffer[1] := CMD_SET_ADDRESS_ERASE;
-                   TxBuffer[2] := Highest( IntelParser.PhysicalEraseBlockList[i].AddressStart);
-                   TxBuffer[3] := Higher( IntelParser.PhysicalEraseBlockList[i].AddressStart);
-                   TxBuffer[4] := High( IntelParser.PhysicalEraseBlockList[i].AddressStart);
-                   TxBuffer[5] := Low( IntelParser.PhysicalEraseBlockList[i].AddressStart);
-                   RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
+                   if Verbose then WriteLn('Erase block lists built');
 
-                   // No Reply defined
-
-                   WriteLn('Erasing: ' + IntToStr(IntelParser.PhysicalEraseBlockList[i].BlockCount) + ' blocks');
-                   TxBuffer[0] := CMD_ERASE_BLOCKS;
-                   TxBuffer[1] := Highest( IntelParser.PhysicalEraseBlockList[i].BlockCount);
-                   TxBuffer[2] := Higher( IntelParser.PhysicalEraseBlockList[i].BlockCount);
-                   TxBuffer[3] := High( IntelParser.PhysicalEraseBlockList[i].BlockCount);
-                   TxBuffer[4] := Low( IntelParser.PhysicalEraseBlockList[i].BlockCount);
-                   RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 5);
-
-                   // The micro must reply in the next packet block
-                   // Now we are bit banging the SPI so the count can be variable
-                   repeat
-                     Delay(DELAY_BOOTLOADER_MS * 2 * IntelParser.PhysicalEraseBlockList[i].BlockCount);
-                     RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
-                   until RxBuffer[0] = CMD_ERASE_BLOCKS;
-                 end;
-
-                 for i := 0 to IntelParser.PhysicalWriteBlockList.Count - 1 do
-                 begin
-                   WriteLn('Setting Write Address: ' + IntToHex(IntelParser.PhysicalWriteBlockList[i].AddressStart, 8));
-                   TxBuffer[0] := CMD_SET_ADDRESS;
-                   TxBuffer[1] := CMD_SET_ADDRESS_WRITE;
-                   TxBuffer[2] := Highest( IntelParser.PhysicalWriteBlockList[i].AddressStart);
-                   TxBuffer[3] := Higher( IntelParser.PhysicalWriteBlockList[i].AddressStart);
-                   TxBuffer[4] := High( IntelParser.PhysicalWriteBlockList[i].AddressStart);
-                   TxBuffer[5] := Low( IntelParser.PhysicalWriteBlockList[i].AddressStart);
-                   RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
-
-                   // No Reply Defined
-
-                   if IntelParser.PhysicalWriteBlockList[i].ByteCount = BootInfo.WriteBufferSize then
+                   for i := 0 to IntelParser.PhysicalEraseBlockList.Count - 1 do
                    begin
-                     WriteLn('Writing Block: ' + IntToStr(IntelParser.PhysicalWriteBlockList[i].ByteCount) + ' bytes');
-                     TxBuffer[0] := CMD_WRITE_BLOCK;
-                     for j := 0 to BootInfo.WriteBufferSize - 1 do
-                       TxBuffer[j+1] := IntelParser.PhysicalWriteBlockList[i].DataBlock[j];
-                     RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BootInfo.WriteBufferSize + 1);
+                     if Verbose then WriteLn('Setting Erase Address: ' + IntToHex(IntelParser.PhysicalEraseBlockList[i].AddressStart, 8));
+                     TxBuffer[0] := CMD_SET_ADDRESS;
+                     TxBuffer[1] := CMD_SET_ADDRESS_ERASE;
+                     TxBuffer[2] := Highest( IntelParser.PhysicalEraseBlockList[i].AddressStart);
+                     TxBuffer[3] := Higher( IntelParser.PhysicalEraseBlockList[i].AddressStart);
+                     TxBuffer[4] := High( IntelParser.PhysicalEraseBlockList[i].AddressStart);
+                     TxBuffer[5] := Low( IntelParser.PhysicalEraseBlockList[i].AddressStart);
+                     RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
+
+                     // No Reply defined
+
+                     if Verbose then WriteLn('Erasing: ' + IntToStr(IntelParser.PhysicalEraseBlockList[i].BlockCount) + ' blocks');
+                     TxBuffer[0] := CMD_ERASE_BLOCKS;
+                     TxBuffer[1] := Highest( IntelParser.PhysicalEraseBlockList[i].BlockCount);
+                     TxBuffer[2] := Higher( IntelParser.PhysicalEraseBlockList[i].BlockCount);
+                     TxBuffer[3] := High( IntelParser.PhysicalEraseBlockList[i].BlockCount);
+                     TxBuffer[4] := Low( IntelParser.PhysicalEraseBlockList[i].BlockCount);
+                     RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 5);
+
                      // The micro must reply in the next packet block
                      // Now we are bit banging the SPI so the count can be variable
                      repeat
-                       Delay(DELAY_BOOTLOADER_MS);
+                       Delay(DELAY_BOOTLOADER_MS * 2 * IntelParser.PhysicalEraseBlockList[i].BlockCount);
                        RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
-                     until RxBuffer[0] = CMD_WRITE_BLOCK;
-                   end else
-                   begin
-                     WriteLn('Writing: ' + IntToStr(IntelParser.PhysicalWriteBlockList[i].ByteCount) + ' bytes');
-                     TxBuffer[0] := CMD_WRITE;
-                     TxBuffer[1] := Highest( IntelParser.PhysicalWriteBlockList[i].ByteCount);
-                     TxBuffer[2] := Higher( IntelParser.PhysicalWriteBlockList[i].ByteCount);
-                     TxBuffer[3] := High( IntelParser.PhysicalWriteBlockList[i].ByteCount);
-                     TxBuffer[4] := Low( IntelParser.PhysicalWriteBlockList[i].ByteCount);
-                     for j := 0 to BootInfo.WriteBufferSize - 1 do
-                       TxBuffer[j+5] := IntelParser.PhysicalWriteBlockList[i].DataBlock[j];
-                     RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, IntelParser.PhysicalWriteBlockList[i].ByteCount + 5);
-                     // The micro must reply in the next packet block
-                     // Now we are bit banging the SPI so the count can be variable
-                     repeat
-                       Delay(DELAY_BOOTLOADER_MS);
-                       RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
-                     until RxBuffer[0] = CMD_WRITE;
+                     until RxBuffer[0] = CMD_ERASE_BLOCKS;
                    end;
-                 end;
-                 // Reboot the Microcontroller
-                 TxBuffer[0] := CMD_RESET;
-                 RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
-               end else
-                  WriteLn('Failed to Build Erase Blocks');
-             end else
-               WriteLn('Failed to Build Write Blocks');
-           end;
-         end else
-           WriteLn('Failed to access microcontroller info');
-       end else
-       begin
-         WriteLn('Failed to enter bootloader mode');
-       end;
 
-     finally
-       IntelParser.Free;
-       IgnoreList.Free;
-     end;
-  end else
-    WriteLn('Unable to locate hex file: ' + FilePath);
-  Bootloading := False;
+                   for i := 0 to IntelParser.PhysicalWriteBlockList.Count - 1 do
+                   begin
+                     if Verbose then WriteLn('Setting Write Address: ' + IntToHex(IntelParser.PhysicalWriteBlockList[i].AddressStart, 8));
+                     TxBuffer[0] := CMD_SET_ADDRESS;
+                     TxBuffer[1] := CMD_SET_ADDRESS_WRITE;
+                     TxBuffer[2] := Highest( IntelParser.PhysicalWriteBlockList[i].AddressStart);
+                     TxBuffer[3] := Higher( IntelParser.PhysicalWriteBlockList[i].AddressStart);
+                     TxBuffer[4] := High( IntelParser.PhysicalWriteBlockList[i].AddressStart);
+                     TxBuffer[5] := Low( IntelParser.PhysicalWriteBlockList[i].AddressStart);
+                     RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 6);
+
+                     // No Reply Defined
+
+                     if IntelParser.PhysicalWriteBlockList[i].ByteCount = BootInfo.WriteBufferSize then
+                     begin
+                       if Verbose then WriteLn('Writing Block: ' + IntToStr(IntelParser.PhysicalWriteBlockList[i].ByteCount) + ' bytes');
+                       TxBuffer[0] := CMD_WRITE_BLOCK;
+                       for j := 0 to BootInfo.WriteBufferSize - 1 do
+                         TxBuffer[j+1] := IntelParser.PhysicalWriteBlockList[i].DataBlock[j];
+                       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, BootInfo.WriteBufferSize + 1);
+                       // The micro must reply in the next packet block
+                       // Now we are bit banging the SPI so the count can be variable
+                       repeat
+                         Delay(DELAY_BOOTLOADER_MS);
+                         RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
+                       until RxBuffer[0] = CMD_WRITE_BLOCK;
+                     end else
+                     begin
+                       if Verbose then WriteLn('Writing: ' + IntToStr(IntelParser.PhysicalWriteBlockList[i].ByteCount) + ' bytes');
+                       TxBuffer[0] := CMD_WRITE;
+                       TxBuffer[1] := Highest( IntelParser.PhysicalWriteBlockList[i].ByteCount);
+                       TxBuffer[2] := Higher( IntelParser.PhysicalWriteBlockList[i].ByteCount);
+                       TxBuffer[3] := High( IntelParser.PhysicalWriteBlockList[i].ByteCount);
+                       TxBuffer[4] := Low( IntelParser.PhysicalWriteBlockList[i].ByteCount);
+                       for j := 0 to BootInfo.WriteBufferSize - 1 do
+                         TxBuffer[j+5] := IntelParser.PhysicalWriteBlockList[i].DataBlock[j];
+                       RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, IntelParser.PhysicalWriteBlockList[i].ByteCount + 5);
+                       // The micro must reply in the next packet block
+                       // Now we are bit banging the SPI so the count can be variable
+                       repeat
+                         Delay(DELAY_BOOTLOADER_MS);
+                         RaspberryPiSpi.Transfer(@GlobalBufferNull, @RxBuffer, 2);
+                       until RxBuffer[0] = CMD_WRITE;
+                     end;
+                   end;
+                   // Reboot the Microcontroller
+                   TxBuffer[0] := CMD_RESET;
+                   RaspberryPiSpi.Transfer(@TxBuffer, @RxBuffer, 1);
+                 end else
+                    WriteLn('Failed to Build Erase Blocks');
+               end else
+                 WriteLn('Failed to Build Write Blocks');
+             end;
+           end else
+             WriteLn('Failed to access microcontroller info');
+         end else
+         begin
+           WriteLn('Failed to enter bootloader mode');
+         end;
+       finally
+         IntelParser.Free;
+         IgnoreList.Free;
+       end;
+    end else
+      WriteLn('Unable to locate hex file: ' + BootloadHexPath);
+  finally
+    Bootloading := False;
+    WriteLn('Exiting Booloader Mode');
+  end;
 end;
 
 // ****************************************************************************
@@ -876,7 +929,11 @@ end;
 procedure TRPiCAN.WriteHelp;
 begin
   { add your help code here }
-  writeln('Usage: ', ExeName, ' -h');
+  writeln('Usage: ', ExeName, ' -h; Display this help file');
+  WriteLn('  -b [-bootfile] {HEXfilepath.hex}; Update the the PiCan boards micro code with the passed file');
+  WriteLn('  -s [-spidriver] {spidriverpath}; Defines custom path for the spi driver');
+  WriteLn('  -v [-verbose] Displays detailed info in the command window, off is default');
+  WriteLn('  -h [-hub] Runs only as a hub, does not interact with the Spi hardware');
 end;
 
 // ****************************************************************************
