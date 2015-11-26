@@ -3,16 +3,15 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="19">
+    <Units Count="20">
       <Unit0>
         <Filename Value="CDI_Parser.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
         <CursorPos X="58" Y="15"/>
-        <UsageCount Value="94"/>
+        <UsageCount Value="98"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -22,9 +21,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_main"/>
-        <TopLine Value="2"/>
-        <CursorPos X="10" Y="12"/>
-        <UsageCount Value="94"/>
+        <TopLine Value="29"/>
+        <CursorPos X="25" Y="51"/>
+        <UsageCount Value="98"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -112,11 +111,8 @@
       <Unit16>
         <Filename Value="/Developer/lazarus/packager/registration/fcllaz.pas"/>
         <UnitName Value="fcllaz"/>
-        <EditorIndex Value="0"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit16>
       <Unit17>
@@ -129,11 +125,30 @@
         <Filename Value="../../Library/file_utilities.pas"/>
         <UsageCount Value="10"/>
       </Unit18>
+      <Unit19>
+        <Filename Value="../../../Library/LCC/lcc_cdi_parser.pas"/>
+        <UnitName Value="lcc_cdi_parser"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1644"/>
+        <CursorPos X="5" Y="1636"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit19>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="3" HistoryIndex="2">
+      <Position1>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="51" Column="25" TopLine="29"/>
+      </Position1>
+      <Position2>
+        <Filename Value="../../../Library/LCC/lcc_cdi_parser.pas"/>
+        <Caret Line="1953" Column="28" TopLine="1940"/>
+      </Position2>
+      <Position3>
+        <Filename Value="../../../Library/LCC/lcc_cdi_parser.pas"/>
+        <Caret Line="1974" Column="21" TopLine="1957"/>
+      </Position3>
+    </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

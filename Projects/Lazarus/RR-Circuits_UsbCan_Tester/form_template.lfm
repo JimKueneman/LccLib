@@ -2,10 +2,10 @@ object FormTemplate: TFormTemplate
   Left = 347
   Height = 578
   Top = 212
-  Width = 755
+  Width = 821
   Caption = 'RR CirKits'
   ClientHeight = 578
-  ClientWidth = 755
+  ClientWidth = 821
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnResize = FormResize
@@ -15,7 +15,7 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 46
     Top = 0
-    Width = 755
+    Width = 821
     AutoSize = True
     ButtonHeight = 44
     Caption = 'ToolBarMain'
@@ -60,7 +60,7 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 15
     Top = 563
-    Width = 755
+    Width = 821
     Panels = <    
       item
         Text = 'Disconnected'
@@ -76,25 +76,25 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 374
     Top = 46
-    Width = 755
+    Width = 821
     Align = alClient
     ClientHeight = 374
-    ClientWidth = 755
+    ClientWidth = 821
     TabOrder = 2
     object PanelOutgoing: TPanel
       Left = 1
       Height = 372
       Top = 1
-      Width = 319
+      Width = 350
       Align = alLeft
       ClientHeight = 372
-      ClientWidth = 319
+      ClientWidth = 350
       TabOrder = 0
       object MemoOutgoing: TMemo
         Left = 1
         Height = 320
         Top = 1
-        Width = 317
+        Width = 348
         Align = alClient
         ScrollBars = ssAutoBoth
         TabOrder = 0
@@ -103,13 +103,13 @@ object FormTemplate: TFormTemplate
         Left = 1
         Height = 50
         Top = 321
-        Width = 317
+        Width = 348
         Align = alBottom
         ClientHeight = 50
-        ClientWidth = 317
+        ClientWidth = 348
         TabOrder = 1
         object ButtonSaveToFileOutgoing: TButton
-          Left = 65
+          Left = 103
           Height = 25
           Top = 16
           Width = 110
@@ -119,7 +119,7 @@ object FormTemplate: TFormTemplate
           TabOrder = 0
         end
         object ButtonLoadFromFileOutgoing: TButton
-          Left = 193
+          Left = 224
           Height = 25
           Top = 16
           Width = 110
@@ -128,22 +128,32 @@ object FormTemplate: TFormTemplate
           OnClick = ButtonLoadFromFileOutgoingClick
           TabOrder = 1
         end
+        object ButtonSaveToFileInComing2: TButton
+          Left = 23
+          Height = 25
+          Top = 16
+          Width = 72
+          Anchors = [akTop, akRight]
+          Caption = 'Clear'
+          OnClick = ButtonSaveToFileInComing2Click
+          TabOrder = 2
+        end
       end
     end
     object PanelIncoming: TPanel
-      Left = 442
+      Left = 473
       Height = 372
       Top = 1
-      Width = 312
+      Width = 347
       Align = alClient
       ClientHeight = 372
-      ClientWidth = 312
+      ClientWidth = 347
       TabOrder = 1
       object MemoIncoming: TMemo
         Left = 1
         Height = 308
         Top = 1
-        Width = 310
+        Width = 345
         Align = alClient
         ScrollBars = ssAutoBoth
         TabOrder = 0
@@ -152,13 +162,13 @@ object FormTemplate: TFormTemplate
         Left = 1
         Height = 62
         Top = 309
-        Width = 310
+        Width = 345
         Align = alBottom
         ClientHeight = 62
-        ClientWidth = 310
+        ClientWidth = 345
         TabOrder = 1
         object ButtonLoadFromFileInComing: TButton
-          Left = 182
+          Left = 217
           Height = 25
           Top = 28
           Width = 110
@@ -168,7 +178,7 @@ object FormTemplate: TFormTemplate
           TabOrder = 0
         end
         object ButtonSaveToFileInComing: TButton
-          Left = 54
+          Left = 98
           Height = 25
           Top = 28
           Width = 110
@@ -178,7 +188,7 @@ object FormTemplate: TFormTemplate
           TabOrder = 1
         end
         object CheckBoxLockUpdate: TCheckBox
-          Left = 184
+          Left = 219
           Height = 18
           Top = 8
           Width = 115
@@ -187,10 +197,20 @@ object FormTemplate: TFormTemplate
           OnChange = CheckBoxLockUpdateChange
           TabOrder = 2
         end
+        object ButtonSaveToFileInComing1: TButton
+          Left = 18
+          Height = 25
+          Top = 28
+          Width = 72
+          Anchors = [akTop, akRight]
+          Caption = 'Clear'
+          OnClick = ButtonSaveToFileInComing1Click
+          TabOrder = 3
+        end
       end
     end
     object PanelCenter: TPanel
-      Left = 320
+      Left = 351
       Height = 372
       Top = 1
       Width = 122
@@ -262,7 +282,7 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 5
     Top = 420
-    Width = 755
+    Width = 821
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -270,16 +290,16 @@ object FormTemplate: TFormTemplate
     Left = 0
     Height = 138
     Top = 425
-    Width = 755
+    Width = 821
     Align = alBottom
     ClientHeight = 138
-    ClientWidth = 755
+    ClientWidth = 821
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
       Height = 16
       Top = 1
-      Width = 737
+      Width = 803
       Align = alTop
       BorderSpacing.Left = 8
       BorderSpacing.Right = 8
@@ -290,7 +310,7 @@ object FormTemplate: TFormTemplate
       Left = 1
       Height = 120
       Top = 17
-      Width = 753
+      Width = 819
       Align = alClient
       Columns = <      
         item

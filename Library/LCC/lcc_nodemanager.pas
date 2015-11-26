@@ -1577,7 +1577,7 @@ begin
                                        end;  // Not writeable
                                    MSI_CONFIG          :
                                        begin
-                                         SendAckReply(LccMessage, True, 0);     // We will be sending a Write Reply
+                                         SendAckReply(LccMessage, False, 0);     // We will be sending a Write Reply
                                          Configuration.WriteRequest(LccMessage);
                                          Result := True;
                                        end;
@@ -1586,7 +1586,7 @@ begin
                                        end;  // Not writeable
                                    MSI_ACDI_USER       :
                                        begin
-                                         SendAckReply(LccMessage, True, 0);     // We will be sending a Write Reply
+                                         SendAckReply(LccMessage, False, 0);     // We will be sending a Write Reply
                                          ACDIUser.WriteRequest(LccMessage);
                                          Result := True;
                                        end;
@@ -1602,7 +1602,7 @@ begin
                                end;
                            MCP_CONFIGURATION :
                                begin
-                                 SendAckReply(LccMessage, True, 0);             // We will be sending a Write Reply
+                                 SendAckReply(LccMessage, False, 0);             // We will be sending a Write Reply
                                  Configuration.WriteRequest(LccMessage);
                                  Result := True;
                                end;
@@ -1625,7 +1625,7 @@ begin
                                    case LccMessage.DataArrayIndexer[6] of
                                      MSI_CDI             :
                                          begin
-                                           SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                           SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            CDI.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
@@ -1638,7 +1638,7 @@ begin
                                          end;
                                      MSI_CONFIG          :
                                          begin
-                                           SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                           SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            Configuration.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
@@ -1647,7 +1647,7 @@ begin
                                          end;
                                      MSI_ACDI_MFG        :
                                          begin
-                                           SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                           SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            ACDIMfg.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
@@ -1656,7 +1656,7 @@ begin
                                          end;
                                      MSI_ACDI_USER       :
                                          begin
-                                           SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                           SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            ACDIUser.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
@@ -1674,7 +1674,7 @@ begin
                                    end
                                  end;
                              MCP_CONFIGURATION : begin
-                                                   SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                                   SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                                    Configuration.LoadReply(LccMessage, WorkerMessage);
                                                    if WorkerMessage.UserValid then
@@ -1683,7 +1683,7 @@ begin
                                                  end;
                              MCP_ALL           : begin  end;
                              MCP_CDI           : begin
-                                                   SendAckReply(LccMessage, True, 0);   // We will be sending a Read Reply
+                                                   SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                                    CDI.LoadReply(LccMessage, WorkerMessage);
                                                    if WorkerMessage.UserValid then
@@ -3788,15 +3788,15 @@ begin
                                 // Ok
                                 case ExtractAddressSpace(LccMessage) of
                                   MSI_CDI             : begin
-                                                          SendAckReply(LccMessage, False, 0);
+                                                     //     SendAckReply(LccMessage, False, 0);
                                                           CDI.ProcessMessage(LccMessage);
                                                           Result := True;
                                                         end;
                                   MSI_ALL             : begin
-                                                          SendAckReply(LccMessage, False, 0);
+                                                      //    SendAckReply(LccMessage, False, 0);
                                                         end;
                                   MSI_CONFIG          : begin
-                                                          SendAckReply(LccMessage, False, 0);
+                                                      //    SendAckReply(LccMessage, False, 0);
                                                           ConfigurationMem.ProcessMessage(LccMessage);
                                                           Result := True;
                                                         end;
@@ -3804,12 +3804,12 @@ begin
                                   MSI_ACDI_USER       : begin end;
                                   {$IFDEF TRACTION}
                                   MSI_FDI             : begin
-                                                          SendAckReply(LccMessage, False, 0);
+                                                       //   SendAckReply(LccMessage, False, 0);
                                                           FDI.ProcessMessage(LccMessage);
                                                           Result := True;
                                                         end;
                                   MSI_FUNCTION_CONFIG : begin
-                                                          SendAckReply(LccMessage, False, 0);
+                                                       //   SendAckReply(LccMessage, False, 0);
                                                           FunctionConfiguration.ProcessMessage(LccMessage);
                                                           Result := True;
                                                         end;
@@ -3832,7 +3832,7 @@ begin
                                   MSI_CDI              : begin end; // Not writable
                                   MSI_ALL              : begin end; // Not writeable
                                   MSI_CONFIG           : begin
-                                                           SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
+                                                      //     SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
                                                            ConfigurationMem.ProcessMessage(LccMessage);
                                                            Result := True;
                                                          end;
@@ -3841,7 +3841,7 @@ begin
                                   {$IFDEF TRACTION}
                                   MSI_FDI              : begin end; // Not writeable
                                   MSI_FUNCTION_CONFIG  : begin
-                                                           SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
+                                                       //    SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
                                                            FunctionConfiguration.ProcessMessage(LccMessage);
                                                            Result := True;
                                                          end;
@@ -3860,7 +3860,7 @@ begin
                                    end;
                                MCP_OP_GET_CONFIG_REPLY :
                                    begin
-                                     SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
+                              //       SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
                                      ConfigMemOptions.ProcessMessage(LccMessage);
                                      Result := True;
                                    end;
@@ -3870,7 +3870,7 @@ begin
                                MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
                                MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
                                    begin
-                                     SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
+                            //         SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
                                      ConfigMemAddressSpaceInfo.ProcessMessage(LccMessage);
                                      Result := True;
                                    end;

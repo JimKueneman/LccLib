@@ -20,7 +20,7 @@ type
 
   { TMyRootNode }
 
-  TMyRootNode = class(TLccOwnedNode)
+  TMyRootNode = class(TLccDefaultRootNode)
   public
     constructor Create(AnOwner: TComponent); override;
   end;
@@ -263,9 +263,14 @@ end;
 procedure TFormTemplate.ActionMsgTraceExecute(Sender: TObject);
 begin
   if ActionMsgTrace.Checked then
+  begin
+    FormLogging.FrameLccLogging.Paused := False;
     FormLogging.Show
-  else
+  end else
+  begin
+    FormLogging.FrameLccLogging.Paused := True;
     FormLogging.Hide
+  end;
 end;
 
 procedure TFormTemplate.ActionToolsPreferenceShowMacExecute(Sender: TObject);
@@ -347,6 +352,7 @@ begin
     LccEthernetServer.LoggingFrame := FormLogging.FrameLccLogging;
     ActionLccLogin.Enabled := False;
     PanelAddOns.Visible := False;
+    FormLogging.FrameLccLogging.Paused := True;
     ShownOnce := True;
   end;
 end;

@@ -9,7 +9,7 @@ uses
   ActnList, Menus, LCLType, StdCtrls, ExtCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_ethernetclient, lcc_nodemanager, lcc_ethenetserver,
   form_settings, file_utilities, lcc_messages, form_logging, lcc_defines,
-  lcc_utilities, frame_lcc_logging;
+  lcc_utilities, frame_lcc_logging, types;
 
 const
   BUNDLENAME             = 'LCCAppTemplate';
@@ -37,6 +37,8 @@ type
     ActionEthenetClientConnect: TAction;
     ActionEthernetServerConnect: TAction;
     ActionList: TActionList;
+    ButtonSaveToFileInComing1: TButton;
+    ButtonSaveToFileInComing2: TButton;
     ButtonSaveToFileOutgoing: TButton;
     ButtonLoadFromFileOutgoing: TButton;
     ButtonLoadFromFileInComing: TButton;
@@ -87,6 +89,8 @@ type
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
     procedure ButtonLoadFromFileInComingClick(Sender: TObject);
     procedure ButtonLoadFromFileOutgoingClick(Sender: TObject);
+    procedure ButtonSaveToFileInComing1Click(Sender: TObject);
+    procedure ButtonSaveToFileInComing2Click(Sender: TObject);
     procedure ButtonSaveToFileInComingClick(Sender: TObject);
     procedure ButtonSaveToFileOutgoingClick(Sender: TObject);
     procedure ButtonSend1Click(Sender: TObject);
@@ -260,6 +264,16 @@ procedure TFormTemplate.ButtonLoadFromFileOutgoingClick(Sender: TObject);
 begin
   if OpenDialog.Execute then
     MemoOutgoing.Lines.LoadFromFile(OpenDialog.FileName);
+end;
+
+procedure TFormTemplate.ButtonSaveToFileInComing1Click(Sender: TObject);
+begin
+  MemoIncoming.Clear;
+end;
+
+procedure TFormTemplate.ButtonSaveToFileInComing2Click(Sender: TObject);
+begin
+  MemoOutgoing.Clear;
 end;
 
 procedure TFormTemplate.ButtonSaveToFileInComingClick(Sender: TObject);
