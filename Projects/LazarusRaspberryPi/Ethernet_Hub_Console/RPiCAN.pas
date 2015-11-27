@@ -9,9 +9,9 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, CustApp, lcc_raspberrypi, blcksock, synsock, baseUnix, sockets,
-  contnrs, lcc_gridconnect, crt, intel_hex_parser
-  { you can add units after this };
+  Classes, SysUtils, CustApp, blcksock, synsock, baseUnix,
+  sockets, contnrs, lcc_gridconnect, crt, intel_hex_parser,
+  lcc_messages, lcc_raspberrypi, lcc_node, lcc_node_protocol_helpers;
 
 const
   LCC_MESSAGES_PER_SPI_PACKET = 8;
@@ -66,6 +66,7 @@ type
     FRPiCAN: TRPiCAN;
     FSocket: TTCPBlockSocket;
     FInBuffer: TStringList;
+    FWorkerMessage: TLccMessage;
     FXOn: Boolean;
     procedure SetXon(AValue: Boolean);
   public
@@ -80,6 +81,7 @@ type
     property InBuffer: TStringList read FInBuffer write FInBuffer;
     property RPiCAN: TRPiCAN read FRPiCAN write FRPiCAN;
     property Socket: TTCPBlockSocket read FSocket write FSocket;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property XOn: Boolean read FXOn write SetXon;
   end;
 
@@ -100,43 +102,67 @@ type
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
   end;
 
+  { TLocalConnection }
+
+  TLocalConnection = class(TClientConnection)
+  public
+    constructor Create(ARPiCAN: TRPiCAN); override;
+    destructor Destroy; override;
+
+    procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); override;
+    function PollForIncomingMessage: Boolean; override;
+
+  //  property LccNode: TLccDefaultRootNode
+  end;
+
   { TRPiCAN }
 
   TRPiCAN = class(TCustomApplication)
   private
     FBootloadHexPath: string;
-    FBootloading: Boolean;
+    FClientConnection: TClientConnection;
     FClientConnections: TObjectList;
+    FClientSocketOpened: Boolean;
     FHubOnly: Boolean;
+    FRaspberryPiSpiConnection: TRPiClientConnection;
+    FRaspberryPiSpiOpened: Boolean;
     FSpiDevicePath: string;
-    FListening: Boolean;
+    FListeningSocketOpened: Boolean;
     FListenSocket: TTCPBlockSocket;
     FRaspberryPiSpi: TRaspberryPiSpi;
     FVerbose: Boolean;
+    FWorkerGridConnectStrings: TStringList;
     function GetEthernetConnection(Index: Integer): TClientConnection;
     procedure SetEthenetConnection(Index: Integer; AValue: TClientConnection);
     procedure SetVerbose(AValue: Boolean);
   protected
     property ClientConnections: TObjectList read FClientConnections write FClientConnections;
+    property WorkerGridConnectStrings: TStringList read FWorkerGridConnectStrings write FWorkerGridConnectStrings;
 
+    procedure CloseClientConnection;
     procedure CloseListenSocket;
-    procedure CreateRaspberryPiClient;
+    procedure CloseRaspberryPiSpiConnection;
     procedure DoRunBootloader;
     procedure DoCheckForNewClients;
     procedure DoPollClientInputs;
     procedure DoDispatchToClients;
     procedure DoRun; override;
+    procedure OpenClientSocketAndCreateClientConnection;
     procedure OpenListenSocket;
+    procedure OpenRaspberryPiSpiAndCreateClientConnection;
     procedure WriteHelp; virtual;
   public
-    property Bootloading: Boolean read FBootloading write FBootloading;
     property BootloadHexPath: string read FBootloadHexPath write FBootloadHexPath;
-    property SpiDevicePath: string read FSpiDevicePath write FSpiDevicePath;
+    property ClientConnection: TClientConnection read FClientConnection write FClientConnection;
+    property ClientSocketOpened: Boolean read FClientSocketOpened write FClientSocketOpened;
     property EthernetConnection[Index: Integer]: TClientConnection read GetEthernetConnection write SetEthenetConnection;
     property HubOnly: Boolean read FHubOnly write FHubOnly;
-    property Listening: Boolean read FListening write FListening;
     property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
+    property ListeningSocketOpened: Boolean read FListeningSocketOpened write FListeningSocketOpened;
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
+    property RaspberryPiSpiConnection: TRPiClientConnection read FRaspberryPiSpiConnection write FRaspberryPiSpiConnection;
+    property RaspberryPiSpiOpened: Boolean read FRaspberryPiSpiOpened write FRaspberryPiSpiOpened;
+    property SpiDevicePath: string read FSpiDevicePath write FSpiDevicePath;
     property Verbose: Boolean read FVerbose write SetVerbose;
 
     constructor Create(TheOwner: TComponent); override;
@@ -213,6 +239,29 @@ begin
   begin
     // report error
   end;
+end;
+
+{ TLocalConnection }
+
+constructor TLocalConnection.Create(ARPiCAN: TRPiCAN);
+begin
+  inherited Create(ARPiCAN);
+end;
+
+destructor TLocalConnection.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TLocalConnection.DispatchGridConnectMessages(
+  GridConnectMsgList: TStringList);
+begin
+  inherited DispatchGridConnectMessages(GridConnectMsgList);
+end;
+
+function TLocalConnection.PollForIncomingMessage: Boolean;
+begin
+  Result := inherited PollForIncomingMessage;
 end;
 
 { TRPiClientConnection }
@@ -329,6 +378,7 @@ begin
   GridConnectHelper := TGridConnectHelper.Create;
   Filtered := False;
   FXOn := True;
+  WorkerMessage := TLccMessage.Create;
 end;
 
 destructor TClientConnection.Destroy;
@@ -336,6 +386,7 @@ begin
   FreeAndNil(FSocket);
   FreeAndNil(FInBuffer);
   FreeAndNil(FGridConnectHelper);
+  FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
@@ -345,11 +396,13 @@ var
 begin
   if Socket.Socket <> INVALID_SOCKET then
     for iString := 0 to GridConnectMsgList.Count - 1 do
+    begin
       if FilterMessage(GridConnectMsgList[iString]) then
       begin
         for iChar := 1 to Length(GridConnectMsgList[iString]) do
           Socket.SendByte( Ord(GridConnectMsgList[iString][iChar]));
       end;
+    end;
 end;
 
 function TClientConnection.PollForIncomingMessage: Boolean;
@@ -431,6 +484,14 @@ begin
     WriteLn('Verbose off');
 end;
 
+procedure TRPiCAN.CloseClientConnection;
+begin
+  ClientSocketOpened := False;
+  if Assigned(ClientConnection) then
+    ClientConnections.Remove(ClientConnection);
+  ClientConnection := nil;
+end;
+
 { TRPiCAN }
 
 // ****************************************************************************
@@ -439,6 +500,8 @@ end;
 procedure TRPiCAN.DoRun;
 var
   ErrorMsg: String;
+  LccMessage: TLccMessage;
+  i: Integer;
 begin
   // quick check parameters
   ErrorMsg := CheckOptions('h b s v o', 'help bootfile spidriver verbose onlyhub');
@@ -466,7 +529,7 @@ begin
   begin
     BootloadHexPath := GetOptionValue('b', 'bootfile');
     if FileExists(BootloadHexPath) then
-      Bootloading := True
+     DoRunBootloader
     else begin
       ShowException(Exception.Create('Can not find bootloader HEX file: ' + BootloadHexPath + ' Usage: rpican -b myhexfile.hex'));
       Terminate;
@@ -481,18 +544,20 @@ begin
   end;
 
   { add your program here }
-  RaspberryPiSpi.Mode := psm_ClkIdleLo_DataFalling;
-  RaspberryPiSpi.Speed := pss_976kHz;
-  RaspberryPiSpi.Bits := psb_8;
-  if HubOnly then
+  LccMessage := TLccMessage.Create;
+
+  OpenRaspberryPiSpiAndCreateClientConnection;
+  OpenListenSocket;
+  OpenClientSocketAndCreateClientConnection;
+  if ListeningSocketOpened and Assigned(ClientConnection) and (RaspberryPiSpiOpened or HubOnly) then
   begin
-    OpenListenSocket;
-    if Listening then
-    begin
+    try
+
       repeat
         DoCheckForNewClients;
         DoPollClientInputs;
         DoDispatchToClients;
+        CheckSynchronize(0);
 
         if KeyPressed then
         begin
@@ -501,55 +566,65 @@ begin
             'q', 'Q' : Terminate;
           end;
         end;
+
       until Terminated;
+    finally
+      DoDispatchToClients;
+      CloseRaspberryPiSpiConnection;
+      CloseClientConnection;
+      CloseListenSocket;
     end;
-  end else
-  begin
-    if RaspberryPiSpi.OpenSpi(SpiDevicePath) then
-    begin
-      WriteLn('Connected To Spi');
-
-      OpenListenSocket;
-      CreateRaspberryPiClient;
-      if Listening then
-      begin
-        try
-          repeat
-            if Bootloading then
-              DoRunBootloader
-            else begin
-              DoCheckForNewClients;
-              DoPollClientInputs;
-              DoDispatchToClients;
-            end;
-
-            if KeyPressed then
-            begin
-              case ReadKey of
-                'v', 'V' : Verbose := not Verbose;
-                'q', 'Q' : Terminate;
-              end;
-            end;
-
-          until Terminated;
-        finally
-          ListenSocket.CloseSocket;
-        end;
-      end else
-      begin
-        WriteLn('Listener Socket Failed');
-      end;
-      RaspberryPiSpi.CloseSpi;
-    end else
-    begin
-      WriteLn('Unable to connect to Spi');
-    end;
-
   end;
 
+  LccMessage.Free;
   // stop program loop
   WriteLn('Shutting down');
   Terminate;
+end;
+
+procedure TRPiCAN.OpenClientSocketAndCreateClientConnection;
+var
+  IP: string;
+  i: Integer;
+  LocalConnection: TClientConnection;
+  LocalSocket: TTCPBlockSocket;
+begin
+  ClientSocketOpened := False;
+  if ListeningSocketOpened then
+  begin
+    WriteLn('Opening Client Socket');
+    LocalSocket := TTCPBlockSocket.Create;          // Created in context of the thread
+    LocalSocket.Family := SF_IP4;                  // IP4
+    LocalSocket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
+    LocalSocket.HeartbeatRate := 0;
+    LocalSocket.SetTimeout(0);
+    WriteLn('Resolving IP Address');
+    IP := ResolveUnixIp;
+    WriteLn('IP Address: ' + IP);
+    LocalSocket.Connect(IP, IntToStr(12021));  // Can we connect to ourselves?
+    if LocalSocket.LastError = 0 then
+    begin
+      DoCheckForNewClients;                     // Get this connection in the Connections List
+      for i := 0 to ClientConnections.Count - 1 do
+      begin
+        LocalConnection := TClientConnection( ClientConnections[i]);
+        if Assigned(LocalConnection.Socket) then
+        begin
+          if (LocalConnection.Socket.GetRemoteSinIP = LocalSocket.GetLocalSinIP) and
+            (LocalConnection.Socket.GetRemoteSinPort = LocalSocket.GetLocalSinPort) then
+            begin
+              ClientConnection := LocalConnection;
+              ClientSocketOpened := True
+            end
+        end
+      end;
+      WriteLn('Client Connected')
+    end
+    else begin
+      LocalSocket.CloseSocket;
+      WriteLn('Client Failed to Connect');
+    end;
+  end;
 end;
 
 
@@ -565,6 +640,7 @@ begin
   RaspberryPiSpi := TRaspberryPiSpi.Create;
   ListenSocket := TTCPBlockSocket.Create;
   ClientConnections := TObjectList.Create;
+  WorkerGridConnectStrings := TStringList.Create;
   SpiDevicePath := '/dev/spidev0.0';
   HubOnly := False;
 end;
@@ -577,6 +653,7 @@ begin
   FreeAndNil(FClientConnections);
   FreeAndNil(FRaspberryPiSpi);
   FreeAndNil(FListenSocket);
+  FreeAndNil(FWorkerGridConnectStrings);
   inherited Destroy;
 end;
 
@@ -585,18 +662,20 @@ end;
 // ***************************************************************************
 procedure TRPiCAN.CloseListenSocket;
 begin
-  if Listening then
+  if ListeningSocketOpened then
     ListenSocket.CloseSocket;
+  ListeningSocketOpened := False;
 end;
 
-procedure TRPiCAN.CreateRaspberryPiClient;
-var
-  RaspberryPiConnection: TRPiClientConnection;
+procedure TRPiCAN.CloseRaspberryPiSpiConnection;
 begin
-  RaspberryPiConnection := TRPiClientConnection.Create(Self);
-  RaspberryPiConnection.RaspberryPiSpi := RaspberryPiSpi;
-  ClientConnections.Add(RaspberryPiConnection);
+  if RaspberryPiSpiOpened then
+    RaspberryPiSpi.CloseSpi;
+  if Assigned(RaspberryPiSpiConnection) then
+    ClientConnections.Remove(RaspberryPiSpiConnection);
+  RaspberryPiSpiOpened := False;
 end;
+
 
 procedure TRPiCAN.DoRunBootloader;
 var
@@ -816,7 +895,6 @@ begin
     end else
       WriteLn('Unable to locate hex file: ' + BootloadHexPath);
   finally
-    Bootloading := False;
     WriteLn('Exiting Booloader Mode');
   end;
 end;
@@ -826,7 +904,7 @@ end;
 // ***************************************************************************
 procedure TRPiCAN.DoCheckForNewClients;
 var
-  ClientSocket: TTCPBlockSocket;
+  LocalClientSocket: TTCPBlockSocket;
   LocalClientConnection: TClientConnection;
 begin
   if ListenSocket.CanRead(1) then
@@ -834,28 +912,28 @@ begin
     if (ListenSocket.LastError <> WSAETIMEDOUT) and (ListenSocket.LastError = 0) then
     begin
       WriteLn('Client Connecting');
-      ClientSocket := TTCPBlockSocket.Create;
+      LocalClientSocket := TTCPBlockSocket.Create;
       try
-        ClientSocket.Family := SF_IP4;                  // IP4
-        ClientSocket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-        ClientSocket.HeartbeatRate := 0;
-        ClientSocket.SetTimeout(0);
-        ClientSocket.Socket := ListenSocket.Accept;
-        if ClientSocket.LastError = 0 then
+        LocalClientSocket.Family := SF_IP4;                  // IP4
+        LocalClientSocket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
+        LocalClientSocket.HeartbeatRate := 0;
+        LocalClientSocket.SetTimeout(0);
+        LocalClientSocket.Socket := ListenSocket.Accept;
+        if LocalClientSocket.LastError = 0 then
         begin
-          WriteLn('Client Connected: ' + ClientSocket.GetRemoteSinIP + ':' + IntToStr(ClientSocket.GetRemoteSinPort));
+          WriteLn('Client Connected: ' + LocalClientSocket.GetRemoteSinIP + ':' + IntToStr(LocalClientSocket.GetRemoteSinPort));
           LocalClientConnection := TClientConnection.Create(Self);
           try
-            LocalClientConnection.Socket := ClientSocket;
+            LocalClientConnection.Socket := LocalClientSocket;
             ClientConnections.Add(LocalClientConnection)
           except
             WriteLn('Failed to Listen');
-            FreeAndNil(ClientSocket);
+            FreeAndNil(LocalClientSocket);
           end;
         end;
       except
         WriteLn('Failed to Listen');
-        FreeAndNil(ClientSocket);
+        FreeAndNil(LocalClientSocket);
       end;
     end
   end
@@ -898,7 +976,7 @@ var
   IP: string;
 begin
   WriteLn('Opening Listening Socket');
-  Listening := False;
+  ListeningSocketOpened := False;
   ListenSocket := TTCPBlockSocket.Create;          // Created in context of the thread
   ListenSocket.Family := SF_IP4;                  // IP4
   ListenSocket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
@@ -914,12 +992,33 @@ begin
     if ListenSocket.LastError = 0 then
     begin
       WriteLn('Listening for Clients');
-      Listening := True;
+      ListeningSocketOpened := True;
     end else
     begin
       ListenSocket.CloseSocket;
       WriteLn('Failed to Listen');
     end
+  end;
+end;
+
+procedure TRPiCAN.OpenRaspberryPiSpiAndCreateClientConnection;
+begin
+  RaspberryPiSpiConnection := nil;
+  RaspberryPiSpiOpened := False;
+  if not HubOnly then
+  begin
+    RaspberryPiSpi.Mode := psm_ClkIdleLo_DataFalling;
+    RaspberryPiSpi.Speed := pss_976kHz;
+    RaspberryPiSpi.Bits := psb_8;
+    RaspberryPiSpiOpened := RaspberryPiSpi.OpenSpi(SpiDevicePath);
+    if RaspberryPiSpiOpened then
+    begin
+      RaspberryPiSpiConnection := TRPiClientConnection.Create(Self);
+      RaspberryPiSpiConnection.RaspberryPiSpi := RaspberryPiSpi;
+      ClientConnections.Add(RaspberryPiSpiConnection);
+      WriteLn('Connected To Spi');
+    end else
+      WriteLn('Failed to open Spi');
   end;
 end;
 

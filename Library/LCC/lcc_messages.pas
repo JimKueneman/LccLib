@@ -178,11 +178,6 @@ public
   procedure LoadTractionConsistDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
-  // Traction Control Proxy
-  procedure LoadTractionProxyAllocateDCC(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word; SpeedSteps: Byte; IsConsist: Boolean);
-  procedure LoadTractionProxyAttachTrainID(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; TrainID: Word);
-  procedure LoadTractionProxyDetachTrainID(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; TrainID: Word);
-  procedure LoadTractionProxyManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   // Remote Button
 
   // Traction Identification (STNIP)
@@ -1333,72 +1328,6 @@ begin
   else
     FDataArray[1] := TRACTION_MANAGE_RELEASE;
   MTI := MTI_TRACTION_PROTOCOL;
-end;
-
-procedure TLccMessage.LoadTractionProxyAllocateDCC(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word;
-  SpeedSteps: Byte; IsConsist: Boolean);
-begin
-  ZeroFields;
-  SourceID := ASourceID;
-  DestID := ADestID;
-  CAN.SourceAlias := ASourceAlias;
-  CAN.DestAlias := ADestAlias;
-  DataCount := 6;
-  FDataArray[0] := TRACTION_PROXY_ALLOCATE;
-  FDataArray[1] := TRACTION_PROXY_TECH_ID_DCC;  // DCC
-  FDataArray[2] := Hi( Address);
-  FDataArray[3] := Lo( Address);
-  FDataArray[4] := SpeedSteps;
-  if IsConsist then
-    FDataArray[5] := $01
-  else
-    FDataArray[5] := $00;
-  MTI := MTI_TRACTION_PROXY_PROTOCOL;
-end;
-
-procedure TLccMessage.LoadTractionProxyAttachTrainID(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; TrainID: Word);
-begin
-  ZeroFields;
-  SourceID := ASourceID;
-  DestID := ADestID;
-  CAN.SourceAlias := ASourceAlias;
-  CAN.DestAlias := ADestAlias;
-  DataCount := 3;
-  FDataArray[0] := TRACTION_PROXY_ATTACH;
-  FDataArray[1] := Hi( TrainID);
-  FDataArray[2] := Lo( TrainID);
-  MTI := MTI_TRACTION_PROXY_PROTOCOL;
-end;
-
-procedure TLccMessage.LoadTractionProxyDetachTrainID(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; TrainID: Word);
-begin
-  ZeroFields;
-  SourceID := ASourceID;
-  DestID := ADestID;
-  CAN.SourceAlias := ASourceAlias;
-  CAN.DestAlias := ADestAlias;
-  DataCount := 3;
-  FDataArray[0] := TRACTION_PROXY_DETACH;
-  FDataArray[1] := Hi( TrainID);
-  FDataArray[2] := Lo( TrainID);
-  MTI := MTI_TRACTION_PROXY_PROTOCOL;
-end;
-
-procedure TLccMessage.LoadTractionProxyManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
-begin
-  ZeroFields;
-  SourceID := ASourceID;
-  DestID := ADestID;
-  CAN.SourceAlias := ASourceAlias;
-  CAN.DestAlias := ADestAlias;
-  DataCount := 2;
-  FDataArray[0] := TRACTION_PROXY_MANAGE;
-  if Reserve then
-    FDataArray[1] := TRACTION_PROXY_MANAGE_RESERVE
-  else
-    FDataArray[1] := TRACTION_PROXY_MANAGE_RELEASE;
-  MTI := MTI_TRACTION_PROXY_PROTOCOL;
 end;
 
 procedure TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);

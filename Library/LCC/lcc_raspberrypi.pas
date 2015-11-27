@@ -4,6 +4,8 @@ unit lcc_raspberrypi;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes, SysUtils
   {$IFDEF CPUARM}

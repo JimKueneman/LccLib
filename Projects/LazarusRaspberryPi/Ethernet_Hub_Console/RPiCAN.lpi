@@ -35,7 +35,7 @@
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>
+        <Filename Value="../../../Library/LCC/lcc_node_protocol_helpers.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
     </Units>
@@ -47,14 +47,14 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../Library/LCC;../../../Library/Synapse_LCC;../../../Library/Lib"/>
+      <OtherUnitFiles Value="../../../Library/Synapse_LCC;../../../Library/Lib;../../../Library/LCC;/usr/local/share/lazarus/components/lazutils/"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
-    </Linking>
+    <Conditionals Value="if TargetOS = 'linux' then
+  CustomOptions += ' -dUseCThreads';"/>
+    <Other>
+      <CustomOptions Value="-dFPC_CONSOLE_APP"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

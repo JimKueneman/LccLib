@@ -144,9 +144,6 @@ begin
     MTI_PROTOCOL_SUPPORT_INQUIRY  : Result := 'Protocol Support Inquiry';
     MTI_PROTOCOL_SUPPORT_REPLY    : Result := 'Protocol Support Reply';
 
-    MTI_TRACTION_PROXY_PROTOCOL   : Result := 'Protocol Traction Proxy';
-    MTI_TRACTION_PROXY_REPLY      : Result := 'Protocol Traction Proxy Reply';
-
     MTI_CONSUMER_IDENTIFY              : Result := 'Consumer Identify';
     MTI_CONSUMER_IDENTIFY_RANGE        : Result := 'Consumer Identify Range';
     MTI_CONSUMER_IDENTIFIED_UNKNOWN    : Result := 'Consumer Identified Unknown';

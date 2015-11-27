@@ -159,9 +159,7 @@ const
   MTI_SIMPLE_TRAIN_INFO_REPLY        = $09C8;                                // Databytes = Destination Alias, ACDI Data
 
   MTI_TRACTION_PROTOCOL              = $05EA;                                // Databyte = depends
-  MTI_TRACTION_PROXY_PROTOCOL        = $01EA;
   MTI_TRACTION_REPLY                 = $05E8;                                // Databyte = depends
-  MTI_TRACTION_PROXY_REPLY           = $01E8;
 
   MTI_REMOTE_BUTTON_REQUEST           = $0948;
   MTI_REMOTE_BUTTON_REPLY            = $0949;

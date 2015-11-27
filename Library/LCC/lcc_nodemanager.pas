@@ -126,7 +126,6 @@ type
   private
     FCreateTime: DWord;
     FErrorCode: Word;
-    FNext: TNodeProtocolBase;
     FOwnerManager: TLccNodeManager;
     FValid: Boolean;
     FWorkerMessage: TLccMessage;
@@ -139,7 +138,6 @@ type
   public
     property ErrorCode: Word read FErrorCode write FErrorCode;
     property Valid: Boolean read FValid write SetValid;
-    property Next: TNodeProtocolBase read FNext write FNext;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -636,6 +634,7 @@ type
     FConfiguration: TConfiguration;
     FDuplicateAliasDetected: Boolean;
     FInitialized: Boolean;
+    FLoggedIn: Boolean;
     FLogInAliasID: Word;
     {$IFNDEF FPC_CONSOLE_APP}
     FLoginTimer: TTimer;
@@ -670,6 +669,7 @@ type
     property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
     property Configuration: TConfiguration read FConfiguration write FConfiguration;
     property Initialized: Boolean read FInitialized;
+    property LoggedIn: Boolean read FLoggedIn;
     property Permitted: Boolean read FPermitted;
 
     constructor Create(AnOwner: TComponent); override;
@@ -1350,20 +1350,24 @@ end;
 
 procedure TLccOwnedNode.OnLoginTimer(Sender: TObject);
 begin
-  LoginTimer.Enabled := False;
-  FAliasID := LoginAliasID;
-  LogInAliasID := 0;
-  if Assigned(OwnerManager) then
-    OwnerManager.DoAliasIDChanged(Self);
-  SendAliasLogin;
-  SendEvents;
-  if OwnerManager.RootNode = Self then
+ // LoginTimer.Enabled := False;   // This locks up on some systems (Raspberry Pi)
+  if not FLoggedIn then
   begin
-    if OwnerManager.AutoSendVerifyNodesOnStart then
+    FAliasID := LoginAliasID;
+    LogInAliasID := 0;
+    if Assigned(OwnerManager) then
+      OwnerManager.DoAliasIDChanged(Self);
+    SendAliasLogin;
+    SendEvents;
+    if OwnerManager.RootNode = Self then
     begin
-      WorkerMessage.LoadVerifyNodeID(NodeID, AliasID);
-      OwnerManager.DoRequestMessageSend(WorkerMessage);
+      if OwnerManager.AutoSendVerifyNodesOnStart then
+      begin
+        WorkerMessage.LoadVerifyNodeID(NodeID, AliasID);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+      end;
     end;
+    FLoggedIn := True;
   end;
 end;
 
@@ -1378,12 +1382,16 @@ begin
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
 
+  if LoggedIn and LoginTimer.Enabled then
+    LoginTimer.Enabled := False;               // Can't do this within the OnTimer event in some operating systems
+
   if LogInAliasID <> 0 then
   begin
     if LccMessage.CAN.SourceAlias = LogInAliasID then
     begin
       LogInAliasID := CreateAliasID(FNodeID, True);
       SendAliasLoginRequest;
+      FLoggedIn := False;
       LoginTimer.Enabled := True;
       Exit;
     end;
