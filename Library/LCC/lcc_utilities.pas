@@ -258,9 +258,9 @@ begin
       Inc(CharPtr);
       Inc(iIndex);
     end;
-    ANullArray[iIndex] := 0;
-    Inc(iIndex);
   end;
+  ANullArray[iIndex] := 0;
+  Inc(iIndex);
 end;
 
 function NullArrayToString(var ANullArray: array of Byte): String;

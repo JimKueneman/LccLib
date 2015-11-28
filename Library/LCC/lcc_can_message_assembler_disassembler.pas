@@ -4,7 +4,7 @@ unit lcc_can_message_assembler_disassembler;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
-{.$DEFINE PYTHON_COMPATIBLE}
+{$DEFINE PYTHON_COMPATIBLE}
 
 interface
 
@@ -27,7 +27,7 @@ uses
 
 type
 
-  TIncomingMessageGridConnectReply = (imgcr_False, imgcr_True, imgcr_Error);
+  TIncomingMessageGridConnectReply = (imgcr_False, imgcr_True, imgcr_ErrorToSend, imgcr_UnknownError);
 
 { TLccMessageAssembler }
 
@@ -35,6 +35,7 @@ TLccMessageAssembler = class
 private
   {$IFDEF FPC}
     FInProcessMessageList: TList;
+    FWorkerMessage: TLccMessage;
   {$ELSE}
     FInProcessMessageList: TObjectList<TLccMessage>;
   {$ENDIF}
@@ -47,6 +48,7 @@ protected
   {$ELSE}
     property InProcessMessageList: TObjectList<TLccMessage> read FInProcessMessageList write FInProcessMessageList;
   {$ENDIF}
+  property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 public
   property Count: Integer read GetCount;
   property Messages[Index: Integer]: TLccMessage read GetMessages write SetMessages;
@@ -59,7 +61,7 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage; TargetAliasID: Word): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
@@ -87,13 +89,13 @@ var
 function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): String;
 begin
   // Unsure if there is anything special to do here yet
-  Result := Msg.ConvertToGridConnectStr('');
+  Result := Msg.ConvertToGridConnectStr(#10);
 end;
 
 procedure TLccMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 begin
   if Assigned(MsgList) then
-    MsgList.Text := Msg.ConvertToGridConnectStr(#13);
+    MsgList.Text := Msg.ConvertToGridConnectStr(#10);
 end;
 
 { TLccMessageAssembler }
@@ -126,6 +128,7 @@ begin
   FInProcessMessageList := TObjectList<TLccMessage>.Create;
   InProcessMessageList.OwnsObjects := False;
   {$ENDIF}
+  WorkerMessage := TLccMessage.Create;
 end;
 
 procedure TLccMessageAssembler.Remove(AMessage: TLccMessage; DoFree: Boolean);
@@ -139,6 +142,7 @@ destructor TLccMessageAssembler.Destroy;
 begin
   Clear;
   FreeAndNil(FInProcessMessageList);
+  FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
@@ -206,7 +210,8 @@ begin
   end;
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccMessageAssembler.IncomingMessageGridConnect(
+  GridConnectStr: String; LccMessage: TLccMessage; TargetAliasID: Word): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;
@@ -220,81 +225,103 @@ begin                                                                           
         MTI_CAN_AMR :
           begin
             FlushMessagesByAlias(LccMessage.CAN.SourceAlias);
+            Result := imgcr_True  // Pass it on
           end;
         MTI_CAN_AMD :
           begin
             FlushMessagesByAlias(LccMessage.CAN.SourceAlias);
+            Result := imgcr_True  // Pass it on
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY :
           begin
-            InProcessMessage := FindByAliasAndMTI(LccMessage);
-            if Assigned(InProcessMessage) then
-              Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
-            else begin
-              {$IFDEF PYTHON_COMPATIBLE}
-              if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
-              begin
-              {$ENDIF}
-                LccMessage.IsCAN := False;
-                LccMessage.MTI := MTI_DATAGRAM;
-                Result := imgcr_True
-              {$IFDEF PYTHON_COMPATIBLE}
-              end else
-              begin
-                // don't swap the Node IDs
-                LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_BUFFER_FULL);
-                Result := imgcr_Error
+            {$IFDEF PYTHON_COMPATIBLE}     // Can't use up a datagram slot with a datagram to another node, yet we may want to snoop other nodes datagrams in real life
+            if (LccMessage.CAN.DestAlias = TargetAliasID) or (TargetAliasID = 0) then
+            {$ENDIF}
+            begin
+              InProcessMessage := FindByAliasAndMTI(LccMessage);
+              if Assigned(InProcessMessage) then
+                Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
+              else begin
+                {$IFDEF PYTHON_COMPATIBLE}
+                if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
+                begin
+                {$ENDIF}
+                  LccMessage.IsCAN := False;
+                  LccMessage.MTI := MTI_DATAGRAM;
+                  Result := imgcr_True
+                {$IFDEF PYTHON_COMPATIBLE}
+                end else
+                begin
+                  // don't swap the Node IDs
+                  LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_BUFFER_FULL);
+                  Result := imgcr_ErrorToSend
+                end;
+                {$ENDIF}
               end;
-              {$ENDIF}
             end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_START :
           begin
-            InProcessMessage := FindByAliasAndMTI(LccMessage);
-            if Assigned(InProcessMessage) then
-              Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
-            else begin
-              {$IFDEF PYTHON_COMPATIBLE}
-              if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
-              begin
-              {$ENDIF}
-                InProcessMessage := TLccMessage.Create;
-                InProcessMessage.MTI := MTI_DATAGRAM;
-                LccMessage.Copy(InProcessMessage);
-                Add(InProcessMessage);
-             {$IFDEF PYTHON_COMPATIBLE}
-                Inc(AllocatedDatagrams)
-              end
-              {$ENDIF}
+            {$IFDEF PYTHON_COMPATIBLE}     // Can't use up a datagram slot with a datagram to another node, yet we may want to snoop other nodes datagrams in real life
+            if (LccMessage.CAN.DestAlias = TargetAliasID) or (TargetAliasID = 0) then
+            {$ENDIF}
+            begin
+              InProcessMessage := FindByAliasAndMTI(LccMessage);
+              if Assigned(InProcessMessage) then
+                Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
+              else begin
+                {$IFDEF PYTHON_COMPATIBLE}
+                if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
+                begin
+                {$ENDIF}
+                  InProcessMessage := TLccMessage.Create;
+                  InProcessMessage.MTI := MTI_DATAGRAM;
+                  LccMessage.Copy(InProcessMessage);
+                  Add(InProcessMessage);
+               {$IFDEF PYTHON_COMPATIBLE}
+                  Inc(AllocatedDatagrams)
+                end
+                {$ENDIF}
+              end;
             end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME :
           begin
-            InProcessMessage := FindByAliasAndMTI(LccMessage);
-            if Assigned(InProcessMessage) then
-              InProcessMessage.AppendDataArray(LccMessage)
+            {$IFDEF PYTHON_COMPATIBLE}     // Can't use up a datagram slot with a datagram to another node, yet we may want to snoop other nodes datagrams in real life
+            if (LccMessage.CAN.DestAlias = TargetAliasID) or (TargetAliasID = 0) then
+            {$ENDIF}
+            begin
+              InProcessMessage := FindByAliasAndMTI(LccMessage);
+              if Assigned(InProcessMessage) then
+                InProcessMessage.AppendDataArray(LccMessage)
+            end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END :
           begin
-            InProcessMessage := FindByAliasAndMTI(LccMessage);
-            if Assigned(InProcessMessage) then
+            {$IFDEF PYTHON_COMPATIBLE}     // Can't use up a datagram slot with a datagram to another node, yet we may want to snoop other nodes datagrams in real life
+            if (LccMessage.CAN.DestAlias = TargetAliasID) or (TargetAliasID = 0) then
+            {$ENDIF}
             begin
-              InProcessMessage.AppendDataArray(LccMessage);
-              InProcessMessage.Copy(LccMessage);
-              Remove(InProcessMessage, True);
-              LccMessage.IsCAN := False;
-              LccMessage.MTI := MTI_DATAGRAM;
-              LccMessage.CAN.MTI := 0;
-              {$IFDEF PYTHON_COMPATIBLE}
-              Dec(AllocatedDatagrams);
-              {$ENDIF}
-              Result := imgcr_True
-            end else
-            begin
-              // Out of order but let the node handle that if needed (Owned Nodes Only)
-              // Don't swap the IDs, need to find the right target node first
-              LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_OUT_OF_ORDER);
-              Result := imgcr_Error
+              InProcessMessage := FindByAliasAndMTI(LccMessage);
+              if Assigned(InProcessMessage) then
+              begin
+                InProcessMessage.AppendDataArray(LccMessage);
+                InProcessMessage.Copy(LccMessage);
+                Remove(InProcessMessage, True);
+                LccMessage.IsCAN := False;
+                LccMessage.MTI := MTI_DATAGRAM;
+                LccMessage.CAN.MTI := 0;
+                {$IFDEF PYTHON_COMPATIBLE}
+                Dec(AllocatedDatagrams);
+                {$ENDIF}
+                Result := imgcr_True
+              end else
+              begin
+                // Out of order but let the node handle that if needed (Owned Nodes Only)
+                // Don't swap the IDs, need to find the right target node first
+                LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_OUT_OF_ORDER);
+                Result := imgcr_ErrorToSend
+              end;
             end;
           end;
         MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND :
@@ -332,7 +359,7 @@ begin                                                                           
                     // Out of order but let the node handle that if needed (Owned Nodes Only)
                     // Don't swap the IDs, need to find the right target node first
                     LccMessage.LoadOptionalInteractionRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_OUT_OF_ORDER, LccMessage.MTI);
-                    Result := imgcr_Error
+                    Result := imgcr_ErrorToSend
                   end;
                 end;
           $30 : begin   // Middle Frame

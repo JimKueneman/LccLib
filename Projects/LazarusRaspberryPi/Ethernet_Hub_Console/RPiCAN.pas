@@ -11,7 +11,8 @@ uses
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp, blcksock, synsock, baseUnix,
   sockets, contnrs, lcc_gridconnect, crt, intel_hex_parser,
-  lcc_messages, lcc_raspberrypi, lcc_node, lcc_node_protocol_helpers;
+  lcc_messages, lcc_raspberrypi, lcc_node, lcc_node_protocol_helpers,
+  lcc_can_message_assembler_disassembler, lcc_defines;
 
 const
   LCC_MESSAGES_PER_SPI_PACKET = 8;
@@ -66,6 +67,7 @@ type
     FRPiCAN: TRPiCAN;
     FSocket: TTCPBlockSocket;
     FInBuffer: TStringList;
+    FOutBuffer: TStringList;
     FWorkerMessage: TLccMessage;
     FXOn: Boolean;
     procedure SetXon(AValue: Boolean);
@@ -79,6 +81,7 @@ type
     property Filtered: Boolean read FFiltered write FFiltered;
     property GridConnectHelper: TGridConnectHelper read FGridConnectHelper write FGridConnectHelper;
     property InBuffer: TStringList read FInBuffer write FInBuffer;
+    property OutBuffer: TStringList read FOutBuffer write FOutBuffer;
     property RPiCAN: TRPiCAN read FRPiCAN write FRPiCAN;
     property Socket: TTCPBlockSocket read FSocket write FSocket;
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
@@ -89,30 +92,33 @@ type
 
   TRPiClientConnection = class(TClientConnection)
   private
-    FOutBuffer: TStringList;
     FRaspberryPiSpi: TRaspberryPiSpi;
   public
-    constructor Create(ARPiCAN: TRPiCAN); override;
-    destructor Destroy; override;
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); override;
     procedure ExtractSpiRxBuffer(var RxBuffer: TPiSpiBuffer; Count: Integer);
     function PollForIncomingMessage: Boolean; override;
 
-    property OutBuffer: TStringList read FOutBuffer write FOutBuffer;
     property RaspberryPiSpi: TRaspberryPiSpi read FRaspberryPiSpi write FRaspberryPiSpi;
   end;
 
-  { TLocalConnection }
+  { TVirtualNodeConnection }
 
-  TLocalConnection = class(TClientConnection)
+  TVirtualNodeConnection = class(TClientConnection)
+  private
+    FGridConnectAssembler: TLccMessageAssembler;
+    FGridConnectDisassembler: TLccMessageDisAssembler;
+    FVirtualNode: TLccVirtualNode;
+  protected
+    property GridConnectAssembler: TLccMessageAssembler read FGridConnectAssembler write FGridConnectAssembler;
+    property GridConnectDisassembler: TLccMessageDisAssembler read FGridConnectDisassembler write FGridConnectDisassembler;
+    procedure DoRequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
   public
     constructor Create(ARPiCAN: TRPiCAN); override;
     destructor Destroy; override;
 
     procedure DispatchGridConnectMessages(GridConnectMsgList: TStringList); override;
     function PollForIncomingMessage: Boolean; override;
-
-  //  property LccNode: TLccDefaultRootNode
+    property VirtualNode: TLccVirtualNode read FVirtualNode write FVirtualNode;
   end;
 
   { TRPiCAN }
@@ -120,9 +126,9 @@ type
   TRPiCAN = class(TCustomApplication)
   private
     FBootloadHexPath: string;
-    FClientConnection: TClientConnection;
+    FVirtualNodeConnection: TVirtualNodeConnection;
     FClientConnections: TObjectList;
-    FClientSocketOpened: Boolean;
+    FVirtualNodeOpened: Boolean;
     FHubOnly: Boolean;
     FRaspberryPiSpiConnection: TRPiClientConnection;
     FRaspberryPiSpiOpened: Boolean;
@@ -132,14 +138,14 @@ type
     FRaspberryPiSpi: TRaspberryPiSpi;
     FVerbose: Boolean;
     FWorkerGridConnectStrings: TStringList;
-    function GetEthernetConnection(Index: Integer): TClientConnection;
-    procedure SetEthenetConnection(Index: Integer; AValue: TClientConnection);
+    function GetConnection(Index: Integer): TClientConnection;
+    procedure SetConnection(Index: Integer; AValue: TClientConnection);
     procedure SetVerbose(AValue: Boolean);
   protected
     property ClientConnections: TObjectList read FClientConnections write FClientConnections;
     property WorkerGridConnectStrings: TStringList read FWorkerGridConnectStrings write FWorkerGridConnectStrings;
 
-    procedure CloseClientConnection;
+    procedure CloseVirtualNodeConnection;
     procedure CloseListenSocket;
     procedure CloseRaspberryPiSpiConnection;
     procedure DoRunBootloader;
@@ -147,15 +153,15 @@ type
     procedure DoPollClientInputs;
     procedure DoDispatchToClients;
     procedure DoRun; override;
-    procedure OpenClientSocketAndCreateClientConnection;
+    procedure OpenVirtualNodeSocketAndCreateClientConnection;
     procedure OpenListenSocket;
     procedure OpenRaspberryPiSpiAndCreateClientConnection;
     procedure WriteHelp; virtual;
   public
     property BootloadHexPath: string read FBootloadHexPath write FBootloadHexPath;
-    property ClientConnection: TClientConnection read FClientConnection write FClientConnection;
-    property ClientSocketOpened: Boolean read FClientSocketOpened write FClientSocketOpened;
-    property EthernetConnection[Index: Integer]: TClientConnection read GetEthernetConnection write SetEthenetConnection;
+    property VirtualNodeConnection: TVirtualNodeConnection read FVirtualNodeConnection write FVirtualNodeConnection;
+    property VirtualNodeOpened: Boolean read FVirtualNodeOpened write FVirtualNodeOpened;
+    property Connection[Index: Integer]: TClientConnection read GetConnection write SetConnection;
     property HubOnly: Boolean read FHubOnly write FHubOnly;
     property ListenSocket: TTCPBlockSocket read FListenSocket write FListenSocket;
     property ListeningSocketOpened: Boolean read FListeningSocketOpened write FListeningSocketOpened;
@@ -241,42 +247,58 @@ begin
   end;
 end;
 
-{ TLocalConnection }
+{ TVirtualNodeConnection }
 
-constructor TLocalConnection.Create(ARPiCAN: TRPiCAN);
+procedure TVirtualNodeConnection.DoRequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  inherited Create(ARPiCAN);
+  OutBuffer.AddText( GridConnectDisassembler.OutgoingMsgToGridConnect(LccMessage));
 end;
 
-destructor TLocalConnection.Destroy;
+constructor TVirtualNodeConnection.Create(ARPiCAN: TRPiCAN);
 begin
+  inherited Create(ARPiCAN);
+  FGridConnectAssembler := TLccMessageAssembler.Create;
+  FGridConnectDisassembler := TLccMessageDisAssembler.Create;
+  FVirtualNode := TLccVirtualNode.Create(nil);
+  FVirtualNode.OnRequestSendMessage := @DoRequestSendMessage;
+  OutBuffer.Delimiter := #10;
+end;
+
+destructor TVirtualNodeConnection.Destroy;
+begin
+  VirtualNode.OnRequestSendMessage := nil;
+  FreeAndNil(FVirtualNode);
+  FreeAndNil(FGridConnectAssembler);
+  FreeAndNil(FGridConnectDisassembler);
   inherited Destroy;
 end;
 
-procedure TLocalConnection.DispatchGridConnectMessages(
-  GridConnectMsgList: TStringList);
+procedure TVirtualNodeConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
+var
+  i: Integer;
 begin
-  inherited DispatchGridConnectMessages(GridConnectMsgList);
+  for i := 0 to GridConnectMsgList.Count - 1 do
+  begin
+    case GridConnectAssembler.IncomingMessageGridConnect(GridConnectMsgList[i], WorkerMessage, VirtualNode.AliasID) of
+      imgcr_False        : begin end;
+      imgcr_True         : VirtualNode.ProcessMessage(WorkerMessage);
+      imgcr_ErrorToSend  : OutBuffer.Add(WorkerMessage.ConvertToGridConnectStr(#10));
+      imgcr_UnknownError : WriteLn('Unexpected error converting incoming GridConnect string');
+    end;
+  end;
 end;
 
-function TLocalConnection.PollForIncomingMessage: Boolean;
+function TVirtualNodeConnection.PollForIncomingMessage: Boolean;
+var
+  i: Integer;
 begin
-  Result := inherited PollForIncomingMessage;
+  Result := True;
+  for i := 0 to OutBuffer.Count - 1 do
+    InBuffer.Add(OutBuffer[i]);
+  OutBuffer.Clear;
 end;
 
 { TRPiClientConnection }
-
-constructor TRPiClientConnection.Create(ARPiCAN: TRPiCAN);
-begin
-  inherited Create(ARPiCAN);
-  FOutBuffer := TStringList.Create;
-end;
-
-destructor TRPiClientConnection.Destroy;
-begin
-  FreeAndNil(FOutBuffer);
-  inherited Destroy;
-end;
 
 procedure TRPiClientConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
 var
@@ -375,9 +397,11 @@ begin
   inherited Create;
   FRPiCAN := ARPiCAN;
   InBuffer := TStringList.Create;
+  InBuffer.Delimiter := #10;
   GridConnectHelper := TGridConnectHelper.Create;
   Filtered := False;
   FXOn := True;
+  FOutBuffer := TStringList.Create;
   WorkerMessage := TLccMessage.Create;
 end;
 
@@ -387,6 +411,7 @@ begin
   FreeAndNil(FInBuffer);
   FreeAndNil(FGridConnectHelper);
   FreeAndNil(FWorkerMessage);
+  FreeAndNil(FOutBuffer);
   inherited Destroy;
 end;
 
@@ -401,6 +426,7 @@ begin
       begin
         for iChar := 1 to Length(GridConnectMsgList[iString]) do
           Socket.SendByte( Ord(GridConnectMsgList[iString][iChar]));
+        Socket.SendByte( Ord( #10));
       end;
     end;
 end;
@@ -464,12 +490,12 @@ begin
     Result := True;
 end;
 
-function TRPiCAN.GetEthernetConnection(Index: Integer): TClientConnection;
+function TRPiCAN.GetConnection(Index: Integer): TClientConnection;
 begin
   Result := TClientConnection( ClientConnections[Index]);
 end;
 
-procedure TRPiCAN.SetEthenetConnection(Index: Integer; AValue: TClientConnection);
+procedure TRPiCAN.SetConnection(Index: Integer; AValue: TClientConnection);
 begin
   ClientConnections[Index] := AValue;
 end;
@@ -484,12 +510,12 @@ begin
     WriteLn('Verbose off');
 end;
 
-procedure TRPiCAN.CloseClientConnection;
+procedure TRPiCAN.CloseVirtualNodeConnection;
 begin
-  ClientSocketOpened := False;
-  if Assigned(ClientConnection) then
-    ClientConnections.Remove(ClientConnection);
-  ClientConnection := nil;
+  VirtualNodeOpened := False;
+  if Assigned(VirtualNodeConnection) then
+    ClientConnections.Remove(VirtualNodeConnection);
+  VirtualNodeConnection := nil;
 end;
 
 { TRPiCAN }
@@ -547,9 +573,9 @@ begin
   LccMessage := TLccMessage.Create;
 
   OpenRaspberryPiSpiAndCreateClientConnection;
+  OpenVirtualNodeSocketAndCreateClientConnection;
   OpenListenSocket;
-  OpenClientSocketAndCreateClientConnection;
-  if ListeningSocketOpened and Assigned(ClientConnection) and (RaspberryPiSpiOpened or HubOnly) then
+  if ListeningSocketOpened and Assigned(VirtualNodeConnection) and (RaspberryPiSpiOpened or HubOnly) then
   begin
     try
 
@@ -562,6 +588,18 @@ begin
         if KeyPressed then
         begin
           case ReadKey of
+            'l', 'L' : begin
+                         if VirtualNodeConnection.VirtualNode.LoggedIn then
+                         begin
+                           VirtualNodeConnection.VirtualNode.Logout;
+                           WriteLn('Node logged out');
+                         end else
+                         begin
+                           VirtualNodeConnection.VirtualNode.Login(True, False);
+                           WriteLn('Node logged in');
+                           WriteLn(VirtualNodeConnection.VirtualNode.NodeIDStr + ':' + VirtualNodeConnection.VirtualNode.AliasIDStr);
+                         end;
+                       end;
             'v', 'V' : Verbose := not Verbose;
             'q', 'Q' : Terminate;
           end;
@@ -571,7 +609,7 @@ begin
     finally
       DoDispatchToClients;
       CloseRaspberryPiSpiConnection;
-      CloseClientConnection;
+      CloseVirtualNodeConnection;
       CloseListenSocket;
     end;
   end;
@@ -582,14 +620,19 @@ begin
   Terminate;
 end;
 
-procedure TRPiCAN.OpenClientSocketAndCreateClientConnection;
-var
+procedure TRPiCAN.OpenVirtualNodeSocketAndCreateClientConnection;
+{var
   IP: string;
   i: Integer;
   LocalConnection: TClientConnection;
-  LocalSocket: TTCPBlockSocket;
+  LocalSocket: TTCPBlockSocket; }
 begin
-  ClientSocketOpened := False;
+  VirtualNodeConnection := TVirtualNodeConnection.Create(Self);
+  ClientConnections.Add(VirtualNodeConnection);
+
+
+  {
+  VirtualNodeOpened := False;
   if ListeningSocketOpened then
   begin
     WriteLn('Opening Client Socket');
@@ -604,7 +647,8 @@ begin
     LocalSocket.Connect(IP, IntToStr(12021));  // Can we connect to ourselves?
     if LocalSocket.LastError = 0 then
     begin
-      DoCheckForNewClients;                     // Get this connection in the Connections List
+      DoCheckForNewClients;                     // Get this connection in the Connection List
+
       for i := 0 to ClientConnections.Count - 1 do
       begin
         LocalConnection := TClientConnection( ClientConnections[i]);
@@ -613,8 +657,8 @@ begin
           if (LocalConnection.Socket.GetRemoteSinIP = LocalSocket.GetLocalSinIP) and
             (LocalConnection.Socket.GetRemoteSinPort = LocalSocket.GetLocalSinPort) then
             begin
-              ClientConnection := LocalConnection;
-              ClientSocketOpened := True
+              VirtualNodeConnection := LocalConnection;
+              VirtualNodeOpened := True
             end
         end
       end;
@@ -624,7 +668,7 @@ begin
       LocalSocket.CloseSocket;
       WriteLn('Client Failed to Connect');
     end;
-  end;
+  end;   }
 end;
 
 
@@ -951,7 +995,10 @@ begin
   for iClient := ClientConnections.Count - 1 downto 0 do
   begin
     if not TClientConnection( ClientConnections[iClient]).PollForIncomingMessage then
+    begin
+      DoDispatchToClients;
       ClientConnections.Delete(iClient);
+    end;
   end;
 end;
 

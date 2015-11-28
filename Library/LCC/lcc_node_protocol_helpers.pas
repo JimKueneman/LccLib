@@ -328,8 +328,6 @@ type
     FFunctionConfiguration: Boolean;
   protected
     Flags: array of QWord;
-    procedure DecodeFlags;
-    function EncodeFlags: QWord;
   public
     property Datagram: Boolean read FDatagram write FDatagram;
     property FDI: Boolean read FFDI write FFDI;
@@ -348,6 +346,9 @@ type
     property TractionControl: Boolean read FTractionControl write FTractionControl;
     property TractionProxy: Boolean read FTractionProxy write FTractionProxy;
     property SimpleTrainNodeInfo: Boolean read FSimpleTrainNodeInfo write FSimpleTrainNodeInfo;
+
+    procedure DecodeFlags;
+    function EncodeFlags: QWord;
 
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -724,6 +725,7 @@ var
   Info: TLccConfigMemAddressSpaceInfoObject;
 begin
    // Decode the LccMessage
+  OutMessage.DataArrayIndexer[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
   Info := FindByAddressSpace( LccMessage.DataArrayIndexer[2]);
   if Assigned(Info) then
   begin

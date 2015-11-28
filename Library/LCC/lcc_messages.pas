@@ -84,6 +84,7 @@ end;
 
 TLccMessage = class
 private
+  FAbandonTimeout: Integer;
   FIsCAN: Boolean;                                                          // True if only The CAN_Message MTI is valid
   FCAN: TLccCANMessage;
   FDataArray: TLccByteArray;
@@ -102,6 +103,7 @@ private
   procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);protected
   FSourceID: TNodeID;
 public
+  property AbandonTimeout: Integer read FAbandonTimeout write FAbandonTimeout;
   property CAN: TLccCANMessage read FCAN write FCAN;
   property DestID: TNodeID read FDestID write FDestID;
   property DataArray: TLccByteArray read FDataArray write FDataArray;

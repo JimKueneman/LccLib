@@ -13,6 +13,7 @@ uses
   laz2_DOM,
   laz2_XMLRead,
   fptimer,
+  contnrs,
   {$ENDIF}
   lcc_app_common_settings,
   lcc_node_protocol_helpers,
@@ -21,6 +22,10 @@ uses
   lcc_defines,
   lcc_utilities;
 
+const
+  ABANDON_DATAGRAM_TIMEOUT = 5;   // 5 seconds and a queued datagram is flagged as abandon and will be freed
+  ABANDON_DATAGRAM_RETRYS = 5;       // Will try a max of 5 times to send a datagram, if rejects 5 time we will give up
+
 type
   { TLccCoreNode }
 
@@ -28,10 +33,12 @@ type
   private
     FACDIMfg: TLccACDIMfg;
     FACDIUser: TLccACDIUser;
+    FAckWorkerMessage: TLccMessage;
     FCDI: TLccCDI;
     FConfiguration: TLccConfiguration;
     FConfigurationMem: TLccConfigurationMemory;
     FConfigMemOptions: TLccConfigurationMemOptions;
+    FEnabled: Boolean;
     FEventsConsumed: TLccEvents;
     FEventsProduced: TLccEvents;
     FFDI: TLccFDI;
@@ -44,7 +51,9 @@ type
     FConfigMemAddressSpaceInfo: TLccConfigMemAddressSpaceInfo;
 
     function GetAliasIDStr: String;
+    function GetEnabled: Boolean; virtual;
     function GetNodeIDStr: String;
+    procedure SetEnabled(AValue: Boolean); virtual;
   protected
     FAliasID: Word;
     FInitialized: Boolean;
@@ -54,9 +63,11 @@ type
     function GetInitialized: Boolean; virtual;
     function GetPermitted: Boolean; virtual;
 
+    property AckWorkerMessage: TLccMessage read FAckWorkerMessage write FAckWorkerMessage;
     property Initialized: Boolean read GetInitialized;
     property Permitted: Boolean read GetPermitted;
 
+    function DoCanAMR(LccMessage: TLccMessage): Boolean; virtual; abstract;
     function DoCanAME(LccMessage: TLccMessage): Boolean; virtual; abstract;
     function DoCanAMD(LccMessage: TLccMessage): Boolean; virtual; abstract;
     function DoCanRID(LccMessage: TLccMessage): Boolean; virtual; abstract;
@@ -106,7 +117,7 @@ type
 
     function DoDatagram(LccMessage: TLccMessage): Boolean;
     function DoDatagramConfiguration(LccMessage: TLccMessage): Boolean;
-    procedure DoRequestSendMessage(LccMessage: TLccMessage); virtual;
+    procedure DoRequestSendMessage(LccMessage: TLccMessage; QueueDatagramMessage: Boolean); virtual;
 
     function ExtractAddressSpaceFromDatagramConfigurationMessage(LccMessage: TLccMessage): Byte;
     procedure SendAckReply(LccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
@@ -129,6 +140,7 @@ type
 
     property AliasID: Word read FAliasID;
     property AliasIDStr: String read GetAliasIDStr;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
 
@@ -152,6 +164,7 @@ type
     function GetInitialized: Boolean; override;
     function GetPermitted: Boolean; override;
 
+    function DoCanAMR(LccMessage: TLccMessage): Boolean; override;
     function DoCanAME(LccMessage: TLccMessage): Boolean; override;
     function DoCanAMD(LccMessage: TLccMessage): Boolean; override;
     function DoCanRID(LccMessage: TLccMessage): Boolean; override;
@@ -208,7 +221,10 @@ type
     FLogInAliasID: Word;
     FLoginTimer: TFPTimer;
     FSeedNodeID: TNodeID;
+    function GetEnabled: Boolean; override;
+    procedure SetEnabled(AValue: Boolean); override;
   protected
+    function DoCanAMR(LccMessage: TLccMessage): Boolean; override;
     function DoCanAME(LccMessage: TLccMessage): Boolean; override;
     function DoCanAMD(LccMessage: TLccMessage): Boolean; override;
     function DoCanRID(LccMessage: TLccMessage): Boolean; override;
@@ -268,20 +284,46 @@ type
     procedure SendProducedEvents;
 
     property LogInAliasID: Word read FLogInAliasID write FLogInAliasID;
-    property LoggedIn: Boolean read FLoggedIn;
     {$IFNDEF FPC_CONSOLE_APP} property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
     {$ELSE}                   property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;{$ENDIF}
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
   public
     property Initialized;
-
+    property LoggedIn: Boolean read FLoggedIn;
     property Permitted;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
     procedure Login(NewNodeID, RegenerateAliasSeed: Boolean);
+    procedure Logout;
     procedure LoginWithLccSettings(RegenerateAliasSeed: Boolean; LccSettings: TLccSettings);
     procedure LoginWithNodeID(ANodeID: TNodeId; RegenerateAliasSeed: Boolean);
+  end;
+
+  { TLccMessageQueue }
+
+  TLccMessageQueue = class
+  private
+    FQueue: TObjectList;
+    FTimer: TFPTimer;
+    function GetLccMessage(iIndex: Integer): TLccMessage;
+    procedure SetLccMessage(iIndex: Integer; AValue: TLccMessage);
+  protected
+    property Queue: TObjectList read FQueue write FQueue;
+    property Timer: TFPTimer read FTimer write FTimer;
+
+    procedure OnTimer(Sender: TObject);
+  public
+    property LccMessage[iIndex: Integer]: TLccMessage read GetLccMessage write SetLccMessage;
+
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Add(ALccMessage: TLccMessage);
+    procedure Delete(Index: Integer);
+    function FindMessageByAlias(SourceAlias, DestAlias: Word; MTI: DWord): TLccMessage;
+    procedure FlushMessagesByAlias(SourceAlias, DestAlias: Word; MTI: DWord);
+    procedure Remove(ALccMessage: TLccMessage);
   end;
 
 
@@ -332,6 +374,100 @@ type
   TLccEventHack = class(TLccEvent)
   end;
 
+var
+  DatagramReplyQueue: TLccMessageQueue;
+
+{ TLccMessageQueue }
+
+function TLccMessageQueue.GetLccMessage(iIndex: Integer): TLccMessage;
+begin
+  Result := Queue[iIndex] as TLccMessage;
+end;
+
+procedure TLccMessageQueue.SetLccMessage(iIndex: Integer; AValue: TLccMessage);
+begin
+  Queue[iIndex] := AValue
+end;
+
+procedure TLccMessageQueue.OnTimer(Sender: TObject);
+var
+  LocalMessage: TLccMessage;
+  i: Integer;
+begin
+  for i := Queue.Count - 1 downto 0 do
+  begin
+    LocalMessage := LccMessage[i];
+    LocalMessage.AbandonTimeout := LocalMessage.AbandonTimeout + 1;
+    if (LocalMessage.AbandonTimeout > ABANDON_DATAGRAM_TIMEOUT) or (LocalMessage.RetryAttempts > ABANDON_DATAGRAM_RETRYS) then
+      Queue.Delete(i);
+  end;
+end;
+
+constructor TLccMessageQueue.Create;
+begin
+  inherited;
+  Queue := TObjectList.Create;
+  Queue.OwnsObjects := True;
+  Timer := TFPTimer.Create(nil);
+  Timer.OnTimer := @OnTimer;
+  Timer.Interval := 1000;  // 1sec
+  Timer.StartTimer;
+end;
+
+destructor TLccMessageQueue.Destroy;
+begin
+  Timer.StopTimer;
+  FreeAndNil(FTimer);
+  FreeAndNil(FQueue);
+  inherited Destroy;
+end;
+
+procedure TLccMessageQueue.Add(ALccMessage: TLccMessage);
+begin
+  Queue.Add(ALccMessage);
+end;
+
+procedure TLccMessageQueue.Delete(Index: Integer);
+begin
+  Queue.Delete(Index);
+end;
+
+function TLccMessageQueue.FindMessageByAlias(SourceAlias, DestAlias: Word; MTI: DWord): TLccMessage;
+var
+  i: Integer;
+  AMessage: TLccMessage;
+begin
+  Result := nil;
+  i := 0;
+  while i < Queue.Count do
+  begin
+    AMessage := LccMessage[i];
+    if (AMessage.CAN.SourceAlias = SourceAlias) and (AMessage.CAN.DestAlias = DestAlias) and ((AMessage.MTI = MTI) or (MTI = $00000000)) then
+    begin
+      Result := AMessage;
+      Break;
+    end;
+    Inc(i);
+  end;
+end;
+
+procedure TLccMessageQueue.FlushMessagesByAlias(SourceAlias, DestAlias: Word; MTI: DWord);
+var
+  QueuedMessage: TLccMessage;
+begin
+  QueuedMessage := DatagramReplyQueue.FindMessageByAlias(SourceAlias, DestAlias, MTI);
+  while Assigned(QueuedMessage) do
+  begin
+    DatagramReplyQueue.Remove(QueuedMessage);
+    QueuedMessage := DatagramReplyQueue.FindMessageByAlias(SourceAlias, DestAlias, MTI);
+  end;
+end;
+
+procedure TLccMessageQueue.Remove(ALccMessage: TLccMessage);
+begin
+  Queue.Remove(ALccMessage);
+end;
+
 { TLccCoreNode }
 
 function TLccCoreNode.GetNodeIDStr: String;
@@ -339,6 +475,12 @@ begin
   Result := IntToHex(NodeID[1], 6);
   Result := Result + IntToHex(NodeID[0], 6);
   Result := '0x' + Result
+end;
+
+procedure TLccCoreNode.SetEnabled(AValue: Boolean);
+begin
+  if FEnabled = AValue then Exit;
+  FEnabled := AValue;
 end;
 
 function TLccCoreNode.GetPermitted: Boolean;
@@ -383,15 +525,24 @@ begin
   end;
 end;
 
-procedure TLccCoreNode.DoRequestSendMessage(LccMessage: TLccMessage);
+procedure TLccCoreNode.DoRequestSendMessage(LccMessage: TLccMessage; QueueDatagramMessage: Boolean);
 begin
   if Assigned(OnRequestSendMessage) then
+  begin
+    if QueueDatagramMessage then
+      DatagramReplyQueue.Add(LccMessage.Clone);
     OnRequestSendMessage(Self, LccMessage);
+  end;
 end;
 
 function TLccCoreNode.GetAliasIDStr: String;
 begin
   Result := '0x' + IntToHex(FAliasID, 4);
+end;
+
+function TLccCoreNode.GetEnabled: Boolean;
+begin
+  Result := FEnabled;
 end;
 
 function TLccCoreNode.GetInitialized: Boolean;
@@ -428,6 +579,8 @@ begin
   FEventsProduced := TLccEvents.Create(Self);
   FConfigMemOptions := TLccConfigurationMemOptions.Create(Self);
   FConfigMemAddressSpaceInfo := TLccConfigMemAddressSpaceInfo.Create(Self);
+  FAckWorkerMessage := TLccMessage.Create;
+  FEnabled := True;
 end;
 
 destructor TLccCoreNode.Destroy;
@@ -447,6 +600,7 @@ begin
    FreeAndNil(FACDIMfg);
   FreeAndNil(FACDIUser);
   FreeAndNil(FConfiguration);
+  FreeAndNil(FAckWorkerMessage);
 
  // if Assigned(OwnerManager) then
  //   OwnerManager.DoDestroyLccNode(Self);
@@ -477,63 +631,66 @@ end;
 function TLccCoreNode.ProcessMessage(LccMessage: TLccMessage): Boolean;
 begin
   Result := False;
-
-  if IsMessageSourceUsingThisLoginAlias(LccMessage) then
+  if Enabled then
   begin
-    DoCanDuplicatedLoginAlias(LccMessage);
-    Exit;
-  end;
-
-  if IsMessageSourceUsingThisAlias(LccMessage) then
-  begin
-    DoCanDuplicatedAlias(LccMessage);
-    Exit;
-  end;
-
-  if IsMessageForThisNode(LccMessage) then
-  begin
-    if LccMessage.IsCAN then
+    if IsMessageSourceUsingThisLoginAlias(LccMessage) then
     begin
-      case LccMessage.CAN.MTI of
-        MTI_CAN_AME  : Result := DoCanAME(LccMessage);
-        MTI_CAN_AMD  : Result := DoCanAMD(LccMessage);
-        MTI_CAN_RID  : Result := DoCanRID(LccMessage);
-      else
-        DoUnknownLccCanMessage(LccMessage);
-      end;
-    end else
+      DoCanDuplicatedLoginAlias(LccMessage);
+      Exit;
+    end;
+
+    if IsMessageSourceUsingThisAlias(LccMessage) then
     begin
-      if Permitted and Initialized then
+      DoCanDuplicatedAlias(LccMessage);
+      Exit;
+    end;
+
+    if IsMessageForThisNode(LccMessage) then
+    begin
+      if LccMessage.IsCAN then
       begin
-        case LccMessage.MTI of
-          MTI_INITIALIZATION_COMPLETE       : Result := DoInitializatinComplete(LccMessage);        // [IN]
-          MTI_OPTIONAL_INTERACTION_REJECTED : Result := DoOptionalInteractionRejected(LccMessage);  // [IN]
-          MTI_PROTOCOL_SUPPORT_INQUIRY      : Result := DoProtocolSupportInquiry(LccMessage);       // [OUT]
-          MTI_PROTOCOL_SUPPORT_REPLY        : Result := DoProtocolSupportReply(LccMessage);         // [IN]
-          MTI_VERIFY_NODE_ID_NUMBER         : Result := DoVerifyNodeIdNumber(LccMessage);           // [OUT]
-          MTI_VERIFY_NODE_ID_NUMBER_DEST    : Result := DoVerifyNodeIdNumberDest(LccMessage);       // [OUT]
-          MTI_VERIFIED_NODE_ID_NUMBER       : Result := DoVerifiedNodeIDNumber(LccMessage);         // [IN]
-          MTI_SIMPLE_NODE_INFO_REQUEST      : Result := DoSimpleNodeInfoRequest(LccMessage);        // [OUT]
-          MTI_SIMPLE_NODE_INFO_REPLY        : Result := DoSimpleNodeInfoReply(LccMessage);          // [IN]
-          MTI_SIMPLE_TRAIN_INFO_REQUEST     : Result := DoSimpleTrainInfoRequest(LccMessage);       // [OUT]
-          MTI_SIMPLE_TRAIN_INFO_REPLY       : Result := DoSimpleTrainInfoReply(LccMessage);         // [IN]
-          MTI_EVENTS_IDENTIFY               : Result := DoEventsIdentify(LccMessage);               // [OUT]
-          MTI_EVENTS_IDENTIFY_DEST          : Result := DoEventsIdentifyDest(LccMessage);           // [OUT]
-          MTI_PRODUCER_IDENDIFY             : Result := DoProducersIdentify(LccMessage);            // [OUT]
-          MTI_CONSUMER_IDENTIFY             : Result := DoConsumersIdentify(LccMessage);            // [OUT]
-          MTI_PRODUCER_IDENTIFIED_SET       : Result := DoProducerIdentifiedSet(LccMessage);        // [IN]
-          MTI_PRODUCER_IDENTIFIED_CLEAR     : Result := DoProducerIdentifiedClear(LccMessage);      // [IN]
-          MTI_PRODUCER_IDENTIFIED_UNKNOWN   : Result := DoProducerIdentifiedUnknown(LccMessage);    // [IN]
-          MTI_CONSUMER_IDENTIFIED_SET       : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
-          MTI_CONSUMER_IDENTIFIED_CLEAR     : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
-          MTI_CONSUMER_IDENTIFIED_UNKNOWN   : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
-          MTI_TRACTION_PROTOCOL             : Result := DoTractionProtocol(LccMessage);             // [IN]
-          MTI_TRACTION_REPLY                : Result := DoTractionProtocolReply(LccMessage);        // [IN]
-          MTI_DATAGRAM_REJECTED_REPLY       : Result := DoDatagramRejectedReply(LccMessage);        // [IN]
-          MTI_DATAGRAM_OK_REPLY             : Result := DoDatagramOkReply(LccMessage);              // [IN]
-          MTI_DATAGRAM                      : Result := DoDatagram(LccMessage);                     // [IN]
+        case LccMessage.CAN.MTI of
+          MTI_CAN_AMR  : Result := DoCanAMR(LccMessage);
+          MTI_CAN_AME  : Result := DoCanAME(LccMessage);
+          MTI_CAN_AMD  : Result := DoCanAMD(LccMessage);
+          MTI_CAN_RID  : Result := DoCanRID(LccMessage);
         else
-          DoUnknownLccMessge(LccMessage);
+          DoUnknownLccCanMessage(LccMessage);
+        end;
+      end else
+      begin
+        if Permitted and Initialized then
+        begin
+          case LccMessage.MTI of
+            MTI_INITIALIZATION_COMPLETE       : Result := DoInitializatinComplete(LccMessage);        // [IN]
+            MTI_OPTIONAL_INTERACTION_REJECTED : Result := DoOptionalInteractionRejected(LccMessage);  // [IN]
+            MTI_PROTOCOL_SUPPORT_INQUIRY      : Result := DoProtocolSupportInquiry(LccMessage);       // [OUT]
+            MTI_PROTOCOL_SUPPORT_REPLY        : Result := DoProtocolSupportReply(LccMessage);         // [IN]
+            MTI_VERIFY_NODE_ID_NUMBER         : Result := DoVerifyNodeIdNumber(LccMessage);           // [OUT]
+            MTI_VERIFY_NODE_ID_NUMBER_DEST    : Result := DoVerifyNodeIdNumberDest(LccMessage);       // [OUT]
+            MTI_VERIFIED_NODE_ID_NUMBER       : Result := DoVerifiedNodeIDNumber(LccMessage);         // [IN]
+            MTI_SIMPLE_NODE_INFO_REQUEST      : Result := DoSimpleNodeInfoRequest(LccMessage);        // [OUT]
+            MTI_SIMPLE_NODE_INFO_REPLY        : Result := DoSimpleNodeInfoReply(LccMessage);          // [IN]
+            MTI_SIMPLE_TRAIN_INFO_REQUEST     : Result := DoSimpleTrainInfoRequest(LccMessage);       // [OUT]
+            MTI_SIMPLE_TRAIN_INFO_REPLY       : Result := DoSimpleTrainInfoReply(LccMessage);         // [IN]
+            MTI_EVENTS_IDENTIFY               : Result := DoEventsIdentify(LccMessage);               // [OUT]
+            MTI_EVENTS_IDENTIFY_DEST          : Result := DoEventsIdentifyDest(LccMessage);           // [OUT]
+            MTI_PRODUCER_IDENDIFY             : Result := DoProducersIdentify(LccMessage);            // [OUT]
+            MTI_CONSUMER_IDENTIFY             : Result := DoConsumersIdentify(LccMessage);            // [OUT]
+            MTI_PRODUCER_IDENTIFIED_SET       : Result := DoProducerIdentifiedSet(LccMessage);        // [IN]
+            MTI_PRODUCER_IDENTIFIED_CLEAR     : Result := DoProducerIdentifiedClear(LccMessage);      // [IN]
+            MTI_PRODUCER_IDENTIFIED_UNKNOWN   : Result := DoProducerIdentifiedUnknown(LccMessage);    // [IN]
+            MTI_CONSUMER_IDENTIFIED_SET       : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
+            MTI_CONSUMER_IDENTIFIED_CLEAR     : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
+            MTI_CONSUMER_IDENTIFIED_UNKNOWN   : Result := DoConsumerIdentifiedUnknown(LccMessage);    // [IN]
+            MTI_TRACTION_PROTOCOL             : Result := DoTractionProtocol(LccMessage);             // [IN]
+            MTI_TRACTION_REPLY                : Result := DoTractionProtocolReply(LccMessage);        // [IN]
+            MTI_DATAGRAM_REJECTED_REPLY       : Result := DoDatagramRejectedReply(LccMessage);        // [IN]
+            MTI_DATAGRAM_OK_REPLY             : Result := DoDatagramOkReply(LccMessage);              // [IN]
+            MTI_DATAGRAM                      : Result := DoDatagram(LccMessage);                     // [IN]
+          else
+            DoUnknownLccMessge(LccMessage);
+          end;
         end;
       end;
     end;
@@ -543,10 +700,25 @@ end;
 procedure TLccCoreNode.SendAckReply(LccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   WorkerMessage.LoadDatagramAck(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True, ReplyPending, TimeOutValueN);
-  DoRequestSendMessage(LccMessage);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 { TLccVirtualNode }
+
+function TLccVirtualNode.GetEnabled: Boolean;
+begin
+  Result := inherited GetEnabled and LoggedIn;
+end;
+
+procedure TLccVirtualNode.SetEnabled(AValue: Boolean);
+begin
+  inherited SetEnabled(AValue);
+end;
+
+function TLccVirtualNode.DoCanAMR(LccMessage: TLccMessage): Boolean;
+begin
+  DatagramReplyQueue.FlushMessagesByAlias(LccMessage.CAN.DestAlias, LccMessage.CAN.SourceAlias, $00000000);
+end;
 
 function TLccVirtualNode.DoCanAME(LccMessage: TLccMessage): Boolean;
 var
@@ -562,12 +734,12 @@ begin
     if EqualNodeID(TestNodeID, NodeID, False) then
     begin
       WorkerMessage.LoadAMD(NodeID, AliasID);
-      DoRequestSendMessage(WorkerMessage);
+      DoRequestSendMessage(WorkerMessage, False);
     end
   end else
   begin
     WorkerMessage.LoadAMD(NodeID, AliasID);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
@@ -576,18 +748,17 @@ begin
   if ((LccMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((LccMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
   begin
     WorkerMessage.LoadRID(AliasID);                   // sorry charlie this is mine
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end else
   begin
-    WorkerMessage.LoadAMR(NodeID, AliasID);          // You used my Alias you dog......
-    DoRequestSendMessage(WorkerMessage);
-    FPermitted := False;
+    Logout;
     Login(False, True);
   end;
 end;
 
 procedure TLccVirtualNode.DoCanDuplicatedLoginAlias(LccMessage: TLccMessage);
 begin
+  LoginTimer.Enabled := False;
   LogInAliasID := CreateAliasID(FNodeID, True);  // Generate a new LoginAlias
   SendAliasLoginRequest;                         // Try to allocate it
   FLoggedIn := False;                            //
@@ -607,9 +778,10 @@ begin
     if EqualNodeID(TestNodeID, NodeID, False) then                  // some Dog has my Node ID!
     begin
       WorkerMessage.LoadPCER(NodeID, AliasID, @EVENT_DUPLICATE_ID_DETECTED);
-      DoRequestSendMessage(WorkerMessage);
+      DoRequestSendMessage(WorkerMessage, False);
     end
   end;
+  DatagramReplyQueue.FlushMessagesByAlias(LccMessage.CAN.DestAlias, LccMessage.CAN.SourceAlias, $00000000);
 end;
 
 function TLccVirtualNode.DoCanRID(LccMessage: TLccMessage): Boolean;
@@ -638,8 +810,8 @@ end;
 function TLccVirtualNode.DoSimpleNodeInfoRequest(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
-  WorkerMessage.LoadSimpleNodeIdentInfoRequest(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-  DoRequestSendMessage(WorkerMessage);
+  WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, SimpleNodeInfo.PackedFormat);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 function TLccVirtualNode.DoVerifyNodeIdNumber(LccMessage: TLccMessage): Boolean;
@@ -652,21 +824,21 @@ begin
     LccMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
     if EqualNodeID(TestNodeID, NodeID, False) then
     begin
-      WorkerMessage.LoadVerifyNodeID(NodeID, AliasID);
-      DoRequestSendMessage(WorkerMessage);
+      WorkerMessage.LoadVerifiedNodeID(NodeID, AliasID);
+      DoRequestSendMessage(WorkerMessage, False);
     end
   end else
   begin
     WorkerMessage.LoadVerifiedNodeID(NodeID, AliasID);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
 function TLccVirtualNode.DoVerifyNodeIdNumberDest(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
-  WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-  DoRequestSendMessage(WorkerMessage);
+  WorkerMessage.LoadVerifiedNodeID(NodeID, AliasID);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 function TLccVirtualNode.DoVerifiedNodeIDNumber(LccMessage: TLccMessage): Boolean;
@@ -694,7 +866,7 @@ function TLccVirtualNode.DoSimpleTrainInfoRequest(LccMessage: TLccMessage): Bool
 begin
   Result := True;
   WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 function TLccVirtualNode.DoProducerIdentifiedSet(LccMessage: TLccMessage): Boolean;
@@ -721,15 +893,15 @@ begin
   if Assigned(Event) then
   begin
     WorkerMessage.LoadProducerIdentify(NodeID, AliasID, TLccEventHack( Event).FID);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
 function TLccVirtualNode.DoProtocolSupportInquiry(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
-  WorkerMessage.LoadProtocolIdentifyInquiry(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-  DoRequestSendMessage(WorkerMessage);
+  WorkerMessage.LoadProtocolIdentifyReply(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ProtocolSupport.EncodeFlags);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 function TLccVirtualNode.DoConsumerIdentifiedSet(LccMessage: TLccMessage): Boolean;
@@ -756,7 +928,7 @@ begin
   if Assigned(Event) then
   begin
     WorkerMessage.LoadConsumerIdentify(NodeID, AliasID, TLccEventHack( Event).FID);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
@@ -781,82 +953,98 @@ begin
          case LccMessage.DataArrayIndexer[6] of
            MSI_CDI             :
                begin
-                 SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                 SendAckReply(LccMessage, False, 0);
                  WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                  CDI.LoadReply(LccMessage, WorkerMessage);
                  if WorkerMessage.UserValid then
-                   DoRequestSendMessage(WorkerMessage);
+                   DoRequestSendMessage(WorkerMessage, True);
                  Result := True;
                end;
            MSI_ALL             :
                begin
-                 SendAckReply(LccMessage, False, 0);   // We won't be sending a Read Reply
+                 SendAckReply(LccMessage, False, 0);
                end;
            MSI_CONFIG          :
                begin
-                 SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                 SendAckReply(LccMessage, False, 0);
                  WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                  Configuration.LoadReply(LccMessage, WorkerMessage);
                  if WorkerMessage.UserValid then
-                   DoRequestSendMessage(WorkerMessage);
+                   DoRequestSendMessage(WorkerMessage, True);
                  Result := True;
                end;
            MSI_ACDI_MFG        :
                begin
-                 SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                 SendAckReply(LccMessage, False, 0);
                  WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                  ACDIMfg.LoadReply(LccMessage, WorkerMessage);
                  if WorkerMessage.UserValid then
-                   DoRequestSendMessage(WorkerMessage);
+                   DoRequestSendMessage(WorkerMessage, True);
                  Result := True;
                end;
            MSI_ACDI_USER       :
                begin
-                 SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                 SendAckReply(LccMessage, False, 0);
                  WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                  ACDIUser.LoadReply(LccMessage, WorkerMessage);
                  if WorkerMessage.UserValid then
-                   DoRequestSendMessage(WorkerMessage);
+                   DoRequestSendMessage(WorkerMessage, True);
                  Result := True;
                end;
            MSI_FDI             :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;
            MSI_FUNCTION_CONFIG :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;
          end
        end;
     MCP_CONFIGURATION : begin
-                         SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                         SendAckReply(LccMessage, False, 0);
                          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                          Configuration.LoadReply(LccMessage, WorkerMessage);
                          if WorkerMessage.UserValid then
-                           DoRequestSendMessage(WorkerMessage);
+                           DoRequestSendMessage(WorkerMessage, True);
                          Result := True;
                        end;
-    MCP_ALL           : begin  end;
+    MCP_ALL           : begin
+                          SendAckReply(LccMessage, False, 0);
+                        end;
     MCP_CDI           : begin
-                         SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
+                         SendAckReply(LccMessage, False, 0);
                          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                          CDI.LoadReply(LccMessage, WorkerMessage);
                          if WorkerMessage.UserValid then
-                           DoRequestSendMessage(WorkerMessage);
+                           DoRequestSendMessage(WorkerMessage, True);
                          Result := True;
                        end;
     end;
 end;
 
 function TLccVirtualNode.DoDatagramOkReply(LccMessage: TLccMessage): Boolean;
+var
+  QueuedMessage: TLccMessage;
 begin
   Result := True;
+  QueuedMessage := DatagramReplyQueue.FindMessageByAlias(LccMessage.CAN.DestAlias, LccMessage.CAN.SourceAlias, MTI_DATAGRAM);
+  if Assigned(QueuedMessage) then
+    DatagramReplyQueue.Remove(QueuedMessage)
 end;
 
 function TLccVirtualNode.DoDatagramRejectedReply(LccMessage: TLccMessage): Boolean;
+var
+  QueuedMessage: TLccMessage;
 begin
   Result := True;
-  LccMessage.SwapDestAndSourceIDs;
-  DoRequestSendMessage(LccMessage);
+  QueuedMessage := DatagramReplyQueue.FindMessageByAlias(LccMessage.CAN.DestAlias, LccMessage.CAN.SourceAlias, MTI_DATAGRAM);
+  if Assigned(QueuedMessage) then
+  begin
+    DoRequestSendMessage(QueuedMessage, False);
+    QueuedMessage.AbandonTimeout := 0;;
+    QueuedMessage.RetryAttempts := QueuedMessage.RetryAttempts + 1;
+  end
 end;
 
 function TLccVirtualNode.DoEventsIdentify(LccMessage: TLccMessage): Boolean;
@@ -879,16 +1067,19 @@ end;
 function TLccVirtualNode.DoDatagramConfigruationReadStream(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
+  SendAckReply(LccMessage, False, 0);
 end;
 
 function TLccVirtualNode.DoDatagramConfigruationReadReply(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
+  SendAckReply(LccMessage, False, 0);
 end;
 
 function TLccVirtualNode.DoDatagramConfigruationReadStreamReply(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
+  SendAckReply(LccMessage, False, 0);
 end;
 
 function TLccVirtualNode.DoDatagramConfigruationWrite(LccMessage: TLccMessage): Boolean;
@@ -900,9 +1091,11 @@ begin
           case LccMessage.DataArrayIndexer[6] of
             MSI_CDI             :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;  // Not writeable
             MSI_ALL             :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;  // Not writeable
             MSI_CONFIG          :
                 begin
@@ -912,6 +1105,7 @@ begin
                 end;
             MSI_ACDI_MFG        :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;  // Not writeable
             MSI_ACDI_USER       :
                 begin
@@ -919,14 +1113,14 @@ begin
                   ACDIUser.WriteRequest(LccMessage);
                   Result := True;
                 end;
-            {$IFDEF TRACTION}
             MSI_FDI             :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;  // Not writeable
             MSI_FUNCTION_CONFIG :
                 begin
+                  SendAckReply(LccMessage, False, 0);
                 end;
-            {$ENDIF}
           end
         end;
     MCP_CONFIGURATION :
@@ -937,9 +1131,11 @@ begin
         end;
     MCP_ALL           :
         begin
+          SendAckReply(LccMessage, False, 0);
         end; // Not writeable
     MCP_CDI           :
         begin
+          SendAckReply(LccMessage, False, 0);
         end; // Not writeable
   end;
 end;
@@ -947,11 +1143,13 @@ end;
 function TLccVirtualNode.DoDatagramConfigruationWriteStream(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
+  SendAckReply(LccMessage, False, 0);
 end;
 
 function TLccVirtualNode.DoDatagramConfigruationWriteReply(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
+  SendAckReply(LccMessage, False, 0);
 end;
 
 function TLccVirtualNode.DoDatagramConfigruationOperation(LccMessage: TLccMessage): Boolean;
@@ -960,34 +1158,41 @@ begin
   case LccMessage.DataArrayIndexer[1] of
     MCP_OP_GET_CONFIG :
        begin
+         SendAckReply(LccMessage, False, 0);
          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
          ConfigMemOptions.LoadReply(WorkerMessage);
          if WorkerMessage.UserValid then;
-           DoRequestSendMessage(WorkerMessage);
+           DoRequestSendMessage(WorkerMessage, True);
          Result := True;
        end;
     MCP_OP_GET_ADD_SPACE_INFO :
        begin
+         SendAckReply(LccMessage, False, 0);
          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
          ConfigMemAddressSpaceInfo.LoadReply(LccMessage, WorkerMessage);
          if WorkerMessage.UserValid then
-           DoRequestSendMessage(WorkerMessage);
+           DoRequestSendMessage(WorkerMessage, True);
          Result := True;
        end;
     MCP_OP_LOCK :
        begin
+         SendAckReply(LccMessage, False, 0);
        end;
     MCP_OP_GET_UNIQUEID :
        begin
+         SendAckReply(LccMessage, False, 0);
        end;
     MCP_OP_FREEZE :
        begin
+         SendAckReply(LccMessage, False, 0);
        end;
     MCP_OP_INDICATE :
        begin
+         SendAckReply(LccMessage, False, 0);
        end;
     MCP_OP_RESETS :
        begin
+         SendAckReply(LccMessage, False, 0);
        end;
     end // case
 end;
@@ -1005,7 +1210,7 @@ end;
 procedure TLccVirtualNode.DoUnknownLccDatagramMessage(LccMessage: TLccMessage);
 begin
   WorkerMessage.LoadDatagramRejected(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_DATAGRAMS_NOT_ACCEPTED);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 procedure TLccVirtualNode.DoUnknownLccMessge(LccMessage: TLccMessage);
@@ -1013,7 +1218,7 @@ begin
   if LccMessage.HasDestination then
   begin
     WorkerMessage.LoadOptionalInteractionRejected(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL, LccMessage.MTI);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
@@ -1045,7 +1250,7 @@ end;
 
 function TLccVirtualNode.IsMessageSourceUsingThisAlias(LccMessage: TLccMessage): Boolean;
 begin
-   Result := Permitted and LccMessage.IsCAN and (LccMessage.CAN.SourceAlias = AliasID)
+   Result := Permitted and (LccMessage.CAN.SourceAlias = AliasID)
 end;
 
 function TLccVirtualNode.IsMessageSourceUsingThisLoginAlias(LccMessage: TLccMessage): Boolean;
@@ -1095,31 +1300,31 @@ end;
 procedure TLccVirtualNode.SendAliasLoginRequest;
 begin
   WorkerMessage.LoadCID(NodeID, LoginAliasID, 0);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   WorkerMessage.LoadCID(NodeID, LoginAliasID, 1);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   WorkerMessage.LoadCID(NodeID, LoginAliasID, 2);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   WorkerMessage.LoadCID(NodeID, LoginAliasID, 3);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 procedure TLccVirtualNode.SendAliasLogin;
 begin
   WorkerMessage.LoadRID(AliasID);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   WorkerMessage.LoadAMD(NodeID, AliasID);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   FPermitted := True;
   WorkerMessage.LoadInitializationComplete(NodeID, AliasID);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
   FInitialized := True;
 end;
 
 procedure TLccVirtualNode.SendAMR;
 begin
   WorkerMessage.LoadAMR(NodeID, AliasID);
-  DoRequestSendMessage(WorkerMessage);
+  DoRequestSendMessage(WorkerMessage, False);
 end;
 
 procedure TLccVirtualNode.SendEvents;
@@ -1135,7 +1340,7 @@ begin
   for i := 0 to EventsConsumed.EventList.Count - 1 do
   begin
     WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, TLccEventHack( EventsConsumed.Event[i]).FID, EventsConsumed.Event[i].State);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
@@ -1146,7 +1351,7 @@ begin
   for i := 0 to EventsProduced.EventList.Count - 1 do
   begin
     WorkerMessage.LoadProducerIdentified(NodeID, AliasID, TLccEventHack( EventsProduced.Event[i]).FID , EventsProduced.Event[i].State);
-    DoRequestSendMessage(WorkerMessage);
+    DoRequestSendMessage(WorkerMessage, False);
   end;
 end;
 
@@ -1158,7 +1363,7 @@ begin
   {$IFNDEF FPC_CONSOLE_APP} LoginTimer := TTimer.Create(Self);
   {$ELSE}                   LoginTimer := TFPTimer.Create(Self);{$ENDIF}
   LoginTimer.Enabled := False;
-  LoginTimer.Interval := 800;
+  LoginTimer.Interval := 500;
   LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
   LogInAliasID := 0;
 
@@ -1221,11 +1426,7 @@ end;
 
 destructor TLccVirtualNode.Destroy;
 begin
-  if Permitted then
-  begin
-    WorkerMessage.LoadAMR(NodeID, AliasID);
-    DoRequestSendMessage(WorkerMessage);
-  end;
+  Logout;
   inherited Destroy;
 end;
 
@@ -1239,6 +1440,18 @@ begin
  LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
  SendAliasLoginRequest;
  LoginTimer.Enabled := True;
+end;
+
+procedure TLccVirtualNode.Logout;
+begin
+  if Permitted then
+  begin
+    LoginTimer.Enabled := False;
+    FLoggedIn := False;
+    FPermitted := False;
+    WorkerMessage.LoadAMR(NodeID, AliasID);          // You used my Alias you dog......
+    DoRequestSendMessage(WorkerMessage, False);
+  end;
 end;
 
 procedure TLccVirtualNode.LoginWithLccSettings(RegenerateAliasSeed: Boolean; LccSettings: TLccSettings);
@@ -1325,6 +1538,11 @@ begin
 end;
 
 function TLccDatabaseNode.GetPermitted: Boolean;
+begin
+  Result := True;
+end;
+
+function TLccDatabaseNode.DoCanAMR(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
 end;
@@ -1505,7 +1723,7 @@ begin
                   Allow := True;
               //    OwnerManager.DoTractionControllerChangeNotify(Self, LccDestNode, LccMessage.ExtractDataBytesAsNodeID(3, ANodeID)^, LccMessage.ExtractDataBytesAsInt(9, 10), Allow);
                   WorkerMessage.LoadTractionControllerChangeNotifyReply(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, Allow);
-                  DoRequestSendMessage(WorkerMessage);
+                  DoRequestSendMessage(WorkerMessage, False);
                   Result := True;
                 end;
           end;
@@ -1666,6 +1884,7 @@ begin
   case LccMessage.DataArrayIndexer[1] of
     MCP_OP_GET_CONFIG :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
     MCP_OP_GET_CONFIG_REPLY :
         begin
@@ -1675,6 +1894,12 @@ begin
         end;
     MCP_OP_GET_ADD_SPACE_INFO :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
+          WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
+          ConfigMemAddressSpaceInfo.LoadReply(LccMessage, WorkerMessage);
+    //      if WorkerMessage.UserValid then
+    //        OwnerManager.DoRequestMessageSend(WorkerMessage);
+          Result := True;
         end;
     MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY,
     MCP_OP_GET_ADD_SPACE_INFO_NOT_PRESENT_REPLY:
@@ -1685,18 +1910,23 @@ begin
         end;
     MCP_OP_LOCK :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
     MCP_OP_GET_UNIQUEID :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
     MCP_OP_FREEZE :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
     MCP_OP_INDICATE :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
     MCP_OP_RESETS :
         begin
+          SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
         end;
   end;
 end;
@@ -1736,6 +1966,12 @@ procedure TLccDatabaseNode.DoUnknownLccCanMessage(LccMessage: TLccMessage);
 begin
   // Do nothing
 end;
+
+initialization
+  DatagramReplyQueue := TLccMessageQueue.Create;
+
+finalization
+  FreeAndNil(DatagramReplyQueue);
 
 
 end.
