@@ -1,0 +1,431 @@
+object TabbedwithNavigationForm: TTabbedwithNavigationForm
+  Left = 0
+  Top = 0
+  Caption = 'Form56'
+  ClientHeight = 596
+  ClientWidth = 405
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnCloseQuery = FormCloseQuery
+  OnKeyUp = FormKeyUp
+  OnShow = FormShow
+  DesignerMasterStyle = 0
+  object TabControl1: TTabControl
+    Align = Client
+    FullSize = True
+    Size.Width = 405.000000000000000000
+    Size.Height = 596.000000000000000000
+    Size.PlatformDefault = False
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
+    TabOrder = 0
+    TabPosition = PlatformDefault
+    object TabItem1: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 101.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemfavorites'
+      TabOrder = 0
+      Text = 'TabItem1'
+      object TabControl2: TTabControl
+        Align = Client
+        FullSize = True
+        Size.Width = 405.000000000000000000
+        Size.Height = 547.000000000000000000
+        Size.PlatformDefault = False
+        TabHeight = 49.000000000000000000
+        TabIndex = 0
+        TabOrder = 0
+        TabPosition = None
+        object TabItem5: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = True
+          Size.Width = 8.000000000000000000
+          Size.Height = 8.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'TabItem5'
+          object ToolBar1: TToolBar
+            Size.Width = 405.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object lblTitle1: TLabel
+              Align = Contents
+              Size.Width = 405.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              StyleLookup = 'toollabel'
+              TextSettings.HorzAlign = Center
+              Text = 'Title'
+            end
+            object btnNext: TSpeedButton
+              Action = NextTabAction1
+              Align = Right
+              Enabled = True
+              ImageIndex = -1
+              Margins.Right = 5.000000000000000000
+              Position.X = 340.000000000000000000
+              Size.Width = 60.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              Visible = True
+            end
+          end
+        end
+        object TabItem6: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = False
+          Size.Width = 8.000000000000000000
+          Size.Height = 8.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'TabItem6'
+          object ToolBar2: TToolBar
+            Size.Width = 405.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object lblTitle2: TLabel
+              Align = Contents
+              Size.Width = 405.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              StyleLookup = 'toollabel'
+              TextSettings.HorzAlign = Center
+              Text = 'Title'
+            end
+            object btnBack: TSpeedButton
+              Action = PreviousTabAction1
+              Align = Left
+              Enabled = True
+              ImageIndex = -1
+              Margins.Left = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Size.Width = 48.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              StyleLookup = 'backtoolbutton'
+              Visible = True
+            end
+          end
+        end
+      end
+    end
+    object TabItem2: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 102.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemcontacts'
+      TabOrder = 0
+      Text = 'TabItem2'
+      object ToolBar3: TToolBar
+        Size.Width = 405.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lblTitle3: TLabel
+          Align = Contents
+          Size.Width = 405.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'toollabel'
+          TextSettings.HorzAlign = Center
+          Text = 'Title'
+        end
+      end
+    end
+    object TabItem3: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 101.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemsearch'
+      TabOrder = 0
+      Text = 'TabItem3'
+      object ToolBar4: TToolBar
+        Size.Width = 405.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lblTitle4: TLabel
+          Align = Contents
+          Size.Width = 405.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'toollabel'
+          TextSettings.HorzAlign = Center
+          Text = 'Title'
+        end
+      end
+    end
+    object TabItemSettings: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 99.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitembookmarks'
+      TabOrder = 0
+      Text = 'Settings'
+      object ToolBar5: TToolBar
+        Size.Width = 405.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Label1: TLabel
+          Align = Contents
+          Size.Width = 405.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'toollabel'
+          TextSettings.HorzAlign = Center
+          Text = 'Title'
+        end
+      end
+      object LayoutBkgnd: TLayout
+        Align = Client
+        Margins.Left = 4.000000000000000000
+        Margins.Top = 4.000000000000000000
+        Margins.Right = 4.000000000000000000
+        Margins.Bottom = 4.000000000000000000
+        Size.Width = 397.000000000000000000
+        Size.Height = 491.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object ListBoxSettings: TListBox
+          Align = Client
+          Size.Width = 397.000000000000000000
+          Size.Height = 491.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          DisableFocusEffect = True
+          DefaultItemStyles.ItemStyle = ''
+          DefaultItemStyles.GroupHeaderStyle = ''
+          DefaultItemStyles.GroupFooterStyle = ''
+          Viewport.Width = 393.000000000000000000
+          Viewport.Height = 487.000000000000000000
+          object ListBoxGroupHeader2: TListBoxGroupHeader
+            Size.Width = 393.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 6
+            Text = 'Network'
+          end
+          object ListBoxItemNetworkServerBkGnd: TListBoxItem
+            EnableDragHighlight = False
+            Selectable = False
+            Position.Y = 30.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            TabStop = False
+            Text = 'Server'
+            object Layout4: TLayout
+              Align = Right
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Margins.Right = 4.000000000000000000
+              Position.X = 104.000000000000000000
+              Size.Width = 285.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              object EditServer: TEdit
+                Touch.InteractiveGestures = [LongTap, DoubleTap]
+                Align = VertCenter
+                TabOrder = 0
+                Position.Y = 6.000000000000000000
+                Size.Width = 285.000000000000000000
+                Size.Height = 32.000000000000000000
+                Size.PlatformDefault = False
+                OnKeyDown = EditServerKeyDown
+                OnExit = EditServerExit
+              end
+            end
+          end
+          object ListBoxItem3: TListBoxItem
+            Selectable = False
+            Position.Y = 74.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 5
+            Text = 'TCP Protocol'
+            object Layout3: TLayout
+              Align = Right
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Position.X = 104.000000000000000000
+              Size.Width = 289.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object SwitchTcp: TSwitch
+                IsChecked = False
+                Position.X = 28.000000000000000000
+                Position.Y = 8.000000000000000000
+                Size.Width = 44.000000000000000000
+                Size.Height = 26.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 0
+                OnSwitch = SwitchTcpSwitch
+              end
+            end
+          end
+          object ListBoxGroupFooter1: TListBoxGroupFooter
+            Position.Y = 118.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+          end
+          object ListBoxGroupHeader1: TListBoxGroupHeader
+            Position.Y = 148.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 56.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = 'listboxgroupheader'
+            TabOrder = 2
+            Text = 'LCC Node'
+          end
+          object ListBoxItem1: TListBoxItem
+            Selectable = False
+            Position.Y = 204.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 3
+            Text = 'Node ID'
+            object Layout2: TLayout
+              Align = Right
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Margins.Right = 4.000000000000000000
+              Position.X = 104.000000000000000000
+              Size.Width = 285.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object EditNodeID: TEdit
+                Touch.InteractiveGestures = [LongTap, DoubleTap]
+                Align = VertCenter
+                TabOrder = 0
+                Position.Y = 6.000000000000000000
+                Size.Width = 285.000000000000000000
+                Size.Height = 32.000000000000000000
+                Size.PlatformDefault = False
+              end
+            end
+          end
+          object ListBoxItem2: TListBoxItem
+            Selectable = False
+            Position.Y = 248.000000000000000000
+            Size.Width = 393.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 4
+            Text = 'AliasID'
+            object Layout1: TLayout
+              Align = Right
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Position.X = 104.000000000000000000
+              Size.Width = 289.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object LabelAlias: TLabel
+                Align = Client
+                Size.Width = 289.000000000000000000
+                Size.Height = 22.000000000000000000
+                Size.PlatformDefault = False
+                Text = '0x0000'
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  object GestureManager1: TGestureManager
+    Sensitivity = 80.000000000000000000
+    Left = 48
+    Top = 177
+  end
+  object LccEthernetClient: TLccEthernetClient
+    Hub = False
+    Gridconnect = False
+    LccSettings = LccSettings
+    OnConnectionStateChange = LccEthernetClientConnectionStateChange
+    SleepCount = 0
+    Left = 280
+    Top = 185
+  end
+  object LccSettings: TLccSettings
+    ComPort.AutoConnectAtBoot = False
+    ComPort.BaudRate = 333333
+    ComPort.DataBits = cpdb_8_Bits
+    ComPort.Parity = cpp_None
+    ComPort.Port = 'COM1'
+    ComPort.StopBits = cpsb_1_StopBit
+    ComPort.FlowControl = cpf_None
+    Ethernet.AutoResolveListenerIP = False
+    Ethernet.AutoResolveClientIP = True
+    Ethernet.GridConnect = False
+    Ethernet.LocalClientIP = '127.0.0.1'
+    Ethernet.RemoteListenerIP = '192.168.0.254'
+    Ethernet.LocalListenerIP = '127.0.0.1'
+    Ethernet.LocalClientPort = 12022
+    Ethernet.RemoteListenerPort = 12021
+    Ethernet.LocalListenerPort = 12021
+    Ethernet.Tcp = False
+    FilePath = 'settings.ini'
+    General.AliasID = '0x000'
+    General.NodeID = '0x000000000000'
+    Logging.Detailed = False
+    Logging.Enabled = False
+    Logging.JMRIFormat = False
+    PiSpiPort.Speed = pss_3_9Mhz
+    PiSpiPort.Mode = psm_ClkIdleLo_DataFalling
+    PiSpiPort.Bits = psb_8
+    Throttle.AutoLoadFDI = True
+    Throttle.AutoScrollDelta = 2
+    Left = 280
+    Top = 249
+  end
+  object ActionList1: TActionList
+    Left = 16
+    Top = 120
+    object NextTabAction1: TNextTabAction
+      Category = 'Tab'
+      TabControl = TabControl2
+    end
+    object PreviousTabAction1: TPreviousTabAction
+      Category = 'Tab'
+      TabControl = TabControl2
+    end
+  end
+  object TimerGeneral: TTimer
+    Enabled = False
+    OnTimer = TimerGeneralTimer
+    Left = 56
+    Top = 265
+  end
+end

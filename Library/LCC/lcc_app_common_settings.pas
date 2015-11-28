@@ -70,6 +70,7 @@ const
   STR_INI_ETHERNET_GRIDCONNECT = 'GridConnect';
   STR_INI_ETHERNET_AUTORESOLVE_LISTENER = 'AutoResolveListener';
   STR_INI_ETHERNET_AUTORESOLVE_CLIENT = 'AutoResolveClient';
+  STR_INI_ETHERNET_TCP = 'TCP';
 
   STR_INI_PISPIPORT_SECTION = 'PiSpi';
   STR_INI_PISPIPORT_SPEED_KEY = 'Speed';
@@ -238,6 +239,7 @@ type
     FLocalListenerPort: Integer;
     FRemoteListenerIP: string;
     FRemoteListenerPort: Integer;
+    FTcp: Boolean;
   public
     constructor Create(AnOwner: TLccSettings); override;
     procedure LoadFromFile(IniFile: TIniFile);
@@ -252,6 +254,7 @@ type
     property LocalClientPort: Integer read FLocalClientPort write FLocalClientPort;
     property RemoteListenerPort: Integer read FRemoteListenerPort write FRemoteListenerPort;
     property LocalListenerPort: Integer read FLocalListenerPort write FLocalListenerPort;
+    property Tcp: Boolean read FTcp write FTcp;
   end;
 
   // Settings that all Lcc Applications will have in common
@@ -378,6 +381,7 @@ end;
 
 procedure TEthernetSettings.LoadFromFile(IniFile: TIniFile);
 begin
+  FTcp := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_TCP, False);
   FAutoResolveListenerIP := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, False);
   FAutoResolveClientIP := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_CLIENT, False);
   FGridConnect := IniFile.ReadBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, False);
@@ -391,6 +395,7 @@ end;
 
 procedure TEthernetSettings.SaveToFile(IniFile: TIniFile);
 begin
+  IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_TCP, FTcp);
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_LISTENER, FAutoResolveListenerIP);
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_AUTORESOLVE_CLIENT, FAutoResolveClientIP);
   IniFile.WriteBool(STR_INI_ETHERNET_SECTION, STR_INI_ETHERNET_GRIDCONNECT, FGridConnect);

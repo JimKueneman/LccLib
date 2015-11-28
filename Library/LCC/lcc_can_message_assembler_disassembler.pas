@@ -4,7 +4,7 @@ unit lcc_can_message_assembler_disassembler;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
-{$DEFINE PYTHON_COMPATIBLE}
+{.$DEFINE PYTHON_COMPATIBLE}
 
 interface
 
@@ -33,12 +33,9 @@ type
 
 TLccMessageAssembler = class
 private
-  {$IFDEF FPC}
-    FInProcessMessageList: TList;
-    FWorkerMessage: TLccMessage;
-  {$ELSE}
-    FInProcessMessageList: TObjectList<TLccMessage>;
-  {$ENDIF}
+  {$IFDEF FPC} FInProcessMessageList: TList; {$ELSE}
+               FInProcessMessageList: TObjectList<TLccMessage>;{$ENDIF}
+  FWorkerMessage: TLccMessage;
   function GetCount: Integer;
   function GetMessages(Index: Integer): TLccMessage;
   procedure SetMessages(Index: Integer; AValue: TLccMessage);
@@ -61,7 +58,7 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage; TargetAliasID: Word): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word{$ENDIF}): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
@@ -211,7 +208,7 @@ begin
 end;
 
 function TLccMessageAssembler.IncomingMessageGridConnect(
-  GridConnectStr: String; LccMessage: TLccMessage; TargetAliasID: Word): TIncomingMessageGridConnectReply;
+  GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word{$ENDIF}): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;

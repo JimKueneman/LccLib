@@ -1,0 +1,5 @@
+object FrameSettings: TFrameSettings
+  Size.Width = 327.000000000000000000
+  Size.Height = 513.000000000000000000
+  Size.PlatformDefault = False
+end

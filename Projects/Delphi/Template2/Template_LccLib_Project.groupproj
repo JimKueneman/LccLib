@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{7770A7C4-CC57-4BB8-95E5-1F783260C0A0}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\..\..\Library\LCC\Dephi\LCC.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Template2.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="LCC">
+        <MSBuild Projects="..\..\..\Library\LCC\Dephi\LCC.dproj"/>
+    </Target>
+    <Target Name="LCC:Clean">
+        <MSBuild Projects="..\..\..\Library\LCC\Dephi\LCC.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LCC:Make">
+        <MSBuild Projects="..\..\..\Library\LCC\Dephi\LCC.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Template2">
+        <MSBuild Projects="Template2.dproj"/>
+    </Target>
+    <Target Name="Template2:Clean">
+        <MSBuild Projects="Template2.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Template2:Make">
+        <MSBuild Projects="Template2.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="LCC;Template2"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="LCC:Clean;Template2:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="LCC:Make;Template2:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

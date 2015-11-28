@@ -65,7 +65,6 @@ function GetTickCount : DWORD;
   Also, since same thing could happen with Windows that has been
    running for at least approx. 25 days, override it too.}
 var
-  tp: timespec;
   Hour, Minute, Second, MilliSecond: Word;
 begin
 {$IFDEF FPC}
