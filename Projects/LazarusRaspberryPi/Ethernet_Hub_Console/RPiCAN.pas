@@ -175,6 +175,13 @@ type
     destructor Destroy; override;
   end;
 
+  { TLccPiCanNode }
+
+  TLccPiCanNode = class( TLccVirtualNode)
+  public
+    constructor Create(AnOwner: TComponent); override;
+  end;
+
 var
   GlobalBufferNull: TPiSpiBuffer;
 
@@ -247,6 +254,17 @@ begin
   end;
 end;
 
+{ TLccPiCanNode }
+
+constructor TLccPiCanNode.Create(AnOwner: TComponent);
+begin
+  inherited Create(AnOwner);
+  EventsConsumed.AutoGenerate.Count := 16;
+  EventsConsumed.AutoGenerate.Enable := True;
+  EventsProduced.AutoGenerate.Count := 16;
+  EventsProduced.AutoGenerate.Enable := True;
+end;
+
 { TVirtualNodeConnection }
 
 procedure TVirtualNodeConnection.DoRequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -259,7 +277,7 @@ begin
   inherited Create(ARPiCAN);
   FGridConnectAssembler := TLccMessageAssembler.Create;
   FGridConnectDisassembler := TLccMessageDisAssembler.Create;
-  FVirtualNode := TLccVirtualNode.Create(nil);
+  FVirtualNode := TLccPiCanNode.Create(nil);
   FVirtualNode.OnRequestSendMessage := @DoRequestSendMessage;
   OutBuffer.Delimiter := #10;
 end;

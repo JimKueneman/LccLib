@@ -4,7 +4,7 @@ unit lcc_can_message_assembler_disassembler;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
-{$DEFINE PYTHON_COMPATIBLE}
+{.$DEFINE PYTHON_COMPATIBLE}
 
 interface
 
