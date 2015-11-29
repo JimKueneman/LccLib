@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>2015/11/28 09:05:17.000.601,Z:\LccLib\Projects\Delphi\Template2\TabbedwithNavigation.dproj=Z:\LccLib\Projects\Delphi\Template2\Template2.dproj</Transaction>
-    <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.pas=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas</Transaction>
-    <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.fmx=Z:\LccLib\Projects\Delphi\Template2\unit_main.fmx</Transaction>
+    <Transaction>2015/11/28 09:05:17.000.601,Z:\LccLib\Projects\Delphi\Template2\Template2.dproj=Z:\LccLib\Projects\Delphi\Template2\TabbedwithNavigation.dproj</Transaction>
+    <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\unit_main.pas=Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.pas</Transaction>
+    <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\unit_main.fmx=Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.fmx</Transaction>
     <Transaction>2015/11/28 12:11:01.000.962,=Z:\LccLib\Projects\Delphi\Template2\Unit1.pas</Transaction>
-    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas=Z:\LccLib\Projects\Delphi\Template2\Unit1.pas</Transaction>
-    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\settings_frame.fmx=Z:\LccLib\Projects\Delphi\Template2\Unit1.fmx</Transaction>
+    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\Unit1.pas=Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas</Transaction>
+    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\Unit1.fmx=Z:\LccLib\Projects\Delphi\Template2\settings_frame.fmx</Transaction>
     <Transaction>2015/11/28 12:47:59.000.666,=Z:\LccLib\Projects\Delphi\Template2\Unit2.pas</Transaction>
-    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\Unit2.fmx=Z:\LccLib\Projects\Delphi\Template2\main_frame.fmx</Transaction>
-    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\Unit2.pas=Z:\LccLib\Projects\Delphi\Template2\main_frame.pas</Transaction>
-    <Transaction>2015/11/28 21:33:36.550,Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas=</Transaction>
-    <Transaction>2015/11/28 21:33:40.088,Z:\LccLib\Projects\Delphi\Template2\unit_main.pas=</Transaction>
-    <Transaction>2015/11/28 21:46:57.999,=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas</Transaction>
-    <Transaction>2015/11/28 21:47:02.749,Z:\LccLib\Projects\Delphi\Template2\main_frame.pas=</Transaction>
+    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\main_frame.fmx=Z:\LccLib\Projects\Delphi\Template2\Unit2.fmx</Transaction>
+    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\main_frame.pas=Z:\LccLib\Projects\Delphi\Template2\Unit2.pas</Transaction>
+    <Transaction>2015/11/28 21:33:36.000.550,Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas=</Transaction>
+    <Transaction>2015/11/28 21:33:40.000.088,Z:\LccLib\Projects\Delphi\Template2\unit_main.pas=</Transaction>
+    <Transaction>2015/11/28 21:46:57.000.999,=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas</Transaction>
+    <Transaction>2015/11/28 21:47:02.000.749,Z:\LccLib\Projects\Delphi\Template2\main_frame.pas=</Transaction>
   </Transactions>
+	<MobileDevice>%iossimulator%A6324986-8D2E-4B64-98FA-6EC724AE29A4-iOSSimulator</MobileDevice>
 </BorlandProject>

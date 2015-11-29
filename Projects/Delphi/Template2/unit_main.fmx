@@ -3,7 +3,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
   Top = 0
   Caption = 'Form56'
   ClientHeight = 596
-  ClientWidth = 405
+  ClientWidth = 332
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
@@ -13,31 +13,30 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   DesignerMasterStyle = 0
-  object TabControl1: TTabControl
+  object TabControlMain: TTabControl
     Align = Client
     FullSize = True
-    Size.Width = 405.000000000000000000
+    Size.Width = 332.000000000000000000
     Size.Height = 596.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 1
+    TabIndex = 3
     TabOrder = 0
-    TabPosition = PlatformDefault
-    object TabItem1: TTabItem
+    TabPosition = Bottom
+    object TabItemTrain: TTabItem
       CustomIcon = <
         item
         end>
       IsSelected = False
-      Size.Width = 101.000000000000000000
+      Size.Width = 83.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = 'tabitemfavorites'
       TabOrder = 0
-      Text = 'TabItem1'
+      Text = 'Train'
       object TabControl2: TTabControl
         Align = Client
         FullSize = True
-        Size.Width = 405.000000000000000000
+        Size.Width = 332.000000000000000000
         Size.Height = 547.000000000000000000
         Size.PlatformDefault = False
         TabHeight = 49.000000000000000000
@@ -55,18 +54,18 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           TabOrder = 0
           Text = 'TabItem5'
           object ToolBar1: TToolBar
-            Size.Width = 405.000000000000000000
-            Size.Height = 48.000000000000000000
+            Size.Width = 332.000000000000000000
+            Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             object lblTitle1: TLabel
               Align = Contents
-              Size.Width = 405.000000000000000000
-              Size.Height = 48.000000000000000000
+              Size.Width = 332.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = 'toollabel'
               TextSettings.HorzAlign = Center
-              Text = 'Title'
+              Text = 'Train'
             end
             object btnNext: TSpeedButton
               Action = NextTabAction1
@@ -74,9 +73,9 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Enabled = True
               ImageIndex = -1
               Margins.Right = 5.000000000000000000
-              Position.X = 340.000000000000000000
+              Position.X = 267.000000000000000000
               Size.Width = 60.000000000000000000
-              Size.Height = 48.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               Visible = True
             end
@@ -93,14 +92,14 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           TabOrder = 0
           Text = 'TabItem6'
           object ToolBar2: TToolBar
-            Size.Width = 405.000000000000000000
-            Size.Height = 48.000000000000000000
+            Size.Width = 332.000000000000000000
+            Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             object lblTitle2: TLabel
               Align = Contents
-              Size.Width = 405.000000000000000000
-              Size.Height = 48.000000000000000000
+              Size.Width = 332.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = 'toollabel'
               TextSettings.HorzAlign = Center
@@ -114,7 +113,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Margins.Left = 5.000000000000000000
               Position.X = 5.000000000000000000
               Size.Width = 48.000000000000000000
-              Size.Height = 48.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = 'backtoolbutton'
               Visible = True
@@ -123,53 +122,78 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         end
       end
     end
-    object TabItem2: TTabItem
+    object TabItemConsist: TTabItem
       CustomIcon = <
         item
         end>
-      IsSelected = True
-      Size.Width = 102.000000000000000000
+      IsSelected = False
+      Size.Width = 83.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = 'tabitemcontacts'
       TabOrder = 0
-      Text = 'TabItem2'
+      Text = 'Consist'
       object ToolBar3: TToolBar
-        Size.Width = 405.000000000000000000
-        Size.Height = 48.000000000000000000
+        Size.Width = 332.000000000000000000
+        Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object lblTitle3: TLabel
           Align = Contents
-          Size.Width = 405.000000000000000000
-          Size.Height = 48.000000000000000000
+          Size.Width = 332.000000000000000000
+          Size.Height = 44.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'toollabel'
           TextSettings.HorzAlign = Center
-          Text = 'Title'
+          Text = 'Consist'
+        end
+      end
+    end
+    object TabItemLog: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 83.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Log'
+      object ToolBar4: TToolBar
+        Size.Width = 332.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lblTitle4: TLabel
+          Align = Contents
+          Size.Width = 332.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'toollabel'
+          TextSettings.HorzAlign = Center
+          Text = 'Logging'
         end
       end
       object Memo: TMemo
         Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
         DataDetectorTypes = []
         Align = Client
-        Size.Width = 405.000000000000000000
-        Size.Height = 456.000000000000000000
+        Size.Width = 332.000000000000000000
+        Size.Height = 460.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
-        Viewport.Width = 401.000000000000000000
-        Viewport.Height = 452.000000000000000000
+        Viewport.Width = 328.000000000000000000
+        Viewport.Height = 456.000000000000000000
       end
       object StatusBar1: TStatusBar
         Position.Y = 504.000000000000000000
         ShowSizeGrip = True
-        Size.Width = 405.000000000000000000
+        Size.Width = 332.000000000000000000
         Size.Height = 43.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 2
         object SpeedButtonClearMemo: TSpeedButton
           Align = Right
-          Position.X = 320.000000000000000000
+          Position.X = 247.000000000000000000
           Size.Width = 85.000000000000000000
           Size.Height = 43.000000000000000000
           Size.PlatformDefault = False
@@ -179,7 +203,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         end
         object SpeedButtonLog: TSpeedButton
           Align = Left
-          Size.Width = 80.000000000000000000
+          Size.Width = 44.000000000000000000
           Size.Height = 43.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'playtoolbutton'
@@ -188,57 +212,29 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         end
       end
     end
-    object TabItem3: TTabItem
-      CustomIcon = <
-        item
-        end>
-      IsSelected = False
-      Size.Width = 101.000000000000000000
-      Size.Height = 49.000000000000000000
-      Size.PlatformDefault = False
-      StyleLookup = 'tabitemsearch'
-      TabOrder = 0
-      Text = 'TabItem3'
-      object ToolBar4: TToolBar
-        Size.Width = 405.000000000000000000
-        Size.Height = 48.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 0
-        object lblTitle4: TLabel
-          Align = Contents
-          Size.Width = 405.000000000000000000
-          Size.Height = 48.000000000000000000
-          Size.PlatformDefault = False
-          StyleLookup = 'toollabel'
-          TextSettings.HorzAlign = Center
-          Text = 'Title'
-        end
-      end
-    end
     object TabItemSettings: TTabItem
       CustomIcon = <
         item
         end>
-      IsSelected = False
-      Size.Width = 99.000000000000000000
+      IsSelected = True
+      Size.Width = 81.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = 'tabitembookmarks'
       TabOrder = 0
       Text = 'Settings'
       object ToolBar5: TToolBar
-        Size.Width = 405.000000000000000000
-        Size.Height = 48.000000000000000000
+        Size.Width = 332.000000000000000000
+        Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
         object Label1: TLabel
           Align = Contents
-          Size.Width = 405.000000000000000000
-          Size.Height = 48.000000000000000000
+          Size.Width = 332.000000000000000000
+          Size.Height = 44.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'toollabel'
           TextSettings.HorzAlign = Center
-          Text = 'Title'
+          Text = 'Settings'
         end
       end
       object LayoutBkgnd: TLayout
@@ -247,25 +243,25 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         Margins.Top = 4.000000000000000000
         Margins.Right = 4.000000000000000000
         Margins.Bottom = 4.000000000000000000
-        Size.Width = 397.000000000000000000
-        Size.Height = 491.000000000000000000
+        Size.Width = 324.000000000000000000
+        Size.Height = 495.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object ListBoxSettings: TListBox
           Align = Client
-          Size.Width = 397.000000000000000000
-          Size.Height = 491.000000000000000000
+          Size.Width = 324.000000000000000000
+          Size.Height = 495.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           DisableFocusEffect = True
           DefaultItemStyles.ItemStyle = ''
           DefaultItemStyles.GroupHeaderStyle = ''
           DefaultItemStyles.GroupFooterStyle = ''
-          Viewport.Width = 393.000000000000000000
-          Viewport.Height = 487.000000000000000000
+          Viewport.Width = 320.000000000000000000
+          Viewport.Height = 491.000000000000000000
           object ListBoxGroupHeader2: TListBoxGroupHeader
-            Size.Width = 393.000000000000000000
-            Size.Height = 30.000000000000000000
+            Size.Width = 320.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 6
             Text = 'Network'
@@ -273,8 +269,8 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           object ListBoxItemNetworkServerBkGnd: TListBoxItem
             EnableDragHighlight = False
             Selectable = False
-            Position.Y = 30.000000000000000000
-            Size.Width = 393.000000000000000000
+            Position.Y = 22.000000000000000000
+            Size.Width = 320.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
@@ -285,7 +281,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Anchors = [akLeft, akTop, akRight, akBottom]
               Margins.Right = 4.000000000000000000
               Position.X = 104.000000000000000000
-              Size.Width = 285.000000000000000000
+              Size.Width = 212.000000000000000000
               Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
@@ -293,9 +289,9 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
                 Touch.InteractiveGestures = [LongTap, DoubleTap]
                 Align = VertCenter
                 TabOrder = 0
-                Position.Y = 6.000000000000000000
-                Size.Width = 285.000000000000000000
-                Size.Height = 32.000000000000000000
+                Position.Y = 7.000000000000000000
+                Size.Width = 212.000000000000000000
+                Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
                 OnKeyDown = EditServerKeyDown
                 OnExit = EditServerExit
@@ -304,8 +300,8 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           end
           object ListBoxItem3: TListBoxItem
             Selectable = False
-            Position.Y = 74.000000000000000000
-            Size.Width = 393.000000000000000000
+            Position.Y = 66.000000000000000000
+            Size.Width = 320.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 5
@@ -314,33 +310,58 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Align = Right
               Anchors = [akLeft, akTop, akRight, akBottom]
               Position.X = 104.000000000000000000
-              Size.Width = 289.000000000000000000
+              Size.Width = 216.000000000000000000
               Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 0
               object SwitchTcp: TSwitch
                 IsChecked = False
-                Position.X = 28.000000000000000000
+                Position.X = 4.000000000000000000
                 Position.Y = 8.000000000000000000
-                Size.Width = 133.000000000000000000
-                Size.Height = 26.000000000000000000
+                Size.Width = 109.000000000000000000
+                Size.Height = 25.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
                 OnSwitch = SwitchTcpSwitch
               end
             end
           end
+          object ListBoxItem4: TListBoxItem
+            Selectable = False
+            TextSettings.FontColor = claDarkgray
+            StyledSettings = [Family, Size, Style, Other]
+            Position.Y = 110.000000000000000000
+            TabOrder = 7
+            Text = 'Status'
+            object Layout6: TLayout
+              Align = Right
+              Position.X = 104.000000000000000000
+              Size.Width = 216.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object LabelEthernetStatus: TLabel
+                Align = Client
+                StyledSettings = [Family, Size, Style]
+                Size.Width = 216.000000000000000000
+                Size.Height = 19.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claDarkgray
+                Text = 'Not Connected'
+              end
+            end
+          end
           object ListBoxGroupFooter1: TListBoxGroupFooter
-            Position.Y = 118.000000000000000000
-            Size.Width = 393.000000000000000000
-            Size.Height = 30.000000000000000000
+            Position.Y = 129.000000000000000000
+            Size.Width = 320.000000000000000000
+            Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
           end
           object ListBoxGroupHeader1: TListBoxGroupHeader
-            Position.Y = 148.000000000000000000
-            Size.Width = 393.000000000000000000
-            Size.Height = 56.000000000000000000
+            Position.Y = 157.000000000000000000
+            Size.Width = 320.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             StyleLookup = 'listboxgroupheader'
             TabOrder = 2
@@ -348,8 +369,8 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           end
           object ListBoxItem1: TListBoxItem
             Selectable = False
-            Position.Y = 204.000000000000000000
-            Size.Width = 393.000000000000000000
+            Position.Y = 179.000000000000000000
+            Size.Width = 320.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 3
@@ -359,7 +380,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Anchors = [akLeft, akTop, akRight, akBottom]
               Margins.Right = 4.000000000000000000
               Position.X = 104.000000000000000000
-              Size.Width = 285.000000000000000000
+              Size.Width = 212.000000000000000000
               Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 0
@@ -367,17 +388,20 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
                 Touch.InteractiveGestures = [LongTap, DoubleTap]
                 Align = VertCenter
                 TabOrder = 0
-                Position.Y = 6.000000000000000000
-                Size.Width = 285.000000000000000000
-                Size.Height = 32.000000000000000000
+                Position.Y = 7.000000000000000000
+                Size.Width = 212.000000000000000000
+                Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
+                OnKeyDown = EditNodeIDKeyDown
+                OnEnter = EditNodeIDEnter
+                OnExit = EditNodeIDExit
               end
             end
           end
           object ListBoxItem2: TListBoxItem
             Selectable = False
-            Position.Y = 248.000000000000000000
-            Size.Width = 393.000000000000000000
+            Position.Y = 223.000000000000000000
+            Size.Width = 320.000000000000000000
             Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 4
@@ -386,16 +410,41 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Align = Right
               Anchors = [akLeft, akTop, akRight, akBottom]
               Position.X = 104.000000000000000000
-              Size.Width = 289.000000000000000000
+              Size.Width = 216.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 0
               object LabelAlias: TLabel
                 Align = Client
-                Size.Width = 289.000000000000000000
+                Size.Width = 216.000000000000000000
                 Size.Height = 22.000000000000000000
                 Size.PlatformDefault = False
-                Text = '0x0000'
+                Text = 'Logged Out'
+              end
+            end
+          end
+          object ListBoxItem5: TListBoxItem
+            Selectable = False
+            TextSettings.FontColor = claDarkgray
+            StyledSettings = [Family, Size, Style, Other]
+            Position.Y = 245.000000000000000000
+            TabOrder = 8
+            Text = 'Status'
+            object Layout5: TLayout
+              Align = Right
+              Position.X = 104.000000000000000000
+              Size.Width = 216.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object LabelLccStatus: TLabel
+                Align = Client
+                StyledSettings = [Family, Size, Style]
+                Size.Width = 216.000000000000000000
+                Size.Height = 19.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claDarkgray
+                Text = 'Not Connected'
               end
             end
           end
@@ -406,13 +455,13 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
   object TimerGeneral: TTimer
     Enabled = False
     OnTimer = TimerGeneralTimer
-    Left = 56
-    Top = 265
+    Left = 128
+    Top = 441
   end
   object GestureManager1: TGestureManager
     Sensitivity = 80.000000000000000000
-    Left = 48
-    Top = 177
+    Left = 168
+    Top = 329
   end
   object LccEthernetClient: TLccEthernetClient
     Hub = False
@@ -422,8 +471,8 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
     OnReceiveMessage = LccEthernetClientReceiveMessage
     OnSendMessage = LccEthernetClientSendMessage
     SleepCount = 0
-    Left = 280
-    Top = 185
+    Left = 48
+    Top = 425
   end
   object LccSettings: TLccSettings
     ComPort.AutoConnectAtBoot = False
@@ -454,12 +503,12 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
     PiSpiPort.Bits = psb_8
     Throttle.AutoLoadFDI = True
     Throttle.AutoScrollDelta = 2
-    Left = 280
-    Top = 249
+    Left = 56
+    Top = 385
   end
   object ActionList1: TActionList
-    Left = 40
-    Top = 120
+    Left = 176
+    Top = 376
     object NextTabAction1: TNextTabAction
       Category = 'Tab'
       TabControl = TabControl2

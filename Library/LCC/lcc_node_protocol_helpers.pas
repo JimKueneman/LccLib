@@ -11,9 +11,11 @@ interface
 uses
   Classes,
   SysUtils,
-  {$IFDEF FPC_CONSOLE_APP}
-  {$ELSE}
-  Dialogs,
+  {$IFDEF FPC}
+    {$IFDEF FPC_CONSOLE_APP}
+    {$ELSE}
+    Dialogs,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF FPC}
   laz2_DOM,

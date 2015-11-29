@@ -6,9 +6,13 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl, FMX.StdCtrls, FMX.Controls.Presentation,
   FMX.Gestures, System.Actions, FMX.ActnList, lcc_app_common_settings,
-  lcc_common_classes, lcc_ethernetclient, lcc_messages, file_utilities,
+  lcc_common_classes, lcc_ethernetclient, lcc_messages, file_utilities, lcc_utilities,
   FMX.ListBox, FMX.Edit, FMX.Layouts, lcc_node, lcc_node_protocol_helpers,
   lcc_can_message_assembler_disassembler, FMX.ScrollBox, FMX.Memo;
+
+const
+  STR_CONNECTED = 'Connected';
+  STR_DISCONNECTED = 'Disconnected;';
 
 type
   TGeneralTimerActions = (gtaNone, gtaEthernetLogin, gtaLccLogin);
@@ -20,8 +24,8 @@ type
     ActionList1: TActionList;
     NextTabAction1: TNextTabAction;
     PreviousTabAction1: TPreviousTabAction;
-    TabControl1: TTabControl;
-    TabItem1: TTabItem;
+    TabControlMain: TTabControl;
+    TabItemTrain: TTabItem;
     TabControl2: TTabControl;
     TabItem5: TTabItem;
     ToolBar1: TToolBar;
@@ -31,10 +35,10 @@ type
     ToolBar2: TToolBar;
     lblTitle2: TLabel;
     btnBack: TSpeedButton;
-    TabItem2: TTabItem;
+    TabItemConsist: TTabItem;
     ToolBar3: TToolBar;
     lblTitle3: TLabel;
-    TabItem3: TTabItem;
+    TabItemLog: TTabItem;
     ToolBar4: TToolBar;
     lblTitle4: TLabel;
     TabItemSettings: TTabItem;
@@ -58,14 +62,19 @@ type
     Layout1: TLayout;
     LabelAlias: TLabel;
     TimerGeneral: TTimer;
-    Memo: TMemo;
     StatusBar1: TStatusBar;
     SpeedButtonClearMemo: TSpeedButton;
     SpeedButtonLog: TSpeedButton;
+    Memo: TMemo;
+    ListBoxItem4: TListBoxItem;
+    ListBoxItem5: TListBoxItem;
+    Layout5: TLayout;
+    LabelLccStatus: TLabel;
+    Layout6: TLayout;
+    LabelEthernetStatus: TLabel;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure EditServerExit(Sender: TObject);
     procedure EditServerKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure SwitchTcpSwitch(Sender: TObject);
@@ -75,8 +84,12 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure SpeedButtonClearMemoClick(Sender: TObject);
     procedure SpeedButtonLogClick(Sender: TObject);
+    procedure EditNodeIDExit(Sender: TObject);
+    procedure EditNodeIDKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+    procedure EditNodeIDEnter(Sender: TObject);
   private
     FGeneralTimerActions: TGeneralTimerActions;
     FVirtualNode: TLccVirtualNode;
@@ -84,10 +97,14 @@ type
     FGridConnectDisassember: TLccMessageDisAssembler;
     FWorkerMessage: TLccMessage;
     FLogging: Boolean;
+    FOldNodeID: string;
     { Private declarations }
   protected
     property GeneralTimerActions: TGeneralTimerActions read FGeneralTimerActions write FGeneralTimerActions;
+    property OldNodeID: string read FOldNodeID write FOldNodeID;
+
     procedure RequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeEvent(Sender: TLccCoreNode; EventCode: Integer);
     procedure SyncAppToSettings;
     procedure SyncSettingsToApp;
     procedure Log(IsSend: Boolean; const LogText: string);
@@ -106,6 +123,41 @@ var
 implementation
 
 {$R *.fmx}
+
+procedure TTabbedwithNavigationForm.EditNodeIDEnter(Sender: TObject);
+begin
+  OldNodeID := EditNodeID.Text;
+end;
+
+procedure TTabbedwithNavigationForm.EditNodeIDExit(Sender: TObject);
+begin
+  if ValidateNodeIDAsHexString(EditNodeID.Text) then
+  begin
+    SyncAppToSettings;
+    GeneralTimerActions := gtaEthernetLogin;
+  end else
+  begin
+    EditNodeID.Text := OldNodeID;
+    ShowMessage('Invalid NodeID');
+  end;
+
+end;
+
+procedure TTabbedwithNavigationForm.EditNodeIDKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+begin
+  if Key = vkReturn then
+   begin
+     if ValidateNodeIDAsHexString(EditNodeID.Text) then
+     begin
+      SyncAppToSettings;
+      GeneralTimerActions := gtaEthernetLogin;
+     end else
+     begin
+       EditNodeID.Text := OldNodeID;
+      ShowMessage('Invalid NodeID');
+     end;
+   end
+end;
 
 procedure TTabbedwithNavigationForm.EditServerExit(Sender: TObject);
 begin
@@ -140,10 +192,11 @@ begin
   { This defines the default active tab at runtime }
   VirtualNode := TLccVirtualNode.Create(nil);
   VirtualNode.OnRequestSendMessage := RequestSendMessage;
+  VirtualNode.OnEvent := OnNodeEvent;
   GridConnectAssember := TLccMessageAssembler.Create;
   GridConnectDisassember := TLccMessageDisAssembler.Create;
   WorkerMessage := TLccMessage.Create;
-  TabControl1.ActiveTab := TabItem1;
+  TabControlMain.ActiveTab := TabItemTrain;
   LccSettings.FilePath := GetSettingsPath + 'Settings.ini';
   SyncSettingsToApp;
 end;
@@ -160,7 +213,7 @@ procedure TTabbedwithNavigationForm.FormKeyUp(Sender: TObject; var Key: Word; va
 begin
   if Key = vkHardwareBack then
   begin
-    if (TabControl1.ActiveTab = TabItem1) and (TabControl2.ActiveTab = TabItem6) then
+    if (TabControlMain.ActiveTab = TabItemTrain) and (TabControl2.ActiveTab = TabItem6) then
     begin
       TabControl2.Previous;
       Key := 0;
@@ -179,15 +232,15 @@ begin
   case EventInfo.GestureID of
     sgiLeft:
       begin
-        if TabControl1.ActiveTab <> TabControl1.Tabs[TabControl1.TabCount - 1] then
-          TabControl1.ActiveTab := TabControl1.Tabs[TabControl1.TabIndex + 1];
+        if TabControlMain.ActiveTab <> TabControlMain.Tabs[TabControlMain.TabCount - 1] then
+          TabControlMain.ActiveTab := TabControlMain.Tabs[TabControlMain.TabIndex + 1];
         Handled := True;
       end;
 
     sgiRight:
       begin
-        if TabControl1.ActiveTab <> TabControl1.Tabs[0] then
-          TabControl1.ActiveTab := TabControl1.Tabs[TabControl1.TabIndex - 1];
+        if TabControlMain.ActiveTab <> TabControlMain.Tabs[0] then
+          TabControlMain.ActiveTab := TabControlMain.Tabs[TabControlMain.TabIndex - 1];
         Handled := True;
       end;
   end;
@@ -201,10 +254,12 @@ begin
     ccsClientConnected     :
       begin
         VirtualNode.LoginWithLccSettings(False, LccSettings);
+        LabelEthernetStatus.Text := STR_CONNECTED
       end;
     ccsClientDisconnecting :
       begin
         VirtualNode.Logout;
+        LabelEthernetStatus.Text := STR_DISCONNECTED
       end;
     ccsClientDisconnected  : begin end;
 
@@ -255,6 +310,22 @@ begin
   end;
 end;
 
+procedure TTabbedwithNavigationForm.OnNodeEvent(Sender: TLccCoreNode; EventCode: Integer);
+begin
+  case EventCode of
+    NODE_EVENT_LCC_LOGIN :
+      begin
+        LabelAlias.Text := Sender.AliasIDStr;
+        LabelLccStatus.Text := STR_CONNECTED
+      end;
+    NODE_EVENT_LCC_LOGOUT :
+      begin
+        LabelAlias.Text := 'Logged Out';
+        LabelLccStatus.Text := STR_DISCONNECTED
+      end;
+  end;
+end;
+
 procedure TTabbedwithNavigationForm.RequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
   OutString: string;
@@ -296,7 +367,9 @@ procedure TTabbedwithNavigationForm.SyncAppToSettings;
 begin
   LccSettings.Ethernet.RemoteListenerIP := EditServer.Text;
   LccSettings.Ethernet.Tcp := SwitchTcp.IsChecked;
+  LccSettings.General.NodeID := EditNodeID.Text;
   LccSettings.SaveToFile;
+  SyncSettingsToApp;
 end;
 
 procedure TTabbedwithNavigationForm.SyncSettingsToApp;
@@ -305,6 +378,7 @@ begin
     LccSettings.LoadFromFile;
   EditServer.Text := LccSettings.Ethernet.RemoteListenerIP;
   SwitchTcp.IsChecked := LccSettings.Ethernet.Tcp;
+  EditNodeID.Text := LccSettings.General.NodeID;
 end;
 
 procedure TTabbedwithNavigationForm.TimerGeneralTimer(Sender: TObject);

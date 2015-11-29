@@ -36,6 +36,8 @@ uses
   function NullArrayToString(var ANullArray: array of Byte): String;
   function EventIDToString(EventID: TEventID): String;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
+  function ValidateNodeIDAsHexString(NodeID: string): Boolean;
+  function ValidateNodeID(NodeID: TNodeID): Boolean;
   {$IFNDEF LCC_WINDOWS}
   function ResolveUnixIp: String;
   {$ENDIF}
@@ -306,6 +308,28 @@ begin
     Result := Result or ShiftedByte;
     Dec(Offset)
   end;
+end;
+
+function ValidateNodeIDAsHexString(NodeID: string): Boolean;
+var
+  Temp: QWord;
+  ANodeID: TNodeID;
+begin
+  NodeID := Trim(NodeID);
+  {$IFDEF FPC}
+  Temp := StrToQWord(NodeID);
+  {$ELSE}
+  Temp := StrToInt64(NodeID);
+  {$ENDIF}
+  ANodeID[0] :=  Temp and $0000000000FFFFFF;
+  ANodeID[1] := (Temp and $0000FFFFFF000000) shr 24;
+  Result := ValidateNodeID(ANodeID);
+end;
+
+function ValidateNodeID(NodeID: TNodeID): Boolean;
+begin
+  // Upper byte must be 0
+  Result := ((NodeID[0] and $FF000000) = 0) and  ((NodeID[1] and $FF000000) = 0)
 end;
 
 {$IFNDEF LCC_WINDOWS}
