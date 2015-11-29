@@ -6,6 +6,8 @@ unit lcc_node_protocol_helpers;
 
 interface
 
+{$I lcc_compilers.inc}
+
 uses
   Classes,
   SysUtils,

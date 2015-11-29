@@ -63,7 +63,7 @@ begin
         Result := Result + '\';
     {$ELSE}
       Result := '';
-      {$IFDEF MACOS}   // LCC_OSX won't pull from the compilers.inc for some reason.....
+      {$IFDEF LCC_OSX}
         Result := GetApplicationPath;
         Result := ExtractFileDir(Result);
         Result := ExtractFileDir(Result);
@@ -133,7 +133,11 @@ Begin
   IP4 := IP4+'.'; //add a dot. We use a dot to trigger the Octet check, so need the last one
   Dots := 0;
   Octet := '0';
+  {$IFDEF LCC_MOBILE}
+  For I := 0 To Length(IP4) - 1 Do
+  {$ELSE}
   For I := 1 To Length(IP4) Do
+  {$ENDIF}
   Begin
     If IP4[I] in ['0'..'9','.'] Then
     Begin

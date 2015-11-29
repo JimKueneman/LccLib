@@ -535,6 +535,7 @@ end;
 
 function TLccCoreNode.DoDatagram(LccMessage: TLccMessage): Boolean;
 begin
+  Result := True;
   case LccMessage.DataArrayIndexer[0] of
     DATAGRAM_PROTOCOL_CONFIGURATION : Result := DoDatagramConfiguration(LccMessage);
   else
@@ -544,6 +545,7 @@ end;
 
 function TLccCoreNode.DoDatagramConfiguration(LccMessage: TLccMessage): Boolean;
 begin
+  Result := True;
   case LccMessage.DataArrayIndexer[1] and $F0 of
     MCP_READ              : Result := DoDatagramConfigurationRead(LccMessage);
     MCP_READ_STREAM       : Result := DoDatagramConfigruationReadStream(LccMessage);
@@ -750,6 +752,7 @@ end;
 
 function TLccVirtualNode.DoCanAMR(LccMessage: TLccMessage): Boolean;
 begin
+  Result := True;
   DatagramReplyQueue.FlushMessagesByAlias(LccMessage.CAN.DestAlias, LccMessage.CAN.SourceAlias, $00000000);
 end;
 

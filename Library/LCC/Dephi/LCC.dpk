@@ -30,8 +30,7 @@ package LCC;
 requires
   rtl,
   fmx,
-  xmlrtl,
-  vcl;
+  xmlrtl;
 
 contains
   lcc_can_message_assembler_disassembler in '..\lcc_can_message_assembler_disassembler.pas',
@@ -57,7 +56,8 @@ contains
   blcksock in '..\..\Synapse_LCC\blcksock.pas',
   synautil in '..\..\Synapse_LCC\synautil.pas',
   lcc_node in '..\lcc_node.pas',
-  lcc_node_protocol_helpers in '..\lcc_node_protocol_helpers.pas';
+  lcc_node_protocol_helpers in '..\lcc_node_protocol_helpers.pas',
+  lcc_raspberrypi in '..\lcc_raspberrypi.pas';
 
 end.
 

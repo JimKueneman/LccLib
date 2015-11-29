@@ -152,7 +152,6 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="fmx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
-        <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="..\lcc_can_message_assembler_disassembler.pas"/>
         <DCCReference Include="..\lcc_defines.pas"/>
         <DCCReference Include="..\lcc_ethenetserver.pas"/>
@@ -177,6 +176,7 @@
         <DCCReference Include="..\..\Synapse_LCC\synautil.pas"/>
         <DCCReference Include="..\lcc_node.pas"/>
         <DCCReference Include="..\lcc_node_protocol_helpers.pas"/>
+        <DCCReference Include="..\lcc_raspberrypi.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -592,14 +592,14 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
             </Deployment>
             <Platforms>
                 <Platform value="Android">True</Platform>
                 <Platform value="iOSDevice32">True</Platform>
                 <Platform value="iOSDevice64">True</Platform>
-                <Platform value="iOSSimulator" ActiveMobileDevice="%iossimulator%8E96D4E5-AB93-4B8D-B0C5-E3AF48707710">True</Platform>
+                <Platform value="iOSSimulator" ActiveMobileDevice="iPad">True</Platform>
                 <Platform value="OSX32">True</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>

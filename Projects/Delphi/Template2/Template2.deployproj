@@ -19,17 +19,17 @@
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'"/>
     <ItemGroup Condition="'$(Platform)'=='Win64'"/>
     <ItemGroup Condition="'$(Platform)'=='OSX32'">
-        <DeployFile Include="OSX32\Debug\Template2.rsm" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib">
             <RemoteDir>Template2.app\Contents\MacOS\</RemoteDir>
-            <RemoteName>Template2.rsm</RemoteName>
+            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib">
+        <DeployFile Include="OSX32\Debug\Template2.rsm" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Template2.app\Contents\MacOS\</RemoteDir>
-            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
+            <RemoteName>Template2.rsm</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -142,6 +142,14 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_750x1334.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Template2.app\</RemoteDir>
+            <RemoteName>Default-667h@2x.png</RemoteName>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib">
             <RemoteDir>Template2.app\</RemoteDir>
             <RemoteName>libcgunwind.1.0.dylib</RemoteName>
@@ -178,14 +186,6 @@
             <RemoteDir>Template2.app\</RemoteDir>
             <RemoteName>Info.plist</RemoteName>
             <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_750x1334.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>Template2.app\</RemoteDir>
-            <RemoteName>Default-667h@2x.png</RemoteName>
-            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -286,17 +286,17 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="iOSSimulator\Debug\Template2.rsm" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_320x480.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Template2.app\</RemoteDir>
-            <RemoteName>Template2.rsm</RemoteName>
+            <RemoteName>Default.png</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_320x480.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="iOSSimulator\Debug\Template2.rsm" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Template2.app\</RemoteDir>
-            <RemoteName>Default.png</RemoteName>
+            <RemoteName>Template2.rsm</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>

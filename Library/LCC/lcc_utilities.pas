@@ -64,8 +64,10 @@ function GetTickCount : DWORD;
    so "wrap" value here so it fits within LongInt.
   Also, since same thing could happen with Windows that has been
    running for at least approx. 25 days, override it too.}
+{$IFNDEF LCC_WINDOWS}
 var
   Hour, Minute, Second, MilliSecond: Word;
+{$ENDIF}
 begin
 {$IFDEF FPC}
   {$IFNDEF FPC_CONSOLE_APP}
@@ -387,7 +389,7 @@ end;
           Temp[i] := k;
       //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
        end;
-       Result.s_addr := ntohl(LongWord( Temp));
+       Result.s_addr := ntohl(UInt32( Temp));
    //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
     end;
 

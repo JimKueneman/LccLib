@@ -6,6 +6,16 @@
   {$DEFINE LCC_WINDOWS}
 {$ENDIF}
 
+{$IFDEF Darwin}   // Lazarus
+  {$DEFINE LCC_OSX}
+{$ENDIF}
+{$IFDEF MACOS32} // Delphi
+  {$DEFINE LCC_OSX}
+{$ENDIF}
+{$IFDEF MACOS} // Delphi
+  {$DEFINE LCC_OSX}
+{$ENDIF}
+
 {$IFNDEF FPC}
   {$IFDEF IOS}
     {$DEFINE LCC_MOBILE}
@@ -14,4 +24,3 @@
     {$DEFINE LCC_MOBILE}
   {$ENDIF}
 {$ENDIF}
-

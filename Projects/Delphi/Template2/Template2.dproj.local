@@ -5,10 +5,14 @@
     <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.pas=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas</Transaction>
     <Transaction>2015/11/28 09:06:20.000.756,Z:\LccLib\Projects\Delphi\Template2\TabbedFormwithNavigation.fmx=Z:\LccLib\Projects\Delphi\Template2\unit_main.fmx</Transaction>
     <Transaction>2015/11/28 12:11:01.000.962,=Z:\LccLib\Projects\Delphi\Template2\Unit1.pas</Transaction>
-    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\settings_frame.fmx=Z:\LccLib\Projects\Delphi\Template2\Unit1.fmx</Transaction>
     <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas=Z:\LccLib\Projects\Delphi\Template2\Unit1.pas</Transaction>
+    <Transaction>2015/11/28 12:11:13.000.302,Z:\LccLib\Projects\Delphi\Template2\settings_frame.fmx=Z:\LccLib\Projects\Delphi\Template2\Unit1.fmx</Transaction>
     <Transaction>2015/11/28 12:47:59.000.666,=Z:\LccLib\Projects\Delphi\Template2\Unit2.pas</Transaction>
-    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\Unit2.pas=Z:\LccLib\Projects\Delphi\Template2\main_frame.pas</Transaction>
     <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\Unit2.fmx=Z:\LccLib\Projects\Delphi\Template2\main_frame.fmx</Transaction>
+    <Transaction>2015/11/28 12:48:12.000.049,Z:\LccLib\Projects\Delphi\Template2\Unit2.pas=Z:\LccLib\Projects\Delphi\Template2\main_frame.pas</Transaction>
+    <Transaction>2015/11/28 21:33:36.550,Z:\LccLib\Projects\Delphi\Template2\settings_frame.pas=</Transaction>
+    <Transaction>2015/11/28 21:33:40.088,Z:\LccLib\Projects\Delphi\Template2\unit_main.pas=</Transaction>
+    <Transaction>2015/11/28 21:46:57.999,=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas</Transaction>
+    <Transaction>2015/11/28 21:47:02.749,Z:\LccLib\Projects\Delphi\Template2\main_frame.pas=</Transaction>
   </Transactions>
 </BorlandProject>
