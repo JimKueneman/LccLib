@@ -297,7 +297,7 @@ var
 begin
   for i := 0 to GridConnectMsgList.Count - 1 do
   begin
-    case GridConnectAssembler.IncomingMessageGridConnect(GridConnectMsgList[i], WorkerMessage, VirtualNode.AliasID) of
+    case GridConnectAssembler.IncomingMessageGridConnect(GridConnectMsgList[i], WorkerMessage{, VirtualNode.AliasID}) of
       imgcr_False        : begin end;
       imgcr_True         : VirtualNode.ProcessMessage(WorkerMessage);
       imgcr_ErrorToSend  : OutBuffer.Add(WorkerMessage.ConvertToGridConnectStr(#10));
@@ -436,14 +436,16 @@ end;
 procedure TClientConnection.DispatchGridConnectMessages(GridConnectMsgList: TStringList);
 var
   iChar, iString: Integer;
+  TempStr: string;
 begin
   if Socket.Socket <> INVALID_SOCKET then
     for iString := 0 to GridConnectMsgList.Count - 1 do
     begin
       if FilterMessage(GridConnectMsgList[iString]) then
       begin
-        for iChar := 1 to Length(GridConnectMsgList[iString]) do
-          Socket.SendByte( Ord(GridConnectMsgList[iString][iChar]));
+        TempStr := GridConnectMsgList[iString];
+        for iChar := 1 to Length(TempStr) do
+          Socket.SendByte( Ord(TempStr[iChar]));
         Socket.SendByte( Ord( #10));
       end;
     end;

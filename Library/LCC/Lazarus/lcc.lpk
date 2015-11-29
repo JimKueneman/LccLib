@@ -14,7 +14,7 @@
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="22">
+    <Files Count="24">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -111,6 +111,14 @@
         <Filename Value="../lcc_raspberrypi.pas"/>
         <UnitName Value="lcc_raspberrypi"/>
       </Item22>
+      <Item23>
+        <Filename Value="../lcc_node.pas"/>
+        <UnitName Value="lcc_node"/>
+      </Item23>
+      <Item24>
+        <Filename Value="../lcc_node_protocol_helpers.pas"/>
+        <UnitName Value="lcc_node_protocol_helpers"/>
+      </Item24>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

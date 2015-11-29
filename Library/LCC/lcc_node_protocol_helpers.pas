@@ -11,6 +11,10 @@ interface
 uses
   Classes,
   SysUtils,
+  {$IFDEF FPC_CONSOLE_APP}
+  {$ELSE}
+  Dialogs,
+  {$ENDIF}
   {$IFDEF FPC}
   laz2_DOM,
   laz2_XMLRead,
@@ -879,10 +883,13 @@ begin
     if FileExists(String( FilePath)) then
       AStream.SaveToFile(String( FilePath))
     {$IFDEF FPC}
-    {$IFNDEF FPC_CONSOLE_APP}
-    else
-      ShowMessage('Attempt to write to configuration failed, file path not valid');
-    {$ENDIF}
+      {$IFDEF FPC_CONSOLE_APP}
+      else
+         WriteLn('Attempt to write to configuration failed, file path not valid');
+      {$ELSE}
+      else
+        ShowMessage('Attempt to write to configuration failed, file path not valid');
+      {$ENDIF}
     {$ENDIF}
   end;
 end;

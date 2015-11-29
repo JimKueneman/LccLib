@@ -292,8 +292,7 @@ type
 
     property LogInAliasID: Word read FLogInAliasID write FLogInAliasID;
     {$IFDEF FPC}
-      {$IFNDEF FPC_CONSOLE_APP} property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
-      {$ELSE}                   property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;{$ENDIF}
+      property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;
     {$ELSE}
       property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
     {$ENDIF}
@@ -427,13 +426,14 @@ end;
 constructor TLccMessageQueue.Create;
 begin
   inherited;
-  Queue := TObjectList<TLccMessage>.Create;
-  Queue.OwnsObjects := True;
   {$IFDEF FPC}
   Timer := TFPTimer.Create(nil);
+  Queue := TObjectList.Create;
   {$ELSE}
   Timer := TTimer.Create(nil);
+  Queue := TObjectList<TLccMessage>.Create;
   {$ENDIF}
+
   Timer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnTimer;
   Timer.Interval := 1000;  // 1sec
   {$IFDEF FPC}
@@ -441,6 +441,7 @@ begin
   {$ELSE}
   Timer.Enabled := True;
   {$ENDIF}
+  Queue.OwnsObjects := True;
 end;
 
 destructor TLccMessageQueue.Destroy;
@@ -1423,9 +1424,12 @@ constructor TLccVirtualNode.Create(AnOwner: TComponent);
 var
   i: Integer;
 begin
-   inherited Create(AnOwner);
-  {$IFNDEF FPC_CONSOLE_APP} LoginTimer := TTimer.Create(Self);
-  {$ELSE}                   LoginTimer := TFPTimer.Create(Self);{$ENDIF}
+  inherited Create(AnOwner);
+  {$IFDEF FPC}
+     LoginTimer := TFPTimer.Create(Self);
+  {$ELSE}
+     LoginTimer := TTimer.Create(Self);
+  {$ENDIF}
   LoginTimer.Enabled := False;
   LoginTimer.Interval := 500;
   LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
