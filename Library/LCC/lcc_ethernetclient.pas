@@ -366,13 +366,26 @@ end;
 
 procedure TLccEthernetClient.SendMessageRawGridConnect(GridConnectStr: String);
 var
-  List: TList;
- // i: Integer;
+  i: Integer;
+  L: TList;
+  EthernetThread: TLccEthernetClientThread;
+  StringList: TStringList;
+  TempText: string;
 begin
-  List := EthernetThreads.LockList;
+  L := EthernetThreads.LockList;
   try  // TODO
-  //  for i := 0 to List.Count - 1 do
- //     TLccEthernetClientThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
+    for i := 0 to L.Count - 1 do
+    begin
+      EthernetThread := TLccEthernetClientThread( L[i]);
+      StringList := EthernetThread.OutgoingGridConnect.LockList;
+      try
+        TempText := StringList.DelimitedText;
+        TempText := TempText + #10 + GridConnectStr;
+        StringList.DelimitedText := TempText;
+      finally
+        EthernetThread.OutgoingGridConnect.UnLockList
+      end;
+    end;
   finally
     EthernetThreads.UnlockList;
   end;

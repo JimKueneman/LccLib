@@ -1,6 +1,8 @@
 unit lcc_node_protocol_helpers;
 
+{$IFDEF FPC}
 {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
 
@@ -10,6 +12,8 @@ uses
   {$IFDEF FPC}
   laz2_DOM,
   laz2_XMLRead,
+  {$ELSE}
+  Generics.Collections,
   {$ENDIF}
   lcc_math_float16,
   lcc_messages,
@@ -23,6 +27,10 @@ type
   TLccTraction = class;   // Forward
   TLccSimpleNodeInfo = class;
   TLccConfiguration = class;
+
+  {$IFNDEF FPC}
+  DWord = Cardinal;
+  {$ENDIF}
 
   TBaseLccNode = class(TComponent)
   private
@@ -624,6 +632,9 @@ function TLccCDI.LoadFromXml(CdiFilePath: String): Boolean;
 var
   XmlFile: TStringList;
   i, j: Integer;
+  {$IFNDEF FPC}
+  AByte: Byte;
+  {$ENDIF}
 begin
   Result := False;
   if FileExists(String( CdiFilePath)) then
@@ -865,9 +876,11 @@ begin
   begin
     if FileExists(String( FilePath)) then
       AStream.SaveToFile(String( FilePath))
+    {$IFDEF FPC}
     {$IFNDEF FPC_CONSOLE_APP}
     else
       ShowMessage('Attempt to write to configuration failed, file path not valid');
+    {$ENDIF}
     {$ENDIF}
   end;
 end;
@@ -1378,6 +1391,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 function TLccSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
 
@@ -1421,7 +1435,6 @@ begin
   FUserDescription := StrPtr;
   Valid := True;
 end;
-{$ENDIF}
 
 { TLccTraction }
 

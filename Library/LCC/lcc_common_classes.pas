@@ -85,6 +85,7 @@ begin
   FMsgStringList := TStringList.Create;
   FOutgoingCircularArray := TThreadedCirularArray.Create;
   FOutgoingGridConnect := TThreadStringList.Create;
+  OutgoingGridConnect.Delimiter := #10;
 end;
 
 destructor TLccConnectionThread.Destroy;

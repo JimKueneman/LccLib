@@ -62,7 +62,6 @@
         <ComponentName Value="FormLogging"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_logging"/>
       </Unit3>
     </Units>
   </ProjectOptions>

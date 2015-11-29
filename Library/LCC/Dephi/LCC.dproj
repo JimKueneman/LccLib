@@ -152,6 +152,7 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="fmx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
+        <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="..\lcc_can_message_assembler_disassembler.pas"/>
         <DCCReference Include="..\lcc_defines.pas"/>
         <DCCReference Include="..\lcc_ethenetserver.pas"/>
@@ -174,6 +175,8 @@
         <DCCReference Include="..\..\Synapse_LCC\synsock.pas"/>
         <DCCReference Include="..\..\Synapse_LCC\blcksock.pas"/>
         <DCCReference Include="..\..\Synapse_LCC\synautil.pas"/>
+        <DCCReference Include="..\lcc_node.pas"/>
+        <DCCReference Include="..\lcc_node_protocol_helpers.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -588,8 +591,8 @@
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>

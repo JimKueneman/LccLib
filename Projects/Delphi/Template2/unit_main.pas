@@ -7,7 +7,8 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl, FMX.StdCtrls, FMX.Controls.Presentation,
   FMX.Gestures, System.Actions, FMX.ActnList, lcc_app_common_settings,
   lcc_common_classes, lcc_ethernetclient, lcc_messages, file_utilities,
-  FMX.ListBox, FMX.Edit, FMX.Layouts;
+  FMX.ListBox, FMX.Edit, FMX.Layouts, lcc_node, lcc_node_protocol_helpers,
+  lcc_can_message_assembler_disassembler, FMX.ScrollBox, FMX.Memo;
 
 type
   TGeneralTimerActions = (gtaNone, gtaEthernetLogin, gtaLccLogin);
@@ -57,6 +58,10 @@ type
     Layout1: TLayout;
     LabelAlias: TLabel;
     TimerGeneral: TTimer;
+    Memo: TMemo;
+    StatusBar1: TStatusBar;
+    SpeedButtonClearMemo: TSpeedButton;
+    SpeedButtonLog: TSpeedButton;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -67,15 +72,32 @@ type
     procedure FormShow(Sender: TObject);
     procedure TimerGeneralTimer(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormDestroy(Sender: TObject);
+    procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccEthernetClientSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure SpeedButtonClearMemoClick(Sender: TObject);
+    procedure SpeedButtonLogClick(Sender: TObject);
   private
     FGeneralTimerActions: TGeneralTimerActions;
+    FVirtualNode: TLccVirtualNode;
+    FGridConnectAssember: TLccMessageAssembler;
+    FGridConnectDisassember: TLccMessageDisAssembler;
+    FWorkerMessage: TLccMessage;
+    FLogging: Boolean;
     { Private declarations }
   protected
     property GeneralTimerActions: TGeneralTimerActions read FGeneralTimerActions write FGeneralTimerActions;
+    procedure RequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure SyncAppToSettings;
     procedure SyncSettingsToApp;
+    procedure Log(IsSend: Boolean; const LogText: string);
   public
     { Public declarations }
+    property VirtualNode: TLccVirtualNode read FVirtualNode write FVirtualNode;
+    property GridConnectAssember: TLccMessageAssembler read FGridConnectAssember write FGridConnectAssember;
+    property GridConnectDisassember: TLccMessageDisAssembler read FGridConnectDisassember write FGridConnectDisassember;
+    property Logging: Boolean read FLogging write FLogging;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
   end;
 
 var
@@ -88,8 +110,10 @@ implementation
 procedure TTabbedwithNavigationForm.EditServerExit(Sender: TObject);
 begin
   if ValidateIP(EditServer.Text) then
-    SyncAppToSettings
-  else
+  begin
+    SyncAppToSettings;
+    GeneralTimerActions := gtaEthernetLogin;
+  end else
     ShowMessage('Invalid IP Address format');
 end;
 
@@ -98,8 +122,10 @@ begin
   if Key = vkReturn then
    begin
      if ValidateIP(EditServer.Text) then
-      SyncAppToSettings
-    else
+     begin
+      SyncAppToSettings;
+      GeneralTimerActions := gtaEthernetLogin;
+     end else
       ShowMessage('Invalid IP Address format');
    end
 end;
@@ -112,9 +138,22 @@ end;
 procedure TTabbedwithNavigationForm.FormCreate(Sender: TObject);
 begin
   { This defines the default active tab at runtime }
+  VirtualNode := TLccVirtualNode.Create(nil);
+  VirtualNode.OnRequestSendMessage := RequestSendMessage;
+  GridConnectAssember := TLccMessageAssembler.Create;
+  GridConnectDisassember := TLccMessageDisAssembler.Create;
+  WorkerMessage := TLccMessage.Create;
   TabControl1.ActiveTab := TabItem1;
   LccSettings.FilePath := GetSettingsPath + 'Settings.ini';
   SyncSettingsToApp;
+end;
+
+procedure TTabbedwithNavigationForm.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FVirtualNode);
+  FreeAndNil(FGridConnectAssember);
+  FreeAndNil(FGridConnectDisassember);
+  FreeAndNil(FWorkerMessage);
 end;
 
 procedure TTabbedwithNavigationForm.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -159,8 +198,14 @@ procedure TTabbedwithNavigationForm.LccEthernetClientConnectionStateChange(
 begin
   case EthernetRec.ConnectionState of
     ccsClientConnecting    : begin end;
-    ccsClientConnected     : begin end;
-    ccsClientDisconnecting : begin end;
+    ccsClientConnected     :
+      begin
+        VirtualNode.LoginWithLccSettings(False, LccSettings);
+      end;
+    ccsClientDisconnecting :
+      begin
+        VirtualNode.Logout;
+      end;
     ccsClientDisconnected  : begin end;
 
     ccsListenerConnecting,
@@ -175,6 +220,70 @@ begin
     ccsPortConnected,
     ccsPortDisconnecting,
     ccsPortDisconnected  : begin end;  // Do nothing in client mode
+  end;
+end;
+
+procedure TTabbedwithNavigationForm.LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  Log(False, EthernetRec.MessageStr);
+  case GridConnectAssember.IncomingMessageGridConnect(EthernetRec.MessageStr, WorkerMessage) of
+    imgcr_False : begin end;
+    imgcr_True : VirtualNode.ProcessMessage(WorkerMessage);
+    imgcr_ErrorToSend : LccEthernetClientSendMessage(Self, WorkerMessage);
+    imgcr_UnknownError : begin end;
+  end;
+end;
+
+procedure TTabbedwithNavigationForm.LccEthernetClientSendMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  RequestSendMessage(Sender, LccMessage);
+end;
+
+procedure TTabbedwithNavigationForm.Log(IsSend: Boolean; const LogText: string);
+begin
+  if Logging then
+  begin
+    Memo.BeginUpdate;
+    try
+      if IsSend then
+        Memo.Lines.Add('S: ' + LogText)
+      else
+        Memo.Lines.Add('R: ' + LogText)
+    finally
+      Memo.EndUpdate
+    end;
+  end;
+end;
+
+procedure TTabbedwithNavigationForm.RequestSendMessage(Sender: TObject; LccMessage: TLccMessage);
+var
+  OutString: string;
+begin
+  OutString := GridConnectDisassember.OutgoingMsgToGridConnect(LccMessage);
+  Log(True, OutString);
+  LccEthernetClient.SendMessageRawGridConnect(OutString);
+end;
+
+procedure TTabbedwithNavigationForm.SpeedButtonClearMemoClick(Sender: TObject);
+begin
+  Memo.BeginUpdate;
+  try
+    Memo.Lines.Clear
+  finally
+    Memo.EndUpdate
+  end;
+end;
+
+procedure TTabbedwithNavigationForm.SpeedButtonLogClick(Sender: TObject);
+begin
+  if SpeedButtonLog.StyleLookup = 'playtoolbutton' then
+  begin
+    SpeedButtonLog.StyleLookup := 'pausetoolbutton';
+    Logging := True;
+  end else
+  begin
+    SpeedButtonLog.StyleLookup := 'playtoolbutton';
+    Logging := False;
   end;
 end;
 
@@ -204,6 +313,7 @@ begin
     gtaNone : begin end;
     gtaEthernetLogin :
       begin
+        LccEthernetClient.CloseConnection(nil);
         LccEthernetClient.OpenConnectionWithLccSettings;
         GeneralTimerActions := gtaNone;
       end;

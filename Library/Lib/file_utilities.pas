@@ -16,6 +16,7 @@ uses
     Forms,
   {$ELSE}
     FMX.Forms,
+    System.IOUtils,
   {$ENDIF}
   Classes, SysUtils;
 
@@ -55,21 +56,32 @@ begin
     Result := GetAppConfigDir(False);
     {$ENDIF}
   {$ELSE}
-     Result := 'TODO...';
-
-
-
-    {$IFDEF DARWIN}
-  //  Result := GetApplicationPath + PATH_OSX_RESOURCES;
+    {$IFDEF LCC_MOBILE}
+      Result := TPath.GetDocumentsPath;
+      // Mobile devices have 0 indexed strings
+      if Result[Length(Result)-1] <> '\' then
+        Result := Result + '\';
+    {$ELSE}
+      Result := '';
+      {$IFDEF MACOS}   // LCC_OSX won't pull from the compilers.inc for some reason.....
+        Result := GetApplicationPath;
+        Result := ExtractFileDir(Result);
+        Result := ExtractFileDir(Result);
+        Result := ExtractFileDir(Result);
+        Result := Result + '/' + PATH_OSX_RESOURCES;
+      {$ELSE}
+        Result := GetApplicationPath;
+      {$ENDIF}
+      if Result[Length(Result)] <> '/' then
+        Result := Result + '/';
     {$ENDIF}
-    {$IFDEF Linux}
-  //  Result := GetAppConfigDir(False);
-    {$ENDIF}
+
   {$ENDIF}
 
   {$IFDEF LCC_WINDOWS}
     Result := GetApplicationPath;
   {$ENDIF}
+
 end;
 
 

@@ -367,9 +367,10 @@ end;
     Var
       Dummy: String;
       I, j, k: Longint;
-      Temp: in_addr;
+      Temp: TArray4Int;
+ //     Temp: in_addr;
     begin
-      strtohostaddr.s_addr := 0;              //:=NoAddress;
+      Result.s_addr := 0;              //:=NoAddress;
       For I := 1 to 4 do
         begin
           If I < 4 Then
@@ -383,9 +384,11 @@ end;
            else
              Dummy:=IP;
           k := StrToInt(string( Dummy));
-          PArray4Int(temp.s_addr)^[i] := k;
+          Temp[i] := k;
+      //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
        end;
-       strtohostaddr.s_addr:=ntohl(Temp.s_addr);
+       Result.s_addr := ntohl(LongWord( Temp));
+   //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
     end;
 
     function NetAddrToStr (Entry : in_addr) : String;
@@ -397,7 +400,9 @@ end;
       j := entry.s_addr;
       For i := 1 to 4 do
        begin
-         Dummy := IntToStr( PArray4Int(j)^[i]);
+  //       Dummy := IntToStr( PArray4Int(j)^[i]);        // Crashes Delphi
+         Dummy := IntToStr( Entry.s_addr and $000000FF);
+         Entry.s_addr  :=  Entry.s_addr  shr 8;
          NetAddrToStr := Result + Dummy;
          If i < 4 Then
            NetAddrToStr := Result + '.';

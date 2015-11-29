@@ -6734,11 +6734,12 @@ begin
     FBuffer := RecvPacket(Timeout);
   if (FLastError = 0) and (FBuffer <> '') then
   begin
-    Result := Ord(FBuffer[1]);
-    {$IFNDEF UNICODE}
-      Delete(FBuffer, 1, 1);
+    {$IFDEF UNICODE}
+      Result := Ord(FBuffer[0]);
+      FBuffer.Delete(0, 1); // TEST!
     {$ELSE}
-      FBuffer.Delete(1, 1); // TEST!
+      Result := Ord(FBuffer[1]);
+      Delete(FBuffer, 1, 1);
     {$ENDIF}
   end;
   ExceptCheck;

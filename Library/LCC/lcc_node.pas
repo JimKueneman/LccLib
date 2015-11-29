@@ -1,6 +1,8 @@
 unit lcc_node;
 
+{$IFDEF FPC}
 {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
 
@@ -14,6 +16,9 @@ uses
   laz2_XMLRead,
   fptimer,
   contnrs,
+  {$ELSE}
+  FMX.Types,
+  Generics.Collections,
   {$ENDIF}
   lcc_app_common_settings,
   lcc_node_protocol_helpers,
@@ -219,7 +224,8 @@ type
   private
     FLoggedIn: Boolean;
     FLogInAliasID: Word;
-    FLoginTimer: TFPTimer;
+    {$IFDEF FPC} FLoginTimer: TFPTimer; {$ELSE}
+                 FLoginTimer: TTimer; {$ENDIF}
     FSeedNodeID: TNodeID;
     function GetEnabled: Boolean; override;
     procedure SetEnabled(AValue: Boolean); override;
@@ -285,8 +291,12 @@ type
     procedure SendProducedEvents;
 
     property LogInAliasID: Word read FLogInAliasID write FLogInAliasID;
-    {$IFNDEF FPC_CONSOLE_APP} property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
-    {$ELSE}                   property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;{$ENDIF}
+    {$IFDEF FPC}
+      {$IFNDEF FPC_CONSOLE_APP} property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
+      {$ELSE}                   property LoginTimer: TFPTimer read FLoginTimer write FLoginTimer;{$ENDIF}
+    {$ELSE}
+      property LoginTimer: TTimer read FLoginTimer write FLoginTimer;
+    {$ENDIF}
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
   public
     property Initialized;
@@ -305,13 +315,23 @@ type
 
   TLccMessageQueue = class
   private
+    {$IFDEF FPC}
     FQueue: TObjectList;
     FTimer: TFPTimer;
+    {$ELSE}
+    FQueue: TObjectList<TLccMessage>;
+    FTimer: TTimer;
+    {$ENDIF}
     function GetLccMessage(iIndex: Integer): TLccMessage;
     procedure SetLccMessage(iIndex: Integer; AValue: TLccMessage);
   protected
+    {$IFDEF FPC}
     property Queue: TObjectList read FQueue write FQueue;
     property Timer: TFPTimer read FTimer write FTimer;
+    {$ELSE}
+    property Queue: TObjectList<TLccMessage> read FQueue write FQueue;
+    property Timer: TTimer read FTimer write FTimer;
+    {$ENDIF}
 
     procedure OnTimer(Sender: TObject);
   public
@@ -407,17 +427,29 @@ end;
 constructor TLccMessageQueue.Create;
 begin
   inherited;
-  Queue := TObjectList.Create;
+  Queue := TObjectList<TLccMessage>.Create;
   Queue.OwnsObjects := True;
+  {$IFDEF FPC}
   Timer := TFPTimer.Create(nil);
-  Timer.OnTimer := @OnTimer;
+  {$ELSE}
+  Timer := TTimer.Create(nil);
+  {$ENDIF}
+  Timer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnTimer;
   Timer.Interval := 1000;  // 1sec
+  {$IFDEF FPC}
   Timer.StartTimer;
+  {$ELSE}
+  Timer.Enabled := True;
+  {$ENDIF}
 end;
 
 destructor TLccMessageQueue.Destroy;
 begin
+  {$IFDEF FPC}
   Timer.StopTimer;
+  {$ELSE}
+  Timer.Enabled := False;
+  {$ENDIF}
   FreeAndNil(FTimer);
   FreeAndNil(FQueue);
   inherited Destroy;

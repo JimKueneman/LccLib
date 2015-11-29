@@ -30,7 +30,8 @@ package LCC;
 requires
   rtl,
   fmx,
-  xmlrtl;
+  xmlrtl,
+  vcl;
 
 contains
   lcc_can_message_assembler_disassembler in '..\lcc_can_message_assembler_disassembler.pas',
@@ -54,7 +55,9 @@ contains
   synabyte in '..\..\Synapse_LCC\synabyte.pas',
   synsock in '..\..\Synapse_LCC\synsock.pas',
   blcksock in '..\..\Synapse_LCC\blcksock.pas',
-  synautil in '..\..\Synapse_LCC\synautil.pas';
+  synautil in '..\..\Synapse_LCC\synautil.pas',
+  lcc_node in '..\lcc_node.pas',
+  lcc_node_protocol_helpers in '..\lcc_node_protocol_helpers.pas';
 
 end.
 

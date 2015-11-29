@@ -23,5 +23,8 @@
     <Transaction>2015/10/18 09:39:17.000.199,=\\vmware-host\Shared Folders\LccLib\Library\Synapse_LCC\blcksock.pas</Transaction>
     <Transaction>2015/10/18 09:39:43.000.054,=\\vmware-host\Shared Folders\LccLib\Library\Synapse_LCC\synautil.pas</Transaction>
     <Transaction>2015/10/22 15:08:58.000.185,Z:\LccLib\Library\LCC\lcc_message_scheduler.pas=</Transaction>
+    <Transaction>2015/11/28 18:32:35.000.194,=Z:\LccLib\Library\LCC\lcc_node.pas</Transaction>
+    <Transaction>2015/11/28 18:32:45.000.206,=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas</Transaction>
+    <Transaction>2015/11/28 18:49:53.000.168,=vcl.dcp</Transaction>
   </Transactions>
 </BorlandProject>

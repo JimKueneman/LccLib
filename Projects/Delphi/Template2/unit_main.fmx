@@ -9,6 +9,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
   OnCloseQuery = FormCloseQuery
+  OnDestroy = FormDestroy
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   DesignerMasterStyle = 0
@@ -19,14 +20,14 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
     Size.Height = 596.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     TabPosition = PlatformDefault
     object TabItem1: TTabItem
       CustomIcon = <
         item
         end>
-      IsSelected = True
+      IsSelected = False
       Size.Width = 101.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -126,7 +127,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
       CustomIcon = <
         item
         end>
-      IsSelected = False
+      IsSelected = True
       Size.Width = 102.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -146,6 +147,44 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
           StyleLookup = 'toollabel'
           TextSettings.HorzAlign = Center
           Text = 'Title'
+        end
+      end
+      object Memo: TMemo
+        Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+        DataDetectorTypes = []
+        Align = Client
+        Size.Width = 405.000000000000000000
+        Size.Height = 456.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Viewport.Width = 401.000000000000000000
+        Viewport.Height = 452.000000000000000000
+      end
+      object StatusBar1: TStatusBar
+        Position.Y = 504.000000000000000000
+        ShowSizeGrip = True
+        Size.Width = 405.000000000000000000
+        Size.Height = 43.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        object SpeedButtonClearMemo: TSpeedButton
+          Align = Right
+          Position.X = 320.000000000000000000
+          Size.Width = 85.000000000000000000
+          Size.Height = 43.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'toolbuttonlabel'
+          Text = 'Clear'
+          OnClick = SpeedButtonClearMemoClick
+        end
+        object SpeedButtonLog: TSpeedButton
+          Align = Left
+          Size.Width = 80.000000000000000000
+          Size.Height = 43.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'playtoolbutton'
+          Text = 'SpeedButtonLog'
+          OnClick = SpeedButtonLogClick
         end
       end
     end
@@ -283,7 +322,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
                 IsChecked = False
                 Position.X = 28.000000000000000000
                 Position.Y = 8.000000000000000000
-                Size.Width = 44.000000000000000000
+                Size.Width = 133.000000000000000000
                 Size.Height = 26.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
@@ -364,6 +403,12 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
       end
     end
   end
+  object TimerGeneral: TTimer
+    Enabled = False
+    OnTimer = TimerGeneralTimer
+    Left = 56
+    Top = 265
+  end
   object GestureManager1: TGestureManager
     Sensitivity = 80.000000000000000000
     Left = 48
@@ -371,9 +416,11 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
   end
   object LccEthernetClient: TLccEthernetClient
     Hub = False
-    Gridconnect = False
+    Gridconnect = True
     LccSettings = LccSettings
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
+    OnReceiveMessage = LccEthernetClientReceiveMessage
+    OnSendMessage = LccEthernetClientSendMessage
     SleepCount = 0
     Left = 280
     Top = 185
@@ -411,7 +458,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
     Top = 249
   end
   object ActionList1: TActionList
-    Left = 16
+    Left = 40
     Top = 120
     object NextTabAction1: TNextTabAction
       Category = 'Tab'
@@ -421,11 +468,5 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
       Category = 'Tab'
       TabControl = TabControl2
     end
-  end
-  object TimerGeneral: TTimer
-    Enabled = False
-    OnTimer = TimerGeneralTimer
-    Left = 56
-    Top = 265
   end
 end
