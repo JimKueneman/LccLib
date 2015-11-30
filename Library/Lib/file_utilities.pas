@@ -59,8 +59,8 @@ begin
     {$IFDEF LCC_MOBILE}
       Result := TPath.GetDocumentsPath;
       // Mobile devices have 0 indexed strings
-      if Result[Length(Result)-1] <> '\' then
-        Result := Result + '\';
+      if Result[Length(Result)-1] <> '/' then
+        Result := Result + '/';
     {$ELSE}
       Result := '';
       {$IFDEF LCC_OSX}

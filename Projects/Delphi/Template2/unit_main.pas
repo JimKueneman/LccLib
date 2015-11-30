@@ -8,7 +8,8 @@ uses
   FMX.Gestures, System.Actions, FMX.ActnList, lcc_app_common_settings,
   lcc_common_classes, lcc_ethernetclient, lcc_messages, file_utilities, lcc_utilities,
   FMX.ListBox, FMX.Edit, FMX.Layouts, lcc_node, lcc_node_protocol_helpers,
-  lcc_can_message_assembler_disassembler, FMX.ScrollBox, FMX.Memo;
+  lcc_can_message_assembler_disassembler, FMX.ScrollBox, FMX.Memo,
+  FMX.ListView.Types, FMX.ListView, FMX.Menus;
 
 const
   STR_CONNECTED = 'Connected';
@@ -72,6 +73,8 @@ type
     LabelLccStatus: TLabel;
     Layout6: TLayout;
     LabelEthernetStatus: TLabel;
+    MainMenu1: TMainMenu;
+    ListView1: TListView;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -90,6 +93,7 @@ type
     procedure EditNodeIDExit(Sender: TObject);
     procedure EditNodeIDKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure EditNodeIDEnter(Sender: TObject);
+    procedure ListView1UpdateObjects(const Sender: TObject; const AItem: TListViewItem);
   private
     FGeneralTimerActions: TGeneralTimerActions;
     FVirtualNode: TLccVirtualNode;
@@ -222,9 +226,16 @@ begin
 end;
 
 procedure TTabbedwithNavigationForm.FormShow(Sender: TObject);
+var
+  Item: TListViewItem;
 begin
   GeneralTimerActions := gtaEthernetLogin;
   TimerGeneral.Enabled := True;
+
+  Item := ListView1.Items.Add;
+  Item.Text := 'Bob';
+  Item.Detail := 'Detail';
+  Item.Accessory := TAccessoryType.Detail;
 end;
 
 procedure TTabbedwithNavigationForm.GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
@@ -294,6 +305,11 @@ begin
   RequestSendMessage(Sender, LccMessage);
 end;
 
+procedure TTabbedwithNavigationForm.ListView1UpdateObjects(const Sender: TObject; const AItem: TListViewItem);
+begin
+  beep;
+end;
+
 procedure TTabbedwithNavigationForm.Log(IsSend: Boolean; const LogText: string);
 begin
   if Logging then
@@ -316,6 +332,7 @@ begin
     NODE_EVENT_LCC_LOGIN :
       begin
         LabelAlias.Text := Sender.AliasIDStr;
+        EditNodeID.Text := LccSettings.General.NodeID;
         LabelLccStatus.Text := STR_CONNECTED
       end;
     NODE_EVENT_LCC_LOGOUT :

@@ -1,28 +1,46 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas',0,1,318,1,341,0,0,,
-File_1=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_app_common_settings.pas',0,1,449,1,466,0,0,,
-File_2=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,24433,1,24449,0,0,,
-File_3=TSourceModule,'Z:\LccLib\Library\LCC\lcc_defines.pas',0,1,387,3,406,0,0,,
-File_4=TSourceModule,'Z:\LccLib\Library\LCC\lcc_compilers.inc',0,1,4,19,14,0,0,,
-File_5=TSourceModule,'Z:\LccLib\Library\Lib\file_utilities.pas',0,1,119,13,139,0,0,,
-File_6=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',0,1,131,46,167,0,0,,
-File_7=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas',0,1,315,35,326,0,0,,
-File_8=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Edit.pas',0,1,1284,1,1302,0,0,,
-File_9=TSourceModule,'Z:\LccLib\Library\Lib\lcc_compilers.inc',0,1,3,24,21,0,0,,
-File_10=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.Internal.ExcUtils.pas',0,1,276,1,289,0,0,,
-File_11=TSourceModule,'Z:\LccLib\Library\LCC\lcc_ethernetclient.pas',0,1,276,12,288,0,0,,
-File_12=TSourceModule,'Z:\LccLib\Projects\Delphi\Template2\main_frame.pas',0,1,1,1,1,0,0,,
-File_13=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_messages.pas',0,1,1,1,9,0,0,,
-File_14=TSourceModule,'Z:\LccLib\Library\LCC\lcc_utilities.pas',0,1,377,21,386,0,0,,
+File_0=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Classes.pas',0,1,1517,21,1517,0,0,,
+File_1=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.Internal.ExcUtils.pas',0,1,273,1,289,0,0,,
+File_2=TSourceModule,'Z:\LccLib\Library\LCC\lcc_ethernetclient.pas',0,1,664,1,680,0,0,,
+File_3=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,18055,27,18070,0,0,,
+File_4=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.ListView.pas',0,1,1020,14,1024,0,0,{{1053,0}
+File_5=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.ListView.Types.pas',0,1,334,3,353,0,0,{{698,0}
+File_6=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.UITypes.pas',0,1,390,1,388,0,0,,
+File_7=TSourceModule,'Z:\LccLib\Projects\Delphi\Template2\unit_main.fmx',0,1,1,1,1,0,0,,
+File_8=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_ethernetclient.pas',0,1,318,1,341,0,0,,
+File_9=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_app_common_settings.pas',0,1,449,1,466,0,0,,
+File_10=TSourceModule,'Z:\LccLib\Library\LCC\lcc_defines.pas',0,1,387,3,406,0,0,,
+File_11=TSourceModule,'Z:\LccLib\Library\LCC\lcc_compilers.inc',0,1,4,19,14,0,0,,
+File_12=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',0,1,131,46,167,0,0,,
+File_13=TSourceModule,'\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_utilities.pas',0,1,315,35,326,0,0,,
+File_14=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Edit.pas',0,1,1284,1,1302,0,0,,
 
 [Modules]
-Module0=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas
-Module1=Z:\LccLib\Library\LCC\lcc_node.pas
+Module0=Z:\LccLib\Library\Lib\vkbdhelper.pas
+Module1=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas
 Module2=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
-Count=3
+Module3=Z:\LccLib\Library\LCC\lcc_utilities.pas
+Module4=Z:\LccLib\Library\LCC\lcc_node.pas
+Module5=Z:\LccLib\Library\Lib\file_utilities.pas
+Count=6
 EditWindowCount=1
 
+[Z:\LccLib\Library\Lib\vkbdhelper.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
 [Z:\LccLib\Projects\Delphi\Template2\unit_main.pas]
+ModuleType=TSourceModule
+FormState=1
+FormOnTop=1
+
+[Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[Z:\LccLib\Library\LCC\lcc_utilities.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -32,17 +50,20 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas]
+[Z:\LccLib\Library\Lib\file_utilities.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=3
-CurrentEditView=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas
+ViewCount=6
+CurrentEditView=Z:\LccLib\Library\Lib\vkbdhelper.pas
 View0=0
 View1=1
 View2=2
+View3=3
+View4=4
+View5=5
 PercentageSizes=1
 Create=1
 Visible=1
@@ -75,31 +96,64 @@ BottomMiddelPanelData=0000080001020200000009000000446F636B5369746530100000004772
 [View0]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas
-CursorX=48
-CursorY=324
-TopLine=313
+CursorX=18
+CursorY=264
+TopLine=236
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=Z:\LccLib\Projects\Delphi\Template2\unit_main.pas
+EditViewName=Borland.FormDesignerView
 
 [View1]
 CustomEditViewType=TEditView
-Module=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
-CursorX=48
-CursorY=23
+Module=Z:\LccLib\Library\Lib\vkbdhelper.pas
+CursorX=15
+CursorY=87
 TopLine=1
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=Z:\LccLib\Library\Lib\vkbdhelper.pas
+
+[View2]
+CustomEditViewType=TEditView
+Module=Z:\LccLib\Library\Lib\file_utilities.pas
+CursorX=1
+CursorY=60
+TopLine=54
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=Z:\LccLib\Library\Lib\file_utilities.pas
+
+[View3]
+CustomEditViewType=TEditView
+Module=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
+CursorX=14
+CursorY=433
+TopLine=439
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
 
-[View2]
+[View4]
+CustomEditViewType=TEditView
+Module=Z:\LccLib\Library\LCC\lcc_utilities.pas
+CursorX=3
+CursorY=283
+TopLine=264
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=Z:\LccLib\Library\LCC\lcc_utilities.pas
+
+[View5]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\LCC\lcc_node.pas
-CursorX=18
-CursorY=1564
-TopLine=1544
+CursorX=44
+CursorY=892
+TopLine=865
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -130,9 +184,10 @@ Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=2
+Count=3
 Breakpoint0='\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',186,'',0,1,'',1,0,0,'',1,'','','',0,''
 Breakpoint1='\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_gridconnect.pas',189,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint2='Z:\LccLib\Library\LCC\lcc_node.pas',907,'',0,1,'',1,0,0,'',1,'','','',0,''
 
 [EmbarcaderoWin32Debugger_AddressBreakpoints]
 Count=0
@@ -181,11 +236,11 @@ State=0
 Left=0
 Top=0
 Width=2686
-Height=6505
+Height=7421
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2686
-ClientHeight=6505
+ClientHeight=7421
 TBDockHeight=5905
 LRDockWidth=2348
 Dockable=1
@@ -219,11 +274,11 @@ State=0
 Left=0
 Top=0
 Width=2686
-Height=7421
+Height=6505
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2686
-ClientHeight=7421
+ClientHeight=6505
 TBDockHeight=7149
 LRDockWidth=1994
 Dockable=1
@@ -238,16 +293,21 @@ State=0
 Left=0
 Top=0
 Width=2686
-Height=7421
+Height=6505
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2686
-ClientHeight=7421
+ClientHeight=6505
 TBDockHeight=8620
 LRDockWidth=1898
 Dockable=1
 StayOnTop=0
 SplitPos=157
+
+[PropInspDesignerSelection]
+ArrangeBy=Name
+SelectedItem=Align,
+ExpandedItems=
 
 [ModelViewTool]
 PercentageSizes=1
@@ -255,8 +315,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-7435
-Top=-319
+Left=-5922
+Top=-265
 Width=5304
 Height=4876
 MaxLeft=-1
@@ -536,8 +596,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-7435
-Top=-319
+Left=-5922
+Top=-265
 Width=7144
 Height=4876
 MaxLeft=-1
@@ -728,8 +788,8 @@ LRDockWidth=2686
 Dockable=1
 StayOnTop=0
 TabPosition=1
-ActiveTabID=PropertyInspector
-TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,TemplateView,TFileExplorerForm,ModelViewTool,DataExplorerContainer
+ActiveTabID=ProjectManager
+TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,ModelViewTool,DataExplorerContainer,TemplateView,TFileExplorerForm
 
 [ActiveProject]
 ActiveProject=2

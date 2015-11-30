@@ -240,25 +240,22 @@ end;
 
 procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
 var
-  CharPtr: PChar;
   Len, i: Integer;
 begin
-  {$IFDEF FPC}
-  CharPtr := @AString[1];
-  {$ELSE}
-  CharPtr := @AString[Low(AString)];
-  {$ENDIF}
   Len := Length(AString);
   if Len > 0 then
   begin
     {$IFDEF FPC}
-    for i := 1 to Len do
+      for i := 1 to Len do
     {$ELSE}
-    for i := Low(AString) to Len do
+      {$IFDEF LCC_MOBILE}
+        for i := 0 to Len - 1 do
+      {$ELSE}
+        for i := 1 to Len do
+      {$ENDIF}
     {$ENDIF}
     begin
-      ANullArray[iIndex] := Ord( CharPtr^);
-      Inc(CharPtr);
+      ANullArray[iIndex] := Ord( AString[i]);
       Inc(iIndex);
     end;
   end;
