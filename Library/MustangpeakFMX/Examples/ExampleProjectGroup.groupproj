@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{7EFD6EDA-AA63-43D8-AFBD-DBC41DD660D2}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\MustangpeakFMXControls.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Overview\VirtaulListviewFMXOverview.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MustangpeakFMXControls">
+        <MSBuild Projects="..\MustangpeakFMXControls.dproj"/>
+    </Target>
+    <Target Name="MustangpeakFMXControls:Clean">
+        <MSBuild Projects="..\MustangpeakFMXControls.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MustangpeakFMXControls:Make">
+        <MSBuild Projects="..\MustangpeakFMXControls.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="VirtaulListviewFMXOverview">
+        <MSBuild Projects="Overview\VirtaulListviewFMXOverview.dproj"/>
+    </Target>
+    <Target Name="VirtaulListviewFMXOverview:Clean">
+        <MSBuild Projects="Overview\VirtaulListviewFMXOverview.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="VirtaulListviewFMXOverview:Make">
+        <MSBuild Projects="Overview\VirtaulListviewFMXOverview.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MustangpeakFMXControls;VirtaulListviewFMXOverview"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MustangpeakFMXControls:Clean;VirtaulListviewFMXOverview:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MustangpeakFMXControls:Make;VirtaulListviewFMXOverview:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

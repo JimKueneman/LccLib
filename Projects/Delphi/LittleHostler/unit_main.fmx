@@ -21,14 +21,14 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
     Size.Height = 596.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 3
+    TabIndex = 0
     TabOrder = 0
     TabPosition = Bottom
     object TabItemTrain: TTabItem
       CustomIcon = <
         item
         end>
-      IsSelected = False
+      IsSelected = True
       Size.Width = 83.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -81,6 +81,30 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Size.PlatformDefault = False
               Visible = True
             end
+          end
+          object ksTableView1: TksTableView
+            Align = Client
+            BackgroundText.Font.Size = 18.000000000000000000
+            CanFocus = False
+            DeleteButton.Text = 'Delete'
+            DragDropOptions.Opacity = 1.000000000000000000
+            HeaderOptions.Color = claNull
+            PullToRefresh.Font.Size = 16.000000000000000000
+            PullToRefresh.PullText = 'pull to refresh'
+            PullToRefresh.ReleaseText = 'release to refresh'
+            SelectionOptions.SelectionOverlay.Size = 0
+            Size.Width = 332.000000000000000000
+            Size.Height = 503.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            TextDefaults.Title.Font.Size = 13.000000000000000000
+            TextDefaults.Title.TextColor = claBlack
+            TextDefaults.SubTitle.Font.Size = 13.000000000000000000
+            TextDefaults.SubTitle.TextColor = claDimgray
+            TextDefaults.Detail.Font.Size = 13.000000000000000000
+            TextDefaults.Detail.TextColor = claDodgerblue
+            TextDefaults.Header.Font.Size = 13.000000000000000000
+            TextDefaults.Header.TextColor = claBlack
           end
         end
         object TabItem6: TTabItem
@@ -195,8 +219,8 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         Size.Height = 460.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
-        Viewport.Width = 332.000000000000000000
-        Viewport.Height = 460.000000000000000000
+        Viewport.Width = 328.000000000000000000
+        Viewport.Height = 456.000000000000000000
       end
       object StatusBar1: TStatusBar
         Position.Y = 504.000000000000000000
@@ -230,7 +254,7 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
       CustomIcon = <
         item
         end>
-      IsSelected = True
+      IsSelected = False
       Size.Width = 81.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -261,31 +285,6 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
         Size.Height = 495.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
-        object ksTableViewSettings: TksTableView
-          Align = Client
-          BackgroundText.Font.Size = 18.000000000000000000
-          CanFocus = False
-          DeleteButton.Text = 'Delete'
-          DragDropOptions.Opacity = 1.000000000000000000
-          HeaderOptions.Color = claNull
-          PullToRefresh.Enabled = False
-          PullToRefresh.Font.Size = 16.000000000000000000
-          PullToRefresh.PullText = 'pull to refresh'
-          PullToRefresh.ReleaseText = 'release to refresh'
-          SelectionOptions.SelectionOverlay.Size = 0
-          Size.Width = 324.000000000000000000
-          Size.Height = 495.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 0
-          TextDefaults.Title.Font.Size = 13.000000000000000000
-          TextDefaults.Title.TextColor = claBlack
-          TextDefaults.SubTitle.Font.Size = 13.000000000000000000
-          TextDefaults.SubTitle.TextColor = claDimgray
-          TextDefaults.Detail.Font.Size = 13.000000000000000000
-          TextDefaults.Detail.TextColor = claDodgerblue
-          TextDefaults.Header.Font.Size = 13.000000000000000000
-          TextDefaults.Header.TextColor = claBlack
-        end
       end
     end
   end

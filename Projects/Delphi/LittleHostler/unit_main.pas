@@ -9,7 +9,7 @@ uses
   lcc_common_classes, lcc_ethernetclient, lcc_messages, file_utilities, lcc_utilities,
   FMX.ListBox, FMX.Edit, FMX.Layouts, lcc_node, lcc_node_protocol_helpers,
   lcc_can_message_assembler_disassembler, FMX.ScrollBox, FMX.Memo,
-  FMX.ListView.Types, FMX.ListView, FMX.Menus, ksTableView;
+  FMX.ListView.Types, FMX.ListView, FMX.Menus, ksTableView, System.UIConsts;
 
 const
   STR_CONNECTED = 'Connected';
@@ -53,7 +53,7 @@ type
     Memo: TMemo;
     MainMenu1: TMainMenu;
     ListView1: TListView;
-    ksTableViewSettings: TksTableView;
+    ksTableView1: TksTableView;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);

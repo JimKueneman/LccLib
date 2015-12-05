@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{DB434D43-2BF3-4FDB-A52A-DC3EDCF48E92}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\..\..\Library\KernowSoftware\KernowSoftwareFMX.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="LittleHostler.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="KernowSoftwareFMX">
+        <MSBuild Projects="..\..\..\Library\KernowSoftware\KernowSoftwareFMX.dproj"/>
+    </Target>
+    <Target Name="KernowSoftwareFMX:Clean">
+        <MSBuild Projects="..\..\..\Library\KernowSoftware\KernowSoftwareFMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="KernowSoftwareFMX:Make">
+        <MSBuild Projects="..\..\..\Library\KernowSoftware\KernowSoftwareFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LittleHostler">
+        <MSBuild Projects="LittleHostler.dproj"/>
+    </Target>
+    <Target Name="LittleHostler:Clean">
+        <MSBuild Projects="LittleHostler.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LittleHostler:Make">
+        <MSBuild Projects="LittleHostler.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="KernowSoftwareFMX;LittleHostler"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="KernowSoftwareFMX:Clean;LittleHostler:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="KernowSoftwareFMX:Make;LittleHostler:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
