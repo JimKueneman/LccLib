@@ -13,9 +13,7 @@ type
     Header: TToolBar;
     Footer: TToolBar;
     HeaderLabel: TLabel;
-    ImageList1: TImageList;
     SpeedButton1: TSpeedButton;
-    ImageList2: TImageList;
     VirtualListviewFMX1: TVirtualListviewFMX;
     procedure FormCreate(Sender: TObject);
   private
@@ -38,17 +36,17 @@ var
   Frame: TFrameListviewItem;
 begin
   VirtualListviewFMX1.Items.Clear;
-  for i := 0 to 20 do
+  for i := 0 to 999 do
   begin
- //   Frame := TFrameListviewItem.Create(nil);
- //   Frame.LabelTitle.Text := 'Item: ' + IntToStr(i);
- //   Frame.LabelDetail.Text := 'SubName';
-  //  Item := VirtualListviewFMX1.Items.AddAsFrame(Frame);
-    Item := VirtualListviewFMX1.Items.Add;
- {   if i mod 2 = 0 then
+   Frame := TFrameListviewItem.Create(nil);
+    Frame.LabelTitle.Text := 'Item: ' + IntToStr(i);
+    Frame.LabelDetail.Text := 'SubName';
+    Item := VirtualListviewFMX1.Items.AddAsFrame(Frame);
+ //   Item := VirtualListviewFMX1.Items.Add;
+   if i mod 2 = 0 then
       Item.Color := claCornsilk
     else
-      Item.Color := claSpringgreen   }
+      Item.Color := claSpringgreen
   end;
 end;
 

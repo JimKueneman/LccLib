@@ -1,4 +1,5 @@
 object FrameListviewItem: TFrameListviewItem
+  ClipChildren = True
   HitTest = False
   Size.Width = 312.000000000000000000
   Size.Height = 44.000000000000000000

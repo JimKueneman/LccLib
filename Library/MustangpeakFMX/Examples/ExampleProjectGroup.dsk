@@ -1,38 +1,42 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,16039,1,16054,0,0,,
-File_1=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Edit.pas',0,1,667,1,683,0,0,,
-File_2=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Generics.Collections.pas',0,1,4178,1,4190,0,0,,
-File_3=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.Types.pas',0,1,2425,1,2440,0,0,,
-File_4=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Controls.pas',0,1,1934,1,1951,0,0,{{6098,0}
-File_5=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Platform.pas',0,1,135,1,149,0,0,,
-File_6=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Graphics.pas',0,1,5967,1,5989,0,0,,
-File_7=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Forms.pas',0,1,5804,1,5820,0,0,,
-File_8=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Canvas.D2D.pas',0,1,1718,1,1734,0,0,,
-File_9=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Classes.pas',0,1,5375,1,5387,0,0,,
-File_10=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Types.pas',0,1,71,21,75,0,0,{{4068,0}
-File_11=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.TextLayout.pas',0,1,162,1,53,0,0,,
-File_12=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.InertialMovement.pas',0,1,736,3,755,0,0,{{31,0}
-File_13=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Canvas.GDIP.pas',0,1,433,1,449,0,0,,
-File_14=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\win\Winapi.GDIPOBJ.pas',0,1,2436,1,2456,0,0,,
+File_0=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Controls.pas',0,1,2727,10,2743,0,0,{{6098,0}
+File_1=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Controls.Presentation.pas',0,1,779,1,798,0,0,,
+File_2=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Forms.pas',0,1,5804,1,5820,0,0,,
+File_3=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.pas',0,1,17325,1,17348,0,0,,
+File_4=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Types.pas',0,1,3955,9,3969,0,0,{{4068,0}
+File_5=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Math.pas',0,1,5114,1,5133,0,0,,
+File_6=TSourceModule,'Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewFMXOverview.fmx',0,1,1,1,1,0,0,,
+File_7=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Edit.pas',0,1,667,1,683,0,0,,
+File_8=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Generics.Collections.pas',0,1,4178,1,4190,0,0,,
+File_9=TSourceModule,'c:\program files\embarcadero\studio\16.0\SOURCE\RTL\SYS\System.Types.pas',0,1,2425,1,2440,0,0,,
+File_10=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Platform.pas',0,1,135,1,149,0,0,,
+File_11=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Graphics.pas',0,1,5967,1,5989,0,0,,
+File_12=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.Canvas.D2D.pas',0,1,1718,1,1734,0,0,,
+File_13=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Classes.pas',0,1,5375,1,5387,0,0,,
+File_14=TSourceModule,'c:\program files\embarcadero\studio\16.0\source\fmx\FMX.TextLayout.pas',0,1,162,1,53,0,0,,
 
 [Modules]
 Module0=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewFMXOverview.pas
 Module1=Z:\LccLib\Library\MustangpeakFMX\VirtualListviewFMX.pas
-Module2=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewCellFrame.pas
-Module3=Z:\LccLib\Library\MustangpeakFMX\AniScrollerFMX.pas
-Module4=Z:\LccLib\Library\KernowSoftwareFMX\ksTableView.pas
-Count=5
+Module2=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtaulListviewFMXOverview.dproj
+Module3=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewCellFrame.pas
+Module4=Z:\LccLib\Library\MustangpeakFMX\AniScrollerFMX.pas
+Module5=Z:\LccLib\Library\KernowSoftwareFMX\ksTableView.pas
+Count=6
 EditWindowCount=1
 
 [Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewFMXOverview.pas]
 ModuleType=TSourceModule
-FormState=1
+FormState=0
 FormOnTop=0
 
 [Z:\LccLib\Library\MustangpeakFMX\VirtualListviewFMX.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
+
+[Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtaulListviewFMXOverview.dproj]
+ModuleType=TBaseProject
 
 [Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewCellFrame.pas]
 ModuleType=TSourceModule
@@ -50,13 +54,14 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=5
+ViewCount=6
 CurrentEditView=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewFMXOverview.pas
 View0=0
 View1=1
 View2=2
 View3=3
 View4=4
+View5=5
 PercentageSizes=1
 Create=1
 Visible=1
@@ -65,17 +70,17 @@ State=0
 Left=0
 Top=0
 Width=10000
-Height=8924
+Height=8867
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=10000
-ClientHeight=8924
+ClientHeight=8867
 DockedToMainForm=1
 BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=2092
 LeftPanelClients=DockSite2
-LeftPanelData=00000800010100000000130F000000000000012C080000000000000100000000161D000009000000446F636B5369746532FFFFFFFF
+LeftPanelData=00000800010100000000F70E000000000000012C080000000000000100000000DF1C000009000000446F636B5369746532FFFFFFFF
 RightPanelSize=2683
 RightPanelClients=DockSite3
 RightPanelData=00000800010000000000B42100000000000000540E0000000000000100000000B421000009000000446F636B5369746533FFFFFFFF
@@ -89,9 +94,9 @@ BottomMiddelPanelData=0000080001020200000009000000446F636B5369746530100000004772
 [View0]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewFMXOverview.pas
-CursorX=39
-CursorY=51
-TopLine=31
+CursorX=32
+CursorY=46
+TopLine=29
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -106,20 +111,31 @@ TopLine=7
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=Borland.FormDesignerView
+EditViewName=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtualListviewCellFrame.pas
 
 [View2]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\MustangpeakFMX\VirtualListviewFMX.pas
-CursorX=1
-CursorY=624
-TopLine=622
+CursorX=34
+CursorY=45
+TopLine=34
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=Z:\LccLib\Library\MustangpeakFMX\VirtualListviewFMX.pas
 
 [View3]
+CustomEditViewType=TEditView
+Module=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtaulListviewFMXOverview.dpr
+CursorX=1
+CursorY=1
+TopLine=1
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=Z:\LccLib\Library\MustangpeakFMX\Examples\Overview\VirtaulListviewFMXOverview.dpr
+
+[View4]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\MustangpeakFMX\AniScrollerFMX.pas
 CursorX=1
@@ -130,7 +146,7 @@ Elisions=
 Bookmarks=
 EditViewName=Z:\LccLib\Library\MustangpeakFMX\AniScrollerFMX.pas
 
-[View4]
+[View5]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\KernowSoftwareFMX\ksTableView.pas
 CursorX=16
@@ -142,7 +158,8 @@ Bookmarks=
 EditViewName=Z:\LccLib\Library\KernowSoftwareFMX\ksTableView.pas
 
 [Watches]
-Count=0
+Count=1
+Watch0='self',256,0,18,1,0,'Watches',1
 
 [WatchWindow]
 WatchColumnWidth=120
@@ -202,7 +219,7 @@ MaxWidth=8930
 MaxHeight=8527
 ClientWidth=10000
 ClientHeight=9717
-BottomPanelSize=8560
+BottomPanelSize=8505
 BottomPanelClients=EditWindow0
 BottomPanelData=0000080000000000000000000000000000000000000000000000000100000000000000000C0000004564697457696E646F775F30FFFFFFFF
 
@@ -215,11 +232,11 @@ State=0
 Left=0
 Top=0
 Width=2683
-Height=6133
+Height=6076
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2683
-ClientHeight=6133
+ClientHeight=6076
 TBDockHeight=5907
 LRDockWidth=2345
 Dockable=1
@@ -253,11 +270,11 @@ State=0
 Left=0
 Top=0
 Width=2683
-Height=6133
+Height=6076
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2683
-ClientHeight=6133
+ClientHeight=6076
 TBDockHeight=7153
 LRDockWidth=1993
 Dockable=1
@@ -272,21 +289,16 @@ State=0
 Left=0
 Top=0
 Width=2683
-Height=7054
+Height=6997
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2683
-ClientHeight=7054
+ClientHeight=6997
 TBDockHeight=8612
 LRDockWidth=1894
 Dockable=1
 StayOnTop=0
 SplitPos=157
-
-[PropInspDesignerSelection]
-ArrangeBy=Name
-SelectedItem=CellCount,
-ExpandedItems=LiveBindings=0,"LiveBindings Designer=0",Margins=0,Padding=0,Position=0,Anchors=0,Font=0
 
 [ModelViewTool]
 PercentageSizes=1
@@ -294,8 +306,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-4447
-Top=-262
+Left=-5583
+Top=-323
 Width=5303
 Height=4873
 MaxLeft=-1
@@ -314,7 +326,7 @@ Visible=0
 Docked=1
 State=0
 Left=-1136
-Top=-152
+Top=-160
 Width=1845
 Height=3144
 MaxLeft=-1
@@ -373,11 +385,11 @@ State=0
 Left=0
 Top=0
 Width=2683
-Height=6133
+Height=6076
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2683
-ClientHeight=6133
+ClientHeight=6076
 TBDockHeight=5949
 LRDockWidth=2507
 Dockable=1
@@ -390,7 +402,7 @@ Visible=0
 Docked=1
 State=0
 Left=-952
-Top=-40
+Top=-44
 Width=2845
 Height=6204
 MaxLeft=-1
@@ -409,7 +421,7 @@ Visible=0
 Docked=1
 State=0
 Left=-1039
-Top=152
+Top=148
 Width=275
 Height=368
 MaxLeft=-1
@@ -575,8 +587,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-4447
-Top=-262
+Left=-5583
+Top=-323
 Width=7148
 Height=4873
 MaxLeft=-1
@@ -642,11 +654,11 @@ State=0
 Left=0
 Top=0
 Width=2092
-Height=7436
+Height=7380
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2092
-ClientHeight=7436
+ClientHeight=7380
 TBDockHeight=3683
 LRDockWidth=1894
 Dockable=1
@@ -733,11 +745,11 @@ State=0
 Left=0
 Top=23
 Width=2092
-Height=7436
+Height=7380
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2092
-ClientHeight=7436
+ClientHeight=7380
 TBDockHeight=8612
 LRDockWidth=2092
 Dockable=1
@@ -757,18 +769,18 @@ State=0
 Left=0
 Top=23
 Width=2683
-Height=7436
+Height=7380
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2683
-ClientHeight=7436
+ClientHeight=7380
 TBDockHeight=5198
 LRDockWidth=2683
 Dockable=1
 StayOnTop=0
 TabPosition=1
 ActiveTabID=PropertyInspector
-TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,ModelViewTool,DataExplorerContainer,TemplateView,TFileExplorerForm
+TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,TemplateView,TFileExplorerForm,ModelViewTool,DataExplorerContainer
 
 [ActiveProject]
 ActiveProject=2

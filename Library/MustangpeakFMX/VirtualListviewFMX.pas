@@ -15,6 +15,13 @@ type
 
   TOnCustomDrawItem = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
 
+  TVirtualEdit = class(TEdit)
+  protected
+    procedure DoPaint; override;
+    procedure Paint; override;
+
+  end;
+
   TVirtualListItem = class(TPersistent)
   private
     FListviewItems: TVirtualListItems;
@@ -23,10 +30,10 @@ type
     FText: string;
     FTextLayout: TTextLayout;
     FFrame: TFrame;
-    FControlEdit: TEdit;
+    FControlEdit: TVirtualEdit;
     procedure SetBoundsRect(const Value: TRectF);
   protected
-    property ControlEdit: TEdit read FControlEdit write FControlEdit;
+    property ControlEdit: TVirtualEdit read FControlEdit write FControlEdit;
     property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
     property TextLayout: TTextLayout read FTextLayout write FTextLayout;
@@ -311,6 +318,7 @@ end;
 constructor TCustomVirtualListviewFMX.Create(AOwner: TComponent);
 begin
   inherited;
+  ClipChildren  := True;
   FCellHeight := 44;
   FBorderColor := claDarkgray;
   FBorderWidth := 0;
@@ -507,6 +515,8 @@ var
 begin
   Result := TVirtualListItem.Create;
   Result.FListviewItems := Self;
+  Result.ControlEdit := TVirtualEdit.Create(Listview); // Must to do clip?
+  Result.ControlEdit.Visible := False;
   Result.ControlEdit.Parent := Listview;
   NormalizedItemRect(TempRect);
   TempRect.Offset(0, Count*Listview.CellHeight);
@@ -538,6 +548,8 @@ begin
   ClipChildWindows(VirtualListviewCellFrame);
   Result := TVirtualListItem.Create;
   Result.FListviewItems := Self;
+  Result.ControlEdit := TVirtualEdit.Create(Listview); // Must to do clip?
+  Result.ControlEdit.Visible := False;
   Result.ControlEdit.Parent := Listview;
   NormalizedItemRect(TempRect);
   TempRect.Offset(0, Count*Listview.CellHeight);
@@ -615,8 +627,6 @@ constructor TVirtualListItem.Create;
 begin
   inherited;
   Color := claWhite;
-  ControlEdit := TEdit.Create(nil);
-  ControlEdit.Visible := False;
 end;
 
 destructor TVirtualListItem.Destroy;
@@ -675,6 +685,7 @@ begin
           ControlEdit.Position.X := 50;
           ControlEdit.Position.Y := WindowRect.Top + 10;
           ControlEdit.Visible := True;
+          ControlEdit.InvalidateRect(ControlEdit.LocalRect);
         end;
       end;
     end else
@@ -692,6 +703,19 @@ begin
     Frame.Width := BoundsRect.Width;
     Frame.Height := BoundsRect.Height;
   end
+end;
+
+{ TVirtualEdit }
+
+procedure TVirtualEdit.DoPaint;
+begin
+  inherited;
+end;
+
+procedure TVirtualEdit.Paint;
+begin
+  inherited;
+
 end;
 
 initialization
