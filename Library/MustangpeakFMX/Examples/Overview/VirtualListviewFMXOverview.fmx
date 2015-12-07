@@ -44,7 +44,7 @@ object HeaderFooterForm: THeaderFooterForm
   end
   object VirtualListviewFMX1: TVirtualListviewFMX
     Align = Client
-    BorderColor = claDarkgoldenrod
+    CanFocus = False
     CellColor = claSkyblue
     DisableFocusEffect = False
     Size.Width = 384.000000000000000000

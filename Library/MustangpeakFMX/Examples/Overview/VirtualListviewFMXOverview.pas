@@ -36,7 +36,7 @@ var
   Frame: TFrameListviewItem;
 begin
   VirtualListviewFMX1.Items.Clear;
-  for i := 0 to 999 do
+  for i := 0 to 19 do
   begin
    Frame := TFrameListviewItem.Create(nil);
     Frame.LabelTitle.Text := 'Item: ' + IntToStr(i);

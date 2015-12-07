@@ -9,8 +9,9 @@ uses
   FMX.Forms, FMX.Platform, FMX.Edit;
 
 type
-  TVirtualListItems = class;
+
   TCustomVirtualListviewFMX = class;
+  TVirtualListItems = class;
   TVirtualListItem = class;
 
   TOnCustomDrawItem = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
@@ -44,7 +45,7 @@ type
     property Text: string read FText write FText;
     property Frame: TFrame read FFrame write FFrame;
 
-    constructor Create;
+    constructor Create(AnItemList: TVirtualListItems);
     destructor Destroy; override;
   end;
 
@@ -53,6 +54,7 @@ type
     FItems: TObjectList<TVirtualListItem>;
     FListview: TCustomVirtualListviewFMX;
     FCellColor: TAlphaColor;
+    FUpdateCount: Integer;
     function GetCount: Integer;
     function GetItem(Index: Integer): TVirtualListItem;
     procedure SetItem(Index: Integer; const Value: TVirtualListItem);
@@ -61,6 +63,7 @@ type
     property CellColor: TAlphaColor read FCellColor write SetCellColor;
     property Items: TObjectList<TVirtualListItem> read FItems write FItems;
     property Listview: TCustomVirtualListviewFMX read FListview write FListview;
+    property UpdateCount: Integer read FUpdateCount write FUpdateCount;
 
     procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF);
     procedure NormalizedItemRect(var ARect: TRectF);
@@ -72,7 +75,9 @@ type
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
 
+    procedure BeginUpdate;
     procedure Clear;
+    procedure EndUpdate;
     function Add: TVirtualListItem;
     function AddAsFrame(VirtualListviewCellFrame: TFrame): TVirtualListItem;
   end;
@@ -101,7 +106,7 @@ type
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean); override;
     procedure Paint; override;
-    procedure RecalculateCellViewportRects(RecalcWorldRect: Boolean);
+    procedure RecalculateCellViewportRects(RespectUpdateCount: Boolean; RecalcWorldRect: Boolean);
     procedure RecalculateWorldRect;
     procedure Resize; override;
     procedure KeyDown(var Key: Word; var KeyChar: Char; Shift: TShiftState); override;
@@ -154,7 +159,7 @@ type
     property CellHeight;
  //   property CheckMarks: TksListViewCheckMarks read FCheckMarks write SetCheckMarks default ksCmNone;
  //   property CheckMarkStyle: TksListViewCheckStyle read FCheckMarkStyle write SetCheckMarkStyle default ksCmsDefault;
-    property ClipChildren default True;
+ //   property ClipChildren default True;
     property ClipParent default False;
  //   property Cursor default crDefault;
  //   property DeleteButton: TksDeleteButton read FDeleteButton write FDeleteButton;
@@ -434,20 +439,28 @@ begin
   end;
 end;
 
-procedure TCustomVirtualListviewFMX.RecalculateCellViewportRects(RecalcWorldRect: Boolean);
+procedure TCustomVirtualListviewFMX.RecalculateCellViewportRects(RespectUpdateCount: Boolean; RecalcWorldRect: Boolean);
 var
   i: Integer;
   TempRect: TRectF;
+  Run: Boolean;
 begin
-  for i := 0 to Items.Count - 1 do
+  Run := True;
+  if RespectUpdateCount then
+    Run := Items.UpdateCount = 0;
+
+  if Run then
   begin
-    Items.NormalizedItemRect(TempRect);
-    TempRect.Offset(0, i * CellHeight);
-    Items[i].BoundsRect := TempRect;
+    for i := 0 to Items.Count - 1 do
+    begin
+      Items.NormalizedItemRect(TempRect);
+      TempRect.Offset(0, i * CellHeight);
+      Items[i].BoundsRect := TempRect;
+    end;
+    Scroller.LineScroll := CellHeight;
+    if RecalcWorldRect then
+      RecalculateWorldRect;
   end;
-  Scroller.LineScroll := CellHeight;
-  if RecalcWorldRect then
-    RecalculateWorldRect;
 end;
 
 procedure TCustomVirtualListviewFMX.RecalculateWorldRect;
@@ -458,7 +471,7 @@ end;
 procedure TCustomVirtualListviewFMX.Resize;
 begin
   inherited;
-  RecalculateCellViewportRects(True);
+  RecalculateCellViewportRects(True, True);
 end;
 
 procedure TCustomVirtualListviewFMX.SetBorderColor(const Value: TAlphaColor);
@@ -475,7 +488,7 @@ begin
   if Value <> BorderWidth then
   begin
     FBorderWidth := Value;
-    RecalculateCellViewportRects(True);
+    RecalculateCellViewportRects(True, True);
     InvalidateRect(LocalRect);
   end;
 end;
@@ -503,7 +516,7 @@ begin
   if FCellHeight <> Value then
   begin
     FCellHeight := Value;
-    RecalculateCellViewportRects(True);
+    RecalculateCellViewportRects(True, True);
   end;
 end;
 
@@ -513,30 +526,26 @@ function TVirtualListItems.Add: TVirtualListItem;
 var
   TempRect: TRectF;
 begin
-  Result := TVirtualListItem.Create;
-  Result.FListviewItems := Self;
-  Result.ControlEdit := TVirtualEdit.Create(Listview); // Must to do clip?
-  Result.ControlEdit.Visible := False;
-  Result.ControlEdit.Parent := Listview;
+  Result := TVirtualListItem.Create(Self);
   NormalizedItemRect(TempRect);
   TempRect.Offset(0, Count*Listview.CellHeight);
   Result.BoundsRect := TempRect;
   Result.Color := Listview.CellColor;
   Result.TextLayout := TTextLayoutManager.DefaultTextLayout.Create;
   Items.Add(Result);
-  Listview.RecalculateWorldRect;
-end;
+  Listview.RecalculateCellViewportRects(True, True);
+ end;
 
 function TVirtualListItems.AddAsFrame(VirtualListviewCellFrame: TFrame): TVirtualListItem;
 
-  procedure ClipChildWindows(AControl: TControl);
+  procedure SetClipChildWindowsOnAll(AControl: TControl);
   var
     i: Integer;
   begin
     for i := 0 to AControl.ControlsCount - 1 do
     begin
       if AControl.Controls[i].ControlsCount > 0 then
-        ClipChildWindows(AControl.Controls[i]);
+        SetClipChildWindowsOnAll(AControl.Controls[i]);
       AControl.ClipChildren := True;
     end;
 
@@ -545,12 +554,8 @@ function TVirtualListItems.AddAsFrame(VirtualListviewCellFrame: TFrame): TVirtua
 var
   TempRect: TRectF;
 begin
-  ClipChildWindows(VirtualListviewCellFrame);
-  Result := TVirtualListItem.Create;
-  Result.FListviewItems := Self;
-  Result.ControlEdit := TVirtualEdit.Create(Listview); // Must to do clip?
-  Result.ControlEdit.Visible := False;
-  Result.ControlEdit.Parent := Listview;
+  SetClipChildWindowsOnAll(VirtualListviewCellFrame);
+  Result := TVirtualListItem.Create(Self);
   NormalizedItemRect(TempRect);
   TempRect.Offset(0, Count*Listview.CellHeight);
   Result.BoundsRect := TempRect;
@@ -559,7 +564,12 @@ begin
   Result.Frame.Parent := Listview;
   Result.TextLayout := TTextLayoutManager.DefaultTextLayout.Create;
   Items.Add(Result);
-  Listview.RecalculateWorldRect;
+  Listview.RecalculateCellViewportRects(True, True);
+end;
+
+procedure TVirtualListItems.BeginUpdate;
+begin
+  Inc(FUpdateCount);
 end;
 
 procedure TVirtualListItems.Clear;
@@ -580,6 +590,16 @@ destructor TVirtualListItems.Destroy;
 begin
   FreeAndNil(FItems);
   inherited;
+end;
+
+procedure TVirtualListItems.EndUpdate;
+begin
+  Dec(FUpdateCount);
+  if FUpdateCount <= 0 then
+  begin
+    FUpdateCount := 0;
+    Listview.RecalculateCellViewportRects(True, True);
+  end;
 end;
 
 function TVirtualListItems.GetCount: Integer;
@@ -623,10 +643,14 @@ end;
 
 { TListviewCell }
 
-constructor TVirtualListItem.Create;
+constructor TVirtualListItem.Create(AnItemList: TVirtualListItems);
 begin
-  inherited;
+  inherited Create;
+  FListviewItems := AnItemList;
   Color := claWhite;
+  ControlEdit := TVirtualEdit.Create(nil);
+  ControlEdit.Visible := False;
+  ControlEdit.Parent := ListviewItems.Listview;
 end;
 
 destructor TVirtualListItem.Destroy;
@@ -638,8 +662,7 @@ end;
 
 procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF);
 var
-  WindowRect, TextRect: TRectF;
-  LayoutSize: TPointF;
+  WindowRect: TRectF;
   Handled: Boolean;
 begin
   if Assigned(Frame) then
