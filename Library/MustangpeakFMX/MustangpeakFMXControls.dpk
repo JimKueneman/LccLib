@@ -33,6 +33,7 @@ requires
   fmx;
 
 contains
-  VirtualListviewFMX in 'VirtualListviewFMX.pas';
+  VirtualListviewFMX in 'VirtualListviewFMX.pas',
+  AniScrollerFMX in 'AniScrollerFMX.pas';
 
 end.

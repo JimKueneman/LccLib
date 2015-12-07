@@ -5,24 +5,37 @@ interface
 uses
   System.SysUtils, System.Classes, FMX.Types, FMX.Controls, System.Generics.Collections,
   System.Generics.Defaults, System.UITypes, System.UIConsts, System.Types, FMX.Graphics,
-  FMX.Ani, FMX.InertialMovement, System.Math;
+  FMX.Ani, FMX.InertialMovement, System.Math, AniScrollerFMX, FMX.TextLayout,
+  FMX.Forms, FMX.Platform, FMX.Edit;
 
 type
   TVirtualListItems = class;
   TCustomVirtualListviewFMX = class;
+  TVirtualListItem = class;
+
+  TOnCustomDrawItem = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
 
   TVirtualListItem = class(TPersistent)
   private
     FListviewItems: TVirtualListItems;
     FColor: TAlphaColor;
     FBoundsRect: TRectF;
+    FText: string;
+    FTextLayout: TTextLayout;
+    FFrame: TFrame;
+    FControlEdit: TEdit;
+    procedure SetBoundsRect(const Value: TRectF);
   protected
+    property ControlEdit: TEdit read FControlEdit write FControlEdit;
+    property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
-    property BoundsRect: TRectF read FBoundsRect write FBoundsRect;
+    property TextLayout: TTextLayout read FTextLayout write FTextLayout;
 
-    procedure Paint(ACanvas: TCanvas; DrawingRect: TRectF);
+    procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF);
   public
     property Color: TAlphaColor read FColor write FColor;
+    property Text: string read FText write FText;
+    property Frame: TFrame read FFrame write FFrame;
 
     constructor Create;
     destructor Destroy; override;
@@ -42,8 +55,9 @@ type
     property Items: TObjectList<TVirtualListItem> read FItems write FItems;
     property Listview: TCustomVirtualListviewFMX read FListview write FListview;
 
-    procedure Paint(ACanvas: TCanvas; DrawingRect: TRectF);
-    procedure RecalculateCellBoundsRects;
+    procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF);
+    procedure NormalizedItemRect(var ARect: TRectF);
+
   public
     property Count: Integer read GetCount;
     property Item[Index: Integer]: TVirtualListItem read GetItem write SetItem; default;
@@ -53,59 +67,47 @@ type
 
     procedure Clear;
     function Add: TVirtualListItem;
+    function AddAsFrame(VirtualListviewCellFrame: TFrame): TVirtualListItem;
   end;
-
-  TAniTargets = array of TAniCalculations.TTarget;
 
   TCustomVirtualListviewFMX = class(TControl)
   private
     FItems: TVirtualListItems;
     FCellHeight: Integer;
     FCellColor: TAlphaColor;
-    FAniCalc: TAniCalculations;
-    FScrolling: Boolean;
-    FAniTargets: TAniTargets;
-    FPreviousScrollPos: TPointF;
-    FClipRect: TClipRects;
+    FScroller: TAniScroller;
+    FOnCustomDrawItem: TOnCustomDrawItem;
+    FFont: TFont;
+    FBorderColor: TAlphaColor;
+    FBorderWidth: real;
     procedure SetCellHeight(const Value: Integer);
     procedure SetCellColor(const Value: TAlphaColor);
     function GetCellCount: Integer;
     procedure SetCellCount(const Value: Integer);
-    function GetScrollOffsetX: single;
-    function GetScrollOffsetY: single;
-    procedure SetScrollOffsetX(const Value: single);
-    procedure SetScrollOffsetY(const Value: single);
-    function GetScrollOffsetMaxX: single;
-    function GetScrollOffsetMaxY: single;
+    procedure SetBorderColor(const Value: TAlphaColor);
+    procedure SetBorderWidth(const Value: real);
   protected
-    procedure AniCalcStart(Sender: TObject);
-    procedure AniCalcChange(Sender: TObject);
-    procedure AniCalcStop(Sender: TObject);
+    procedure DoCustomDrawItem(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean); virtual;
     procedure DoMouseLeave; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean); override;
     procedure Paint; override;
-    procedure RecalculateScrollOffsets;
+    procedure RecalculateCellViewportRects(RecalcWorldRect: Boolean);
+    procedure RecalculateWorldRect;
     procedure Resize; override;
     procedure KeyDown(var Key: Word; var KeyChar: Char; Shift: TShiftState); override;
 
-
-    property AniCalc: TAniCalculations read FAniCalc write FAniCalc;
-    property AniTargets: TAniTargets read FAniTargets write FAniTargets;
+    property BorderWidth: real read FBorderWidth write SetBorderWidth;
+    property BorderColor: TAlphaColor read FBorderColor write SetBorderColor default claDarkgray;
     property CellColor: TAlphaColor read FCellColor write SetCellColor default claWhite;
     property CellCount: Integer read GetCellCount write SetCellCount default 0;
     property CellHeight: Integer read FCellHeight write SetCellHeight default 44;
-    property ClipRect: TClipRects read FClipRect write FClipRect;
+    property Font: TFont read FFont write FFont;
     property Items: TVirtualListItems read FItems write FItems;
-    property PreviousScrollPos: TPointF read FPreviousScrollPos write FPreviousScrollPos;
-    property Scrolling: Boolean read FScrolling write FScrolling;
-    property ScrollOffsetX: single read GetScrollOffsetX write SetScrollOffsetX;
-    property ScrollOffsetMaxX: single read GetScrollOffsetMaxX;
-    property ScrollOffsetY: single read GetScrollOffsetY write SetScrollOffsetY;
-    property ScrollOffsetMaxY: single read GetScrollOffsetMaxY;
-
+    property OnCustomDrawItem: TOnCustomDrawItem read FOnCustomDrawItem write FOnCustomDrawItem;
+    property Scroller: TAniScroller read FScroller write FScroller;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -136,6 +138,8 @@ type
  //   property OnItemClickRight: TksListViewRowClickEvent read FOnItemRightClick write FOnItemRightClick;
     property Align;
     property Anchors;
+    property BorderColor;
+    property BorderWidth;
     property CanFocus default True;
     property CanParentFocus;
     property CellColor;
@@ -151,6 +155,7 @@ type
 //    property DragMode default TDragMode.dmManual;
     property EnableDragHighlight default True;
     property Enabled default True;
+    property Font;
  //   property FullWidthSeparator: Boolean read FFullWidthSeparator write FFullWidthSeparator default True;
     property Locked default False;
     property Height;
@@ -163,8 +168,7 @@ type
     property RotationAngle;
     property RotationCenter;
     property Scale;
-    property ScrollOffsetY;
-    property ScrollOffsetX;
+    property Scroller;
 
  //   property SelectOnRightClick: Boolean read FSelectOnRightClick write FSelectOnRightClick default False;
     property Size;
@@ -187,6 +191,7 @@ type
  //   property OnSearchFilterChanged: TksSearchFilterChange read FOnSearchFilterChanged write FOnSearchFilterChanged;
     { events }
     property OnApplyStyleLookup;
+    property OnCustomDrawItem;
     { Drag and Drop events }
     property OnDragEnter;
     property OnDragLeave;
@@ -263,72 +268,76 @@ procedure Register;
 
 implementation
 
+var
+  ScreenScale: real = 0;
+
 procedure Register;
 begin
   RegisterComponents('MustangpeakFMX', [TVirtualListviewFMX]);
 end;
 
+function GetScreenScale: single;
+var
+  Service: IFMXScreenService;
+begin
+  if ScreenScale > 0 then
+  begin
+    Result := ScreenScale;
+    Exit;
+  end;
+  Service := IFMXScreenService(TPlatformServices.Current.GetPlatformService(IFMXScreenService));
+  Result := Service.GetScreenScale;
+  {$IFDEF IOS}
+  if Result < 2 then
+   Result := 2;
+  {$ENDIF}
+  ScreenScale := Result;
+end;
+
+function LogicalPointsBasedOnPixels(LogicalSize: real; MinimumPixels: Integer): real;
+var
+  Pixels: real;
+begin
+  Pixels := Round(LogicalSize*ScreenScale);
+
+  if (Pixels < MinimumPixels) then
+    Pixels := MinimumPixels;
+
+  Result := Pixels / ScreenScale;
+end;
+
 { TCustomVirtualListviewFMX }
-procedure TCustomVirtualListviewFMX.AniCalcChange(Sender: TObject);
-begin
-  if (PreviousScrollPos.X <> AniCalc.ViewportPositionF.X) or (PreviousScrollPos.Y <> AniCalc.ViewportPositionF.Y) then
-  begin
-    InvalidateRect(LocalRect);
-  end;
-
- // if FScrolling then
-  begin
-  //  ScrollOffsetX := AniCalc.ViewportPosition.X;
-  //  ScrollOffsetY := AniCalc.ViewportPosition.Y;
-  end;
-end;
-
-procedure TCustomVirtualListviewFMX.AniCalcStart(Sender: TObject);
-begin
-  if Scene <> nil then
-    Scene.ChangeScrollingState(Self, True);
-
-  FScrolling := True;
-end;
-
-procedure TCustomVirtualListviewFMX.AniCalcStop(Sender: TObject);
-begin
-  FScrolling := False;
- // FSwipeDirection := ksSwipeUnknown;
-
-  if Scene <> nil then
-    Scene.ChangeScrollingState(nil, False);
-end;
 
 constructor TCustomVirtualListviewFMX.Create(AOwner: TComponent);
 begin
   inherited;
   FCellHeight := 44;
+  FBorderColor := claDarkgray;
+  FBorderWidth := 0;
+  FFont := TFont.Create;
+  FScroller := TAniScroller.Create(Self);
   Items := TVirtualListItems.Create(Self);
   Items.FListview := Self;
-  FAniCalc := TAniCalculations.Create(Self);
-  AniCalc.Animation := True;
-  AniCalc.Averaging := True;
-  AniCalc.OnChanged := AniCalcChange;
-  AniCalc.Interval := 8;
-  AniCalc.OnStart := AniCalcStart;
-  AniCalc.OnStop := AniCalcStop;
-  AniCalc.BoundsAnimation := True;     //FPullToRefresh.Enabled;
-  AniCalc.TouchTracking := [ttVertical];
-  SetLength(FAniTargets, 2);
-  SetLength(FClipRect, 1);
+  CanFocus := True;
 end;
 
 destructor TCustomVirtualListviewFMX.Destroy;
 begin
   FreeAndNil(FItems);
+  FreeAndNil(FFont);
   inherited;
+end;
+
+procedure TCustomVirtualListviewFMX.DoCustomDrawItem(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean);
+begin
+  if Assigned(OnCustomDrawItem) then
+    OnCustomDrawItem(Self, Item, WindowRect, ItemCanvas, TextLayout, Handled);
 end;
 
 procedure TCustomVirtualListviewFMX.DoMouseLeave;
 begin
   inherited;
-  AniCalc.MouseLeave;
+  Scroller.MouseLeave;
 end;
 
 function TCustomVirtualListviewFMX.GetCellCount: Integer;
@@ -336,63 +345,29 @@ begin
   Result := Items.Count
 end;
 
-function TCustomVirtualListviewFMX.GetScrollOffsetMaxX: single;
-begin
-  Result := Max(0 - Width, 0);
-end;
-
-function TCustomVirtualListviewFMX.GetScrollOffsetMaxY: single;
-begin
-  Result := Max((Items.Count * CellHeight) - Height, 0);
-end;
-
-function TCustomVirtualListviewFMX.GetScrollOffsetX: single;
-begin
-  Result := AniCalc.ViewportPositionF.X
-end;
-
-function TCustomVirtualListviewFMX.GetScrollOffsetY: single;
-begin
-  Result := AniCalc.ViewportPositionF.Y
-end;
-
-procedure TCustomVirtualListviewFMX.KeyDown(var Key: Word; var KeyChar: Char;
-  Shift: TShiftState);
+procedure TCustomVirtualListviewFMX.KeyDown(var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   inherited;
-  if Key = vkDown then
-  begin
-    ScrollOffsetY := ScrollOffsetY + CellHeight;
-  end else
-  if Key = vkUp then
-  begin
-    ScrollOffsetY := ScrollOffsetY - CellHeight;
-  end;
+  Scroller.KeyDown(Key, KeyChar, Shift);
 end;
 
 procedure TCustomVirtualListviewFMX.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
 begin
   inherited;
   Capture;
- // AniCalc.BoundsAnimation := FPullToRefresh.Enabled;
-  AniCalc.MouseDown(x, y);
-  Scrolling := True;
+  Scroller.MouseDown(Button, Shift, x, y);
 end;
 
 procedure TCustomVirtualListviewFMX.MouseMove(Shift: TShiftState; X, Y: Single);
 begin
   inherited;
-  if Scrolling then
-    AniCalc.MouseMove(X, Y);
+  Scroller.MouseMove(Shift, X, Y);
 end;
 
 procedure TCustomVirtualListviewFMX.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
 begin
   inherited;
-  if Scrolling then
-    AniCalc.MouseUp(X, Y);
-  Scrolling := False;
-  AniCalc.BoundsAnimation := True;
+  Scroller.MouseUp(Button, Shift, X, Y);
 end;
 
 procedure TCustomVirtualListviewFMX.MouseWheel(Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
@@ -421,37 +396,80 @@ end;
 
 procedure TCustomVirtualListviewFMX.Paint;
 var
-  VisibleRect: TRectF;
+  ViewportRect: TRectF;
+  SavedState: TCanvasSaveState;
+  R: TRectF;
 begin
   inherited;
-  ClipRect[0] := LocalRect;
-  ClipRect[0].Bottom := ClipRect[0].Bottom - 50;
-  if Scene.Canvas.BeginScene(@FClipRect) then
+  if Scene.Canvas.BeginScene then
   begin
     try
-      VisibleRect := LocalRect;
-      VisibleRect.Offset(ScrollOffsetX, ScrollOffsetY);
-      Items.Paint(Scene.Canvas, VisibleRect);
+      SavedState := Scene.Canvas.SaveState;
+      Scene.Canvas.Stroke.Color := BorderColor;
+      Scene.Canvas.Stroke.Kind := TBrushKind.Solid;
+      Scene.Canvas.Stroke.Thickness := LogicalPointsBasedOnPixels(BorderWidth, 0);
+      Scene.Canvas.IntersectClipRect(LocalRect);
+      Scene.Canvas.DrawRect(LocalRect, 0, 0, [TCorner.TopLeft, TCorner.BottomRight], 1.0 );
+      Scene.Canvas.RestoreState(SavedState);
+
+      R := LocalRect;
+      R.Inflate(-BorderWidth/2, -BorderWidth/2);
+
+      SavedState := Scene.Canvas.SaveState;
+      Scene.Canvas.IntersectClipRect(R);
+      Scroller.GetViewportRect(ViewportRect);
+      Items.Paint(Scene.Canvas, ViewportRect);
+      Scene.Canvas.RestoreState(SavedState);
     finally
       Scene.Canvas.EndScene;
     end;
   end;
 end;
 
-procedure TCustomVirtualListviewFMX.RecalculateScrollOffsets;
+procedure TCustomVirtualListviewFMX.RecalculateCellViewportRects(RecalcWorldRect: Boolean);
+var
+  i: Integer;
+  TempRect: TRectF;
 begin
-  FAniTargets[0].TargetType := TAniCalculations.TTargetType.Min;
-  FAniTargets[0].Point := TPointD.Create(0, 0);
-  FAniTargets[1].TargetType := TAniCalculations.TTargetType.Max;
-  FAniTargets[1].Point := TPointD.Create(ScrollOffsetMaxX, ScrollOffsetMaxY);
-  AniCalc.SetTargets(FAniTargets);
+  for i := 0 to Items.Count - 1 do
+  begin
+    Items.NormalizedItemRect(TempRect);
+    TempRect.Offset(0, i * CellHeight);
+    Items[i].BoundsRect := TempRect;
+  end;
+  Scroller.LineScroll := CellHeight;
+  if RecalcWorldRect then
+    RecalculateWorldRect;
+end;
+
+procedure TCustomVirtualListviewFMX.RecalculateWorldRect;
+begin
+  Scroller.SetWorldRect(TRectF.Create(0, 0, Width, (Items.Count * CellHeight) + BorderWidth));
 end;
 
 procedure TCustomVirtualListviewFMX.Resize;
 begin
   inherited;
-  Items.RecalculateCellBoundsRects;
-  RecalculateScrollOffsets
+  RecalculateCellViewportRects(True);
+end;
+
+procedure TCustomVirtualListviewFMX.SetBorderColor(const Value: TAlphaColor);
+begin
+  if Value <> FBorderColor then
+  begin
+    FBorderColor := Value;
+    InvalidateRect(LocalRect);
+  end;
+end;
+
+procedure TCustomVirtualListviewFMX.SetBorderWidth(const Value: real);
+begin
+  if Value <> BorderWidth then
+  begin
+    FBorderWidth := Value;
+    RecalculateCellViewportRects(True);
+    InvalidateRect(LocalRect);
+  end;
 end;
 
 procedure TCustomVirtualListviewFMX.SetCellColor(const Value: TAlphaColor);
@@ -477,56 +495,73 @@ begin
   if FCellHeight <> Value then
   begin
     FCellHeight := Value;
-    Items.RecalculateCellBoundsRects;
-  end;
-end;
-
-procedure TCustomVirtualListviewFMX.SetScrollOffsetX(const Value: single);
-var
-  Temp: single;
-begin
-  Temp := Max(Value, -Width);
-  Temp := Min(Temp, ScrollOffsetMaxX + Width);
-  if AniCalc.ViewportPositionF.X <> Temp then
-  begin
-    AniCalc.ViewportPositionF := TPointF.Create(Temp, ScrollOffsetY);
-    InvalidateRect(LocalRect);
-  end;
-end;
-
-procedure TCustomVirtualListviewFMX.SetScrollOffsetY(const Value: single);
-var
-  Temp: single;
-begin
-  Temp := Max(Value, -Height);
-  Temp := Min(Temp, ScrollOffsetMaxY + Height);
-  if AniCalc.ViewportPositionF.Y <> Temp then
-  begin
-    AniCalc.ViewportPositionF := TPointF.Create(ScrollOffsetX, Temp);
-    InvalidateRect(LocalRect);
+    RecalculateCellViewportRects(True);
   end;
 end;
 
 { TListviewItems }
 
 function TVirtualListItems.Add: TVirtualListItem;
+var
+  TempRect: TRectF;
 begin
   Result := TVirtualListItem.Create;
   Result.FListviewItems := Self;
-  Result.FBoundsRect := RectF(0, Count*Listview.CellHeight, Listview.Width, (Count+1)*Listview.CellHeight);
+  Result.ControlEdit.Parent := Listview;
+  NormalizedItemRect(TempRect);
+  TempRect.Offset(0, Count*Listview.CellHeight);
+  Result.BoundsRect := TempRect;
   Result.Color := Listview.CellColor;
+  Result.TextLayout := TTextLayoutManager.DefaultTextLayout.Create;
   Items.Add(Result);
-  Listview.RecalculateScrollOffsets;
+  Listview.RecalculateWorldRect;
+end;
+
+function TVirtualListItems.AddAsFrame(VirtualListviewCellFrame: TFrame): TVirtualListItem;
+
+  procedure ClipChildWindows(AControl: TControl);
+  var
+    i: Integer;
+  begin
+    for i := 0 to AControl.ControlsCount - 1 do
+    begin
+      if AControl.Controls[i].ControlsCount > 0 then
+        ClipChildWindows(AControl.Controls[i]);
+      AControl.ClipChildren := True;
+    end;
+
+  end;
+
+var
+  TempRect: TRectF;
+begin
+  ClipChildWindows(VirtualListviewCellFrame);
+  Result := TVirtualListItem.Create;
+  Result.FListviewItems := Self;
+  Result.ControlEdit.Parent := Listview;
+  NormalizedItemRect(TempRect);
+  TempRect.Offset(0, Count*Listview.CellHeight);
+  Result.BoundsRect := TempRect;
+  Result.Frame := VirtualListviewCellFrame;
+  Result.Frame.Visible := False;
+  Result.Frame.Parent := Listview;
+  Result.TextLayout := TTextLayoutManager.DefaultTextLayout.Create;
+  Items.Add(Result);
+  Listview.RecalculateWorldRect;
 end;
 
 procedure TVirtualListItems.Clear;
+var
+  i: Integer;
 begin
-  Items.Clear;
+  for i := Items.Count - 1 downto 0 do
+    Items.Delete(i);
 end;
 
 constructor TVirtualListItems.Create(AOwner: TComponent);
 begin
   Items := TObjectList<TVirtualListItem>.Create;
+  Items.OwnsObjects := True;
 end;
 
 destructor TVirtualListItems.Destroy;
@@ -545,12 +580,20 @@ begin
   Result := Items[Index]
 end;
 
-procedure TVirtualListItems.Paint(ACanvas: TCanvas; DrawingRect: TRectF);
+procedure TVirtualListItems.NormalizedItemRect(var ARect: TRectF);
+begin
+  ARect.Left := Listview.BorderWidth/2;
+  ARect.Top := Listview.BorderWidth/2;
+  ARect.Right := Listview.Width - Listview.BorderWidth/2;
+  ARect.Bottom := ARect.Top + Listview.CellHeight;
+end;
+
+procedure TVirtualListItems.Paint(ACanvas: TCanvas; ViewportRect: TRectF);
 var
   i: Integer;
 begin
   for i := 0 to Count - 1 do
-    Item[i].Paint(ACanvas, DrawingRect);
+    Item[i].Paint(ACanvas, ViewportRect);
 end;
 
 procedure TVirtualListItems.SetCellColor(const Value: TAlphaColor);
@@ -566,45 +609,94 @@ begin
   Items[Index] := Value;
 end;
 
-procedure TVirtualListItems.RecalculateCellBoundsRects;
-var
-  i: Integer;
-  TempRect: TRectF;
-begin
-  for i := 0 to Items.Count - 1 do
-  begin
-    TempRect.Top := i * Listview.CellHeight;
-    TempRect.Left := 0;
-    TempRect.Bottom := TempRect.Top + Listview.CellHeight;
-    TempRect.Right := Listview.Width;
-    Items[i].FBoundsRect := TempRect;
-  end;
-end;
-
 { TListviewCell }
 
 constructor TVirtualListItem.Create;
 begin
   inherited;
   Color := claWhite;
+  ControlEdit := TEdit.Create(nil);
+  ControlEdit.Visible := False;
 end;
 
 destructor TVirtualListItem.Destroy;
 begin
+  FreeAndNil(FFrame);
+  FreeAndNil(FControlEdit);
   inherited;
 end;
 
-procedure TVirtualListItem.Paint(ACanvas: TCanvas; DrawingRect: TRectF);
+procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF);
 var
-  R: TRectF;
+  WindowRect, TextRect: TRectF;
+  LayoutSize: TPointF;
+  Handled: Boolean;
 begin
-  ACanvas.Fill.Color := Color;
-  if DrawingRect.IntersectsWith(BoundsRect) then
+  if Assigned(Frame) then
   begin
-    R := BoundsRect;
-    OffsetRect(R, -DrawingRect.Left, -DrawingRect.Top);
-    ACanvas.FillRect(R, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0);
+    if ViewportRect.IntersectsWith(BoundsRect) then
+    begin
+      WindowRect := BoundsRect;
+      OffsetRect(WindowRect, -ViewportRect.Left, -ViewportRect.Top);
+      Frame.Position.X := WindowRect.Left;
+      Frame.Position.Y := WindowRect.Top;
+      Frame.Visible := True;
+    end else
+      Frame.Visible := False;
+  end else
+  begin
+    if ViewportRect.IntersectsWith(BoundsRect) then
+    begin
+      WindowRect := BoundsRect;
+      OffsetRect(WindowRect, -ViewportRect.Left, -ViewportRect.Top);
+      Handled := False;
+      ListviewItems.Listview.DoCustomDrawItem(Self, WindowRect, ACanvas, TextLayout, Handled);
+      if not Handled then
+      begin
+        TextLayout.BeginUpdate;
+        try
+          TextLayout.Text := 'This is a whole lot of text, what will happen';
+          TextLayout.HorizontalAlign := TTextAlign.Center;
+          TextLayout.VerticalAlign := TTextAlign.Center;
+          TextLayout.WordWrap := True;
+          TextLayout.Color := claBlack;
+          TextLayout.Font.Assign(ListviewItems.Listview.Font);
+          TextLayout.TopLeft := WindowRect.TopLeft;
+          TextLayout.MaxSize := WindowRect.Size;
+        finally
+          TextLayout.EndUpdate
+        end;
+        ACanvas.Fill.Color := Color;
+        ACanvas.FillRect(WindowRect, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0);
+        TextLayout.RenderLayout(ACanvas);
+
+        if Assigned(ControlEdit) then
+        begin
+          ControlEdit.Position.X := 50;
+          ControlEdit.Position.Y := WindowRect.Top + 10;
+          ControlEdit.Visible := True;
+        end;
+      end;
+    end else
+    begin
+      ControlEdit.Visible := False;
+    end;
   end;
 end;
+
+procedure TVirtualListItem.SetBoundsRect(const Value: TRectF);
+begin
+  FBoundsRect := Value;
+  if Assigned(Frame) then
+  begin
+    Frame.Width := BoundsRect.Width;
+    Frame.Height := BoundsRect.Height;
+  end
+end;
+
+initialization
+  GetScreenScale;
+
+finalization
 
 end.

@@ -5,13 +5,17 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  VirtualListviewFMX, FMX.Controls.Presentation, System.UIConsts;
+  VirtualListviewFMX, FMX.Controls.Presentation, System.UIConsts, AniScrollerFMX,
+  System.ImageList, FMX.ImgList, VirtualListviewCellFrame, FMX.Edit;
 
 type
   THeaderFooterForm = class(TForm)
     Header: TToolBar;
     Footer: TToolBar;
     HeaderLabel: TLabel;
+    ImageList1: TImageList;
+    SpeedButton1: TSpeedButton;
+    ImageList2: TImageList;
     VirtualListviewFMX1: TVirtualListviewFMX;
     procedure FormCreate(Sender: TObject);
   private
@@ -31,15 +35,20 @@ procedure THeaderFooterForm.FormCreate(Sender: TObject);
 var
   i: Integer;
   Item: TVirtualListItem;
+  Frame: TFrameListviewItem;
 begin
   VirtualListviewFMX1.Items.Clear;
-  for i := 0 to 999 do
+  for i := 0 to 20 do
   begin
+ //   Frame := TFrameListviewItem.Create(nil);
+ //   Frame.LabelTitle.Text := 'Item: ' + IntToStr(i);
+ //   Frame.LabelDetail.Text := 'SubName';
+  //  Item := VirtualListviewFMX1.Items.AddAsFrame(Frame);
     Item := VirtualListviewFMX1.Items.Add;
-    if i mod 2 = 0 then
+ {   if i mod 2 = 0 then
       Item.Color := claCornsilk
     else
-      Item.Color := claSpringgreen
+      Item.Color := claSpringgreen   }
   end;
 end;
 

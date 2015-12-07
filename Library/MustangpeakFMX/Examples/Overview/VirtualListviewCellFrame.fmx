@@ -1,0 +1,88 @@
+object FrameListviewItem: TFrameListviewItem
+  HitTest = False
+  Size.Width = 312.000000000000000000
+  Size.Height = 44.000000000000000000
+  Size.PlatformDefault = False
+  TabStop = False
+  object LayoutMainImage: TLayout
+    Align = MostLeft
+    Size.Width = 50.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object ImageMain: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Client
+      HitTest = False
+      Size.Width = 50.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+  object LayoutAccessoryImage: TLayout
+    Align = MostRight
+    Position.X = 280.000000000000000000
+    Size.Width = 32.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    TabStop = False
+    object ImageAccessory: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Client
+      HitTest = False
+      Size.Width = 32.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+  object Layout1: TLayout
+    Align = Client
+    Size.Width = 169.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    TabStop = False
+    object LabelTitle: TLabel
+      Align = Top
+      Size.Width = 169.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.WordWrap = False
+      Text = 'Title'
+    end
+    object LabelDetail: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, Style]
+      Margins.Left = 8.000000000000000000
+      Size.Width = 161.000000000000000000
+      Size.Height = 24.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.FontColor = claDimgray
+      TextSettings.VertAlign = Leading
+      Text = 'Detail'
+    end
+  end
+  object Layout2: TLayout
+    Align = Right
+    Position.X = 219.000000000000000000
+    Size.Width = 61.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    TabStop = False
+    object Label3: TLabel
+      Align = Right
+      Position.X = -7.000000000000000000
+      Size.Width = 68.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Trailing
+      Text = 'Accy Text'
+    end
+  end
+end
