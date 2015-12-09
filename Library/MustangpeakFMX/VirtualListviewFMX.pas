@@ -16,13 +16,6 @@ type
 
   TOnCustomDrawItem = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
 
-  TVirtualEdit = class(TEdit)
-  protected
-    procedure DoPaint; override;
-    procedure Paint; override;
-
-  end;
-
   TVirtualListItem = class(TPersistent)
   private
     FListviewItems: TVirtualListItems;
@@ -31,10 +24,8 @@ type
     FText: string;
     FTextLayout: TTextLayout;
     FFrame: TFrame;
-    FControlEdit: TVirtualEdit;
     procedure SetBoundsRect(const Value: TRectF);
   protected
-    property ControlEdit: TVirtualEdit read FControlEdit write FControlEdit;
     property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
     property TextLayout: TTextLayout read FTextLayout write FTextLayout;
@@ -90,14 +81,10 @@ type
     FScroller: TAniScroller;
     FOnCustomDrawItem: TOnCustomDrawItem;
     FFont: TFont;
-    FBorderColor: TAlphaColor;
-    FBorderWidth: real;
     procedure SetCellHeight(const Value: Integer);
     procedure SetCellColor(const Value: TAlphaColor);
     function GetCellCount: Integer;
     procedure SetCellCount(const Value: Integer);
-    procedure SetBorderColor(const Value: TAlphaColor);
-    procedure SetBorderWidth(const Value: real);
   protected
     procedure DoCustomDrawItem(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean); virtual;
     procedure DoMouseLeave; override;
@@ -111,8 +98,6 @@ type
     procedure Resize; override;
     procedure KeyDown(var Key: Word; var KeyChar: Char; Shift: TShiftState); override;
 
-    property BorderWidth: real read FBorderWidth write SetBorderWidth;
-    property BorderColor: TAlphaColor read FBorderColor write SetBorderColor default claDarkgray;
     property CellColor: TAlphaColor read FCellColor write SetCellColor default claWhite;
     property CellCount: Integer read GetCellCount write SetCellCount default 0;
     property CellHeight: Integer read FCellHeight write SetCellHeight default 44;
@@ -150,8 +135,6 @@ type
  //   property OnItemClickRight: TksListViewRowClickEvent read FOnItemRightClick write FOnItemRightClick;
     property Align;
     property Anchors;
-    property BorderColor;
-    property BorderWidth;
     property CanFocus default True;
     property CanParentFocus;
     property CellColor;
@@ -278,6 +261,9 @@ type
 
 procedure Register;
 
+function GetScreenScale: single;
+function LogicalPointsBasedOnPixels(LogicalSize: real; MinimumPixels: Integer): real;
+
 implementation
 
 var
@@ -325,8 +311,6 @@ begin
   inherited;
   ClipChildren  := True;
   FCellHeight := 44;
-  FBorderColor := claDarkgray;
-  FBorderWidth := 0;
   FFont := TFont.Create;
   FScroller := TAniScroller.Create(Self);
   Items := TVirtualListItems.Create(Self);
@@ -418,17 +402,6 @@ begin
   begin
     try
       SavedState := Scene.Canvas.SaveState;
-      Scene.Canvas.Stroke.Color := BorderColor;
-      Scene.Canvas.Stroke.Kind := TBrushKind.Solid;
-      Scene.Canvas.Stroke.Thickness := LogicalPointsBasedOnPixels(BorderWidth, 0);
-      Scene.Canvas.IntersectClipRect(LocalRect);
-      Scene.Canvas.DrawRect(LocalRect, 0, 0, [TCorner.TopLeft, TCorner.BottomRight], 1.0 );
-      Scene.Canvas.RestoreState(SavedState);
-
-      R := LocalRect;
-      R.Inflate(-BorderWidth/2, -BorderWidth/2);
-
-      SavedState := Scene.Canvas.SaveState;
       Scene.Canvas.IntersectClipRect(R);
       Scroller.GetViewportRect(ViewportRect);
       Items.Paint(Scene.Canvas, ViewportRect);
@@ -465,32 +438,13 @@ end;
 
 procedure TCustomVirtualListviewFMX.RecalculateWorldRect;
 begin
-  Scroller.SetWorldRect(TRectF.Create(0, 0, Width, (Items.Count * CellHeight) + BorderWidth));
+  Scroller.SetWorldRect(TRectF.Create(0, 0, Width, Items.Count * CellHeight));
 end;
 
 procedure TCustomVirtualListviewFMX.Resize;
 begin
   inherited;
   RecalculateCellViewportRects(True, True);
-end;
-
-procedure TCustomVirtualListviewFMX.SetBorderColor(const Value: TAlphaColor);
-begin
-  if Value <> FBorderColor then
-  begin
-    FBorderColor := Value;
-    InvalidateRect(LocalRect);
-  end;
-end;
-
-procedure TCustomVirtualListviewFMX.SetBorderWidth(const Value: real);
-begin
-  if Value <> BorderWidth then
-  begin
-    FBorderWidth := Value;
-    RecalculateCellViewportRects(True, True);
-    InvalidateRect(LocalRect);
-  end;
 end;
 
 procedure TCustomVirtualListviewFMX.SetCellColor(const Value: TAlphaColor);
@@ -614,9 +568,9 @@ end;
 
 procedure TVirtualListItems.NormalizedItemRect(var ARect: TRectF);
 begin
-  ARect.Left := Listview.BorderWidth/2;
-  ARect.Top := Listview.BorderWidth/2;
-  ARect.Right := Listview.Width - Listview.BorderWidth/2;
+  ARect.Left := 0;
+  ARect.Top := 0;
+  ARect.Right := Listview.Width;
   ARect.Bottom := ARect.Top + Listview.CellHeight;
 end;
 
@@ -648,15 +602,11 @@ begin
   inherited Create;
   FListviewItems := AnItemList;
   Color := claWhite;
-  ControlEdit := TVirtualEdit.Create(nil);
-  ControlEdit.Visible := False;
-  ControlEdit.Parent := ListviewItems.Listview;
 end;
 
 destructor TVirtualListItem.Destroy;
 begin
   FreeAndNil(FFrame);
-  FreeAndNil(FControlEdit);
   inherited;
 end;
 
@@ -702,18 +652,9 @@ begin
         ACanvas.Fill.Color := Color;
         ACanvas.FillRect(WindowRect, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0);
         TextLayout.RenderLayout(ACanvas);
-
-        if Assigned(ControlEdit) then
-        begin
-          ControlEdit.Position.X := 50;
-          ControlEdit.Position.Y := WindowRect.Top + 10;
-          ControlEdit.Visible := True;
-          ControlEdit.InvalidateRect(ControlEdit.LocalRect);
-        end;
       end;
     end else
     begin
-      ControlEdit.Visible := False;
     end;
   end;
 end;
@@ -726,19 +667,6 @@ begin
     Frame.Width := BoundsRect.Width;
     Frame.Height := BoundsRect.Height;
   end
-end;
-
-{ TVirtualEdit }
-
-procedure TVirtualEdit.DoPaint;
-begin
-  inherited;
-end;
-
-procedure TVirtualEdit.Paint;
-begin
-  inherited;
-
 end;
 
 initialization
