@@ -14,10 +14,11 @@ type
   TCustomVirtualListviewFMX = class;
   TVirtualListItems = class;
   TVirtualListItem = class;
+  TVirtualImageProperties = class;
 
 
   TOnItemCustomDraw = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
-  TOnGetItemImage = procedure(Sender: TObject; Item: TVirtualListItem; var ImageList: TCustomImageList; var ImageIndex: Integer) of object;
+  TOnGetItemImage = procedure(Sender: TObject; Item: TVirtualListItem; ImageProps: TVirtualImageProperties) of object;
   TOnGetItemSize = procedure(Sender: TObject; Item: TVirtualListItem; var Width, Height: real) of object;
   TOnGetItemText = procedure(Sender: TObject; Item: TVirtualListItem; TextLayout: TTextLayout) of object;
   TOnGetItemDetailText = procedure(Sender: TObject; Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout) of object;
@@ -74,6 +75,28 @@ type
     property Lines: Integer read FLines write SetLines default 1;
     property TextLayout: TVirtualTextLayout read FTextLayout write FTextLayout;
     property Text: string read FText write SetText;
+  end;
+
+  TVirtualImageProperties = class(TPersistent)
+  private
+    FHorizontalAlign: TTextAlign;
+    FWidth: real;
+    FVerticalAlign: TTextAlign;
+    FOpacity: real;
+    FPadding: TBounds;
+    FImages: TCustomImageList;
+    FImageIndex: Integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  published
+    property Images: TCustomImageList read FImages write FImages;
+    property ImageIndex: Integer read FImageIndex write FImageIndex default -1;
+    property Opacity: real read FOpacity write FOpacity;
+    property Padding: TBounds read FPadding write FPadding;
+    property HorizontalAlign: TTextAlign read FHorizontalAlign write FHorizontalAlign default TTextAlign.Center;
+    property VerticalAlign: TTextAlign read FVerticalAlign write FVerticalAlign default TTextAlign.Center;
+    property Width: real read FWidth write FWidth;
   end;
 
   TVirtualListItem = class(TPersistent)
@@ -164,7 +187,6 @@ type
     FCellHeight: Integer;
     FOnGetItemImage: TOnGetItemImage;
     FOnGetItemSize: TOnGetItemSize;
-    FLoadedComplete: Boolean;
 
     procedure SetCellHeight(const Value: Integer);
     procedure SetCellColor(const Value: TAlphaColor);
@@ -173,7 +195,7 @@ type
     procedure SetText(const Value: string);
   protected
 
-    procedure DoGetItemImage(Item: TVirtualListItem; var ImageList: TCustomImageList; var ImageIndex: Integer); virtual;
+    procedure DoGetItemImage(Item: TVirtualListItem; ImageProps: TVirtualImageProperties); virtual;
     procedure DoGetItemSize(Item: TVirtualListItem; var Width, Height: real); virtual;
     procedure DoGetItemText(Item: TVirtualListItem; TextLayout: TTextLayout); virtual;
     procedure DoGetItemDetailText(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout); virtual;
@@ -197,7 +219,6 @@ type
     property Details: TVirtualDetails read FDetails write FDetails;
     property Font: TFont read FFont write FFont;
     property Items: TVirtualListItems read FItems write FItems;
-    property LoadedComplete: Boolean read FLoadedComplete;
     property OnItemCustomDraw: TOnItemCustomDraw read FOnCustomDrawItem write FOnCustomDrawItem;
     property OnGetItemImage: TOnGetItemImage read FOnGetItemImage write FOnGetItemImage;
     property OnGetItemSize: TOnGetItemSize read FOnGetItemSize write FOnGetItemSize;
@@ -442,10 +463,10 @@ begin
     OnGetItemDetailText(Self, Item, DetailLineIndex, TextLayout);
 end;
 
-procedure TCustomVirtualListviewFMX.DoGetItemImage(Item: TVirtualListItem; var ImageList: TCustomImageList; var ImageIndex: Integer);
+procedure TCustomVirtualListviewFMX.DoGetItemImage(Item: TVirtualListItem; ImageProps: TVirtualImageProperties);
 begin
   if Assigned(OnGetItemImage) then
-    OnGetItemImage(Self, Item, ImageList, ImageIndex);
+    OnGetItemImage(Self, Item, ImageProps);
 end;
 
 procedure TCustomVirtualListviewFMX.DoGetItemSize(Item: TVirtualListItem; var Width, Height: real);
@@ -485,7 +506,6 @@ end;
 procedure TCustomVirtualListviewFMX.Loaded;
 begin
   inherited;
-  FLoadedComplete := True;
   RecalculateCellViewportRects(False, True);
 end;
 
@@ -560,7 +580,7 @@ var
   AWidth, AHeight: real;
   Run: Boolean;
 begin
-  if LoadedComplete and ([csDestroying] * ComponentState = []) then
+  if ([csDestroying, csLoading] * ComponentState = []) then
   begin
     Run := True;
     if RespectUpdateCount then
@@ -737,8 +757,8 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF);
 var
   WindowRect, ImageRect, TitleRect, DetailRect: TRectF;
   Handled: Boolean;
-  Images: TCustomImageList;
-  iDetail, iImage: Integer;
+  iDetail: Integer;
+  ImageProps: TVirtualImageProperties;
 begin
   if ViewportRect.IntersectsWith(BoundsRect) then
   begin
@@ -753,15 +773,18 @@ begin
       ACanvas.FillRect(WindowRect, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0);
 
       // Paint the image
-      ImageRect := WindowRect;
-      ImageRect.Width := 0;
-      Images := nil;
-      iImage := -1;
-      ListviewItems.Listview.DoGetItemImage(Self, Images, iImage);
-      if Assigned(Images) and (iImage > -1) then
-      begin
-        ImageRect.Width := 44;
-        Images.Draw(ACanvas, ImageRect, iImage, 1)
+      ImageProps := TVirtualImageProperties.Create();
+      try
+        ImageRect := WindowRect;
+        ImageRect.Width := 0;
+        ListviewItems.Listview.DoGetItemImage(Self, ImageProps);
+        if Assigned(ImageProps.Images) and (ImageProps.ImageIndex > -1) then
+        begin
+          ImageRect.Width := WindowRect.Height;
+          ImageProps.Images.Draw(ACanvas, ImageRect, ImageProps.ImageIndex, 1)
+        end;
+      finally
+        ImageProps.DisposeOf;
       end;
 
       TitleRect.Create(ImageRect.Right, WindowRect.Top, WindowRect.Right, WindowRect.Bottom);
@@ -977,6 +1000,20 @@ begin
     FExpanded := Value;
     ListviewItems.Listview.RecalculateCellViewportRects(True, True);
   end;
+end;
+
+{ TVirtualImageProperties }
+
+constructor TVirtualImageProperties.Create;
+begin
+  FPadding := TBounds.Create(TRectF.Create(0, 0, 0, 0));
+  ImageIndex := -1;
+end;
+
+destructor TVirtualImageProperties.Destroy;
+begin
+  FreeAndNil(FPadding);
+  inherited;
 end;
 
 initialization

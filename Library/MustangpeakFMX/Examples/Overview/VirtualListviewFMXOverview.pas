@@ -28,8 +28,7 @@ type
     procedure VirtualListviewFMX1GetItemSize(Sender: TObject;
       Item: TVirtualListItem; var Width, Height: Real);
     procedure VirtualListviewFMX1GetItemImage(Sender: TObject;
-      Item: TVirtualListItem; var ImageList: TCustomImageList;
-      var ImageIndex: Integer);
+      Item: TVirtualListItem; ImageProps: TVirtualImageProperties);
   private
     { Private declarations }
   public
@@ -71,11 +70,10 @@ begin
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemImage(Sender: TObject;
-  Item: TVirtualListItem; var ImageList: TCustomImageList;
-  var ImageIndex: Integer);
+  Item: TVirtualListItem; ImageProps: TVirtualImageProperties);
 begin
-  ImageList := ImageList1;
-  ImageIndex := 0;
+  ImageProps.Images := ImageList1;
+  ImageProps.ImageIndex := 0;
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemSize(Sender: TObject;
