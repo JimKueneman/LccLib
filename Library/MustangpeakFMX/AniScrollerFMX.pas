@@ -126,12 +126,12 @@ end;
 
 function TAniScroller.GetScrollOffsetX: single;
 begin
-  Result := AniCalc.ViewportPositionF.X
+  Result := Round( AniCalc.ViewportPositionF.X)
 end;
 
 function TAniScroller.GetScrollOffsetY: single;
 begin
-  Result := AniCalc.ViewportPositionF.Y
+  Result := Round(AniCalc.ViewportPositionF.Y);
 end;
 
 procedure TAniScroller.GetViewportRect(var ARect: TRectF);
