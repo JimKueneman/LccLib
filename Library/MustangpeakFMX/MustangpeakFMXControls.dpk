@@ -33,7 +33,7 @@ requires
   fmx;
 
 contains
-  VirtualListviewFMX in 'VirtualListviewFMX.pas',
-  AniScrollerFMX in 'AniScrollerFMX.pas';
+  Mustangpeak.FMX.VirtualListview in 'Mustangpeak.FMX.VirtualListview.pas',
+  Mustangpeak.FMX.AniScroller in 'Mustangpeak.FMX.AniScroller.pas';
 
 end.

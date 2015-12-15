@@ -5,8 +5,13 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  VirtualListviewFMX, FMX.Controls.Presentation, System.UIConsts, AniScrollerFMX,
-  System.ImageList, FMX.ImgList, FMX.Edit, FMX.TextLayout;
+  Mustangpeak.FMX.VirtualListview, FMX.Controls.Presentation, System.UIConsts,
+  Mustangpeak.FMX.AniScroller, System.ImageList, FMX.ImgList, FMX.Edit, FMX.TextLayout;
+
+const
+  ID_MAIN_IMAGE      = 0;
+  ID_MAIN_TEXT       = 1;
+  ID_ACCESSORY_IMAGE = 2;
 
 type
   THeaderFooterForm = class(TForm)
@@ -17,18 +22,13 @@ type
     VirtualListviewFMX1: TVirtualListviewFMX;
     ImageList1: TImageList;
     procedure FormCreate(Sender: TObject);
-    procedure VirtualListviewFMX1GetItemText(Sender: TObject;
-      Item: TVirtualListItem; TextLayout: TTextLayout);
-    procedure VirtualListviewFMX1GetItemDetailText(Sender: TObject;
-      Item: TVirtualListItem; DetailLineIndex: Integer;
-      TextLayout: TTextLayout);
-    procedure VirtualListviewFMX1ItemCustomDraw(Sender: TObject;
-      Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas;
-      TextLayout: TTextLayout; var Handled: Boolean);
-    procedure VirtualListviewFMX1GetItemSize(Sender: TObject;
-      Item: TVirtualListItem; var Width, Height: Real);
+    procedure VirtualListviewFMX1GetItemSize(Sender: TObject; Item: TVirtualListItem; var Width, Height: Real);
+    procedure VirtualListviewFMX1GetItemText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
+    procedure VirtualListviewFMX1GetItemDetailText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
     procedure VirtualListviewFMX1GetItemImage(Sender: TObject;
-      Item: TVirtualListItem; ImageProps: TVirtualImageProperties);
+      Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
+    procedure VirtualListviewFMX1GetItemLayout(Sender: TObject;
+      Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
   private
     { Private declarations }
   public
@@ -63,37 +63,60 @@ end;
 
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemDetailText(
-  Sender: TObject; Item: TVirtualListItem; DetailLineIndex: Integer;
+  Sender: TObject; Item: TVirtualListItem; ID: Integer;
   TextLayout: TTextLayout);
 begin
-  TextLayout.Text := '';
+  case ID of
+    0 : begin
+          TextLayout.Text := 'Detail 1';
+        end;
+    1 : begin
+          TextLayout.Text := 'Detail 2';
+        end;
+  end;
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemImage(Sender: TObject;
-  Item: TVirtualListItem; ImageProps: TVirtualImageProperties);
+  Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
 begin
-  ImageProps.Images := ImageList1;
-  ImageProps.ImageIndex := 0;
+  case ID  of
+    ID_MAIN_IMAGE : begin
+          ImageLayout.Images := ImageList1;
+          ImageLayout.ImageIndex := 0;
+          ImageLayout.Opacity := 1.0
+        end;
+    ID_ACCESSORY_IMAGE : begin
+          ImageLayout.Images := ImageList1;
+          ImageLayout.ImageIndex := 0;
+          ImageLayout.Opacity := 1.0
+        end;
+  end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayout(Sender: TObject; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
+begin
+  SetLength(Layout, 3);
+  Layout[0] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 24, TVirtualLayoutWidth.Fixed);
+  Layout[1] := TVirtualLayout.Create(ID_MAIN_TEXT, TVirtualLayoutKind.Text, 0, TVirtualLayoutWidth.Variable);
+  Layout[2] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 16, TVirtualLayoutWidth.Fixed);
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemSize(Sender: TObject;
   Item: TVirtualListItem; var Width, Height: Real);
 begin
-  if Item.Index mod 2 = 0 then
-    Height := 88;
+ // if Item.Index mod 2 = 0 then
+ //   Height := 88;
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemText(Sender: TObject;
-  Item: TVirtualListItem; TextLayout: TTextLayout);
+  Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout;
+  var DetailLines: Integer);
 begin
-  TextLayout.Text := 'This is item: ' + IntToStr(Item.Index);
-end;
-
-procedure THeaderFooterForm.VirtualListviewFMX1ItemCustomDraw(Sender: TObject;
-  Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas;
-  TextLayout: TTextLayout; var Handled: Boolean);
-begin
-  Handled := False;
+  case ID of
+    ID_MAIN_TEXT : TextLayout.Text := 'Item number: ' + IntToStr(Item.Index);
+  else
+    TextLayout.Text := 'Unknown ID';
+  end;
 end;
 
 end.

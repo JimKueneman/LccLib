@@ -1,4 +1,4 @@
-unit AniScrollerFMX;
+unit Mustangpeak.FMX.AniScroller;
 
 interface
 

@@ -3,7 +3,7 @@ object HeaderFooterForm: THeaderFooterForm
   Top = 42
   Caption = 'Header Footer Form'
   ClientHeight = 400
-  ClientWidth = 377
+  ClientWidth = 400
   Position = Designed
   FormFactor.Width = 1440
   FormFactor.Height = 900
@@ -12,13 +12,13 @@ object HeaderFooterForm: THeaderFooterForm
   Top = 42
   DesignerMasterStyle = 0
   object Header: TToolBar
-    Size.Width = 377.000000000000000000
+    Size.Width = 400.000000000000000000
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object HeaderLabel: TLabel
       Align = Contents
-      Size.Width = 377.000000000000000000
+      Size.Width = 400.000000000000000000
       Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
       StyleLookup = 'toollabel'
@@ -36,30 +36,39 @@ object HeaderFooterForm: THeaderFooterForm
   object Footer: TToolBar
     Align = Bottom
     Position.Y = 352.000000000000000000
-    Size.Width = 377.000000000000000000
+    Size.Width = 400.000000000000000000
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     StyleLookup = 'bottomtoolbar'
     TabOrder = 2
   end
   object VirtualListviewFMX1: TVirtualListviewFMX
-    Details.TextLayout.Opacity = 1.000000000000000000
-    TextLayout.Padding.Left = 16.000000000000000000
-    TextLayout.WordWrap = True
-    TextLayout.HorizontalAlign = Leading
-    TextLayout.Opacity = 1.000000000000000000
-    Text = 'This is a really long text that may or may not fit'
+    TextDetailLayout.Lines = 2
+    TextDetailLayout.TextLayout.Text = 'Detail Info'
+    TextDetailLayout.TextLayout.Padding.Left = 24.000000000000000000
+    TextDetailLayout.TextLayout.Opacity = 0.500000000000000000
+    TextDetailLayout.TextLayout.Trimming = Character
+    TextTitleLayout.Text = 'Default Title'
+    TextTitleLayout.Padding.Left = 8.000000000000000000
+    TextTitleLayout.Opacity = 1.000000000000000000
+    TextTitleLayout.Trimming = Character
+    ImageLayout.Padding.Left = 4.000000000000000000
+    ImageLayout.Padding.Top = 4.000000000000000000
+    ImageLayout.Padding.Right = 4.000000000000000000
+    ImageLayout.Padding.Bottom = 4.000000000000000000
+    ImageLayout.Width = 48.000000000000000000
     Align = Client
-    CellColor = claSienna
+    CellColor = claSnow
     CellCount = 50
+    CellHeight = 54
     DisableFocusEffect = False
-    Size.Width = 377.000000000000000000
+    Size.Width = 400.000000000000000000
     Size.Height = 304.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
-    OnItemCustomDraw = VirtualListviewFMX1ItemCustomDraw
     OnGetItemSize = VirtualListviewFMX1GetItemSize
     OnGetItemImage = VirtualListviewFMX1GetItemImage
+    OnGetItemLayout = VirtualListviewFMX1GetItemLayout
     OnGetItemText = VirtualListviewFMX1GetItemText
     OnGetItemDetailText = VirtualListviewFMX1GetItemDetailText
   end
@@ -226,7 +235,7 @@ object HeaderFooterForm: THeaderFooterForm
             SourceRect.Bottom = 24.000000000000000000
           end>
       end>
-    Left = 176
-    Top = 184
+    Left = 224
+    Top = 96
   end
 end
