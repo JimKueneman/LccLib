@@ -10,6 +10,8 @@ uses
 type
   TAniTargets = array of TAniCalculations.TTarget;
 
+  TOnMouseClick = procedure(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single) of object;
+
 type
   TAniScroller = class
   private
@@ -20,6 +22,12 @@ type
     FOwnerControl: TControl;
     FWorldRect: TRectF;
     FLineScroll: real;
+    FIsMouseLeftButtonDown: Boolean;
+    FIsMouseRightButtonDown: Boolean;
+    FIsMouseMiddleButtonDown: Boolean;
+    FScrollMouseDownPoint: TPointF;
+    FScrollDeltaMoveStart: real;
+    FOnMouseClick: TOnMouseClick;
     function GetScrollOffsetMaxX: single;
     function GetScrollOffsetMaxY: single;
     function GetScrollOffsetX: single;
@@ -31,11 +39,17 @@ type
     property AniTargets: TAniTargets read FAniTargets write FAniTargets;
     property ClientRect: TRectF read FWorldRect write FWorldRect;
     property PreviousScrollPos: TPointF read FPreviousScrollPos write FPreviousScrollPos;
+    property ScrollMouseDownPoint: TPointF read FScrollMouseDownPoint write FScrollMouseDownPoint;
+    property ScrollDeltaMoveStart: real read FScrollDeltaMoveStart write FScrollDeltaMoveStart;
 
     procedure AniCalcStart(Sender: TObject);
     procedure AniCalcChange(Sender: TObject);
     procedure AniCalcStop(Sender: TObject);
+    procedure DoMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single); virtual;
   public
+    property IsMouseLeftButtonDown: Boolean read FIsMouseLeftButtonDown;
+    property IsMouseRightButtonDown: Boolean read FIsMouseRightButtonDown;
+    property IsMouseMiddleButtonDown: Boolean read FIsMouseMiddleButtonDown;
     property OwnerControl: TControl read FOwnerControl;
     property Scrolling: Boolean read FScrolling write FScrolling;
     property ScrollOffsetX: single read GetScrollOffsetX write SetScrollOffsetX;
@@ -43,6 +57,7 @@ type
     property ScrollOffsetY: single read GetScrollOffsetY write SetScrollOffsetY;
     property ScrollOffsetMaxY: single read GetScrollOffsetMaxY;
     property LineScroll: real read FLineScroll write FLineScroll;
+    property OnMouseClick: TOnMouseClick read FOnMouseClick write FOnMouseClick;
 
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
@@ -79,15 +94,12 @@ procedure TAniScroller.AniCalcStart(Sender: TObject);
 begin
   if OwnerControl.Scene <> nil then
     OwnerControl.Scene.ChangeScrollingState(OwnerControl, True);
-
   FScrolling := True;
 end;
 
 procedure TAniScroller.AniCalcStop(Sender: TObject);
 begin
   FScrolling := False;
- // FSwipeDirection := ksSwipeUnknown;
-
   if OwnerControl.Scene <> nil then
     OwnerControl.Scene.ChangeScrollingState(nil, False);
 end;
@@ -106,12 +118,19 @@ begin
   AniCalc.BoundsAnimation := True;     //FPullToRefresh.Enabled;
   AniCalc.TouchTracking := [ttVertical];
   FLineScroll := 44;
+  FScrollDeltaMoveStart := 5.0; // move 5 before a mouse action is called a scroll
 end;
 
 destructor TAniScroller.Destroy;
 begin
   FreeAndNil(FAniCalc);
   inherited;
+end;
+
+procedure TAniScroller.DoMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
+begin
+  if Assigned(OnMouseClick) then
+    OnMouseClick(Button, Shift, WorldX, WorldY);
 end;
 
 function TAniScroller.GetScrollOffsetMaxX: single;
@@ -168,9 +187,19 @@ end;
 procedure TAniScroller.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
 begin
   TControlHack( FOwnerControl).Capture;
- // AniCalc.BoundsAnimation := FPullToRefresh.Enabled;
-  AniCalc.MouseDown(x, y);
-  FScrolling := True;
+  case Button of
+    TMouseButton.mbLeft:
+      begin
+        if Scrolling then
+          AniCalc.MouseDown(X, Y)
+        else begin
+          FIsMouseLeftButtonDown := True;
+          FScrollMouseDownPoint.Create(X, Y);        // get ready to detect a scroll
+        end;
+      end;
+    TMouseButton.mbRight: FIsMouseRightButtonDown := True;
+    TMouseButton.mbMiddle: FIsMouseMiddleButtonDown := True;
+  end;
 end;
 
 procedure TAniScroller.MouseLeave;
@@ -180,16 +209,32 @@ end;
 
 procedure TAniScroller.MouseMove(Shift: TShiftState; X, Y: Single);
 begin
- if Scrolling then
-   AniCalc.MouseMove(X, Y);
+  if Scrolling then
+  begin
+    AniCalc.MouseMove(X, Y)
+  end else
+  begin
+    if IsMouseLeftButtonDown then
+    begin
+      if (X < ScrollMouseDownPoint.X - ScrollDeltaMoveStart) or (X > ScrollMouseDownPoint.X - ScrollDeltaMoveStart) or
+         (Y < ScrollMouseDownPoint.Y - ScrollDeltaMoveStart) or (Y > ScrollMouseDownPoint.Y - ScrollDeltaMoveStart) then
+        AniCalc.MouseDown(ScrollMouseDownPoint.X, ScrollMouseDownPoint.Y);
+    end;
+  end;
 end;
 
 procedure TAniScroller.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Single);
 begin
- if Scrolling then
-    AniCalc.MouseUp(X, Y);
-  FScrolling := False;
-  AniCalc.BoundsAnimation := True;
+  if Scrolling then
+    AniCalc.MouseUp(X, Y)
+  else
+    DoMouseClick(Button, Shift, X + ScrollOffsetX, Y + ScrollOffsetY);
+
+  case Button of
+    TMouseButton.mbLeft: FIsMouseLeftButtonDown := False;
+    TMouseButton.mbRight: FIsMouseRightButtonDown := False;
+    TMouseButton.mbMiddle: FIsMouseMiddleButtonDown := False;
+  end;
 end;
 
 procedure TAniScroller.SetWorldRect(ARect: TRectF);

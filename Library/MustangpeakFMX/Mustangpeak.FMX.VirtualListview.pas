@@ -31,6 +31,7 @@ type
 
   TOnItemCustomDraw = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean) of object;
   TOnItemDrawBackground = procedure(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean) of object;
+  TOnItemLayoutElementClick = procedure(Sender: TObject; Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer) of object;
   TOnGetItemCheckImage = procedure(Sender: TObject; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout) of object;
   TOnGetItemImage = procedure(Sender: TObject; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout) of object;
   TOnGetItemLayout = procedure(Sender: TObject; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray) of object;
@@ -148,6 +149,7 @@ type
     property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
 
+    procedure CalculateVariableWidthElement(var LayoutArray: TVirtualItemLayoutArray);
     procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutArray: TVirtualItemLayoutArray);
 
   public
@@ -159,6 +161,7 @@ type
 
     constructor Create(AnItemList: TVirtualListItems);
     destructor Destroy; override;
+    function PointToLayoutID(Point: TPointF; LayoutArray: TVirtualItemLayoutArray): Integer;
   end;
 
   TVirtualListGroup = class(TVirtualListItem)
@@ -200,6 +203,7 @@ type
     procedure Clear;
     procedure EndUpdate;
     function Add: TVirtualListItem;
+    function FindItemByPt(APoint: TPointF): TVirtualListItem;
   end;
 
   TCustomVirtualListviewFMX = class(TControl)
@@ -219,6 +223,7 @@ type
     FImageLayout: TPublishedVirtualImageLayout;
     FOnGetItemLayout: TOnGetItemLayout;
     FOnItemDrawBackground: TOnItemDrawBackground;
+    FOnItemLayoutElementClick: TOnItemLayoutElementClick;
 
     procedure SetCellHeight(const Value: Integer);
     procedure SetCellColor(const Value: TAlphaColor);
@@ -233,12 +238,14 @@ type
     procedure DoGetItemDetailText(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout); virtual;
     procedure DoItemCustomDraw(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean); virtual;
     procedure DoItemDrawBackground(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean); virtual;
+    procedure DoItemLayoutElementClick(Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer); virtual;
     procedure DoRedraw; virtual;
     procedure DoMouseLeave; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean); override;
+    procedure MouseClickEvent(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
     procedure Paint; override;
     procedure RecalculateCellViewportRects(RespectUpdateCount: Boolean; RecalcWorldRect: Boolean);
     procedure RecalculateWorldRect;
@@ -255,6 +262,7 @@ type
     property Items: TVirtualListItems read FItems write FItems;
     property OnItemCustomDraw: TOnItemCustomDraw read FOnCustomDrawItem write FOnCustomDrawItem;
     property OnItemDrawBackground: TOnItemDrawBackground read FOnItemDrawBackground write FOnItemDrawBackground;
+    property OnItemLayoutElementClick: TOnItemLayoutElementClick read FOnItemLayoutElementClick write FOnItemLayoutElementClick;
     property OnGetItemImage: TOnGetItemImage read FOnGetItemImage write FOnGetItemImage;
     property OnGetItemLayout: TOnGetItemLayout read FOnGetItemLayout write FOnGetItemLayout;
     property OnGetItemSize: TOnGetItemSize read FOnGetItemSize write FOnGetItemSize;
@@ -385,6 +393,7 @@ type
     property OnGetItemText;
     property OnGetItemDetailText;
     property OnItemDrawBackground;
+    property OnItemLayoutElementClick;
 
     { ListView selection events }
  //   property OnChange;
@@ -477,6 +486,7 @@ begin
   FCellHeight := 44;
   FFont := TFont.Create;
   FScroller := TAniScroller.Create(Self);
+  Scroller.OnMouseClick := MouseClickEvent;
   FItems := TVirtualListItems.Create(Self);
   FTextDetailLayout := TVirtualDetails.Create(Self);
   FTextTitleLayout := TVirtualTextLayout.Create(Self);
@@ -502,6 +512,12 @@ procedure TCustomVirtualListviewFMX.DoItemDrawBackground(Item: TVirtualListItem;
 begin
   if Assigned(OnItemDrawBackground) then
     OnItemDrawBackground(Self, Item, WindowRect, ItemCanvas, Handled);
+end;
+
+procedure TCustomVirtualListviewFMX.DoItemLayoutElementClick(Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer);
+begin
+  if Assigned(OnItemLayoutElementClick) then
+    OnItemLayoutElementClick(Self, Item, Button, Shift, ID);
 end;
 
 procedure TCustomVirtualListviewFMX.DoGetItemDetailText(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout);
@@ -572,6 +588,24 @@ begin
     Layout[0] := TVirtualLayout.Create(0, TVirtualLayoutKind.Image, ImageLayout.Width, TVirtualLayoutWidth.Fixed);
     Layout[1] := TVirtualLayout.Create(0, TVirtualLayoutKind.Text, 0, TVirtualLayoutWidth.Variable);
   end
+end;
+
+procedure TCustomVirtualListviewFMX.MouseClickEvent(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
+var
+  Item: TVirtualListItem;
+  Layout: TVirtualItemLayoutArray;
+  Point: TPointF;
+  ID: Integer;
+begin
+  Point := TPointF.Create(WorldX, WorldY);
+  Item := Items.FindItemByPt(Point);
+  if Assigned(Item) then
+  begin
+    LoadItemLayout(Item, Layout);
+    ID := Item.PointToLayoutID(Point, Layout);
+    if ID > -1 then
+      DoItemLayoutElementClick(Item, Button, Shift, ID);
+  end;
 end;
 
 procedure TCustomVirtualListviewFMX.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
@@ -773,6 +807,20 @@ begin
   end;
 end;
 
+function TVirtualListItems.FindItemByPt(APoint: TPointF): TVirtualListItem;
+var
+  i: Integer;
+begin
+  for i := 0 to Count - 1 do
+  begin
+    if Item[i].BoundsRect.Contains(APoint) then
+    begin
+      Result := Item[i];
+      Break;
+    end;
+  end;
+end;
+
 function TVirtualListItems.GetCount: Integer;
 begin
   Result := Items.Count
@@ -806,6 +854,27 @@ begin
 end;
 
 { TListviewCell }
+
+procedure TVirtualListItem.CalculateVariableWidthElement(var LayoutArray: TVirtualItemLayoutArray);
+var
+  iVariableLayout, i: Integer;
+  FixedWidthTotal: real;
+begin
+  // Find the variable width layout element if it exists
+  // and the total width of all fixed width layout elements
+  iVariableLayout := -1;
+  FixedWidthTotal := 0;
+  for i := 0 to Length(LayoutArray) - 1 do
+  begin
+    if LayoutArray[i].WidthType = Fixed then
+      FixedWidthTotal := FixedWidthTotal + LayoutArray[i].Width
+    else
+      iVariableLayout := i;
+  end;
+
+  // Now know everything to calculate the variable width element
+  LayoutArray[iVariableLayout].Width := BoundsRect.Width - FixedWidthTotal;
+end;
 
 constructor TVirtualListItem.Create(AnItemList: TVirtualListItems);
 begin
@@ -913,9 +982,9 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
 
 var
   WindowRect, ElementRect: TRectF;
-  FixedWidthTotal, RightMarker: real;
+  RightMarker: real;
   Handled: Boolean;
-  i, iVariableLayout: Integer;
+  i: Integer;
 begin
   if ViewportRect.IntersectsWith(BoundsRect) then
   begin
@@ -937,20 +1006,7 @@ begin
         ACanvas.FillRect(WindowRect, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0);
       end;
 
-      // Find the variable width layout element if it exists
-      // and the total width of all fixed width layout elements
-      iVariableLayout := -1;
-      FixedWidthTotal := 0;
-      for i := 0 to Length(LayoutArray) - 1 do
-      begin
-        if LayoutArray[i].WidthType = Fixed then
-          FixedWidthTotal := FixedWidthTotal + LayoutArray[i].Width
-        else
-          iVariableLayout := i;
-      end;
-
-      // Now know everything to calculate the variable width element
-      LayoutArray[iVariableLayout].Width := WindowRect.Width - FixedWidthTotal;
+      CalculateVariableWidthElement(LayoutArray);
 
       RightMarker := 0;
       // Now have the widths for all elements
@@ -973,6 +1029,25 @@ begin
       end;
     end;
   end
+end;
+
+function TVirtualListItem.PointToLayoutID(Point: TPointF; LayoutArray: TVirtualItemLayoutArray): Integer;
+var
+  i: Integer;
+  RunningRight: single;
+begin
+  Result := -1;
+  RunningRight := 0;
+  CalculateVariableWidthElement(LayoutArray);
+  for i := 0 to Length(LayoutArray) - 1 do
+  begin
+    RunningRight := RunningRight + LayoutArray[i].Width;
+    if Point.X < RunningRight then
+    begin
+      Result := LayoutArray[i].ID;
+      Break
+    end;
+  end;
 end;
 
 procedure TVirtualListItem.SetBoundsRect(const Value: TRectF);
