@@ -17,7 +17,7 @@ type
   TCustomVirtualImageLayout = class;
   TVirtualImageLayout = class;
 
-  TVirtualLayoutKind = (Text, Image, Empty);
+  TVirtualLayoutKind = (Text, Image, Empty, Control);
   TVirtualLayoutWidth = (Fixed, Variable); // Only one Primative in an Item can be Variable
   TVirtualLayout = record
     ID: Integer;  // User defined ID to identify which Kind is being requested in other callbacks
@@ -384,6 +384,7 @@ type
     property OnGetItemLayout;
     property OnGetItemText;
     property OnGetItemDetailText;
+    property OnItemDrawBackground;
 
     { ListView selection events }
  //   property OnChange;
@@ -842,7 +843,7 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
     {$ENDIF}
   end;
 
-  procedure PaintImage(LocalCanvas: TCanvas; ID: Integer; var ImageRect: TRectF);
+  procedure PaintImage(LocalCanvas: TCanvas; ID: Integer; ImageRect: TRectF);
   var
     ImageLayout: TVirtualImageLayout;
   begin
@@ -851,7 +852,6 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
     try
       // Assign the default sizes
       ListviewItems.Listview.ImageLayout.AssignToImageLayoutLayout(ImageLayout);
-      ID := 0;
       ListviewItems.Listview.DoGetItemImage(Self, ID, ImageLayout);
       if Assigned(ImageLayout.Images) and (ImageLayout.ImageIndex > -1) then
       begin
@@ -866,7 +866,7 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
     end;
   end;
 
-  procedure PaintText(LocalCanvas: TCanvas; ID: Integer; var TextLayoutRect: TRectF);
+  procedure PaintText(LocalCanvas: TCanvas; ID: Integer; TextLayoutRect: TRectF);
   var
     DetailLines: Integer;
     LocalTextLayout: TTextLayout;
@@ -959,12 +959,13 @@ begin
         // Calculate the Elements rectangle
         ElementRect := WindowRect;
         ElementRect.Left := RightMarker;
-        ElementRect.Right := LayoutArray[i].Width;
+        ElementRect.Right := ElementRect.Left + LayoutArray[i].Width;
 
         case LayoutArray[i].Kind of
           TVirtualLayoutKind.Text: PaintText(ACanvas, LayoutArray[i].ID, ElementRect);
           TVirtualLayoutKind.Image: PaintImage(ACanvas, LayoutArray[i].ID, ElementRect);
           TVirtualLayoutKind.Empty: begin end; // Don't do anything
+          TVirtualLayoutKind.Control: begin end;
         end;
 
         // Slide over the marker for the next element

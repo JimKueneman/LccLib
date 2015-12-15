@@ -71,6 +71,7 @@ object HeaderFooterForm: THeaderFooterForm
     OnGetItemLayout = VirtualListviewFMX1GetItemLayout
     OnGetItemText = VirtualListviewFMX1GetItemText
     OnGetItemDetailText = VirtualListviewFMX1GetItemDetailText
+    OnItemDrawBackground = VirtualListviewFMX1ItemDrawBackground
   end
   object ImageList1: TImageList
     Source = <

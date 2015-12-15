@@ -29,6 +29,9 @@ type
       Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
     procedure VirtualListviewFMX1GetItemLayout(Sender: TObject;
       Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
+    procedure VirtualListviewFMX1ItemDrawBackground(Sender: TObject;
+      Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas;
+      var Handled: Boolean);
   private
     { Private declarations }
   public
@@ -96,9 +99,9 @@ end;
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayout(Sender: TObject; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
 begin
   SetLength(Layout, 3);
-  Layout[0] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 24, TVirtualLayoutWidth.Fixed);
+  Layout[0] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 48, TVirtualLayoutWidth.Fixed);
   Layout[1] := TVirtualLayout.Create(ID_MAIN_TEXT, TVirtualLayoutKind.Text, 0, TVirtualLayoutWidth.Variable);
-  Layout[2] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 16, TVirtualLayoutWidth.Fixed);
+  Layout[2] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 24, TVirtualLayoutWidth.Fixed);
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemSize(Sender: TObject;
@@ -117,6 +120,18 @@ begin
   else
     TextLayout.Text := 'Unknown ID';
   end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1ItemDrawBackground(
+  Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF;
+  ItemCanvas: TCanvas; var Handled: Boolean);
+begin
+  Handled := True;
+  ItemCanvas.Stroke.Thickness := 3.0;
+  ItemCanvas.Stroke.Color := claBlue;
+  ItemCanvas.Fill.Color := claBurlywood;
+  ItemCanvas.FillRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
+  ItemCanvas.DrawRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
 end;
 
 end.
