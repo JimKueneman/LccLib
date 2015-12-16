@@ -6,13 +6,17 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   Mustangpeak.FMX.VirtualListview, FMX.Controls.Presentation, System.UIConsts,
-  Mustangpeak.FMX.AniScroller, System.ImageList, FMX.ImgList, FMX.Edit, FMX.TextLayout;
+  Mustangpeak.FMX.AniScroller, System.ImageList, FMX.ImgList, FMX.Edit, FMX.TextLayout,
+  FMX.Ani;
 
 const
   ID_CHECK_IMAGE     = 0;
   ID_MAIN_IMAGE      = 1;
   ID_MAIN_TEXT       = 2;
   ID_ACCESSORY_IMAGE = 3;
+
+  ID_SWIPE_DELETE    = 100;
+  ID_SWIPE_ARCHIVE   = 101;
 
 type
   THeaderFooterForm = class(TForm)
@@ -22,20 +26,24 @@ type
     SpeedButton1: TSpeedButton;
     VirtualListviewFMX1: TVirtualListviewFMX;
     ImageList1: TImageList;
+    ColorAnimation1: TColorAnimation;
+    FloatKeyAnimation1: TFloatKeyAnimation;
     procedure FormCreate(Sender: TObject);
-    procedure VirtualListviewFMX1GetItemText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
-    procedure VirtualListviewFMX1GetItemDetailText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
-    procedure VirtualListviewFMX1GetItemImage(Sender: TObject; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
-    procedure VirtualListviewFMX1GetItemLayout(Sender: TObject; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
-    procedure VirtualListviewFMX1ItemDrawBackground(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean);
+    procedure VirtualListviewFMX1GetItemText(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
+    procedure VirtualListviewFMX1GetItemImage(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
+    procedure VirtualListviewFMX1ItemDrawBackground(Sender: TCustomVirtualListview; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure VirtualListviewFMX1ItemLayoutElementClick(Sender: TObject;
-      Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState;
-      ID: Integer);
+    procedure VirtualListviewFMX1ItemLayoutElementClick(Sender: TCustomVirtualListview; Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer);
+    procedure VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
+    procedure VirtualListviewFMX1GetItemLayout(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
+    procedure VirtualListviewFMX1GetItemTextDetail(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
+    procedure FormDestroy(Sender: TObject);
   private
+    FItemGradient: TGradient;
     { Private declarations }
   public
     { Public declarations }
+    property ItemGradient: TGradient read FItemGradient write FItemGradient;
   end;
 
 var
@@ -50,6 +58,10 @@ var
   i: Integer;
   Item: TVirtualListItem;
 begin
+  ItemGradient := TGradient.Create;
+  ItemGradient.Color := claBlueviolet;
+  ItemGradient.Color1 := claBlue;
+  ItemGradient.Style := TGradientStyle.Linear;
 
 Exit;
 
@@ -65,24 +77,17 @@ Exit;
 end;
 
 
+procedure THeaderFooterForm.FormDestroy(Sender: TObject);
+begin
+  ItemGradient.DisposeOf;
+end;
+
 procedure THeaderFooterForm.SpeedButton1Click(Sender: TObject);
 begin
   VirtualListviewFMX1.InvalidateRect(VirtualListviewFMX1.LocalRect);
 end;
 
-procedure THeaderFooterForm.VirtualListviewFMX1GetItemDetailText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
-begin
-  case ID of
-    0 : begin
-          TextLayout.Text := 'Detail 1';
-        end;
-    1 : begin
-          TextLayout.Text := 'Detail 2';
-        end;
-  end;
-end;
-
-procedure THeaderFooterForm.VirtualListviewFMX1GetItemImage(Sender: TObject; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemImage(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
 begin
   case ID  of
     ID_CHECK_IMAGE :
@@ -108,47 +113,68 @@ begin
   end;
 end;
 
-procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayout(Sender: TObject; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayout(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
 begin
   if SpeedButton1.IsPressed then
   begin
     SetLength(Layout, 4);
-    Layout[0] := TVirtualLayout.Create(ID_CHECK_IMAGE, TVirtualLayoutKind.Image, 24 + VirtualListviewFMX1.ImageLayout.Padding.Left + VirtualListviewFMX1.ImageLayout.Padding.Right, TVirtualLayoutWidth.Fixed);
-    Layout[1] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 48 + VirtualListviewFMX1.ImageLayout.Padding.Left + VirtualListviewFMX1.ImageLayout.Padding.Right, TVirtualLayoutWidth.Fixed);
+    Layout[0] := TVirtualLayout.Create(ID_CHECK_IMAGE, TVirtualLayoutKind.Image, 24 + VirtualListviewFMX1.DefaultLayoutImage.Padding.Left + VirtualListviewFMX1.DefaultLayoutImage.Padding.Right, TVirtualLayoutWidth.Fixed);
+    Layout[1] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 48 + VirtualListviewFMX1.DefaultLayoutImage.Padding.Left + VirtualListviewFMX1.DefaultLayoutImage.Padding.Right, TVirtualLayoutWidth.Fixed);
     Layout[2] := TVirtualLayout.Create(ID_MAIN_TEXT, TVirtualLayoutKind.Text, 0, TVirtualLayoutWidth.Variable);
-    Layout[3] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 24 + 8 + VirtualListviewFMX1.ImageLayout.Padding.Right, TVirtualLayoutWidth.Fixed);
+    Layout[3] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 24 + 8 + VirtualListviewFMX1.DefaultLayoutImage.Padding.Right, TVirtualLayoutWidth.Fixed);
   end else
   begin
     SetLength(Layout, 3);
-    Layout[0] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 48 + VirtualListviewFMX1.ImageLayout.Padding.Left + VirtualListviewFMX1.ImageLayout.Padding.Right, TVirtualLayoutWidth.Fixed);
+    Layout[0] := TVirtualLayout.Create(ID_MAIN_IMAGE, TVirtualLayoutKind.Image, 48 + VirtualListviewFMX1.DefaultLayoutImage.Padding.Left + VirtualListviewFMX1.DefaultLayoutImage.Padding.Right, TVirtualLayoutWidth.Fixed);
     Layout[1] := TVirtualLayout.Create(ID_MAIN_TEXT, TVirtualLayoutKind.Text, 0, TVirtualLayoutWidth.Variable);
-    Layout[2] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 24 + 8 + VirtualListviewFMX1.ImageLayout.Padding.Right, TVirtualLayoutWidth.Fixed);
+    Layout[2] := TVirtualLayout.Create(ID_ACCESSORY_IMAGE, TVirtualLayoutKind.Image, 24 + 8 + VirtualListviewFMX1.DefaultLayoutImage.Padding.Right, TVirtualLayoutWidth.Fixed);
   end;
 end;
 
-procedure THeaderFooterForm.VirtualListviewFMX1GetItemText(Sender: TObject; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
+begin
+
+Exit;
+
+  SetLength(Layout, 2);
+  Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80);
+  Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80);
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemText(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
 begin
   case ID of
-    ID_MAIN_TEXT : TextLayout.Text := 'Item number: ' + IntToStr(Item.Index);
+    ID_MAIN_TEXT : TextLayout.Text := 'Item number: ' + IntToStr(Item.iIndex);
   else
     TextLayout.Text := 'Unknown ID';
   end;
 end;
 
-procedure THeaderFooterForm.VirtualListviewFMX1ItemDrawBackground(Sender: TObject; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean);
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemTextDetail(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
+begin
+  case ID of
+    0 : begin
+          TextLayout.Text := 'Detail 1';
+        end;
+    1 : begin
+          TextLayout.Text := 'Detail 2';
+        end;
+  end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1ItemDrawBackground(Sender: TCustomVirtualListview; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean);
 begin
   Handled := True;
   WindowRect.Inflate(-2, -2);
   ItemCanvas.Stroke.Thickness := 1.0;
   ItemCanvas.Stroke.Color := claBlue;
-  ItemCanvas.Fill.Color := claBurlywood;
-  ItemCanvas.FillRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
+  ItemCanvas.Fill.Kind := TBrushKind.Gradient;
+  ItemCanvas.Fill.Gradient := ItemGradient;
+  ItemCanvas.FillRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 0.5, TCornerType.Round);
   ItemCanvas.DrawRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
 end;
 
-procedure THeaderFooterForm.VirtualListviewFMX1ItemLayoutElementClick(
-  Sender: TObject; Item: TVirtualListItem; Button: TMouseButton;
-  Shift: TShiftState; ID: Integer);
+procedure THeaderFooterForm.VirtualListviewFMX1ItemLayoutElementClick(Sender: TCustomVirtualListview; Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer);
 begin
   case ID of
     ID_CHECK_IMAGE     : ShowMessage('Checkbox Image clicked');
