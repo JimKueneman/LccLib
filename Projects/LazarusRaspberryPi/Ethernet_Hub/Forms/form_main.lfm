@@ -1,17 +1,17 @@
 object Form1: TForm1
-  Left = 1011
+  Left = 688
   Height = 274
-  Top = 862
+  Top = 569
   Width = 874
   Caption = 'Lcc Raspberry Pi Hub'
-  ClientHeight = 245
+  ClientHeight = 247
   ClientWidth = 874
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '1.5'
+  LCLVersion = '1.6.0.1'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -23,12 +23,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 675
+      Left = 672
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 514
+      Left = 511
       Height = 44
       Top = 2
       Width = 22
@@ -36,7 +36,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 316
+      Left = 315
       Top = 2
       Action = ActionComPort
     end
@@ -46,17 +46,17 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 536
+      Left = 533
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButtonEthUseTCP: TToolButton
-      Left = 226
+      Left = 225
       Top = 2
       Action = ActionTCP
     end
     object ToolButtonSpace0: TToolButton
-      Left = 294
+      Left = 293
       Height = 44
       Top = 2
       Width = 22
@@ -64,26 +64,20 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButtonEthClient: TToolButton
-      Left = 116
+      Left = 115
       Top = 2
       Action = ActionEthernetClient
     end
-    object ToolButton1: TToolButton
-      Left = 753
-      Top = 2
-      Caption = 'ToolButton1'
-      OnClick = ToolButton1Click
-    end
     object ToolButton2: TToolButton
-      Left = 387
+      Left = 385
       Top = 2
       Action = ActionRaspberryPi
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 25
-    Top = 220
+    Height = 23
+    Top = 224
     Width = 874
     Panels = <    
       item
@@ -102,11 +96,11 @@ object Form1: TForm1
   end
   object PanelAddOns: TPanel
     Left = 0
-    Height = 172
+    Height = 176
     Top = 48
     Width = 874
     Align = alClient
-    ClientHeight = 172
+    ClientHeight = 176
     ClientWidth = 874
     TabOrder = 2
     object LabelServerConnections: TLabel
@@ -122,7 +116,7 @@ object Form1: TForm1
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 149
+      Height = 153
       Top = 22
       Width = 872
       Align = alClient
@@ -141,7 +135,7 @@ object Form1: TForm1
         end      
         item
           Caption = 'Server Port'
-          Width = 372
+          Width = 377
         end>
       GridLines = True
       TabOrder = 0
@@ -165,9 +159,9 @@ object Form1: TForm1
     Ethernet.LocalClientPort = 12022
     Ethernet.RemoteListenerPort = 12021
     Ethernet.LocalListenerPort = 12021
+    Ethernet.Tcp = False
     General.AliasID = '0x000'
     General.NodeID = '0x020112FAA1C8'
-    General.SchedulerPipelineSize = 5
     Logging.Detailed = False
     Logging.Enabled = False
     Logging.JMRIFormat = False
@@ -187,8 +181,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccComPortConnectionStateChange
     OnErrorMessage = LccComPortErrorMessage
     OnReceiveMessage = LccComPortReceiveMessage
-    OnSchedulerClass = LccComPortSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 424
     top = 120
@@ -613,8 +605,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccEthernetServerConnectionStateChange
     OnErrorMessage = LccEthernetServerErrorMessage
     OnReceiveMessage = LccEthernetServerReceiveMessage
-    OnSchedulerClass = LccEthernetServerSchedulerClass
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 192
     top = 120
@@ -626,8 +616,6 @@ object Form1: TForm1
     OnConnectionStateChange = LccEthernetClientConnectionStateChange
     OnErrorMessage = LccEthernetClientErrorMessage
     OnReceiveMessage = LccEthernetClientReceiveMessage
-    OnSchedulerClass = LccEthernetClientSchedulerClass
-    SchedulerPipelineSize = 5
     SleepCount = 0
     left = 360
     top = 120
@@ -680,8 +668,6 @@ object Form1: TForm1
     LccSettings = LccSettings
     OnConnectionStateChange = LccRaspberryPiSpiPortConnectionStateChange
     OnReceiveMessage = LccRaspberryPiSpiPortReceiveMessage
-    OnSchedulerClass = LccRaspberryPiSpiPortSchedulerClass
-    SchedulerPipelineSize = 1
     SleepCount = 0
     left = 480
     top = 120

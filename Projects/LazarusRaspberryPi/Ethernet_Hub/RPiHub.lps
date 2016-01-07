@@ -18,8 +18,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="264"/>
-        <CursorPos X="15" Y="270"/>
+        <CursorPos X="21" Y="8"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -418,11 +417,51 @@
         <UsageCount Value="10"/>
       </Unit65>
     </Units>
-    <JumpHistory Count="1">
+    <JumpHistory Count="11" HistoryIndex="10">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="480" Column="9" TopLine="478"/>
       </Position1>
+      <Position2>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="13" Column="18"/>
+      </Position2>
+      <Position3>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="134" TopLine="110"/>
+      </Position3>
+      <Position4>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="363" Column="5" TopLine="352"/>
+      </Position4>
+      <Position5>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="130" Column="75" TopLine="119"/>
+      </Position5>
+      <Position6>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="401" Column="5" TopLine="390"/>
+      </Position6>
+      <Position7>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="471" Column="5" TopLine="459"/>
+      </Position7>
+      <Position8>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="500" Column="5" TopLine="488"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="523" TopLine="509"/>
+      </Position9>
+      <Position10>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="522" TopLine="508"/>
+      </Position10>
+      <Position11>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="8" Column="21"/>
+      </Position11>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

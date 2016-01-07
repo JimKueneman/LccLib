@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType, types,
+  form_properties, IniFiles, form_about, LCLType, types,
   lcc_utilities, lcc_raspberrypi_spiport;
 
 const
@@ -95,7 +95,6 @@ type
     PanelAddOns: TPanel;
     StatusBarMain: TStatusBar;
     ToolBar1: TToolBar;
-    ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButtonSettings: TToolButton;
     ToolButtonEthClient: TToolButton;
@@ -121,23 +120,16 @@ type
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
-    procedure LccComPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetClientSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
-    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
-    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
-    procedure LccRaspberryPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
+    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
     procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
-    procedure ToolButton1Click(Sender: TObject);
   private
     FAppAboutCmd: TMenuItem;
     FShownOnce: Boolean;
@@ -366,12 +358,6 @@ begin
   LccEthernetClient.SendMessage(ComPortRec.LccMessage);
 end;
 
-procedure TForm1.LccComPortSchedulerClass(Sender: TObject;
-  var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
-end;
-
 procedure TForm1.LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
@@ -410,12 +396,6 @@ procedure TForm1.LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: T
 begin
   LccComPort.SendMessage(EthernetRec.LccMessage);
   LccEthernetServer.SendMessage(EthernetRec.LccMessage);
-end;
-
-procedure TForm1.LccEthernetClientSchedulerClass(Sender: TObject;
-  var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
 end;
 
 procedure TForm1.LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -488,12 +468,6 @@ begin
   LccRaspberryPiSpiPort.SendMessage(EthernetRec.LccMessage);
 end;
 
-procedure TForm1.LccEthernetServerSchedulerClass(Sender: TObject;
-  var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
-end;
-
 procedure TForm1.LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
 begin
   case PiSpiPortRec.ConnectionState of
@@ -523,11 +497,6 @@ begin
   LccEthernetServer.SendMessage(PiSpiPortRec.LccMessage);
 end;
 
-procedure TForm1.LccRaspberryPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
-begin
-  SchedulerClass := TSchedulerPassThrough;
-end;
-
 procedure TForm1.LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
 begin
   ActionEthernetServer.Visible := IniFile.ReadBool('CustomSettings', 'EthernetServer', True);
@@ -545,13 +514,6 @@ begin
   IniFile.WriteBool('CustomSettings', 'EthernetClient', ActionEthernetClient.Visible);
   IniFile.WriteBool('CustomSettings', 'ComPort', ActionComPort.Visible);
   IniFile.WriteBool('CustomSettings', 'RaspberryPiSpi', ActionRaspberryPi.Visible);
-end;
-
-procedure TForm1.ToolButton1Click(Sender: TObject);
-begin
-  LccEthernetClient.ClearSchedulerQueues;
-  LccEthernetServer.ClearSchedulerQueues;
-  LccComPort.ClearSchedulerQueues;
 end;
 
 procedure TForm1.ShowSettingsDialog;

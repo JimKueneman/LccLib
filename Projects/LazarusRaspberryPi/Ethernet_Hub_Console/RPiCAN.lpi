@@ -47,11 +47,16 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../Library/Synapse_LCC;../../../Library/Lib;../../../Library/LCC;/usr/local/share/lazarus/components/lazutils/"/>
+      <OtherUnitFiles Value="../../../Library/Synapse_LCC;../../../Library/Lib;../../../Library/LCC;/usr/local/share/lazarus/components/lazutils/;/usr/share/lazarus/components/lazutils/"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
   CustomOptions += ' -dUseCThreads';"/>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
     </Other>
