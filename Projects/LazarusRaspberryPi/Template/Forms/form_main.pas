@@ -10,7 +10,7 @@ uses
   lcc_comport, lcc_nodemanager, form_settings, file_utilities,
   frame_lcc_logging, lcc_messages, lcc_ethenetserver, lcc_ethernetclient,
   form_logging, lcc_nodeselector, lcc_cdi_parser, lcc_defines, contnrs,
-  form_properties, lcc_message_scheduler, IniFiles, form_about, LCLType, types,
+  form_properties, IniFiles, form_about, LCLType, types,
   lcc_utilities, lcc_raspberrypi_spiport;
 
 const
@@ -121,7 +121,6 @@ type
     procedure LccComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
     procedure LccComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
-    procedure LccComPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
     procedure LccEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -129,15 +128,10 @@ type
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
-    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
-    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject;
-      PiSpiPortRec: TLccRaspberryPiSpiPortRec);
-    procedure LccRaspberryPiSpiPortSchedulerClass(Sender: TObject; var SchedulerClass: TSchedulerBaseClass);
+    procedure LccRaspberryPiSpiPortConnectionStateChange(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
+    procedure LccRaspberryPiSpiPortReceiveMessage(Sender: TObject; PiSpiPortRec: TLccRaspberryPiSpiPortRec);
     procedure LccSettingsLoadFromFile(Sender: TObject; IniFile: TIniFile);
     procedure LccSettingsSaveToFile(Sender: TObject; IniFile: TIniFile);
-    procedure ToolButton1Click(Sender: TObject);
   private
     FAppAboutCmd: TMenuItem;
     FShownOnce: Boolean;
