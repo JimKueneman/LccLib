@@ -39,7 +39,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="rpican"/>
+      <Filename Value="rpinode"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
