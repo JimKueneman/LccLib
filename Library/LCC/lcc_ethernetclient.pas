@@ -5,7 +5,9 @@ unit lcc_ethernetclient;
 {$ENDIF}
 
 {$IFDEF FPC}
-  {$DEFINE LOGGING}
+  {$IFNDEF FPC_CONSOLE_APP}
+    {$DEFINE LOGGING}
+  {$ENDIF}
 {$ENDIF}
 
 interface
@@ -15,7 +17,8 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  LResources, Forms, Controls, Graphics, Dialogs, contnrs,
+    {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
+   contnrs,
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
@@ -159,10 +162,12 @@ implementation
 
 procedure Register;
 begin
-  {$IFDEF FPC}
-  {$I TLccEthernetClient.lrs}
+  {$IFNDEF FPC_CONSOLE_APP}
+    {$IFDEF FPC}
+    {$I TLccEthernetClient.lrs}
+    {$ENDIF}
+    RegisterComponents('LCC',[TLccEthernetClient]);
   {$ENDIF}
-  RegisterComponents('LCC',[TLccEthernetClient]);
 end;
 
 { TLccEthernetThreadList }
@@ -223,8 +228,13 @@ begin
 //  TimeCount := GetTickCount;            DON"T LINK OCLB_UTILITES, it causes issues with linking to different packages
   while (EthernetThread.Running) do
   begin
+    {$IFNDEF FPC_CONSOLE_APP}
     Application.ProcessMessages;
+    {$ELSE}
+    CheckSynchronize();  // Pump the timers
+    {$ENDIF}
     Inc(TimeCount);
+    Sleep(100);
     if TimeCount = 10 then
     begin
        if Assigned(EthernetThread.Socket) then

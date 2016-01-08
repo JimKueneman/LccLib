@@ -5,7 +5,9 @@ unit lcc_ethenetserver;
 {$ENDIF}
 
 {$IFDEF FPC}
-  {$DEFINE LOGGING}
+  {$IFNDEF FPC_CONSOLE_APP}
+    {$DEFINE LOGGING}
+  {$ENDIF}
 {$ENDIF}
 
 interface
@@ -15,7 +17,8 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  LResources, Forms, Controls, Graphics, Dialogs, contnrs,
+    {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
+   contnrs,
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
@@ -184,10 +187,14 @@ implementation
 
 procedure Register;
 begin
+  {$IFNDEF FPC_CONSOLE_APP}
   {$IFDEF FPC}
   {$I TLccEthernetServer.lrs}
   {$ENDIF}
   RegisterComponents('LCC',[TLccEthernetServer]);
+  {$ENDIF}
+end;
+
 end;
 
 { TLccEthernetListener }
@@ -412,19 +419,27 @@ begin
 end;
 
 procedure TLccEthernetThreadList.CloseEthernetPort( EthernetThread: TLccEthernetServerThread);
-//var
-//  TimeCount: Cardinal;
+var
+  TimeCount: Cardinal;
 begin
   EthernetThread.Terminate;
 //  TimeCount := GetTickCount;            DON"T LINK OCLB_UTILITES, it causes issues with linking to different packages
   while (EthernetThread.Running) do
   begin
- //   if (GetTickCount - TimeCount < 5000) then
-      Application.ProcessMessages
- //   else begin
-  //    KillThread(EthernetThread.Handle);
-  //    EthernetThread.Running := False;
-  //  end;
+    {$IFNDEF FPC_CONSOLE_APP}
+    Application.ProcessMessages;
+    {$ELSE}
+    CheckSynchronize();  // Pump the timers
+    {$ENDIF}
+    Inc(TimeCount);
+    Sleep(100);
+    if TimeCount = 10 then
+    begin
+      if Assigned(EthernetThread.Socket) then
+        EthernetThread.Socket.CloseSocket
+      else
+        Break // Something went really wrong
+    end;
   end;
   FreeAndNil( EthernetThread);
 end;
