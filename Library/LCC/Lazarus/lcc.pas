@@ -13,8 +13,8 @@ uses
   lcc_messages, lcc_nodemanager, lcc_tcp_protocol, lcc_threaded_stringlist, 
   lcc_threadedcirculararray, lcc_utilities, lcc_common_classes, 
   lcc_nodeselector, lcc_raspberrypi_spiport, lcc_compiler_types, 
-  lcc_raspberrypi_gpio, lcc_raspberrypi, lcc_node, lcc_node_protocol_helpers, 
-  LazarusPackageIntf;
+  lcc_raspberrypi_gpio_file, lcc_raspberrypi, lcc_node, 
+  lcc_node_protocol_helpers, LazarusPackageIntf;
 
 implementation
 

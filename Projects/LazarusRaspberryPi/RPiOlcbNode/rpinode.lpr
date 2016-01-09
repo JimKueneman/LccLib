@@ -8,7 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
   { you can add units after this }
-  crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_messages
+  crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_messages,
+  lcc_raspberrypi_gpio_file
   ;
 
 const
@@ -25,6 +26,7 @@ type
     FConnected: Boolean;
     FEthernet: TLccEthernetClient;
     FFailedConnecting: Boolean;
+    FGPIO: TRpiGPIO;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
     FTriedConnecting: Boolean;
@@ -42,6 +44,7 @@ type
 
     property Connected: Boolean read FConnected write FConnected;
     property Ethernet: TLccEthernetClient read FEthernet write FEthernet;
+    property GPIO: TRpiGPIO read FGPIO write FGPIO;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
   end;
@@ -52,6 +55,7 @@ procedure TOlcbNodeApplication.DoRun;
 var
   ErrorMsg: String;
   Running: Boolean;
+  PinLevel: TGpioPinLevel;
 begin
   // quick check parameters
   ErrorMsg:=CheckOptions('h', 'help');
@@ -75,6 +79,8 @@ begin
 
   Ethernet.GridConnect := True;
 
+  GPIO.ReadPin(0, PinLevel);
+
   if LogInToOlcbNetwork then
   begin
     Running := True;
@@ -93,6 +99,7 @@ begin
     FreeAndNil(FLccSettings);
     FreeAndNil(FEthernet);
     FreeAndNil(FNodeManager);
+    FreeAndNil(FGPIO);
     WriteLn('Exiting');
   end;
 
@@ -165,6 +172,7 @@ begin
   LccSettings := TLccSettings.Create(nil);
   NodeManager := TLccNodeManager.Create(nil);
   Ethernet := TLccEthernetClient.Create(nil);
+  GPIO := TRpiGPIO.Create;
   NodeManager.CreateRootNode;
   NodeManager.LccSettings := LccSettings;
   NodeManager.HardwareConnection := Ethernet;

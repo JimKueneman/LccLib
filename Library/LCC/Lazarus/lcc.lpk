@@ -104,8 +104,8 @@
         <UnitName Value="lcc_compiler_types"/>
       </Item20>
       <Item21>
-        <Filename Value="../lcc_raspberrypi_gpio.pas"/>
-        <UnitName Value="lcc_raspberrypi_gpio"/>
+        <Filename Value="../lcc_raspberrypi_gpio_file.pas"/>
+        <UnitName Value="lcc_raspberrypi_gpio_file"/>
       </Item21>
       <Item22>
         <Filename Value="../lcc_raspberrypi.pas"/>

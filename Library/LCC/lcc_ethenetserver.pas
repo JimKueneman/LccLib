@@ -195,8 +195,6 @@ begin
   {$ENDIF}
 end;
 
-end;
-
 { TLccEthernetListener }
 
 constructor TLccEthernetListener.Create(CreateSuspended: Boolean;

@@ -1,4 +1,11 @@
 unit lcc_raspberrypi_gpio;
+//
+// WARNING
+//    This implementation writes directly to the Kerenel Memory Map.  It is very
+//    dangerous but it is also the absolute fastest way to toggle pin.  The other
+//    way write to the /sys/class/gpio/export and /unexport files and is implemented
+//    in a different object and unit
+//
 {
  BCM2835 GPIO Registry Driver, also can use to manipulate cpu other registry areas
 
