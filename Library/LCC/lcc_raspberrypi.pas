@@ -20,6 +20,9 @@ uses
 {$IFDEF CPUARM}
   {$IFDEF FPC}
   const
+    SPI_DRIVER_PATH_CS0 = '/dev/spidev0.0';
+    SPI_DRIVER_PATH_CS1 = '/dev/spidev0.1';
+
     // Clock Phase
     SPI_CPHA           =     $01;
     // Clock Polarity
@@ -78,19 +81,21 @@ uses
     SPI_IOC_MSGSIZE_3 = (SPI_IOC_MAGIC shl 8) or 0 or $40600000;
     SPI_IOC_MSGSIZE_4 = (SPI_IOC_MAGIC shl 8) or 0 or $40800000;
 
+  const
+    MAX_PISPIBUFFER = 4096;
   type
-    TPiSpiBuffer = array[0..4095] of Byte;
+    TPiSpiBuffer = array[0..MAX_PISPIBUFFER-1] of Byte;
     PPiSpiBuffer = ^TPiSpiBuffer;
 
   type
     _spi_ioc_transfer = record
-      tx_buffPtr    : Int64;       // Pointer a buffer
-      rx_buffPtr    : Int64;       // Pointer to a buffer
-      len           : LongWord;   // how many to send
-      speed_hz      : LongWord;  // speed
-      delay_usecs   : Word;   // how long to delay?
-      bits_per_word : Byte; // Bits per word (8,16)
-      cs_change     : Byte;     // CS Change?
+      tx_buffPtr    : Int64;          // Pointer a buffer
+      rx_buffPtr    : Int64;          // Pointer to a buffer
+      len           : LongWord;       // how many to send
+      speed_hz      : LongWord;       // speed
+      delay_usecs   : Word;           // how long to delay?
+      bits_per_word : Byte;           // Bits per word (8,16)
+      cs_change     : Byte;           // CS Change?
       pad           : LongWord;       // Padding?
     end;
 
