@@ -80,7 +80,11 @@ begin
     {$ENDIF}
   {$ELSE}
     {$IFDEF LCC_WINDOWS}
-    Result := GetTickCount64;
+      {$IFDEF LCC_WIN64}
+      Result := GetTickCount64;
+      {$ELSE}
+      Result := GetTickCount;
+      {$ENDIF}
     {$ELSE}
     DecodeTime(Now, Hour, Minute, Second, MilliSecond);
     Result := (((Hour*3600) + (Minute*60) + Second) * 1000) + MilliSecond;

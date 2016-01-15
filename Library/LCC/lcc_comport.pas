@@ -618,9 +618,21 @@ begin
     if Assigned(OnReceiveMessage) then
       OnReceiveMessage(Self, FComPortRec);
 
-    if Owner.NodeManager <> nil then
-      if MsgAssembler.IncomingMessageGridConnect(FComPortRec.MessageStr, WorkerMsg) = imgcr_True then   // In goes a raw message
-        Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+    begin
+      case MsgAssembler.IncomingMessageGridConnect(FComPortRec.MessageStr, WorkerMsg) of
+        imgcr_True :
+          begin
+            if Owner.NodeManager <> nil then
+              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+          end;
+        imgcr_ErrorToSend :
+          begin
+            if Owner.NodeManager <> nil then
+              if Owner.NodeManager.FindOwnedSourceNode(WorkerMsg) <> nil then
+                Owner.NodeManager.SendLccMessage(WorkerMsg);
+          end;
+      end;
+    end
   end
 end;
 

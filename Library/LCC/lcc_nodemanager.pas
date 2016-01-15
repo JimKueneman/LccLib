@@ -15,6 +15,7 @@ uses
   {$IFDEF FPC}
   laz2_DOM,
   laz2_XMLRead,
+  contnrs,
     {$IFNDEF FPC_CONSOLE_APP}
     LResources,
     ExtCtrls,
@@ -34,6 +35,7 @@ uses
   Xml.XMLDoc,
   Xml.xmldom,
   Xml.XMLIntf,
+  System.Generics.Collections,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
   lcc_common_classes, lcc_defines, lcc_compiler_types;
@@ -119,6 +121,25 @@ type
                       mif_ConfigMem,
                       mif_ConfigMemOptions);
   TMessageInFlightSet = set of TMessageInFlight;
+
+  { TDatagramQueue }
+
+  TDatagramQueue = class
+  private
+    FOwnerNode: TLccOwnedNode;
+    FQueue: TObjectList;
+  protected
+    property OwnerNode: TLccOwnedNode read FOwnerNode write FOwnerNode;
+    property Queue: TObjectList read FQueue write FQueue;
+    function FindBySourceNode(LccMessage: TLccMessage): Integer;
+  public
+    constructor Create(ANode: TLccOwnedNode);
+    destructor Destroy; override;
+    procedure Add(LccMessage: TLccMessage);
+    procedure Resend(LccMessage: TLccMessage);
+    procedure Remove(LccMessage: TLccMessage);
+    procedure TickTimeout;
+  end;
 
   { TNodeProtocolBase }
 
@@ -324,6 +345,7 @@ type
   TStreamBasedProtocol = class(TNodeProtocolBase)
   private
     FInProcessAddress: DWord;
+    FNullTerminatedString: Boolean;
     FStream: TMemoryStream;
     FAddressSpace: Byte;
   protected
@@ -332,10 +354,11 @@ type
 
     property InProcessAddress: DWord read FInProcessAddress write FInProcessAddress;
     property AddressSpace: Byte read FAddressSpace write FAddressSpace;
+    property NullTerminatedString: Boolean read FNullTerminatedString write FNullTerminatedString;
   public
     property AStream: TMemoryStream read FStream write FStream;
 
-    constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); reintroduce; virtual;
+    constructor Create(AnOwner: TComponent; AnAddressSpace: Byte; IsStringBasedStream: Boolean); reintroduce; virtual;
     destructor Destroy; override;
     procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
     procedure WriteRequest(LccMessage: TLccMessage); virtual;
@@ -400,7 +423,7 @@ type
     property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
     property FilePath: String read FFilePath write FFilePath;
 
-    constructor Create(AnOwner: TComponent; AnAddressSpace: Byte); override;
+    constructor Create(AnOwner: TComponent; AnAddressSpace: Byte; IsStringBasedStream: Boolean); override;
     procedure WriteRequest(LccMessage: TLccMessage); override;
     function ReadAsString(Address: DWord): String;
     procedure LoadFromFile;
@@ -632,6 +655,7 @@ type
     FACDIMfg: TACDIMfg;
     FACDIUser: TACDIUser;
     FConfiguration: TConfiguration;
+    FDatagramQueue: TDatagramQueue;
     FDuplicateAliasDetected: Boolean;
     FInitialized: Boolean;
     FLoggedIn: Boolean;
@@ -644,6 +668,7 @@ type
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
   protected
+    property DatagramQueue: TDatagramQueue read FDatagramQueue write FDatagramQueue;
     property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
     property LogInAliasID: Word read FLogInAliasID write FLogInAliasID;
     {$IFNDEF FPC_CONSOLE_APP}
@@ -795,10 +820,6 @@ type
     procedure DoTractionReplyManage(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
     {$ENDIF}
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
-    function FindSourceNode(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
-    function FindDestNode(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
-    function FindOwnedDestNode(LccMessage: TLccMessage): TLccOwnedNode;
-    function FindOwnedSourceNode(LccMessage: TLccMessage): TLccOwnedNode;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
@@ -829,6 +850,10 @@ type
     function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
     {$ENDIF} {$ENDIF}
     function FindNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
+    function FindSourceNode(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
+    function FindDestNode(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
+    function FindOwnedDestNode(LccMessage: TLccMessage): TLccOwnedNode;
+    function FindOwnedSourceNode(LccMessage: TLccMessage): TLccOwnedNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
     procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
     function NodeIDToNodeIDStr(ANodeID: TNodeID): String;
@@ -964,6 +989,103 @@ begin
   RegisterComponents('LCC',[TLccNodeManager]);
   RegisterComponents('LCC',[TLccNetworkTree]);
   {$ENDIF}
+end;
+
+{ TDatagramQueue }
+
+procedure TDatagramQueue.Remove(LccMessage: TLccMessage);
+var
+  iLocalMessage: Integer;
+begin
+  iLocalMessage := FindBySourceNode(LccMessage);
+  if iLocalMessage > -1 then
+    Queue.Delete(iLocalMessage);
+end;
+
+procedure TDatagramQueue.Add(LccMessage: TLccMessage);
+begin
+  Queue.Add(LccMessage);
+  LccMessage.RetryAttempts := 0;
+  LccMessage.AbandonTimeout := 0;
+end;
+
+constructor TDatagramQueue.Create(ANode: TLccOwnedNode);
+begin
+  Queue := TObjectList.Create;
+  Queue.OwnsObjects := True;
+  FOwnerNode := ANode;
+end;
+
+destructor TDatagramQueue.Destroy;
+begin
+  FreeAndNil(FQueue);
+  inherited Destroy;
+end;
+
+function TDatagramQueue.FindBySourceNode(LccMessage: TLccMessage): Integer;
+var
+  i: Integer;
+  QueueAlias: Word;
+  QueueNodeID: TNodeID;
+begin
+  Result := -1;
+  i := 0;
+  while i < Queue.Count do
+  begin
+    QueueAlias := (Queue[i] as TLccMessage).CAN.DestAlias;
+    QueueNodeID := (Queue[i] as TLccMessage).DestID;
+    if (QueueAlias <> 0) and (LccMessage.CAN.SourceAlias <> 0) then
+    begin
+      if QueueAlias = LccMessage.CAN.SourceAlias then
+      begin
+        Result := i;
+        Break
+      end;
+    end else
+    if not NullNodeID(QueueNodeID) and not NullNodeID(LccMessage.SourceID) then
+    begin
+      if EqualNodeID(QueueNodeID, LccMessage.SourceID, False) then
+      begin
+        Result := i;
+        Break
+      end;
+    end;
+    Inc(i)
+  end;
+end;
+
+procedure TDatagramQueue.Resend(LccMessage: TLccMessage);
+var
+  iLocalMessage: Integer;
+  LocalMessage: TLccMessage;
+begin
+  iLocalMessage := FindBySourceNode(LccMessage);
+  if iLocalMessage > -1 then
+  begin
+    if LocalMessage.RetryAttempts < 5 then
+    begin
+      LocalMessage := Queue[iLocalMessage] as TLccMessage;
+      if Assigned(OwnerNode.OwnerManager) then
+        OwnerNode.OwnerManager.SendLccMessage(LocalMessage);
+      LocalMessage.RetryAttempts := LocalMessage.RetryAttempts + 1;
+    end else
+      Queue.Delete(iLocalMessage);
+  end;
+end;
+
+procedure TDatagramQueue.TickTimeout;
+var
+  LocalMessage: TLccMessage;
+  i: Integer;
+begin
+  for i := Queue.Count - 1 downto 0 do
+  begin
+    LocalMessage := Queue[i] as TLccMessage;
+    if LocalMessage.AbandonTimeout < 2 then
+      LocalMessage.AbandonTimeout := LocalMessage.AbandonTimeout + 1
+    else
+      Queue.Delete(i);
+  end;
 end;
 
 { TACDIMfg }
@@ -1211,9 +1333,10 @@ begin
   LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
 
   LogInAliasID := 0;
-  FACDIMfg := TACDIMfg.Create(Self, MSI_ACDI_MFG);
-  FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER);
-  FConfiguration := TConfiguration.Create(Self, MSI_CONFIG);
+  FACDIMfg := TACDIMfg.Create(Self, MSI_ACDI_MFG, True);
+  FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER, True);
+  FConfiguration := TConfiguration.Create(Self, MSI_CONFIG, False);
+  FDatagramQueue := TDatagramQueue.Create(Self);
 end;
 
 function TLccOwnedNode.CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
@@ -1239,6 +1362,7 @@ begin
   FreeAndNil(FACDIMfg);
   FreeAndNil(FACDIUser);
   FreeAndNil(FConfiguration);
+  FreeAndNil(FDatagramQueue);
   inherited Destroy;
 end;
 
@@ -1267,6 +1391,7 @@ begin
   LoginAliasID := CreateAliasID(FSeedNodeID, RegenerateAliasSeed);
   SendAliasLoginRequest;
   DuplicateAliasDetected := False;
+  FLoggedIn := False;
   LoginTimer.Enabled := True;
 end;
 
@@ -1350,7 +1475,6 @@ end;
 
 procedure TLccOwnedNode.OnLoginTimer(Sender: TObject);
 begin
- // LoginTimer.Enabled := False;   // This locks up on some systems (Raspberry Pi)
   if not FLoggedIn then
   begin
     FAliasID := LoginAliasID;
@@ -1368,6 +1492,9 @@ begin
       end;
     end;
     FLoggedIn := True;
+  end else
+  begin
+    DatagramQueue.TickTimeout;
   end;
 end;
 
@@ -1381,9 +1508,6 @@ begin
   LccSourceNode := nil;
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
-
-  if LoggedIn and LoginTimer.Enabled then
-    LoginTimer.Enabled := False;               // Can't do this within the OnTimer event in some operating systems
 
   if LogInAliasID <> 0 then
   begin
@@ -1405,6 +1529,7 @@ begin
       begin
         WorkerMessage.LoadRID(AliasID);                   // sorry charlie this is mine
         OwnerManager.DoRequestMessageSend(WorkerMessage);
+        Result := True;
         Exit;
       end else
       begin
@@ -1412,6 +1537,7 @@ begin
         OwnerManager.DoRequestMessageSend(WorkerMessage);
         FPermitted := False;
         Login(False, True);
+        Result := True;
         Exit;
       end;
     end;
@@ -1582,14 +1708,11 @@ begin
             end;
          MTI_DATAGRAM_REJECTED_REPLY :
            begin
-             // This is passed by the assembler/disassembler if something went wrong that needs to
-             // get passed on
-             LccMessage.SwapDestAndSourceIDs;
-             OwnerManager.DoRequestMessageSend(LccMessage);
-             Result := True;
+             DatagramQueue.Resend(LccMessage);
            end;
          MTI_DATAGRAM_OK_REPLY :
            begin
+             DatagramQueue.Remove(LccMessage);
            end;
          MTI_DATAGRAM :
            begin
@@ -1663,7 +1786,10 @@ begin
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            CDI.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
-                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           begin
+                                             OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                             DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                           end;
                                            Result := True;
                                          end;
                                      MSI_ALL             :
@@ -1676,7 +1802,10 @@ begin
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            Configuration.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
-                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           begin
+                                             OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                             DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                           end;
                                            Result := True;
                                          end;
                                      MSI_ACDI_MFG        :
@@ -1685,7 +1814,10 @@ begin
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            ACDIMfg.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
-                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           begin
+                                             OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                             DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                           end;
                                            Result := True;
                                          end;
                                      MSI_ACDI_USER       :
@@ -1694,7 +1826,10 @@ begin
                                            WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                            ACDIUser.LoadReply(LccMessage, WorkerMessage);
                                            if WorkerMessage.UserValid then
-                                            OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                           begin
+                                             OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                             DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                           end;
                                            Result := True;
                                          end;
                                      {$IFDEF TRACTION}
@@ -1712,7 +1847,10 @@ begin
                                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                                    Configuration.LoadReply(LccMessage, WorkerMessage);
                                                    if WorkerMessage.UserValid then
+                                                   begin
                                                      OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                                     DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                                   end;
                                                    Result := True;
                                                  end;
                              MCP_ALL           : begin  end;
@@ -1721,7 +1859,10 @@ begin
                                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                                    CDI.LoadReply(LccMessage, WorkerMessage);
                                                    if WorkerMessage.UserValid then
+                                                   begin
                                                      OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                                     DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                                   end;
                                                    Result := True;
                                                  end;
                            end;
@@ -1734,18 +1875,26 @@ begin
                            case LccMessage.DataArrayIndexer[1] of
                              MCP_OP_GET_CONFIG :
                                  begin
+                                   SendAckReply(LccMessage, False, 0);
                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                    ConfigMemOptions.LoadReply(WorkerMessage);
                                    if WorkerMessage.UserValid then;
+                                   begin
                                      OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                     DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                   end;
                                    Result := True;
                                  end;
                              MCP_OP_GET_ADD_SPACE_INFO :
                                  begin
+                                   SendAckReply(LccMessage, False, 0);
                                    WorkerMessage.LoadDatagram(NodeID, AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
                                    ConfigMemAddressSpaceInfo.LoadReply(LccMessage, WorkerMessage);
                                    if WorkerMessage.UserValid then
+                                   begin
                                      OwnerManager.DoRequestMessageSend(WorkerMessage);
+                                     DatagramQueue.Add(WorkerMessage.Clone);      // Waiting for an ACK
+                                   end;
                                    Result := True;
                                  end;
                              MCP_OP_LOCK :
@@ -3372,11 +3521,12 @@ begin
 
 end;
 
-constructor TStreamBasedProtocol.Create(AnOwner: TComponent; AnAddressSpace: Byte);
+constructor TStreamBasedProtocol.Create(AnOwner: TComponent; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
 begin
   inherited Create(AnOwner);
   FStream := TMemoryStream.Create;
   FAddressSpace := AnAddressSpace;
+  IsStringBasedStream := NullTerminatedString;
 end;
 
 destructor TStreamBasedProtocol.Destroy;
@@ -3395,6 +3545,7 @@ var
   i: Integer;
   iStart, ReadCount: Integer;
   AByte: Byte;
+  Address: DWord;
 begin
   // Assumption is this is a datagram message
   if LccMessage.DataArrayIndexer[1] and $03 = 0 then
@@ -3411,13 +3562,21 @@ begin
   if iStart = 7 then
     OutMessage.DataArrayIndexer[6] := LccMessage.DataArrayIndexer[6];
 
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  if AStream.Size < Address + ReadCount then
+  begin
+    AStream.Position := AStream.Size;
+    for i := 0 to ((Address + ReadCount) - AStream.Size) - 1 do
+      AStream.WriteByte(0);
+  end;
+
   if AStream.Size = 0 then
   begin
     OutMessage.DataCount := iStart + 1;
     OutMessage.DataArrayIndexer[iStart] := Ord(#0);
   end else
   begin
-    AStream.Position := LccMessage.ExtractDataBytesAsInt(2, 5);
+    AStream.Position := Address;
     i := 0;
     while (AStream.Position < AStream.Size) and (i < ReadCount) do
     begin
@@ -3428,10 +3587,13 @@ begin
     end;
     OutMessage.DataCount := iStart + i;
 
-    if AStream.Position = AStream.Size then
+    if NullTerminatedString then
     begin
-      OutMessage.DataArrayIndexer[OutMessage.DataCount] := Ord(#0);
-      OutMessage.DataCount := OutMessage.DataCount + 1
+      if AStream.Position = AStream.Size then
+      begin
+        OutMessage.DataArrayIndexer[OutMessage.DataCount] := Ord(#0);
+        OutMessage.DataCount := OutMessage.DataCount + 1
+      end;
     end;
   end;
   OutMessage.UserValid := True;
@@ -3535,7 +3697,7 @@ begin
   inherited Create(AnOwner);
   FProtocolSupport := TProtocolSupport.Create(Self);
   FSimpleNodeInfo := TSimpleNodeInfo.Create(Self);
-  FCDI := TCDI.Create(Self, MSI_CDI);
+  FCDI := TCDI.Create(Self, MSI_CDI, True);
   {$IFDEF TRACTION}
   FSimpleTrainNodeInfo := TSimpleTrainNodeInfo.Create(Self);
   FFDI := TFDI.Create(Self, MSI_FDI);
@@ -4027,6 +4189,7 @@ var
 begin
    // Decode the LccMessage
   Info := FindByAddressSpace( LccMessage.DataArrayIndexer[2]);
+  OutMessage.DataArrayIndexer[0] := $20;
   if Assigned(Info) then
   begin
     if Info.IsPresent then
@@ -4100,9 +4263,9 @@ end;
 
 { TConfiguration }
 
-constructor TConfiguration.Create(AnOwner: TComponent; AnAddressSpace: Byte);
+constructor TConfiguration.Create(AnOwner: TComponent; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
 begin
-  inherited Create(AnOwner, AnAddressSpace);
+  inherited Create(AnOwner, AnAddressSpace, IsStringBasedStream);
   AutoSaveOnWrite := True;
 end;
 

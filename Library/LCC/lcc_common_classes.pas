@@ -61,11 +61,6 @@ type
   public
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;
-    {$IFDEF FPC}
-    procedure FillWaitingMessageList(WaitingMessageList: TObjectList); virtual; abstract;
-    {$ELSE}
-    procedure FillWaitingMessageList(WaitingMessageList: TObjectList<TLccMessage>); virtual; abstract;
-    {$ENDIF}
   end;
 
 implementation

@@ -4,7 +4,7 @@ unit lcc_can_message_assembler_disassembler;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
-{.$DEFINE PYTHON_COMPATIBLE}
+{$DEFINE PYTHON_COMPATIBLE}
 
 interface
 
@@ -58,7 +58,7 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word{$ENDIF}): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word = 0{$ENDIF}): TIncomingMessageGridConnectReply;
 end;
 
 { TLccMessageDisAssembler }
@@ -208,7 +208,7 @@ begin
 end;
 
 function TLccMessageAssembler.IncomingMessageGridConnect(
-  GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word{$ENDIF}): TIncomingMessageGridConnectReply;
+  GridConnectStr: String; LccMessage: TLccMessage{$IFDEF PYTHON_COMPATIBLE} ; TargetAliasID: Word = 0{$ENDIF}): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;
@@ -250,7 +250,7 @@ begin                                                                           
                 end else
                 begin
                   // don't swap the Node IDs
-                  LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_BUFFER_FULL);
+                  LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL);
                   Result := imgcr_ErrorToSend
                 end;
                 {$ENDIF}
@@ -316,7 +316,7 @@ begin                                                                           
               begin
                 // Out of order but let the node handle that if needed (Owned Nodes Only)
                 // Don't swap the IDs, need to find the right target node first
-                LccMessage.LoadDatagramRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_OUT_OF_ORDER);
+                LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER);
                 Result := imgcr_ErrorToSend
               end;
             end;
@@ -355,7 +355,7 @@ begin                                                                           
                   begin
                     // Out of order but let the node handle that if needed (Owned Nodes Only)
                     // Don't swap the IDs, need to find the right target node first
-                    LccMessage.LoadOptionalInteractionRejected(LccMessage.SourceID, LccMessage.CAN.SourceAlias, LccMessage.DestID, LccMessage.CAN.DestAlias, REJECTED_OUT_OF_ORDER, LccMessage.MTI);
+                    LccMessage.LoadOptionalInteractionRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, LccMessage.MTI);
                     Result := imgcr_ErrorToSend
                   end;
                 end;

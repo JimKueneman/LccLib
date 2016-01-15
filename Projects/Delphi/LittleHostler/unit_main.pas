@@ -53,7 +53,7 @@ type
     Memo: TMemo;
     MainMenu1: TMainMenu;
     ListView1: TListView;
-    ksTableView1: TksTableView;
+    ksTableViewSettings: TksTableView;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);

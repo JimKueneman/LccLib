@@ -421,6 +421,7 @@ var
   TimeCount: Cardinal;
 begin
   EthernetThread.Terminate;
+  TimeCount := 0;
 //  TimeCount := GetTickCount;            DON"T LINK OCLB_UTILITES, it causes issues with linking to different packages
   while (EthernetThread.Running) do
   begin
@@ -445,6 +446,8 @@ end;
 { TLccEthernetServer }
 
 procedure TLccEthernetServer.CloseConnection(EthernetThread: TLccEthernetServerThread);
+var
+  TimeCount: Integer;
 begin
   if Assigned(EthernetThread) then
   begin
@@ -454,11 +457,28 @@ begin
     EthernetThreads.CloseEthernetPorts;
   if Assigned(ListenerThread) then
   begin
+    TimeCount := 0;
     ListenerThread.Terminate;
     if Assigned(ListenerThread.Socket) then
       ListenerThread.Socket.CloseSocket;  // Force out of wait state with an error
     while ListenerThread.Running do
+    begin
+      {$IFNDEF FPC_CONSOLE_APP}
       Application.ProcessMessages;
+      {$ELSE}
+      CheckSynchronize();  // Pump the timers
+      {$ENDIF}
+      Inc(TimeCount);
+      Sleep(100);
+      if TimeCount = 10 then
+      begin
+         if Assigned(ListenerThread.Socket) then
+           ListenerThread.Socket.CloseSocket
+         else
+           Break // Something went really wrong
+      end;
+
+    end;
     FreeAndNil(FListenerThread);
   end;
 end;
@@ -895,24 +915,32 @@ begin
       if Assigned(OnReceiveMessage) then
         OnReceiveMessage(Self, FEthernetRec);
 
-      if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) = imgcr_True then // In goes a raw message
-      begin
-        if (Owner.NodeManager <> nil) then
-          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+      case MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) of
+        imgcr_True :
+          begin
+            if Owner.NodeManager <> nil then
+              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-        if Owner.Hub then
-        begin
-          L := Owner.EthernetThreads.LockList;
-          try
-            for i := 0 to L.Count - 1 do
+            if Owner.Hub then
             begin
-              if TLccEthernetServerThread(L[i]) <> Self then
-                TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
-            end;
-          finally
-            Owner.EthernetThreads.UnlockList;
-          end
-        end
+              L := Owner.EthernetThreads.LockList;
+              try
+                for i := 0 to L.Count - 1 do
+                begin
+                  if TLccEthernetServerThread(L[i]) <> Self then
+                    TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
+                end;
+              finally
+                Owner.EthernetThreads.UnlockList;
+              end
+            end
+          end;
+        imgcr_ErrorToSend :
+          begin
+            if Owner.NodeManager <> nil then
+              if Owner.NodeManager.FindOwnedSourceNode(WorkerMsg) <> nil then
+                Owner.NodeManager.SendLccMessage(WorkerMsg);
+          end;
       end
     end else
     begin   // TCP Protocol

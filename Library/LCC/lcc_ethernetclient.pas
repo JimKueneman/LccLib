@@ -249,32 +249,13 @@ end;
 { TLccEthernetClient }
 
 procedure TLccEthernetClient.CloseConnection(EthernetThread: TLccEthernetClientThread);
-//{$IFNDEF FPC}
-//var
- // List: TList<TLccEthernetThreadList>;
-//{$ENDIF}
 begin
- // {$IFDEF FPC}
-    if Assigned(EthernetThread) then
-    begin
-      EthernetThreads.Remove(EthernetThread);
-      EthernetThreads.CloseEthernetPort(EthernetThread);
-    end else
-      EthernetThreads.CloseEthernetPorts;
- // {$ELSE}
- {   List := EthernetThreads.LockList;
-    try
-      if Assigned(EthernetThread) then
-      begin
-        EthernetThreads.re
-        List.Remove(EthernetThread);
-        List.CloseEthernetPort(EthernetThread);
-      end else
-        List.CloseEthernetPorts
-    finally
-      EthernetThreads.UnlockList
-    end;   }
- // {$ENDIF}
+  if Assigned(EthernetThread) then
+  begin
+    EthernetThreads.Remove(EthernetThread);
+    EthernetThreads.CloseEthernetPort(EthernetThread);
+  end else
+    EthernetThreads.CloseEthernetPorts;
 end;
 
 procedure TLccEthernetClient.SetSleepCount(AValue: Integer);
@@ -719,9 +700,19 @@ begin
       if Assigned(OnReceiveMessage) then
         OnReceiveMessage(Self, FEthernetRec);
 
-      if Owner.NodeManager <> nil then
-        if MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) = imgcr_True then // In goes a raw message
-          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+      case MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) of
+        imgcr_True :
+          begin
+            if Owner.NodeManager <> nil then
+              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+          end;
+        imgcr_ErrorToSend :
+          begin
+            if Owner.NodeManager <> nil then
+              if Owner.NodeManager.FindOwnedSourceNode(WorkerMsg) <> nil then
+                 Owner.NodeManager.SendLccMessage(WorkerMsg);
+          end;
+      end;
     end else
     begin
       {$IFDEF LOGGING}

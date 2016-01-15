@@ -82,13 +82,15 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
               Visible = True
             end
           end
-          object ksTableView1: TksTableView
+          object ksTableViewSettings: TksTableView
             Align = Client
             BackgroundText.Font.Size = 18.000000000000000000
             CanFocus = False
             DeleteButton.Text = 'Delete'
             DragDropOptions.Opacity = 1.000000000000000000
             HeaderOptions.Color = claNull
+            HeaderOptions.StickyHeaders.Button.JumpToHeaderOptions.HeaderHeight = 32.000000000000000000
+            HeaderOptions.StickyHeaders.Button.JumpToHeaderOptions.ItemHeight = 32.000000000000000000
             PullToRefresh.Font.Size = 16.000000000000000000
             PullToRefresh.PullText = 'pull to refresh'
             PullToRefresh.ReleaseText = 'release to refresh'

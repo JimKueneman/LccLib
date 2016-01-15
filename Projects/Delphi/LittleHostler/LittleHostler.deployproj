@@ -19,14 +19,6 @@
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'"/>
     <ItemGroup Condition="'$(Platform)'=='Win64'"/>
     <ItemGroup Condition="'$(Platform)'=='OSX32'">
-        <DeployFile Include="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib">
-            <RemoteDir>LittleHostler.app\Contents\MacOS\</RemoteDir>
-            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="OSX32\Debug\LittleHostler.rsm" Condition="'$(Config)'=='Debug'">
             <RemoteDir>LittleHostler.app\Contents\MacOS\</RemoteDir>
             <RemoteName>LittleHostler.rsm</RemoteName>
@@ -43,17 +35,25 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\delphi_PROJECTICNS.icns" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>LittleHostler.app\Contents\Resources\</RemoteDir>
-            <RemoteName>LittleHostler.icns</RemoteName>
+        <DeployFile Include="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib">
+            <RemoteDir>LittleHostler.app\Contents\MacOS\</RemoteDir>
+            <RemoteName>libcgunwind.1.0.dylib</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="OSX32\Debug\LittleHostler.info.plist" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>LittleHostler.app\Contents\</RemoteDir>
-            <RemoteName>Info.plist</RemoteName>
+        <DeployFile Include="OSX32\Debug\LittleHostler.entitlements" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>LittleHostler.app\../\</RemoteDir>
+            <RemoteName>LittleHostler.entitlements</RemoteName>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(BDS)\bin\delphi_PROJECTICNS.icns" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>LittleHostler.app\Contents\Resources\</RemoteDir>
+            <RemoteName>LittleHostler.icns</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -68,9 +68,9 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="OSX32\Debug\LittleHostler.entitlements" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>LittleHostler.app\../\</RemoteDir>
-            <RemoteName>LittleHostler.entitlements</RemoteName>
+        <DeployFile Include="OSX32\Debug\LittleHostler.info.plist" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>LittleHostler.app\Contents\</RemoteDir>
+            <RemoteName>Info.plist</RemoteName>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -206,6 +206,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="iOSSimulator\Debug\LittleHostler" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>LittleHostler.app\</RemoteDir>
+            <RemoteName>LittleHostler</RemoteName>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+            <Required>True</Required>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>LittleHostler.app\</RemoteDir>
             <RemoteName>FM_ApplicationIcon_180x180.png</RemoteName>
@@ -237,15 +246,6 @@
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="iOSSimulator\Debug\LittleHostler" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>LittleHostler.app\</RemoteDir>
-            <RemoteName>LittleHostler</RemoteName>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-            <Required>True</Required>
         </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>LittleHostler.app\</RemoteDir>

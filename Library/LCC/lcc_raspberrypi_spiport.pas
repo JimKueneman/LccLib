@@ -414,9 +414,20 @@ begin
         OnReceiveMessage(Self, FRaspberryPiSpiPortRec);
 
       LocalMessage := nil;
-      if Owner.NodeManager <> nil then
-        if MsgAssembler.IncomingMessageGridConnect(FRaspberryPiSpiPortRec.MessageStr, LocalMessage) = imgcr_True then // In goes a raw message
-          Owner.NodeManager.ProcessMessage(LocalMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+
+      case MsgAssembler.IncomingMessageGridConnect(FRaspberryPiSpiPortRec.MessageStr, WorkerMsg) of
+        imgcr_True :
+          begin
+            if Owner.NodeManager <> nil then
+              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+          end;
+        imgcr_ErrorToSend :
+          begin
+            if Owner.NodeManager <> nil then
+              if Owner.NodeManager.FindOwnedSourceNode(WorkerMsg) <> nil then
+                Owner.NodeManager.SendLccMessage(WorkerMsg);
+          end;
+      end;
     end else
     begin
     //  Fill in TCP Code from Ethernet
