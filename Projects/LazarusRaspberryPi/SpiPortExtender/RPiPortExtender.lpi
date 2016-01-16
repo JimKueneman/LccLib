@@ -8,7 +8,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="OpenLcb Node"/>
+      <Title Value="RPi Port Extender"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -27,28 +27,36 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <Units Count="2">
       <Unit0>
-        <Filename Value="rpinode.lpr"/>
+        <Filename Value="RPiPortExtender.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="../../../Library/LCC/lcc_node_protocol_helpers.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit1>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="rpinode"/>
+      <Filename Value="rpi_portextender"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/Synapse_LCC;../../../../Library/LCC;/Developer/lazarus/components/lazutils/;C:/lazarus/components/lazutils;../../../../../../dev/lazarus/1.6RC1/components/lazutils"/>
+      <OtherUnitFiles Value="../../../Library/Synapse_LCC;../../../Library/Lib;../../../Library/LCC;/usr/share/lazarus/components/lazutils/;../../../../../dev/lazarus/1.6RC1/components/lazutils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
   CustomOptions += ' -dUseCThreads';"/>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
     </Other>
