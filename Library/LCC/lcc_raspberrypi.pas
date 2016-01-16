@@ -4,6 +4,8 @@ unit lcc_raspberrypi;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
+{.$DEFINE CPUARM}
+
 interface
 
 {$I lcc_compilers.inc}
@@ -19,6 +21,43 @@ uses
 
 {$IFDEF CPUARM}
   {$IFDEF FPC}
+  const
+    B1200 =   0000011;     // BaudRate
+    B1800 =   0000012;
+    B2400 =   0000013;
+    B4800 =   0000014;
+    B9600 =   0000015;
+    B19200 =  0000016;
+    B38400 =  0000017;
+    B57600 =  0010001;
+    B115200 = 0010002;
+    B230400 = 0010003;
+    B460800 = 0010004;
+    B500000 = 0010005;
+    B576000 = 0010006;
+    B921600 = 0010005;
+    B1000000 = 0010010;
+    B1152000 = 0010011;
+    B1500000 = 0010012;
+    B2000000 = 0010013;
+    B2500000 = 0010014;
+    B3000000 = 0010015;
+    B3500000 = 0010016;
+    B4000000 = 0010017;
+
+    CS5 = 0000000;       // Bit Size
+    CS6 = 0000020;
+    CS7 = 0000040;
+    CS8 = 0000060;
+
+    CLOCAL = 0004000;    // Ignore modem status lines
+    CREAD  = 0000200;    // Enable receiver
+
+    //IGNPAR =            // Ignore characters with parity errors
+    //ICRNL =           // Map CR to NL on input (Use for ASCII comms where you want to auto correct end of line characters - don't use for bianry comms!)
+    PARENB = 0000400;   // Parity enable
+    PARODD = 0001000;   // Odd parity (else even)
+
   const
     SPI_DRIVER_PATH_CS0 = '/dev/spidev0.0';
     SPI_DRIVER_PATH_CS1 = '/dev/spidev0.1';
@@ -98,7 +137,6 @@ uses
       cs_change     : Byte;           // CS Change?
       pad           : LongWord;       // Padding?
     end;
-
     TSpiIocTransfer = _spi_ioc_transfer;
 
   {$ENDIF}
@@ -131,8 +169,70 @@ type
                  pss_125Mhz);
 
 
+  TPiUartSpeed = (pus_1200Hz,
+                 pus_1800Hz,
+                 pus_2400Hz,
+                 pus_4600Hz,
+                 pus_9600Hz,
+                 pus_19200Hz,
+                 pus_38400Hz,
+                 pus_57600Hz,
+                 pus_115200Hz,
+                 pus_230400Hz,
+                 pus_460800Hz,
+                 pus_500000Hz,
+                 pus_576000Hz,
+                 pus_921600Hz,
+                 pus_1000000Hz,
+                 pus_1152000Hz,
+                 pus_1500000Hz,
+                 pus_2000000Hz,
+                 pus_2500000Hz,
+                 pus_3000000Hz,
+                 pus_3500000Hz,
+                 pus_4000000Hz,
+                 pus_5000000Hz);
+
+  TPiUartBits = (pub_5,
+                  pub_6,
+                  pub_7,
+                  pub_8);
+
+
  {$IFDEF CPUARM}
    {$IFDEF FPC}
+     { TRaspberryPiUart }
+
+    TRaspberryPiUart = class
+    private
+      FBits: TPiUartBits;
+      FEnableParity: Boolean;
+      FEnableRx: Boolean;
+      FHandle: Integer;
+      FIgnoreCharsWithParityError: Boolean;
+      FIgnoreStatusLines: Boolean;
+      FMapCRtoNL: Boolean;
+      FOddParity: Boolean;
+      FSpeed: TPiUartSpeed;
+    public
+      property Handle: Integer read FHandle;
+      property Speed: TPiUartSpeed read FSpeed write FSpeed;
+      property Bits: TPiUartBits read FBits write FBits;
+      property IngoreStatusLines: Boolean read FIgnoreStatusLines write FIgnoreStatusLines;
+      property EnableRx: Boolean read FEnableRx write FEnableRx;
+      property IgnoreCharsWithParityError: Boolean read FIgnoreCharsWithParityError write FIgnoreCharsWithParityError;
+      property MapCRtoNL: Boolean read FMapCRtoNL write FMapCRtoNL;
+      property EnableParity: Boolean read FEnableParity write FEnableParity;
+      property OddParity: Boolean read FOddParity write FOddParity;
+
+      constructor Create;
+      destructor Destroy; override;
+      function OpenUart(UartDevicePath: string): Boolean;
+      procedure CloseUart;
+      function Transfer(TxBuffer: PPiUartBuffer; RxBuffer: PPiUartBuffer; Count: Integer): Boolean;
+      procedure ZeroBuffer(Buffer: PPiUartBuffer; Count: Integer);
+    end;
+
     { TRaspberryPiSpi }
     TRaspberryPiSpi = class
     private
@@ -171,6 +271,29 @@ implementation
 
 {$IFDEF FPC}
  {$IFDEF CPUARM}
+
+ function GetRaspberryPiUartPortNames: string;
+  var
+    TmpPorts: String;
+    sr : TSearchRec;
+  begin
+    try
+      TmpPorts := '';
+      if FindFirst('/dev/ttyAMA*', LongInt($FFFFFFFF), sr) = 0 then
+      begin
+        repeat
+          if (sr.Attr and $FFFFFFFF) = Sr.Attr then
+          begin
+            TmpPorts := TmpPorts + #13 + ExtractFileName(sr.Name);
+          end;
+        until FindNext(sr) <> 0;
+      end;
+      FindClose(sr);
+    finally
+      Result:=TmpPorts;
+    end;
+  end;
+
   function GetRaspberryPiSpiPortNames: string;
   var
     TmpPorts: String;
@@ -191,6 +314,77 @@ implementation
     finally
       Result:=TmpPorts;
     end;
+  end;
+
+  { TRaspberryPiUart }
+
+  procedure TRaspberryPiUart.CloseUart;
+  begin
+
+  end;
+
+  constructor TRaspberryPiUart.Create;
+  begin
+    FBits: pub_8
+    FEnableParity := False;
+    FEnableRx := True;
+    FIgnoreCharsWithParityError := False;
+    FIgnoreStatusLines := True;
+    FMapCRtoNL := False;
+    FOddParity := False;
+    FSpeed := pus_115200Hz;
+  end;
+
+  destructor TRaspberryPiUart.Destroy;
+  begin
+    inherited Destroy;
+  end;
+
+  function TRaspberryPiUart.OpenUart(UartDevicePath: string): Boolean;
+  var
+    Options: Termios;
+  begin
+    Result := False;
+    FHandle := fpopen(UartDevicePath, O_RDWR or O_NOCTTY or O_NDELAY);
+    if Handle > -1 then
+    begin
+      tcgetattr(FHandle, @Options);
+      case Speed of
+        pus_1200Hz: Options. := ;
+        pus_1800Hz,
+        pus_2400Hz,
+        pus_4600Hz,
+        pus_9600Hz,
+        pus_19200Hz,
+        pus_38400Hz,
+        pus_57600Hz,
+        pus_115200Hz,
+        pus_230400Hz,
+        pus_460800Hz,
+        pus_500000Hz,
+        pus_576000Hz,
+        pus_921600Hz,
+        pus_1000000Hz,
+        pus_1152000Hz,
+        pus_1500000Hz,
+        pus_2000000Hz,
+        pus_2500000Hz,
+        pus_3000000Hz,
+        pus_3500000Hz,
+        pus_4000000Hz,
+        pus_5000000Hz);
+      end;
+    end;
+  end;
+
+  function TRaspberryPiUart.Transfer(TxBuffer: PPiUartBuffer; RxBuffer: PPiUartBuffer; Count: Integer): Boolean;
+  begin
+
+  end;
+
+  procedure TRaspberryPiUart.ZeroBuffer(Buffer: PPiUartBuffer; Count: Integer);
+  begin
+
   end;
 
   { TRaspberryPiSpi }
