@@ -9,20 +9,23 @@ program rpinode;
   {$DEFINE UseCThreads}
 {$ENDIF}
 
+
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
   { you can add units after this }
-  crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_ethenetserver, lcc_messages
+  crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_ethenetserver,
+  lcc_messages, lcc_raspberrypi
   ;
 
 const
   LF = #10+#13;
 const
-   SETTINGS_PATH = '/Users/jimkueneman/Documents/LccLib/Projects/Lazarus/Console Applications/BasicOlcbNode/settings.ini';
+  // SETTINGS_PATH = '/Users/jimkueneman/Documents/LccLib/Projects/Lazarus/Console Applications/BasicOlcbNode/settings.ini';
  // SETTINGS_PATH = '/home/pi/Documents/LccLib/Projects/LazarusRaspberryPi/RPiOlcbNode/settings.ini';
+ SETTINGS_PATH = '/home/pi/Documents/LccLib/Projects/Lazarus/Console Applications/BasicOlcbNode/settings.ini';
 //  SETTINGS_PATH = './settings.ini';
   CDI_PATH      = './example_cdi.xml';
 
@@ -67,7 +70,28 @@ procedure TOlcbNodeApplication.DoRun;
 var
   ErrorMsg: String;
   Running: Boolean;
+  Uart: TRaspberryPiUart;
+  Buffer, RxBuffer: TPiUartBuffer;
+  RxCount, i: Integer;
 begin
+  Uart := TRaspberryPiUart.Create;
+  Uart.Speed:= pus_9600Hz;
+  if Uart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
+  begin
+    Buffer[0] := 0;
+    while true do
+    begin
+      Uart.Write(@Buffer, 1);
+      Inc(Buffer[0]);
+      Delay(1);
+   //   RxCount := Uart.Read(@RxBuffer, 1);
+   //   for i := 0 to RxCount - 1 do
+   //     WriteLn(IntToHex(RxBuffer[i], 2));
+    end;
+    Uart.CloseUart;
+  end;
+  Uart.Free;
+
   // quick check parameters
   ErrorMsg:=CheckOptions('h s', 'help server');
   if ErrorMsg<>'' then begin
@@ -89,7 +113,9 @@ begin
   { add your program here }
   LccSettings.FilePath := SETTINGS_PATH;
   if not FileExists(SETTINGS_PATH) then
-    LccSettings.SaveToFile;
+    LccSettings.SaveToFile
+  else
+    LccSettings.LoadFromFile;
 
   if IsServer then
     NodeManager.HardwareConnection := EthernetServer
@@ -159,6 +185,7 @@ begin
     ccsClientConnected :
       begin
         WriteLn('Connected');
+        WriteLn('IP = ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
         Connected := True;
       end;
     ccsClientDisconnecting :
@@ -178,6 +205,7 @@ begin
     ccsListenerConnected :
       begin
         WriteLn('Connected Listener');
+        WriteLn('IP = ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
         Connected := True;
       end;
     ccsListenerDisconnecting :
@@ -187,6 +215,17 @@ begin
     ccsListenerDisconnected :
       begin
 
+      end;
+    ccsListenerClientConnecting :
+      begin
+
+      end;
+    ccsListenerClientConnected :
+      begin
+        WriteLn('New Client');
+        WriteLn('IP = ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
+        WriteLn('IP = ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+        Connected := True;
       end;
   end;
 end;
