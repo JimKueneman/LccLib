@@ -291,7 +291,7 @@ implementation
     Result := False;
     if Handle > -1 then
     begin
-      Result := fpwrite(Handle, Buffer[0], Count) > 0
+      Result := fpwrite(Handle, Buffer[0], Count) > 0;
     end;
   end;
 

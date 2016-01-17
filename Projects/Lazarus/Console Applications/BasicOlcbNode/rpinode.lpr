@@ -23,11 +23,10 @@ uses
 const
   LF = #10+#13;
 const
-  // SETTINGS_PATH = '/Users/jimkueneman/Documents/LccLib/Projects/Lazarus/Console Applications/BasicOlcbNode/settings.ini';
- // SETTINGS_PATH = '/home/pi/Documents/LccLib/Projects/LazarusRaspberryPi/RPiOlcbNode/settings.ini';
- SETTINGS_PATH = '/home/pi/Documents/LccLib/Projects/Lazarus/Console Applications/BasicOlcbNode/settings.ini';
-//  SETTINGS_PATH = './settings.ini';
-  CDI_PATH      = './example_cdi.xml';
+
+  CDI_FILE            = 'example_cdi.xml';
+  SETTINGS_FILE       = 'settings.ini';
+  CONFIGURATION_FILE  = 'config.dat';
 
 type
 
@@ -42,6 +41,7 @@ type
     FIsServer: Boolean;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
+    FPiUart: TRaspberryPiUart;
     FTriedConnecting: Boolean;
   protected
     procedure DoRun; override;
@@ -62,6 +62,7 @@ type
     property IsServer: Boolean read FIsServer write FIsServer;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
+    property PiUart: TRaspberryPiUart read FPiUart write FPiUart;
   end;
 
 { TOlcbNode }
@@ -70,28 +71,9 @@ procedure TOlcbNodeApplication.DoRun;
 var
   ErrorMsg: String;
   Running: Boolean;
-  Uart: TRaspberryPiUart;
-  Buffer, RxBuffer: TPiUartBuffer;
+  TxBuffer, RxBuffer: TPiUartBuffer;
   RxCount, i: Integer;
 begin
-  Uart := TRaspberryPiUart.Create;
-  Uart.Speed:= pus_9600Hz;
-  if Uart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
-  begin
-    Buffer[0] := 0;
-    while true do
-    begin
-      Uart.Write(@Buffer, 1);
-      Inc(Buffer[0]);
-      Delay(1);
-   //   RxCount := Uart.Read(@RxBuffer, 1);
-   //   for i := 0 to RxCount - 1 do
-   //     WriteLn(IntToHex(RxBuffer[i], 2));
-    end;
-    Uart.CloseUart;
-  end;
-  Uart.Free;
-
   // quick check parameters
   ErrorMsg:=CheckOptions('h s', 'help server');
   if ErrorMsg<>'' then begin
@@ -110,12 +92,22 @@ begin
   if HasOption('s', 'server') then
     IsServer := True;
 
+  WriteLn('Press "Q" to quit');
+
   { add your program here }
-  LccSettings.FilePath := SETTINGS_PATH;
-  if not FileExists(SETTINGS_PATH) then
+
+  ErrorMsg:=GetAppConfigDir(False);
+  if not DirectoryExists(GetAppConfigDir(False)) then
+    mkdir(GetAppConfigDir(False));
+  LccSettings.FilePath := GetAppConfigDir(False) + SETTINGS_FILE;
+  if not FileExists(GetAppConfigDir(False) + SETTINGS_FILE) then
     LccSettings.SaveToFile
   else
     LccSettings.LoadFromFile;
+  NodeManager.RootNode.Configuration.FilePath := GetAppConfigDir(False) + CONFIGURATION_FILE;
+  if FileExists(GetAppConfigDir(False) + CONFIGURATION_FILE) then
+   NodeManager.RootNode.Configuration.LoadFromFile;
+
 
   if IsServer then
     NodeManager.HardwareConnection := EthernetServer
@@ -127,51 +119,65 @@ begin
   Ethernet.GridConnect := True;
   EthernetServer.Gridconnect := True;
 
-  if IsServer then
+  if PiUart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
   begin
-    if CreateOlcbServer then
+    TxBuffer[0] := 0;
+    if IsServer then
     begin
-      Running := True;
-      NodeManager.Enabled := True;
-      WriteLn('Enabled');
-      while Running do
+      if CreateOlcbServer then
       begin
-        CheckSynchronize();  // Pump the timers
-        if KeyPressed then
-          Running := ReadKey <> 'q';
+        Running := True;
+        NodeManager.Enabled := True;
+        WriteLn('Node started');
+        while Running do
+        begin
+          while not PiUart.Write(@TxBuffer, 1) do
+            Delay(10);
+          Inc(TxBuffer[0]);
+          PiUart.Read(@RxBuffer, 1);
+          Delay(2);
+          CheckSynchronize();  // Pump the timers
+          if KeyPressed then
+            Running := ReadKey <> 'q';
+        end;
+      end;
+    end else
+    begin
+      if LogInToOlcbNetwork then
+      begin
+        Running := True;
+        NodeManager.Enabled := True;
+        WriteLn('Node started');
+        while Running do
+        begin
+          PiUart.Write(@TxBuffer, 1);
+          Inc(TxBuffer[0]);
+          PiUart.Read(@RxBuffer, 1);
+          CheckSynchronize();  // Pump the timers
+          if KeyPressed then
+            Running := ReadKey <> 'q';
+        end;
       end;
     end;
   end else
-  begin
-    if LogInToOlcbNetwork then
-    begin
-      Running := True;
-      NodeManager.Enabled := True;
-      WriteLn('Enabled');
-      while Running do
-      begin
-        CheckSynchronize();  // Pump the timers
-        if KeyPressed then
-          Running := ReadKey <> 'q';
-      end;
-    end;
+    WriteLn('Can''t open the Serial Port: ' + GetRaspberryPiUartPortNames);
 
-
-    NodeManager.Enabled := False;
-    Ethernet.CloseConnection(nil);
-    EthernetServer.CloseConnection(nil);
-    NodeManager.HardwareConnection := nil;
-    Ethernet.NodeManager := nil;
-    EthernetServer.NodeManager := nil;
-    FreeAndNil(FLccSettings);
-    FreeAndNil(FEthernet);
-    FreeAndNil(FEthernetServer);
-    FreeAndNil(FNodeManager);
-    WriteLn('Exiting');
-  end;
+  WriteLn('Exiting');
+  PiUart.CloseUart;
+  NodeManager.Enabled := False;
+  Ethernet.CloseConnection(nil);
+  EthernetServer.CloseConnection(nil);
+  NodeManager.HardwareConnection := nil;
+  Ethernet.NodeManager := nil;
+  EthernetServer.NodeManager := nil;
+  FreeAndNil(FLccSettings);
+  FreeAndNil(FEthernet);
+  FreeAndNil(FEthernetServer);
+  FreeAndNil(FNodeManager);
 
   // stop program loop
   Terminate;
+  WriteLn('Done');
 end;
 
 procedure TOlcbNodeApplication.EthernetConnectChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -266,6 +272,11 @@ end;
 constructor TOlcbNodeApplication.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+  WriteLn(' ');
+  WriteLn(' ');
+  WriteLn('HINT Configuration files are located here:');
+  WriteLn(GetAppConfigDir(False));
+  WriteLn(' ');
   StopOnException:=True;
   LccSettings := TLccSettings.Create(nil);
   NodeManager := TLccNodeManager.Create(nil);
@@ -273,7 +284,9 @@ begin
   EthernetServer := TLccEthernetServer.Create(nil);
   NodeManager.CreateRootNode;
   NodeManager.LccSettings := LccSettings;
-  NodeManager.RootNode.CDI.LoadFromXml(CDI_PATH);
+  NodeManager.RootNode.CDI.LoadFromXml(GetAppConfigDir(False) + CDI_FILE);
+  if FileExists(GetAppConfigDir(False) + CDI_FILE) then
+    WriteLn('Found External CDI file: ' + CDI_FILE);
   NodeManager.RootNode.EventsConsumed.AutoGenerate.Count := 10;
   NodeManager.RootNode.EventsConsumed.AutoGenerate.Enable := True;
   NodeManager.RootNode.EventsProduced.AutoGenerate.Count := 10;
@@ -284,6 +297,8 @@ begin
   EthernetServer.LccSettings := LccSettings;
   EthernetServer.OnConnectionStateChange := @EthernetConnectChange;
   EthernetServer.NodeManager := NodeManager;
+  PiUart := TRaspberryPiUart.Create;
+  PiUart.Speed:= pus_9600Hz;
 end;
 
 function TOlcbNodeApplication.CreateOlcbServer: Boolean;
@@ -321,6 +336,7 @@ end;
 
 destructor TOlcbNodeApplication.Destroy;
 begin
+  FreeAndNil(FPiUart);
   inherited Destroy;
 end;
 
@@ -328,6 +344,7 @@ procedure TOlcbNodeApplication.WriteHelp;
 begin
   { add your help code here }
   writeln('Usage: ', ExeName, ' -h');
+  writeln('-s   : starts rpinode as a ethernet server');
 end;
 
 var

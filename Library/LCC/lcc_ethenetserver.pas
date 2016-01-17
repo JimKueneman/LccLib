@@ -318,8 +318,6 @@ begin
     {$ENDIF}
   end;
 
-  SendConnectionNotification(ccsListenerConnecting);
-
   Socket.Bind(String( EthernetRec.ListenerIP), String( IntToStr(EthernetRec.ListenerPort)));
   if Socket.LastError <> 0 then
   begin

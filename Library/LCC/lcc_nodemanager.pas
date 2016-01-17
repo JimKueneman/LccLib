@@ -4333,7 +4333,11 @@ begin
   end;
   if AutoSaveOnWrite then
   begin
-    if FileExists(String( FilePath)) then
+    if not FileExists(String( FilePath)) then
+    begin
+      if DirectoryExists(ExtractFilePath(FilePath)) then
+        AStream.SaveToFile(String( FilePath))
+    end else
       AStream.SaveToFile(String( FilePath))
     {$IFNDEF FPC_CONSOLE_APP}
     else
