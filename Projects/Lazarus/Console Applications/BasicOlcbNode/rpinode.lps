@@ -3,13 +3,14 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="40">
+    <Units Count="41">
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="193"/>
-        <CursorPos X="26" Y="206"/>
-        <UsageCount Value="193"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="341"/>
+        <CursorPos X="34" Y="360"/>
+        <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -17,54 +18,54 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="2105"/>
         <CursorPos X="71" Y="2170"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="16"/>
       </Unit1>
       <Unit2>
         <Filename Value="../../../Library/LCC/lcc_app_common_settings.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="575"/>
         <CursorPos Y="595"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="16"/>
       </Unit2>
       <Unit3>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="543"/>
         <CursorPos X="38" Y="562"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="16"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="33" Y="14"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="16"/>
       </Unit4>
       <Unit5>
         <Filename Value="../../../Library/Lib/frame_lcc_logging.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="32" Y="10"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="184"/>
         <CursorPos X="5" Y="196"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="6"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_gpio_file.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="111"/>
         <CursorPos X="7" Y="135"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="6"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="2315"/>
-        <CursorPos X="48" Y="2333"/>
-        <UsageCount Value="60"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="873"/>
+        <CursorPos X="29" Y="889"/>
+        <UsageCount Value="63"/>
         <Loaded Value="True"/>
       </Unit8>
       <Unit9>
@@ -72,34 +73,35 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="50"/>
         <CursorPos X="84" Y="63"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="1"/>
       </Unit9>
       <Unit10>
         <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="22"/>
-        <CursorPos X="22" Y="34"/>
-        <UsageCount Value="5"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="313"/>
+        <CursorPos Y="318"/>
+        <UsageCount Value="13"/>
+        <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="../../../../Library/LCC/lcc_compilers.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="13" Y="8"/>
-        <UsageCount Value="1"/>
+        <UsageCount Value="0"/>
       </Unit11>
       <Unit12>
         <Filename Value="../../../../Library/LCC/lcc_ethernetclient.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="687"/>
         <CursorPos X="17" Y="713"/>
-        <UsageCount Value="29"/>
+        <UsageCount Value="28"/>
       </Unit12>
       <Unit13>
         <Filename Value="../../../../Library/LCC/lcc_app_common_settings.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="370"/>
         <CursorPos X="53" Y="385"/>
-        <UsageCount Value="46"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
       </Unit13>
       <Unit14>
@@ -107,15 +109,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="55"/>
         <CursorPos X="39" Y="69"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit14>
       <Unit15>
         <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="305"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="250"/>
         <CursorPos X="7" Y="319"/>
-        <UsageCount Value="74"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit15>
       <Unit16>
@@ -124,7 +125,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="173"/>
         <CursorPos X="74" Y="200"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit16>
       <Unit17>
         <Filename Value="../../../../Library/LCC/Lazarus/lcc.pas"/>
@@ -132,70 +133,69 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="29" Y="7"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit17>
       <Unit18>
         <Filename Value="../../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="407"/>
         <CursorPos X="14" Y="428"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit18>
       <Unit19>
         <Filename Value="/Developer/lazarus/ide/lazarus.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="111"/>
         <CursorPos X="42" Y="138"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit19>
       <Unit20>
         <Filename Value="/usr/local/share/fpcsrc/packages/gtk2/src/glib/glib2.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="94"/>
         <CursorPos X="54" Y="115"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit20>
       <Unit21>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carboncalendarview.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="990"/>
         <CursorPos X="51" Y="1008"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit21>
       <Unit22>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonwsdialogs.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="400"/>
         <CursorPos X="42" Y="410"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit22>
       <Unit23>
         <Filename Value="../../../../Library/LCC/lcc_messages.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="799"/>
         <CursorPos X="22" Y="806"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit23>
       <Unit24>
         <Filename Value="../../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="25" Y="11"/>
         <UsageCount Value="72"/>
-        <Loaded Value="True"/>
       </Unit24>
       <Unit25>
         <Filename Value="../../../../Library/LCC/lcc_comport.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="598"/>
         <CursorPos X="64" Y="619"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit25>
       <Unit26>
         <Filename Value="../../../../Library/LCC/lcc_defines.pas"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="40"/>
-        <CursorPos X="3" Y="56"/>
-        <UsageCount Value="49"/>
+        <TopLine Value="367"/>
+        <CursorPos X="3" Y="383"/>
+        <UsageCount Value="52"/>
         <Loaded Value="True"/>
       </Unit26>
       <Unit27>
@@ -203,21 +203,21 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="727"/>
         <CursorPos X="13" Y="742"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit27>
       <Unit28>
         <Filename Value="../../../../Library/LCC/lcc_message_scheduler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="29"/>
         <CursorPos X="46" Y="50"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit28>
       <Unit29>
         <Filename Value="../../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="230"/>
         <CursorPos X="11" Y="240"/>
-        <UsageCount Value="30"/>
+        <UsageCount Value="33"/>
         <Loaded Value="True"/>
       </Unit29>
       <Unit30>
@@ -226,191 +226,199 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="892"/>
         <CursorPos X="22" Y="905"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit30>
       <Unit31>
         <Filename Value="/usr/fpc/3.0.0/rtl/unix/termiosh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="6"/>
         <CursorPos X="11" Y="19"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="26"/>
       </Unit31>
       <Unit32>
         <Filename Value="/usr/fpc/3.0.0/rtl/linux/termios.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1066"/>
         <CursorPos X="7" Y="1089"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="26"/>
       </Unit32>
       <Unit33>
         <Filename Value="/usr/fpc/3.0.0/rtl/unix/bunxovlh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="38"/>
         <CursorPos X="37" Y="52"/>
-        <UsageCount Value="16"/>
+        <UsageCount Value="15"/>
       </Unit33>
       <Unit34>
         <Filename Value="/usr/fpc/3.0.0/rtl/linux/ostypes.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="271"/>
         <CursorPos X="31" Y="285"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit34>
       <Unit35>
         <Filename Value="/usr/fpc/3.0.0/rtl/objpas/sysutils/filutilh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="121"/>
         <CursorPos X="16" Y="125"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit35>
       <Unit36>
         <Filename Value="/usr/fpc/3.0.0/rtl/inc/systemh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1269"/>
         <CursorPos X="11" Y="1282"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit36>
       <Unit37>
         <Filename Value="/usr/fpc/3.0.0/rtl/inc/system.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1787"/>
         <CursorPos X="7" Y="1803"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit37>
       <Unit38>
         <Filename Value="/usr/fpc/3.0.0/rtl/unix/sysdir.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="14"/>
         <CursorPos X="11" Y="28"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit38>
       <Unit39>
         <Filename Value="/usr/fpc/3.0.0/rtl/objpas/sysutils/osutilsh.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="10" Y="41"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit39>
+      <Unit40>
+        <Filename Value="/usr/fpc/3.0.0/packages/fcl-base/src/custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="53"/>
+        <CursorPos X="28" Y="62"/>
+        <UsageCount Value="10"/>
+      </Unit40>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="100" TopLine="87"/>
+        <Caret Line="150" TopLine="129"/>
       </Position1>
       <Position2>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="101" TopLine="87"/>
+        <Caret Line="152" TopLine="130"/>
       </Position2>
       <Position3>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="105" Column="32" TopLine="87"/>
+        <Caret Line="155" TopLine="133"/>
       </Position3>
       <Position4>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="103" TopLine="87"/>
+        <Caret Line="157" TopLine="135"/>
       </Position4>
       <Position5>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="104" TopLine="87"/>
+        <Caret Line="159" TopLine="137"/>
       </Position5>
       <Position6>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="107" TopLine="87"/>
+        <Caret Line="344" Column="19" TopLine="333"/>
       </Position6>
       <Position7>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="108" TopLine="87"/>
+        <Caret Line="47" Column="29" TopLine="36"/>
       </Position7>
       <Position8>
         <Filename Value="rpinode.lpr"/>
-        <Caret Line="107" Column="36" TopLine="90"/>
+        <Caret Line="334" Column="51" TopLine="327"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="695" Column="30" TopLine="681"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="352" Column="41" TopLine="339"/>
       </Position9>
       <Position10>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4316" TopLine="4308"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="47" Column="89" TopLine="31"/>
       </Position10>
       <Position11>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4317" TopLine="4308"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="134" TopLine="120"/>
       </Position11>
       <Position12>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4319" TopLine="4308"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="316" TopLine="311"/>
       </Position12>
       <Position13>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4320" TopLine="4308"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="317" TopLine="311"/>
       </Position13>
       <Position14>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4321" TopLine="4308"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="330" TopLine="311"/>
       </Position14>
       <Position15>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4322" TopLine="4308"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="331" TopLine="311"/>
       </Position15>
       <Position16>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4324" TopLine="4308"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="333" TopLine="311"/>
       </Position16>
       <Position17>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4334" TopLine="4320"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="338" Column="130" TopLine="314"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4336" TopLine="4320"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="134" TopLine="120"/>
       </Position18>
       <Position19>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4340" Column="13" TopLine="4322"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="316" TopLine="311"/>
       </Position19>
       <Position20>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4316" TopLine="4319"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="317" TopLine="311"/>
       </Position20>
       <Position21>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4334" TopLine="4321"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="330" TopLine="311"/>
       </Position21>
       <Position22>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4336" TopLine="4321"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="331" TopLine="311"/>
       </Position22>
       <Position23>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4338" TopLine="4321"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="333" TopLine="311"/>
       </Position23>
       <Position24>
-        <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Caret Line="4339" TopLine="4321"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="337" TopLine="314"/>
       </Position24>
       <Position25>
-        <Filename Value="rpinode.lpr"/>
-        <Caret Line="281" Column="33" TopLine="273"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="338" TopLine="315"/>
       </Position25>
       <Position26>
-        <Filename Value="rpinode.lpr"/>
-        <Caret Line="283" Column="14" TopLine="269"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="339" TopLine="316"/>
       </Position26>
       <Position27>
-        <Filename Value="rpinode.lpr"/>
-        <Caret Line="286" Column="44" TopLine="269"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="323" TopLine="316"/>
       </Position27>
       <Position28>
-        <Filename Value="rpinode.lpr"/>
-        <Caret Line="122" Column="39" TopLine="102"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="324" TopLine="316"/>
       </Position28>
       <Position29>
-        <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <Caret Line="10" Column="99"/>
+        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="318" TopLine="313"/>
       </Position29>
       <Position30>
-        <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <Caret Line="302" Column="51" TopLine="292"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="48" Column="21" TopLine="41"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

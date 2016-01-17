@@ -27,7 +27,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s"/>
+        <CommandLineParams Value="-s -p 10 -c 10 -C example_cdi.xml"/>
       </local>
     </RunParams>
     <Units Count="1">
@@ -49,6 +49,11 @@
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
   CustomOptions += ' -dUseCThreads';"/>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <GenerateDebugInfo Value="False"/>
