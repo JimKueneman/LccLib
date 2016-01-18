@@ -1143,7 +1143,7 @@ end;
 
 function TLccEvents.GetEventIDAsStr(Index: Integer): String;
 begin
-  Result := EventIDToString(Event[Index].ID);
+  Result := EventIDToString(Event[Index].ID, True);
 end;
 
 function TLccEvents.GetCount: Integer;

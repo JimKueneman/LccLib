@@ -35,7 +35,6 @@ uses
   Xml.XMLDoc,
   Xml.xmldom,
   Xml.XMLIntf,
-  System.Generics.Collections,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
   lcc_common_classes, lcc_defines, lcc_compiler_types;
@@ -127,10 +126,18 @@ type
   TDatagramQueue = class
   private
     FOwnerNode: TLccOwnedNode;
+    {$IFDEF FPC}
     FQueue: TObjectList;
+    {$ELSE}
+    FQueue: TObjectList<TLccMessage>;
+    {$ENDIF}
   protected
     property OwnerNode: TLccOwnedNode read FOwnerNode write FOwnerNode;
+    {$IFDEF FPC}
     property Queue: TObjectList read FQueue write FQueue;
+    {$ELSE}
+    property Queue: TObjectList<TLccMessage> read FQueue write FQueue;
+    {$ENDIF}
     function FindBySourceNode(LccMessage: TLccMessage): Integer;
   public
     constructor Create(ANode: TLccOwnedNode);
@@ -249,9 +256,7 @@ type
 
     property PackedFormat: TSimpleNodeInfoPacked read GetPackedFormat;
 
-    {$IFDEF FPC}
     function LoadFromXml(CdiFilePath: String): Boolean;
-    {$ENDIF}
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
@@ -405,7 +410,7 @@ type
     FOutputEvents: TObjectList;
     {$ELSE}
     FInputEvents: TObjectList<TLccEvent>;
-    FInputEvents: TObjectList<TLccEvent>;
+    FOutputEvents: TObjectList<TLccEvent>;
     {$ENDIF}
   public
     property Description: string read FDescription write FDescription;
@@ -466,7 +471,7 @@ type
     procedure LoadFromFile;
   end;
 
-    { TNDI }
+  { TNDI }
 
   TNDI = class(TNodeProtocolBase)      // Node Definition Information
   private
@@ -475,19 +480,24 @@ type
     FLoaded: Boolean;
     FUserDescription: string;
     FUserName: string;
-    FXMLDoc: TXMLDocument;
    {$IFDEF FPC}
+    FXMLDoc: TXMLDocument;
     FIoActions: TObjectList;
    {$ELSE}
-    FIoActions := TObjectList<TLccEvent>.Create;
+    FXMLDoc: IXMLDocument;
+    FIoActions: TObjectList<TIoAction>;
    {$ENDIF}
   protected
+    {$IFDEF FPC}
     property XMLDoc: TXMLDocument read FXMLDoc write FXMLDoc;
+    {$ELSE}
+    property XMLDoc: IXMLDocument read FXMLDoc write FXMLDoc;
+    {$ENDIF}
   public
     {$IFDEF FPC}
     property IoActions: TObjectList read FIoActions write FIoActions;
     {$ELSE}
-    property IoActions: TObjectList<TLccEvent> read FInputEvents write FInputEvents;
+    property IoActions: TObjectList<TIoAction> read FIoActions write FIoActions;
     {$ENDIF}
     property AutosaveOnWrite: Boolean read FAutosaveOnWrite write FAutosaveOnWrite;
     property UserName: string read FUserName write FUserName;
@@ -740,8 +750,8 @@ type
     FLoginTimer: TTimer;
     {$ELSE}
     FLogInTimer: TFPTimer;
-    FNDI: TNDI;
     {$ENDIF}
+    FNDI: TNDI;
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
   protected
@@ -1116,7 +1126,7 @@ begin
    FreeAndNil(FInputEvents);
    FreeAndNil(FOutputEvents);
   {$ELSE}
-   InputEvent.DisposeOf;
+   InputEvents.DisposeOf;
    OutputEvents.DisposeOf;
   {$ENDIF}
   inherited Destroy;
@@ -1142,11 +1152,12 @@ end;
 constructor TNDI.Create(AnOwner: TComponent);
 begin
   inherited Create(AnOwner);
-   FXMLDoc := TXMLDocument.Create;
-   {$IFDEF FPC}
-   FIoActions := TObjectList.Create;
+  {$IFDEF FPC}
+  FXMLDoc := TXMLDocument.Create;
+  FIoActions := TObjectList.Create;
   {$ELSE}
-   FIoActions := TObjectList<TLccEvent>.Create;
+  FXMLDoc := TXMLDocument.Create(Self);
+  FIoActions := TObjectList<TIoAction>.Create;
   {$ENDIF}
   FAutosaveOnWrite := True;
 end;
@@ -1164,38 +1175,38 @@ end;
 
 function TNDI.LoadFromXML: Boolean;
 
-  procedure RunIO(IONode: TDOMNode);
+  procedure RunIO(IONode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF});
   var
-    ActionNode, ChildNode: TDOMNode;
+    ActionNode, ChildNode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF};
     IoAction: TIoAction;
     Event: TLccEvent;
   begin
-    ActionNode := IONode.FirstChild;
+    ActionNode := IONode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF};
     while Assigned(ActionNode) do
     begin
       if ActionNode.NodeName = 'action' then
       begin
         IoAction := TIoAction.Create;
-        ChildNode := ActionNode.FirstChild;
+        ChildNode := ActionNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF};
         while Assigned(ChildNode) do
         begin
           if ChildNode.NodeName = 'name' then
-            IoAction.Name := ChildNode.TextContent
+            IoAction.Name := ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}
           else
           if ChildNode.NodeName = 'description' then
-            IoAction.Description := ChildNode.TextContent
+            IoAction.Description := ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}
           else
           if ChildNode.NodeName = 'hardwarepin' then
-            IoAction.HardwarePort := StrToInt(ChildNode.TextContent)
+            IoAction.HardwarePort := StrToInt(ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF})
           else
           if ChildNode.NodeName = 'activation' then
           begin
             Event := TLccEvent.Create;
-            Event.IDStr := ChildNode.FindNode('id').TextContent;
+            Event.IDStr := ChildNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('id').{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF};
             Event.ID := StrToEventID(Event.IDStr);
-            case ChildNode.FindNode('state').TextContent of
-              '1' : Event.State := evs_InValid;
-              '2' : Event.State := evs_Valid;
+            case StrToInt( ChildNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('state').{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}) of
+              1 : Event.State := evs_InValid;
+              2 : Event.State := evs_Valid;
             else
               Event.State := evs_Unknown;
             end;
@@ -1210,34 +1221,38 @@ function TNDI.LoadFromXML: Boolean;
   end;
 
 var
-  RootNode, UserNode, InputNode, OutputNode, ChildNode: TDOMNode;
+  RootNode, UserNode, InputNode, OutputNode, ChildNode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF};
 begin
   Result := False;
   if FileExists(FilePath) then
   begin
     try
       Clear;
+      {$IFDEF FPC}
       ReadXMLFile(FXMLDoc, FilePath);
-      RootNode := XMLDoc.FindNode('ndf');
+      {$ELSE}
+      XMLDoc.LoadFromXML(FilePath);
+      {$ENDIF}
+      RootNode := XMLDoc.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('ndf');
       if Assigned(RootNode) then
       begin
 
-        UserNode := RootNode.FindNode('user');
+        UserNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('user');
         if Assigned(UserNode) then
         begin
-          ChildNode := UserNode.FindNode('name');
+          ChildNode := UserNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('name');
           if Assigned(ChildNode) then
             UserName := ChildNode.NodeValue;
-          ChildNode := UserNode.FindNode('description');
+          ChildNode := UserNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('description');
           if Assigned(ChildNode) then
             UserDescription := ChildNode.NodeValue;
         end;
 
-        OutputNode := RootNode.FindNode('outputs');
+        OutputNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('outputs');
         if Assigned(OutputNode) then
           RunIO(OutputNode);
 
-        InputNode := RootNode.FindNode('inputs');
+        InputNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('inputs');
         if Assigned(InputNode) then
           RunIO(InputNode);
 
@@ -1306,14 +1321,22 @@ end;
 
 constructor TDatagramQueue.Create(ANode: TLccOwnedNode);
 begin
+  {$IFDEF FPC}
   Queue := TObjectList.Create;
+  {$ELSE}
+  Queue := TObjectList<TLccMessage>.Create;
+  {$ENDIF}
   Queue.OwnsObjects := True;
   FOwnerNode := ANode;
 end;
 
 destructor TDatagramQueue.Destroy;
 begin
+  {$IFDEF FPC}
   FreeAndNil(FQueue);
+  {$ELSE}
+  Queue.DisposeOf;
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -3631,34 +3654,42 @@ begin
     Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
 end;
 
-{$IFDEF FPC}
 function TSimpleNodeInfo.LoadFromXml(CdiFilePath: String): Boolean;
 var
+  {$IFDEF FPC}
   XMLDoc: TXMLDocument;
   CdiNode, IdentificationNode, ChildNode: TDOMNode;
+  {$ELSE}
+  XMLDoc: IXMLDocument;
+  CdiNode, IdentificationNode, ChildNode: IXMLNode;
+  {$ENDIF}
 begin
   Result := False;
   if FileExists(CdiFilePath) then
   begin
     try
+      {$IFDEF FPC}
       ReadXMLFile(XmlDoc, CdiFilePath);
+      {$ELSE}
+      XmlDoc.LoadFromXML(CdiFilePath);
+      {$ENDIF}
       if Assigned(XmlDoc) then
       begin
-        CdiNode := XmlDoc.FindNode('cdi');
+        CdiNode := XmlDoc.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('cdi');
         if Assigned(CdiNode) then
         begin
-          IdentificationNode := CdiNode.FindNode('identification');
+          IdentificationNode := CdiNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('identification');
           if Assigned(IdentificationNode) then
           begin
              Version := 1;
-             ChildNode := IdentificationNode.FindNode('manufacturer');
-             if Assigned(ChildNode) then FManufacturer := ChildNode.FirstChild.NodeValue else Exit;
-             ChildNode := IdentificationNode.FindNode('model');
-             if Assigned(ChildNode) then FModel := ChildNode.FirstChild.NodeValue else Exit;
-             ChildNode := IdentificationNode.FindNode('hardwareVersion');
-             if Assigned(ChildNode) then FHardwareVersion := ChildNode.FirstChild.NodeValue else Exit;
-             ChildNode := IdentificationNode.FindNode('softwareVersion');
-             if Assigned(ChildNode) then FSoftwareVersion := ChildNode.FirstChild.NodeValue else Exit;
+             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('manufacturer');
+             if Assigned(ChildNode) then FManufacturer := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
+             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('model');
+             if Assigned(ChildNode) then FModel := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
+             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('hardwareVersion');
+             if Assigned(ChildNode) then FHardwareVersion := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
+             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('softwareVersion');
+             if Assigned(ChildNode) then FSoftwareVersion := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
              UserVersion := 1;
              Result := True;
           end;
@@ -3669,7 +3700,6 @@ begin
     end;
   end;
 end;
-{$ENDIF}
 
 function TSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
 
@@ -3864,7 +3894,12 @@ begin
   begin
     AStream.Position := AStream.Size;
     for i := 0 to ((Address + ReadCount) - AStream.Size) - 1 do
+      {$IFDEF FPC}
       AStream.WriteByte(0);
+     {$ELSE}
+      AByte := 0;
+      AStream.Write(AByte, 1);
+     {$ENDIF}
   end;
 
   if AStream.Size = 0 then
@@ -4641,10 +4676,6 @@ begin
         AStream.SaveToFile(String( FilePath))
     end else
       AStream.SaveToFile(String( FilePath))
-    {$IFNDEF FPC_CONSOLE_APP}
-    else
-      ShowMessage('Attempt to write to configuration failed, file path not valid');
-    {$ENDIF}
   end;
 end;
 
@@ -4867,7 +4898,7 @@ begin
         begin
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Consumed Events', False);
           if Assigned(EventNode) then
-            FindOrCreateNewTreeNodeByName(EventNode, EventIDToString(Event), False);
+            FindOrCreateNewTreeNodeByName(EventNode, EventIDToString(Event, True), False);
         end;
       end
     end else
@@ -4953,7 +4984,7 @@ begin
         begin
           EventNode := FindOrCreateNewTreeNodeByName(Node, 'Produced Events', False);
           if Assigned(EventNode) then
-            FindOrCreateNewTreeNodeByName(EventNode, EventIDToString(Event), False);
+            FindOrCreateNewTreeNodeByName(EventNode, EventIDToString(Event, True), False);
         end;
       end
     end else
