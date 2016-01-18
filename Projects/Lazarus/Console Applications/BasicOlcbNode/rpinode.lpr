@@ -17,8 +17,11 @@ uses
   Classes, SysUtils, CustApp,
   { you can add units after this }
   crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_ethenetserver,
-  lcc_messages, lcc_raspberrypi, lcc_utilities
-  ;
+  lcc_messages, lcc_can_message_assembler_disassembler,
+  {$IFDEF CPUARM}
+  lcc_raspberrypi,
+  {$ENDIF}
+  lcc_utilities;
 
 const
   SETTINGS_FILE       = 'settings.ini';
@@ -37,7 +40,7 @@ type
     FIsServer: Boolean;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
-    FPiUart: TRaspberryPiUart;
+    {$IFDEF CPUARM}FPiUart: TRaspberryPiUart;{$ENDIF}
     FTriedConnecting: Boolean;
   protected
     procedure DoRun; override;
@@ -61,7 +64,7 @@ type
     property IsServer: Boolean read FIsServer write FIsServer;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
-    property PiUart: TRaspberryPiUart read FPiUart write FPiUart;
+    {$IFDEF CPUARM}property PiUart: TRaspberryPiUart read FPiUart write FPiUart;{$ENDIF}
   end;
 
 { TOlcbNode }
@@ -70,12 +73,24 @@ procedure TOlcbNodeApplication.DoRun;
 var
   ErrorMsg, CustomNodeID: String;
   Running: Boolean;
+  {$IFDEF CPUARM}
   TxBuffer, RxBuffer: TPiUartBuffer;
+  {$ENDIF}
 begin
   CustomNodeID := '';
 
+  try
+  // Make sure the configuration file path exists
+  if not DirectoryExists(GetAppConfigDir(False)) then
+    ForceDirectories(GetAppConfigDir(False));
+  except
+    WriteLn('Can''t create configuration directory');
+    Terminate;
+    Exit;
+  end;
+
   // quick check parameters
-  ErrorMsg:=CheckOptions('h s c p C i', 'help server consumers producers cdi id');
+  ErrorMsg:=CheckOptions('h s c p C i N d', 'help server consumers producers cdi id ndi datagram');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -92,15 +107,28 @@ begin
   if HasOption('s', 'server') then
     IsServer := True;
 
+  ErrorMsg := GetAppConfigDir(False);
   if HasOption('C', 'cdi') then
   begin
     if not FileExists(GetAppConfigDir(False) + GetOptionValue('C', 'cdi')) then
     begin
+      WriteLn('Unable to find CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
       Terminate;
       Exit;
     end;
     NodeManager.RootNode.CDI.LoadFromXml(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
     WriteLn('Node CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'))
+  end;
+
+  if HasOption('d', 'datagram') then
+  begin
+    try
+      Max_Allowed_Datagrams := StrToInt(GetOptionValue('d', 'datagram'));
+    except
+      WriteLn('Invalid number of datagram buffers defined');
+      Terminate;
+      Exit;
+    end;
   end;
 
   if HasOption('c', 'consumers') then
@@ -141,13 +169,29 @@ begin
     end;
   end;
 
+  if HasOption('N', 'ndi') then
+  begin
+    if not FileExists(GetAppConfigDir(False) + GetOptionValue('N', 'ndi')) then
+    begin
+      Terminate;
+      Exit;
+    end;
+    try
+      NodeManager.RootNode.NDI.FilePath := GetAppConfigDir(False) + GetOptionValue('N', 'ndi');
+      NodeManager.RootNode.NDI.LoadFromXML;
+      WriteLn('Node Definition file: ' + GetAppConfigDir(False) + GetOptionValue('N', 'ndi'))
+    except
+      WriteLn('Error loading Node Definition File');
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('N', 'ndi'));
+      Terminate;
+      Exit;
+    end;
+  end;
+
   WriteLn('Press "q" to quit');
 
   { add your program here }
 
-  // Make sure the configuration file path exists
-  if not DirectoryExists(GetAppConfigDir(False)) then
-    mkdir(GetAppConfigDir(False));
   // Point the Settings object to the configuration file path
   LccSettings.FilePath := GetAppConfigDir(False) + SETTINGS_FILE;
   // Create a Settings file if it does not exist or load it if it does exist
@@ -155,17 +199,20 @@ begin
     LccSettings.SaveToFile
   else
     LccSettings.LoadFromFile;
+
   // See if there is a custom Node ID to use
   if CustomNodeID <> '' then    // This was validated earlier
   begin
     LccSettings.General.NodeID := CustomNodeID;
     LccSettings.SaveToFile;
   end;
+
   // Point the Configuration object to the configuration file path
+  // IS THIS OBE WITH THE NDI?
   NodeManager.RootNode.Configuration.FilePath := GetAppConfigDir(False) + CONFIGURATION_FILE;
   // If a configuration file exists load it
   if FileExists(GetAppConfigDir(False) + CONFIGURATION_FILE) then
-   NodeManager.RootNode.Configuration.LoadFromFile;
+    NodeManager.RootNode.Configuration.LoadFromFile;
 
 
   if IsServer then
@@ -178,9 +225,9 @@ begin
   EthernetClient.GridConnect := True;
   EthernetServer.Gridconnect := True;
 
-  if PiUart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
-  begin
-    TxBuffer[0] := 0;
+  {$IFDEF CPUARM}if PiUart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
+  begin {$ENDIF}
+    {$IFDEF CPUARM}TxBuffer[0] := 0;{$ENDIF}
     if IsServer then
     begin
       if CreateOlcbServer then
@@ -190,11 +237,13 @@ begin
         WriteLn('Node started');
         while Running do
         begin
+          {$IFDEF CPUARM}
           while not PiUart.Write(@TxBuffer, 1) do
             Delay(10);
           Inc(TxBuffer[0]);
           PiUart.Read(@RxBuffer, 1);
           Delay(2);
+          {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
             Running := ReadKey <> 'q';
@@ -209,20 +258,22 @@ begin
         WriteLn('Node started');
         while Running do
         begin
+          {$IFDEF CPUARM}
           PiUart.Write(@TxBuffer, 1);
           Inc(TxBuffer[0]);
           PiUart.Read(@RxBuffer, 1);
+          {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
             Running := ReadKey <> 'q';
         end;
       end;
     end;
-  end else
-    WriteLn('Can''t open the Serial Port: ' + GetRaspberryPiUartPortNames);
+  {$IFDEF CPUARM}end else
+    WriteLn('Can''t open the Serial Port: ' + GetRaspberryPiUartPortNames);{$ENDIF}
 
   WriteLn('Exiting');
-  PiUart.CloseUart;
+  {$IFDEF CPUARM}PiUart.CloseUart;{$ENDIF}
   NodeManager.Enabled := False;
   EthernetClient.CloseConnection(nil);
   EthernetServer.CloseConnection(nil);
@@ -361,8 +412,10 @@ begin
   EthernetServer.LccSettings := LccSettings;
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectChange;
   EthernetServer.NodeManager := NodeManager;
+  {$IFDEF CPUARM}
   PiUart := TRaspberryPiUart.Create;
   PiUart.Speed:= pus_9600Hz;
+  {$ENDIF}
 end;
 
 function TOlcbNodeApplication.CreateOlcbServer: Boolean;
@@ -400,7 +453,7 @@ end;
 
 destructor TOlcbNodeApplication.Destroy;
 begin
-  FreeAndNil(FPiUart);
+  {$IFDEF CPUARM}FreeAndNil(FPiUart);{$ENDIF}
   inherited Destroy;
 end;
 
@@ -411,8 +464,10 @@ begin
   writeln('-s   : starts rpinode as a ethernet server [-s]');
   writeln('-p   : number of producer events [-p 6]');
   writeln('-c   : number of consumer events [-c 6]');
-  writeln('-C   : file name of CDI file [-C MyCdi.xml]');
+  writeln('-C   : filename of the CDI file [-C MyCdi.xml]');
   writeln('-i   : nodeID for node [-i 0x203456123456]');
+  writeln('-N   : filename of the node definition file [-n nodedefinition.xml]');
+  writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
 end;
 
 var
