@@ -27,7 +27,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -p 16 -c 24 -C cdi_16_24_PC_default.xml -N nodedefinition.xml -d 2048"/>
+        <CommandLineParams Value="-s -p 16 -c 24 -C example_cdi.xml -d 2048"/>
       </local>
     </RunParams>
     <Units Count="1">

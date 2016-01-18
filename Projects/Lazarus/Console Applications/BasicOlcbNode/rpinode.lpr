@@ -112,7 +112,7 @@ begin
   begin
     if not FileExists(GetAppConfigDir(False) + GetOptionValue('C', 'cdi')) then
     begin
-      WriteLn('Unable to find CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
+      WriteLn('Error loading CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
       Terminate;
       Exit;
     end;
@@ -173,6 +173,8 @@ begin
   begin
     if not FileExists(GetAppConfigDir(False) + GetOptionValue('N', 'ndi')) then
     begin
+      WriteLn('Error loading Node Definition File');
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('N', 'ndi'));
       Terminate;
       Exit;
     end;

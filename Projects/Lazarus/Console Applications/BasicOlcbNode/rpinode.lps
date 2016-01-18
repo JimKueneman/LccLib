@@ -8,8 +8,8 @@
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="237"/>
-        <CursorPos X="15" Y="46"/>
+        <TopLine Value="95"/>
+        <CursorPos X="29" Y="115"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -44,7 +44,7 @@
         <Filename Value="../../../Library/Lib/frame_lcc_logging.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="32" Y="10"/>
-        <UsageCount Value="0"/>
+        <UsageCount Value="10"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
@@ -62,7 +62,6 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
         <EditorIndex Value="2"/>
         <TopLine Value="1715"/>
         <CursorPos X="28" Y="1727"/>
@@ -71,7 +70,6 @@
       </Unit8>
       <Unit9>
         <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <UnitName Value="lcc_utilities"/>
         <EditorIndex Value="1"/>
         <TopLine Value="277"/>
         <CursorPos Y="304"/>
@@ -93,7 +91,6 @@
       </Unit11>
       <Unit12>
         <Filename Value="../../../../Library/LCC/lcc_app_common_settings.pas"/>
-        <UnitName Value="lcc_app_common_settings"/>
         <EditorIndex Value="3"/>
         <TopLine Value="370"/>
         <CursorPos X="68" Y="380"/>
@@ -109,7 +106,6 @@
       </Unit13>
       <Unit14>
         <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="5"/>
         <TopLine Value="17"/>
         <CursorPos X="19" Y="29"/>
@@ -174,7 +170,6 @@
       </Unit22>
       <Unit23>
         <Filename Value="../../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
-        <UnitName Value="lcc_can_message_assembler_disassembler"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="44"/>
         <UsageCount Value="71"/>
@@ -188,7 +183,6 @@
       </Unit24>
       <Unit25>
         <Filename Value="../../../../Library/LCC/lcc_defines.pas"/>
-        <UnitName Value="lcc_defines"/>
         <EditorIndex Value="6"/>
         <TopLine Value="364"/>
         <CursorPos X="3" Y="380"/>
@@ -211,7 +205,6 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <UnitName Value="lcc_raspberrypi"/>
         <EditorIndex Value="4"/>
         <CursorPos X="11" Y="240"/>
         <UsageCount Value="42"/>
@@ -303,7 +296,6 @@
       </Unit40>
       <Unit41>
         <Filename Value="/usr/local/share/fpcsrc/packages/fcl-base/src/contnrs.pp"/>
-        <UnitName Value="contnrs"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="58"/>
         <CursorPos X="29" Y="68"/>
