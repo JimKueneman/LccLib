@@ -4,7 +4,6 @@ unit lcc_can_message_assembler_disassembler;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
-{.$DEFINE PYTHON_COMPATIBLE}
 
 interface
 
@@ -69,17 +68,14 @@ public
   procedure OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 end;
 
+var
+  Max_Allowed_Datagrams: Integer;
+
 
 implementation
 
-{$IFDEF PYTHON_COMPATIBLE}
-// Hack to allow python scripts to test datagrams
-const
-  MAX_ALLOWED_DATAGRAMS = 1;
-
 var
   AllocatedDatagrams: Integer;
-{$ENDIF}
 
 { TLccMessageDisAssembler }
 
@@ -197,10 +193,8 @@ begin
     AMessage := Messages[i];
     if (AMessage.CAN.SourceAlias = Alias) or (AMessage.CAN.DestAlias = Alias) then
     begin
-      {$IFDEF PYTHON_COMPATIBLE}
       if AMessage.MTI = MTI_DATAGRAM then
         Dec(AllocatedDatagrams);
-      {$ENDIF}
       InProcessMessageList.Delete(i);
       AMessage.Free
     end;
@@ -234,21 +228,17 @@ begin                                                                           
             if Assigned(InProcessMessage) then
               Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
             else begin
-              {$IFDEF PYTHON_COMPATIBLE}
-              if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
+              if AllocatedDatagrams < Max_Allowed_Datagrams then
               begin
-              {$ENDIF}
                 LccMessage.IsCAN := False;
                 LccMessage.MTI := MTI_DATAGRAM;
                 Result := imgcr_True
-              {$IFDEF PYTHON_COMPATIBLE}
               end else
               begin
                 // don't swap the Node IDs
                 LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL);
                 Result := imgcr_ErrorToSend
               end;
-              {$ENDIF}
             end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_START :
@@ -257,18 +247,14 @@ begin                                                                           
             if Assigned(InProcessMessage) then
               Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
             else begin
-              {$IFDEF PYTHON_COMPATIBLE}
-              if AllocatedDatagrams < MAX_ALLOWED_DATAGRAMS then
+              if AllocatedDatagrams < Max_Allowed_Datagrams then
               begin
-              {$ENDIF}
                 InProcessMessage := TLccMessage.Create;
                 InProcessMessage.MTI := MTI_DATAGRAM;
                 LccMessage.Copy(InProcessMessage);
                 Add(InProcessMessage);
-             {$IFDEF PYTHON_COMPATIBLE}
                 Inc(AllocatedDatagrams)
               end
-              {$ENDIF}
             end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME :
@@ -288,9 +274,7 @@ begin                                                                           
               LccMessage.IsCAN := False;
               LccMessage.MTI := MTI_DATAGRAM;
               LccMessage.CAN.MTI := 0;
-              {$IFDEF PYTHON_COMPATIBLE}
               Dec(AllocatedDatagrams);
-              {$ENDIF}
               Result := imgcr_True
             end else
             begin
@@ -373,10 +357,9 @@ begin                                                                           
   end
 end;
 
-{$IFDEF PYTHON_COMPATIBLE}
 initialization
   AllocatedDatagrams := 0;
-{$ENDIF}
+  Max_Allowed_Datagrams := 4096;   // crazy large by default
 
 end.
 

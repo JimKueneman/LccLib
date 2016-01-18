@@ -34,11 +34,12 @@ uses
   function NullNodeID(ANodeID: TNodeID): Boolean;
   procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
   function NullArrayToString(var ANullArray: array of Byte): String;
-  function EventIDToString(EventID: TEventID): String;
+  function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function ExtractDataBytesAsInt(DataArray: array of Byte; StartByteIndex, EndByteIndex: Integer): QWord;
   function ValidateNodeIDAsHexString(NodeID: string): Boolean;
   function ValidateNodeID(NodeID: TNodeID): Boolean;
   function StrToNodeID(NodeID: string): TNodeID;
+  function StrToEventID(Event: string): TEventID;
   {$IFNDEF LCC_WINDOWS}
   function ResolveUnixIp: String;
   {$ENDIF}
@@ -281,16 +282,23 @@ begin
   end;
 end;
 
-function EventIDToString(EventID: TEventID): String;
+function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
 var
   i: Integer;
 begin
   Result := '';
-  for i := 0 to MAX_EVENT_LEN - 1 do
+  if InsertDots then
   begin
-    if i < MAX_EVENT_LEN - 1 then
-      Result := Result + IntToHex(EventID[i], 2) + '.'
-    else
+    for i := 0 to MAX_EVENT_LEN - 1 do
+    begin
+      if i < MAX_EVENT_LEN - 1 then
+        Result := Result + IntToHex(EventID[i], 2) + '.'
+      else
+        Result := Result + IntToHex(EventID[i], 2);
+    end;
+  end else
+  begin
+    for i := 0 to MAX_EVENT_LEN - 1 do
       Result := Result + IntToHex(EventID[i], 2);
   end;
 end;
@@ -336,6 +344,37 @@ begin
   {$ENDIF}
   Result[0] :=  Temp and $0000000000FFFFFF;
   Result[1] := (Temp and $FFFFFFFFFF000000) shr 24;  // allow the upper nibble to be part of it to catch incorrect node id values
+end;
+
+
+function StrToEventID(Event: string): TEventID;
+var
+  i: Integer;
+begin
+  if Length(Event) = 16 then
+  begin
+    i := 0;
+    {$IFDEF LCC_MOBILE}
+    Result[0] := StrToInt('0x' + Event[0] + Event[1]);
+    Result[1] := StrToInt('0x' + Event[2] + Event[3]);
+    Result[2] := StrToInt('0x' + Event[4] + Event[5]);
+    Result[3] := StrToInt('0x' + Event[6] + Event[7]);
+    Result[4] := StrToInt('0x' + Event[8] + Event[9]);
+    Result[5] := StrToInt('0x' + Event[10] + Event[11]);
+    Result[6] := StrToInt('0x' + Event[12] + Event[13]);
+    Result[7] := StrToInt('0x' + Event[14] + Event[15]);
+    {$ELSE}
+    Result[0] := StrToInt('0x' + Event[1] + Event[2]);
+    Result[1] := StrToInt('0x' + Event[3] + Event[4]);
+    Result[2] := StrToInt('0x' + Event[5] + Event[6]);
+    Result[3] := StrToInt('0x' + Event[7] + Event[8]);
+    Result[4] := StrToInt('0x' + Event[9] + Event[10]);
+    Result[5] := StrToInt('0x' + Event[11] + Event[12]);
+    Result[6] := StrToInt('0x' + Event[13] + Event[14]);
+    Result[7] := StrToInt('0x' + Event[15] + Event[16]);
+    {$ENDIF}
+  end else
+    FillChar(Result, 0, SizeOf(TEventID))
 end;
 
 {$IFNDEF LCC_WINDOWS}

@@ -285,9 +285,13 @@ type
   TLccEvent = class
   private
     FID: TEventID;
+    FIDStr: string;
     FState: TEventState;
+    procedure SetID(AValue: TEventID);
+    procedure SetIDStr(AValue: string);
   public
-    property ID: TEventID read FID write FID;
+    property ID: TEventID read FID write SetID;
+    property IDStr: string read FIDStr write SetIDStr;
     property State: TEventState read FState write FState;
   end;
 
@@ -389,6 +393,37 @@ type
   end;
   {$ENDIF}
 
+  { TIoAction }
+
+  TIoAction = class
+  private
+    FDescription: string;
+    FName: string;
+    FHardwarePort: Integer;
+    {$IFDEF FPC}
+    FInputEvents: TObjectList;
+    FOutputEvents: TObjectList;
+    {$ELSE}
+    FInputEvents: TObjectList<TLccEvent>;
+    FInputEvents: TObjectList<TLccEvent>;
+    {$ENDIF}
+  public
+    property Description: string read FDescription write FDescription;
+    property Name: string read FName write FName;
+    property HardwarePort: Integer read FHardwarePort write FHardwarePort;
+    {$IFDEF FPC}
+    property InputEvents: TObjectList read FInputEvents write FInputEvents;
+    property OutputEvents: TObjectList read FOutputEvents write FOutputEvents;
+    {$ELSE}
+    property InputEvents: TObjectList<TLccEvent> read FInputEvents write FInputEvents;
+    property OutputEvents: TObjectList<TLccEvent> read FOutputEvents write FOutputEvents;
+    {$ENDIF}
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Clear;
+  end;
+
   { TCDI }
 
   TCDI = class(TStreamBasedProtocol)
@@ -419,14 +454,55 @@ type
   private
     FAutoSaveOnWrite: Boolean;
     FFilePath: String;
+  protected
   public
     property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
     property FilePath: String read FFilePath write FFilePath;
 
     constructor Create(AnOwner: TComponent; AnAddressSpace: Byte; IsStringBasedStream: Boolean); override;
+    destructor Destroy; override;
     procedure WriteRequest(LccMessage: TLccMessage); override;
     function ReadAsString(Address: DWord): String;
     procedure LoadFromFile;
+  end;
+
+    { TNDI }
+
+  TNDI = class(TNodeProtocolBase)      // Node Definition Information
+  private
+    FAutosaveOnWrite: Boolean;
+    FFilePath: string;
+    FLoaded: Boolean;
+    FUserDescription: string;
+    FUserName: string;
+    FXMLDoc: TXMLDocument;
+   {$IFDEF FPC}
+    FIoActions: TObjectList;
+   {$ELSE}
+    FIoActions := TObjectList<TLccEvent>.Create;
+   {$ENDIF}
+  protected
+    property XMLDoc: TXMLDocument read FXMLDoc write FXMLDoc;
+  public
+    {$IFDEF FPC}
+    property IoActions: TObjectList read FIoActions write FIoActions;
+    {$ELSE}
+    property IoActions: TObjectList<TLccEvent> read FInputEvents write FInputEvents;
+    {$ENDIF}
+    property AutosaveOnWrite: Boolean read FAutosaveOnWrite write FAutosaveOnWrite;
+    property UserName: string read FUserName write FUserName;
+    property UserDescription: string read FUserDescription write FUserDescription;
+    property FilePath: string read FFilePath write FFilePath;
+    property Loaded: Boolean read FLoaded;
+
+    constructor Create(AnOwner: TComponent);
+    destructor Destroy; override;
+
+    procedure Clear;
+    function LoadFromXML: Boolean;
+    function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+    procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
+    procedure WriteRequest(LccMessage: TLccMessage); virtual;
   end;
 
 
@@ -664,6 +740,7 @@ type
     FLoginTimer: TTimer;
     {$ELSE}
     FLogInTimer: TFPTimer;
+    FNDI: TNDI;
     {$ENDIF}
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
@@ -695,6 +772,7 @@ type
     property Configuration: TConfiguration read FConfiguration write FConfiguration;
     property Initialized: Boolean read FInitialized;
     property LoggedIn: Boolean read FLoggedIn;
+    property NDI: TNDI read FNDI write FNDI;
     property Permitted: Boolean read FPermitted;
 
     constructor Create(AnOwner: TComponent); override;
@@ -989,6 +1067,223 @@ begin
   RegisterComponents('LCC',[TLccNodeManager]);
   RegisterComponents('LCC',[TLccNetworkTree]);
   {$ENDIF}
+end;
+
+{ TLccEvent }
+
+procedure TLccEvent.SetID(AValue: TEventID);
+begin
+  FID[0] := AValue[0];
+  FID[1] := AValue[1];
+  FID[2] := AValue[2];
+  FID[3] := AValue[3];
+  FID[4] := AValue[4];
+  FID[5] := AValue[5];
+  FID[6] := AValue[6];
+  FID[7] := AValue[7];
+  FIDStr := EventIDToString(FID, False);
+end;
+
+procedure TLccEvent.SetIDStr(AValue: string);
+begin
+  if FIDStr = AValue then Exit;
+  FIDStr := AValue;
+  FID := StrToEventID(AValue)
+end;
+
+{ TIoAction }
+
+procedure TIoAction.Clear;
+begin
+  InputEvents.Clear;
+  OutputEvents.Clear;
+end;
+
+constructor TIoAction.Create;
+begin
+  {$IFDEF FPC}
+   FInputEvents := TObjectList.Create;
+   FOutputEvents := TObjectList.Create;
+  {$ELSE}
+   FInputEvents := TObjectList<TLccEvent>.Create;
+   FOutputEvents := TObjectList<TLccEvent>.Create;
+  {$ENDIF}
+end;
+
+destructor TIoAction.Destroy;
+begin
+   {$IFDEF FPC}
+   FreeAndNil(FInputEvents);
+   FreeAndNil(FOutputEvents);
+  {$ELSE}
+   InputEvent.DisposeOf;
+   OutputEvents.DisposeOf;
+  {$ENDIF}
+  inherited Destroy;
+end;
+
+{ TNDI }
+
+procedure TNDI.Clear;
+var
+  i: Integer;
+begin
+   {$IFDEF FPC}
+   for i := 0 to IoActions.Count - 1 do
+     (IoActions[i] as TIoAction).Clear;
+   IoActions.Clear;
+  {$ELSE}
+  for i := 0 to IoActions.Count - 1 do
+     IoActions[i].Clear;
+   IoActions.Clear;
+  {$ENDIF}
+end;
+
+constructor TNDI.Create(AnOwner: TComponent);
+begin
+  inherited Create(AnOwner);
+   FXMLDoc := TXMLDocument.Create;
+   {$IFDEF FPC}
+   FIoActions := TObjectList.Create;
+  {$ELSE}
+   FIoActions := TObjectList<TLccEvent>.Create;
+  {$ENDIF}
+  FAutosaveOnWrite := True;
+end;
+
+destructor TNDI.Destroy;
+begin
+  FreeAndNil(FXMLDoc);
+  {$IFDEF FPC}
+   FreeAndNil(FIoActions);
+  {$ELSE}
+   IoActions.DisposeOf;
+  {$ENDIF}
+  inherited Destroy;
+end;
+
+function TNDI.LoadFromXML: Boolean;
+
+  procedure RunIO(IONode: TDOMNode);
+  var
+    ActionNode, ChildNode: TDOMNode;
+    IoAction: TIoAction;
+    Event: TLccEvent;
+  begin
+    ActionNode := IONode.FirstChild;
+    while Assigned(ActionNode) do
+    begin
+      if ActionNode.NodeName = 'action' then
+      begin
+        IoAction := TIoAction.Create;
+        ChildNode := ActionNode.FirstChild;
+        while Assigned(ChildNode) do
+        begin
+          if ChildNode.NodeName = 'name' then
+            IoAction.Name := ChildNode.TextContent
+          else
+          if ChildNode.NodeName = 'description' then
+            IoAction.Description := ChildNode.TextContent
+          else
+          if ChildNode.NodeName = 'hardwarepin' then
+            IoAction.HardwarePort := StrToInt(ChildNode.TextContent)
+          else
+          if ChildNode.NodeName = 'activation' then
+          begin
+            Event := TLccEvent.Create;
+            Event.IDStr := ChildNode.FindNode('id').TextContent;
+            Event.ID := StrToEventID(Event.IDStr);
+            case ChildNode.FindNode('state').TextContent of
+              '1' : Event.State := evs_InValid;
+              '2' : Event.State := evs_Valid;
+            else
+              Event.State := evs_Unknown;
+            end;
+            IoAction.OutputEvents.Add(Event);
+          end;
+          ChildNode := ChildNode.NextSibling;
+        end;
+        IoActions.Add(IoAction);
+      end;
+      ActionNode := ActionNode.NextSibling;
+    end;
+  end;
+
+var
+  RootNode, UserNode, InputNode, OutputNode, ChildNode: TDOMNode;
+begin
+  Result := False;
+  if FileExists(FilePath) then
+  begin
+    try
+      Clear;
+      ReadXMLFile(FXMLDoc, FilePath);
+      RootNode := XMLDoc.FindNode('ndf');
+      if Assigned(RootNode) then
+      begin
+
+        UserNode := RootNode.FindNode('user');
+        if Assigned(UserNode) then
+        begin
+          ChildNode := UserNode.FindNode('name');
+          if Assigned(ChildNode) then
+            UserName := ChildNode.NodeValue;
+          ChildNode := UserNode.FindNode('description');
+          if Assigned(ChildNode) then
+            UserDescription := ChildNode.NodeValue;
+        end;
+
+        OutputNode := RootNode.FindNode('outputs');
+        if Assigned(OutputNode) then
+          RunIO(OutputNode);
+
+        InputNode := RootNode.FindNode('inputs');
+        if Assigned(InputNode) then
+          RunIO(InputNode);
+
+        FLoaded := True;
+        Result := True;
+      end;
+    finally
+    end;
+  end;
+end;
+
+procedure TNDI.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
+begin
+
+end;
+
+function TNDI.ProcessMessage(LccMessage: TLccMessage): Boolean;
+begin
+  // Empty for the abstract ancestor
+end;
+
+procedure TNDI.WriteRequest(LccMessage: TLccMessage);
+var
+  i: Integer;
+  iStart : Integer;
+  WriteCount,Address: DWord;
+  {$IFNDEF FPC}
+  AByte: Byte;
+  {$ENDIF}
+begin
+  // Assumption is this is a datagram message
+  if LccMessage.DataArrayIndexer[1] and $03 = 0 then
+    iStart := 7
+  else
+    iStart := 6;
+  WriteCount := LccMessage.DataCount - iStart;
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+
+  if AutoSaveOnWrite then
+  begin
+    if not FileExists(String( FilePath)) then
+    begin
+
+    end
+  end;
+
 end;
 
 { TDatagramQueue }
@@ -1337,6 +1632,7 @@ begin
   FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER, True);
   FConfiguration := TConfiguration.Create(Self, MSI_CONFIG, False);
   FDatagramQueue := TDatagramQueue.Create(Self);
+  FNDI := TNDI.Create(Self);
 end;
 
 function TLccOwnedNode.CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
@@ -1363,6 +1659,7 @@ begin
   FreeAndNil(FACDIUser);
   FreeAndNil(FConfiguration);
   FreeAndNil(FDatagramQueue);
+  FreeAndNil(FNDI);
   inherited Destroy;
 end;
 
@@ -1426,16 +1723,6 @@ begin
       FNodeID[1] := TempNodeID[1];
     end;
 
-    if EventsProduced.AutoGenerate.Enable then
-    begin
-      for i := 0 to EventsProduced.AutoGenerate.Count - 1 do
-      begin
-        NodeIDToEventID(NodeID, EventsProduced.AutoGenerate.StartIndex + i, TempEventID);
-        EventsProduced.Add(TempEventID, EventsProduced.AutoGenerate.DefaultState);
-      end;
-      EventsProduced.Valid := True;
-    end;
-
     if EventsConsumed.AutoGenerate.Enable then
     begin
       for i := 0 to EventsConsumed.AutoGenerate.Count - 1 do
@@ -1444,6 +1731,16 @@ begin
         EventsConsumed.Add(TempEventID, EventsConsumed.AutoGenerate.DefaultState);
       end;
       EventsConsumed.Valid := True;
+    end;
+
+    if EventsProduced.AutoGenerate.Enable then
+    begin
+      for i := 0 to EventsProduced.AutoGenerate.Count - 1 do
+      begin
+        NodeIDToEventID(NodeID, EventsProduced.AutoGenerate.StartIndex + EventsConsumed.Count + i, TempEventID);
+        EventsProduced.Add(TempEventID, EventsProduced.AutoGenerate.DefaultState);
+      end;
+      EventsProduced.Valid := True;
     end;
 
     Configuration.LoadFromFile;
@@ -2092,7 +2389,7 @@ end;
 
 function TLccEvents.GetEventIDAsStr(Index: Integer): String;
 begin
-  Result := EventIDToString(Event[Index].ID);
+  Result := EventIDToString(Event[Index].ID, True);
 end;
 
 function TLccEvents.GetCount: Integer;
@@ -4267,6 +4564,11 @@ constructor TConfiguration.Create(AnOwner: TComponent; AnAddressSpace: Byte; IsS
 begin
   inherited Create(AnOwner, AnAddressSpace, IsStringBasedStream);
   AutoSaveOnWrite := True;
+end;
+
+destructor TConfiguration.Destroy;
+begin
+  inherited Destroy;
 end;
 
 procedure TConfiguration.LoadFromFile;
