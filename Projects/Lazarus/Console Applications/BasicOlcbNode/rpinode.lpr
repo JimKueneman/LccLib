@@ -249,6 +249,7 @@ begin
             Running := ReadKey <> 'q';
         end;
       end;
+
     end else
     begin
       if LogInToOlcbNetwork then
