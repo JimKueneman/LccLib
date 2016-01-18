@@ -7,7 +7,9 @@
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="29" Y="9"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="110"/>
+        <CursorPos Y="119"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -60,17 +62,14 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <UnitName Value="lcc_nodemanager"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="1220"/>
-        <CursorPos X="15" Y="1235"/>
+        <TopLine Value="3654"/>
+        <CursorPos Y="3667"/>
         <UsageCount Value="73"/>
         <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <UnitName Value="lcc_utilities"/>
         <EditorIndex Value="1"/>
         <TopLine Value="277"/>
         <CursorPos Y="304"/>
@@ -92,7 +91,6 @@
       </Unit11>
       <Unit12>
         <Filename Value="../../../../Library/LCC/lcc_app_common_settings.pas"/>
-        <UnitName Value="lcc_app_common_settings"/>
         <EditorIndex Value="3"/>
         <TopLine Value="370"/>
         <CursorPos X="68" Y="380"/>
@@ -108,7 +106,6 @@
       </Unit13>
       <Unit14>
         <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <UnitName Value="lcc_ethenetserver"/>
         <EditorIndex Value="5"/>
         <TopLine Value="17"/>
         <CursorPos X="19" Y="29"/>
@@ -186,7 +183,6 @@
       </Unit24>
       <Unit25>
         <Filename Value="../../../../Library/LCC/lcc_defines.pas"/>
-        <UnitName Value="lcc_defines"/>
         <EditorIndex Value="6"/>
         <TopLine Value="364"/>
         <CursorPos X="3" Y="380"/>
@@ -209,7 +205,6 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <UnitName Value="lcc_raspberrypi"/>
         <EditorIndex Value="4"/>
         <CursorPos X="11" Y="240"/>
         <UsageCount Value="43"/>
@@ -437,7 +432,7 @@
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="5">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -459,6 +454,20 @@
         <Source Value="/Developer/lazarus/ide/lazarus.pp"/>
         <Line Value="142"/>
       </Item3>
+      <Item4>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
+        <Line Value="3667"/>
+      </Item4>
+      <Item5>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="rpinode.lpr"/>
+        <Line Value="119"/>
+      </Item5>
     </BreakPoints>
   </Debugging>
 </CONFIG>
