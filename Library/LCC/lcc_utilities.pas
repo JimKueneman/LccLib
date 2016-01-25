@@ -18,7 +18,7 @@ uses
     strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
-  Types, lcc_defines, lcc_compiler_types;
+  Types, lcc_defines;
 
   function GetTickCount : DWORD;
   function _Lo(Data: DWORD): Byte;
@@ -334,7 +334,6 @@ end;
 function StrToNodeID(NodeID: string): TNodeID;
 var
   Temp: QWord;
-  ANodeID: TNodeID;
 begin
   NodeID := Trim(NodeID);
   {$IFDEF FPC}
@@ -349,11 +348,29 @@ end;
 
 function StrToEventID(Event: string): TEventID;
 var
+  TempEvent: string;
+  TempChar: Char;
   i: Integer;
 begin
+  Event := Trim(Event);
+  if Length(Event) = 23 then
+  begin
+    TempEvent := '';
+    {$IFDEF LCC_MOBILE}
+    for i := 0 to 22 do
+    {$ELSE}
+    for i := 1 to 23 do
+    {$ENDIF}
+    begin
+      TempChar := Event[i];
+      if TempChar <> '.' then
+        TempEvent := TempEvent + TempChar;
+    end;
+    Event := TempEvent;
+  end;
+
   if Length(Event) = 16 then
   begin
-    i := 0;
     {$IFDEF LCC_MOBILE}
     Result[0] := StrToInt('0x' + Event[0] + Event[1]);
     Result[1] := StrToInt('0x' + Event[2] + Event[3]);

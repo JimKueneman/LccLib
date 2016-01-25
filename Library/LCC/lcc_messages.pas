@@ -22,8 +22,7 @@ uses
   lcc_math_float16,
   lcc_utilities,
   lcc_threadedcirculararray,
-  strutils,
-  lcc_compiler_types;
+  strutils;
 
 const
   CAN_BYTE_COUNT = 8;

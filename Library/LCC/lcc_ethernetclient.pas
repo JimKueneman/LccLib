@@ -18,18 +18,17 @@ uses
   Classes, SysUtils,
   {$IFDEF FPC}
     {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
-   contnrs,
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
   {$IFDEF LOGGING}
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect, blcksock, synsock, lcc_threaded_stringlist,
+  lcc_gridconnect, blcksock, synsock,
   lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes, lcc_compiler_types;
+  lcc_common_classes;
 
 type
   TLccEthernetClient = class;   // Forward

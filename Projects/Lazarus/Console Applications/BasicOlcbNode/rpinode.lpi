@@ -27,14 +27,29 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -p 16 -c 24 -C cdi_16_24_PC_default.xml -N nodedefinition.xml -d 2048"/>
+        <CommandLineParams Value="-s -p 16 -c 24 -C cdi_16_24_PC_default.xml -t sdn_signaltemplate.xml -f sdn_signalconfig.xml -d 2048"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="3">
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="../../../../Library/LCC/lcc_xmlutilities.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="lcc_xmlutilities"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="lcc_sdn_utilities"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

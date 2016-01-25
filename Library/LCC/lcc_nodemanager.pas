@@ -37,7 +37,8 @@ uses
   Xml.XMLIntf,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes, lcc_defines, lcc_compiler_types;
+  lcc_common_classes, lcc_defines, lcc_compiler_types, lcc_xmlutilities,
+  lcc_sdn_utilities;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -398,37 +399,6 @@ type
   end;
   {$ENDIF}
 
-  { TIoAction }
-
-  TIoAction = class
-  private
-    FDescription: string;
-    FName: string;
-    FHardwarePort: Integer;
-    {$IFDEF FPC}
-    FInputEvents: TObjectList;
-    FOutputEvents: TObjectList;
-    {$ELSE}
-    FInputEvents: TObjectList<TLccEvent>;
-    FOutputEvents: TObjectList<TLccEvent>;
-    {$ENDIF}
-  public
-    property Description: string read FDescription write FDescription;
-    property Name: string read FName write FName;
-    property HardwarePort: Integer read FHardwarePort write FHardwarePort;
-    {$IFDEF FPC}
-    property InputEvents: TObjectList read FInputEvents write FInputEvents;
-    property OutputEvents: TObjectList read FOutputEvents write FOutputEvents;
-    {$ELSE}
-    property InputEvents: TObjectList<TLccEvent> read FInputEvents write FInputEvents;
-    property OutputEvents: TObjectList<TLccEvent> read FOutputEvents write FOutputEvents;
-    {$ENDIF}
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure Clear;
-  end;
-
   { TCDI }
 
   TCDI = class(TStreamBasedProtocol)
@@ -469,50 +439,6 @@ type
     procedure WriteRequest(LccMessage: TLccMessage); override;
     function ReadAsString(Address: DWord): String;
     procedure LoadFromFile;
-  end;
-
-  { TNDI }
-
-  TNDI = class(TNodeProtocolBase)      // Node Definition Information
-  private
-    FAutosaveOnWrite: Boolean;
-    FFilePath: string;
-    FLoaded: Boolean;
-    FUserDescription: string;
-    FUserName: string;
-   {$IFDEF FPC}
-    FXMLDoc: TXMLDocument;
-    FIoActions: TObjectList;
-   {$ELSE}
-    FXMLDoc: IXMLDocument;
-    FIoActions: TObjectList<TIoAction>;
-   {$ENDIF}
-  protected
-    {$IFDEF FPC}
-    property XMLDoc: TXMLDocument read FXMLDoc write FXMLDoc;
-    {$ELSE}
-    property XMLDoc: IXMLDocument read FXMLDoc write FXMLDoc;
-    {$ENDIF}
-  public
-    {$IFDEF FPC}
-    property IoActions: TObjectList read FIoActions write FIoActions;
-    {$ELSE}
-    property IoActions: TObjectList<TIoAction> read FIoActions write FIoActions;
-    {$ENDIF}
-    property AutosaveOnWrite: Boolean read FAutosaveOnWrite write FAutosaveOnWrite;
-    property UserName: string read FUserName write FUserName;
-    property UserDescription: string read FUserDescription write FUserDescription;
-    property FilePath: string read FFilePath write FFilePath;
-    property Loaded: Boolean read FLoaded;
-
-    constructor Create(AnOwner: TComponent);
-    destructor Destroy; override;
-
-    procedure Clear;
-    function LoadFromXML: Boolean;
-    function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
-    procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
-    procedure WriteRequest(LccMessage: TLccMessage); virtual;
   end;
 
 
@@ -751,8 +677,8 @@ type
     {$ELSE}
     FLogInTimer: TFPTimer;
     {$ENDIF}
-    FNDI: TNDI;
     FPermitted: Boolean;
+    FSdnController: TLccSdnController;
     FSeedNodeID: TNodeID;
   protected
     property DatagramQueue: TDatagramQueue read FDatagramQueue write FDatagramQueue;
@@ -775,15 +701,17 @@ type
     procedure SendAMR;
     procedure SendEvents;
     procedure SendConsumedEvents;
+    procedure SendConsumerIdentify(var Event: TEventID);
     procedure SendProducedEvents;
+    procedure SendProducerIdentify(var Event: TEventID);
   public
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
     property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
     property Configuration: TConfiguration read FConfiguration write FConfiguration;
     property Initialized: Boolean read FInitialized;
     property LoggedIn: Boolean read FLoggedIn;
-    property NDI: TNDI read FNDI write FNDI;
     property Permitted: Boolean read FPermitted;
+    property SdnController: TLccSdnController read FSdnController write FSdnController;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -1101,206 +1029,6 @@ begin
   FID := StrToEventID(AValue)
 end;
 
-{ TIoAction }
-
-procedure TIoAction.Clear;
-begin
-  InputEvents.Clear;
-  OutputEvents.Clear;
-end;
-
-constructor TIoAction.Create;
-begin
-  {$IFDEF FPC}
-   FInputEvents := TObjectList.Create;
-   FOutputEvents := TObjectList.Create;
-  {$ELSE}
-   FInputEvents := TObjectList<TLccEvent>.Create;
-   FOutputEvents := TObjectList<TLccEvent>.Create;
-  {$ENDIF}
-end;
-
-destructor TIoAction.Destroy;
-begin
-   {$IFDEF FPC}
-   FreeAndNil(FInputEvents);
-   FreeAndNil(FOutputEvents);
-  {$ELSE}
-   InputEvents.DisposeOf;
-   OutputEvents.DisposeOf;
-  {$ENDIF}
-  inherited Destroy;
-end;
-
-{ TNDI }
-
-procedure TNDI.Clear;
-var
-  i: Integer;
-begin
-   {$IFDEF FPC}
-   for i := 0 to IoActions.Count - 1 do
-     (IoActions[i] as TIoAction).Clear;
-   IoActions.Clear;
-  {$ELSE}
-  for i := 0 to IoActions.Count - 1 do
-     IoActions[i].Clear;
-   IoActions.Clear;
-  {$ENDIF}
-end;
-
-constructor TNDI.Create(AnOwner: TComponent);
-begin
-  inherited Create(AnOwner);
-  {$IFDEF FPC}
-  FXMLDoc := TXMLDocument.Create;
-  FIoActions := TObjectList.Create;
-  {$ELSE}
-  FXMLDoc := TXMLDocument.Create(Self);
-  FIoActions := TObjectList<TIoAction>.Create;
-  {$ENDIF}
-  FAutosaveOnWrite := True;
-end;
-
-destructor TNDI.Destroy;
-begin
-  FreeAndNil(FXMLDoc);
-  {$IFDEF FPC}
-   FreeAndNil(FIoActions);
-  {$ELSE}
-   IoActions.DisposeOf;
-  {$ENDIF}
-  inherited Destroy;
-end;
-
-function TNDI.LoadFromXML: Boolean;
-
-  procedure RunIO(IONode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF});
-  var
-    ActionNode, ChildNode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF};
-    IoAction: TIoAction;
-    Event: TLccEvent;
-  begin
-    ActionNode := IONode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF};
-    while Assigned(ActionNode) do
-    begin
-      if ActionNode.NodeName = 'action' then
-      begin
-        IoAction := TIoAction.Create;
-        ChildNode := ActionNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF};
-        while Assigned(ChildNode) do
-        begin
-          if ChildNode.NodeName = 'name' then
-            IoAction.Name := ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}
-          else
-          if ChildNode.NodeName = 'description' then
-            IoAction.Description := ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}
-          else
-          if ChildNode.NodeName = 'hardwarepin' then
-            IoAction.HardwarePort := StrToInt(ChildNode.{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF})
-          else
-          if ChildNode.NodeName = 'activation' then
-          begin
-            Event := TLccEvent.Create;
-            Event.IDStr := ChildNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('id').{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF};
-            Event.ID := StrToEventID(Event.IDStr);
-            case StrToInt( ChildNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('state').{$IFDEF FPC}TextContent{$ELSE}Text{$ENDIF}) of
-              1 : Event.State := evs_InValid;
-              2 : Event.State := evs_Valid;
-            else
-              Event.State := evs_Unknown;
-            end;
-            IoAction.OutputEvents.Add(Event);
-          end;
-          ChildNode := ChildNode.NextSibling;
-        end;
-        IoActions.Add(IoAction);
-      end;
-      ActionNode := ActionNode.NextSibling;
-    end;
-  end;
-
-var
-  RootNode, UserNode, InputNode, OutputNode, ChildNode: {$IFDEF FPC}TDOMNode{$ELSE}IXMLNode{$ENDIF};
-begin
-  Result := False;
-  if FileExists(FilePath) then
-  begin
-    try
-      Clear;
-      {$IFDEF FPC}
-      ReadXMLFile(FXMLDoc, FilePath);
-      {$ELSE}
-      XMLDoc.LoadFromXML(FilePath);
-      {$ENDIF}
-      RootNode := XMLDoc.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('ndf');
-      if Assigned(RootNode) then
-      begin
-
-        UserNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('user');
-        if Assigned(UserNode) then
-        begin
-          ChildNode := UserNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('name');
-          if Assigned(ChildNode) then
-            UserName := ChildNode.NodeValue;
-          ChildNode := UserNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('description');
-          if Assigned(ChildNode) then
-            UserDescription := ChildNode.NodeValue;
-        end;
-
-        OutputNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('outputs');
-        if Assigned(OutputNode) then
-          RunIO(OutputNode);
-
-        InputNode := RootNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('inputs');
-        if Assigned(InputNode) then
-          RunIO(InputNode);
-
-        FLoaded := True;
-        Result := True;
-      end;
-    finally
-    end;
-  end;
-end;
-
-procedure TNDI.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
-begin
-
-end;
-
-function TNDI.ProcessMessage(LccMessage: TLccMessage): Boolean;
-begin
-  // Empty for the abstract ancestor
-end;
-
-procedure TNDI.WriteRequest(LccMessage: TLccMessage);
-var
-  i: Integer;
-  iStart : Integer;
-  WriteCount,Address: DWord;
-  {$IFNDEF FPC}
-  AByte: Byte;
-  {$ENDIF}
-begin
-  // Assumption is this is a datagram message
-  if LccMessage.DataArrayIndexer[1] and $03 = 0 then
-    iStart := 7
-  else
-    iStart := 6;
-  WriteCount := LccMessage.DataCount - iStart;
-  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
-
-  if AutoSaveOnWrite then
-  begin
-    if not FileExists(String( FilePath)) then
-    begin
-
-    end
-  end;
-
-end;
-
 { TDatagramQueue }
 
 procedure TDatagramQueue.Remove(LccMessage: TLccMessage);
@@ -1380,6 +1108,7 @@ begin
   iLocalMessage := FindBySourceNode(LccMessage);
   if iLocalMessage > -1 then
   begin
+    LocalMessage := Queue[iLocalMessage] as TLccMessage;
     if LocalMessage.RetryAttempts < 5 then
     begin
       LocalMessage := Queue[iLocalMessage] as TLccMessage;
@@ -1655,7 +1384,6 @@ begin
   FACDIUser := TACDIUser.Create(Self, MSI_ACDI_USER, True);
   FConfiguration := TConfiguration.Create(Self, MSI_CONFIG, False);
   FDatagramQueue := TDatagramQueue.Create(Self);
-  FNDI := TNDI.Create(Self);
 end;
 
 function TLccOwnedNode.CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
@@ -1682,7 +1410,7 @@ begin
   FreeAndNil(FACDIUser);
   FreeAndNil(FConfiguration);
   FreeAndNil(FDatagramQueue);
-  FreeAndNil(FNDI);
+  FreeAndNil(FSdnController);
   inherited Destroy;
 end;
 
@@ -1746,6 +1474,7 @@ begin
       FNodeID[1] := TempNodeID[1];
     end;
 
+    // SDN expects the auto generated number to sart with inputs then move to outputs
     if EventsConsumed.AutoGenerate.Enable then
     begin
       for i := 0 to EventsConsumed.AutoGenerate.Count - 1 do
@@ -1990,22 +1719,12 @@ begin
             end;
         MTI_PRODUCER_IDENDIFY :
             begin
-              Event := EventsProduced.Supports(LccMessage.ExtractDataBytesAsEventID(0)^);
-              if Assigned(Event) then
-              begin
-                WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Event.FID, Event.State);
-                OwnerManager.DoRequestMessageSend(WorkerMessage);
-              end;
+              SendProducerIdentify(LccMessage.ExtractDataBytesAsEventID(0)^);
               Result := True;
             end;
         MTI_CONSUMER_IDENTIFY :
             begin
-              Event := EventsConsumed.Supports(LccMessage.ExtractDataBytesAsEventID(0)^);
-              if Assigned(Event) then
-              begin
-                WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Event.FID, Event.State);
-                OwnerManager.DoRequestMessageSend(WorkerMessage);
-              end;
+              SendConsumerIdentify(LccMessage.ExtractDataBytesAsEventID(0)^);
               Result := True;
             end;
          MTI_CONSUMER_IDENTIFIED_CLEAR :
@@ -2312,10 +2031,67 @@ procedure TLccOwnedNode.SendConsumedEvents;
 var
   i: Integer;
 begin
-  for i := 0 to EventsConsumed.EventList.Count - 1 do
+  if Assigned(SdnController) then
   begin
-    WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, EventsConsumed.Event[i].FID, EventsConsumed.Event[i].State);
-    OwnerManager.DoRequestMessageSend(WorkerMessage);
+    for i := 0 to SdnController.FlatInputActions.Count - 1 do
+    begin
+      if SdnController.FlatInputActionItem[i].Consumer then
+      begin
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDLo, SdnController.FlatInputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDHi, SdnController.FlatInputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+      end;
+    end;
+
+    for i := 0 to SdnController.FlatOutputActions.Count - 1 do
+    begin
+      if SdnController.FlatOutputActionItem[i].Consumer then
+      begin
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDLo, SdnController.FlatOutputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDHi, SdnController.FlatOutputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+      end;
+    end;
+  end else
+  begin
+    for i := 0 to EventsConsumed.EventList.Count - 1 do
+    begin
+      WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, EventsConsumed.Event[i].FID, EventsConsumed.Event[i].State);
+      OwnerManager.DoRequestMessageSend(WorkerMessage);
+    end;
+  end;
+end;
+
+procedure TLccOwnedNode.SendConsumerIdentify(var Event: TEventID);
+var
+  EventObj: TLccEvent;
+  Action: TLccBinaryAction;
+begin
+  if Assigned(SdnController) then
+  begin
+     case SdnController.SupportsConsumed(Event, Action) of
+      set_None : begin end;
+      set_LoEventID :
+        begin
+          WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Action.FEventIDLo, evs_Unknown);
+          OwnerManager.DoRequestMessageSend(WorkerMessage);
+        end;
+      set_HiEventID :
+        begin
+          WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Action.FEventIDHi, evs_Unknown);
+          OwnerManager.DoRequestMessageSend(WorkerMessage);
+        end;
+    end;
+  end else
+  begin
+    EventObj := EventsConsumed.Supports(Event);
+    if Assigned(EventObj) then
+    begin
+      WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, EventObj.FID, EventObj.State);
+      OwnerManager.DoRequestMessageSend(WorkerMessage);
+    end;
   end;
 end;
 
@@ -2329,10 +2105,68 @@ procedure TLccOwnedNode.SendProducedEvents;
 var
   i: Integer;
 begin
-  for i := 0 to EventsProduced.EventList.Count - 1 do
+  if Assigned(SdnController) then
   begin
-    WorkerMessage.LoadProducerIdentified(NodeID, AliasID, EventsProduced.Event[i].FID , EventsProduced.Event[i].State);
-    OwnerManager.DoRequestMessageSend(WorkerMessage);
+
+    for i := 0 to SdnController.FlatInputActions.Count - 1 do
+    begin
+      if SdnController.FlatInputActionItem[i].Producer then
+      begin
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDLo, SdnController.FlatInputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDHi, SdnController.FlatInputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+      end;
+    end;
+
+    for i := 0 to SdnController.FlatOutputActions.Count - 1 do
+    begin
+      if SdnController.FlatOutputActionItem[i].Producer then
+      begin
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDLo, SdnController.FlatOutputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDHi, SdnController.FlatOutputActionItem[i].EventState);
+        OwnerManager.DoRequestMessageSend(WorkerMessage);
+      end;
+    end;
+  end else
+  begin
+    for i := 0 to EventsProduced.EventList.Count - 1 do
+    begin
+      WorkerMessage.LoadProducerIdentified(NodeID, AliasID, EventsProduced.Event[i].FID , EventsProduced.Event[i].State);
+      OwnerManager.DoRequestMessageSend(WorkerMessage);
+    end;
+  end;
+end;
+
+procedure TLccOwnedNode.SendProducerIdentify(var Event: TEventID);
+var
+  EventObj: TLccEvent;
+  Action: TLccBinaryAction;
+begin
+  if Assigned(SdnController) then
+  begin
+    case SdnController.SupportsProduced(Event, Action) of
+      set_None : begin end;
+      set_LoEventID :
+        begin
+          WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Action.FEventIDLo, evs_Unknown);
+          OwnerManager.DoRequestMessageSend(WorkerMessage);
+        end;
+      set_HiEventID :
+        begin
+          WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Action.FEventIDHi, evs_Unknown);
+          OwnerManager.DoRequestMessageSend(WorkerMessage);
+        end;
+    end;
+  end else
+  begin
+    EventObj := EventsProduced.Supports(Event);
+    if Assigned(EventObj) then
+    begin
+      WorkerMessage.LoadProducerIdentified(NodeID, AliasID, EventObj.FID, EventObj.State);
+      OwnerManager.DoRequestMessageSend(WorkerMessage);
+    end;
   end;
 end;
 
@@ -2976,7 +2810,15 @@ begin
 end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
+var
+  ScnController: TLccSdnController;
 begin
+  if LccNode is TLccOwnedNode then
+  begin
+    ScnController := (LccNode as TLccOwnedNode).SdnController;
+    ScnController.NodeID := LccNode.NodeID;
+  end;
+
   {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoNodeIDChanged(LccNode);
@@ -3656,40 +3498,31 @@ end;
 
 function TSimpleNodeInfo.LoadFromXml(CdiFilePath: String): Boolean;
 var
-  {$IFDEF FPC}
-  XMLDoc: TXMLDocument;
-  CdiNode, IdentificationNode, ChildNode: TDOMNode;
-  {$ELSE}
-  XMLDoc: IXMLDocument;
-  CdiNode, IdentificationNode, ChildNode: IXMLNode;
-  {$ENDIF}
+  XMLDoc: LccXmlDocument;
+  CdiNode, IdentificationNode, ChildNode: LccXmlNode;
 begin
   Result := False;
   if FileExists(CdiFilePath) then
   begin
     try
-      {$IFDEF FPC}
-      ReadXMLFile(XmlDoc, CdiFilePath);
-      {$ELSE}
-      XmlDoc.LoadFromXML(CdiFilePath);
-      {$ENDIF}
+      XMLDoc := XmlLoadFromFile(CdiFilePath);
       if Assigned(XmlDoc) then
       begin
-        CdiNode := XmlDoc.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('cdi');
+        CdiNode := XmlFindRootNode(XmlDoc, 'cdi');
         if Assigned(CdiNode) then
         begin
-          IdentificationNode := CdiNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('identification');
+          IdentificationNode := XmlFindChildNode(CdiNode, 'identification');
           if Assigned(IdentificationNode) then
           begin
              Version := 1;
-             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('manufacturer');
-             if Assigned(ChildNode) then FManufacturer := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
-             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('model');
-             if Assigned(ChildNode) then FModel := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
-             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('hardwareVersion');
-             if Assigned(ChildNode) then FHardwareVersion := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
-             ChildNode := IdentificationNode.{$IFNDEF FPC}ChildNodes.{$ENDIF}FindNode('softwareVersion');
-             if Assigned(ChildNode) then FSoftwareVersion := ChildNode.{$IFDEF FPC}FirstChild{$ELSE}ChildNodes.First{$ENDIF}.NodeValue else Exit;
+             ChildNode := XmlFindChildNode(IdentificationNode, 'manufacturer');
+             if Assigned(ChildNode) then FManufacturer := XmlFirstChildValue(ChildNode) else Exit;
+             ChildNode := XmlFindChildNode(IdentificationNode, 'model');
+             if Assigned(ChildNode) then FModel := XmlFirstChildValue(ChildNode) else Exit;
+             ChildNode := XmlFindChildNode(IdentificationNode, 'hardwareVersion');
+             if Assigned(ChildNode) then FHardwareVersion := XmlFirstChildValue(ChildNode) else Exit;
+             ChildNode := XmlFindChildNode(IdentificationNode, 'softwareVersion');
+             if Assigned(ChildNode) then FSoftwareVersion := XmlFirstChildValue(ChildNode) else Exit;
              UserVersion := 1;
              Result := True;
           end;

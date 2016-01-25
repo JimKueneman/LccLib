@@ -57,7 +57,9 @@ contains
   synautil in '..\..\Synapse_LCC\synautil.pas',
   lcc_node in '..\lcc_node.pas',
   lcc_node_protocol_helpers in '..\lcc_node_protocol_helpers.pas',
-  lcc_raspberrypi in '..\lcc_raspberrypi.pas';
+  lcc_raspberrypi in '..\lcc_raspberrypi.pas',
+  lcc_xmlutilities in '\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_xmlutilities.pas',
+  lcc_sdn_utilities in '..\lcc_sdn_utilities.pas';
 
 end.
 

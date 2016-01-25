@@ -18,18 +18,17 @@ uses
   Classes, SysUtils,
   {$IFDEF FPC}
     {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
-   contnrs,
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
   {$IFDEF LOGGING}
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect, blcksock, synsock, lcc_threaded_stringlist,
+  lcc_gridconnect, blcksock, synsock,
   lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
-  lcc_common_classes, lcc_compiler_types;
+  lcc_common_classes;
 
 type
   TLccEthernetServerThread = class;     // Forward
@@ -288,8 +287,6 @@ var
   LocalName: String;
   IpStrings: TStringList;
   i: Integer;
-  {$ELSE}
-  Ip: String;
   {$ENDIF}
 begin
   FRunning := True;
@@ -591,16 +588,16 @@ begin
 end;
 
 procedure TLccEthernetServer.SendMessageRawGridConnect(GridConnectStr: String);
-var
-  List: TList;
+//var
+ // List: TList;
  // i: Integer;
 begin
-  List := EthernetThreads.LockList;
+ // List := EthernetThreads.LockList;
   try            // TODO
  //   for i := 0 to List.Count - 1 do
  //     TLccEthernetClientThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
   finally
-    EthernetThreads.UnlockList;
+ //   EthernetThreads.UnlockList;
   end;
 end;
 

@@ -14,7 +14,8 @@ uses
   lcc_threadedcirculararray, lcc_utilities, lcc_common_classes, 
   lcc_nodeselector, lcc_raspberrypi_spiport, lcc_compiler_types, 
   lcc_raspberrypi_gpio_file, lcc_raspberrypi, lcc_node, 
-  lcc_node_protocol_helpers, LazarusPackageIntf;
+  lcc_node_protocol_helpers, lcc_sdn_utilities, lcc_xmlutilities, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -28,6 +29,7 @@ begin
   RegisterUnit('lcc_nodemanager', @lcc_nodemanager.Register);
   RegisterUnit('lcc_nodeselector', @lcc_nodeselector.Register);
   RegisterUnit('lcc_raspberrypi_spiport', @lcc_raspberrypi_spiport.Register);
+  RegisterUnit('lcc_sdn_utilities', @lcc_sdn_utilities.Register);
 end;
 
 initialization

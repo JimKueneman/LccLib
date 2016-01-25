@@ -17,11 +17,18 @@ uses
   Classes, SysUtils, CustApp,
   { you can add units after this }
   crt, lcc_nodemanager, lcc_app_common_settings, lcc_ethernetclient, lcc_ethenetserver,
-  lcc_messages, lcc_can_message_assembler_disassembler,
+  lcc_messages, lcc_can_message_assembler_disassembler, lcc_sdn_utilities,
   {$IFDEF CPUARM}
   lcc_raspberrypi,
   {$ENDIF}
-  lcc_utilities;
+  {$IFDEF FPC}
+  laz2_XMLWrite,
+  {$ELSE}
+  Xml.XMLDoc,
+  Xml.xmldom,
+  Xml.XMLIntf,
+  {$ENDIF}
+  lcc_utilities, lcc_xmlutilities;
 
 const
   SETTINGS_FILE       = 'settings.ini';
@@ -76,6 +83,7 @@ var
   {$IFDEF CPUARM}
   TxBuffer, RxBuffer: TPiUartBuffer;
   {$ENDIF}
+  Config: LccXmlNode;
 begin
   CustomNodeID := '';
 
@@ -90,7 +98,7 @@ begin
   end;
 
   // quick check parameters
-  ErrorMsg:=CheckOptions('h s c p C i N d', 'help server consumers producers cdi id ndi datagram');
+  ErrorMsg:=CheckOptions('h s c p C i t f d', 'help server consumers producers cdi id templatefile configurationfile datagram');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -120,6 +128,9 @@ begin
     NodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
     WriteLn('Node CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'))
   end;
+
+  Config := BuildConfigurationDocument(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
+  WriteXML(Config, GetAppConfigDir(False) + 'testconfig.xml');
 
   if HasOption('d', 'datagram') then
   begin
@@ -170,22 +181,40 @@ begin
     end;
   end;
 
-  if HasOption('N', 'ndi') then
+  if HasOption('t', 'template') then
   begin
-    if not FileExists(GetAppConfigDir(False) + GetOptionValue('N', 'ndi')) then
+    if not FileExists(GetAppConfigDir(False) + GetOptionValue('t', 'template')) then
     begin
-      WriteLn('Error loading Node Definition File');
-      WriteLn(GetAppConfigDir(False) + GetOptionValue('N', 'ndi'));
+      WriteLn('Error loading software defined Template File');
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('t', 'template'));
       Terminate;
       Exit;
     end;
     try
-      NodeManager.RootNode.NDI.FilePath := GetAppConfigDir(False) + GetOptionValue('N', 'ndi');
-      NodeManager.RootNode.NDI.LoadFromXML;
-      WriteLn('Node Definition file: ' + GetAppConfigDir(False) + GetOptionValue('N', 'ndi'))
+      // The XML will be loaded after the NodeID is generated
+      if not Assigned(NodeManager.RootNode.SdnController) then
+        NodeManager.RootNode.SdnController := TLccSdnController.Create(nil);
+      NodeManager.RootNode.SdnController.FilePathTemplate := GetAppConfigDir(False) + GetOptionValue('t', 'template');
+      WriteLn('Node Template file: ' + GetAppConfigDir(False) + GetOptionValue('t', 'template'))
+    except
+      WriteLn('Error loading Node Template File');
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('t', 'template'));
+      Terminate;
+      Exit;
+    end;
+  end;
+
+  if HasOption('f', 'configurationfile') then
+  begin
+    try
+      // The XML will be loaded after the NodeID is generated
+      if not Assigned(NodeManager.RootNode.SdnController) then
+        NodeManager.RootNode.SdnController := TLccSdnController.Create(nil);
+      NodeManager.RootNode.SdnController.FilePath := GetAppConfigDir(False) + GetOptionValue('f', 'template');
+      WriteLn('Node Definition file: ' + GetAppConfigDir(False) + GetOptionValue('f', 'template'))
     except
       WriteLn('Error loading Node Definition File');
-      WriteLn(GetAppConfigDir(False) + GetOptionValue('N', 'ndi'));
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('f', 'template'));
       Terminate;
       Exit;
     end;
@@ -216,7 +245,6 @@ begin
   // If a configuration file exists load it
   if FileExists(GetAppConfigDir(False) + CONFIGURATION_FILE) then
     NodeManager.RootNode.Configuration.LoadFromFile;
-
 
   if IsServer then
     NodeManager.HardwareConnection := EthernetServer
@@ -353,6 +381,19 @@ end;
 procedure TOlcbNodeApplication.OnNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
   WriteLn('NodeID: ' + LccSourceNode.NodeIDStr);
+
+  NodeManager.RootNode.SdnController.NodeID := LccSourceNode.NodeID;
+  if FileExists(NodeManager.RootNode.SdnController.FilePath) then
+  begin
+    NodeManager.RootNode.SdnController.ParseXML(NodeManager.RootNode.SdnController.FilePath);
+  end else
+  if FileExists(NodeManager.RootNode.SdnController.FilePathTemplate) then
+  begin
+    NodeManager.RootNode.SdnController.ParseXML(NodeManager.RootNode.SdnController.FilePathTemplate);
+    NodeManager.RootNode.SdnController.AssignEventIDs;
+    NodeManager.RootNode.SdnController.AssignLogicEvents;
+    NodeManager.RootNode.SdnController.ExportXML(NodeManager.RootNode.SdnController.FilePath);
+  end;
 end;
 
 function TOlcbNodeApplication.LogIntoOlcbNetwork: Boolean;
