@@ -2825,6 +2825,7 @@ begin
   {$ENDIF} {$ENDIF}
   if Assigned(OnNodeIDChanged) then
     OnNodeIDChanged(Self, LccNode);
+
 end;
 
 procedure TLccNodeManager.DoOptionalInteractionRejected(SourceLccNode, DestLccNode: TLccNode);
