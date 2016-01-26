@@ -47,7 +47,7 @@ type
     FIsServer: Boolean;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
-    {$IFDEF CPUARM}FPiUart: TRaspberryPiUart;{$ENDIF}
+    {$IFDEF CPUARM}FPiSpi: TRaspberryPiSpi;{$ENDIF}
     FTriedConnecting: Boolean;
   protected
     procedure DoRun; override;
@@ -56,7 +56,6 @@ type
     procedure OnAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnEthernetConnectChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure OnNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
-
 
     property FailedConnecting: Boolean read FFailedConnecting write FFailedConnecting;
     property TriedConnecting: Boolean read FTriedConnecting write FTriedConnecting;
@@ -71,7 +70,7 @@ type
     property IsServer: Boolean read FIsServer write FIsServer;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
-    {$IFDEF CPUARM}property PiUart: TRaspberryPiUart read FPiUart write FPiUart;{$ENDIF}
+    {$IFDEF CPUARM}property PiSpi: TRaspberryPiSpi read FPiSpi write FPiSpi;{$ENDIF}
   end;
 
 { TOlcbNode }
@@ -81,7 +80,8 @@ var
   ErrorMsg, CustomNodeID: String;
   Running: Boolean;
   {$IFDEF CPUARM}
-  TxBuffer, RxBuffer: TPiUartBuffer;
+  TxBuffer, RxBuffer: TPiSpiBuffer;
+  IoPortA, IoPortB: Byte;
   {$ENDIF}
   Config: LccXmlNode;
 begin
@@ -256,7 +256,10 @@ begin
   EthernetClient.GridConnect := True;
   EthernetServer.Gridconnect := True;
 
-  {$IFDEF CPUARM}if PiUart.OpenUart('/dev/' + GetRaspberryPiUartPortNames) then
+  IoPortA := 0;
+  IoPortB := 0;
+
+  {$IFDEF CPUARM}if PiSpi.OpenSpi(SPI_DRIVER_PATH_CS0) then
   begin {$ENDIF}
     {$IFDEF CPUARM}TxBuffer[0] := 0;{$ENDIF}
     if IsServer then
@@ -266,14 +269,27 @@ begin
         Running := True;
         NodeManager.Enabled := True;
         WriteLn('Node started');
+        {$IFDEF CPUARM}
+        TxBuffer[0] := 0;
+        TxBuffer[1] := 1;
+        PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
+        {$ENDIF}
         while Running do
         begin
           {$IFDEF CPUARM}
-          while not PiUart.Write(@TxBuffer, 1) do
-            Delay(10);
-          Inc(TxBuffer[0]);
-          PiUart.Read(@RxBuffer, 1);
-          Delay(2);
+          TxBuffer[0] := MCP23S17_READ or (MCP23S17_ADDRESS_0 shl 1);
+          TxBuffer[1] := MCP23S17_GPIOA;
+          PiSpi.Transfer(@TxBuffer, @RxBuffer, 2+2);  // Command + 2 Bytes reply
+          if RxBuffer[2] <> IoPortA then
+          begin
+            IoPortA := RxBuffer[2];
+            WriteLn('IoPortA: ' + IntToStr(IoPortA));
+          end;
+          if RxBuffer[3] <> IoPortB then
+          begin
+            IoPortB := RxBuffer[3];
+            WriteLn('IoPortB: ' + IntToStr(IoPortB));
+          end;
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
@@ -288,12 +304,25 @@ begin
         Running := True;
         NodeManager.Enabled := True;
         WriteLn('Node started');
+         {$IFDEF CPUARM}
+
+        {$ENDIF}
         while Running do
         begin
           {$IFDEF CPUARM}
-          PiUart.Write(@TxBuffer, 1);
-          Inc(TxBuffer[0]);
-          PiUart.Read(@RxBuffer, 1);
+          TxBuffer[0] := MCP23S17_READ or (MCP23S17_ADDRESS_0 shl 1);
+          TxBuffer[1] := MCP23S17_GPIOA;
+          PiSpi.Transfer(@TxBuffer, @RxBuffer, 2+2);  // Command + 2 Bytes reply
+          if RxBuffer[2] <> IoPortA then
+          begin
+            IoPortA := RxBuffer[2];
+            WriteLn('IoPortA: ' + IntToStr(IoPortA));
+          end;
+          if RxBuffer[3] <> IoPortB then
+          begin
+            IoPortB := RxBuffer[3];
+            WriteLn('IoPortB: ' + IntToStr(IoPortB));
+          end;
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
@@ -302,10 +331,10 @@ begin
       end;
     end;
   {$IFDEF CPUARM}end else
-    WriteLn('Can''t open the Serial Port: ' + GetRaspberryPiUartPortNames);{$ENDIF}
+    WriteLn('Can''t open the Spi Port');{$ENDIF}
 
   WriteLn('Exiting');
-  {$IFDEF CPUARM}PiUart.CloseUart;{$ENDIF}
+  {$IFDEF CPUARM}PiSpi.CloseSpi;{$ENDIF}
   NodeManager.Enabled := False;
   EthernetClient.CloseConnection(nil);
   EthernetServer.CloseConnection(nil);
@@ -458,8 +487,11 @@ begin
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectChange;
   EthernetServer.NodeManager := NodeManager;
   {$IFDEF CPUARM}
-  PiUart := TRaspberryPiUart.Create;
   PiUart.Speed:= pus_9600Hz;
+  PiSpi := TRaspberryPiSpi.Create;.
+  PiSpi.Mode := psm_ClkIdleLo_DataFalling;
+  PiSpi.Speed := pss_976kHz;
+  PiSpi.Bits := psb_8;
   {$ENDIF}
 end;
 
@@ -498,7 +530,7 @@ end;
 
 destructor TOlcbNodeApplication.Destroy;
 begin
-  {$IFDEF CPUARM}FreeAndNil(FPiUart);{$ENDIF}
+  {$IFDEF CPUARM}FreeAndNil(FPiSpi);{$ENDIF}
   inherited Destroy;
 end;
 
@@ -511,7 +543,8 @@ begin
   writeln('-c   : number of consumer events [-c 6]');
   writeln('-C   : filename of the CDI file [-C MyCdi.xml]');
   writeln('-i   : nodeID for node [-i 0x203456123456]');
-  writeln('-N   : filename of the node definition file [-n nodedefinition.xml]');
+  writeln('-t   : filename of the node template file [-n nodetemplate.xml]');
+  writeln('-f   : filename of the node definition file that is created from the template file [-n nodedefinition.xml]');
   writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
 end;
 
