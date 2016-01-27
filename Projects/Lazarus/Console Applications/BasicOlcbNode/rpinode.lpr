@@ -45,6 +45,7 @@ type
     FEthernetServer: TLccEthernetServer;
     FFailedConnecting: Boolean;
     FIsServer: Boolean;
+    FLccMessage: TLccMessage;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
     {$IFDEF CPUARM}FPiSpi: TRaspberryPiSpi;{$ENDIF}
@@ -69,6 +70,7 @@ type
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
     property IsServer: Boolean read FIsServer write FIsServer;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
+    property LccMessage: TLccMessage read FLccMessage write FLccMessage;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     {$IFDEF CPUARM}property PiSpi: TRaspberryPiSpi read FPiSpi write FPiSpi;{$ENDIF}
   end;
@@ -82,8 +84,9 @@ var
   {$IFDEF CPUARM}
   TxBuffer, RxBuffer: TPiSpiBuffer;
   IoPortA, IoPortB: Byte;
+  i: Integer;
+  Action: TLccBinaryAction;
   {$ENDIF}
-  Config: LccXmlNode;
 begin
   CustomNodeID := '';
 
@@ -98,7 +101,7 @@ begin
   end;
 
   // quick check parameters
-  ErrorMsg:=CheckOptions('h s c p C i t f d', 'help server consumers producers cdi id templatefile configurationfile datagram');
+  ErrorMsg:=CheckOptions('h s C i t f d', 'help server cdi id templatefile configurationfile datagram');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -129,9 +132,6 @@ begin
     WriteLn('Node CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'))
   end;
 
-  Config := BuildConfigurationDocument(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
-  WriteXML(Config, GetAppConfigDir(False) + 'testconfig.xml');
-
   if HasOption('d', 'datagram') then
   begin
     try
@@ -141,33 +141,6 @@ begin
       Terminate;
       Exit;
     end;
-  end;
-
-  if HasOption('c', 'consumers') then
-  begin
-    try
-      NodeManager.RootNode.EventsConsumed.AutoGenerate.Count := StrToInt(GetOptionValue('c', 'consumers'));
-      NodeManager.RootNode.EventsConsumed.AutoGenerate.Enable := True;
-      StrToInt(GetOptionValue('c', 'consumers'));
-    except
-      WriteLn('Invalid value for parameter of Consumer Events');
-      Terminate;
-      Exit;
-    end;
-    WriteLn('Consumer Events = ' + GetOptionValue('c', 'consumers'))
-  end;
-
-  if HasOption('p', 'producers') then
-  begin
-    try
-      NodeManager.RootNode.EventsProduced.AutoGenerate.Count := StrToInt(GetOptionValue('p', 'producers'));
-      NodeManager.RootNode.EventsProduced.AutoGenerate.Enable := True;
-    except
-      WriteLn('Invalid value for parameter of Producer Events');
-      Terminate;
-      Exit;
-    end;
-    WriteLn('Producer Events = ' + GetOptionValue('p', 'producers'))
   end;
 
   if HasOption('i', 'id') then
@@ -181,6 +154,8 @@ begin
     end;
   end;
 
+  if not Assigned(NodeManager.RootNode.SdnController) then
+    NodeManager.RootNode.SdnController := TLccSdnController.Create(nil);
   if HasOption('t', 'template') then
   begin
     if not FileExists(GetAppConfigDir(False) + GetOptionValue('t', 'template')) then
@@ -192,8 +167,6 @@ begin
     end;
     try
       // The XML will be loaded after the NodeID is generated
-      if not Assigned(NodeManager.RootNode.SdnController) then
-        NodeManager.RootNode.SdnController := TLccSdnController.Create(nil);
       NodeManager.RootNode.SdnController.FilePathTemplate := GetAppConfigDir(False) + GetOptionValue('t', 'template');
       WriteLn('Node Template file: ' + GetAppConfigDir(False) + GetOptionValue('t', 'template'))
     except
@@ -290,6 +263,33 @@ begin
             IoPortB := RxBuffer[3];
             WriteLn('IoPortB: ' + IntToStr(IoPortB));
           end;
+
+          for i := 0 to 7 do
+          begin
+            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortA shr i) and $01) <> 0);
+            if Assigned(Action) then
+            begin
+              if Action.IoPinState then
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+              else
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+              NodeManager.SendLccMessage(LccMessage);
+            end;
+          end;
+
+          for i := 0 to 7 do
+          begin
+            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortB shr i) and $01) <> 0);
+            if Assigned(Action) then
+            begin
+              if Action.IoPinState then
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+              else
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+              NodeManager.SendLccMessage(LccMessage);
+            end;
+          end;
+
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
@@ -345,6 +345,7 @@ begin
   FreeAndNil(FEthernetClient);
   FreeAndNil(FEthernetServer);
   FreeAndNil(FNodeManager);
+  FreeAndNil(FLccMessage);
 
   // stop program loop
   Terminate;
@@ -486,9 +487,9 @@ begin
   EthernetServer.LccSettings := LccSettings;
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectChange;
   EthernetServer.NodeManager := NodeManager;
+  LccMessage := TLccMessage.Create;
   {$IFDEF CPUARM}
-  PiUart.Speed:= pus_9600Hz;
-  PiSpi := TRaspberryPiSpi.Create;.
+  PiSpi := TRaspberryPiSpi.Create;
   PiSpi.Mode := psm_ClkIdleLo_DataFalling;
   PiSpi.Speed := pss_976kHz;
   PiSpi.Bits := psb_8;
@@ -539,8 +540,6 @@ begin
   { add your help code here }
   writeln('Usage: ', ExeName, ' -h');
   writeln('-s   : starts rpinode as a ethernet server [-s]');
-  writeln('-p   : number of producer events [-p 6]');
-  writeln('-c   : number of consumer events [-c 6]');
   writeln('-C   : filename of the CDI file [-C MyCdi.xml]');
   writeln('-i   : nodeID for node [-i 0x203456123456]');
   writeln('-t   : filename of the node template file [-n nodetemplate.xml]');

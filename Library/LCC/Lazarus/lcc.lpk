@@ -14,7 +14,7 @@
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="26">
+    <Files Count="27">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -128,6 +128,10 @@
         <Filename Value="../lcc_xmlutilities.pas"/>
         <UnitName Value="lcc_xmlutilities"/>
       </Item26>
+      <Item27>
+        <Filename Value="lcc.lpk"/>
+        <Type Value="Text"/>
+      </Item27>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

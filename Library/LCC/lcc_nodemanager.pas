@@ -1494,7 +1494,6 @@ begin
       end;
       EventsProduced.Valid := True;
     end;
-
     Configuration.LoadFromFile;
     if Assigned(OwnerManager) then
       OwnerManager.DoNodeIDChanged(Self);
@@ -2810,15 +2809,7 @@ begin
 end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
-var
-  ScnController: TLccSdnController;
 begin
-  if LccNode is TLccOwnedNode then
-  begin
-    ScnController := (LccNode as TLccOwnedNode).SdnController;
-    ScnController.NodeID := LccNode.NodeID;
-  end;
-
   {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
     NetworkTree.DoNodeIDChanged(LccNode);

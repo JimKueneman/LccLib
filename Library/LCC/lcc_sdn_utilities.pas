@@ -153,8 +153,8 @@ type
     function FindInputActionByName(ActionName: string): TLccBinaryAction;
     function FindOuputActionByName(ActionName: string): TLccBinaryAction;
     function FindOutputActionByIoPin(IoPin: Integer): TLccBinaryAction;
+    function FindInputActionByIoPin(IoPin: Integer): TLccBinaryAction;
 
-    procedure UpdateLogic(Action: TLccBinaryAction);
   public
     property AvailableIoInputs: Integer read FAvailableIoInput;
     property AvailableIoOutput: Integer read FAvailableIoOutput;
@@ -180,7 +180,7 @@ type
     procedure AssignEventIDs;
     procedure AssignLogicEvents;
     procedure Clear;
-    procedure InputPinUpdate(IoPin: Integer; IoPinState: Boolean);
+    function InputPinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
     function SupportsProduced(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
     function SupportsConsumed(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
   end;
@@ -501,6 +501,20 @@ begin
   end;
 end;
 
+function TLccSdnController.FindInputActionByIoPin(IoPin: Integer): TLccBinaryAction;
+var
+  iAction: Integer;
+begin
+  for iAction := 0 to FlatInputActions.Count - 1 do
+  begin
+    if FlatInputActionItem[iAction].IoPin = IoPin then
+    begin
+      Result := FlatInputActionItem[iAction];
+      Break;
+    end;
+  end;
+end;
+
 function TLccSdnController.GetFlatInputActionItem(Index: Integer): TLccBinaryAction;
 begin
   {$IFDEF FPC}
@@ -541,17 +555,18 @@ begin
   end;
 end;
 
-procedure TLccSdnController.InputPinUpdate(IoPin: Integer; IoPinState: Boolean);
+function TLccSdnController.InputPinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
 var
   Action: TLccBinaryAction;
 begin
-  Action := FindOutputActionByIoPin(IoPin);
+  Result := nil;
+  Action := FindInputActionByIoPin(IoPin);
   if Assigned(Action) then
   begin
     if Action.IoPinState <> IoPinState then
     begin
       Action.IoPinState := IoPinState;
-      UpdateLogic(Action);
+      Result := Action;
     end;
   end;
 
@@ -862,33 +877,6 @@ begin
       Exit;
     end;
   end;
-end;
-
-procedure TLccSdnController.UpdateLogic(Action: TLccBinaryAction);
-var
-  iObject, iActionGroup, iAction, iLogic: Integer;
-  LogicAction: TLccLogicAction;
-  ActionLink: TLccBinaryAction;
-begin
-  for iObject := 0 to LccObjects.Count - 1 do
-  begin
-    for iActionGroup := 0 to ObjectItem[iObject].OutputActionGroups.Count - 1 do
-    begin
-      for iAction := 0 to ObjectItem[iObject].OutputActionGroup[iActionGroup].Actions.Count - 1 do
-      begin
-        for iLogic := 0 to ObjectItem[iObject].OutputActionGroup[iActionGroup].Action[iAction].Logic.Actions.Count - 1 do
-        begin
-          LogicAction := ObjectItem[iObject].OutputActionGroup[iActionGroup].Action[iAction].Logic.Action[iLogic];
-
-     //     EqualEventID();
-            LogicAction.FEventIDLo := ActionLink.EventIDLo;
-            LogicAction.FEventIDHi := ActionLink.EventIDHi;
-          end;
-          // TODO: Deal with External Assignments
-        end;
-      end;
-    end;
-
 end;
 
 function TLccSdnController.AttribStringToEventState(EventState: string): TEventState;
