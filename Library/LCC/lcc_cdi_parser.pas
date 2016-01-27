@@ -69,14 +69,14 @@ type
   private
     FDataBit: Byte;
     FDataDirection: TConfigDataDirection;
-    FDataEvent: TEventID;
+    FDataEvent: TNodeID;
     FDataInteger: Integer;
     FDataString: ansistring;
   public
     property DataDirection: TConfigDataDirection read FDataDirection write FDataDirection;
     property DataString: ansistring read FDataString write FDataString;
     property DataInteger: Integer read FDataInteger write FDataInteger;
-    property DataEvent: TEventID read FDataEvent write FDataEvent;
+    property DataEvent: TNodeID read FDataEvent write FDataEvent;
     property DataBit: Byte read FDataBit write FDataBit;
   end;
 

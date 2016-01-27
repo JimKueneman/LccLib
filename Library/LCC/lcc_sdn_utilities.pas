@@ -602,8 +602,8 @@ begin
       for iActions := 0 to ObjectItem[iObjects].InputActionGroup[iActionGroups].Actions.Count - 1 do
       begin
         ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDLo, True));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDHi, True));
+        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
         XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventState));
         XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].IoPin));
         XmlCreateChildNode(XmlDoc, ActionNode, 'name', ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].Name);
@@ -618,8 +618,8 @@ begin
       for iActions := 0 to ObjectItem[iObjects].OutputActionGroup[iActionGroups].Actions.Count - 1 do
       begin
         ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDLo, True));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDHi, True));
+        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
         XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventState));
         XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].IoPin));
         ChildNode := XmlCreateChildNode(XmlDoc, ActionNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Name);
@@ -628,8 +628,8 @@ begin
         begin
           ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'action', '');
           XmlAttributeForce(XmlDoc, ChildNode, 'state', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicStateName);
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLo, True));
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHi, True));
+          XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
           XmlCreateChildNode(XmlDoc, ChildNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Name);
         end;
       end;
@@ -752,10 +752,10 @@ begin
                 LccAction.Producer := True;
                 Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
                 if Attrib <> '' then
-                  LccAction.EventIDLo := StrToEventID(Attrib);
+                  LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                 Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
                 if Attrib <> '' then
-                  LccAction.EventIDHi := StrToEventID(Attrib);
+                  LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                 Attrib := XmlAttributeRead(ActionNode, 'eventstate');
                 if Attrib = 'valid' then
                   LccAction.EventState := evs_Valid
@@ -784,6 +784,12 @@ begin
                       LccLogicAction.Name := XmlNodeTextContent(ChildNode);
                     LccLogicAction.LogicStateName := XmlAttributeRead(LogicActionNode, 'state');
                     LccLogicAction.LogicState := AttribStringToLogicState(LccLogicAction.LogicStateName);
+                    Attrib := XmlAttributeRead(LogicActionNode, 'eventidlo');
+                    if Attrib <> '' then
+                      LccLogicAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(LogicActionNode, 'eventidhi');
+                    if Attrib <> '' then
+                      LccLogicAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase])); ;
                     LogicActionNode := XmlNextSiblingNode(LogicActionNode);
                   end;
                 end;

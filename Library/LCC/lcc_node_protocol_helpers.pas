@@ -221,7 +221,7 @@ type
     FDataRaw: TDatagramArray;
     FDataType: TLccConfigDataType;
     FDataTypeBit: Byte;
-    FDataTypeEvent: TEventID;
+    FDataTypeEvent: TNodeID;
     FDataTypeInteger: Integer;
     FDataTypeString: String;
     FInProcessAddress: DWord;
@@ -240,7 +240,7 @@ type
     property DataRawIndexer[iIndex: Word]: Byte read GetDataRawIndexer write SetDataRawIndexer;
     property DataType: TLccConfigDataType read FDataType write FDataType;
     property DataTypeInteger: Integer read FDataTypeInteger;
-    property DataTypeEvent: TEventID read FDataTypeEvent;
+    property DataTypeEvent: TNodeID read FDataTypeEvent;
     property DataTypeBit: Byte read FDataTypeBit;
     property DataTypeString: String read FDataTypeString;
     procedure Initialize(AnAddress: DWord; AnAddressSpace: Byte; DataSize: Integer; ADataType: TLccConfigDataType);
@@ -251,10 +251,10 @@ type
 
   TLccEvent = class
   protected
-    FID: TEventID;
+    FID: TNodeID;
     FState: TEventState;
   public
-    property ID: TEventID read FID write FID;
+    property ID: TNodeID read FID write FID;
     property State: TEventState read FState write FState;
   end;
 
@@ -287,12 +287,12 @@ type
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
 
-    procedure Add(Event: TEventID; State: TEventState);
+    procedure Add(Event: TNodeID; State: TEventState);
     procedure Clear;
     {$IFDEF FPC}property EventList: TList read FEventList write FEventList;
     {$ELSE}     property EventList: TObjectList<TLccEvent> read FEventList write FEventList;
     {$ENDIF}
-    function Supports(Event: TEventID): TLccEvent;
+    function Supports(Event: TNodeID): TLccEvent;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
 
     property AutoGenerate: TLccEventAutoGenerate read FAutoGenerate write FAutoGenerate;
@@ -1156,7 +1156,7 @@ begin
   Result := False;
 end;
 
-procedure TLccEvents.Add(Event: TEventID; State: TEventState);
+procedure TLccEvents.Add(Event: TNodeID; State: TEventState);
 var
   LccEvent: TLccEvent;
 begin
@@ -1184,7 +1184,7 @@ begin
   end;
 end;
 
-function TLccEvents.Supports(Event: TEventID): TLccEvent;
+function TLccEvents.Supports(Event: TNodeID): TLccEvent;
 var
   i: Integer;
 begin

@@ -861,7 +861,7 @@ type
     function CreateNodeByDestMessage(LccMessage: TLccMessage): TLccNode;
     function CreateOwnedNode: TLccOwnedNode;
     function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
-    function EqualEventID(var Event1, Event2: TEventID): Boolean;
+    function EqualEventID(var Event1, Event2: TNodeID): Boolean;
     {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     function FindByGuiNode(GuiNode: TLccGuiNode): TLccNode;
     {$ENDIF} {$ENDIF}
@@ -3183,7 +3183,7 @@ begin
 end;
 {$ENDIF}
 
-function TLccNodeManager.EqualEventID(var Event1, Event2: TEventID): Boolean;
+function TLccNodeManager.EqualEventID(var Event1, Event2: TNodeID): Boolean;
 var
   i: Integer;
 begin

@@ -366,6 +366,7 @@ const
   DATAGRAM_PROTOCOL_SIXBYTE                = $F0;
 
   MAX_EVENT_LEN                            = 8;
+  MAX_NODEID_LEN                           = 6;
 
   ACDI_MFG_SIZE_VERSION                    = 1;
   ACDI_MFG_SIZE_MANUFACTURER               = 41;
