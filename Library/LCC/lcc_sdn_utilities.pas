@@ -712,10 +712,10 @@ begin
                 LccAction.Producer := True;
                 Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
                 if Attrib <> '' then
-                  LccAction.EventIDLo := StrToEventID(Attrib);
+                  LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                 Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
                 if Attrib <> '' then
-                  LccAction.EventIDHi := StrToEventID(Attrib);
+                  LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                 Attrib := XmlAttributeRead(ActionNode, 'eventstate');
                 if Attrib = 'valid' then
                   LccAction.EventState := evs_Valid

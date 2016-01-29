@@ -3,35 +3,35 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="20">
+    <Units Count="19">
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="407"/>
-        <CursorPos Y="427"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="491"/>
+        <CursorPos X="41" Y="510"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="../../../../Library/LCC/lcc_xmlutilities.pas"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="298"/>
-        <CursorPos X="6" Y="307"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="79"/>
+        <CursorPos X="10" Y="30"/>
         <UsageCount Value="223"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="737"/>
-        <CursorPos Y="755"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="550"/>
+        <CursorPos Y="573"/>
         <UsageCount Value="178"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="2814"/>
         <CursorPos X="92" Y="2828"/>
         <UsageCount Value="104"/>
@@ -39,242 +39,234 @@
       </Unit3>
       <Unit4>
         <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="307"/>
-        <CursorPos X="61" Y="325"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="379"/>
+        <CursorPos Y="391"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="../../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="413"/>
-        <CursorPos X="3" Y="428"/>
-        <UsageCount Value="1"/>
-      </Unit5>
-      <Unit6>
         <Filename Value="../../../../Library/LCC/lcc_app_common_settings.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="589"/>
         <CursorPos Y="616"/>
-        <UsageCount Value="100"/>
-        <Loaded Value="True"/>
-      </Unit6>
-      <Unit7>
+        <UsageCount Value="95"/>
+      </Unit5>
+      <Unit6>
         <Filename Value="../../../../Library/LCC/lcc_ethenetserver.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="149"/>
         <CursorPos X="17" Y="155"/>
-        <UsageCount Value="84"/>
-      </Unit7>
-      <Unit8>
+        <UsageCount Value="77"/>
+      </Unit6>
+      <Unit7>
         <Filename Value="../../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="25" Y="19"/>
-        <UsageCount Value="46"/>
-      </Unit8>
-      <Unit9>
+        <UsageCount Value="39"/>
+      </Unit7>
+      <Unit8>
         <Filename Value="../../../../Library/LCC/lcc_defines.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="393"/>
         <CursorPos X="3" Y="407"/>
         <UsageCount Value="101"/>
         <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../../../Library/LCC/lcc_raspberrypi.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="34"/>
+        <CursorPos X="21"/>
+        <UsageCount Value="93"/>
+        <Loaded Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="../../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="500"/>
-        <CursorPos X="19" Y="517"/>
-        <UsageCount Value="72"/>
-      </Unit10>
-      <Unit11>
         <Filename Value="/Developer/lazarus/components/lazutils/laz2_dom.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1328"/>
         <CursorPos X="3" Y="1332"/>
-        <UsageCount Value="23"/>
-      </Unit11>
-      <Unit12>
+        <UsageCount Value="16"/>
+      </Unit10>
+      <Unit11>
         <Filename Value="../../../../Library/LCC/lcc_messages.pas"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="938"/>
-        <CursorPos Y="965"/>
-        <UsageCount Value="95"/>
+        <TopLine Value="860"/>
+        <CursorPos Y="876"/>
+        <UsageCount Value="107"/>
         <Loaded Value="True"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="../../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="25" Y="95"/>
-        <UsageCount Value="8"/>
-      </Unit13>
-      <Unit14>
+        <UsageCount Value="1"/>
+      </Unit12>
+      <Unit13>
         <Filename Value="../../../../../../dev/lazarus/1.6RC1/components/lazutils/laz2_xmlread.pas"/>
         <UnitName Value="laz2_XMLRead"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1499"/>
         <CursorPos Y="1513"/>
-        <UsageCount Value="9"/>
-      </Unit14>
-      <Unit15>
+        <UsageCount Value="2"/>
+      </Unit13>
+      <Unit14>
         <Filename Value="/usr/fpc/3.0.0/rtl/objpas/classes/classesh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="963"/>
         <CursorPos X="15" Y="976"/>
-        <UsageCount Value="8"/>
-      </Unit15>
-      <Unit16>
+        <UsageCount Value="1"/>
+      </Unit14>
+      <Unit15>
         <Filename Value="/usr/fpc/3.0.0/rtl/objpas/sysutils/sysstrh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="205"/>
         <CursorPos X="79" Y="218"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../../../../Library/LCC/lcc_cdi_parser.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="19"/>
       </Unit16>
       <Unit17>
-        <Filename Value="../../../../Library/LCC/lcc_cdi_parser.pas"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
-      </Unit17>
-      <Unit18>
         <Filename Value="../../../../Library/LCC/lcc_node_protocol_helpers.pas"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="10"/>
-      </Unit18>
-      <Unit19>
+        <UsageCount Value="3"/>
+      </Unit17>
+      <Unit18>
         <Filename Value="../../../../Library/LCC/lcc_node.pas"/>
-        <EditorIndex Value="9"/>
-        <UsageCount Value="11"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="48"/>
         <Loaded Value="True"/>
-      </Unit19>
+      </Unit18>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="333" TopLine="322"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position1>
       <Position2>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="341" TopLine="322"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position2>
       <Position3>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="342" TopLine="322"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="293" TopLine="275"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="312" TopLine="298"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="294" TopLine="275"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <Caret Line="608" Column="35" TopLine="585"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="297" TopLine="275"/>
       </Position5>
       <Position6>
-        <Filename Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <Caret Line="605" TopLine="585"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position6>
       <Position7>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="310" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position7>
       <Position8>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="311" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="293" TopLine="275"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="312" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="294" TopLine="275"/>
       </Position9>
       <Position10>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="314" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="297" TopLine="275"/>
       </Position10>
       <Position11>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position11>
       <Position12>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="296"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position12>
       <Position13>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="321" TopLine="298"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="293" TopLine="275"/>
       </Position13>
       <Position14>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="298"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="294" TopLine="275"/>
       </Position14>
       <Position15>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="298"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="297" TopLine="275"/>
       </Position15>
       <Position16>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="321" TopLine="298"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position16>
       <Position17>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="307"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <Caret Line="605" TopLine="585"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="293" TopLine="275"/>
       </Position18>
       <Position19>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="307"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="294" TopLine="275"/>
       </Position19>
       <Position20>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="307"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="297" TopLine="275"/>
       </Position20>
       <Position21>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="337" Column="58" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position21>
       <Position22>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position22>
       <Position23>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position23>
       <Position24>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="321" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position24>
       <Position25>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="290" TopLine="275"/>
       </Position25>
       <Position26>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="291" TopLine="275"/>
       </Position26>
       <Position27>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="321" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="301" TopLine="279"/>
       </Position27>
       <Position28>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="316" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="303" TopLine="281"/>
       </Position28>
       <Position29>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="318" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="304" TopLine="282"/>
       </Position29>
       <Position30>
-        <Filename Value="../../../../Library/LCC/lcc_utilities.pas"/>
-        <Caret Line="321" TopLine="311"/>
+        <Filename Value="rpinode.lpr"/>
+        <Caret Line="303" TopLine="282"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="2">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -289,13 +281,6 @@
         <Source Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
         <Line Value="848"/>
       </Item2>
-      <Item3>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <Line Value="755"/>
-      </Item3>
     </BreakPoints>
   </Debugging>
 </CONFIG>

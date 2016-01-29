@@ -40,6 +40,7 @@ type
 
   TOlcbNodeApplication = class(TCustomApplication)
   private
+    FAliasAllocated: Boolean;
     FConnected: Boolean;
     FEthernetClient: TLccEthernetClient;
     FEthernetServer: TLccEthernetServer;
@@ -65,6 +66,7 @@ type
     destructor Destroy; override;
     procedure WriteHelp; virtual;
 
+    property AliasAllocated: Boolean read FAliasAllocated write FAliasAllocated;
     property Connected: Boolean read FConnected write FConnected;
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
@@ -242,9 +244,21 @@ begin
         Running := True;
         NodeManager.Enabled := True;
         WriteLn('Node started');
+        WriteLn('Generating NodeID/Alias');
+        while not AliasAllocated do
+          CheckSynchronize();  // Pump the timers  ;
         {$IFDEF CPUARM}
-        TxBuffer[0] := 0;
-        TxBuffer[1] := 1;
+        TxBuffer[0] := MCP23S17_WRITE;
+        TxBuffer[1] := MCP23S17_IOCON1;
+        TxBuffer[2] := %00001000;
+        PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
+        TxBuffer[0] := MCP23S17_WRITE;
+        TxBuffer[1] := MCP23S17_GPPUA;  // Pull ups
+        TxBuffer[2] := $FF;
+        PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
+        TxBuffer[0] := MCP23S17_WRITE;
+        TxBuffer[1] := MCP23S17_GPPUB;  // Pull ups
+        TxBuffer[2] := $FF;
         PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
         {$ENDIF}
         while Running do
@@ -252,7 +266,10 @@ begin
           {$IFDEF CPUARM}
           TxBuffer[0] := MCP23S17_READ or (MCP23S17_ADDRESS_0 shl 1);
           TxBuffer[1] := MCP23S17_GPIOA;
+          TxBuffer[2] := 0;  // Dummy
+          TxBuffer[3] := 0;  // Dummy
           PiSpi.Transfer(@TxBuffer, @RxBuffer, 2+2);  // Command + 2 Bytes reply
+
           if RxBuffer[2] <> IoPortA then
           begin
             IoPortA := RxBuffer[2];
@@ -264,20 +281,7 @@ begin
             WriteLn('IoPortB: ' + IntToStr(IoPortB));
           end;
 
-          for i := 0 to 7 do
-          begin
-            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortA shr i) and $01) <> 0);
-            if Assigned(Action) then
-            begin
-              if Action.IoPinState then
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
-              else
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
-              NodeManager.SendLccMessage(LccMessage);
-            end;
-          end;
-
-          for i := 0 to 7 do
+          for i := 0 to 7 do                                             // PORTS FLIPPED FOR PIFACE TESTING
           begin
             Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortB shr i) and $01) <> 0);
             if Assigned(Action) then
@@ -290,6 +294,18 @@ begin
             end;
           end;
 
+          for i := 0 to 7 do
+          begin
+            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i+8, ((IoPortA shr i) and $01) <> 0);
+            if Assigned(Action) then
+            begin
+              if Action.IoPinState then
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+              else
+                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+              NodeManager.SendLccMessage(LccMessage);
+            end;
+          end;
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
@@ -462,6 +478,7 @@ end;
 procedure TOlcbNodeApplication.OnAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
   WriteLn('AliasID: ' + LccSourceNode.AliasIDStr);
+  AliasAllocated := True;
 end;
 
 constructor TOlcbNodeApplication.Create(TheOwner: TComponent);
@@ -490,7 +507,7 @@ begin
   LccMessage := TLccMessage.Create;
   {$IFDEF CPUARM}
   PiSpi := TRaspberryPiSpi.Create;
-  PiSpi.Mode := psm_ClkIdleLo_DataFalling;
+  PiSpi.Mode := psm_ClkIdleLo_DataRising;
   PiSpi.Speed := pss_976kHz;
   PiSpi.Bits := psb_8;
   {$ENDIF}
