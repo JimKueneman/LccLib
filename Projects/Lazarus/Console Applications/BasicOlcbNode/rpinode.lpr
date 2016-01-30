@@ -28,7 +28,7 @@ uses
   Xml.xmldom,
   Xml.XMLIntf,
   {$ENDIF}
-  lcc_utilities, lcc_xmlutilities;
+  lcc_utilities, lcc_xmlutilities, lcc_defines;
 
 const
   SETTINGS_FILE       = 'settings.ini';
@@ -103,7 +103,7 @@ begin
   end;
 
   // quick check parameters
-  ErrorMsg:=CheckOptions('h s C i t f d', 'help server cdi id templatefile configurationfile datagram');
+  ErrorMsg:=CheckOptions('h s C i t f d -H', 'help server cdi id templatefile configurationfile datagram hub');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -195,6 +195,11 @@ begin
     end;
   end;
 
+  if HasOption('H', 'hub') then
+    EthernetServer.Hub := True
+  else
+    EthernetServer.Hub := False;
+
   WriteLn('Press "q" to quit');
 
   { add your program here }
@@ -247,8 +252,8 @@ begin
         WriteLn('Generating NodeID/Alias');
         while not AliasAllocated do
           CheckSynchronize();  // Pump the timers  ;
-        WriteLn('Input Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.FlatInputActions.Count));
-        WriteLn('Output Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.FlatOutputActions.Count));
+        WriteLn('Input Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.InputActionCount));
+        WriteLn('Output Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.OutputActionCount));
         {$IFDEF CPUARM}
         TxBuffer[0] := MCP23S17_WRITE;
         TxBuffer[1] := MCP23S17_IOCON1;
@@ -284,35 +289,44 @@ begin
           end;
 
 
-          for i := 0 to 7 do                                             // PORTS FLIPPED FOR PIFACE TESTING
+          for i := 0 to 15 do
           begin
-            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortB shr i) and $01) = 0);
+
+            if i < 8 then
+              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortA shr i) and $01) = 0)
+            else
+              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortB shr i) and $01) = 0);
+
             if Assigned(Action) then
             begin
+              if Action.ActionType = lat_Input then
+              begin
+                WriteLn('Input Action change detected sending PCER, pin ' + IntToStr(i));
 
-              WriteLn('Action change detected sending PCER');
+                if Action.EventState = evs_Valid then
+                  LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+                else
+                  LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+                NodeManager.SendLccMessage(LccMessage);
 
-              if Action.IoPinState then
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
-              else
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
-              NodeManager.SendLccMessage(LccMessage);
+              end else
+              if Action.ActionType = lat_Output then
+              begin
+                if Action.Consumer and Action.Logic.IsDirty then
+                begin
+                  if Action.Logic.Calculate then
+                  begin
+                    if Action.EventState = evs_Valid then
+                      LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+                    else
+                    if Action.EventState = evs_Invalid then
+                      LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+                    NodeManager.SendLccMessage(LccMessage);
+                  end;
+                end;
+              end;
             end;
           end;
-
-       {   for i := 0 to 7 do
-          begin
-            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i+8, ((IoPortA shr i) and $01) = 0);
-            if Assigned(Action) then
-            begin
-              if Action.IoPinState then
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
-              else
-                LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
-              NodeManager.SendLccMessage(LccMessage);
-            end;
-          end;  }
-
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
@@ -438,14 +452,14 @@ begin
   NodeManager.RootNode.SdnController.NodeID := LccSourceNode.NodeID;
   if FileExists(NodeManager.RootNode.SdnController.FilePath) then
   begin
-    NodeManager.RootNode.SdnController.ParseXML(NodeManager.RootNode.SdnController.FilePath);
+    NodeManager.RootNode.SdnController.XMLParse(NodeManager.RootNode.SdnController.FilePath);
   end else
   if FileExists(NodeManager.RootNode.SdnController.FilePathTemplate) then
   begin
-    NodeManager.RootNode.SdnController.ParseXML(NodeManager.RootNode.SdnController.FilePathTemplate);
-    NodeManager.RootNode.SdnController.AssignEventIDs;
-    NodeManager.RootNode.SdnController.AssignLogicEvents;
-    NodeManager.RootNode.SdnController.ExportXML(NodeManager.RootNode.SdnController.FilePath);
+    NodeManager.RootNode.SdnController.XMLParse(NodeManager.RootNode.SdnController.FilePathTemplate);
+    NodeManager.RootNode.SdnController.AutoAssignEventIDs;
+    NodeManager.RootNode.SdnController.AutoAssignLogicEvents;
+    NodeManager.RootNode.SdnController.XMLExport(NodeManager.RootNode.SdnController.FilePath);
   end;
 end;
 
@@ -569,6 +583,7 @@ begin
   writeln('-t   : filename of the node template file [-n nodetemplate.xml]');
   writeln('-f   : filename of the node definition file that is created from the template file [-n nodedefinition.xml]');
   writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
+  writeln('-H   : If the node is a server (-s) this switch enables the node to be a hub to relay messages to other connections');
 end;
 
 var

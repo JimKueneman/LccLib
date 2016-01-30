@@ -23,6 +23,9 @@ type
 
   TSupportsEventType = (set_None, set_LoEventID, set_HiEventID);
   TPCMap = array of TEventID;
+  TLogicalActionType = (lat_Undefined, lat_Input, lat_Output);
+
+  TLccBinaryAction = class;  //forwared
 
   { TLccLogicAction }
 
@@ -30,15 +33,17 @@ type
   private
     FEventIDHi: TEventID;
     FEventIDLo: TEventID;
-    FLogicState: Boolean;
+    FEventState: TEventState;
     FLogicStateName: string;
     FName: string;
   public
     property Name: string read FName write FName;
     property EventIDLo: TEventID read FEventIDLo write FEventIDLo;
     property EventIDHi: TEventID read FEventIDHi write FEventIDHi;
-    property LogicState: Boolean read FLogicState write FLogicState;
+    property EventState: TEventState read FEventState write FEventState;
     property LogicStateName: string read FLogicStateName write FLogicStateName;
+
+    function EqualAction(AnAction: TLccBinaryAction): Boolean;
   end;
 
   { TLccLogic }
@@ -46,30 +51,35 @@ type
   TLccLogic = class
   private
     FActions: TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
+    FIsDirty: Boolean;
     function GetAction(Index: Integer): TLccLogicAction;
   public
     constructor Create;
     destructor Destroy; override;
+    function Calculate: Boolean;
     property Actions: TObjectList read FActions write FActions{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
     property Action[Index: Integer]: TLccLogicAction read GetAction;
+    property IsDirty: Boolean read FIsDirty;
   end;
 
   { TLccBinaryAction }
 
   TLccBinaryAction = class
   private
+    FActionType: TLogicalActionType;
     FConsumer: Boolean;
     FEventState: TEventState;
     FIoPin: Integer;
-    FIoPinState: Boolean;
     FLogic: TLccLogic;
     FName: string;
     FProducer: Boolean;
   public
     FEventIDHi: TEventID;
     FEventIDLo: TEventID;
-    constructor Create;
+    constructor Create(AnActionType: TLogicalActionType);
     destructor Destroy; override;
+
+    property ActionType: TLogicalActionType read FActionType;
     property Name: string read FName write FName;
     property EventIDLo: TEventID read FEventIDLo write FEventIDLo;
     property EventIDHi: TEventID read FEventIDHi write FEventIDHi;
@@ -77,7 +87,6 @@ type
     property Producer: Boolean read FProducer write FProducer;
     property Consumer: Boolean read FConsumer write FConsumer;
     property IoPin: Integer read FIoPin write FIoPin;
-    property IoPinState: Boolean read FIoPinState write FIoPinState;
     property Logic: TLccLogic read FLogic write FLogic;
   end;
 
@@ -129,31 +138,29 @@ type
     FFilePathTemplate: string;
     FAvailableIoInput: Integer;
     FAvailableIoOutput: Integer;
-    FFlatInputActions: TObjectList;
-    FFlatOutputActions: TObjectList;
+    FActions: TObjectList;
     FLccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF};
     FNodeID: TNodeID;
     FProducerIdMap: TPCMap;
     FVersion: string;
     FXmlDocument: LccXmlDocument;
-    function GetFlatInputActionItem(Index: Integer): TLccBinaryAction;
-    function GetFlatOutputActionItem(Index: Integer): TLccBinaryAction;
+    function GetActionItem(Index: Integer): TLccBinaryAction;
+    function GetInputActionCount: Integer;
     function GetObjectItem(Index: Integer): TLccObject;
+    function GetOuptputActionCount: Integer;
   protected
     procedure AppendToPCMap(var PCMap: TPCMap; Event: TEventID);
     procedure InternalParse;
     procedure InternalExport(XmlDoc: LccXmlDocument);
     function EventStateToAttribString(EventState: TEventState): string;
     function AttribStringToEventState(EventState: string): TEventState;
-    function LogicStateToString(LogicState: Boolean): string;
-    function AttribStringToLogicState(LogicState: string): Boolean;
     function InValidDictionary(Value: string): Boolean;
     function InInvalidDictionary(Value: string): Boolean;
 
-    function FindInputActionByName(ActionName: string): TLccBinaryAction;
-    function FindOuputActionByName(ActionName: string): TLccBinaryAction;
-    function FindOutputActionByIoPin(IoPin: Integer): TLccBinaryAction;
-    function FindInputActionByIoPin(IoPin: Integer): TLccBinaryAction;
+    function FindActionByName(ActionName: string): TLccBinaryAction;
+    function FindActionByIoPin(IoPin: Integer): TLccBinaryAction;
+
+    procedure LogicActionsUpdate(AnAction: TLccBinaryAction);
 
   public
     property AvailableIoInputs: Integer read FAvailableIoInput;
@@ -162,11 +169,11 @@ type
     property Externals: TStringList read FExternals write FExternals;
     property FilePathTemplate: string read FFilePathTemplate write FFilePathTemplate;
     property FilePath: string read FFilePath write FFilePath;
-    property FlatInputActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FFlatInputActions write FFlatInputActions;
-    property FlatInputActionItem[Index: Integer]: TLccBinaryAction read GetFlatInputActionItem;
-    property FlatOutputActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FFlatOutputActions write FFlatOutputActions;
-    property FlatOutputActionItem[Index: Integer]: TLccBinaryAction read GetFlatOutputActionItem;
+    property Actions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FActions write FActions;
+    property ActionItem[Index: Integer]: TLccBinaryAction read GetActionItem;
     property LccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF} read FLccObjects write FLccObjects;
+    property InputActionCount: Integer read GetInputActionCount;
+    property OutputActionCount: Integer read GetOuptputActionCount;
     property NodeID: TNodeID read FNodeID write FNodeID;
     property ObjectItem[Index: Integer]: TLccObject read GetObjectItem;
     property ProducerIdMap: TPCMap read FProducerIdMap;
@@ -175,14 +182,15 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ParseXML(AFilePath: string): Boolean;
-    procedure ExportXML(ExportFilePath: string);
-    procedure AssignEventIDs;
-    procedure AssignLogicEvents;
+
+    procedure AutoAssignEventIDs;
+    procedure AutoAssignLogicEvents;
     procedure Clear;
-    function InputPinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
+    function PinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
     function SupportsProduced(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
     function SupportsConsumed(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
+    function XMLParse(AFilePath: string): Boolean;
+    procedure XMLExport(ExportFilePath: string);
   end;
 
 procedure Register;
@@ -197,6 +205,13 @@ begin
   {$ENDIF}
   RegisterComponents('LCC',[TLccSdnController]);
   {$ENDIF}
+end;
+
+{ TLccLogicAction }
+
+function TLccLogicAction.EqualAction(AnAction: TLccBinaryAction): Boolean;
+begin
+  Result := EqualEventID(AnAction.EventIDLo, EventIDLo) and EqualEventID(AnAction.EventIDHi, EventIDHi)
 end;
 
 { TLccLogic }
@@ -218,6 +233,21 @@ begin
   inherited Destroy;
 end;
 
+function TLccLogic.Calculate: Boolean;
+var
+  i: Integer;
+  LogicAction: TLccLogicAction;
+  LogicResult
+begin
+  Result := False;
+  for i := 0 to Actions.Count - 1 do
+  begin
+    LogicAction := Action[i];
+
+  end;
+  FIsDirty := False;
+end;
+
 function TLccLogic.GetAction(Index: Integer): TLccLogicAction;
 begin
    {$IFDEF FPC}
@@ -229,9 +259,10 @@ end;
 
 { TLccBinaryAction }
 
-constructor TLccBinaryAction.Create;
+constructor TLccBinaryAction.Create(AnActionType: TLogicalActionType);
 begin
   inherited Create;
+  FActionType := AnActionType;
   FLogic := TLccLogic.Create;
 end;
 
@@ -323,7 +354,7 @@ begin
   PCMap[Length(PCMap)-1] := Event;
 end;
 
-procedure TLccSdnController.AssignEventIDs;
+procedure TLccSdnController.AutoAssignEventIDs;
 var
   ActionGroup: TLccActionGroup;
   Action: TLccBinaryAction;
@@ -386,17 +417,17 @@ begin
   end;
 end;
 
-procedure TLccSdnController.AssignLogicEvents;
+procedure TLccSdnController.AutoAssignLogicEvents;
 var
   iAction, iLogic: Integer;
   LogicAction: TLccLogicAction;
   ActionLink: TLccBinaryAction;
 begin
-  for iAction := 0 to FlatOutputActions.Count - 1 do
-    for iLogic := 0 to FlatOutputActionItem[iAction].Logic.Actions.Count - 1 do
+  for iAction := 0 to Actions.Count - 1 do
+    for iLogic := 0 to ActionItem[iAction].Logic.Actions.Count - 1 do
     begin
-      LogicAction := FlatOutputActionItem[iAction].Logic.Action[iLogic];
-      ActionLink := FindInputActionByName(LogicAction.Name);
+      LogicAction := ActionItem[iAction].Logic.Action[iLogic];
+      ActionLink := FindActionByName(LogicAction.Name);
       if Assigned(ActionLink) then
       begin
         LogicAction.FEventIDLo := ActionLink.EventIDLo;
@@ -416,10 +447,8 @@ begin
   inherited Create(AOwner);
   FExternals := TStringList.Create;
   FLccObjects := TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF}.Create;
-  FFlatInputActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
-  FlatInputActions.OwnsObjects := False;
-  FFlatOutputActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
-  FlatOutputActions.OwnsObjects := False;
+  FActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
+  Actions.OwnsObjects := False;
 end;
 
 destructor TLccSdnController.Destroy;
@@ -427,8 +456,7 @@ begin
   FreeAndNil(FExternals);
   {$IFDEF FPC}
   FreeAndNil(FLccObjects);
-  FreeAndNil(FFlatInputActions);
-  FreeAndNil(FFlatOutputActions);
+  FreeAndNil(FActions);
   {$ELSE}
   LccObject.DisposeOf;
   LccObject := nil;
@@ -449,7 +477,7 @@ begin
   end;
 end;
 
-procedure TLccSdnController.ExportXML(ExportFilePath: string);
+procedure TLccSdnController.XMLExport(ExportFilePath: string);
 var
   XmlDoc: LccXmlDocument;
 begin
@@ -459,82 +487,82 @@ begin
   XmlFreeDocument(XmlDoc);
 end;
 
-function TLccSdnController.FindInputActionByName(ActionName: string): TLccBinaryAction;
+function TLccSdnController.FindActionByName(ActionName: string): TLccBinaryAction;
 var
   iAction: Integer;
 begin
   Result := nil;
-  for iAction := 0 to FlatInputActions.Count - 1 do
+  for iAction := 0 to Actions.Count - 1 do
   begin
-    if FlatInputActionItem[iAction].Name = ActionName then
+    if ActionItem[iAction].Name = ActionName then
     begin
-      Result := FlatInputActionItem[iAction];
+      Result := ActionItem[iAction];
       Break;
     end;
   end;
 end;
 
-function TLccSdnController.FindOuputActionByName(ActionName: string): TLccBinaryAction;
+function TLccSdnController.FindActionByIoPin(IoPin: Integer): TLccBinaryAction;
 var
   iAction: Integer;
 begin
   Result := nil;
-  for iAction := 0 to FlatOutputActions.Count - 1 do
+  for iAction := 0 to Actions.Count - 1 do
   begin
-    if FlatOutputActionItem[iAction].Name = ActionName then
+    if ActionItem[iAction].IoPin = IoPin then
     begin
-      Result := FlatOutputActionItem[iAction];
+      Result := ActionItem[iAction];
       Break;
     end;
   end;
 end;
 
-function TLccSdnController.FindOutputActionByIoPin(IoPin: Integer): TLccBinaryAction;
+procedure TLccSdnController.LogicActionsUpdate(AnAction: TLccBinaryAction);
 var
-  iAction: Integer;
+  i, j: Integer;
+  LocalAction: TLccBinaryAction;
+  LogicAction: TLccLogicAction;
 begin
-  Result := nil;
-  for iAction := 0 to FlatOutputActions.Count - 1 do
+  for i := 0 to Actions.Count - 1 do
   begin
-    if FlatOutputActionItem[iAction].IoPin = IoPin then
+    LocalAction := ActionItem[i];
+    if LocalAction.Consumer then
     begin
-      Result := FlatOutputActionItem[iAction];
-      Break;
+      for j := 0 to LocalAction.Logic.Actions.Count - 1 do
+      begin
+        LogicAction := LocalAction.Logic.Action[j];
+        if LogicAction.EqualAction(AnAction) then
+        begin
+          if AnAction.EventState <> LocalAction.EventState then
+          begin
+            LogicAction.EventState := AnAction.EventState;
+            LocalAction.Logic.FIsDirty := True;
+          end;
+        end;
+      end;
     end;
   end;
 end;
 
-function TLccSdnController.FindInputActionByIoPin(IoPin: Integer): TLccBinaryAction;
-var
-  iAction: Integer;
-begin
-  Result := nil;
-  for iAction := 0 to FlatInputActions.Count - 1 do
-  begin
-    if FlatInputActionItem[iAction].IoPin = IoPin then
-    begin
-      Result := FlatInputActionItem[iAction];
-      Break;
-    end;
-  end;
-end;
-
-function TLccSdnController.GetFlatInputActionItem(Index: Integer): TLccBinaryAction;
+function TLccSdnController.GetActionItem(Index: Integer): TLccBinaryAction;
 begin
   {$IFDEF FPC}
-  Result := FlatInputActions[Index] as TLccBinaryAction;
+  Result := Actions[Index] as TLccBinaryAction;
   {$ELSE}
   Result := FlatOutputActions[Index];
   {$ENDIF}
 end;
 
-function TLccSdnController.GetFlatOutputActionItem(Index: Integer): TLccBinaryAction;
+function TLccSdnController.GetInputActionCount: Integer;
+var
+  i: Integer;
 begin
-  {$IFDEF FPC}
-  Result := FlatOutputActions[Index] as TLccBinaryAction;
-  {$ELSE}
-  Result := FlatOutputActions[Index];
-  {$ENDIF}
+  Result := 0;
+  for i := 0 to Actions.Count - 1 do
+  begin
+    if ActionItem[i].ActionType = lat_Input then
+      Inc(Result);
+  end;
 end;
 
 function TLccSdnController.GetObjectItem(Index: Integer): TLccObject;
@@ -544,6 +572,18 @@ begin
   {$ELSE}
   Result := LccObjects[Index];
   {$ENDIF}
+end;
+
+function TLccSdnController.GetOuptputActionCount: Integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 0 to Actions.Count - 1 do
+  begin
+    if ActionItem[i].ActionType = lat_Output then
+      Inc(Result);
+  end;
 end;
 
 function TLccSdnController.InInvalidDictionary(Value: string): Boolean;
@@ -559,20 +599,42 @@ begin
   end;
 end;
 
-function TLccSdnController.InputPinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
+function TLccSdnController.PinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
 var
   Action: TLccBinaryAction;
 begin
-  Result := nil;
-
-  Action := FindInputActionByIoPin(IoPin);
-  if Assigned(Action) then
+  Result := FindActionByIoPin(IoPin);
+  if Assigned(Result) then
   begin
-    if Action.IoPinState <> IoPinState then
+    if Result.ActionType = lat_Input then
     begin
-      Action.IoPinState := IoPinState;
-      Result := Action;
-    end;
+      case Result.EventState of
+        evs_InValid :
+          begin
+            if IoPinState then
+            begin
+              Result.EventState := evs_Valid;
+              LogicActionsUpdate(Result);
+            end;
+          end;
+        evs_Valid :
+          begin
+            if not IoPinState then
+            begin
+              Result.EventState := evs_InValid;
+              LogicActionsUpdate(Result);
+            end;
+          end;
+        evs_Unknown :
+          begin
+            if IoPinState then
+              Result.EventState := evs_Valid
+            else
+              Result.EventState := evs_InValid;
+            LogicActionsUpdate(Result);
+          end;
+      end;
+    end
   end;
 end;
 
@@ -710,9 +772,9 @@ begin
               ActionNode := XmlFirstChild(ActionGroupNode);
               while Assigned(ActionNode) do
               begin
-                LccAction := TLccBinaryAction.Create;
+                LccAction := TLccBinaryAction.Create(lat_Input);
                 LccActionGroup.Actions.Add(LccAction);
-                FlatInputActions.Add(LccAction);
+                Actions.Add(LccAction);
                 LccAction.Producer := True;
                 Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
                 if Attrib <> '' then
@@ -750,10 +812,10 @@ begin
               ActionNode := XmlFirstChild(ActionGroupNode);
               while Assigned(ActionNode) do
               begin
-                LccAction := TLccBinaryAction.Create;
+                LccAction := TLccBinaryAction.Create(lat_Output);
                 LccActionGroup.Actions.Add(LccAction);
-                FlatOutputActions.Add(LccAction);
-                LccAction.Producer := True;
+                Actions.Add(LccAction);
+                LccAction.Consumer := True;
                 Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
                 if Attrib <> '' then
                   LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
@@ -787,7 +849,7 @@ begin
                     if Assigned(ChildNode) then
                       LccLogicAction.Name := XmlNodeTextContent(ChildNode);
                     LccLogicAction.LogicStateName := XmlAttributeRead(LogicActionNode, 'state');
-                    LccLogicAction.LogicState := AttribStringToLogicState(LccLogicAction.LogicStateName);
+                    LccLogicAction.EventState := AttribStringToEventState(LccLogicAction.LogicStateName);
                     Attrib := XmlAttributeRead(LogicActionNode, 'eventidlo');
                     if Attrib <> '' then
                       LccLogicAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
@@ -823,12 +885,7 @@ begin
   end;
 end;
 
-function TLccSdnController.LogicStateToString(LogicState: Boolean): string;
-begin
-  if LogicState then Result := 'valid' else Result := 'invalid';
-end;
-
-function TLccSdnController.ParseXML(AFilePath: string): Boolean;
+function TLccSdnController.XMLParse(AFilePath: string): Boolean;
 begin
   Result := False;
   try
@@ -846,22 +903,27 @@ end;
 function TLccSdnController.SupportsConsumed(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
 var
   i: Integer;
+  LocalAction: TLccBinaryAction;
 begin
   Result := set_None;
   Action := nil;
-  for i := 0 to FlatInputActions.Count - 1 do
+  for i := 0 to Actions.Count - 1 do
   begin
-    if EqualEventID(FlatOutputActionItem[i].FEventIDLo, Event) then
+    LocalAction := ActionItem[i];
+    if LocalAction.ActionType = lat_Output then
     begin
-      Action := FlatOutputActionItem[i];
-      Result := set_LoEventID;
-      Exit;
-    end;
-    if EqualEventID(FlatOutputActionItem[i].FEventIDHi, Event) then
-    begin
-      Action := FlatOutputActionItem[i];
-      Result := set_HiEventID;
-      Exit;
+      if EqualEventID(LocalAction.FEventIDLo, Event) then
+      begin
+        Action := LocalAction;
+        Result := set_LoEventID;
+        Exit;
+      end;
+      if EqualEventID(LocalAction.FEventIDHi, Event) then
+      begin
+        Action := LocalAction;
+        Result := set_HiEventID;
+        Exit;
+      end;
     end;
   end;
 end;
@@ -869,40 +931,40 @@ end;
 function TLccSdnController.SupportsProduced(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
 var
   i: Integer;
+  LocalAction: TLccBinaryAction;
 begin
   Result := set_None;
   Action := nil;
-  for i := 0 to FlatInputActions.Count - 1 do
+  for i := 0 to Actions.Count - 1 do
   begin
-    if EqualEventID(FlatInputActionItem[i].FEventIDLo, Event) then
+    LocalAction := ActionItem[i];
+    if LocalAction.ActionType = lat_Input then
     begin
-      Action := FlatInputActionItem[i];
-      Result := set_LoEventID;
-      Exit;
-    end;
-    if EqualEventID(FlatInputActionItem[i].FEventIDHi, Event) then
-    begin
-      Action := FlatInputActionItem[i];
-      Result := set_HiEventID;
-      Exit;
+      if EqualEventID(LocalAction.FEventIDLo, Event) then
+      begin
+        Action := LocalAction;
+        Result := set_LoEventID;
+        Exit;
+      end;
+      if EqualEventID(LocalAction.FEventIDHi, Event) then
+      begin
+        Action := LocalAction;
+        Result := set_HiEventID;
+        Exit;
+      end;
     end;
   end;
 end;
 
 function TLccSdnController.AttribStringToEventState(EventState: string): TEventState;
 begin
-  if EventState = 'valid' then
+  if InValidDictionary(EventState) then
     Result := evs_Valid
   else
-  if EventState = 'invalid' then
+   if InInValidDictionary(EventState) then
     Result := evs_InValid
   else
     Result := evs_Unknown;
-end;
-
-function TLccSdnController.AttribStringToLogicState(LogicState: string): Boolean;
-begin
-  Result := InValidDictionary(LogicState)
 end;
 
 end.

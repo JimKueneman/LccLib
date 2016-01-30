@@ -27,7 +27,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -C cdi_16_24_PC_default.xml -f sdn_signalconfig.xml -t sdn_signaltemplate.xml -d 2048"/>
+        <CommandLineParams Value="-s -C cdi_16_24_PC_default.xml -f piface.xml -t sdn_signaltemplate.xml -d 2048"/>
       </local>
     </RunParams>
     <Units Count="1">
@@ -54,11 +54,6 @@
         <OptimizationLevel Value="0"/>
       </Optimizations>
     </CodeGeneration>
-    <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
-    </Linking>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
     </Other>

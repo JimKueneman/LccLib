@@ -2029,30 +2029,22 @@ end;
 procedure TLccOwnedNode.SendConsumedEvents;
 var
   i: Integer;
+  LocalAction: TLccBinaryAction;
 begin
   if Assigned(SdnController) then
   begin
-    for i := 0 to SdnController.FlatInputActions.Count - 1 do
+    for i := 0 to SdnController.Actions.Count - 1 do
     begin
-      if SdnController.FlatInputActionItem[i].Consumer then
+      LocalAction := SdnController.ActionItem[i];
+      if LocalAction.Consumer then
       begin
-        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDLo, SdnController.FlatInputActionItem[i].EventState);
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID,LocalAction.FEventIDLo, LocalAction.EventState);
         OwnerManager.DoRequestMessageSend(WorkerMessage);
-        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDHi, SdnController.FlatInputActionItem[i].EventState);
+        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, LocalAction.FEventIDHi, LocalAction.EventState);
         OwnerManager.DoRequestMessageSend(WorkerMessage);
       end;
     end;
 
-    for i := 0 to SdnController.FlatOutputActions.Count - 1 do
-    begin
-      if SdnController.FlatOutputActionItem[i].Consumer then
-      begin
-        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDLo, SdnController.FlatOutputActionItem[i].EventState);
-        OwnerManager.DoRequestMessageSend(WorkerMessage);
-        WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDHi, SdnController.FlatOutputActionItem[i].EventState);
-        OwnerManager.DoRequestMessageSend(WorkerMessage);
-      end;
-    end;
   end else
   begin
     for i := 0 to EventsConsumed.EventList.Count - 1 do
@@ -2103,28 +2095,18 @@ end;
 procedure TLccOwnedNode.SendProducedEvents;
 var
   i: Integer;
+  LocalAction: TLccBinaryAction;
 begin
   if Assigned(SdnController) then
   begin
-
-    for i := 0 to SdnController.FlatInputActions.Count - 1 do
+    for i := 0 to SdnController.Actions.Count - 1 do
     begin
-      if SdnController.FlatInputActionItem[i].Producer then
+      LocalAction := SdnController.ActionItem[i];
+      if LocalAction.Producer then
       begin
-        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDLo, SdnController.FlatInputActionItem[i].EventState);
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, LocalAction.FEventIDLo, LocalAction.EventState);
         OwnerManager.DoRequestMessageSend(WorkerMessage);
-        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatInputActionItem[i].FEventIDHi, SdnController.FlatInputActionItem[i].EventState);
-        OwnerManager.DoRequestMessageSend(WorkerMessage);
-      end;
-    end;
-
-    for i := 0 to SdnController.FlatOutputActions.Count - 1 do
-    begin
-      if SdnController.FlatOutputActionItem[i].Producer then
-      begin
-        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDLo, SdnController.FlatOutputActionItem[i].EventState);
-        OwnerManager.DoRequestMessageSend(WorkerMessage);
-        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, SdnController.FlatOutputActionItem[i].FEventIDHi, SdnController.FlatOutputActionItem[i].EventState);
+        WorkerMessage.LoadProducerIdentified(NodeID, AliasID, LocalAction.FEventIDHi, LocalAction.EventState);
         OwnerManager.DoRequestMessageSend(WorkerMessage);
       end;
     end;
