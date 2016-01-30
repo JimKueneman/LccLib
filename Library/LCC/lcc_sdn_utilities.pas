@@ -463,6 +463,7 @@ function TLccSdnController.FindInputActionByName(ActionName: string): TLccBinary
 var
   iAction: Integer;
 begin
+  Result := nil;
   for iAction := 0 to FlatInputActions.Count - 1 do
   begin
     if FlatInputActionItem[iAction].Name = ActionName then
@@ -477,6 +478,7 @@ function TLccSdnController.FindOuputActionByName(ActionName: string): TLccBinary
 var
   iAction: Integer;
 begin
+  Result := nil;
   for iAction := 0 to FlatOutputActions.Count - 1 do
   begin
     if FlatOutputActionItem[iAction].Name = ActionName then
@@ -491,6 +493,7 @@ function TLccSdnController.FindOutputActionByIoPin(IoPin: Integer): TLccBinaryAc
 var
   iAction: Integer;
 begin
+  Result := nil;
   for iAction := 0 to FlatOutputActions.Count - 1 do
   begin
     if FlatOutputActionItem[iAction].IoPin = IoPin then
@@ -505,6 +508,7 @@ function TLccSdnController.FindInputActionByIoPin(IoPin: Integer): TLccBinaryAct
 var
   iAction: Integer;
 begin
+  Result := nil;
   for iAction := 0 to FlatInputActions.Count - 1 do
   begin
     if FlatInputActionItem[iAction].IoPin = IoPin then
@@ -560,6 +564,7 @@ var
   Action: TLccBinaryAction;
 begin
   Result := nil;
+
   Action := FindInputActionByIoPin(IoPin);
   if Assigned(Action) then
   begin
@@ -569,7 +574,6 @@ begin
       Result := Action;
     end;
   end;
-
 end;
 
 procedure TLccSdnController.InternalExport(XmlDoc: LccXmlDocument);

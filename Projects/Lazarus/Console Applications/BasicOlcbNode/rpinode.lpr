@@ -247,6 +247,8 @@ begin
         WriteLn('Generating NodeID/Alias');
         while not AliasAllocated do
           CheckSynchronize();  // Pump the timers  ;
+        WriteLn('Input Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.FlatInputActions.Count));
+        WriteLn('Output Action Count: ' + IntToStr(NodeManager.RootNode.SdnController.FlatOutputActions.Count));
         {$IFDEF CPUARM}
         TxBuffer[0] := MCP23S17_WRITE;
         TxBuffer[1] := MCP23S17_IOCON1;
@@ -281,11 +283,15 @@ begin
             WriteLn('IoPortB: ' + IntToStr(IoPortB));
           end;
 
+
           for i := 0 to 7 do                                             // PORTS FLIPPED FOR PIFACE TESTING
           begin
-            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortB shr i) and $01) <> 0);
+            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i, ((IoPortB shr i) and $01) = 0);
             if Assigned(Action) then
             begin
+
+              WriteLn('Action change detected sending PCER');
+
               if Action.IoPinState then
                 LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
               else
@@ -294,9 +300,9 @@ begin
             end;
           end;
 
-          for i := 0 to 7 do
+       {   for i := 0 to 7 do
           begin
-            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i+8, ((IoPortA shr i) and $01) <> 0);
+            Action := NodeManager.RootNode.SdnController.InputPinUpdate(i+8, ((IoPortA shr i) and $01) = 0);
             if Assigned(Action) then
             begin
               if Action.IoPinState then
@@ -305,7 +311,8 @@ begin
                 LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
               NodeManager.SendLccMessage(LccMessage);
             end;
-          end;
+          end;  }
+
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
