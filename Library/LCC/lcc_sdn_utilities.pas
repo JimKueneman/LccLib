@@ -31,17 +31,19 @@ type
 
   TLccLogicAction = class
   private
-    FEventIDHi: TEventID;
-    FEventIDLo: TEventID;
-    FEventState: TEventState;
-    FLogicStateName: string;
-    FName: string;
+    FEventIDHiLinked: TEventID;
+    FEventIDLoLinked: TEventID;
+    FEventStateLinked: TEventState;
+    FLogicTrueStateName: string;
+    FLinkedName: string;
+    FLogicTrueState: TEventState;
   public
-    property Name: string read FName write FName;
-    property EventIDLo: TEventID read FEventIDLo write FEventIDLo;
-    property EventIDHi: TEventID read FEventIDHi write FEventIDHi;
-    property EventState: TEventState read FEventState write FEventState;
-    property LogicStateName: string read FLogicStateName write FLogicStateName;
+    property LinkedName: string read FLinkedName write FLinkedName;
+    property EventIDLoLinked: TEventID read FEventIDLoLinked write FEventIDLoLinked;
+    property EventIDHiLinked: TEventID read FEventIDHiLinked write FEventIDHiLinked;
+    property EventStateLinked: TEventState read FEventStateLinked write FEventStateLinked;
+    property LogicTrueStateName: string read FLogicTrueStateName write FLogicTrueStateName;
+    property LogicTrueState: TEventState read FLogicTrueState write FLogicTrueState;
 
     function EqualAction(AnAction: TLccBinaryAction): Boolean;
   end;
@@ -51,15 +53,15 @@ type
   TLccLogic = class
   private
     FActions: TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
-    FIsDirty: Boolean;
+    FOwner: TLccBinaryAction;
     function GetAction(Index: Integer): TLccLogicAction;
   public
-    constructor Create;
+    constructor Create(AnOwnerAction: TLccBinaryAction);
     destructor Destroy; override;
     function Calculate: Boolean;
     property Actions: TObjectList read FActions write FActions{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
     property Action[Index: Integer]: TLccLogicAction read GetAction;
-    property IsDirty: Boolean read FIsDirty;
+    property Owner: TLccBinaryAction read FOwner;
   end;
 
   { TLccBinaryAction }
@@ -70,6 +72,7 @@ type
     FConsumer: Boolean;
     FEventState: TEventState;
     FIoPin: Integer;
+    FIsDirty: Boolean;
     FLogic: TLccLogic;
     FName: string;
     FProducer: Boolean;
@@ -88,6 +91,7 @@ type
     property Consumer: Boolean read FConsumer write FConsumer;
     property IoPin: Integer read FIoPin write FIoPin;
     property Logic: TLccLogic read FLogic write FLogic;
+    property IsDirty: Boolean read FIsDirty write FIsDirty;
   end;
 
   { TLccActionGroup }
@@ -211,14 +215,15 @@ end;
 
 function TLccLogicAction.EqualAction(AnAction: TLccBinaryAction): Boolean;
 begin
-  Result := EqualEventID(AnAction.EventIDLo, EventIDLo) and EqualEventID(AnAction.EventIDHi, EventIDHi)
+  Result := EqualEventID(AnAction.EventIDLo, EventIDLoLinked) and EqualEventID(AnAction.EventIDHi, EventIDHiLinked)
 end;
 
 { TLccLogic }
 
-constructor TLccLogic.Create;
+constructor TLccLogic.Create(AnOwnerAction: TLccBinaryAction);
 begin
-  inherited;
+  inherited Create;
+  FOwner := AnOwnerAction;
   FActions := TObjectList.Create{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
 end;
 
@@ -237,15 +242,30 @@ function TLccLogic.Calculate: Boolean;
 var
   i: Integer;
   LogicAction: TLccLogicAction;
-  LogicResult
+  EvaluatedResult: Boolean;
 begin
   Result := False;
-  for i := 0 to Actions.Count - 1 do
+  EvaluatedResult := True;
+  i := 0;
+  while EvaluatedResult and (i < Actions.Count) do
   begin
     LogicAction := Action[i];
-
+    EvaluatedResult := LogicAction.LogicTrueState = LogicAction.EventStateLinked;
+    Inc(i);
   end;
-  FIsDirty := False;
+
+  if EvaluatedResult and (Owner.EventState <> evs_Valid) then
+  begin
+    Owner.EventState  := evs_Valid;
+    Owner.IsDirty := True;
+    Result := True
+  end else
+  if not EvaluatedResult and (Owner.EventState <> evs_InValid) then
+  begin
+    Owner.EventState  := evs_InValid;
+    Owner.IsDirty := True;
+    Result := True
+  end
 end;
 
 function TLccLogic.GetAction(Index: Integer): TLccLogicAction;
@@ -263,7 +283,7 @@ constructor TLccBinaryAction.Create(AnActionType: TLogicalActionType);
 begin
   inherited Create;
   FActionType := AnActionType;
-  FLogic := TLccLogic.Create;
+  FLogic := TLccLogic.Create(Self);
 end;
 
 destructor TLccBinaryAction.Destroy;
@@ -427,11 +447,11 @@ begin
     for iLogic := 0 to ActionItem[iAction].Logic.Actions.Count - 1 do
     begin
       LogicAction := ActionItem[iAction].Logic.Action[iLogic];
-      ActionLink := FindActionByName(LogicAction.Name);
+      ActionLink := FindActionByName(LogicAction.LinkedName);
       if Assigned(ActionLink) then
       begin
-        LogicAction.FEventIDLo := ActionLink.EventIDLo;
-        LogicAction.FEventIDHi := ActionLink.EventIDHi;
+        LogicAction.FEventIDLoLinked := ActionLink.EventIDLo;
+        LogicAction.FEventIDHiLinked := ActionLink.EventIDHi;
       end
     end;
    // TODO: Deal with External Assignments
@@ -535,8 +555,8 @@ begin
         begin
           if AnAction.EventState <> LocalAction.EventState then
           begin
-            LogicAction.EventState := AnAction.EventState;
-            LocalAction.Logic.FIsDirty := True;
+            LogicAction.EventStateLinked := AnAction.EventState;
+            LocalAction.FIsDirty := True;
           end;
         end;
       end;
@@ -613,6 +633,7 @@ begin
           begin
             if IoPinState then
             begin
+              Result.FIsDirty := True;
               Result.EventState := evs_Valid;
               LogicActionsUpdate(Result);
             end;
@@ -621,12 +642,14 @@ begin
           begin
             if not IoPinState then
             begin
+              Result.FIsDirty := True;
               Result.EventState := evs_InValid;
               LogicActionsUpdate(Result);
             end;
           end;
         evs_Unknown :
           begin
+            Result.FIsDirty := True;
             if IoPinState then
               Result.EventState := evs_Valid
             else
@@ -693,10 +716,11 @@ begin
         for iLogicActions := 0 to ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Actions.Count - 1 do
         begin
           ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'action', '');
-          XmlAttributeForce(XmlDoc, ChildNode, 'state', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicStateName);
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlCreateChildNode(XmlDoc, ChildNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Name);
+          // Don't save the state of the linked event as we don't know what it will be on reboot
+          XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ChildNode, 'truestate', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicTrueStateName);
+          XmlCreateChildNode(XmlDoc, ChildNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LinkedName);
         end;
       end;
     end;
@@ -783,13 +807,7 @@ begin
                 if Attrib <> '' then
                   LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                 Attrib := XmlAttributeRead(ActionNode, 'eventstate');
-                if Attrib = 'valid' then
-                  LccAction.EventState := evs_Valid
-                else
-                if Attrib = 'invalid' then
-                  LccAction.EventState := evs_InValid
-                else
-                  LccAction.EventState := evs_Unknown;
+                LccAction.EventState := AttribStringToEventState(Attrib);
                 Attrib := XmlAttributeRead(ActionNode, 'iopin');
                 if Attrib <> '' then
                   LccAction.IoPin := StrToInt(Attrib);
@@ -822,14 +840,8 @@ begin
                 Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
                 if Attrib <> '' then
                   LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                Attrib := XmlAttributeRead(ActionNode, 'eventstate');
-                if Attrib = 'valid' then
-                  LccAction.EventState := evs_Valid
-                else
-                if Attrib = 'invalid' then
-                  LccAction.EventState := evs_InValid
-                else
-                  LccAction.EventState := evs_Unknown;
+                Attrib := XmlAttributeRead(ActionNode, 'state');
+                LccAction.EventState := AttribStringToEventState(Attrib);
                 Attrib := XmlAttributeRead(ActionNode, 'iopin');
                 if Attrib <> '' then
                   LccAction.IoPin := StrToInt(Attrib);
@@ -847,15 +859,17 @@ begin
                     LccAction.Logic.Actions.Add(LccLogicAction);
                     ChildNode := XmlFindChildNode(LogicActionNode, 'name');
                     if Assigned(ChildNode) then
-                      LccLogicAction.Name := XmlNodeTextContent(ChildNode);
-                    LccLogicAction.LogicStateName := XmlAttributeRead(LogicActionNode, 'state');
-                    LccLogicAction.EventState := AttribStringToEventState(LccLogicAction.LogicStateName);
+                      LccLogicAction.LinkedName := XmlNodeTextContent(ChildNode);
+                    // Don't save or restore the state of the linked action, don't know what it will be
                     Attrib := XmlAttributeRead(LogicActionNode, 'eventidlo');
                     if Attrib <> '' then
-                      LccLogicAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                      LccLogicAction.EventIDLoLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
                     Attrib := XmlAttributeRead(LogicActionNode, 'eventidhi');
                     if Attrib <> '' then
-                      LccLogicAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase])); ;
+                      LccLogicAction.EventIDHiLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(LogicActionNode, 'truestate');
+                    LccLogicAction.LogicTrueStateName := Attrib;
+                    LccLogicAction.LogicTrueState := AttribStringToEventState(Attrib);
                     LogicActionNode := XmlNextSiblingNode(LogicActionNode);
                   end;
                 end;

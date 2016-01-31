@@ -83,6 +83,7 @@ procedure TOlcbNodeApplication.DoRun;
 var
   ErrorMsg, CustomNodeID: String;
   Running: Boolean;
+  Key: Char;
   {$IFDEF CPUARM}
   TxBuffer, RxBuffer: TPiSpiBuffer;
   IoPortA, IoPortB: Byte;
@@ -293,36 +294,42 @@ begin
           begin
 
             if i < 8 then
-              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortA shr i) and $01) = 0)
+              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortA shr i) and $01) <> 0)
             else
-              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortB shr i) and $01) = 0);
+              Action := NodeManager.RootNode.SdnController.PinUpdate(i, ((IoPortB shr (i-8)) and $01) <> 0);
 
             if Assigned(Action) then
             begin
               if Action.ActionType = lat_Input then
               begin
-                WriteLn('Input Action change detected sending PCER, pin ' + IntToStr(i));
-
-                if Action.EventState = evs_Valid then
-                  LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
-                else
-                  LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
-                NodeManager.SendLccMessage(LccMessage);
-
+                if Action.Producer and Action.IsDirty then
+                begin
+                  WriteLn('Input Action change detected sending PCER, pin ' + IntToStr(i));
+                  if Action.EventState = evs_Valid then
+                    LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
+                  else
+                    LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+                  NodeManager.SendLccMessage(LccMessage);
+                  Action.IsDirty := FAlse;
+                end;
               end else
               if Action.ActionType = lat_Output then
               begin
-                if Action.Consumer and Action.Logic.IsDirty then
+                if Action.Consumer and Action.Logic.Calculate then
                 begin
-                  if Action.Logic.Calculate then
+                  if Action.EventState = evs_Valid then
                   begin
-                    if Action.EventState = evs_Valid then
-                      LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi)
-                    else
-                    if Action.EventState = evs_Invalid then
-                      LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
+                    WriteLn('Output Action change detected sending PCER, pin ' + IntToStr(i));
+                    LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDHi);
+                    NodeManager.SendLccMessage(LccMessage);
+                  end else
+                  if Action.EventState = evs_Invalid then
+                  begin
+                    WriteLn('Output Action change detected sending PCER, pin ' + IntToStr(i));
+                    LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
                     NodeManager.SendLccMessage(LccMessage);
                   end;
+                  Action.IsDirty := False;
                 end;
               end;
             end;
@@ -330,7 +337,19 @@ begin
           {$ENDIF}
           CheckSynchronize();  // Pump the timers
           if KeyPressed then
-            Running := ReadKey <> 'q';
+          begin
+            Key := ReadKey;
+            Running := Key <> 'q';
+
+       {     case Key of
+              '0' : IoPortB := IoPortB or $01;
+              '1' : IoPortB := IoPortB and not $01;
+              '2' : IoPortB := IoPortB or $02;
+              '3' : IoPortB := IoPortB and not $02;
+            end;
+         }
+
+          end;
         end;
       end;
 
@@ -544,17 +563,17 @@ begin
     TriedConnecting := False;
     FailedConnecting := False;
     EthernetServer.OpenConnectionWithLccSettings;
-    while not TriedConnecting do
+    while not TriedConnecting and Result do
     begin
       if KeyPressed then Result := ReadKey <> 'q';
       CheckSynchronize();  // Pump the timers
     end;
-    while not FailedConnecting and not Connected do
+    while not FailedConnecting and not Connected and Result do
     begin
       if KeyPressed then Result := ReadKey <> 'q';
       CheckSynchronize();  // Pump the timers
     end;
-    if FailedConnecting then
+    if FailedConnecting and Result then
     begin
       WaitCount := 0;
       while (WaitCount < 50) and Result do

@@ -38,7 +38,7 @@ type
 {$ENDIF}
 
 type
-  TEventState = (evs_Valid, evs_InValid, evs_Unknown);
+  TEventState = (evs_Unknown, evs_Valid, evs_InValid);
   TIsNodeTestType = (ntt_Dest, ntt_Source);
   TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
 
