@@ -54,6 +54,11 @@
         <OptimizationLevel Value="0"/>
       </Optimizations>
     </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
     </Other>

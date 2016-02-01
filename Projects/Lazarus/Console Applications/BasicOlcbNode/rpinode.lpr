@@ -268,6 +268,10 @@ begin
         TxBuffer[1] := MCP23S17_GPPUB;  // Pull ups
         TxBuffer[2] := $FF;
         PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
+        TxBuffer[0] := MCP23S17_WRITE;
+        TxBuffer[1] := MCP23S17_OLATA;  // Outputs Low
+        TxBuffer[2] := $00;
+        PiSpi.Transfer(@TxBuffer, @RxBuffer, 2 + 1);
         {$ENDIF}
         while Running do
         begin
@@ -310,7 +314,7 @@ begin
                   else
                     LccMessage.LoadPCER(NodeManager.RootNode.NodeID, NodeManager.RootNode.AliasID, @Action.FEventIDLo);
                   NodeManager.SendLccMessage(LccMessage);
-                  Action.IsDirty := FAlse;
+                  Action.IsDirty := False;
                 end;
               end else
               if Action.ActionType = lat_Output then
@@ -580,6 +584,7 @@ begin
       begin
         if KeyPressed then Result := ReadKey <> 'q';
         Sleep(100);
+
         Inc(WaitCount);
       end;
     end;
