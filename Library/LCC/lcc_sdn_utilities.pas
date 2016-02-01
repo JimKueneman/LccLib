@@ -16,8 +16,8 @@ uses
   lcc_defines, lcc_utilities;
 
 const
-  VALID_DICTIONARY: array[0..4] of string = ('occupied', 'straight', 'hi', 'on', 'valid');
-  INVALID_DICTIONARY: array[0..4] of string = ('unoccupied', 'diverging', 'lo', 'off', 'invalid');
+  VALID_DICTIONARY: array[0..5] of string = ('occupied', 'straight', 'hi', 'on', 'valid', 'true');
+  INVALID_DICTIONARY: array[0..5] of string = ('unoccupied', 'diverging', 'lo', 'off', 'invalid', 'false');
 
 type
 
@@ -34,6 +34,7 @@ type
     FEventIDHiLinked: TEventID;
     FEventIDLoLinked: TEventID;
     FEventStateLinked: TEventState;
+    FInverted: Boolean;
     FLogicTrueStateName: string;
     FLinkedName: string;
     FLogicTrueState: TEventState;
@@ -44,6 +45,7 @@ type
     property EventStateLinked: TEventState read FEventStateLinked write FEventStateLinked;
     property LogicTrueStateName: string read FLogicTrueStateName write FLogicTrueStateName;
     property LogicTrueState: TEventState read FLogicTrueState write FLogicTrueState;
+    property Inverted: Boolean read FInverted write FInverted;
 
     function EqualAction(AnAction: TLccBinaryAction): Boolean;
   end;
@@ -211,6 +213,24 @@ begin
   {$ENDIF}
 end;
 
+function BooleanToString(Bool: Boolean): string;
+begin
+  if Bool then Result := 'true' else Result := 'false'
+end;
+
+function StringToBoolean(BoolStr: string): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  i := 0;
+  while (i < Length(VALID_DICTIONARY)) and not Result do
+  begin
+    Result := LowerCase(BoolStr) = LowerCase(VALID_DICTIONARY[i]);
+    Inc(i);
+  end;
+end;
+
 { TLccLogicAction }
 
 function TLccLogicAction.EqualAction(AnAction: TLccBinaryAction): Boolean;
@@ -250,7 +270,15 @@ begin
   while EvaluatedResult and (i < Actions.Count) do
   begin
     LogicAction := Action[i];
-    EvaluatedResult := LogicAction.LogicTrueState = LogicAction.EventStateLinked;
+    if LogicAction.Inverted then
+    begin
+      if LogicAction.LogicTrueState = evs_Valid then
+        EvaluatedResult := evs_Invalid = LogicAction.EventStateLinked
+      else
+      if LogicAction.LogicTrueState = evs_Invalid then
+        EvaluatedResult := evs_Valid = LogicAction.EventStateLinked;
+    end else
+      EvaluatedResult := LogicAction.LogicTrueState = LogicAction.EventStateLinked;
     Inc(i);
   end;
 
@@ -610,6 +638,7 @@ var
 begin
   Result := False;
   i := 0;
+  Value := LowerCase(Value);
   while (i < Length(INVALID_DICTIONARY)) and not Result do
   begin
     Result := Value = INVALID_DICTIONARY[i];
@@ -718,6 +747,8 @@ begin
           XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
           XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
           XmlAttributeForce(XmlDoc, ChildNode, 'truestate', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicTrueStateName);
+          if ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted then
+            XmlAttributeForce(XmlDoc, ChildNode, 'inverted', BooleanToString( ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted));
           XmlCreateChildNode(XmlDoc, ChildNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LinkedName);
         end;
       end;
@@ -868,6 +899,9 @@ begin
                     Attrib := XmlAttributeRead(LogicActionNode, 'truestate');
                     LccLogicAction.LogicTrueStateName := Attrib;
                     LccLogicAction.LogicTrueState := AttribStringToEventState(Attrib);
+                    Attrib := XmlAttributeRead(LogicActionNode, 'inverted');
+                    if Attrib <> '' then
+                      LccLogicAction.Inverted := InValidDictionary(Attrib);
                     LogicActionNode := XmlNextSiblingNode(LogicActionNode);
                   end;
                 end;
@@ -890,6 +924,7 @@ var
 begin
   Result := False;
   i := 0;
+  Value := LowerCase(Value);
   while (i < Length(VALID_DICTIONARY)) and not Result do
   begin
     Result := Value = VALID_DICTIONARY[i];

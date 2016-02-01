@@ -201,6 +201,12 @@ begin
   else
     EthernetServer.Hub := False;
 
+  if HasOption('T', 'tcp') then
+  begin
+    EthernetServer.Gridconnect := False;
+    EthernetClient.Gridconnect := False;
+  end;
+
   WriteLn('Press "q" to quit');
 
   { add your program here }
@@ -610,6 +616,7 @@ begin
   writeln('-f   : filename of the node definition file that is created from the template file [-n nodedefinition.xml]');
   writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
   writeln('-H   : If the node is a server (-s) this switch enables the node to be a hub to relay messages to other connections');
+  writeln('-T   : Use pure LCC TCP protocol instead of CAN Gridconnect over TCP');
 end;
 
 var
