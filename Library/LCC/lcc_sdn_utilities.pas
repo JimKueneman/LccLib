@@ -59,7 +59,7 @@ type
     constructor Create(AnOwnerAction: TLccBinaryAction);
     destructor Destroy; override;
     function Calculate: Boolean;
-    property Actions: TObjectList read FActions write FActions{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
+    property Actions: TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF} read FActions write FActions;
     property Action[Index: Integer]: TLccLogicAction read GetAction;
     property Owner: TLccBinaryAction read FOwner;
   end;
@@ -98,13 +98,13 @@ type
 
   TLccActionGroup = class
   private
-    FActions: TObjectList{$IFNDEF FPC}<TLccAction>{$ENDIF};
+    FActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF};
     FLccClass: string;
     function GetAction(Index: Integer): TLccBinaryAction;
   public
     constructor Create;
     destructor Destroy; override;
-    property Actions: TObjectList read FActions write FActions{$IFNDEF FPC}<TLccAction>{$ENDIF};
+    property Actions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FActions write FActions;
     property LccClass: string read FLccClass write FLccClass;
     property Action[Index: Integer]: TLccBinaryAction read GetAction;
   end;
@@ -126,8 +126,8 @@ type
     property Name: string read FName write FName;
     property Description: string read FDescription write FDescription;
     property LccClass: string read FLccClass write FLccClass;
-    property InputActionGroups: TObjectList read FInputActionGroups write FInputActionGroups{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
-    property OutputActionGroups: TObjectList read FOutputActionGroups write FOutputActionGroups{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
+    property InputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF} read FInputActionGroups write FInputActionGroups;
+    property OutputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF} read FOutputActionGroups write FOutputActionGroups;
     property InputActionGroup[Index: Integer]: TLccActionGroup read GetInputActionGroup;
     property OutputActionGroup[Index: Integer]: TLccActionGroup read GetOutputActionGroup;
   end;
@@ -142,7 +142,7 @@ type
     FFilePathTemplate: string;
     FAvailableIoInput: Integer;
     FAvailableIoOutput: Integer;
-    FActions: TObjectList;
+    FActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF};
     FLccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF};
     FNodeID: TNodeID;
     FProducerIdMap: TPCMap;
@@ -224,7 +224,7 @@ constructor TLccLogic.Create(AnOwnerAction: TLccBinaryAction);
 begin
   inherited Create;
   FOwner := AnOwnerAction;
-  FActions := TObjectList.Create{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
+  FActions := TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF}.Create;
 end;
 
 destructor TLccLogic.Destroy;
@@ -302,7 +302,7 @@ end;
 constructor TLccActionGroup.Create;
 begin
   inherited;
-  FActions := TObjectList.Create{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
+  FActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
 end;
 
 destructor TLccActionGroup.Destroy;
@@ -330,8 +330,8 @@ end;
 constructor TLccObject.Create;
 begin
   inherited;
-  FInputActionGroups := TObjectList.Create{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
-  FOutputActionGroups := TObjectList.Create{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
+  FInputActionGroups := TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF}.Create;
+  FOutputActionGroups := TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF}.Create;
 end;
 
 destructor TLccObject.Destroy;
@@ -478,12 +478,10 @@ begin
   FreeAndNil(FLccObjects);
   FreeAndNil(FActions);
   {$ELSE}
-  LccObject.DisposeOf;
-  LccObject := nil;
-  FlatInputActions.DisposeOf;
-  FlatInputActions := nil;
-  FlatInputActions.DisposeOf;
-  FlatOutputActions := nil;
+  LccObjects.DisposeOf;
+  LccObjects := nil;
+  Actions.DisposeOf;
+  Actions := nil;
   {$ENDIF}
   inherited Destroy;
 end;
@@ -569,7 +567,7 @@ begin
   {$IFDEF FPC}
   Result := Actions[Index] as TLccBinaryAction;
   {$ELSE}
-  Result := FlatOutputActions[Index];
+  Result := Actions[Index];
   {$ENDIF}
 end;
 

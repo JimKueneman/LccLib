@@ -242,7 +242,9 @@ begin
   if Content <> '' then
     Result.TextContent := Content;
   {$ELSE}
-  Result := ...
+  Result := ParentNode.AddChild(Element);
+  if Content <> '' then
+    Result.Text := Content
   {$ENDIF}
 end;
 
@@ -253,7 +255,8 @@ begin
   XmlDoc.AppendChild(Result);
   Result.TextContent := Content;
   {$ELSE}
-  Result := ...
+  Result := XmlDoc.AddChild(Element);
+  Result.Text := Content;
   {$ENDIF}
 end;
 

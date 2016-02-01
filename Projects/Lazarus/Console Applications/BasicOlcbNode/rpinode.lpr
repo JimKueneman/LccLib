@@ -237,8 +237,10 @@ begin
   EthernetClient.GridConnect := True;
   EthernetServer.Gridconnect := True;
 
+  {$IFDEF CPUARM}
   IoPortA := 0;
   IoPortB := 0;
+  {$ENDIF}
 
   {$IFDEF CPUARM}if PiSpi.OpenSpi(SPI_DRIVER_PATH_CS0) then
   begin {$ENDIF}
