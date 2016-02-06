@@ -12,14 +12,13 @@ type
   TSwipeDirection = (Left, Right);
 
   TOnMouseClick = procedure(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single) of object;
-  TOnSwipeAction = procedure(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection) of object;
-  TOnSwipeMove = procedure(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection) of object;
+  TOnSwipeStart = procedure(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection) of object;
+  TOnSwipeAction = procedure(WorldX, WorldY: Single) of object;
 
 type
   TAniScroller = class
   private
     FAniCalcVert: TAniCalculations;
-    FAniTargets: TAniTargets;
     FPreviousScrollPos: TPointF;
     FScrolling: Boolean;
     FOwnerControl: TControl;
@@ -32,25 +31,24 @@ type
     FScrollDeltaMoveStart: single;
     FOnMouseClick: TOnMouseClick;
     FSwiping: Boolean;
-    FPreviousSwipePos: TPointF;
+    FSwipeCurrentPos: TPointF;
     FSwipeDeltaMoveStart: single;
     FSwipeMouseDownPoint: TPointF;
-    FSwipeDirection: TSwipeDirection;
-    FOnSwipeStart: TOnSwipeAction;
+    FOnSwipeStart: TOnSwipeStart;
     FOnSwipeEnd: TOnSwipeAction;
-    FOnSwipeMove: TOnSwipeMove;
+    FOnSwipeMove: TOnSwipeAction;
     function GetScrollOffsetMaxX: single;
     function GetScrollOffsetMaxY: single;
     function GetScrollOffsetX: single;
     function GetScrollOffsetY: single;
     procedure SetScrollOffsetX(const Value: single);
     procedure SetScrollOffsetY(const Value: single);
+    function GetSwipeOffset: single;
   protected
     property AniCalcVert: TAniCalculations read FAniCalcVert write FAniCalcVert;
-    property AniTargets: TAniTargets read FAniTargets write FAniTargets;
     property ClientRect: TRectF read FWorldRect write FWorldRect;
     property PreviousScrollPos: TPointF read FPreviousScrollPos write FPreviousScrollPos;
-    property PreviousSwipePos: TPointF read FPreviousSwipePos write FPreviousSwipePos;
+    property SwipeCurrentPos: TPointF read FSwipeCurrentPos write FSwipeCurrentPos;
     property ScrollMouseDownPoint: TPointF read FScrollMouseDownPoint write FScrollMouseDownPoint;
     property SwipeMouseDownPoint: TPointF read FSwipeMouseDownPoint write FSwipeMouseDownPoint;
     property ScrollDeltaMoveStart: single read FScrollDeltaMoveStart write FScrollDeltaMoveStart;
@@ -60,8 +58,8 @@ type
     procedure AniCalcChangeVert(Sender: TObject);
     procedure AniCalcStopVert(Sender: TObject);
     procedure DoMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single); virtual;
-    procedure DoSwipeEnd(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection); virtual;
-    procedure DoSwipeMove(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection); virtual;
+    procedure DoSwipeEnd(WorldX, WorldY: Single); virtual;
+    procedure DoSwipeMove(WorldX, WorldY: Single); virtual;
     procedure DoSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection); virtual;
 
   public
@@ -75,12 +73,12 @@ type
     property ScrollOffsetY: single read GetScrollOffsetY write SetScrollOffsetY;
     property ScrollOffsetMaxY: single read GetScrollOffsetMaxY;
     property Swiping: Boolean read FSwiping;
-    property SwipeDirection: TSwipeDirection read FSwipeDirection;
+    property SwipeOffset: single read GetSwipeOffset;
     property LineScroll: real read FLineScroll write FLineScroll;
     property OnMouseClick: TOnMouseClick read FOnMouseClick write FOnMouseClick;
     property OnSwipeEnd: TOnSwipeAction read FOnSwipeEnd write FOnSwipeEnd;
-    property OnSwipeMove: TOnSwipeMove read FOnSwipeMove write FOnSwipeMove;
-    property OnSwipeStart: TOnSwipeAction read FOnSwipeStart write FOnSwipeStart;
+    property OnSwipeMove: TOnSwipeAction read FOnSwipeMove write FOnSwipeMove;
+    property OnSwipeStart: TOnSwipeStart read FOnSwipeStart write FOnSwipeStart;
 
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
@@ -130,7 +128,6 @@ end;
 constructor TAniScroller.Create(AOwner: TComponent);
 begin
   FOwnerControl := AOwner as TControl;
-  SetLength(FAniTargets, 2);
   FAniCalcVert := TAniCalculations.Create(OwnerControl);
   AniCalcVert.Animation := True;
   AniCalcVert.Averaging := True;
@@ -148,7 +145,8 @@ end;
 
 destructor TAniScroller.Destroy;
 begin
-  FreeAndNil(FAniCalcVert);
+  AniCalcVert.DisposeOf;
+  FAniCalcVert := nil;
   inherited;
 end;
 
@@ -158,16 +156,16 @@ begin
     OnMouseClick(Button, Shift, WorldX, WorldY);
 end;
 
-procedure TAniScroller.DoSwipeEnd(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TAniScroller.DoSwipeEnd(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeEnd) then
-    OnSwipeEnd(WorldX, WorldY, SwipeDirection);
+    OnSwipeEnd(WorldX, WorldY);
 end;
 
-procedure TAniScroller.DoSwipeMove(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TAniScroller.DoSwipeMove(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeMove) then
-    OnSwipeMove(WorldX, WorldY, SwipeDirection);
+    OnSwipeMove(WorldX, WorldY);
 end;
 
 procedure TAniScroller.DoSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
@@ -194,6 +192,11 @@ end;
 function TAniScroller.GetScrollOffsetY: single;
 begin
   Result := Round(AniCalcVert.ViewportPositionF.Y);
+end;
+
+function TAniScroller.GetSwipeOffset: single;
+begin
+  Result := SwipeCurrentPos.X - SwipeMouseDownPoint.X
 end;
 
 procedure TAniScroller.GetViewportRect(var ARect: TRectF);
@@ -237,7 +240,7 @@ begin
           AniCalcVert.MouseDown(X, Y)
         else
         if Swiping then
-        begin end  // Should not be possible... maybe
+          SwipeCurrentPos := TPointF.Create(X, Y)
         else begin
           FIsMouseLeftButtonDown := True;
           FScrollMouseDownPoint := TPointF.Create(X, Y);        // get ready to detect a scroll
@@ -266,8 +269,11 @@ begin
     AniCalcVert.MouseMove(X, Y)
   else
   if Swiping then
-    DoSwipeMove(X + ScrollOffsetX, Y + ScrollOffsetY, SwipeDirection)
-  else begin
+  begin
+    SwipeCurrentPos := TPointF.Create(X, Y);
+    DoSwipeMove(X + ScrollOffsetX, Y + ScrollOffsetY);
+  end else
+  begin
     if IsMouseLeftButtonDown then
     begin
       // Only a y move will start a scroll, a x move will start a swipe
@@ -278,14 +284,12 @@ begin
       if (X < ScrollMouseDownPoint.X - SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
-        FSwipeDirection := Right;
-        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, SwipeDirection);
+        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Right);
       end else
       if (X > ScrollMouseDownPoint.X + SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
-        FSwipeDirection := Left;
-        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, SwipeDirection);
+        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Left);
       end;
     end;
   end;
@@ -298,8 +302,8 @@ begin
   else
   if Swiping then
   begin
+    DoSwipeEnd(X + ScrollOffsetX, Y + ScrollOffsetY);
     FSwiping := False;
-    DoSwipeEnd(X + ScrollOffsetX, Y + ScrollOffsetY, SwipeDirection)
   end else
     DoMouseClick(Button, Shift, X + ScrollOffsetX, Y + ScrollOffsetY);
 
@@ -311,13 +315,16 @@ begin
 end;
 
 procedure TAniScroller.SetWorldRect(ARect: TRectF);
+var
+  AniTargets: TAniTargets;
 begin
   FWorldRect := ARect;
-  FAniTargets[0].TargetType := TAniCalculations.TTargetType.Min;
-  FAniTargets[0].Point := TPointD.Create(0, 0);
-  FAniTargets[1].TargetType := TAniCalculations.TTargetType.Max;
-  FAniTargets[1].Point := TPointD.Create(ScrollOffsetMaxX, ScrollOffsetMaxY);
-  AniCalcVert.SetTargets(FAniTargets);
+  SetLength(AniTargets, 2);
+  AniTargets[0].TargetType := TAniCalculations.TTargetType.Min;
+  AniTargets[0].Point := TPointD.Create(0, 0);
+  AniTargets[1].TargetType := TAniCalculations.TTargetType.Max;
+  AniTargets[1].Point := TPointD.Create(ScrollOffsetMaxX, ScrollOffsetMaxY);
+  AniCalcVert.SetTargets(AniTargets);
 end;
 
 procedure TAniScroller.SetScrollOffsetX(const Value: single);

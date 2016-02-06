@@ -28,6 +28,7 @@ type
     ImageList1: TImageList;
     ColorAnimation1: TColorAnimation;
     FloatKeyAnimation1: TFloatKeyAnimation;
+    SpeedButton2: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure VirtualListviewFMX1GetItemText(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
     procedure VirtualListviewFMX1GetItemImage(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
@@ -38,6 +39,7 @@ type
     procedure VirtualListviewFMX1GetItemLayout(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutArray);
     procedure VirtualListviewFMX1GetItemTextDetail(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
     procedure FormDestroy(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     FItemGradient: TGradient;
     { Private declarations }
@@ -87,6 +89,11 @@ begin
   VirtualListviewFMX1.InvalidateRect(VirtualListviewFMX1.LocalRect);
 end;
 
+procedure THeaderFooterForm.SpeedButton2Click(Sender: TObject);
+begin
+  VirtualListviewFMX1.Repaint;
+end;
+
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemImage(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
 begin
   case ID  of
@@ -102,7 +109,7 @@ begin
     ID_MAIN_IMAGE : begin
           ImageLayout.Images := ImageList1;
           ImageLayout.ImageIndex := 0;
-          ImageLayout.Opacity := 1.0
+          ImageLayout.Opacity := 0.25
         end;
     ID_ACCESSORY_IMAGE : begin
           ImageLayout.Images := ImageList1;
@@ -133,9 +140,6 @@ end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
 begin
-
-Exit;
-
   SetLength(Layout, 2);
   Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80);
   Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80);
@@ -164,14 +168,17 @@ end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1ItemDrawBackground(Sender: TCustomVirtualListview; Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; var Handled: Boolean);
 begin
-  Handled := True;
-  WindowRect.Inflate(-2, -2);
-  ItemCanvas.Stroke.Thickness := 1.0;
-  ItemCanvas.Stroke.Color := claBlue;
-  ItemCanvas.Fill.Kind := TBrushKind.Gradient;
-  ItemCanvas.Fill.Gradient := ItemGradient;
-  ItemCanvas.FillRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 0.5, TCornerType.Round);
-  ItemCanvas.DrawRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
+  if SpeedButton2.IsPressed then
+  begin
+    Handled := True;
+    WindowRect.Inflate(-2, -2);
+    ItemCanvas.Stroke.Thickness := 1.0;
+    ItemCanvas.Stroke.Color := claBlue;
+    ItemCanvas.Fill.Kind := TBrushKind.Gradient;
+    ItemCanvas.Fill.Gradient := ItemGradient;
+    ItemCanvas.FillRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 0.5, TCornerType.Round);
+    ItemCanvas.DrawRect(WindowRect, 10.0, 10.0, [TCorner.TopLeft,TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 1.0, TCornerType.Round);
+  end;
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1ItemLayoutElementClick(Sender: TCustomVirtualListview; Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer);

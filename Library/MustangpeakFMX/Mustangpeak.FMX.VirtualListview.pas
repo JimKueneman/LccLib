@@ -156,7 +156,7 @@ type
     property Width: Single read FWidth write FWidth;
   end;
 
-  TVirtualListItem = class(TPersistent)
+  TVirtualListItem = class(TFMXObject)
   private
     FListviewItems: TVirtualListItems;
     FBoundsRect: TRectF;
@@ -166,6 +166,9 @@ type
     FSelected: Boolean;
     FChecked: Boolean;
     FSwipeState: TSwipeState;
+    FSwipeTargetOffset: real;
+    FSwipeAni: TFloatAnimation;
+    FSwipeCurrentOffset: real;
 
     procedure SetBoundsRect(const Value: TRectF);
     procedure SetVisible(const Value: Boolean);
@@ -175,10 +178,13 @@ type
   protected
     property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
+    property SwipeTargetOffset: real read FSwipeTargetOffset write FSwipeTargetOffset;
+    property SwipeAni: TFloatAnimation read FSwipeAni write FSwipeAni;
 
     procedure CalculateVariableWidthElement(var LayoutArray: TVirtualItemLayoutArray);
     procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutArray: TVirtualItemLayoutArray);
-
+    procedure SwipeAniProcess(Sender: TObject);
+    procedure SwipeAniFinish(Sender: TObject);
   public
     property Checked: Boolean read FChecked write SetChecked;
     property Focused: Boolean read FFocused write SetFocused;
@@ -189,11 +195,15 @@ type
 
     constructor Create(AnItemList: TVirtualListItems);
     destructor Destroy; override;
+
+    procedure Invalidate;
     function PointToLayoutID(Point: TPointF; LayoutArray: TVirtualItemLayoutArray): Integer;
     function PointToSwipeLayoutID(Point: TPointF; LayoutArray: TVirtualItemLayoutSwipeArray): Integer;
+  published
+    property SwipeCurrentOffset: real read FSwipeCurrentOffset write FSwipeCurrentOffset;
   end;
 
-  TVirtualListItems = class(TPersistent)
+  TVirtualListItems = class(TFMXObject)
   private
     FItems: TObjectList<TVirtualListItem>;
     FListview: TCustomVirtualListview;
@@ -275,8 +285,8 @@ type
     procedure DoMouseLeave; override;
     procedure EventMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
     procedure EventSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
-    procedure EventSwipeEnd(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
-    procedure EventSwipeMove(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+    procedure EventSwipeEnd(WorldX, WorldY: Single);
+    procedure EventSwipeMove(WorldX, WorldY: Single);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
@@ -717,14 +727,33 @@ begin
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY: Single);
 begin
-
+  beep;
+  if Assigned(Items.ActiveSwipe) then
+  begin
+    if Items.ActiveSwipe.SwipeCurrentOffset <> Items.ActiveSwipe.SwipeTargetOffset then
+    begin
+      Items.ActiveSwipe.SwipeAni.PropertyName := 'SwipeCurrentOffset';
+      Items.ActiveSwipe.SwipeAni.Parent := Items.ActiveSwipe;
+      Items.ActiveSwipe.SwipeAni.StopValue := Items.ActiveSwipe.SwipeTargetOffset;
+      Items.ActiveSwipe.SwipeAni.StartValue := Items.ActiveSwipe.SwipeCurrentOffset;
+      Items.ActiveSwipe.SwipeAni.Duration := 0.300;
+      Items.ActiveSwipe.SwipeAni.Interpolation := TInterpolationType.Quadratic;
+      Items.ActiveSwipe.SwipeAni.Enabled := True;
+    end;
+  end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY: Single);
+var
+  Item: TVirtualListItem;
 begin
-
+  Items.ActiveSwipe.SwipeCurrentOffset := Scroller.SwipeOffset;
+  Item := Items.FindItemByPt(TPointF.Create(WorldX, WorldY));
+  Repaint;
+  //if Assigned(Item) then
+  //  RepaintRect(Item.BoundsRect);
 end;
 
 procedure TCustomVirtualListview.EventSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
@@ -732,19 +761,32 @@ var
   Item: TVirtualListItem;
   Layout: TVirtualItemLayoutSwipeArray;
   Point: TPointF;
+  ElementLayout: TVirtualItemLayoutSwipeArray;
+  i: Integer;
+  Width: real;
 begin
   Items.ActiveSwipe := nil;
   Point := TPointF.Create(WorldX, WorldY);
   Item := Items.FindItemByPt(Point);
   if Assigned(Item) then
   begin
+    Width := 0;
+    SetLength(ElementLayout, 0);
+    DoGetItemLayoutSwipe(Item, ElementLayout);
+    for i := 0 to Length(ElementLayout) - 1 do
+      Width := Width + ElementLayout[i].Width;
+    Item.SwipeCurrentOffset := 0;
     LoadItemLayoutSwipe(Item, Layout);
     Items.ActiveSwipe := Item;
     if SwipeDirection = TSwipeDirection.Left then
+    begin
+      Item.SwipeTargetOffset := Width;
       Item.FSwipeState := TSwipeState.Left
-    else
+    end else
+    begin
+      Item.SwipeTargetOffset := -Width;
       Item.FSwipeState := TSwipeState.Right;
-    Invalidate
+    end;
   end;
 end;
 
@@ -1032,14 +1074,26 @@ end;
 
 constructor TVirtualListItem.Create(AnItemList: TVirtualListItems);
 begin
-  inherited Create;
+  inherited Create(AnItemList);
   FListviewItems := AnItemList;
+  FSwipeAni := TFloatAnimation.Create(Self);
+  SwipeAni.Parent := Self;
+  SwipeAni.SetRoot(ListviewItems.Listview.Parent as IRoot);
+  SwipeAni.Enabled := False;
+  SwipeAni.OnProcess := SwipeAniProcess;
+  SwipeAni.OnFinish := SwipeAniFinish;
 end;
 
 destructor TVirtualListItem.Destroy;
 begin
   ListviewItems.Listview.DoItemDelete(Self);
   inherited;
+end;
+
+procedure TVirtualListItem.Invalidate;
+begin
+  ListviewItems.Listview.InvalidateRect(BoundsRect);
+  ListviewItems.Listview.RepaintRect(BoundsRect);
 end;
 
 procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutArray: TVirtualItemLayoutArray);
@@ -1148,18 +1202,11 @@ begin
     WindowRect := BoundsRect;
     WindowRect.Offset(-ViewportRect.Left, -ViewportRect.Top);
 
+    if SwipeAni.Enabled then
+      WindowRect.Offset(SwipeCurrentOffset, 0)
+    else
     if SwipeState <> TSwipeState.None then
-    begin
-      RightMarker := 0;
-      ListviewItems.Listview.LoadItemLayoutSwipe(Self, LayoutSwipeArray);
-      for i := 0 to Length(LayoutSwipeArray) - 1 do
-        RightMarker := RightMarker + LayoutSwipeArray[i].Width;
-      if SwipeState = TSwipeState.Left then
-        WindowRect.Offset(RightMarker, 0)
-      else
-        WindowRect.Offset(-RightMarker, 0);
-    end;
-
+      WindowRect.Offset(SwipeCurrentOffset, 0);
 
     // Give the user the ability to handle the entire drawing
     Handled := False;
@@ -1276,6 +1323,16 @@ begin
     FVisible := Value;
     ListviewItems.Listview.RecalculateCellViewportRects(True, True);
   end;
+end;
+
+procedure TVirtualListItem.SwipeAniFinish(Sender: TObject);
+begin
+  SwipeAni.Enabled := False;
+end;
+
+procedure TVirtualListItem.SwipeAniProcess(Sender: TObject);
+begin
+  Invalidate
 end;
 
 { TVirtualTextLayout }
