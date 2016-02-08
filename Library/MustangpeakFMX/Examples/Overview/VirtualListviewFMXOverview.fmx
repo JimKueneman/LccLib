@@ -56,12 +56,21 @@ object HeaderFooterForm: THeaderFooterForm
     end
   end
   object VirtualListviewFMX1: TVirtualListviewFMX
+    TextLayoutSwipe.Padding.Left = 4.000000000000000000
+    TextLayoutSwipe.Padding.Top = 4.000000000000000000
+    TextLayoutSwipe.Padding.Right = 4.000000000000000000
+    TextLayoutSwipe.Padding.Bottom = 4.000000000000000000
+    TextLayoutSwipe.HorizontalAlign = Center
+    TextLayoutSwipe.VerticalAlign = Center
+    TextLayoutSwipe.Font.Style = [fsBold]
     TextLayoutSwipe.Opacity = 1.000000000000000000
     TextLayoutDetail.Lines = 2
     TextLayoutDetail.TextLayout.Text = 'Listitem Detail'
     TextLayoutDetail.TextLayout.Padding.Left = 8.000000000000000000
     TextLayoutDetail.TextLayout.Opacity = 0.500000000000000000
     TextLayoutDetail.TextLayout.Trimming = Character
+    TextLayoutDetailSwipe.Lines = 0
+    TextLayoutDetailSwipe.TextLayout.Opacity = 1.000000000000000000
     TextLayoutTitle.Text = 'Listitem Title'
     TextLayoutTitle.Padding.Top = 4.000000000000000000
     TextLayoutTitle.Font.Style = [fsBold]
@@ -73,6 +82,7 @@ object HeaderFooterForm: THeaderFooterForm
     DefaultLayoutImage.Padding.Right = 4.000000000000000000
     DefaultLayoutImage.Padding.Bottom = 8.000000000000000000
     DefaultLayoutImage.Width = 48.000000000000000000
+    DefaultLayoutSwipe.Color = claNull
     DefaultLayoutSwipe.Width = 100.000000000000000000
     Align = Client
     CellColor = claSnow
@@ -88,8 +98,11 @@ object HeaderFooterForm: THeaderFooterForm
     OnGetItemLayoutSwipe = VirtualListviewFMX1GetItemLayoutSwipe
     OnGetItemText = VirtualListviewFMX1GetItemText
     OnGetItemTextDetail = VirtualListviewFMX1GetItemTextDetail
+    OnGetItemTextDetailSwipe = VirtualListviewFMX1GetItemTextDetailSwipe
+    OnGetItemTextSwipe = VirtualListviewFMX1GetItemTextSwipe
     OnItemDrawBackground = VirtualListviewFMX1ItemDrawBackground
     OnItemLayoutElementClick = VirtualListviewFMX1ItemLayoutElementClick
+    OnItemLayoutElementSwipeClick = VirtualListviewFMX1ItemLayoutElementSwipeClick
     object ColorAnimation1: TColorAnimation
       Duration = 0.200000002980232200
       StartValue = claWhite

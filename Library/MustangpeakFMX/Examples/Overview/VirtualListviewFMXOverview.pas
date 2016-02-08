@@ -40,6 +40,15 @@ type
     procedure VirtualListviewFMX1GetItemTextDetail(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
     procedure FormDestroy(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure VirtualListviewFMX1GetItemTextSwipe(
+      Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
+      TextLayout: TTextLayout);
+    procedure VirtualListviewFMX1GetItemTextDetailSwipe(
+      Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
+      TextLayout: TTextLayout);
+    procedure VirtualListviewFMX1ItemLayoutElementSwipeClick(
+      Sender: TCustomVirtualListview; Item: TVirtualListItem;
+      Button: TMouseButton; Shift: TShiftState; ID: Integer);
   private
     FItemGradient: TGradient;
     { Private declarations }
@@ -141,8 +150,8 @@ end;
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
 begin
   SetLength(Layout, 2);
-  Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80);
-  Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80);
+  Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80, claRed, 1.0);
+  Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80, claGreen, 1.0);
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemText(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
@@ -163,6 +172,30 @@ begin
     1 : begin
           TextLayout.Text := 'Detail 2';
         end;
+  end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemTextDetailSwipe(
+  Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
+  TextLayout: TTextLayout);
+begin
+  case ID of
+    0 : begin
+          TextLayout.Text := 'Swipe Detail 1';
+        end;
+    1 : begin
+          TextLayout.Text := 'Swipe Detail 2';
+        end;
+  end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1GetItemTextSwipe(
+  Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
+  TextLayout: TTextLayout);
+begin
+  case ID of
+    ID_SWIPE_DELETE : TextLayout.Text := 'Delete';
+    ID_SWIPE_ARCHIVE : TextLayout.Text := 'Archive';
   end;
 end;
 
@@ -188,6 +221,16 @@ begin
     ID_MAIN_IMAGE      : ShowMessage('Main Image clicked');
     ID_MAIN_TEXT       : ShowMessage('Text area clicked');
     ID_ACCESSORY_IMAGE : ShowMessage('Accessory Image clicked');
+  end;
+end;
+
+procedure THeaderFooterForm.VirtualListviewFMX1ItemLayoutElementSwipeClick(
+  Sender: TCustomVirtualListview; Item: TVirtualListItem; Button: TMouseButton;
+  Shift: TShiftState; ID: Integer);
+begin
+  case ID of
+    ID_SWIPE_DELETE     : ShowMessage('Swipe Delete Clicked');
+    ID_SWIPE_ARCHIVE    : ShowMessage('Swipe Archive Clicked');
   end;
 end;
 

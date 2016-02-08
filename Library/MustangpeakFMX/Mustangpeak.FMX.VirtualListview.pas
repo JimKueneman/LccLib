@@ -34,7 +34,9 @@ type
     ID: Integer;  // User defined ID to identify which Kind is being requested in other callbacks
     Kind: TVirtualLayoutKind;
     Width: real;
-    constructor Create(AnID: Integer; AKind: TVirtualLayoutKind; AWidth: real);
+    Color: TAlphaColor;
+    Opacity: real;
+    constructor Create(AnID: Integer; AKind: TVirtualLayoutKind; AWidth: real; AColor: TAlphaColor; AnOpacity: real);
   end;
   TVirtualItemLayoutSwipeArray = array of TVirtualLayoutSwipe;
 
@@ -147,11 +149,15 @@ type
     FWidth: Single;
     FListview: TCustomVirtualListview;
     FCount: Integer;
+    FOpacity: real;
+    FColor: TAlphaColor;
   public
     constructor Create(AListview: TCustomVirtualListview);
 
     property Listview: TCustomVirtualListview read FListview;
   published
+    property Color: TAlphaColor read FColor write FColor;
+    property Opacity: real read FOpacity write FOpacity;
     property Count: Integer read FCount write FCount default 1;
     property Width: Single read FWidth write FWidth;
   end;
@@ -193,7 +199,7 @@ type
     property iIndex: Integer read FIndex;
     property Visible: Boolean read FVisible write SetVisible;
 
-    constructor Create(AnItemList: TVirtualListItems);
+    constructor Create(AnOwner: TComponent; AnItemList: TVirtualListItems); reintroduce; virtual;
     destructor Destroy; override;
 
     procedure Invalidate;
@@ -230,7 +236,7 @@ type
     property Count: Integer read GetCount;
     property Item[Index: Integer]: TVirtualListItem read GetItem write SetItem; default;
 
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     procedure BeginUpdate;
@@ -264,6 +270,8 @@ type
     FTextLayoutSwipe: TVirtualTextLayout;
     FOnGetItemTextSwipe: TOnGetItemTextSwipe;
     FDefaultLayoutSwipe: TVirtualDefaultLayoutSwipe;
+    FTextLayoutDetailSwipe: TVirtualDetails;
+    FOnGetItemTextDetailSwipe: TOnGetItemTextDetail;
 
     procedure SetCellHeight(const Value: Integer);
     procedure SetCellColor(const Value: TAlphaColor);
@@ -276,6 +284,7 @@ type
     procedure DoGetItemSize(Item: TVirtualListItem; var Width, Height: real); virtual;
     procedure DoGetItemText(Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer); virtual;
     procedure DoGetItemTextDetail(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout); virtual;
+    procedure DoGetItemTextDetailSwipe(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout); virtual;
     procedure DoGetItemTextSwipe(Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout); virtual;
     procedure DoItemCustomDraw(Item: TVirtualListItem; WindowRect: TRectF; ItemCanvas: TCanvas; TextLayout: TTextLayout; var Handled: Boolean); virtual;
     procedure DoItemDelete(Item: TVirtualListItem); virtual;
@@ -321,10 +330,12 @@ type
     property OnGetItemTextSwipe: TOnGetItemTextSwipe read FOnGetItemTextSwipe write FOnGetItemTextSwipe;
     property OnGetItemText: TOnGetItemText read FOnGetItemText write FOnGetItemText;
     property OnGetItemTextDetail: TOnGetItemTextDetail read FOnGetItemTextDetail write FOnGetItemTextDetail;
+    property OnGetItemTextDetailSwipe: TOnGetItemTextDetail read FOnGetItemTextDetailSwipe write FOnGetItemTextDetailSwipe;
     property Scroller: TAniScroller read FScroller write FScroller;
     property TextLayoutSwipe: TVirtualTextLayout read FTextLayoutSwipe write FTextLayoutSwipe;
     property TextLayoutTitle: TVirtualTextLayout read FTextLayoutTitle write FTextLayoutTitle;
     property TextLayoutDetail: TVirtualDetails read FTextLayoutDetail write FTextLayoutDetail;
+    property TextLayoutDetailSwipe: TVirtualDetails read FTextLayoutDetailSwipe write FTextLayoutDetailSwipe;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -337,6 +348,7 @@ type
   published
     property TextLayoutSwipe;
     property TextLayoutDetail;
+    property TextLayoutDetailSwipe;
     property TextLayoutTitle;
     property DefaultLayoutImage;
     property DefaultLayoutSwipe;
@@ -448,6 +460,7 @@ type
     property OnGetItemLayoutSwipe;
     property OnGetItemText;
     property OnGetItemTextDetail;
+    property OnGetItemTextDetailSwipe;
     property OnGetItemTextSwipe;
     property OnItemCustomDraw;
     property OnItemDelete;
@@ -556,16 +569,18 @@ begin
   FTextLayoutSwipe := TVirtualTextLayout.Create(Self);
   FDefaultLayoutImage := TVirtualDefaultLayoutImage.Create(Self);
   FDefaultLayoutSwipe := TVirtualDefaultLayoutSwipe.Create(Self);
+  FTextLayoutDetailSwipe := TVirtualDetails.Create(Self);
   CanFocus := True;
 end;
 
 destructor TCustomVirtualListview.Destroy;
 begin
-  FreeAndNil(FTextLayoutDetail);
-  FreeAndNil(FTextLayoutTitle);
-  FreeAndNil(FTextLayoutSwipe);
-  FreeAndNil(FDefaultLayoutImage);
-  FreeAndNil(FDefaultLayoutSwipe);
+  FTextLayoutDetail.DisposeOf;
+  FTextLayoutTitle.DisposeOf;
+  FTextLayoutSwipe.DisposeOf;
+  FDefaultLayoutImage.DisposeOf;
+  FDefaultLayoutSwipe.DisposeOf;
+  FTextLayoutDetailSwipe.DisposeOf;
   inherited;
 end;
 
@@ -605,6 +620,12 @@ procedure TCustomVirtualListview.DoGetItemTextDetail(Item: TVirtualListItem; Det
 begin
   if Assigned(OnGetItemTextDetail) then
     OnGetItemTextDetail(Self, Item, DetailLineIndex, TextLayout);
+end;
+
+procedure TCustomVirtualListview.DoGetItemTextDetailSwipe(Item: TVirtualListItem; DetailLineIndex: Integer; TextLayout: TTextLayout);
+begin
+  if Assigned(OnGetItemTextDetailSwipe) then
+    OnGetItemTextDetailSwipe(Self, Item, DetailLineIndex, TextLayout);
 end;
 
 procedure TCustomVirtualListview.DoGetItemImage(Item: TVirtualListItem; ID: Integer; ImageLayout: TVirtualImageLayout);
@@ -694,7 +715,7 @@ begin
   begin
     SetLength(Layout, DefaultLayoutSwipe.Count);
     for i := 0 to DefaultLayoutSwipe.Count - 1 do
-      Layout[i] := TVirtualLayoutSwipe.Create(i, TVirtualLayoutKind.Text, DefaultLayoutSwipe.Width);
+      Layout[i] := TVirtualLayoutSwipe.Create(i, TVirtualLayoutKind.Text, DefaultLayoutSwipe.Width, DefaultLayoutSwipe.Color, DefaultLayoutSwipe.Opacity);
   end
 end;
 
@@ -729,7 +750,6 @@ end;
 
 procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY: Single);
 begin
-  beep;
   if Assigned(Items.ActiveSwipe) then
   begin
     if Items.ActiveSwipe.SwipeCurrentOffset <> Items.ActiveSwipe.SwipeTargetOffset then
@@ -942,7 +962,7 @@ end;
 
 function TVirtualListItems.Add: TVirtualListItem;
 begin
-  Result := TVirtualListItem.Create(Self);
+  Result := TVirtualListItem.Create(Self, Self);
   Result.FVisible := True;
   Result.FFocused := False;
   Result.FChecked := False;
@@ -1072,9 +1092,9 @@ begin
   LayoutArray[iVariableLayout].Width := BoundsRect.Width - FixedWidthTotal;
 end;
 
-constructor TVirtualListItem.Create(AnItemList: TVirtualListItems);
+constructor TVirtualListItem.Create(AnOwner: TComponent; AnItemList: TVirtualListItems);
 begin
-  inherited Create(AnItemList);
+  inherited Create(AnOwner);
   FListviewItems := AnItemList;
   FSwipeAni := TFloatAnimation.Create(Self);
   SwipeAni.Parent := Self;
@@ -1144,7 +1164,7 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
     end;
   end;
 
-  procedure PaintText(LocalCanvas: TCanvas; ID: Integer; TextLayoutRect: TRectF);
+  procedure PaintText(LocalCanvas: TCanvas; ID: Integer; TextLayoutRect: TRectF; SwipeText: Boolean);
   var
     DetailLines: Integer;
     LocalTextLayout: TTextLayout;
@@ -1152,11 +1172,20 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
     LocalTextLayout := ListviewItems.TextLayout;
 
     // Paint the title
-    DetailLines := ListviewItems.Listview.TextLayoutDetail.Lines;
     LocalTextLayout.BeginUpdate;
-    ListviewItems.Listview.TextLayoutTitle.AssignToTextLayout(LocalTextLayout);
-    LocalTextLayout.Text := ListviewItems.Listview.TextLayoutTitle.Text;
-    ListviewItems.Listview.DoGetItemText(Self, ID, LocalTextLayout, DetailLines);
+    if SwipeText then
+    begin
+      DetailLines := ListviewItems.Listview.TextLayoutDetailSwipe.Lines;
+      ListviewItems.Listview.TextLayoutSwipe.AssignToTextLayout(LocalTextLayout);
+      LocalTextLayout.Text := ListviewItems.Listview.TextLayoutSwipe.Text;
+      ListviewItems.Listview.DoGetItemTextSwipe(Self, ID, LocalTextLayout);
+    end else
+    begin
+      DetailLines := ListviewItems.Listview.TextLayoutDetail.Lines;
+      ListviewItems.Listview.TextLayoutTitle.AssignToTextLayout(LocalTextLayout);
+      LocalTextLayout.Text := ListviewItems.Listview.TextLayoutTitle.Text;
+      ListviewItems.Listview.DoGetItemText(Self, ID, LocalTextLayout, DetailLines);
+    end;
     // If wanting details doing anything but top aligning makes no sense
     if DetailLines > 0 then
       LocalTextLayout.VerticalAlign := TTextAlign.Leading;
@@ -1174,9 +1203,18 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
       if TextLayoutRect.Height > 0 then
       begin
         LocalTextLayout.BeginUpdate;
-        ListviewItems.Listview.TextLayoutDetail.TextLayout.AssignToTextLayout(LocalTextLayout);
-        LocalTextLayout.Text := ListviewItems.Listview.TextLayoutDetail.TextLayout.Text;
-        ListviewItems.Listview.DoGetItemTextDetail(Self, ID, LocalTextLayout);
+        if SwipeText then
+        begin
+          ListviewItems.Listview.TextLayoutDetailSwipe.TextLayout.AssignToTextLayout(LocalTextLayout);
+          LocalTextLayout.Text := ListviewItems.Listview.TextLayoutDetailSwipe.TextLayout.Text;
+          ListviewItems.Listview.DoGetItemTextDetailSwipe(Self, ID, LocalTextLayout);
+        end else
+        begin
+          ListviewItems.Listview.TextLayoutDetail.TextLayout.AssignToTextLayout(LocalTextLayout);
+          LocalTextLayout.Text := ListviewItems.Listview.TextLayoutDetail.TextLayout.Text;
+          ListviewItems.Listview.DoGetItemTextDetail(Self, ID, LocalTextLayout);
+        end;
+
         LocalTextLayout.VerticalAlign := TTextAlign.Leading;
         LocalTextLayout.TopLeft := TextLayoutRect.TopLeft;
         LocalTextLayout.MaxSize := TextLayoutRect.Size;
@@ -1191,7 +1229,7 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
 
 var
   WindowRect, ElementRect: TRectF;
-  RightMarker: real;
+  RightMarker, SwipeScaling: real;
   Handled: Boolean;
   i: Integer;
   LayoutSwipeArray: TVirtualItemLayoutSwipeArray;
@@ -1202,11 +1240,35 @@ begin
     WindowRect := BoundsRect;
     WindowRect.Offset(-ViewportRect.Left, -ViewportRect.Top);
 
-    if SwipeAni.Enabled then
-      WindowRect.Offset(SwipeCurrentOffset, 0)
-    else
-    if SwipeState <> TSwipeState.None then
+    // Offset the item if it is swiping
+    if (SwipeState <> TSwipeState.None) or SwipeAni.Enabled then
+    begin
+      SwipeScaling := SwipeCurrentOffset/SwipeTargetOffset;
+      LayoutSwipeArray := nil;
+      ListviewItems.Listview.DoGetItemLayoutSwipe(Self, LayoutSwipeArray);
+      RightMarker := 0;
+      // Now have the widths for all elements
+      for i := 0 to Length(LayoutSwipeArray) - 1 do
+      begin
+        // Calculate the Elements rectangle
+        ElementRect := WindowRect;
+        ElementRect.Left := ElementRect.Left + RightMarker;
+        ElementRect.Right := ElementRect.Left + (LayoutSwipeArray[i].Width * SwipeScaling);
+
+        ACanvas.Fill.Color := LayoutSwipeArray[i].Color;
+        ACanvas.FillRect(ElementRect, 0.0, 0.0, [TCorner.TopLeft, TCorner.BottomRight], LayoutSwipeArray[i].Opacity);
+        case LayoutSwipeArray[i].Kind of
+          TVirtualLayoutKind.Text: PaintText(ACanvas, LayoutSwipeArray[i].ID, ElementRect, True);
+          TVirtualLayoutKind.Image: PaintImage(ACanvas, LayoutSwipeArray[i].ID, ElementRect);
+          TVirtualLayoutKind.Empty: begin end; // Don't do anything
+          TVirtualLayoutKind.Control: begin end;
+        end;
+
+        // Slide over the marker for the next element
+        RightMarker := RightMarker + ElementRect.Width;
+      end;
       WindowRect.Offset(SwipeCurrentOffset, 0);
+    end;
 
     // Give the user the ability to handle the entire drawing
     Handled := False;
@@ -1234,7 +1296,7 @@ begin
         ElementRect.Right := ElementRect.Left + LayoutArray[i].Width;
 
         case LayoutArray[i].Kind of
-          TVirtualLayoutKind.Text: PaintText(ACanvas, LayoutArray[i].ID, ElementRect);
+          TVirtualLayoutKind.Text: PaintText(ACanvas, LayoutArray[i].ID, ElementRect, False);
           TVirtualLayoutKind.Image: PaintImage(ACanvas, LayoutArray[i].ID, ElementRect);
           TVirtualLayoutKind.Empty: begin end; // Don't do anything
           TVirtualLayoutKind.Control: begin end;
@@ -1511,11 +1573,13 @@ end;
 
 { TVirtualSwipeElementLayout }
 
-constructor TVirtualLayoutSwipe.Create(AnID: Integer; AKind: TVirtualLayoutKind; AWidth: real);
+constructor TVirtualLayoutSwipe.Create(AnID: Integer; AKind: TVirtualLayoutKind; AWidth: real; AColor: TAlphaColor; AnOpacity: real);
 begin
   ID := AnID;
   Kind := AKind;
   Width := AWidth;
+  Color := AColor;
+  Opacity := AnOpacity;
 end;
 
 { TVirtualDefaultLayoutSwipe }

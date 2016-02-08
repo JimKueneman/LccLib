@@ -72,9 +72,11 @@ type
   private
     FActionType: TLogicalActionType;
     FConsumer: Boolean;
+    FDescription: string;
     FEventState: TEventState;
     FIoPin: Integer;
     FIsDirty: Boolean;
+    FLccClass: string;
     FLogic: TLccLogic;
     FName: string;
     FProducer: Boolean;
@@ -86,6 +88,8 @@ type
 
     property ActionType: TLogicalActionType read FActionType;
     property Name: string read FName write FName;
+    property Description: string read FDescription write FDescription;
+    property LccClass: string read FLccClass write FLccClass;
     property EventIDLo: TEventID read FEventIDLo write FEventIDLo;
     property EventIDHi: TEventID read FEventIDHi write FEventIDHi;
     property EventState: TEventState read FEventState write FEventState;
@@ -134,6 +138,25 @@ type
     property OutputActionGroup[Index: Integer]: TLccActionGroup read GetOutputActionGroup;
   end;
 
+  { TLccSegment }
+
+  TLccSegment = class
+  private
+    FDescription: string;
+    FLccClass: string;
+    FLccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF};
+    FName: string;
+    function GetLccObject(Index: Integer): TLccObject;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Name: string read FName write FName;
+    property Description: string read FDescription write FDescription;
+    property LccClass: string read FLccClass write FLccClass;
+    property LccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF} read FLccObjects write FLccObjects;
+    property LccObject[Index: Integer]: TLccObject read GetLccObject;
+  end;
+
   { TLccSdnController }
 
   TLccSdnController = class(TComponent)
@@ -145,14 +168,14 @@ type
     FAvailableIoInput: Integer;
     FAvailableIoOutput: Integer;
     FActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF};
-    FLccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF};
+    FLccSegments: TObjectList{$IFNDEF FPC}<TLccSegment>{$ENDIF};
     FNodeID: TNodeID;
     FProducerIdMap: TPCMap;
     FVersion: string;
     FXmlDocument: LccXmlDocument;
     function GetActionItem(Index: Integer): TLccBinaryAction;
     function GetInputActionCount: Integer;
-    function GetObjectItem(Index: Integer): TLccObject;
+    function GetLccSegment(Index: Integer): TLccSegment;
     function GetOuptputActionCount: Integer;
   protected
     procedure AppendToPCMap(var PCMap: TPCMap; Event: TEventID);
@@ -177,11 +200,11 @@ type
     property FilePath: string read FFilePath write FFilePath;
     property Actions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FActions write FActions;
     property ActionItem[Index: Integer]: TLccBinaryAction read GetActionItem;
-    property LccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF} read FLccObjects write FLccObjects;
+    property LccSegments: TObjectList{$IFNDEF FPC}<TLccSegment>{$ENDIF} read FLccSegments write FLccSegments;
+    property LccSegment[Index: Integer]: TLccSegment read GetLccSegment;
     property InputActionCount: Integer read GetInputActionCount;
     property OutputActionCount: Integer read GetOuptputActionCount;
     property NodeID: TNodeID read FNodeID write FNodeID;
-    property ObjectItem[Index: Integer]: TLccObject read GetObjectItem;
     property ProducerIdMap: TPCMap read FProducerIdMap;
     property Version: string read FVersion;
     property XmlDocument: LccXmlDocument read FXmlDocument;
@@ -192,6 +215,7 @@ type
     procedure AutoAssignEventIDs;
     procedure AutoAssignLogicEvents;
     procedure Clear;
+    function FindSegment(AName: string): TLccSegment;
     function PinUpdate(IoPin: Integer; IoPinState: Boolean): TLccBinaryAction;
     function SupportsProduced(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
     function SupportsConsumed(var Event: TEventID; var Action: TLccBinaryAction): TSupportsEventType;
@@ -229,6 +253,29 @@ begin
     Result := LowerCase(BoolStr) = LowerCase(VALID_DICTIONARY[i]);
     Inc(i);
   end;
+end;
+
+{ TLccSegment }
+
+constructor TLccSegment.Create;
+begin
+  inherited;
+  FLccObjects := TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF}.Create;
+end;
+
+destructor TLccSegment.Destroy;
+begin
+  FreeAndNil(FLccObjects);
+  inherited Destroy;
+end;
+
+function TLccSegment.GetLccObject(Index: Integer): TLccObject;
+begin
+   {$IFDEF FPC}
+  Result := LccObjects[Index] as TLccObject;
+  {$ELSE}
+  Result := LccObjects[Index];
+  {$ENDIF}
 end;
 
 { TLccLogicAction }
@@ -407,59 +454,63 @@ var
   ActionGroup: TLccActionGroup;
   Action: TLccBinaryAction;
   LccObject: TLccObject;
-  iObject, iActionGroup, iAction, iIoPin, EventOffset: Integer;
+  ALccSegment: TLccSegment;
+  iObject, iActionGroup, iAction, iIoPin, EventOffset, iSegment: Integer;
 begin
   iIoPin := 0;
   EventOffset := 0;
   SetLength(FProducerIdMap, 0);
   SetLength(FConsumerMap, 0);
 
-  for iObject:= 0 to LccObjects.Count - 1 do
+  for iSegment := 0 to LccSegments.Count - 1 do
   begin
-    LccObject := LccObjects[iObject] {$IFDEF FPC}as TLccObject{$ENDIF};
-
-    // SDN expects the auto generated number to sart with inputs then move to outputs
-    for iActionGroup := 0 to LccObject.InputActionGroups.Count - 1 do
+    for iObject:= 0 to LccSegment[iSegment].LccObjects.Count - 1 do
     begin
-      ActionGroup := LccObject.InputActionGroups[iActionGroup] {$IFDEF FPC}as TLccActionGroup{$ENDIF};
-      for iAction := 0 to ActionGroup.Actions.Count - 1 do
+      LccObject := LccSegment[iSegment].LccObjects[iObject] {$IFDEF FPC}as TLccObject{$ENDIF};
+
+      // SDN expects the auto generated number to sart with inputs then move to outputs
+      for iActionGroup := 0 to LccObject.InputActionGroups.Count - 1 do
       begin
-        if iIoPin < AvailableIoInputs then
+        ActionGroup := LccObject.InputActionGroups[iActionGroup] {$IFDEF FPC}as TLccActionGroup{$ENDIF};
+        for iAction := 0 to ActionGroup.Actions.Count - 1 do
         begin
-          Action := ActionGroup.Actions[iAction] {$IFDEF FPC}as TLccBinaryAction{$ENDIF};
-          NodeIDToEventID(NodeID, EventOffset, Action.FEventIDLo);
-          NodeIDToEventID(NodeID, EventOffset+1, Action.FEventIDHi);
-          Action.EventState := evs_Unknown;
-          Action.IoPin := iIoPin;
-          Action.Producer := True;
-          AppendToPCMap(FProducerIdMap, Action.FEventIDLo);
-          AppendToPCMap(FProducerIdMap, Action.FEventIDHi);
-          Inc(iIoPin);
-          Inc(EventOffset, 2);
-        end else
-          raise exception.Create('Not enough I/O Pins to implement this xml file');
+          if iIoPin < AvailableIoInputs then
+          begin
+            Action := ActionGroup.Actions[iAction] {$IFDEF FPC}as TLccBinaryAction{$ENDIF};
+            NodeIDToEventID(NodeID, EventOffset, Action.FEventIDLo);
+            NodeIDToEventID(NodeID, EventOffset+1, Action.FEventIDHi);
+            Action.EventState := evs_Unknown;
+            Action.IoPin := iIoPin;
+            Action.Producer := True;
+            AppendToPCMap(FProducerIdMap, Action.FEventIDLo);
+            AppendToPCMap(FProducerIdMap, Action.FEventIDHi);
+            Inc(iIoPin);
+            Inc(EventOffset, 2);
+          end else
+            raise exception.Create('Not enough I/O Pins to implement this xml file');
+        end;
       end;
-    end;
 
-    for iActionGroup := 0 to LccObject.OutputActionGroups.Count - 1 do
-    begin
-      ActionGroup := LccObject.OutputActionGroups[iActionGroup] {$IFDEF FPC}as TLccActionGroup{$ENDIF};
-      for iAction := 0 to ActionGroup.Actions.Count - 1 do
+      for iActionGroup := 0 to LccObject.OutputActionGroups.Count - 1 do
       begin
-        if iIoPin < AvailableIoInputs + AvailableIoOutput then
+        ActionGroup := LccObject.OutputActionGroups[iActionGroup] {$IFDEF FPC}as TLccActionGroup{$ENDIF};
+        for iAction := 0 to ActionGroup.Actions.Count - 1 do
         begin
-          Action := ActionGroup.Actions[iAction] {$IFDEF FPC}as TLccBinaryAction{$ENDIF};
-          NodeIDToEventID(NodeID, EventOffset, Action.FEventIDLo);
-          NodeIDToEventID(NodeID, EventOffset+1, Action.FEventIDHi);
-          Action.EventState := evs_Unknown;
-          Action.IoPin := iIoPin;
-          Action.Consumer := True;
-          AppendToPCMap(FConsumerMap, Action.FEventIDLo);
-          AppendToPCMap(FConsumerMap, Action.FEventIDHi);
-          Inc(iIoPin);
-          Inc(EventOffset, 2);
-        end else
-          raise exception.Create('Not enough I/O Pins to implement this xml file');
+          if iIoPin < AvailableIoInputs + AvailableIoOutput then
+          begin
+            Action := ActionGroup.Actions[iAction] {$IFDEF FPC}as TLccBinaryAction{$ENDIF};
+            NodeIDToEventID(NodeID, EventOffset, Action.FEventIDLo);
+            NodeIDToEventID(NodeID, EventOffset+1, Action.FEventIDHi);
+            Action.EventState := evs_Unknown;
+            Action.IoPin := iIoPin;
+            Action.Consumer := True;
+            AppendToPCMap(FConsumerMap, Action.FEventIDLo);
+            AppendToPCMap(FConsumerMap, Action.FEventIDHi);
+            Inc(iIoPin);
+            Inc(EventOffset, 2);
+          end else
+            raise exception.Create('Not enough I/O Pins to implement this xml file');
+        end;
       end;
     end;
   end;
@@ -494,7 +545,7 @@ constructor TLccSdnController.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FExternals := TStringList.Create;
-  FLccObjects := TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF}.Create;
+  FLccSegments := TObjectList{$IFNDEF FPC}<TLccSegments>{$ENDIF}.Create;
   FActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
   Actions.OwnsObjects := False;
 end;
@@ -503,11 +554,11 @@ destructor TLccSdnController.Destroy;
 begin
   FreeAndNil(FExternals);
   {$IFDEF FPC}
-  FreeAndNil(FLccObjects);
+  FreeAndNil(FLccSegments);
   FreeAndNil(FActions);
   {$ELSE}
-  LccObjects.DisposeOf;
-  LccObjects := nil;
+  LccSegments.DisposeOf;
+  LccSegments := nil;
   Actions.DisposeOf;
   Actions := nil;
   {$ENDIF}
@@ -545,6 +596,20 @@ begin
       Result := ActionItem[iAction];
       Break;
     end;
+  end;
+end;
+
+function TLccSdnController.FindSegment(AName: string): TLccSegment;
+var
+  i: Integer;
+begin
+  Result := nil;
+  i := 0;
+  while (i < LccSegments.Count) and not Assigned(Result) do
+  begin
+    if LccSegment[i].Name = AName then
+      Result := LccSegment[i];
+    Inc(i);
   end;
 end;
 
@@ -611,12 +676,12 @@ begin
   end;
 end;
 
-function TLccSdnController.GetObjectItem(Index: Integer): TLccObject;
+function TLccSdnController.GetLccSegment(Index: Integer): TLccSegment;
 begin
   {$IFDEF FPC}
-  Result := LccObjects[Index] as TLccObject;
+  Result := LccSegments[Index] as TLccSegment
   {$ELSE}
-  Result := LccObjects[Index];
+  Result := LccSegments[Index];
   {$ENDIF}
 end;
 
@@ -690,8 +755,8 @@ end;
 
 procedure TLccSdnController.InternalExport(XmlDoc: LccXmlDocument);
 var
-  RootNode, ChildNode, ExternalsNode, ObjectNode, ActionGroupNode, InputsNode, ActionNode, OutputsNode, LogicNode: LccXmlNode;
-  i, iObjects, iActionGroups, iActions, iLogicActions: Integer;
+  RootNode, ChildNode, ExternalsNode, ObjectNode, ActionGroupNode, InputsNode, ActionNode, OutputsNode, LogicNode, SegmentNode: LccXmlNode;
+  i, iObjects, iActionGroups, iActions, iLogicActions, iSegment: Integer;
 begin
   RootNode := XmlCreateRootNode(XmlDoc, 'sdn', '');
 
@@ -703,53 +768,66 @@ begin
   for i := 0 to Externals.Count - 1 do
     XmlCreateChildNode(XmlDoc, ExternalsNode, 'name', Externals[i]);
 
-  for iObjects := 0 to LccObjects.Count - 1 do
+  for iSegment := 0 to LccSegments.Count - 1 do
   begin
-    ObjectNode := XmlCreateChildNode(XmlDoc, RootNode, 'object', '');
-    XmlAttributeForce(XmlDoc, ObjectNode, 'class', (ObjectItem[iObjects].LccClass));
-    ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'name', ObjectItem[iObjects].Name);
-    ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'description', ObjectItem[iObjects].Description);
+    SegmentNode := XmlCreateChildNode(XmlDoc, SegmentNode, 'segment', '');
+    if LccSegment[iSegment].Name <> '' then
+      ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'name', LccSegment[iSegment].Name);
+    if LccSegment[iSegment].Description <> '' then
+      ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'description', LccSegment[iSegment].Description);
 
-    InputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'inputs', '');
-    for iActionGroups := 0 to ObjectItem[iObjects].InputActionGroups.Count - 1 do
+    for iObjects := 0 to LccSegment[iSegment].LccObjects.Count - 1 do
     begin
-      ActionGroupNode := XmlCreateChildNode(XmlDoc, InputsNode, 'actiongroup', '');
-      XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (ObjectItem[iObjects].InputActionGroup[iActionGroups].LccClass));
-      for iActions := 0 to ObjectItem[iObjects].InputActionGroup[iActionGroups].Actions.Count - 1 do
-      begin
-        ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventState));
-        XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].IoPin));
-        XmlCreateChildNode(XmlDoc, ActionNode, 'name', ObjectItem[iObjects].InputActionGroup[iActionGroups].Action[iActions].Name);
-      end;
-    end;
+      ObjectNode := XmlCreateChildNode(XmlDoc, SegmentNode, 'object', '');
+      if LccSegment[iSegment].LccObject[iObjects].LccClass <> '' then
+        XmlAttributeForce(XmlDoc, ObjectNode, 'class', (LccSegment[iSegment].LccObject[iObjects].LccClass));
+      if LccSegment[iSegment].LccObject[iObjects].Name <> '' then
+        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'name', LccSegment[iSegment].LccObject[iObjects].Name);
+      if LccSegment[iSegment].LccObject[iObjects].Description <> '' then
+        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'description', LccSegment[iSegment].LccObject[iObjects].Description);
 
-    OutputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'outputs', '');
-    for iActionGroups := 0 to ObjectItem[iObjects].OutputActionGroups.Count - 1 do
-    begin
-      ActionGroupNode := XmlCreateChildNode(XmlDoc, OutputsNode, 'actiongroup', '');
-      XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (ObjectItem[iObjects].OutputActionGroup[iActionGroups].LccClass));
-      for iActions := 0 to ObjectItem[iObjects].OutputActionGroup[iActionGroups].Actions.Count - 1 do
+      InputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'inputs', '');
+      for iActionGroups := 0 to LccSegment[iSegment].LccObject[iObjects].InputActionGroups.Count - 1 do
       begin
-        ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-        XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventState));
-        XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].IoPin));
-        ChildNode := XmlCreateChildNode(XmlDoc, ActionNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Name);
-        LogicNode := XmlCreateChildNode(XmlDoc, ActionNode, 'logic', '');
-        for iLogicActions := 0 to ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Actions.Count - 1 do
+        ActionGroupNode := XmlCreateChildNode(XmlDoc, InputsNode, 'actiongroup', '');
+        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].LccClass));
+        for iActions := 0 to LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Actions.Count - 1 do
         begin
-          ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'action', '');
-          // Don't save the state of the linked event as we don't know what it will be on reboot
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ChildNode, 'truestate', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicTrueStateName);
-          if ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted then
-            XmlAttributeForce(XmlDoc, ChildNode, 'inverted', BooleanToString( ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted));
-          XmlCreateChildNode(XmlDoc, ChildNode, 'name', ObjectItem[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LinkedName);
+          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventState));
+          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].IoPin));
+          XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].Name);
+          XmlCreateChildNode(XmlDoc, ActionNode, 'description', LccSegment[iSegment].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].Description);
+        end;
+      end;
+
+      OutputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'outputs', '');
+      for iActionGroups := 0 to LccSegment[iSegment].LccObject[iObjects].OutputActionGroups.Count - 1 do
+      begin
+        ActionGroupNode := XmlCreateChildNode(XmlDoc, OutputsNode, 'actiongroup', '');
+        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].LccClass));
+        for iActions := 0 to LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Actions.Count - 1 do
+        begin
+          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventState));
+          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].IoPin));
+          ChildNode := XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Name);
+          LogicNode := XmlCreateChildNode(XmlDoc, ActionNode, 'logic', '');
+          for iLogicActions := 0 to LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Actions.Count - 1 do
+          begin
+            ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'action', '');
+            // Don't save the state of the linked event as we don't know what it will be on reboot
+            XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+            XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+            XmlAttributeForce(XmlDoc, ChildNode, 'truestate', LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicTrueStateName);
+            if LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted then
+              XmlAttributeForce(XmlDoc, ChildNode, 'inverted', BooleanToString( LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted));
+            XmlCreateChildNode(XmlDoc, ChildNode, 'name', LccSegment[iSegment].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LinkedName);
+          end;
         end;
       end;
     end;
@@ -758,17 +836,18 @@ end;
 
 procedure TLccSdnController.InternalParse;
 var
-  RootNode, ObjectChildNode, ExternalsNode, ObjectNode, ActionGroupNode, ActionNode, LogicNode, LogicActionNode, ChildNode: LccXmlNode;
+  RootNode, ObjectChildNode, ExternalsNode, ObjectNode, ActionGroupNode, ActionNode, LogicNode, LogicActionNode, ChildNode, SegmentNode, SegmentChildNode: LccXmlNode;
   Attrib: string;
   LccObject: TLccObject;
   LccAction: TLccBinaryAction;
   LccActionGroup: TLccActionGroup;
   LccLogicAction: TLccLogicAction;
+  LccSegmentObject: TLccSegment;
 begin
   Externals.Clear;
   FAvailableIoInput := 0;
   FAvailableIoOutput := 0;
-  LccObjects.Clear;
+  LccSegments.Clear;
 
   RootNode := XmlFindRootNode(XmlDocument, 'sdn');
   if Assigned(RootNode) then
@@ -797,123 +876,148 @@ begin
     end;
 
     // Load the input action information
-    ObjectNode := XmlFirstChild(RootNode);
-    while Assigned(ObjectNode) do
+    SegmentNode := XmlFirstChild(RootNode);
+    while Assigned(SegmentNode) do
     begin
-      if XmlNodeName(ObjectNode) = 'object' then
+      if XmlNodeName(SegmentNode) = 'segment' then
       begin
-        LccObject := TLccObject.Create;
-        LccObject.LccClass := XmlAttributeRead(ObjectNode, 'class');
-        LccObjects.Add(LccObject);
-        ObjectChildNode := XmlFirstChild(ObjectNode);
-        while Assigned(ObjectChildNode) do
+        LccSegmentObject := TLccSegment.Create;
+        LccSegmentObject.LccClass := XmlAttributeRead(SegmentNode, 'class');
+        LccSegments.Add(LccSegmentObject);
+        SegmentChildNode := XmlFirstChild(SegmentNode);
+        while Assigned(SegmentChildNode) do
         begin
-          if XmlNodeName(ObjectChildNode) = 'name' then
-            LccObject.Name := XmlNodeTextContent(ObjectChildNode)
+          if XmlNodeName(SegmentChildNode) = 'name' then
+            LccSegmentObject.Name := XmlNodeTextContent(SegmentChildNode)
           else
-          if XmlNodeName(ObjectChildNode) = 'description' then
-            LccObject.Description := XmlNodeTextContent(ObjectChildNode)
-          else
-          if XmlNodeName(ObjectChildNode) = 'inputs' then
-          begin
-            ActionGroupNode := XmlFirstChild(ObjectChildNode);
-            while Assigned(ActionGroupNode) do
-            begin
-              LccActionGroup := TLccActionGroup.Create;
-              LccActionGroup.LccClass := XmlAttributeRead(ActionGroupNode, 'class');
-              LccObject.InputActionGroups.Add(LccActionGroup);
-              ActionNode := XmlFirstChild(ActionGroupNode);
-              while Assigned(ActionNode) do
-              begin
-                LccAction := TLccBinaryAction.Create(lat_Input);
-                LccActionGroup.Actions.Add(LccAction);
-                Actions.Add(LccAction);
-                LccAction.Producer := True;
-                Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
-                if Attrib <> '' then
-                  LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
-                if Attrib <> '' then
-                  LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                Attrib := XmlAttributeRead(ActionNode, 'eventstate');
-                LccAction.EventState := AttribStringToEventState(Attrib);
-                Attrib := XmlAttributeRead(ActionNode, 'iopin');
-                if Attrib <> '' then
-                  LccAction.IoPin := StrToInt(Attrib);
-                ChildNode := XmlFindChildNode(ActionNode, 'name');
-                if Assigned(ChildNode) then
-                  LccAction.Name := XmlNodeTextContent(ChildNode);
-                ActionNode := XmlNextSiblingNode(ActionNode);
-              end;
-              ActionGroupNode := XmlNextSiblingNode(ActionGroupNode);
-            end;
-          end else
-          if XmlNodeName(ObjectChildNode) = 'outputs' then
-          begin
-            ActionGroupNode := XmlFirstChild(ObjectChildNode);
-            while Assigned(ActionGroupNode) do
-            begin
-              LccActionGroup := TLccActionGroup.Create;
-              LccActionGroup.LccClass := XmlAttributeRead(ActionGroupNode, 'class');
-              LccObject.OutputActionGroups.Add(LccActionGroup);
-              ActionNode := XmlFirstChild(ActionGroupNode);
-              while Assigned(ActionNode) do
-              begin
-                LccAction := TLccBinaryAction.Create(lat_Output);
-                LccActionGroup.Actions.Add(LccAction);
-                Actions.Add(LccAction);
-                LccAction.Consumer := True;
-                Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
-                if Attrib <> '' then
-                  LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
-                if Attrib <> '' then
-                  LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                Attrib := XmlAttributeRead(ActionNode, 'state');
-                LccAction.EventState := AttribStringToEventState(Attrib);
-                Attrib := XmlAttributeRead(ActionNode, 'iopin');
-                if Attrib <> '' then
-                  LccAction.IoPin := StrToInt(Attrib);
+          if XmlNodeName(SegmentChildNode) = 'description' then
+            LccSegmentObject.Description := XmlNodeTextContent(SegmentChildNode);
+          SegmentChildNode := XmlNextSiblingNode(SegmentChildNode);
+        end;
 
-                ChildNode := XmlFindChildNode(ActionNode, 'name');
-                if Assigned(ChildNode) then
-                  LccAction.Name := XmlNodeTextContent(ChildNode);
-                LogicNode := XmlFindChildNode(ActionNode, 'logic');
-                if Assigned(LogicNode) then
+        ObjectNode := XmlFirstChild(RootNode);
+        while Assigned(ObjectNode) do
+        begin
+          if XmlNodeName(ObjectNode) = 'object' then
+          begin
+            LccObject := TLccObject.Create;
+            LccSegmentObject.LccObjects.Add(LccObject);
+            LccObject.LccClass := XmlAttributeRead(ObjectNode, 'class');
+            ObjectChildNode := XmlFirstChild(ObjectNode);
+            while Assigned(ObjectChildNode) do
+            begin
+              if XmlNodeName(ObjectChildNode) = 'name' then
+                LccObject.Name := XmlNodeTextContent(ObjectChildNode)
+              else
+              if XmlNodeName(ObjectChildNode) = 'description' then
+                LccObject.Description := XmlNodeTextContent(ObjectChildNode)
+              else
+              if XmlNodeName(ObjectChildNode) = 'inputs' then
+              begin
+                ActionGroupNode := XmlFirstChild(ObjectChildNode);
+                while Assigned(ActionGroupNode) do
                 begin
-                  LogicActionNode := XmlFindChildNode(LogicNode, 'action');
-                  while Assigned(LogicActionNode) do
+                  LccActionGroup := TLccActionGroup.Create;
+                  LccActionGroup.LccClass := XmlAttributeRead(ActionGroupNode, 'class');
+                  LccObject.InputActionGroups.Add(LccActionGroup);
+                  ActionNode := XmlFirstChild(ActionGroupNode);
+                  while Assigned(ActionNode) do
                   begin
-                    LccLogicAction := TLccLogicAction.Create;
-                    LccAction.Logic.Actions.Add(LccLogicAction);
-                    ChildNode := XmlFindChildNode(LogicActionNode, 'name');
+                    LccAction := TLccBinaryAction.Create(lat_Input);
+                    LccActionGroup.Actions.Add(LccAction);
+                    Actions.Add(LccAction);
+                    LccAction.Producer := True;
+                    Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
+                    if Attrib <> '' then
+                      LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
+                    if Attrib <> '' then
+                      LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(ActionNode, 'eventstate');
+                    LccAction.EventState := AttribStringToEventState(Attrib);
+                    Attrib := XmlAttributeRead(ActionNode, 'iopin');
+                    if Attrib <> '' then
+                      LccAction.IoPin := StrToInt(Attrib);
+                    ChildNode := XmlFindChildNode(ActionNode, 'name');
                     if Assigned(ChildNode) then
-                      LccLogicAction.LinkedName := XmlNodeTextContent(ChildNode);
-                    // Don't save or restore the state of the linked action, don't know what it will be
-                    Attrib := XmlAttributeRead(LogicActionNode, 'eventidlo');
-                    if Attrib <> '' then
-                      LccLogicAction.EventIDLoLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                    Attrib := XmlAttributeRead(LogicActionNode, 'eventidhi');
-                    if Attrib <> '' then
-                      LccLogicAction.EventIDHiLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
-                    Attrib := XmlAttributeRead(LogicActionNode, 'truestate');
-                    LccLogicAction.LogicTrueStateName := Attrib;
-                    LccLogicAction.LogicTrueState := AttribStringToEventState(Attrib);
-                    Attrib := XmlAttributeRead(LogicActionNode, 'inverted');
-                    if Attrib <> '' then
-                      LccLogicAction.Inverted := InValidDictionary(Attrib);
-                    LogicActionNode := XmlNextSiblingNode(LogicActionNode);
+                      LccAction.Name := XmlNodeTextContent(ChildNode);
+                    ChildNode := XmlFindChildNode(ActionNode, 'description');
+                    if Assigned(ChildNode) then
+                      LccAction.Description := XmlNodeTextContent(ChildNode);
+                    ActionNode := XmlNextSiblingNode(ActionNode);
                   end;
+                  ActionGroupNode := XmlNextSiblingNode(ActionGroupNode);
                 end;
-                ActionNode := XmlNextSiblingNode(ActionNode);
+              end else
+              if XmlNodeName(ObjectChildNode) = 'outputs' then
+              begin
+                ActionGroupNode := XmlFirstChild(ObjectChildNode);
+                while Assigned(ActionGroupNode) do
+                begin
+                  LccActionGroup := TLccActionGroup.Create;
+                  LccActionGroup.LccClass := XmlAttributeRead(ActionGroupNode, 'class');
+                  LccObject.OutputActionGroups.Add(LccActionGroup);
+                  ActionNode := XmlFirstChild(ActionGroupNode);
+                  while Assigned(ActionNode) do
+                  begin
+                    LccAction := TLccBinaryAction.Create(lat_Output);
+                    LccActionGroup.Actions.Add(LccAction);
+                    Actions.Add(LccAction);
+                    LccAction.Consumer := True;
+                    Attrib := XmlAttributeRead(ActionNode, 'eventidlo');
+                    if Attrib <> '' then
+                      LccAction.EventIDLo := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(ActionNode, 'eventidhi');
+                    if Attrib <> '' then
+                      LccAction.EventIDHi := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                    Attrib := XmlAttributeRead(ActionNode, 'state');
+                    LccAction.EventState := AttribStringToEventState(Attrib);
+                    Attrib := XmlAttributeRead(ActionNode, 'iopin');
+                    if Attrib <> '' then
+                      LccAction.IoPin := StrToInt(Attrib);
+
+                    ChildNode := XmlFindChildNode(ActionNode, 'name');
+                    if Assigned(ChildNode) then
+                      LccAction.Name := XmlNodeTextContent(ChildNode);
+                    LogicNode := XmlFindChildNode(ActionNode, 'logic');
+                    if Assigned(LogicNode) then
+                    begin
+                      LogicActionNode := XmlFindChildNode(LogicNode, 'action');
+                      while Assigned(LogicActionNode) do
+                      begin
+                        LccLogicAction := TLccLogicAction.Create;
+                        LccAction.Logic.Actions.Add(LccLogicAction);
+                        ChildNode := XmlFindChildNode(LogicActionNode, 'name');
+                        if Assigned(ChildNode) then
+                          LccLogicAction.LinkedName := XmlNodeTextContent(ChildNode);
+                        // Don't save or restore the state of the linked action, don't know what it will be
+                        Attrib := XmlAttributeRead(LogicActionNode, 'eventidlo');
+                        if Attrib <> '' then
+                          LccLogicAction.EventIDLoLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                        Attrib := XmlAttributeRead(LogicActionNode, 'eventidhi');
+                        if Attrib <> '' then
+                          LccLogicAction.EventIDHiLinked := StrToEventID(StringReplace(Attrib, '{$NODEID}', NodeIDToString(NodeID, True), [rfReplaceAll, rfIgnoreCase]));
+                        Attrib := XmlAttributeRead(LogicActionNode, 'truestate');
+                        LccLogicAction.LogicTrueStateName := Attrib;
+                        LccLogicAction.LogicTrueState := AttribStringToEventState(Attrib);
+                        Attrib := XmlAttributeRead(LogicActionNode, 'inverted');
+                        if Attrib <> '' then
+                          LccLogicAction.Inverted := InValidDictionary(Attrib);
+                        LogicActionNode := XmlNextSiblingNode(LogicActionNode);
+                      end;
+                    end;
+                    ActionNode := XmlNextSiblingNode(ActionNode);
+                  end;
+                  ActionGroupNode := XmlNextSiblingNode(ActionGroupNode);
+                end;
               end;
-              ActionGroupNode := XmlNextSiblingNode(ActionGroupNode);
+              ObjectChildNode := XmlNextSiblingNode(ObjectChildNode);
             end;
           end;
-          ObjectChildNode := XmlNextSiblingNode(ObjectChildNode);
+          ObjectNode := XmlNextSiblingNode(ObjectNode);
         end;
       end;
-      ObjectNode := XmlNextSiblingNode(ObjectNode);
+      SegmentNode := XmlNextSiblingNode(SegmentNode);
     end;
   end;
 end;

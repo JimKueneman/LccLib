@@ -151,7 +151,25 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
     </ItemGroup>
-    <ItemGroup Condition="'$(Platform)'=='Win32'"/>
+    <ItemGroup Condition="'$(Platform)'=='Win32'">
+        <DeployFile Include="Win32\Debug\VirtaulListviewFMXOverview.exe" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>VirtaulListviewFMXOverview\</RemoteDir>
+            <RemoteName>VirtaulListviewFMXOverview.exe</RemoteName>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+            <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="Win32\Debug\VirtaulListviewFMXOverview.rsm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>VirtaulListviewFMXOverview\</RemoteDir>
+            <RemoteName>VirtaulListviewFMXOverview.rsm</RemoteName>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+    </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'"/>
     <ItemGroup Condition="'$(Platform)'=='Win64'"/>
     <ItemGroup Condition="'$(Platform)'=='OSX32'">

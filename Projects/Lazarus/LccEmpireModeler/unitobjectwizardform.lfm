@@ -1,0 +1,117 @@
+object FormObjectWizard: TFormObjectWizard
+  Left = 533
+  Height = 276
+  Top = 208
+  Width = 462
+  BorderStyle = bsDialog
+  Caption = 'Object Wizard'
+  ClientHeight = 276
+  ClientWidth = 462
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '1.4.0.4'
+  object Panel1: TPanel
+    Left = 0
+    Height = 226
+    Top = 0
+    Width = 462
+    Align = alClient
+    ClientHeight = 226
+    ClientWidth = 462
+    TabOrder = 0
+    object ComboBoxClass: TComboBox
+      Left = 40
+      Height = 21
+      Top = 152
+      Width = 384
+      Anchors = [akTop, akLeft, akRight]
+      ItemHeight = 0
+      ItemIndex = 0
+      Items.Strings = (
+        'Turnout'
+        'Signal Head'
+        'Block'
+        'Crossing Gate'
+        'Light'
+        'Generic IO'
+        ''
+        ''
+        ''
+      )
+      TabOrder = 0
+      Text = 'Turnout'
+    end
+    object Label3: TLabel
+      Left = 28
+      Height = 16
+      Top = 128
+      Width = 342
+      Caption = 'Enter a grouping name for this Object [recommended]'
+      ParentColor = False
+    end
+    object EditDescription: TEdit
+      Left = 40
+      Height = 22
+      Top = 95
+      Width = 384
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 1
+      Text = 'EditDescription'
+    end
+    object Label2: TLabel
+      Left = 28
+      Height = 16
+      Top = 72
+      Width = 374
+      Caption = 'Enter a Description for this Object on your layout [optional]'
+      ParentColor = False
+    end
+    object EditName: TEdit
+      Left = 40
+      Height = 22
+      Top = 40
+      Width = 384
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 2
+      Text = 'EditName'
+    end
+    object Label1: TLabel
+      Left = 28
+      Height = 16
+      Top = 17
+      Width = 392
+      Caption = 'Enter a Unique Name for this Object on your Layout [required]'
+      ParentColor = False
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 50
+    Top = 226
+    Width = 462
+    Align = alBottom
+    ClientHeight = 50
+    ClientWidth = 462
+    TabOrder = 1
+    object Button1: TButton
+      Left = 171
+      Height = 22
+      Top = 16
+      Width = 120
+      Anchors = [akTop, akRight]
+      Caption = 'Ok'
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object Button2: TButton
+      Left = 304
+      Height = 22
+      Top = 16
+      Width = 120
+      Anchors = [akTop, akRight]
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
+  end
+end

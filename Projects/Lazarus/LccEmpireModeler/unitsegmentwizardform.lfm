@@ -1,0 +1,111 @@
+object FormSegmentWizard: TFormSegmentWizard
+  Left = 600
+  Height = 244
+  Top = 246
+  Width = 474
+  BorderStyle = bsDialog
+  Caption = 'Segment Wizard'
+  ClientHeight = 244
+  ClientWidth = 474
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '1.4.0.4'
+  object Panel1: TPanel
+    Left = 0
+    Height = 194
+    Top = 0
+    Width = 474
+    Align = alClient
+    ClientHeight = 194
+    ClientWidth = 474
+    TabOrder = 0
+    object ComboBoxClass: TComboBox
+      Left = 40
+      Height = 21
+      Top = 152
+      Width = 396
+      Anchors = [akTop, akLeft, akRight]
+      ItemHeight = 0
+      ItemIndex = 0
+      Items.Strings = (
+        'Yard'
+        'City'
+        'District'
+      )
+      TabOrder = 0
+      Text = 'Yard'
+    end
+    object Label3: TLabel
+      Left = 28
+      Height = 16
+      Top = 128
+      Width = 422
+      Caption = 'Enter a Class Type for this Segment of your Layout [recommended]'
+      ParentColor = False
+    end
+    object EditDescription: TEdit
+      Left = 40
+      Height = 22
+      Top = 95
+      Width = 396
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 1
+      Text = 'EditDescription'
+    end
+    object Label2: TLabel
+      Left = 28
+      Height = 16
+      Top = 72
+      Width = 388
+      Caption = 'Enter a Description for this Segment of your Layout [optional]'
+      ParentColor = False
+    end
+    object EditName: TEdit
+      Left = 40
+      Height = 22
+      Top = 40
+      Width = 396
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 2
+      Text = 'EditName'
+    end
+    object Label1: TLabel
+      Left = 28
+      Height = 16
+      Top = 17
+      Width = 391
+      Caption = 'Enter a Name for this Segment of your Layout [recommended]'
+      ParentColor = False
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 50
+    Top = 194
+    Width = 474
+    Align = alBottom
+    ClientHeight = 50
+    ClientWidth = 474
+    TabOrder = 1
+    object Button1: TButton
+      Left = 183
+      Height = 22
+      Top = 16
+      Width = 120
+      Anchors = [akTop, akRight]
+      Caption = 'Ok'
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object Button2: TButton
+      Left = 316
+      Height = 22
+      Top = 16
+      Width = 120
+      Anchors = [akTop, akRight]
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
+  end
+end
