@@ -14,6 +14,8 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionFileSave: TAction;
+    ActionFileOpen: TAction;
     ActionDeleteOutputAction: TAction;
     ActionAddNewOutputAction: TAction;
     ActionDeleteInputAction: TAction;
@@ -23,15 +25,20 @@ type
     ActionDeleteSegment: TAction;
     ActionAddNewSegment: TAction;
     ActionList: TActionList;
+    Button1: TButton;
+    Button2: TButton;
     ImageList: TImageList;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
     LccSdnController: TLccSdnController;
     ListViewSegments: TListView;
     ListViewObjects: TListView;
     ListViewInputActions: TListView;
     ListViewOuputActions: TListView;
+    OpenDialog: TOpenDialog;
     PageControl1: TPageControl;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -41,7 +48,9 @@ type
     Panel6: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;
+    SaveDialog: TSaveDialog;
     Splitter1: TSplitter;
+    Splitter2: TSplitter;
     TabSheetActionEditor: TTabSheet;
     TabSheetActionXML: TTabSheet;
     ToolBar1: TToolBar;
@@ -63,6 +72,8 @@ type
     procedure ActionDeleteObjectExecute(Sender: TObject);
     procedure ActionDeleteOutputActionExecute(Sender: TObject);
     procedure ActionDeleteSegmentExecute(Sender: TObject);
+    procedure ActionFileOpenExecute(Sender: TObject);
+    procedure ActionFileSaveExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListViewObjectsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure ListViewSegmentsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
@@ -158,6 +169,23 @@ procedure TForm1.ActionDeleteSegmentExecute(Sender: TObject);
 begin
   ListviewDeleteSelected(ListViewSegments);
   UpdateUI;
+end;
+
+procedure TForm1.ActionFileOpenExecute(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+  begin
+    LccSdnController.XMLParse(OpenDialog.FileName);
+    RebuildController;
+  end;
+end;
+
+procedure TForm1.ActionFileSaveExecute(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+  begin
+    LccSdnController.XMLExport(SaveDialog.FileName);
+  end;
 end;
 
 function TForm1.AddListviewItem(Listview: TListview; AName, ADescription, AClass: string; AnLccClass: TObject): TListItem;
@@ -297,6 +325,8 @@ begin
     ClearListviews;
     for i := 0 to LccSdnController.LccSegments.Count - 1 do
       AddListviewItem(ListViewSegments, LccSdnController.LccSegment[i].Name, LccSdnController.LccSegment[i].Description, LccSdnController.LccSegment[i].LccClass, LccSdnController.LccSegment[i]);
+    if ListViewSegments.Items.Count > 0 then
+      ListViewSegments.Items[0].Selected := True;
   finally
     UnlockListviews
   end;

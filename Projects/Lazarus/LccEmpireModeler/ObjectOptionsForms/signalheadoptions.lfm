@@ -1,447 +1,77 @@
-object Form1: TForm1
-  Left = 241
-  Height = 627
+object FormSignalHeadOptions: TFormSignalHeadOptions
+  Left = 533
+  Height = 214
   Top = 152
-  Width = 938
-  Caption = 'Lcc Layout Modeler by Mustangpeak Engineering'
-  ClientHeight = 627
-  ClientWidth = 938
+  Width = 429
+  Caption = 'FormSignalHeadOptions'
+  ClientHeight = 214
+  ClientWidth = 429
   OnShow = FormShow
   LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 0
-    Height = 627
+    Height = 214
     Top = 0
-    Width = 384
+    Width = 170
     Align = alLeft
-    ClientHeight = 627
-    ClientWidth = 384
+    Caption = 'Panel1'
+    ClientHeight = 214
+    ClientWidth = 170
     TabOrder = 0
-    object Label1: TLabel
-      Left = 9
-      Height = 64
-      Top = 9
-      Width = 366
-      Align = alTop
-      Alignment = taCenter
-      BorderSpacing.Around = 8
-      Caption = 'Here is where you can create your layout segments (logical areas of your layout such as yards, town, districts, etc) and objects within the segment (such as turnouts, blocks, signal heads, etc)'
-      ParentColor = False
-      WordWrap = True
-    end
-    object Panel2: TPanel
+    object ListViewAspects: TListView
       Left = 1
-      Height = 234
-      Top = 81
-      Width = 382
-      Align = alTop
-      Caption = 'Panel2'
-      ClientHeight = 234
-      ClientWidth = 382
-      TabOrder = 0
-      object ToolBar1: TToolBar
-        Left = 1
-        Height = 42
-        Top = 1
-        Width = 380
-        AutoSize = True
-        ButtonHeight = 40
-        Caption = 'ToolBarMain'
-        Images = ImageList
-        ShowCaptions = True
-        TabOrder = 0
-        object ToolButton1: TToolButton
-          Left = 1
-          Top = 2
-          Action = ActionAddNewSegment
-        end
-        object ToolButton2: TToolButton
-          Left = 124
-          Top = 2
-          Action = ActionDeleteSegment
-        end
-      end
-      object ListViewSegments: TListView
-        Left = 1
-        Height = 174
-        Top = 59
-        Width = 380
-        Align = alClient
-        AutoWidthLastColumn = True
-        Columns = <        
-          item
-            Caption = 'Name'
-            Width = 120
-          end        
-          item
-            Caption = 'Description'
-            Width = 180
-          end        
-          item
-            Caption = 'Grouping'
-            Width = 74
-          end>
-        GridLines = True
-        RowSelect = True
-        TabOrder = 1
-        ViewStyle = vsReport
-        OnSelectItem = ListViewSegmentsSelectItem
-      end
-      object Label5: TLabel
-        Left = 9
-        Height = 16
-        Top = 43
-        Width = 372
-        Align = alTop
-        Alignment = taCenter
-        BorderSpacing.Left = 8
-        Caption = 'My Layout Sections'
-        ParentColor = False
-      end
-    end
-    object Panel3: TPanel
-      Left = 1
-      Height = 303
-      Top = 323
-      Width = 382
+      Height = 186
+      Top = 27
+      Width = 168
       Align = alClient
-      Caption = 'Panel3'
-      ClientHeight = 303
-      ClientWidth = 382
-      TabOrder = 1
-      object ToolBar2: TToolBar
-        Left = 1
-        Height = 42
-        Top = 1
-        Width = 380
-        AutoSize = True
-        ButtonHeight = 40
-        Caption = 'ToolBarMain'
-        Images = ImageList
-        ShowCaptions = True
-        TabOrder = 0
-        object ToolButton7: TToolButton
-          Left = 1
-          Top = 2
-          Action = ActionAddNewObject
-        end
-        object ToolButton8: TToolButton
-          Left = 110
-          Top = 2
-          Action = ActionDeleteObject
-        end
-      end
-      object ListViewObjects: TListView
-        Left = 1
-        Height = 243
-        Top = 59
-        Width = 380
-        Align = alClient
-        AutoWidthLastColumn = True
-        Columns = <        
-          item
-            Caption = 'Name'
-            Width = 120
-          end        
-          item
-            Caption = 'Description'
-            Width = 180
-          end        
-          item
-            Caption = 'Grouping'
-            Width = 74
-          end>
-        GridLines = True
-        RowSelect = True
-        TabOrder = 1
-        ViewStyle = vsReport
-        OnSelectItem = ListViewObjectsSelectItem
-      end
-      object Label4: TLabel
-        Left = 9
-        Height = 16
-        Top = 43
-        Width = 372
-        Align = alTop
-        Alignment = taCenter
-        BorderSpacing.Left = 8
-        Caption = 'My Layout Objects'
-        ParentColor = False
-      end
+      Columns = <      
+        item
+          Caption = 'Aspect'
+          Width = 162
+        end>
+      MultiSelect = True
+      RowSelect = True
+      TabOrder = 0
+      ViewStyle = vsReport
     end
-    object Splitter1: TSplitter
-      Cursor = crVSplit
+    object ToolBar1: TToolBar
       Left = 1
-      Height = 8
-      Top = 315
-      Width = 382
-      Align = alTop
-      ResizeAnchor = akTop
-    end
-  end
-  object Panel4: TPanel
-    Left = 389
-    Height = 627
-    Top = 0
-    Width = 549
-    Align = alClient
-    ClientHeight = 627
-    ClientWidth = 549
-    TabOrder = 1
-    object Panel5: TPanel
-      Left = 1
-      Height = 50
+      Height = 26
       Top = 1
-      Width = 547
-      Align = alTop
-      TabOrder = 0
-    end
-    object Panel6: TPanel
-      Left = 1
-      Height = 575
-      Top = 51
-      Width = 547
-      Align = alClient
-      ClientHeight = 575
-      ClientWidth = 547
+      Width = 168
+      Caption = 'ToolBar1'
+      Images = ImageListSignalHeadOptions
       TabOrder = 1
-      object PageControl1: TPageControl
+      object ToolButton1: TToolButton
         Left = 1
-        Height = 573
-        Top = 1
-        Width = 545
-        ActivePage = TabSheetActionEditor
-        Align = alClient
-        TabIndex = 0
-        TabOrder = 0
-        object TabSheetActionEditor: TTabSheet
-          Caption = 'Action Editor'
-          ClientHeight = 534
-          ClientWidth = 539
-          object Panel7: TPanel
-            Left = 0
-            Height = 184
-            Top = 0
-            Width = 539
-            Align = alTop
-            Caption = 'Panel7'
-            ClientHeight = 184
-            ClientWidth = 539
-            TabOrder = 0
-            object ToolBar3: TToolBar
-              Left = 1
-              Height = 42
-              Top = 1
-              Width = 537
-              AutoSize = True
-              ButtonHeight = 40
-              Caption = 'ToolBarMain'
-              Images = ImageList
-              ShowCaptions = True
-              TabOrder = 0
-              object ToolButton9: TToolButton
-                Left = 1
-                Top = 2
-                Action = ActionAddNewInputAction
-              end
-              object ToolButton10: TToolButton
-                Left = 110
-                Top = 2
-                Action = ActionDeleteInputAction
-              end
-            end
-            object Label2: TLabel
-              Left = 9
-              Height = 16
-              Top = 43
-              Width = 529
-              Align = alTop
-              Alignment = taCenter
-              BorderSpacing.Left = 8
-              Caption = 'Input Actions'
-              ParentColor = False
-            end
-            object ListViewInputActions: TListView
-              Left = 1
-              Height = 124
-              Top = 59
-              Width = 537
-              Align = alClient
-              AutoWidthLastColumn = True
-              Columns = <              
-                item
-                  Caption = 'Name'
-                  Width = 120
-                end              
-                item
-                  Caption = 'Description'
-                  Width = 220
-                end              
-                item
-                  Caption = 'Grouping'
-                  Width = 191
-                end>
-              GridLines = True
-              RowSelect = True
-              TabOrder = 1
-              ViewStyle = vsReport
-            end
-          end
-          object Panel8: TPanel
-            Left = 0
-            Height = 184
-            Top = 184
-            Width = 539
-            Align = alTop
-            Caption = 'Panel8'
-            ClientHeight = 184
-            ClientWidth = 539
-            TabOrder = 1
-            object ToolBar4: TToolBar
-              Left = 1
-              Height = 42
-              Top = 1
-              Width = 537
-              AutoSize = True
-              ButtonHeight = 40
-              Caption = 'ToolBarMain'
-              Images = ImageList
-              ShowCaptions = True
-              TabOrder = 0
-              object ToolButton11: TToolButton
-                Left = 1
-                Top = 2
-                Action = ActionAddNewInputAction
-              end
-              object ToolButton12: TToolButton
-                Left = 110
-                Top = 2
-                Action = ActionDeleteInputAction
-              end
-            end
-            object Label3: TLabel
-              Left = 9
-              Height = 16
-              Top = 43
-              Width = 529
-              Align = alTop
-              Alignment = taCenter
-              BorderSpacing.Left = 8
-              Caption = 'Ouput Actions'
-              ParentColor = False
-            end
-            object ListViewOuputActions: TListView
-              Left = 1
-              Height = 124
-              Top = 59
-              Width = 537
-              Align = alClient
-              AutoWidthLastColumn = True
-              Columns = <              
-                item
-                  Caption = 'Name'
-                  Width = 120
-                end              
-                item
-                  Caption = 'Description'
-                  Width = 220
-                end              
-                item
-                  Caption = 'Grouping'
-                  Width = 191
-                end>
-              GridLines = True
-              RowSelect = True
-              TabOrder = 1
-              ViewStyle = vsReport
-            end
-          end
-          object Button1: TButton
-            Left = 24
-            Height = 22
-            Top = 409
-            Width = 123
-            Action = ActionFileOpen
-            TabOrder = 2
-          end
-          object Button2: TButton
-            Left = 24
-            Height = 22
-            Top = 451
-            Width = 123
-            Action = ActionFileSave
-            TabOrder = 3
-          end
-        end
-        object TabSheetActionXML: TTabSheet
-          Caption = 'Action XML'
-        end
+        Top = 2
+        Action = ActionAddAspect
+      end
+      object ToolButton2: TToolButton
+        Left = 24
+        Top = 2
+        Action = ActionRemoveAspect
       end
     end
   end
-  object Splitter2: TSplitter
-    Left = 384
-    Height = 627
-    Top = 0
-    Width = 5
-  end
-  object ActionList: TActionList
-    Images = ImageList
-    left = 200
-    top = 152
-    object ActionAddNewSegment: TAction
-      Caption = 'Add New Segment'
-      ImageIndex = 18
-      OnExecute = ActionAddNewSegmentExecute
-    end
-    object ActionDeleteSegment: TAction
-      Caption = 'Delete Segment'
-      ImageIndex = 16
-      OnExecute = ActionDeleteSegmentExecute
-    end
-    object ActionAddNewObject: TAction
-      Caption = 'Add New Object'
+  object ActionListSignalHeadOptions: TActionList
+    Images = ImageListSignalHeadOptions
+    left = 203
+    top = 91
+    object ActionAddAspect: TAction
+      Caption = 'Add Aspect'
       ImageIndex = 11
-      OnExecute = ActionAddNewObjectExecute
+      OnExecute = ActionAddAspectExecute
     end
-    object ActionDeleteObject: TAction
-      Caption = 'Delete Object'
-      ImageIndex = 2
-      OnExecute = ActionDeleteObjectExecute
-    end
-    object ActionAddNewInputAction: TAction
-      Caption = 'Add New Action'
-      ImageIndex = 4
-      OnExecute = ActionAddNewInputActionExecute
-    end
-    object ActionDeleteInputAction: TAction
-      Caption = 'Delete Action'
-      ImageIndex = 0
-      OnExecute = ActionDeleteInputActionExecute
-    end
-    object ActionAddNewOutputAction: TAction
-      Caption = 'ActionAddNewOutputAction'
-      ImageIndex = 4
-    end
-    object ActionDeleteOutputAction: TAction
-      Caption = 'ActionDeleteOutputAction'
-      ImageIndex = 0
-      OnExecute = ActionDeleteOutputActionExecute
-    end
-    object ActionFileOpen: TAction
-      Caption = 'File Open...'
-      ImageIndex = 21
-      OnExecute = ActionFileOpenExecute
-    end
-    object ActionFileSave: TAction
-      Caption = 'File Save...'
-      ImageIndex = 22
-      OnExecute = ActionFileSaveExecute
+    object ActionRemoveAspect: TAction
+      Caption = 'Remove Aspect'
+      ImageIndex = 9
+      OnExecute = ActionRemoveAspectExecute
     end
   end
-  object ImageList: TImageList
-    left = 296
-    top = 208
+  object ImageListSignalHeadOptions: TImageList
+    left = 312
+    top = 56
     Bitmap = {
       4C69170000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1181,21 +811,5 @@ object Form1: TForm1
       0200020202000202020002020200020202000202020002020200020202000202
       0200020202000202020002020200
     }
-  end
-  object LccSdnController: TLccSdnController
-    left = 188
-    top = 220
-  end
-  object OpenDialog: TOpenDialog
-    DefaultExt = '.xml'
-    Filter = 'XML File|*.xml'
-    left = 589
-    top = 474
-  end
-  object SaveDialog: TSaveDialog
-    DefaultExt = '.xml'
-    Filter = 'XML File|*.xml'
-    left = 586
-    top = 535
   end
 end
