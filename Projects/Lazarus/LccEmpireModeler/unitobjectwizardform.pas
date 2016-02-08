@@ -22,8 +22,8 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Panel1: TPanel;
-    Panel2: TPanel;
-    Panel3: TPanel;
+    PanelLowerBkgnd: TPanel;
+    PanelUpperBkgnd: TPanel;
     PanelObjectOptions: TPanel;
     procedure ComboBoxClassChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -60,6 +60,7 @@ begin
      OptionPlugin := TFormSignalHeadOptions.Create(Self);
      OptionPlugin.Align := alClient;
      OptionPlugin.Parent := PanelObjectOptions;
+     ClientHeight := OptionPlugin.Height + PanelUpperBkgnd.Height + PanelLowerBkgnd.Height;
      OptionPlugin.Show;
   end else
   begin

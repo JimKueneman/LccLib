@@ -1,12 +1,12 @@
 object FormTurnoutOptions: TFormTurnoutOptions
-  Left = 533
-  Height = 200
-  Top = 152
-  Width = 434
+  Left = 467
+  Height = 95
+  Top = 374
+  Width = 378
   BorderStyle = bsNone
   Caption = 'FormTurnoutOptions'
-  ClientHeight = 200
-  ClientWidth = 434
+  ClientHeight = 95
+  ClientWidth = 378
   LCLVersion = '1.4.0.4'
   object RadioGroup1: TRadioGroup
     Left = 8

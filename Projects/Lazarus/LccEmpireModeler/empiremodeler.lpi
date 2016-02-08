@@ -69,6 +69,7 @@
         <Filename Value="ObjectOptionsForms\turnoutoptions.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FormTurnoutOptions"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="turnoutoptions"/>
       </Unit4>
@@ -76,6 +77,7 @@
         <Filename Value="ObjectOptionsForms\signalheadoptions.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FormSignalHeadOptions"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="signalheadoptions"/>
       </Unit5>
