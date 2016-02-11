@@ -1,4 +1,4 @@
-unit unitsegmentwizardform;
+unit unitdistrictwizardform;
 
 {$mode objfpc}{$H+}
 
@@ -10,9 +10,9 @@ uses
 
 type
 
-  { TFormSegmentWizard }
+  { TFormDistrictWizard }
 
-  TFormSegmentWizard = class(TForm)
+  TFormDistrictWizard = class(TForm)
     Button1: TButton;
     Button2: TButton;
     ComboBoxClass: TComboBox;
@@ -31,17 +31,17 @@ type
   end;
 
 var
-  FormSegmentWizard: TFormSegmentWizard;
+  FormSegmentWizard: TFormDistrictWizard;
 
 implementation
 
 {$R *.lfm}
 
-{ TFormSegmentWizard }
+{ TFormDistrictWizard }
 
-procedure TFormSegmentWizard.FormShow(Sender: TObject);
+procedure TFormDistrictWizard.FormShow(Sender: TObject);
 begin
-  EditName.Text := '[Segment]';
+  EditName.Text := '[District]';
   EditDescription.Text := '';
   ComboBoxClass.ItemIndex := 0;
   EditName.SetFocus;

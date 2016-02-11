@@ -4,7 +4,7 @@ object FormSegmentWizard: TFormSegmentWizard
   Top = 246
   Width = 474
   BorderStyle = bsDialog
-  Caption = 'Segment Wizard'
+  Caption = 'District Wizard'
   ClientHeight = 244
   ClientWidth = 474
   OnShow = FormShow
@@ -39,8 +39,8 @@ object FormSegmentWizard: TFormSegmentWizard
       Left = 28
       Height = 16
       Top = 128
-      Width = 422
-      Caption = 'Enter a Class Type for this Segment of your Layout [recommended]'
+      Width = 413
+      Caption = 'Enter a Class Type for this District of your Layout [recommended]'
       ParentColor = False
     end
     object EditDescription: TEdit
@@ -56,8 +56,8 @@ object FormSegmentWizard: TFormSegmentWizard
       Left = 28
       Height = 16
       Top = 72
-      Width = 388
-      Caption = 'Enter a Description for this Segment of your Layout [optional]'
+      Width = 379
+      Caption = 'Enter a Description for this District of your Layout [optional]'
       ParentColor = False
     end
     object EditName: TEdit
@@ -73,8 +73,8 @@ object FormSegmentWizard: TFormSegmentWizard
       Left = 28
       Height = 16
       Top = 17
-      Width = 391
-      Caption = 'Enter a Name for this Segment of your Layout [recommended]'
+      Width = 381
+      Caption = 'Enter a Name for this District of your Layout [recommended]'
       ParentColor = False
     end
   end

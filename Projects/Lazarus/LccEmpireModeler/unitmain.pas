@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, ActnList, lcc_sdn_utilities, types, unitsegmentwizardform,
-  unitobjectwizardform;
+  StdCtrls, ExtCtrls, ActnList, Grids, lcc_sdn_utilities, types,
+  unitdistrictwizardform, unitobjectwizardform;
 
 type
 
@@ -22,8 +22,8 @@ type
     ActionAddNewInputAction: TAction;
     ActionDeleteObject: TAction;
     ActionAddNewObject: TAction;
-    ActionDeleteSegment: TAction;
-    ActionAddNewSegment: TAction;
+    ActionDeleteDistrict: TAction;
+    ActionAddNewDistrict: TAction;
     ActionList: TActionList;
     Button1: TButton;
     Button2: TButton;
@@ -67,11 +67,11 @@ type
     ToolButton9: TToolButton;
     procedure ActionAddNewInputActionExecute(Sender: TObject);
     procedure ActionAddNewObjectExecute(Sender: TObject);
-    procedure ActionAddNewSegmentExecute(Sender: TObject);
+    procedure ActionAddNewDistrictExecute(Sender: TObject);
     procedure ActionDeleteInputActionExecute(Sender: TObject);
     procedure ActionDeleteObjectExecute(Sender: TObject);
     procedure ActionDeleteOutputActionExecute(Sender: TObject);
-    procedure ActionDeleteSegmentExecute(Sender: TObject);
+    procedure ActionDeleteDistrictExecute(Sender: TObject);
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionFileSaveExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -88,7 +88,7 @@ type
     procedure UpdateUI;
   public
     { public declarations }
-    function SelectedSegement: TLccSegment;
+    function SelectedSegement: TLccDistrict;
     function SelectedObject: TLccObject;
   end;
 
@@ -110,7 +110,7 @@ procedure TForm1.ActionAddNewObjectExecute(Sender: TObject);
 var
   ListItem: TListItem;
   LccObject: TLccObject;
-  LccSegment: TLccSegment;
+  LccSegment: TLccDistrict;
 begin
   if FormObjectWizard.ShowModal = mrOk then
   begin
@@ -129,18 +129,18 @@ begin
   end;
 end;
 
-procedure TForm1.ActionAddNewSegmentExecute(Sender: TObject);
+procedure TForm1.ActionAddNewDistrictExecute(Sender: TObject);
 var
-  LccSegment: TLccSegment;
+  LccSegment: TLccDistrict;
   ListItem: TListItem;
 begin
   if FormSegmentWizard.ShowModal = mrOk then
   begin
-    LccSegment := TLccSegment.Create;
+    LccSegment := TLccDistrict.Create;
     LccSegment.Name := FormSegmentWizard.EditName.Text;
     LccSegment.Description := FormSegmentWizard.EditDescription.Text;
     LccSegment.LccClass := FormSegmentWizard.ComboBoxClass.Text;
-    LccSdnController.LccSegments.Add(LccSegment);
+    LccSdnController.LccDistricts.Add(LccSegment);
     ListItem := AddListviewItem(ListViewSegments, LccSegment.Name, LccSegment.Description, LccSegment.LccClass, LccSegment);
     ListItem.Selected := True;
     UpdateUI
@@ -165,7 +165,7 @@ begin
   UpdateUI;
 end;
 
-procedure TForm1.ActionDeleteSegmentExecute(Sender: TObject);
+procedure TForm1.ActionDeleteDistrictExecute(Sender: TObject);
 begin
   ListviewDeleteSelected(ListViewSegments);
   UpdateUI;
@@ -214,7 +214,7 @@ procedure TForm1.ListviewDeleteSelected(Listview: TListview);
 var
   i: Integer;
   Lcc: TObject;
-  LccSegment: TLccSegment;
+  LccSegment: TLccDistrict;
   LccObject: TLccObject;
 begin
   Listview.BeginUpdate;
@@ -223,11 +223,11 @@ begin
     begin
       if Listview.Items[i].Selected then
       begin
-        if TObject( Listview.Items[i].Data) is TLccSegment then
+        if TObject( Listview.Items[i].Data) is TLccDistrict then
         begin
-          LccSegment := TLccSegment( Listview.Items[i].Data);
+          LccSegment := TLccDistrict( Listview.Items[i].Data);
           Listview.Items[i].Data := nil;
-          LccSdnController.LccSegments.Remove(LccSegment);
+          LccSdnController.LccDistricts.Remove(LccSegment);
           Listview.Items.Delete(i);
         end else
         if TObject( Listview.Items[i].Data) is TLccObject then
@@ -279,7 +279,7 @@ end;
 
 procedure TForm1.ListViewSegmentsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
 var
-  LccSegment: TLccSegment;
+  LccSegment: TLccDistrict;
   i: Integer;
 begin
   LockListviews;
@@ -296,7 +296,7 @@ begin
         ListViewObjects.Clear;
         ListViewOuputActions.Clear;
         ListViewInputActions.Clear;
-        LccSegment := TLccSegment( ListviewSegments.Selected.Data);
+        LccSegment := TLccDistrict( ListviewSegments.Selected.Data);
         for i := 0 to LccSegment.LccObjects.Count - 1 do
           AddListviewItem(ListViewObjects, LccSegment.LccObject[i].Name, LccSegment.LccObject[i].Description, LccSegment.LccObject[i].LccClass, LccSegment.LccObject[i]);
       end;
@@ -323,8 +323,8 @@ begin
   LockListviews;
   try
     ClearListviews;
-    for i := 0 to LccSdnController.LccSegments.Count - 1 do
-      AddListviewItem(ListViewSegments, LccSdnController.LccSegment[i].Name, LccSdnController.LccSegment[i].Description, LccSdnController.LccSegment[i].LccClass, LccSdnController.LccSegment[i]);
+    for i := 0 to LccSdnController.LccDistricts.Count - 1 do
+      AddListviewItem(ListViewSegments, LccSdnController.LccDistrict[i].Name, LccSdnController.LccDistrict[i].Description, LccSdnController.LccDistrict[i].LccClass, LccSdnController.LccDistrict[i]);
     if ListViewSegments.Items.Count > 0 then
       ListViewSegments.Items[0].Selected := True;
   finally
@@ -339,11 +339,11 @@ begin
     Result := TLccObject( ListViewObjects.Selected.Data);
 end;
 
-function TForm1.SelectedSegement: TLccSegment;
+function TForm1.SelectedSegement: TLccDistrict;
 begin
   Result := nil;
   if ListViewSegments.SelCount > 0 then
-    Result := TLccSegment( ListViewSegments.Selected.Data);
+    Result := TLccDistrict( ListViewSegments.Selected.Data);
 end;
 
 procedure TForm1.UnlockListviews;
@@ -364,8 +364,8 @@ begin
   ActionAddNewObject.Enabled := ListViewSegments.SelCount = 1;
   ActionDeleteObject.Enabled := (ListViewSegments.SelCount = 1) and (ListViewObjects.SelCount > 0);
 
-  ActionAddNewSegment.Enabled := True;
-  ActionDeleteSegment.Enabled := (ListViewSegments.SelCount > 0);
+  ActionAddNewDistrict.Enabled := True;
+  ActionDeleteDistrict.Enabled := (ListViewSegments.SelCount > 0);
 end;
 
 end.

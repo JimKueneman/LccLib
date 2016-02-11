@@ -58,12 +58,12 @@
         <UnitName Value="unitobjectwizardform"/>
       </Unit2>
       <Unit3>
-        <Filename Value="unitsegmentwizardform.pas"/>
+        <Filename Value="ObjectOptionsForms\unitdistrictwizardform.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FormSegmentWizard"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unitsegmentwizardform"/>
+        <UnitName Value="unitdistrictwizardform"/>
       </Unit3>
       <Unit4>
         <Filename Value="ObjectOptionsForms\turnoutoptions.pas"/>

@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, unitmain, unitobjectwizardform, unitsegmentwizardform, turnoutoptions,
+  Forms, unitmain, unitobjectwizardform, unitdistrictwizardform, turnoutoptions,
   signalheadoptions
   { you can add units after this };
 
@@ -18,7 +18,7 @@ begin
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormObjectWizard, FormObjectWizard);
-  Application.CreateForm(TFormSegmentWizard, FormSegmentWizard);
+  Application.CreateForm(TFormDistrictWizard, FormSegmentWizard);
   Application.CreateForm(TFormSignalHeadOptions, FormSignalHeadOptions);
   Application.Run;
 end.

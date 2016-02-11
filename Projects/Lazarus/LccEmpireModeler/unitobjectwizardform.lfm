@@ -1,38 +1,38 @@
 object FormObjectWizard: TFormObjectWizard
-  Left = 514
-  Height = 313
-  Top = 289
-  Width = 554
+  Left = 410
+  Height = 425
+  Top = 136
+  Width = 555
   BorderStyle = bsDialog
   Caption = 'Object Wizard'
-  ClientHeight = 313
-  ClientWidth = 554
+  ClientHeight = 425
+  ClientWidth = 555
   OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 0
-    Height = 263
+    Height = 375
     Top = 0
-    Width = 554
+    Width = 555
     Align = alClient
-    ClientHeight = 263
-    ClientWidth = 554
+    ClientHeight = 375
+    ClientWidth = 555
     TabOrder = 0
     object PanelUpperBkgnd: TPanel
       Left = 1
       Height = 191
       Top = 1
-      Width = 552
+      Width = 553
       Align = alTop
       ClientHeight = 191
-      ClientWidth = 552
+      ClientWidth = 553
       TabOrder = 0
       object EditName: TEdit
         Left = 40
         Height = 22
         Top = 40
-        Width = 476
+        Width = 477
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
         Text = 'EditName'
@@ -49,7 +49,7 @@ object FormObjectWizard: TFormObjectWizard
         Left = 40
         Height = 22
         Top = 95
-        Width = 476
+        Width = 477
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 1
         Text = 'EditDescription'
@@ -66,7 +66,7 @@ object FormObjectWizard: TFormObjectWizard
         Left = 40
         Height = 21
         Top = 152
-        Width = 476
+        Width = 477
         Anchors = [akTop, akLeft, akRight]
         ItemHeight = 0
         ItemIndex = 0
@@ -96,9 +96,9 @@ object FormObjectWizard: TFormObjectWizard
     end
     object PanelObjectOptions: TPanel
       Left = 1
-      Height = 70
+      Height = 182
       Top = 192
-      Width = 552
+      Width = 553
       Align = alClient
       TabOrder = 1
     end
@@ -106,14 +106,14 @@ object FormObjectWizard: TFormObjectWizard
   object PanelLowerBkgnd: TPanel
     Left = 0
     Height = 50
-    Top = 263
-    Width = 554
+    Top = 375
+    Width = 555
     Align = alBottom
     ClientHeight = 50
-    ClientWidth = 554
+    ClientWidth = 555
     TabOrder = 1
     object Button1: TButton
-      Left = 263
+      Left = 264
       Height = 22
       Top = 16
       Width = 120
@@ -124,7 +124,7 @@ object FormObjectWizard: TFormObjectWizard
       TabOrder = 0
     end
     object Button2: TButton
-      Left = 396
+      Left = 397
       Height = 22
       Top = 16
       Width = 120

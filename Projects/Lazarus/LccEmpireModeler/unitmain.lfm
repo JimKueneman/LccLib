@@ -1,49 +1,49 @@
 object Form1: TForm1
-  Left = 241
+  Left = 270
   Height = 627
-  Top = 152
-  Width = 938
+  Top = 155
+  Width = 1072
   Caption = 'Lcc Layout Modeler by Mustangpeak Engineering'
   ClientHeight = 627
-  ClientWidth = 938
+  ClientWidth = 1072
   OnShow = FormShow
   LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 0
     Height = 627
     Top = 0
-    Width = 384
+    Width = 461
     Align = alLeft
     ClientHeight = 627
-    ClientWidth = 384
+    ClientWidth = 461
     TabOrder = 0
     object Label1: TLabel
       Left = 9
-      Height = 64
+      Height = 48
       Top = 9
-      Width = 366
+      Width = 443
       Align = alTop
       Alignment = taCenter
       BorderSpacing.Around = 8
-      Caption = 'Here is where you can create your layout segments (logical areas of your layout such as yards, town, districts, etc) and objects within the segment (such as turnouts, blocks, signal heads, etc)'
+      Caption = 'Here is where you can create your layout district (logical areas of your layout such as yards, town, districts, etc) and objects within the district (such as turnouts, blocks, signal heads, etc)'
       ParentColor = False
       WordWrap = True
     end
     object Panel2: TPanel
       Left = 1
       Height = 234
-      Top = 81
-      Width = 382
+      Top = 65
+      Width = 459
       Align = alTop
       Caption = 'Panel2'
       ClientHeight = 234
-      ClientWidth = 382
+      ClientWidth = 459
       TabOrder = 0
       object ToolBar1: TToolBar
         Left = 1
         Height = 42
         Top = 1
-        Width = 380
+        Width = 457
         AutoSize = True
         ButtonHeight = 40
         Caption = 'ToolBarMain'
@@ -53,19 +53,19 @@ object Form1: TForm1
         object ToolButton1: TToolButton
           Left = 1
           Top = 2
-          Action = ActionAddNewSegment
+          Action = ActionAddNewDistrict
         end
         object ToolButton2: TToolButton
-          Left = 124
+          Left = 115
           Top = 2
-          Action = ActionDeleteSegment
+          Action = ActionDeleteDistrict
         end
       end
       object ListViewSegments: TListView
         Left = 1
         Height = 174
         Top = 59
-        Width = 380
+        Width = 457
         Align = alClient
         AutoWidthLastColumn = True
         Columns = <        
@@ -79,7 +79,7 @@ object Form1: TForm1
           end        
           item
             Caption = 'Grouping'
-            Width = 74
+            Width = 151
           end>
         GridLines = True
         RowSelect = True
@@ -91,7 +91,7 @@ object Form1: TForm1
         Left = 9
         Height = 16
         Top = 43
-        Width = 372
+        Width = 449
         Align = alTop
         Alignment = taCenter
         BorderSpacing.Left = 8
@@ -101,19 +101,19 @@ object Form1: TForm1
     end
     object Panel3: TPanel
       Left = 1
-      Height = 303
-      Top = 323
-      Width = 382
+      Height = 319
+      Top = 307
+      Width = 459
       Align = alClient
       Caption = 'Panel3'
-      ClientHeight = 303
-      ClientWidth = 382
+      ClientHeight = 319
+      ClientWidth = 459
       TabOrder = 1
       object ToolBar2: TToolBar
         Left = 1
         Height = 42
         Top = 1
-        Width = 380
+        Width = 457
         AutoSize = True
         ButtonHeight = 40
         Caption = 'ToolBarMain'
@@ -133,9 +133,9 @@ object Form1: TForm1
       end
       object ListViewObjects: TListView
         Left = 1
-        Height = 243
+        Height = 259
         Top = 59
-        Width = 380
+        Width = 457
         Align = alClient
         AutoWidthLastColumn = True
         Columns = <        
@@ -149,7 +149,7 @@ object Form1: TForm1
           end        
           item
             Caption = 'Grouping'
-            Width = 74
+            Width = 151
           end>
         GridLines = True
         RowSelect = True
@@ -161,7 +161,7 @@ object Form1: TForm1
         Left = 9
         Height = 16
         Top = 43
-        Width = 372
+        Width = 449
         Align = alTop
         Alignment = taCenter
         BorderSpacing.Left = 8
@@ -173,26 +173,26 @@ object Form1: TForm1
       Cursor = crVSplit
       Left = 1
       Height = 8
-      Top = 315
-      Width = 382
+      Top = 299
+      Width = 459
       Align = alTop
       ResizeAnchor = akTop
     end
   end
   object Panel4: TPanel
-    Left = 389
+    Left = 466
     Height = 627
     Top = 0
-    Width = 549
+    Width = 606
     Align = alClient
     ClientHeight = 627
-    ClientWidth = 549
+    ClientWidth = 606
     TabOrder = 1
     object Panel5: TPanel
       Left = 1
       Height = 50
       Top = 1
-      Width = 547
+      Width = 604
       Align = alTop
       TabOrder = 0
     end
@@ -200,16 +200,16 @@ object Form1: TForm1
       Left = 1
       Height = 575
       Top = 51
-      Width = 547
+      Width = 604
       Align = alClient
       ClientHeight = 575
-      ClientWidth = 547
+      ClientWidth = 604
       TabOrder = 1
       object PageControl1: TPageControl
         Left = 1
         Height = 573
         Top = 1
-        Width = 545
+        Width = 602
         ActivePage = TabSheetActionEditor
         Align = alClient
         TabIndex = 0
@@ -217,22 +217,22 @@ object Form1: TForm1
         object TabSheetActionEditor: TTabSheet
           Caption = 'Action Editor'
           ClientHeight = 534
-          ClientWidth = 539
+          ClientWidth = 596
           object Panel7: TPanel
             Left = 0
             Height = 184
             Top = 0
-            Width = 539
+            Width = 596
             Align = alTop
             Caption = 'Panel7'
             ClientHeight = 184
-            ClientWidth = 539
+            ClientWidth = 596
             TabOrder = 0
             object ToolBar3: TToolBar
               Left = 1
               Height = 42
               Top = 1
-              Width = 537
+              Width = 594
               AutoSize = True
               ButtonHeight = 40
               Caption = 'ToolBarMain'
@@ -254,7 +254,7 @@ object Form1: TForm1
               Left = 9
               Height = 16
               Top = 43
-              Width = 529
+              Width = 586
               Align = alTop
               Alignment = taCenter
               BorderSpacing.Left = 8
@@ -265,7 +265,7 @@ object Form1: TForm1
               Left = 1
               Height = 124
               Top = 59
-              Width = 537
+              Width = 594
               Align = alClient
               AutoWidthLastColumn = True
               Columns = <              
@@ -279,7 +279,7 @@ object Form1: TForm1
                 end              
                 item
                   Caption = 'Grouping'
-                  Width = 191
+                  Width = 248
                 end>
               GridLines = True
               RowSelect = True
@@ -289,19 +289,19 @@ object Form1: TForm1
           end
           object Panel8: TPanel
             Left = 0
-            Height = 184
+            Height = 216
             Top = 184
-            Width = 539
+            Width = 596
             Align = alTop
             Caption = 'Panel8'
-            ClientHeight = 184
-            ClientWidth = 539
+            ClientHeight = 216
+            ClientWidth = 596
             TabOrder = 1
             object ToolBar4: TToolBar
               Left = 1
               Height = 42
               Top = 1
-              Width = 537
+              Width = 594
               AutoSize = True
               ButtonHeight = 40
               Caption = 'ToolBarMain'
@@ -323,7 +323,7 @@ object Form1: TForm1
               Left = 9
               Height = 16
               Top = 43
-              Width = 529
+              Width = 586
               Align = alTop
               Alignment = taCenter
               BorderSpacing.Left = 8
@@ -332,9 +332,9 @@ object Form1: TForm1
             end
             object ListViewOuputActions: TListView
               Left = 1
-              Height = 124
+              Height = 156
               Top = 59
-              Width = 537
+              Width = 594
               Align = alClient
               AutoWidthLastColumn = True
               Columns = <              
@@ -348,7 +348,7 @@ object Form1: TForm1
                 end              
                 item
                   Caption = 'Grouping'
-                  Width = 191
+                  Width = 248
                 end>
               GridLines = True
               RowSelect = True
@@ -380,7 +380,7 @@ object Form1: TForm1
     end
   end
   object Splitter2: TSplitter
-    Left = 384
+    Left = 461
     Height = 627
     Top = 0
     Width = 5
@@ -389,15 +389,15 @@ object Form1: TForm1
     Images = ImageList
     left = 200
     top = 152
-    object ActionAddNewSegment: TAction
-      Caption = 'Add New Segment'
+    object ActionAddNewDistrict: TAction
+      Caption = 'Add New District'
       ImageIndex = 18
-      OnExecute = ActionAddNewSegmentExecute
+      OnExecute = ActionAddNewDistrictExecute
     end
-    object ActionDeleteSegment: TAction
-      Caption = 'Delete Segment'
+    object ActionDeleteDistrict: TAction
+      Caption = 'Delete District'
       ImageIndex = 16
-      OnExecute = ActionDeleteSegmentExecute
+      OnExecute = ActionDeleteDistrictExecute
     end
     object ActionAddNewObject: TAction
       Caption = 'Add New Object'
