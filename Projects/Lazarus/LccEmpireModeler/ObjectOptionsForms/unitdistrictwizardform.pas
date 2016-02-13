@@ -31,7 +31,7 @@ type
   end;
 
 var
-  FormSegmentWizard: TFormDistrictWizard;
+  FormDistrictWizard: TFormDistrictWizard;
 
 implementation
 

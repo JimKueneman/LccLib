@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, ActnList, Grids, lcc_sdn_utilities, types,
+  StdCtrls, ExtCtrls, ActnList, Grids, Menus, lcc_sdn_utilities, types,
   unitdistrictwizardform, unitobjectwizardform;
 
 type
@@ -14,6 +14,11 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ActionAddGeneralIO: TAction;
+    ActionAddObjectSignal: TAction;
+    ActionAddObjectBlock: TAction;
+    ActionAddObjectCrossingGate: TAction;
+    ActionAddObjectTurnout: TAction;
     ActionFileSave: TAction;
     ActionFileOpen: TAction;
     ActionDeleteOutputAction: TAction;
@@ -38,6 +43,14 @@ type
     ListViewObjects: TListView;
     ListViewInputActions: TListView;
     ListViewOuputActions: TListView;
+    MenuItemAddObjectCrossingGate: TMenuItem;
+    MenuItemAddObjectBlock: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItemAddObjectTurnout: TMenuItem;
+    MenuItemAddObjectGeneralIO: TMenuItem;
+    MenuItemAddObjectSignal: TMenuItem;
     OpenDialog: TOpenDialog;
     PageControl1: TPageControl;
     Panel1: TPanel;
@@ -48,6 +61,10 @@ type
     Panel6: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;
+    PopupMenuAddOutputAction: TPopupMenu;
+    PopupMenuAddInputAction: TPopupMenu;
+    PopupMenuAddObject: TPopupMenu;
+    PopupMenuAddDistrict: TPopupMenu;
     SaveDialog: TSaveDialog;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
@@ -57,17 +74,21 @@ type
     ToolBar2: TToolBar;
     ToolBar3: TToolBar;
     ToolBar4: TToolBar;
-    ToolButton1: TToolButton;
-    ToolButton10: TToolButton;
-    ToolButton11: TToolButton;
-    ToolButton12: TToolButton;
-    ToolButton2: TToolButton;
-    ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
+    ToolButtonDistrictAdd: TToolButton;
+    ToolButtonInputActionDelete: TToolButton;
+    ToolButtonOutputActionAdd: TToolButton;
+    ToolButtonOutputActionDelete: TToolButton;
+    ToolButtonDistrictDelete: TToolButton;
+    ToolButtonObjectAdd: TToolButton;
+    ToolButtonObjectDelete: TToolButton;
+    ToolButtonInputActionAdd: TToolButton;
     procedure ActionAddNewInputActionExecute(Sender: TObject);
     procedure ActionAddNewObjectExecute(Sender: TObject);
     procedure ActionAddNewDistrictExecute(Sender: TObject);
+    procedure ActionAddObjectBlockExecute(Sender: TObject);
+    procedure ActionAddObjectSignalExecute(Sender: TObject);
+    procedure ActionAddObjectTurnoutExecute(Sender: TObject);
+    procedure ActionAddObjectCrossingGateExecute(Sender: TObject);
     procedure ActionDeleteInputActionExecute(Sender: TObject);
     procedure ActionDeleteObjectExecute(Sender: TObject);
     procedure ActionDeleteOutputActionExecute(Sender: TObject);
@@ -129,17 +150,37 @@ begin
   end;
 end;
 
+procedure TForm1.ActionAddObjectBlockExecute(Sender: TObject);
+begin
+  beep;
+end;
+
+procedure TForm1.ActionAddObjectSignalExecute(Sender: TObject);
+begin
+  beep;
+end;
+
+procedure TForm1.ActionAddObjectTurnoutExecute(Sender: TObject);
+begin
+  beep;
+end;
+
+procedure TForm1.ActionAddObjectCrossingGateExecute(Sender: TObject);
+begin
+  beep;
+end;
+
 procedure TForm1.ActionAddNewDistrictExecute(Sender: TObject);
 var
   LccSegment: TLccDistrict;
   ListItem: TListItem;
 begin
-  if FormSegmentWizard.ShowModal = mrOk then
+  if FormDistrictWizard.ShowModal = mrOk then
   begin
     LccSegment := TLccDistrict.Create;
-    LccSegment.Name := FormSegmentWizard.EditName.Text;
-    LccSegment.Description := FormSegmentWizard.EditDescription.Text;
-    LccSegment.LccClass := FormSegmentWizard.ComboBoxClass.Text;
+    LccSegment.Name := FormDistrictWizard.EditName.Text;
+    LccSegment.Description := FormDistrictWizard.EditDescription.Text;
+    LccSegment.LccClass := FormDistrictWizard.ComboBoxClass.Text;
     LccSdnController.LccDistricts.Add(LccSegment);
     ListItem := AddListviewItem(ListViewSegments, LccSegment.Name, LccSegment.Description, LccSegment.LccClass, LccSegment);
     ListItem.Selected := True;

@@ -1,4 +1,4 @@
-object FormSegmentWizard: TFormSegmentWizard
+object FormDistrictWizard: TFormDistrictWizard
   Left = 600
   Height = 244
   Top = 246

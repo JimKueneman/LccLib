@@ -50,13 +50,15 @@ object Form1: TForm1
         Images = ImageList
         ShowCaptions = True
         TabOrder = 0
-        object ToolButton1: TToolButton
+        object ToolButtonDistrictAdd: TToolButton
           Left = 1
           Top = 2
           Action = ActionAddNewDistrict
+          PopupMenu = PopupMenuAddDistrict
+          Style = tbsDropDown
         end
-        object ToolButton2: TToolButton
-          Left = 115
+        object ToolButtonDistrictDelete: TToolButton
+          Left = 127
           Top = 2
           Action = ActionDeleteDistrict
         end
@@ -120,13 +122,15 @@ object Form1: TForm1
         Images = ImageList
         ShowCaptions = True
         TabOrder = 0
-        object ToolButton7: TToolButton
+        object ToolButtonObjectAdd: TToolButton
           Left = 1
           Top = 2
           Action = ActionAddNewObject
+          DropdownMenu = PopupMenuAddObject
+          Style = tbsDropDown
         end
-        object ToolButton8: TToolButton
-          Left = 110
+        object ToolButtonObjectDelete: TToolButton
+          Left = 122
           Top = 2
           Action = ActionDeleteObject
         end
@@ -239,13 +243,15 @@ object Form1: TForm1
               Images = ImageList
               ShowCaptions = True
               TabOrder = 0
-              object ToolButton9: TToolButton
+              object ToolButtonInputActionAdd: TToolButton
                 Left = 1
                 Top = 2
                 Action = ActionAddNewInputAction
+                PopupMenu = PopupMenuAddInputAction
+                Style = tbsDropDown
               end
-              object ToolButton10: TToolButton
-                Left = 110
+              object ToolButtonInputActionDelete: TToolButton
+                Left = 122
                 Top = 2
                 Action = ActionDeleteInputAction
               end
@@ -308,13 +314,15 @@ object Form1: TForm1
               Images = ImageList
               ShowCaptions = True
               TabOrder = 0
-              object ToolButton11: TToolButton
+              object ToolButtonOutputActionAdd: TToolButton
                 Left = 1
                 Top = 2
                 Action = ActionAddNewInputAction
+                PopupMenu = PopupMenuAddOutputAction
+                Style = tbsDropDown
               end
-              object ToolButton12: TToolButton
-                Left = 110
+              object ToolButtonOutputActionDelete: TToolButton
+                Left = 122
                 Top = 2
                 Action = ActionDeleteInputAction
               end
@@ -437,6 +445,25 @@ object Form1: TForm1
       Caption = 'File Save...'
       ImageIndex = 22
       OnExecute = ActionFileSaveExecute
+    end
+    object ActionAddObjectTurnout: TAction
+      Caption = 'Add Turnout...'
+      OnExecute = ActionAddObjectTurnoutExecute
+    end
+    object ActionAddObjectCrossingGate: TAction
+      Caption = 'Add Crossing Gate...'
+      OnExecute = ActionAddObjectCrossingGateExecute
+    end
+    object ActionAddObjectBlock: TAction
+      Caption = 'Add Block...'
+      OnExecute = ActionAddObjectBlockExecute
+    end
+    object ActionAddObjectSignal: TAction
+      Caption = 'Add Signal...'
+      OnExecute = ActionAddObjectSignalExecute
+    end
+    object ActionAddGeneralIO: TAction
+      Caption = 'Add General IO'
     end
   end
   object ImageList: TImageList
@@ -1197,5 +1224,45 @@ object Form1: TForm1
     Filter = 'XML File|*.xml'
     left = 586
     top = 535
+  end
+  object PopupMenuAddObject: TPopupMenu
+    left = 280
+    top = 312
+    object MenuItemAddObjectBlock: TMenuItem
+      Action = ActionAddObjectBlock
+    end
+    object MenuItemAddObjectTurnout: TMenuItem
+      Action = ActionAddObjectTurnout
+    end
+    object MenuItemAddObjectSignal: TMenuItem
+      Action = ActionAddObjectSignal
+    end
+    object MenuItemAddObjectCrossingGate: TMenuItem
+      Action = ActionAddObjectCrossingGate
+    end
+    object MenuItemAddObjectGeneralIO: TMenuItem
+      Action = ActionAddGeneralIO
+    end
+  end
+  object PopupMenuAddDistrict: TPopupMenu
+    left = 264
+    top = 72
+    object MenuItem2: TMenuItem
+      Caption = 'New Item1'
+    end
+  end
+  object PopupMenuAddInputAction: TPopupMenu
+    left = 728
+    top = 96
+    object MenuItem3: TMenuItem
+      Caption = 'New Item1'
+    end
+  end
+  object PopupMenuAddOutputAction: TPopupMenu
+    left = 728
+    top = 280
+    object MenuItem4: TMenuItem
+      Caption = 'New Item1'
+    end
   end
 end
