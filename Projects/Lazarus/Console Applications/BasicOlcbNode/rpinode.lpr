@@ -41,6 +41,7 @@ type
   TOlcbNodeApplication = class(TCustomApplication)
   private
     FAliasAllocated: Boolean;
+    FConfigFile: string;
     FConnected: Boolean;
     FEthernetClient: TLccEthernetClient;
     FEthernetServer: TLccEthernetServer;
@@ -68,6 +69,7 @@ type
 
     property AliasAllocated: Boolean read FAliasAllocated write FAliasAllocated;
     property Connected: Boolean read FConnected write FConnected;
+    property ConfigFile: string read FConfigFile write FConfigFile;
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
     property IsServer: Boolean read FIsServer write FIsServer;
@@ -186,11 +188,11 @@ begin
       // The XML will be loaded after the NodeID is generated
       if not Assigned(NodeManager.RootNode.SdnController) then
         NodeManager.RootNode.SdnController := TLccSdnController.Create(nil);
-      NodeManager.RootNode.SdnController.FilePath := GetAppConfigDir(False) + GetOptionValue('f', 'template');
-      WriteLn('Node Definition file: ' + GetAppConfigDir(False) + GetOptionValue('f', 'template'))
+      ConfigFile := GetAppConfigDir(False) + GetOptionValue('f', 'configuration');
+      WriteLn('Node Definition file: ' + GetAppConfigDir(False) + GetOptionValue('f', 'configuration'))
     except
       WriteLn('Error loading Node Definition File');
-      WriteLn(GetAppConfigDir(False) + GetOptionValue('f', 'template'));
+      WriteLn(GetAppConfigDir(False) + GetOptionValue('f', 'configuration'));
       Terminate;
       Exit;
     end;
@@ -481,16 +483,16 @@ begin
   WriteLn('NodeID: ' + LccSourceNode.NodeIDStr);
 
   NodeManager.RootNode.SdnController.NodeID := LccSourceNode.NodeID;
-  if FileExists(NodeManager.RootNode.SdnController.FilePath) then
+  if FileExists(ConfigFile) then
   begin
-    NodeManager.RootNode.SdnController.XMLParse(NodeManager.RootNode.SdnController.FilePath);
+    NodeManager.RootNode.SdnController.XMLParse(ConfigFile);
   end else
   if FileExists(NodeManager.RootNode.SdnController.FilePathTemplate) then
   begin
     NodeManager.RootNode.SdnController.XMLParse(NodeManager.RootNode.SdnController.FilePathTemplate);
     NodeManager.RootNode.SdnController.AutoAssignEventIDs;
     NodeManager.RootNode.SdnController.AutoAssignLogicEvents;
-    NodeManager.RootNode.SdnController.XMLExport(NodeManager.RootNode.SdnController.FilePath);
+    NodeManager.RootNode.SdnController.XMLExport(ConfigFile);
   end;
 end;
 

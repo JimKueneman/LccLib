@@ -9,7 +9,6 @@ interface
 uses
   Classes, SysUtils, lcc_xmlutilities,
   {$IFDEF FPC}
-  contnrs,
   Generics.Collections,
   {$ELSE}
   System.Generics.Collections,

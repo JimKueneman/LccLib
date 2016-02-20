@@ -1,7 +1,7 @@
 unit lcc_nodemanager;
 
 {$IFDEF FPC}
-{$mode objfpc}{$H+}
+{$mode delphi}{$H+}
 {$ENDIF}
 
 {.$DEFINE TRACTION}
@@ -15,7 +15,7 @@ uses
   {$IFDEF FPC}
   laz2_DOM,
   laz2_XMLRead,
-  contnrs,
+  Generics.Collections,
     {$IFNDEF FPC_CONSOLE_APP}
     LResources,
     ExtCtrls,
@@ -127,18 +127,10 @@ type
   TDatagramQueue = class
   private
     FOwnerNode: TLccOwnedNode;
-    {$IFDEF FPC}
-    FQueue: TObjectList;
-    {$ELSE}
     FQueue: TObjectList<TLccMessage>;
-    {$ENDIF}
   protected
     property OwnerNode: TLccOwnedNode read FOwnerNode write FOwnerNode;
-    {$IFDEF FPC}
-    property Queue: TObjectList read FQueue write FQueue;
-    {$ELSE}
     property Queue: TObjectList<TLccMessage> read FQueue write FQueue;
-    {$ENDIF}
     function FindBySourceNode(LccMessage: TLccMessage): Integer;
   public
     constructor Create(ANode: TLccOwnedNode);
@@ -321,20 +313,12 @@ type
   TLccEvents = class(TNodeProtocolBase)
   private
     FAutoGenerate: TLccEventAutoGenerate;
-    {$IFDEF FPC}
-    FEventList: TList;
-    {$ELSE}
     FEventList: TObjectList<TLccEvent>;
-    {$ENDIF}
     function GetCount: Integer;
     function GetEvent(Index: Integer): TLccEvent;
     function GetEventIDAsStr(Index: Integer): String;
   protected
-    {$IFDEF FPC}
-      property EventList: TList read FEventList write FEventList;
-    {$ELSE}
-      property EventList: TObjectList<TLccEvent> read FEventList write FEventList;
-    {$ENDIF}
+    property EventList: TObjectList<TLccEvent> read FEventList write FEventList;
   public
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -501,11 +485,11 @@ type
 
   TConfigMemAddressSpaceInfo = class(TNodeProtocolBase)
   private
-    FList: TList;
+    FList: TObjectList<TConfigMemAddressSpaceInfoObject>;
     function GetAddressSpace(Index: Integer): TConfigMemAddressSpaceInfoObject;
     function GetCount: Integer;
   protected
-    property List: TList read FList write FList;
+    property List: TObjectList<TConfigMemAddressSpaceInfoObject> read FList write FList;
   public
     property AddressSpace[Index: Integer]: TConfigMemAddressSpaceInfoObject read GetAddressSpace; default;
     property Count: Integer read GetCount;
@@ -741,7 +725,7 @@ type
     FEnabled: Boolean;
     FHardwareConnection: TLccHardwareConnectionManager;
     FLccSettings: TLccSettings;
-    FNodeList: TList;
+    FNodeList: TObjectList<TLccNode>;
     FOnAliasIDChanged: TOnLccNodeMessage;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
@@ -779,7 +763,7 @@ type
     {$ENDIF}
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnRequestMessageSend: TOnMessageEvent;
-    FOwnedNodeList: TList;
+    FOwnedNodeList: TObjectList<TLccOwnedNode>;
     FRootNode: TLccOwnedNode;
     {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     FTLccNetworkTree: TLccNetworkTree;
@@ -1049,11 +1033,7 @@ end;
 
 constructor TDatagramQueue.Create(ANode: TLccOwnedNode);
 begin
-  {$IFDEF FPC}
-  Queue := TObjectList.Create;
-  {$ELSE}
   Queue := TObjectList<TLccMessage>.Create;
-  {$ENDIF}
   Queue.OwnsObjects := True;
   FOwnerNode := ANode;
 end;
@@ -1377,7 +1357,7 @@ begin
   {$ENDIF}
   LoginTimer.Enabled := False;
   LoginTimer.Interval := 800;
-  LoginTimer.OnTimer := {$IFDEF FPC}@{$ENDIF}OnLoginTimer;
+  LoginTimer.OnTimer := OnLoginTimer;
 
   LogInAliasID := 0;
   FACDIMfg := TACDIMfg.Create(Self, MSI_ACDI_MFG, True);
@@ -2199,12 +2179,8 @@ end;
 constructor TLccEvents.Create(AnOwner: TComponent);
 begin
   inherited Create(AnOwner);
-  {$IFDEF FPC}
-    FEventList := TList.Create;
-  {$ELSE}
-    FEventList := TObjectList<TLccEvent>.Create;
-    EventList.OwnsObjects := False;
-  {$ENDIF}
+  FEventList := TObjectList<TLccEvent>.Create;
+  EventList.OwnsObjects := False;
   FAutoGenerate := TLccEventAutoGenerate.Create;
 end;
 
@@ -2613,12 +2589,12 @@ end;
 
 function TLccNodeManager.GetNodes(Index: Integer): TLccNode;
 begin
-  Result := TLccNode( NodeList[Index]);
+  Result := NodeList[Index];
 end;
 
 function TLccNodeManager.GetOwnedNodes(Index: Integer): TLccOwnedNode;
 begin
-  Result := TLccOwnedNode( OwnedNodeList[Index]);
+  Result := OwnedNodeList[Index];
 end;
 
 function TLccNodeManager.GetRootNodeAlias: Word;
@@ -3075,8 +3051,10 @@ end;
 constructor TLccNodeManager.Create(AnOwner: TComponent);
 begin
   inherited Create(AnOwner);
-  FNodeList := TList.Create;
-  FOwnedNodeList := TList.Create;
+  FNodeList := TObjectList<TLccNode>.Create;
+  FNodeList.OwnsObjects := False;
+  FOwnedNodeList := TObjectList<TLccOwnedNode>.Create;
+  FOwnedNodeList.OwnsObjects := False;
   FWorkerMessage := TLccMessage.Create;
   FUserMessage := TLccMessage.Create;
 end;
@@ -4288,7 +4266,8 @@ end;
 constructor TConfigMemAddressSpaceInfo.Create(AnOwner: TComponent);
 begin
   inherited;
-  List := TList.Create;
+  List := TObjectList<TConfigMemAddressSpaceInfoObject>.Create;
+  List.OwnsObjects := False;
 end;
 
 destructor TConfigMemAddressSpaceInfo.Destroy;
