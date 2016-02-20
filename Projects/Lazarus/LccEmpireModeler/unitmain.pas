@@ -38,6 +38,9 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
+    LabelActionInputDescription: TLabel;
+    LabelActionOutputDescription: TLabel;
+    LabelObjectDescription: TLabel;
     LccSdnController: TLccSdnController;
     ListViewSegments: TListView;
     ListViewObjects: TListView;
@@ -54,10 +57,9 @@ type
     OpenDialog: TOpenDialog;
     PageControl1: TPageControl;
     Panel1: TPanel;
-    Panel2: TPanel;
-    Panel3: TPanel;
-    Panel4: TPanel;
-    Panel5: TPanel;
+    PanelDistricts: TPanel;
+    PanelObjects: TPanel;
+    PanelRight: TPanel;
     Panel6: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;

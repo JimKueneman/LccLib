@@ -8,8 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, unitmain, unitobjectwizardform, unitdistrictwizardform, turnoutoptions,
-  signalheadoptions
-  { you can add units after this };
+  signalheadoptions;
 
 {$R *.res}
 

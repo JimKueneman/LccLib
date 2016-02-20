@@ -1,7 +1,7 @@
 unit lcc_sdn_utilities;
 
 {$IFDEF FPC}
-{$mode objfpc}{$H+}
+{$mode delphi}{$H+}
 {$ENDIF}
 
 interface
@@ -10,6 +10,7 @@ uses
   Classes, SysUtils, lcc_xmlutilities,
   {$IFDEF FPC}
   contnrs,
+  Generics.Collections,
   {$ELSE}
   System.Generics.Collections,
   {$ENDIF}
@@ -54,15 +55,13 @@ type
 
   TLccLogic = class
   private
-    FActions: TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF};
+    FActions: TObjectList<TLccLogicAction>;
     FOwner: TLccBinaryAction;
-    function GetAction(Index: Integer): TLccLogicAction;
   public
     constructor Create(AnOwnerAction: TLccBinaryAction);
     destructor Destroy; override;
     function Calculate: Boolean;
-    property Actions: TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF} read FActions write FActions;
-    property Action[Index: Integer]: TLccLogicAction read GetAction;
+    property Actions: TObjectList<TLccLogicAction> read FActions write FActions;
     property Owner: TLccBinaryAction read FOwner;
   end;
 
@@ -104,15 +103,13 @@ type
 
   TLccActionGroup = class
   private
-    FActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF};
+    FActions: TObjectList<TLccBinaryAction>;
     FLccClass: string;
-    function GetAction(Index: Integer): TLccBinaryAction;
   public
     constructor Create;
     destructor Destroy; override;
-    property Actions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FActions write FActions;
+    property Actions: TObjectList<TLccBinaryAction> read FActions write FActions;
     property LccClass: string read FLccClass write FLccClass;
-    property Action[Index: Integer]: TLccBinaryAction read GetAction;
   end;
 
   { TLccObject }
@@ -121,21 +118,17 @@ type
   private
     FLccClass: string;
     FDescription: string;
-    FInputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
+    FInputActionGroups: TObjectList<TLccActionGroup>;
     FName: string;
-    FOutputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF};
-    function GetInputActionGroup(Index: Integer): TLccActionGroup;
-    function GetOutputActionGroup(Index: Integer): TLccActionGroup;
+    FOutputActionGroups: TObjectList<TLccActionGroup>;
   public
     constructor Create;
     destructor Destroy; override;
     property Name: string read FName write FName;
     property Description: string read FDescription write FDescription;
     property LccClass: string read FLccClass write FLccClass;
-    property InputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF} read FInputActionGroups write FInputActionGroups;
-    property OutputActionGroups: TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF} read FOutputActionGroups write FOutputActionGroups;
-    property InputActionGroup[Index: Integer]: TLccActionGroup read GetInputActionGroup;
-    property OutputActionGroup[Index: Integer]: TLccActionGroup read GetOutputActionGroup;
+    property InputActionGroups: TObjectList<TLccActionGroup> read FInputActionGroups write FInputActionGroups;
+    property OutputActionGroups: TObjectList<TLccActionGroup>read FOutputActionGroups write FOutputActionGroups;
   end;
 
   { TLccDistrict }
@@ -144,17 +137,15 @@ type
   private
     FDescription: string;
     FLccClass: string;
-    FLccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF};
+    FLccObjects: TObjectList<TLccObject>;
     FName: string;
-    function GetLccObject(Index: Integer): TLccObject;
   public
     constructor Create;
     destructor Destroy; override;
     property Name: string read FName write FName;
     property Description: string read FDescription write FDescription;
     property LccClass: string read FLccClass write FLccClass;
-    property LccObjects: TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF} read FLccObjects write FLccObjects;
-    property LccObject[Index: Integer]: TLccObject read GetLccObject;
+    property LccObjects: TObjectList<TLccObject> read FLccObjects write FLccObjects;
   end;
 
   { TLccSdnController }
@@ -166,15 +157,13 @@ type
     FFilePathTemplate: string;
     FAvailableIoInput: Integer;
     FAvailableIoOutput: Integer;
-    FActions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF};
-    FLccDistricts: TObjectList{$IFNDEF FPC}<TLccDistrict>{$ENDIF};
+    FActions: TObjectList<TLccBinaryAction>;
+    FLccDistricts: TObjectList<TLccDistrict>;
     FNodeID: TNodeID;
     FProducerIdMap: TPCMap;
     FVersion: string;
     FXmlDocument: LccXmlDocument;
-    function GetActionItem(Index: Integer): TLccBinaryAction;
     function GetInputActionCount: Integer;
-    function GetLccDistrict(Index: Integer): TLccDistrict;
     function GetOuptputActionCount: Integer;
   protected
     procedure AppendToPCMap(var PCMap: TPCMap; Event: TEventID);
@@ -196,10 +185,8 @@ type
     property ConsumerIdMap: TPCMap read FConsumerMap;
     property Externals: TStringList read FExternals write FExternals;
     property FilePathTemplate: string read FFilePathTemplate write FFilePathTemplate;
-    property Actions: TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF} read FActions write FActions;
-    property ActionItem[Index: Integer]: TLccBinaryAction read GetActionItem;
-    property LccDistricts: TObjectList{$IFNDEF FPC}<TLccDistrict>{$ENDIF} read FLccDistricts write FLccDistricts;
-    property LccDistrict[Index: Integer]: TLccDistrict read GetLccDistrict;
+    property Actions: TObjectList<TLccBinaryAction> read FActions write FActions;
+    property LccDistricts: TObjectList<TLccDistrict> read FLccDistricts write FLccDistricts;
     property InputActionCount: Integer read GetInputActionCount;
     property OutputActionCount: Integer read GetOuptputActionCount;
     property NodeID: TNodeID read FNodeID write FNodeID;
@@ -258,22 +245,13 @@ end;
 constructor TLccDistrict.Create;
 begin
   inherited;
-  FLccObjects := TObjectList{$IFNDEF FPC}<TLccObject>{$ENDIF}.Create;
+  FLccObjects := TObjectList<TLccObject>.Create;
 end;
 
 destructor TLccDistrict.Destroy;
 begin
   FreeAndNil(FLccObjects);
   inherited Destroy;
-end;
-
-function TLccDistrict.GetLccObject(Index: Integer): TLccObject;
-begin
-   {$IFDEF FPC}
-  Result := LccObjects[Index] as TLccObject;
-  {$ELSE}
-  Result := LccObjects[Index];
-  {$ENDIF}
 end;
 
 { TLccLogicAction }
@@ -289,7 +267,7 @@ constructor TLccLogic.Create(AnOwnerAction: TLccBinaryAction);
 begin
   inherited Create;
   FOwner := AnOwnerAction;
-  FActions := TObjectList{$IFNDEF FPC}<TLccLogicAction>{$ENDIF}.Create;
+  FActions := TObjectList<TLccLogicAction>.Create;
 end;
 
 destructor TLccLogic.Destroy;
@@ -314,7 +292,7 @@ begin
   i := 0;
   while EvaluatedResult and (i < Actions.Count) do
   begin
-    LogicAction := Action[i];
+    LogicAction := Actions[i];
     if LogicAction.Inverted then
     begin
       if LogicAction.LogicTrueState = evs_Valid then
@@ -339,15 +317,6 @@ begin
     Owner.IsDirty := True;
     Result := True
   end
-end;
-
-function TLccLogic.GetAction(Index: Integer): TLccLogicAction;
-begin
-   {$IFDEF FPC}
-  Result := Actions[Index] as TLccLogicAction;
-  {$ELSE}
-  Result := Actions[Index];
-  {$ENDIF}
 end;
 
 { TLccBinaryAction }
@@ -375,7 +344,7 @@ end;
 constructor TLccActionGroup.Create;
 begin
   inherited;
-  FActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
+  FActions := TObjectList<TLccBinaryAction>.Create;
 end;
 
 destructor TLccActionGroup.Destroy;
@@ -389,22 +358,13 @@ begin
   inherited Destroy;
 end;
 
-function TLccActionGroup.GetAction(Index: Integer): TLccBinaryAction;
-begin
-  {$IFDEF FPC}
-  Result := Actions[Index] as TLccBinaryAction;
-  {$ELSE}
-  Result := Actions[Index];
-  {$ENDIF}
-end;
-
 { TLccObject }
 
 constructor TLccObject.Create;
 begin
   inherited;
-  FInputActionGroups := TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF}.Create;
-  FOutputActionGroups := TObjectList{$IFNDEF FPC}<TLccActionGroup>{$ENDIF}.Create;
+  FInputActionGroups := TObjectList<TLccActionGroup>.Create;
+  FOutputActionGroups := TObjectList<TLccActionGroup>.Create;
 end;
 
 destructor TLccObject.Destroy;
@@ -419,24 +379,6 @@ begin
   FOutputActionGroups := nil;
   {$ENDIF}
   inherited Destroy;
-end;
-
-function TLccObject.GetInputActionGroup(Index: Integer): TLccActionGroup;
-begin
-   {$IFDEF FPC}
-   Result := InputActionGroups[Index] as TLccActionGroup;
-   {$ELSE}
-   Result := InputActionGroups[Index];
-  {$ENDIF}
-end;
-
-function TLccObject.GetOutputActionGroup(Index: Integer): TLccActionGroup;
-begin
-  {$IFDEF FPC}
-  Result := OutputActionGroups[Index] as TLccActionGroup;
-  {$ELSE}
-  Result := OutputActionGroups[Index];
-  {$ENDIF}
 end;
 
 { TLccSdnController }
@@ -462,9 +404,9 @@ begin
 
   for iDistrict := 0 to LccDistricts.Count - 1 do
   begin
-    for iObject:= 0 to LccDistrict[iDistrict].LccObjects.Count - 1 do
+    for iObject:= 0 to LccDistricts[iDistrict].LccObjects.Count - 1 do
     begin
-      LccObject := LccDistrict[iDistrict].LccObjects[iObject] {$IFDEF FPC}as TLccObject{$ENDIF};
+      LccObject := LccDistricts[iDistrict].LccObjects[iObject] {$IFDEF FPC}as TLccObject{$ENDIF};
 
       // SDN expects the auto generated number to sart with inputs then move to outputs
       for iActionGroup := 0 to LccObject.InputActionGroups.Count - 1 do
@@ -521,9 +463,9 @@ var
   ActionLink: TLccBinaryAction;
 begin
   for iAction := 0 to Actions.Count - 1 do
-    for iLogic := 0 to ActionItem[iAction].Logic.Actions.Count - 1 do
+    for iLogic := 0 to Actions[iAction].Logic.Actions.Count - 1 do
     begin
-      LogicAction := ActionItem[iAction].Logic.Action[iLogic];
+      LogicAction := Actions[iAction].Logic.Actions[iLogic];
       ActionLink := FindActionByName(LogicAction.LinkedName);
       if Assigned(ActionLink) then
       begin
@@ -543,8 +485,8 @@ constructor TLccSdnController.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FExternals := TStringList.Create;
-  FLccDistricts := TObjectList{$IFNDEF FPC}<TLccDistrict>{$ENDIF}.Create;
-  FActions := TObjectList{$IFNDEF FPC}<TLccBinaryAction>{$ENDIF}.Create;
+  FLccDistricts := TObjectList<TLccDistrict>.Create;
+  FActions := TObjectList<TLccBinaryAction>.Create;
   Actions.OwnsObjects := False;
 end;
 
@@ -589,9 +531,9 @@ begin
   Result := nil;
   for iAction := 0 to Actions.Count - 1 do
   begin
-    if ActionItem[iAction].Name = ActionName then
+    if Actions[iAction].Name = ActionName then
     begin
-      Result := ActionItem[iAction];
+      Result := Actions[iAction];
       Break;
     end;
   end;
@@ -605,8 +547,8 @@ begin
   i := 0;
   while (i < LccDistricts.Count) and not Assigned(Result) do
   begin
-    if LccDistrict[i].Name = AName then
-      Result := LccDistrict[i];
+    if LccDistricts[i].Name = AName then
+      Result := LccDistricts[i];
     Inc(i);
   end;
 end;
@@ -618,9 +560,9 @@ begin
   Result := nil;
   for iAction := 0 to Actions.Count - 1 do
   begin
-    if ActionItem[iAction].IoPin = IoPin then
+    if Actions[iAction].IoPin = IoPin then
     begin
-      Result := ActionItem[iAction];
+      Result := Actions[iAction];
       Break;
     end;
   end;
@@ -634,12 +576,12 @@ var
 begin
   for i := 0 to Actions.Count - 1 do
   begin
-    LocalAction := ActionItem[i];
+    LocalAction := Actions[i];
     if LocalAction.Consumer then
     begin
       for j := 0 to LocalAction.Logic.Actions.Count - 1 do
       begin
-        LogicAction := LocalAction.Logic.Action[j];
+        LogicAction := LocalAction.Logic.Actions[j];
         if LogicAction.EqualAction(AnAction) then
         begin
           if AnAction.EventState <> LocalAction.EventState then
@@ -653,15 +595,6 @@ begin
   end;
 end;
 
-function TLccSdnController.GetActionItem(Index: Integer): TLccBinaryAction;
-begin
-  {$IFDEF FPC}
-  Result := Actions[Index] as TLccBinaryAction;
-  {$ELSE}
-  Result := Actions[Index];
-  {$ENDIF}
-end;
-
 function TLccSdnController.GetInputActionCount: Integer;
 var
   i: Integer;
@@ -669,18 +602,9 @@ begin
   Result := 0;
   for i := 0 to Actions.Count - 1 do
   begin
-    if ActionItem[i].ActionType = lat_Input then
+    if Actions[i].ActionType = lat_Input then
       Inc(Result);
   end;
-end;
-
-function TLccSdnController.GetLccDistrict(Index: Integer): TLccDistrict;
-begin
-  {$IFDEF FPC}
-  Result := LccDistricts[Index] as TLccDistrict
-  {$ELSE}
-  Result := LccDistricts[Index];
-  {$ENDIF}
 end;
 
 function TLccSdnController.GetOuptputActionCount: Integer;
@@ -690,7 +614,7 @@ begin
   Result := 0;
   for i := 0 to Actions.Count - 1 do
   begin
-    if ActionItem[i].ActionType = lat_Output then
+    if Actions[i].ActionType = lat_Output then
       Inc(Result);
   end;
 end;
@@ -769,62 +693,62 @@ begin
   for iDistrict := 0 to LccDistricts.Count - 1 do
   begin
     DistrictNode := XmlCreateChildNode(XmlDoc, RootNode, 'district', '');
-    if LccDistrict[iDistrict].Name <> '' then
-      ChildNode := XmlCreateChildNode(XmlDoc, DistrictNode, 'name', LccDistrict[iDistrict].Name);
-    if LccDistrict[iDistrict].Description <> '' then
-      ChildNode := XmlCreateChildNode(XmlDoc, DistrictNode, 'description', LccDistrict[iDistrict].Description);
+    if LccDistricts[iDistrict].Name <> '' then
+      ChildNode := XmlCreateChildNode(XmlDoc, DistrictNode, 'name', LccDistricts[iDistrict].Name);
+    if LccDistricts[iDistrict].Description <> '' then
+      ChildNode := XmlCreateChildNode(XmlDoc, DistrictNode, 'description', LccDistricts[iDistrict].Description);
 
-    for iObjects := 0 to LccDistrict[iDistrict].LccObjects.Count - 1 do
+    for iObjects := 0 to LccDistricts[iDistrict].LccObjects.Count - 1 do
     begin
       ObjectNode := XmlCreateChildNode(XmlDoc, DistrictNode, 'object', '');
-      if LccDistrict[iDistrict].LccObject[iObjects].LccClass <> '' then
-        XmlAttributeForce(XmlDoc, ObjectNode, 'class', (LccDistrict[iDistrict].LccObject[iObjects].LccClass));
-      if LccDistrict[iDistrict].LccObject[iObjects].Name <> '' then
-        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'name', LccDistrict[iDistrict].LccObject[iObjects].Name);
-      if LccDistrict[iDistrict].LccObject[iObjects].Description <> '' then
-        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'description', LccDistrict[iDistrict].LccObject[iObjects].Description);
+      if LccDistricts[iDistrict].LccObjects[iObjects].LccClass <> '' then
+        XmlAttributeForce(XmlDoc, ObjectNode, 'class', (LccDistricts[iDistrict].LccObjects[iObjects].LccClass));
+      if LccDistricts[iDistrict].LccObjects[iObjects].Name <> '' then
+        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'name', LccDistricts[iDistrict].LccObjects[iObjects].Name);
+      if LccDistricts[iDistrict].LccObjects[iObjects].Description <> '' then
+        ChildNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'description', LccDistricts[iDistrict].LccObjects[iObjects].Description);
 
       InputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'inputs', '');
-      for iActionGroups := 0 to LccDistrict[iDistrict].LccObject[iObjects].InputActionGroups.Count - 1 do
+      for iActionGroups := 0 to LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups.Count - 1 do
       begin
         ActionGroupNode := XmlCreateChildNode(XmlDoc, InputsNode, 'actiongroup', '');
-        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].LccClass));
-        for iActions := 0 to LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Actions.Count - 1 do
+        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].LccClass));
+        for iActions := 0 to LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions.Count - 1 do
         begin
-          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].EventState));
-          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].IoPin));
-          XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].Name);
-          XmlCreateChildNode(XmlDoc, ActionNode, 'description', LccDistrict[iDistrict].LccObject[iObjects].InputActionGroup[iActionGroups].Action[iActions].Description);
+          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'actions', '');
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].EventState));
+          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].IoPin));
+          XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].Name);
+          XmlCreateChildNode(XmlDoc, ActionNode, 'description', LccDistricts[iDistrict].LccObjects[iObjects].InputActionGroups[iActionGroups].Actions[iActions].Description);
         end;
       end;
 
       OutputsNode := XmlCreateChildNode(XmlDoc, ObjectNode, 'outputs', '');
-      for iActionGroups := 0 to LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroups.Count - 1 do
+      for iActionGroups := 0 to LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups.Count - 1 do
       begin
         ActionGroupNode := XmlCreateChildNode(XmlDoc, OutputsNode, 'actiongroup', '');
-        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].LccClass));
-        for iActions := 0 to LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Actions.Count - 1 do
+        XmlAttributeForce(XmlDoc, ActionGroupNode, 'class', (LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].LccClass));
+        for iActions := 0 to LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions.Count - 1 do
         begin
-          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'action', '');
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].EventState));
-          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].IoPin));
-          ChildNode := XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Name);
+          ActionNode := XmlCreateChildNode(XmlDoc, ActionGroupNode, 'actions', '');
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidlo', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].EventIDLo, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventidhi', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].EventIDHi, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+          XmlAttributeForce(XmlDoc, ActionNode, 'eventstate', EventStateToAttribString(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].EventState));
+          XmlAttributeForce(XmlDoc, ActionNode, 'iopin', IntToStr(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].IoPin));
+          ChildNode := XmlCreateChildNode(XmlDoc, ActionNode, 'name', LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Name);
           LogicNode := XmlCreateChildNode(XmlDoc, ActionNode, 'logic', '');
-          for iLogicActions := 0 to LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Actions.Count - 1 do
+          for iLogicActions := 0 to LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions.Count - 1 do
           begin
-            ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'action', '');
+            ChildNode := XmlCreateChildNode(XmlDoc, LogicNode, 'actions', '');
             // Don't save the state of the linked event as we don't know what it will be on reboot
-            XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-            XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
-            XmlAttributeForce(XmlDoc, ChildNode, 'truestate', LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LogicTrueStateName);
-            if LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted then
-              XmlAttributeForce(XmlDoc, ChildNode, 'inverted', BooleanToString( LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].Inverted));
-            XmlCreateChildNode(XmlDoc, ChildNode, 'name', LccDistrict[iDistrict].LccObject[iObjects].OutputActionGroup[iActionGroups].Action[iActions].Logic.Action[iLogicActions].LinkedName);
+            XmlAttributeForce(XmlDoc, ChildNode, 'eventidlo', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].EventIDLoLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+            XmlAttributeForce(XmlDoc, ChildNode, 'eventidhi', StringReplace( EventIDToString(LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].EventIDHiLinked, True), NodeIDToString(NodeID, True), '{$NODEID}', [rfReplaceAll, rfIgnoreCase]));
+            XmlAttributeForce(XmlDoc, ChildNode, 'truestate', LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].LogicTrueStateName);
+            if LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].Inverted then
+              XmlAttributeForce(XmlDoc, ChildNode, 'inverted', BooleanToString( LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].Inverted));
+            XmlCreateChildNode(XmlDoc, ChildNode, 'name', LccDistricts[iDistrict].LccObjects[iObjects].OutputActionGroups[iActionGroups].Actions[iActions].Logic.Actions[iLogicActions].LinkedName);
           end;
         end;
       end;
@@ -1050,7 +974,7 @@ begin
   Action := nil;
   for i := 0 to Actions.Count - 1 do
   begin
-    LocalAction := ActionItem[i];
+    LocalAction := Actions[i];
     if LocalAction.ActionType = lat_Output then
     begin
       if EqualEventID(LocalAction.FEventIDLo, Event) then
@@ -1078,7 +1002,7 @@ begin
   Action := nil;
   for i := 0 to Actions.Count - 1 do
   begin
-    LocalAction := ActionItem[i];
+    LocalAction := Actions[i];
     if LocalAction.ActionType = lat_Input then
     begin
       if EqualEventID(LocalAction.FEventIDLo, Event) then

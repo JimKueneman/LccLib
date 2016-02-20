@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 270
+  Left = 221
   Height = 627
-  Top = 155
+  Top = 113
   Width = 1072
   Caption = 'Lcc Layout Modeler by Mustangpeak Engineering'
   ClientHeight = 627
@@ -29,13 +29,13 @@ object Form1: TForm1
       ParentColor = False
       WordWrap = True
     end
-    object Panel2: TPanel
+    object PanelDistricts: TPanel
       Left = 1
       Height = 234
       Top = 65
       Width = 459
       Align = alTop
-      Caption = 'Panel2'
+      Caption = 'PanelDistricts'
       ClientHeight = 234
       ClientWidth = 459
       TabOrder = 0
@@ -101,20 +101,20 @@ object Form1: TForm1
         ParentColor = False
       end
     end
-    object Panel3: TPanel
+    object PanelObjects: TPanel
       Left = 1
       Height = 319
       Top = 307
       Width = 459
       Align = alClient
-      Caption = 'Panel3'
+      Caption = 'PanelObject'
       ClientHeight = 319
       ClientWidth = 459
       TabOrder = 1
       object ToolBar2: TToolBar
         Left = 1
         Height = 42
-        Top = 1
+        Top = 41
         Width = 457
         AutoSize = True
         ButtonHeight = 40
@@ -137,8 +137,8 @@ object Form1: TForm1
       end
       object ListViewObjects: TListView
         Left = 1
-        Height = 259
-        Top = 59
+        Height = 219
+        Top = 99
         Width = 457
         Align = alClient
         AutoWidthLastColumn = True
@@ -164,13 +164,25 @@ object Form1: TForm1
       object Label4: TLabel
         Left = 9
         Height = 16
-        Top = 43
+        Top = 83
         Width = 449
         Align = alTop
         Alignment = taCenter
         BorderSpacing.Left = 8
         Caption = 'My Layout Objects'
         ParentColor = False
+      end
+      object LabelObjectDescription: TLabel
+        Left = 5
+        Height = 32
+        Top = 5
+        Width = 449
+        Align = alTop
+        Alignment = taCenter
+        BorderSpacing.Around = 4
+        Caption = 'Here is where you enter Layout Objects that create the actions on your railroad.'
+        ParentColor = False
+        WordWrap = True
       end
     end
     object Splitter1: TSplitter
@@ -183,7 +195,7 @@ object Form1: TForm1
       ResizeAnchor = akTop
     end
   end
-  object Panel4: TPanel
+  object PanelRight: TPanel
     Left = 466
     Height = 627
     Top = 0
@@ -192,26 +204,18 @@ object Form1: TForm1
     ClientHeight = 627
     ClientWidth = 606
     TabOrder = 1
-    object Panel5: TPanel
-      Left = 1
-      Height = 50
-      Top = 1
-      Width = 604
-      Align = alTop
-      TabOrder = 0
-    end
     object Panel6: TPanel
       Left = 1
-      Height = 575
-      Top = 51
+      Height = 625
+      Top = 1
       Width = 604
       Align = alClient
-      ClientHeight = 575
+      ClientHeight = 625
       ClientWidth = 604
-      TabOrder = 1
+      TabOrder = 0
       object PageControl1: TPageControl
         Left = 1
-        Height = 573
+        Height = 623
         Top = 1
         Width = 602
         ActivePage = TabSheetActionEditor
@@ -220,22 +224,22 @@ object Form1: TForm1
         TabOrder = 0
         object TabSheetActionEditor: TTabSheet
           Caption = 'Action Editor'
-          ClientHeight = 534
+          ClientHeight = 584
           ClientWidth = 596
           object Panel7: TPanel
             Left = 0
-            Height = 184
+            Height = 240
             Top = 0
             Width = 596
             Align = alTop
             Caption = 'Panel7'
-            ClientHeight = 184
+            ClientHeight = 240
             ClientWidth = 596
             TabOrder = 0
             object ToolBar3: TToolBar
               Left = 1
               Height = 42
-              Top = 1
+              Top = 41
               Width = 594
               AutoSize = True
               ButtonHeight = 40
@@ -259,7 +263,7 @@ object Form1: TForm1
             object Label2: TLabel
               Left = 9
               Height = 16
-              Top = 43
+              Top = 83
               Width = 586
               Align = alTop
               Alignment = taCenter
@@ -269,8 +273,8 @@ object Form1: TForm1
             end
             object ListViewInputActions: TListView
               Left = 1
-              Height = 124
-              Top = 59
+              Height = 140
+              Top = 99
               Width = 594
               Align = alClient
               AutoWidthLastColumn = True
@@ -292,21 +296,33 @@ object Form1: TForm1
               TabOrder = 1
               ViewStyle = vsReport
             end
+            object LabelActionInputDescription: TLabel
+              Left = 5
+              Height = 32
+              Top = 5
+              Width = 586
+              Align = alTop
+              Alignment = taCenter
+              BorderSpacing.Around = 4
+              Caption = 'Here is where you define the Input Actions that are needed by this Object to determine its Output Action states.'
+              ParentColor = False
+              WordWrap = True
+            end
           end
           object Panel8: TPanel
             Left = 0
-            Height = 216
-            Top = 184
+            Height = 256
+            Top = 240
             Width = 596
             Align = alTop
             Caption = 'Panel8'
-            ClientHeight = 216
+            ClientHeight = 256
             ClientWidth = 596
             TabOrder = 1
             object ToolBar4: TToolBar
               Left = 1
               Height = 42
-              Top = 1
+              Top = 41
               Width = 594
               AutoSize = True
               ButtonHeight = 40
@@ -330,7 +346,7 @@ object Form1: TForm1
             object Label3: TLabel
               Left = 9
               Height = 16
-              Top = 43
+              Top = 83
               Width = 586
               Align = alTop
               Alignment = taCenter
@@ -341,7 +357,7 @@ object Form1: TForm1
             object ListViewOuputActions: TListView
               Left = 1
               Height = 156
-              Top = 59
+              Top = 99
               Width = 594
               Align = alClient
               AutoWidthLastColumn = True
@@ -363,19 +379,31 @@ object Form1: TForm1
               TabOrder = 1
               ViewStyle = vsReport
             end
+            object LabelActionOutputDescription: TLabel
+              Left = 5
+              Height = 32
+              Top = 5
+              Width = 586
+              Align = alTop
+              Alignment = taCenter
+              BorderSpacing.Around = 4
+              Caption = 'Here is where you define the Output Actions that this Object creates.  It uses the Input Actions to create Boolean Logic to change the Output State.'
+              ParentColor = False
+              WordWrap = True
+            end
           end
           object Button1: TButton
             Left = 24
             Height = 22
-            Top = 409
+            Top = 512
             Width = 123
             Action = ActionFileOpen
             TabOrder = 2
           end
           object Button2: TButton
-            Left = 24
+            Left = 168
             Height = 22
-            Top = 451
+            Top = 512
             Width = 123
             Action = ActionFileSave
             TabOrder = 3
@@ -1226,8 +1254,8 @@ object Form1: TForm1
     top = 535
   end
   object PopupMenuAddObject: TPopupMenu
-    left = 280
-    top = 312
+    left = 288
+    top = 352
     object MenuItemAddObjectBlock: TMenuItem
       Action = ActionAddObjectBlock
     end
@@ -1245,7 +1273,7 @@ object Form1: TForm1
     end
   end
   object PopupMenuAddDistrict: TPopupMenu
-    left = 264
+    left = 312
     top = 72
     object MenuItem2: TMenuItem
       Caption = 'New Item1'
@@ -1253,14 +1281,14 @@ object Form1: TForm1
   end
   object PopupMenuAddInputAction: TPopupMenu
     left = 728
-    top = 96
+    top = 80
     object MenuItem3: TMenuItem
       Caption = 'New Item1'
     end
   end
   object PopupMenuAddOutputAction: TPopupMenu
-    left = 728
-    top = 280
+    left = 736
+    top = 328
     object MenuItem4: TMenuItem
       Caption = 'New Item1'
     end

@@ -2035,7 +2035,7 @@ begin
   begin
     for i := 0 to SdnController.Actions.Count - 1 do
     begin
-      LocalAction := SdnController.ActionItem[i];
+      LocalAction := SdnController.Actions[i];
       if LocalAction.Consumer then
       begin
         WorkerMessage.LoadConsumerIdentified(NodeID, AliasID,LocalAction.FEventIDLo, LocalAction.EventState);
@@ -2101,7 +2101,7 @@ begin
   begin
     for i := 0 to SdnController.Actions.Count - 1 do
     begin
-      LocalAction := SdnController.ActionItem[i];
+      LocalAction := SdnController.Actions[i];
       if LocalAction.Producer then
       begin
         WorkerMessage.LoadProducerIdentified(NodeID, AliasID, LocalAction.FEventIDLo, LocalAction.EventState);

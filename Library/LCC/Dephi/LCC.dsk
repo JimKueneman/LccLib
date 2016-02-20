@@ -14,15 +14,15 @@ File_10=TSourceModule,'Z:\LccLib\Library\LCC\lcc_raspberrypi.pas',0,1,1,1,1,0,0,
 [Modules]
 Module0=Z:\LccLib\Library\LCC\lcc_sdn_utilities.pas
 Module1=Z:\LccLib\Library\LCC\lcc_node.pas
-Module2=default.htm
-Module3=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
-Module4=Z:\LccLib\Library\LCC\lcc_utilities.pas
-Module5=Z:\LccLib\Library\LCC\lcc_defines.pas
-Module6=c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Generics.Collections.pas
-Module7=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_xmlutilities.pas
-Module8=c:\program files\embarcadero\studio\16.0\SOURCE\XML\Xml.XMLDoc.pas
-Module9=c:\program files\embarcadero\studio\16.0\SOURCE\XML\Xml.XMLIntf.pas
-Module10=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
+Module2=Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas
+Module3=Z:\LccLib\Library\LCC\lcc_utilities.pas
+Module4=Z:\LccLib\Library\LCC\lcc_defines.pas
+Module5=c:\program files\embarcadero\studio\16.0\source\rtl\common\System.Generics.Collections.pas
+Module6=\\vmware-host\Shared Folders\LccLib\Library\LCC\lcc_xmlutilities.pas
+Module7=c:\program files\embarcadero\studio\16.0\SOURCE\XML\Xml.XMLDoc.pas
+Module8=c:\program files\embarcadero\studio\16.0\SOURCE\XML\Xml.XMLIntf.pas
+Module9=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
+Module10=default.htm
 Count=11
 EditWindowCount=1
 
@@ -35,9 +35,6 @@ FormOnTop=0
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
-
-[default.htm]
-ModuleType=TURLModule
 
 [Z:\LccLib\Library\LCC\lcc_node_protocol_helpers.pas]
 ModuleType=TSourceModule
@@ -78,6 +75,9 @@ FormOnTop=0
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
+
+[default.htm]
+ModuleType=TURLModule
 
 [EditWindow0]
 ViewCount=11
@@ -140,9 +140,9 @@ EditViewName=Z:\LccLib\Library\LCC\lcc_nodemanager.pas
 [View2]
 CustomEditViewType=TEditView
 Module=Z:\LccLib\Library\LCC\lcc_sdn_utilities.pas
-CursorX=13
-CursorY=570
-TopLine=163
+CursorX=40
+CursorY=183
+TopLine=160
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -310,11 +310,11 @@ State=0
 Left=0
 Top=0
 Width=2680
-Height=7000
+Height=8116
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2680
-ClientHeight=7000
+ClientHeight=8116
 TBDockHeight=5899
 LRDockWidth=2345
 Dockable=1
@@ -348,11 +348,11 @@ State=0
 Left=0
 Top=0
 Width=2680
-Height=7000
+Height=8116
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2680
-ClientHeight=7000
+ClientHeight=8116
 TBDockHeight=7145
 LRDockWidth=1994
 Dockable=1
@@ -463,11 +463,11 @@ State=0
 Left=0
 Top=0
 Width=2680
-Height=7000
+Height=8116
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2680
-ClientHeight=7000
+ClientHeight=8116
 TBDockHeight=5957
 LRDockWidth=2509
 Dockable=1
@@ -857,6 +857,6 @@ LRDockWidth=2680
 Dockable=1
 StayOnTop=0
 TabPosition=1
-ActiveTabID=frmDesignPreview
-TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,ModelViewTool,DataExplorerContainer,TemplateView,TFileExplorerForm
+ActiveTabID=PropertyInspector
+TabDockClients=PropertyInspector,ToolForm,ProjectManager,frmDesignPreview,TemplateView,TFileExplorerForm,ModelViewTool,DataExplorerContainer
 
