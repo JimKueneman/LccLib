@@ -910,7 +910,6 @@ type
     property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
 
-type
   TLccNetworkTreePropeties = (tp_NodeID, tp_AliasID, tp_ConsumedEvents, tp_ProducedEvents, tp_Snip, tp_Protocols, tp_Acid);
   TLccNetworkTreePropetiesSet = set of TLccNetworkTreePropeties;
 
