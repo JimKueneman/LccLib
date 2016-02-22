@@ -89,8 +89,6 @@ object TabbedwithNavigationForm: TTabbedwithNavigationForm
             DeleteButton.Text = 'Delete'
             DragDropOptions.Opacity = 1.000000000000000000
             HeaderOptions.Color = claNull
-            HeaderOptions.StickyHeaders.Button.JumpToHeaderOptions.HeaderHeight = 32.000000000000000000
-            HeaderOptions.StickyHeaders.Button.JumpToHeaderOptions.ItemHeight = 32.000000000000000000
             PullToRefresh.Font.Size = 16.000000000000000000
             PullToRefresh.PullText = 'pull to refresh'
             PullToRefresh.ReleaseText = 'release to refresh'

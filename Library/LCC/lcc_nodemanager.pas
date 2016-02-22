@@ -780,8 +780,8 @@ type
     procedure SetNodes(Index: Integer; AValue: TLccNode);
     procedure SetOwnedNodes(Index: Integer; AValue: TLccOwnedNode);
   protected
-    property NodeList: TList read FNodeList write FNodeList;
-    property OwnedNodeList: TList read FOwnedNodeList write FOwnedNodeList;
+    property NodeList: TObjectList<TLccNode> read FNodeList write FNodeList;
+    property OwnedNodeList: TObjectList<TLccOwnedNode> read FOwnedNodeList write FOwnedNodeList;
 
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoCDI(SourceLccNode, DestLccNode: TLccNode); virtual;

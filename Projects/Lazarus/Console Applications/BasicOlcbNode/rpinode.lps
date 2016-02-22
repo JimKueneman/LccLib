@@ -7,8 +7,7 @@
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="91"/>
+        <TopLine Value="92"/>
         <CursorPos X="41" Y="101"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
@@ -30,9 +29,10 @@
       </Unit2>
       <Unit3>
         <Filename Value="../../../../Library/LCC/lcc_nodemanager.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="6"/>
-        <CursorPos X="27" Y="14"/>
+        <TopLine Value="766"/>
+        <CursorPos X="55" Y="783"/>
         <UsageCount Value="104"/>
         <Loaded Value="True"/>
       </Unit3>
