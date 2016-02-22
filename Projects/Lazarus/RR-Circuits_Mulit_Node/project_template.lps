@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="53">
+    <Units Count="54">
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -28,6 +28,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="form_template"/>
+        <IsVisibleTab Value="True"/>
         <CursorPos X="12" Y="12"/>
         <UsageCount Value="125"/>
         <Loaded Value="True"/>
@@ -212,9 +213,8 @@
       <Unit30>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
         <UnitName Value="lcc_nodemanager"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="3812"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="3813"/>
         <CursorPos X="28" Y="3818"/>
         <UsageCount Value="27"/>
         <Loaded Value="True"/>
@@ -243,14 +243,14 @@
       <Unit34>
         <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
         <UnitName Value="lcc_utilities"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="24"/>
         <Loaded Value="True"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
         <UnitName Value="file_utilities"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="72" Y="17"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -373,8 +373,17 @@
         <CursorPos X="58" Y="124"/>
         <UsageCount Value="23"/>
       </Unit52>
+      <Unit53>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <UnitName Value="Generics.Defaults"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="621"/>
+        <CursorPos X="46" Y="513"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit53>
     </Units>
-    <JumpHistory Count="9" HistoryIndex="8">
+    <JumpHistory Count="16" HistoryIndex="15">
       <Position1>
         <Filename Value="form_template.pas"/>
         <Caret Line="171" TopLine="155"/>
@@ -411,6 +420,33 @@
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
         <Caret Line="17" Column="72"/>
       </Position9>
+      <Position10>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+      </Position10>
+      <Position11>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="529" Column="156"/>
+      </Position11>
+      <Position12>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="651" Column="231" TopLine="632"/>
+      </Position12>
+      <Position13>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="652" Column="231" TopLine="634"/>
+      </Position13>
+      <Position14>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="653" Column="23" TopLine="632"/>
+      </Position14>
+      <Position15>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="632" Column="57" TopLine="626"/>
+      </Position15>
+      <Position16>
+        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Caret Line="526" Column="51" TopLine="507"/>
+      </Position16>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

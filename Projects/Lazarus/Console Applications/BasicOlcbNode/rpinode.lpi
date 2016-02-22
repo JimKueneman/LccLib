@@ -44,7 +44,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils/;C:/lazarus/components/lazutils;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils/"/>
+      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils;C:/lazarus/components/lazutils/;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
