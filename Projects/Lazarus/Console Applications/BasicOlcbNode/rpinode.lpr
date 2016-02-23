@@ -50,6 +50,7 @@ type
     FLccMessage: TLccMessage;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
+    FTemplateFile: string;
     {$IFDEF CPUARM}FPiSpi: TRaspberryPiSpi;{$ENDIF}
     FTriedConnecting: Boolean;
   protected
@@ -76,6 +77,7 @@ type
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property LccMessage: TLccMessage read FLccMessage write FLccMessage;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
+    property TemplateFile: string read FTemplateFile write FTemplateFile;
     {$IFDEF CPUARM}property PiSpi: TRaspberryPiSpi read FPiSpi write FPiSpi;{$ENDIF}
   end;
 
@@ -172,7 +174,7 @@ begin
     end;
     try
       // The XML will be loaded after the NodeID is generated
-      NodeManager.RootNode.SdnController.FilePathTemplate := GetAppConfigDir(False) + GetOptionValue('t', 'template');
+      TemplateFile := GetAppConfigDir(False) + GetOptionValue('t', 'template');
       WriteLn('Node Template file: ' + GetAppConfigDir(False) + GetOptionValue('t', 'template'))
     except
       WriteLn('Error loading Node Template File');
@@ -487,9 +489,9 @@ begin
   begin
     NodeManager.RootNode.SdnController.XMLParse(ConfigFile);
   end else
-  if FileExists(NodeManager.RootNode.SdnController.FilePathTemplate) then
+  if FileExists(TemplateFile) then
   begin
-    NodeManager.RootNode.SdnController.XMLParse(NodeManager.RootNode.SdnController.FilePathTemplate);
+    NodeManager.RootNode.SdnController.XMLParse(TemplateFile);
     NodeManager.RootNode.SdnController.AutoAssignEventIDs;
     NodeManager.RootNode.SdnController.AutoAssignLogicEvents;
     NodeManager.RootNode.SdnController.XMLExport(ConfigFile);

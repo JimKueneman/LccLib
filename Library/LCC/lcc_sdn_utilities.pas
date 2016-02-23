@@ -153,7 +153,6 @@ type
   private
     FConsumerMap: TPCMap;
     FExternals: TStringList;
-    FFilePathTemplate: string;
     FAvailableIoInput: Integer;
     FAvailableIoOutput: Integer;
     FActions: TObjectList<TLccBinaryAction>;
@@ -183,7 +182,6 @@ type
     property AvailableIoOutput: Integer read FAvailableIoOutput;
     property ConsumerIdMap: TPCMap read FConsumerMap;
     property Externals: TStringList read FExternals write FExternals;
-    property FilePathTemplate: string read FFilePathTemplate write FFilePathTemplate;
     property Actions: TObjectList<TLccBinaryAction> read FActions write FActions;
     property LccDistricts: TObjectList<TLccDistrict> read FLccDistricts write FLccDistricts;
     property InputActionCount: Integer read GetInputActionCount;
