@@ -1157,6 +1157,11 @@ procedure TVirtualListItem.Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutA
         ImageRect.Right := ImageRect.Right - ImageLayout.Padding.Right;
         ImageRect.Top := ImageRect.Top + ImageLayout.Padding.Top;
         ImageRect.Bottom := ImageRect.Bottom - ImageLayout.Padding.Bottom;
+        if LocalCanvas.Scale <> 1 then
+        begin
+          ImageRect.Width := ImageRect.Width/LocalCanvas.Scale;
+          ImageRect.Height := ImageRect.Height/LocalCanvas.Scale;
+        end;
         ImageLayout.Images.Draw(LocalCanvas, ImageRect, ImageLayout.ImageIndex, ImageLayout.Opacity)
       end;
     finally
