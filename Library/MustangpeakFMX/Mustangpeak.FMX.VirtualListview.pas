@@ -173,7 +173,7 @@ type
     FChecked: Boolean;
     FSwipeState: TSwipeState;
     FSwipeTargetOffset: real;
-    FSwipeAni: TFloatAnimation;
+    FSwipeAni: TFloatKinematicAnimation;
     FSwipeCurrentOffset: real;
 
     procedure SetBoundsRect(const Value: TRectF);
@@ -185,7 +185,7 @@ type
     property BoundsRect: TRectF read FBoundsRect write SetBoundsRect;
     property ListviewItems: TVirtualListItems read FListviewItems;
     property SwipeTargetOffset: real read FSwipeTargetOffset write FSwipeTargetOffset;
-    property SwipeAni: TFloatAnimation read FSwipeAni write FSwipeAni;
+    property SwipeAni: TFloatKinematicAnimation read FSwipeAni write FSwipeAni;
 
     procedure CalculateVariableWidthElement(var LayoutArray: TVirtualItemLayoutArray);
     procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutArray: TVirtualItemLayoutArray);
@@ -294,8 +294,8 @@ type
     procedure DoMouseLeave; override;
     procedure EventMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
     procedure EventSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
-    procedure EventSwipeEnd(WorldX, WorldY: Single);
-    procedure EventSwipeMove(WorldX, WorldY: Single);
+    procedure EventSwipeEnd(WorldX, WorldY, Velocity: Single);
+    procedure EventSwipeMove(WorldX, WorldY, Velocity: Single);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
@@ -748,7 +748,7 @@ begin
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY: Single);
+procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY, Velocity: Single);
 begin
   if Assigned(Items.ActiveSwipe) then
   begin
@@ -756,16 +756,17 @@ begin
     begin
       Items.ActiveSwipe.SwipeAni.PropertyName := 'SwipeCurrentOffset';
       Items.ActiveSwipe.SwipeAni.Parent := Items.ActiveSwipe;
-      Items.ActiveSwipe.SwipeAni.StopValue := Items.ActiveSwipe.SwipeTargetOffset;
+      Items.ActiveSwipe.SwipeAni.StopMaxValue := Items.ActiveSwipe.SwipeTargetOffset;
       Items.ActiveSwipe.SwipeAni.StartValue := Items.ActiveSwipe.SwipeCurrentOffset;
-      Items.ActiveSwipe.SwipeAni.Duration := 0.300;
-      Items.ActiveSwipe.SwipeAni.Interpolation := TInterpolationType.Quadratic;
+      Items.ActiveSwipe.SwipeAni.InitialVelocity := Velocity;
+      Items.ActiveSwipe.SwipeAni.Duration := 0.500;
+   //   Items.ActiveSwipe.SwipeAni.Interpolation := TInterpolationType.Quadratic;
       Items.ActiveSwipe.SwipeAni.Enabled := True;
     end;
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY: Single);
+procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY, Velocity: Single);
 var
   Item: TVirtualListItem;
 begin
@@ -1096,7 +1097,7 @@ constructor TVirtualListItem.Create(AnOwner: TComponent; AnItemList: TVirtualLis
 begin
   inherited Create(AnOwner);
   FListviewItems := AnItemList;
-  FSwipeAni := TFloatAnimation.Create(Self);
+  FSwipeAni := TFloatKinematicAnimation.Create(Self);
   SwipeAni.Parent := Self;
   SwipeAni.SetRoot(ListviewItems.Listview.Parent as IRoot);
   SwipeAni.Enabled := False;

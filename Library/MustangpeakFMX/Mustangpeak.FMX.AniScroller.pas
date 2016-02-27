@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Classes, FMX.Types, FMX.Controls, System.Generics.Collections,
   System.Generics.Defaults, System.UITypes, System.UIConsts, System.Types, FMX.Graphics,
-  FMX.Ani, FMX.InertialMovement, System.Math;
+  FMX.Ani, FMX.InertialMovement, System.Math, System.Rtti;
 
 type
   TAniTargets = array of TAniCalculations.TTarget;
@@ -13,9 +13,42 @@ type
 
   TOnMouseClick = procedure(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single) of object;
   TOnSwipeStart = procedure(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection) of object;
-  TOnSwipeAction = procedure(WorldX, WorldY: Single) of object;
+  TOnSwipeAction = procedure(WorldX, WorldY, Velocity: Single) of object;
 
 type
+  TFloatKinematicAnimation = class(TCustomPropertyAnimation)
+  private
+    FStartFloat: Single;
+    FStopMaxValue: Single;
+    FStartFromCurrent: Boolean;
+    FInitialVelocity: Single;
+    FAcceleration: Single;
+    FInternalAcceleration: Single;
+    procedure SetInitialVelocity(const Value: Single);
+  protected
+    property InternalAcceleration: Single read FInternalAcceleration write FInternalAcceleration;
+    procedure ProcessAnimation; override;
+    procedure FirstFrame; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+  published
+    property Acceleration: Single read FAcceleration write FAcceleration;
+    property AutoReverse default False;
+    property Enabled default False;
+    property Delay;
+    property Loop default False;
+    property InitialVelocity: Single read FInitialVelocity write SetInitialVelocity;
+    property OnProcess;
+    property OnFinish;
+    property PropertyName;
+    property StartValue: Single read FStartFloat write FStartFloat stored True nodefault;
+    property StartFromCurrent: Boolean read FStartFromCurrent write FStartFromCurrent default False;
+    property StopMaxValue: Single read FStopMaxValue write FStopMaxValue stored True nodefault;
+    property Trigger;
+    property TriggerInverse;
+  end;
+
+
   TAniScroller = class
   private
     FAniCalcVert: TAniCalculations;
@@ -37,6 +70,8 @@ type
     FOnSwipeStart: TOnSwipeStart;
     FOnSwipeEnd: TOnSwipeAction;
     FOnSwipeMove: TOnSwipeAction;
+    FSwipeLastTickCount: Cardinal;
+    FSwipeVelocity: Single;
     function GetScrollOffsetMaxX: single;
     function GetScrollOffsetMaxY: single;
     function GetScrollOffsetX: single;
@@ -48,7 +83,9 @@ type
     property AniCalcVert: TAniCalculations read FAniCalcVert write FAniCalcVert;
     property ClientRect: TRectF read FWorldRect write FWorldRect;
     property PreviousScrollPos: TPointF read FPreviousScrollPos write FPreviousScrollPos;
+    property SwipeVelocity: Single read FSwipeVelocity write FSwipeVelocity;
     property SwipeCurrentPos: TPointF read FSwipeCurrentPos write FSwipeCurrentPos;
+    property SwipeLastTickCount: Cardinal read FSwipeLastTickCount write FSwipeLastTickCount;
     property ScrollMouseDownPoint: TPointF read FScrollMouseDownPoint write FScrollMouseDownPoint;
     property SwipeMouseDownPoint: TPointF read FSwipeMouseDownPoint write FSwipeMouseDownPoint;
     property ScrollDeltaMoveStart: single read FScrollDeltaMoveStart write FScrollDeltaMoveStart;
@@ -159,13 +196,13 @@ end;
 procedure TAniScroller.DoSwipeEnd(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeEnd) then
-    OnSwipeEnd(WorldX, WorldY);
+    OnSwipeEnd(WorldX, WorldY, SwipeVelocity);
 end;
 
 procedure TAniScroller.DoSwipeMove(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeMove) then
-    OnSwipeMove(WorldX, WorldY);
+    OnSwipeMove(WorldX, WorldY, SwipeVelocity);
 end;
 
 procedure TAniScroller.DoSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
@@ -264,12 +301,17 @@ begin
 end;
 
 procedure TAniScroller.MouseMove(Shift: TShiftState; X, Y: Single);
+var
+  CurrentTime: Cardinal;
 begin
   if Scrolling then
     AniCalcVert.MouseMove(X, Y)
   else
   if Swiping then
   begin
+    CurrentTime := TThread.GetTickCount * 1000;
+    SwipeVelocity := (Y - SwipeCurrentPos.Y) / (CurrentTime - SwipeLastTickCount);
+    SwipeLastTickCount := CurrentTime;
     SwipeCurrentPos := TPointF.Create(X, Y);
     DoSwipeMove(X + ScrollOffsetX, Y + ScrollOffsetY);
   end else
@@ -284,11 +326,15 @@ begin
       if (X < ScrollMouseDownPoint.X - SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
+        SwipeLastTickCount := TThread.GetTickCount;
+        SwipeVelocity := 0;
         DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Right);
       end else
       if (X > ScrollMouseDownPoint.X + SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
+        SwipeLastTickCount := TThread.GetTickCount;
+        SwipeVelocity := 0;
         DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Left);
       end;
     end;
@@ -351,6 +397,65 @@ begin
     AniCalcVert.ViewportPositionF := TPointF.Create(ScrollOffsetX, Temp);
     OwnerControl.InvalidateRect(OwnerControl.LocalRect);
   end;
+end;
+
+{ TFloatKinematicAnimation }
+
+constructor TFloatKinematicAnimation.Create(AOwner: TComponent);
+begin
+  inherited;
+  Duration := 0.2;
+  FStartFloat := 0;
+  FStopMaxValue := 0;
+  FAcceleration := 9.8;
+  FInitialVelocity := 0;
+end;
+
+procedure TFloatKinematicAnimation.FirstFrame;
+var
+  T: TRttiType;
+  P: TRttiProperty;
+  StopValue: Single;
+begin
+  if StartFromCurrent then
+  begin
+    T := SharedContext.GetType(FInstance.ClassInfo);
+    if T <> nil then
+    begin
+      P := T.GetProperty(FPath);
+      if (P <> nil) and (P.PropertyType.TypeKind = tkFloat) then
+        StartValue := P.GetValue(FInstance).AsExtended;
+    end;
+  end;
+  InternalAcceleration := 2*(StopMaxValue-(InitialVelocity*Duration)/(Duration*Duration));
+end;
+
+procedure TFloatKinematicAnimation.ProcessAnimation;
+var
+  T: TRttiType;
+  P: TRttiProperty;
+  s: Single;
+begin
+  if FInstance <> nil then
+  begin
+    T := SharedContext.GetType(FInstance.ClassInfo);
+    if T <> nil then
+    begin
+      P := T.GetProperty(FPath);
+      s := StartValue + (InitialVelocity*CurrentTime+(0.5*InternalAcceleration*CurrentTime*CurrentTime));
+      if s > StopMaxValue then
+        s := StopMaxValue;
+      if (P <> nil) and (P.PropertyType.TypeKind = tkFloat) then
+        P.SetValue(FInstance, s);
+    end;
+  end;
+end;
+
+procedure TFloatKinematicAnimation.SetInitialVelocity(const Value: Single);
+begin
+  FInitialVelocity := Value;
+  if FInitialVelocity = 0 then
+    FInitialVelocity := 100;
 end;
 
 end.
