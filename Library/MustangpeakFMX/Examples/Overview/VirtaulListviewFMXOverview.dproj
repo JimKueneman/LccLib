@@ -290,6 +290,8 @@
         <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_iOSDevice32)'!=''">
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=net.mustangpeak.$(MSBuildProjectName);CFBundleInfoDictionaryVersion=6.0;CFBundleVersion=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);CFBundleResourceSpecification=ResourceRules.plist;UIDeviceFamily=iPhone &amp; iPad;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;FMLocalNotificationPermission=false</VerInfo_Keys>
+        <PF_CFBundleIdentifierDebug>UV6M4DY5LG.net.mustangpeak.VirtaulListviewFMXOverview</PF_CFBundleIdentifierDebug>
         <PF_MobileProvisionDebug>iPhone4_dev</PF_MobileProvisionDebug>
         <PF_AutoCertificateDebug>False</PF_AutoCertificateDebug>
         <PF_DevTeamIdDebug>UV6M4DY5LG</PF_DevTeamIdDebug>
@@ -300,8 +302,8 @@
 	</PF_EntitlementExtraKeyValuesDebug>
         <PF_DevDebug>iPhone Developer: Jim Kueneman (42729UPNL7)</PF_DevDebug>
         <PF_AutoMobileProvisionDebug>False</PF_AutoMobileProvisionDebug>
-        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
-        <PF_KeyChainAccessDebug>UV6M4DY5LG.VirtaulListviewFMXOverview;</PF_KeyChainAccessDebug>
+        <VerInfo_BundleId>net.mustangpeak.$(ModuleName)</VerInfo_BundleId>
+        <PF_KeyChainAccessDebug>UV6M4DY5LG.net.mustangpeak.VirtaulListviewFMXOverview;</PF_KeyChainAccessDebug>
         <PF_AppIdentifierDebug>UV6M4DY5LG.net.mustangpeak.*</PF_AppIdentifierDebug>
         <PF_MobileProvisionPathDebug>/Users/jimkueneman/Library/MobileDevice/Provisioning Profiles/iPhone4_dev.mobileprovision</PF_MobileProvisionPathDebug>
         <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
@@ -1322,12 +1324,12 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>

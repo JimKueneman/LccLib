@@ -34,6 +34,7 @@ requires
 
 contains
   Mustangpeak.FMX.VirtualListview in 'Mustangpeak.FMX.VirtualListview.pas',
-  Mustangpeak.FMX.AniScroller in 'Mustangpeak.FMX.AniScroller.pas';
+  Mustangpeak.FMX.AniScroller in 'Mustangpeak.FMX.AniScroller.pas',
+  Mustangpeak.FMX.Animations in 'Mustangpeak.FMX.Animations.pas';
 
 end.

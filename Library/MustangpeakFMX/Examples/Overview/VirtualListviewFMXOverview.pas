@@ -149,9 +149,12 @@ end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
 begin
-  SetLength(Layout, 2);
-  Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80, claRed, 1.0);
-  Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80, claGreen, 1.0);
+  if (Item.SwipeDirection =  TSwipeDirection.Left) or (Item.SwipeDirection =  TSwipeDirection.None) then
+  begin
+    SetLength(Layout, 2);
+    Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80, claRed, 1.0);
+    Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80, claGreen, 1.0);
+  end;
 end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemText(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout; var DetailLines: Integer);
