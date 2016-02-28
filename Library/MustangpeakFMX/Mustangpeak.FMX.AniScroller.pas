@@ -9,11 +9,12 @@ uses
 
 type
   TAniTargets = array of TAniCalculations.TTarget;
-  TSwipeDirection = (None, Left, Right);
+  TSwipeState = (Left, Right, Swiping);
+  TSwipeStateSet = set of TSwipeState;
 
   TOnMouseClick = procedure(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single) of object;
-  TOnSwipeStart = procedure(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection) of object;
-  TOnSwipeAction = procedure(WorldX, WorldY, Velocity: Single) of object;
+  TOnSwipeStart = procedure(WorldX, WorldY: Single; SwipeState: TSwipeStateSet) of object;
+  TOnSwipeAction = procedure(WorldX, WorldY: Single) of object;
 
 
   TAniScroller = class
@@ -37,8 +38,6 @@ type
     FOnSwipeStart: TOnSwipeStart;
     FOnSwipeEnd: TOnSwipeAction;
     FOnSwipeMove: TOnSwipeAction;
-    FSwipeLastTickCount: Cardinal;
-    FSwipeVelocity: Single;
     function GetScrollOffsetMaxX: single;
     function GetScrollOffsetMaxY: single;
     function GetScrollOffsetX: single;
@@ -50,9 +49,7 @@ type
     property AniCalcVert: TAniCalculations read FAniCalcVert write FAniCalcVert;
     property ClientRect: TRectF read FWorldRect write FWorldRect;
     property PreviousScrollPos: TPointF read FPreviousScrollPos write FPreviousScrollPos;
-    property SwipeVelocity: Single read FSwipeVelocity write FSwipeVelocity;
     property SwipeCurrentPos: TPointF read FSwipeCurrentPos write FSwipeCurrentPos;
-    property SwipeLastTickCount: Cardinal read FSwipeLastTickCount write FSwipeLastTickCount;
     property ScrollMouseDownPoint: TPointF read FScrollMouseDownPoint write FScrollMouseDownPoint;
     property SwipeMouseDownPoint: TPointF read FSwipeMouseDownPoint write FSwipeMouseDownPoint;
     property ScrollDeltaMoveStart: single read FScrollDeltaMoveStart write FScrollDeltaMoveStart;
@@ -64,7 +61,7 @@ type
     procedure DoMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single); virtual;
     procedure DoSwipeEnd(WorldX, WorldY: Single); virtual;
     procedure DoSwipeMove(WorldX, WorldY: Single); virtual;
-    procedure DoSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection); virtual;
+    procedure DoSwipeStart(WorldX, WorldY: Single; SwipeState: TSwipeStateSet); virtual;
 
   public
     property IsMouseLeftButtonDown: Boolean read FIsMouseLeftButtonDown;
@@ -163,19 +160,19 @@ end;
 procedure TAniScroller.DoSwipeEnd(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeEnd) then
-    OnSwipeEnd(WorldX, WorldY, SwipeVelocity);
+    OnSwipeEnd(WorldX, WorldY);
 end;
 
 procedure TAniScroller.DoSwipeMove(WorldX, WorldY: Single);
 begin
   if Assigned(OnSwipeMove) then
-    OnSwipeMove(WorldX, WorldY, SwipeVelocity);
+    OnSwipeMove(WorldX, WorldY);
 end;
 
-procedure TAniScroller.DoSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TAniScroller.DoSwipeStart(WorldX, WorldY: Single; SwipeState: TSwipeStateSet);
 begin
   if Assigned(OnSwipeStart) then
-    OnSwipeStart(WorldX, WorldY, SwipeDirection);
+    OnSwipeStart(WorldX, WorldY, SwipeState);
 end;
 
 function TAniScroller.GetScrollOffsetMaxX: single;
@@ -268,17 +265,12 @@ begin
 end;
 
 procedure TAniScroller.MouseMove(Shift: TShiftState; X, Y: Single);
-var
-  CurrentTime: Cardinal;
 begin
   if Scrolling then
     AniCalcVert.MouseMove(X, Y)
   else
   if Swiping then
   begin
-    CurrentTime := TThread.GetTickCount * 1000;
-    SwipeVelocity := (Y - SwipeCurrentPos.Y) / (CurrentTime - SwipeLastTickCount);
-    SwipeLastTickCount := CurrentTime;
     SwipeCurrentPos := TPointF.Create(X, Y);
     DoSwipeMove(X + ScrollOffsetX, Y + ScrollOffsetY);
   end else
@@ -293,16 +285,12 @@ begin
       if (X < ScrollMouseDownPoint.X - SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
-        SwipeLastTickCount := TThread.GetTickCount;
-        SwipeVelocity := 0;
-        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Right);
+        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, [TSwipeState.Right, TSwipeState.Swiping]);
       end else
       if (X > ScrollMouseDownPoint.X + SwipeDeltaMoveStart) then
       begin
         FSwiping := True;
-        SwipeLastTickCount := TThread.GetTickCount;
-        SwipeVelocity := 0;
-        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, TSwipeDirection.Left);
+        DoSwipeStart(X + ScrollOffsetX, Y + ScrollOffsetY, [TSwipeState.Left, TSwipeState.Swiping]);
       end;
     end;
   end;

@@ -17,6 +17,9 @@ const
 
   ID_SWIPE_DELETE    = 100;
   ID_SWIPE_ARCHIVE   = 101;
+  ID_SWIPE_SNOW      = 102;
+  ID_SWIPE_FREEZE    = 103;
+  ID_SWIPE_MELT      = 104;
 
 type
   THeaderFooterForm = class(TForm)
@@ -40,15 +43,9 @@ type
     procedure VirtualListviewFMX1GetItemTextDetail(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
     procedure FormDestroy(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
-    procedure VirtualListviewFMX1GetItemTextSwipe(
-      Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
-      TextLayout: TTextLayout);
-    procedure VirtualListviewFMX1GetItemTextDetailSwipe(
-      Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer;
-      TextLayout: TTextLayout);
-    procedure VirtualListviewFMX1ItemLayoutElementSwipeClick(
-      Sender: TCustomVirtualListview; Item: TVirtualListItem;
-      Button: TMouseButton; Shift: TShiftState; ID: Integer);
+    procedure VirtualListviewFMX1GetItemTextSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
+    procedure VirtualListviewFMX1GetItemTextDetailSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; ID: Integer; TextLayout: TTextLayout);
+    procedure VirtualListviewFMX1ItemLayoutElementSwipeClick(Sender: TCustomVirtualListview; Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer);
   private
     FItemGradient: TGradient;
     { Private declarations }
@@ -149,11 +146,18 @@ end;
 
 procedure THeaderFooterForm.VirtualListviewFMX1GetItemLayoutSwipe(Sender: TCustomVirtualListview; Item: TVirtualListItem; var Layout: TVirtualItemLayoutSwipeArray);
 begin
-  if (Item.SwipeDirection =  TSwipeDirection.Left) or (Item.SwipeDirection =  TSwipeDirection.None) then
+  if TSwipeState.Left in Item.SwipeState then
   begin
     SetLength(Layout, 2);
     Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_DELETE, TVirtualLayoutKind.Text, 80, claRed, 1.0);
     Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_ARCHIVE, TVirtualLayoutKind.Text, 80, claGreen, 1.0);
+  end else
+  if TSwipeState.Right in Item.SwipeState then
+  begin
+    SetLength(Layout, 3);
+    Layout[2] := TVirtualLayoutSwipe.Create(ID_SWIPE_SNOW, TVirtualLayoutKind.Text, 80, claBlue, 1.0);
+    Layout[1] := TVirtualLayoutSwipe.Create(ID_SWIPE_FREEZE, TVirtualLayoutKind.Text, 100, claAqua, 1.0);
+    Layout[0] := TVirtualLayoutSwipe.Create(ID_SWIPE_MELT, TVirtualLayoutKind.Text, 80, claAquamarine, 1.0);
   end;
 end;
 
@@ -199,6 +203,9 @@ begin
   case ID of
     ID_SWIPE_DELETE : TextLayout.Text := 'Delete';
     ID_SWIPE_ARCHIVE : TextLayout.Text := 'Archive';
+    ID_SWIPE_SNOW : TextLayout.Text := 'Snow';
+    ID_SWIPE_FREEZE : TextLayout.Text := 'Freeze';
+    ID_SWIPE_MELT : TextLayout.Text := 'Melt';
   end;
 end;
 
@@ -234,6 +241,9 @@ begin
   case ID of
     ID_SWIPE_DELETE     : ShowMessage('Swipe Delete Clicked');
     ID_SWIPE_ARCHIVE    : ShowMessage('Swipe Archive Clicked');
+    ID_SWIPE_SNOW       : ShowMessage('Swipe Snow Clicked');
+    ID_SWIPE_FREEZE     : ShowMessage('Swipe Freeze Clicked');
+    ID_SWIPE_MELT       : ShowMessage('Swipe Melt Clicked');
   end;
 end;
 

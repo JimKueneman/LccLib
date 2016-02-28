@@ -169,7 +169,7 @@ type
     FFocused: Boolean;
     FSelected: Boolean;
     FChecked: Boolean;
-    FSwipeDirection: TSwipeDirection;
+    FSwipeState: TSwipeStateSet;
     FSwipeTargetOffset: Single;
     FSwipeAni: TFloatAnimation;
     FSwipeCurrentOffset: Single;
@@ -192,15 +192,15 @@ type
     procedure Paint(ACanvas: TCanvas; ViewportRect: TRectF; LayoutArray: TVirtualItemLayoutArray);
     procedure SwipeAniProcess(Sender: TObject);
     procedure SwipeAniFinish(Sender: TObject);
-    procedure SwipeEnd(Listview: TCustomVirtualListview; WorldX, WorldY, Velocity: Single);
-    procedure SwipeStart(Listview: TCustomVirtualListview; WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
-    procedure SwipeMove(Listview: TCustomVirtualListview; WorldX, WorldY, Velocity: Single);
+    procedure SwipeEnd(Listview: TCustomVirtualListview; WorldX, WorldY: Single);
+    procedure SwipeStart(Listview: TCustomVirtualListview; WorldX, WorldY: Single; SwipeState: TSwipeStateSet);
+    procedure SwipeMove(Listview: TCustomVirtualListview; WorldX, WorldY: Single);
   public
     property Checked: Boolean read FChecked write SetChecked;
     property Focused: Boolean read FFocused write SetFocused;
     property Selected: Boolean read FSelected write SetSelected;
     property Swiped: Boolean read FSwiped;
-    property SwipeDirection: TSwipeDirection read FSwipeDirection;
+    property SwipeState: TSwipeStateSet read FSwipeState;
     property iIndex: Integer read FIndex;
     property Visible: Boolean read FVisible write SetVisible;
 
@@ -298,9 +298,9 @@ type
     procedure DoItemLayoutElementSwipeClick(Item: TVirtualListItem; Button: TMouseButton; Shift: TShiftState; ID: Integer); virtual;
     procedure DoMouseLeave; override;
     procedure EventMouseClick(Button: TMouseButton; Shift: TShiftState; WorldX, WorldY: Single);
-    procedure EventSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
-    procedure EventSwipeEnd(WorldX, WorldY, Velocity: Single);
-    procedure EventSwipeMove(WorldX, WorldY, Velocity: Single);
+    procedure EventSwipeStart(WorldX, WorldY: Single; SwipeState: TSwipeStateSet);
+    procedure EventSwipeEnd(WorldX, WorldY: Single);
+    procedure EventSwipeMove(WorldX, WorldY: Single);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
     procedure MouseMove(Shift: TShiftState; X: Single; Y: Single); override;
@@ -736,7 +736,7 @@ begin
   Item := Items.FindItemByPt(Point);
   if Assigned(Item) then
   begin
-    if Item.SwipeDirection <> TSwipeDirection.None then
+    if Item.SwipeState <> [] then
     begin
       LoadItemLayoutSwipe(Item, SwipeLayout);
       ID := Item.PointToSwipeLayoutID(Point, SwipeLayout);
@@ -756,29 +756,29 @@ begin
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY, Velocity: Single);
+procedure TCustomVirtualListview.EventSwipeEnd(WorldX, WorldY: Single);
 begin
   if Assigned(Items.ActiveSwipe) then
   begin
     if not Items.ActiveSwipe.Swiped then
     begin
-      Items.ActiveSwipe.SwipeEnd(Self, WorldX, WorldY, Velocity);
+      Items.ActiveSwipe.SwipeEnd(Self, WorldX, WorldY);
       if Items.ActiveSwipe.SwipeTargetOffset = 0 then
         Items.ActiveSwipe := nil;
     end;
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY, Velocity: Single);
+procedure TCustomVirtualListview.EventSwipeMove(WorldX, WorldY: Single);
 begin
   if Assigned(Items.ActiveSwipe) then
   begin
     if not Items.ActiveSwipe.Swiped then
-      Items.ActiveSwipe.SwipeMove(Self, WorldX, WorldY, Velocity);
+      Items.ActiveSwipe.SwipeMove(Self, WorldX, WorldY);
   end;
 end;
 
-procedure TCustomVirtualListview.EventSwipeStart(WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TCustomVirtualListview.EventSwipeStart(WorldX, WorldY: Single; SwipeState: TSwipeStateSet);
 var
   Point: TPointF;
   TempSwipeItem: TVirtualListItem;
@@ -789,7 +789,7 @@ begin
   begin
     Items.ActiveSwipe := TempSwipeItem;
     if Assigned(Items.ActiveSwipe) then
-      Items.ActiveSwipe.SwipeStart(Self, WorldX, WorldY, SwipeDirection);
+      Items.ActiveSwipe.SwipeStart(Self, WorldX, WorldY, SwipeState);
   end;
 end;
 
@@ -1035,9 +1035,8 @@ begin
   begin
     if Assigned(FActiveSwipe) then
     begin
-      ActiveSwipe.FSwipeDirection := TSwipeDirection.None;
       ActiveSwipe.SwipeTargetOffset := 0;
-      ActiveSwipe.SwipeEnd(Listview, 0, 0, 0);
+      ActiveSwipe.SwipeEnd(Listview, 0, 0);
       Listview.Invalidate;
     end;
     FActiveSwipe := Value;
@@ -1235,20 +1234,24 @@ begin
     WindowRect.Offset(-ViewportRect.Left, -ViewportRect.Top);
 
     // Offset the item if it is swiping
-    if (SwipeDirection <> TSwipeDirection.None) or SwipeAni.Enabled then
+    if ([TSwipeState.Right, TSwipeState.Left] * SwipeState <> []) or SwipeAni.Enabled then
     begin
       if SwipeTotalLayoutWidth = 0 then
         SwipeScaling := 1
       else
-        SwipeScaling := SwipeCurrentOffset/SwipeTotalLayoutWidth;
+        SwipeScaling := Abs(SwipeCurrentOffset/SwipeTotalLayoutWidth);
       LayoutSwipeArray := nil;
       ListviewItems.Listview.DoGetItemLayoutSwipe(Self, LayoutSwipeArray);
-      RightMarker := 0;
+      if TSwipeState.Left in SwipeState then
+        RightMarker := 0
+      else
+        RightMarker := WindowRect.Width + SwipeCurrentOffset;   // Offset is negative here
+
       // Now have the widths for all elements
       for i := 0 to Length(LayoutSwipeArray) - 1 do
       begin
-        // Calculate the Elements rectangle
         ElementRect := WindowRect;
+        // Calculate the Elements rectangle
         ElementRect.Left := ElementRect.Left + RightMarker;
         ElementRect.Right := ElementRect.Left + (LayoutSwipeArray[i].Width * SwipeScaling);
 
@@ -1328,17 +1331,32 @@ end;
 function TVirtualListItem.PointToSwipeLayoutID(Point: TPointF; LayoutArray: TVirtualItemLayoutSwipeArray): Integer;
 var
   i: Integer;
-  RunningRight: single;
+  RunningEdge: single;
 begin
   Result := -1;
-  RunningRight := 0;
-  for i := 0 to Length(LayoutArray) - 1 do
+  if TSwipeState.Left in SwipeState then
   begin
-    RunningRight := RunningRight + LayoutArray[i].Width;
-    if Point.X < RunningRight then
+    RunningEdge := 0;
+    for i := 0 to Length(LayoutArray) - 1 do
     begin
-      Result := LayoutArray[i].ID;
-      Break
+      RunningEdge := RunningEdge + LayoutArray[i].Width;
+      if Point.X < RunningEdge then
+      begin
+        Result := LayoutArray[i].ID;
+        Break
+      end;
+    end;
+  end else
+  begin
+    RunningEdge := BoundsRect.Right;
+    for i := Length(LayoutArray) - 1 downto 0 do
+    begin
+      RunningEdge := RunningEdge - LayoutArray[i].Width;
+      if Point.X > RunningEdge then
+      begin
+        Result := LayoutArray[i].ID;
+        Break
+      end;
     end;
   end;
 end;
@@ -1387,7 +1405,17 @@ end;
 procedure TVirtualListItem.SwipeAniFinish(Sender: TObject);
 begin
   SwipeAni.Enabled := False;
-  FSwiped := SwipeTargetOffset > 0;
+  if Abs(SwipeTargetOffset) > 0 then
+  begin
+    FSwiped := True;
+    Exclude(FSwipeState, TSwipeState.Swiping);
+  end else
+  begin
+    FSwiped := False;
+    Exclude(FSwipeState, TSwipeState.Left);
+    Exclude(FSwipeState, TSwipeState.Right);
+    Exclude(FSwipeState, TSwipeState.Swiping);
+  end;
 end;
 
 procedure TVirtualListItem.SwipeAniProcess(Sender: TObject);
@@ -1395,7 +1423,7 @@ begin
   Invalidate
 end;
 
-procedure TVirtualListItem.SwipeEnd(Listview: TCustomVirtualListview; WorldX, WorldY, Velocity: Single);
+procedure TVirtualListItem.SwipeEnd(Listview: TCustomVirtualListview; WorldX, WorldY: Single);
 begin
   if SwipeCurrentOffset <> SwipeTargetOffset then
   begin
@@ -1410,19 +1438,19 @@ begin
   end;
 end;
 
-procedure TVirtualListItem.SwipeMove(Listview: TCustomVirtualListview; WorldX, WorldY, Velocity: Single);
+procedure TVirtualListItem.SwipeMove(Listview: TCustomVirtualListview; WorldX, WorldY: Single);
 begin
   SwipeCurrentOffset := Listview.Scroller.SwipeOffset;
   Invalidate;
 end;
 
-procedure TVirtualListItem.SwipeStart(Listview: TCustomVirtualListview; WorldX, WorldY: Single; SwipeDirection: TSwipeDirection);
+procedure TVirtualListItem.SwipeStart(Listview: TCustomVirtualListview; WorldX, WorldY: Single; SwipeState: TSwipeStateSet);
 var
   ElementLayout: TVirtualItemLayoutSwipeArray;
   i: Integer;
 begin
   SwipeCurrentOffset := 0;
-  FSwipeDirection := SwipeDirection;
+  FSwipeState := SwipeState;
 
   SwipeTotalLayoutWidth := 0;
   SetLength(ElementLayout, 0);
@@ -1430,10 +1458,11 @@ begin
   for i := 0 to Length(ElementLayout) - 1 do
     SwipeTotalLayoutWidth := SwipeTotalLayoutWidth + ElementLayout[i].Width;
 
-  if SwipeDirection = TSwipeDirection.Left then
+  if TSwipeState.Left in SwipeState then
     SwipeTargetOffset := SwipeTotalLayoutWidth
   else
     SwipeTargetOffset := -SwipeTotalLayoutWidth;
+  Include(FSwipeState, TSwipeState.Swiping);
 end;
 
 { TVirtualTextLayout }
