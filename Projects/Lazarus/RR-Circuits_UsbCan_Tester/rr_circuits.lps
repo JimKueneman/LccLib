@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="37">
+    <Units Count="38">
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -25,8 +25,9 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="274"/>
-        <CursorPos X="21" Y="276"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="249"/>
+        <CursorPos X="26" Y="259"/>
         <UsageCount Value="160"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -196,7 +197,7 @@
       </Unit26>
       <Unit27>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="179"/>
         <CursorPos Y="180"/>
         <UsageCount Value="25"/>
@@ -204,7 +205,7 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="768"/>
         <CursorPos Y="783"/>
         <UsageCount Value="25"/>
@@ -212,7 +213,7 @@
       </Unit28>
       <Unit29>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="44"/>
         <CursorPos Y="60"/>
         <UsageCount Value="25"/>
@@ -220,7 +221,7 @@
       </Unit29>
       <Unit30>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="20"/>
         <CursorPos Y="31"/>
         <UsageCount Value="25"/>
@@ -228,7 +229,7 @@
       </Unit30>
       <Unit31>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="610"/>
         <CursorPos Y="621"/>
         <UsageCount Value="25"/>
@@ -236,7 +237,7 @@
       </Unit31>
       <Unit32>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <CursorPos X="91" Y="23"/>
         <UsageCount Value="25"/>
         <Loaded Value="True"/>
@@ -250,14 +251,14 @@
       </Unit33>
       <Unit34>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="11" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <CursorPos X="33" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -265,129 +266,141 @@
       <Unit36>
         <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
         <UnitName Value="Generics.Defaults"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="59"/>
         <CursorPos X="14" Y="6"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit36>
+      <Unit37>
+        <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="375"/>
+        <CursorPos X="14" Y="393"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit37>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <Caret Line="50" Column="37" TopLine="36"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="416" Column="23" TopLine="385"/>
       </Position1>
       <Position2>
-        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <Caret Line="48" Column="69" TopLine="29"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="425" Column="26" TopLine="394"/>
       </Position2>
       <Position3>
         <Filename Value="form_template.pas"/>
-        <Caret Line="10" Column="28"/>
+        <Caret Line="426" Column="23" TopLine="395"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <Caret Line="94" Column="25" TopLine="66"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="427" Column="23" TopLine="396"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <Caret Line="552" TopLine="550"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="461" Column="21" TopLine="430"/>
       </Position5>
       <Position6>
-        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <Caret Line="36" Column="24" TopLine="12"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="470" Column="24" TopLine="439"/>
       </Position6>
       <Position7>
-        <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <Caret Line="427" Column="22" TopLine="412"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="13" Column="74"/>
       </Position7>
       <Position8>
-        <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <Caret Line="87" TopLine="72"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="382" Column="39" TopLine="351"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <Caret Line="71" TopLine="59"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="402" Column="24" TopLine="372"/>
       </Position9>
       <Position10>
         <Filename Value="form_template.pas"/>
-        <Caret Line="10" Column="28"/>
+        <Caret Line="510" Column="26" TopLine="479"/>
       </Position10>
       <Position11>
         <Filename Value="form_template.pas"/>
-        <Caret Line="12" Column="35"/>
+        <Caret Line="522" Column="26" TopLine="491"/>
       </Position11>
       <Position12>
         <Filename Value="form_template.pas"/>
-        <Caret Line="107" Column="64" TopLine="87"/>
+        <Caret Line="40" Column="53" TopLine="28"/>
       </Position12>
       <Position13>
         <Filename Value="form_template.pas"/>
-        <Caret Line="104" TopLine="88"/>
+        <Caret Line="78" Column="23" TopLine="48"/>
       </Position13>
       <Position14>
         <Filename Value="form_template.pas"/>
-        <Caret Line="106" TopLine="90"/>
+        <Caret Line="401" Column="19" TopLine="371"/>
       </Position14>
       <Position15>
         <Filename Value="form_template.pas"/>
-        <Caret Line="439" TopLine="423"/>
+        <Caret Line="416" Column="23" TopLine="385"/>
       </Position15>
       <Position16>
         <Filename Value="form_template.pas"/>
-        <Caret Line="484" TopLine="468"/>
+        <Caret Line="425" Column="26" TopLine="394"/>
       </Position16>
       <Position17>
         <Filename Value="form_template.pas"/>
-        <Caret Line="551" TopLine="535"/>
+        <Caret Line="426" Column="23" TopLine="395"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../Library/Lib/file_utilities.pas"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="427" Column="23" TopLine="396"/>
       </Position18>
       <Position19>
         <Filename Value="form_template.pas"/>
-        <Caret Line="598" Column="14" TopLine="586"/>
+        <Caret Line="461" Column="21" TopLine="430"/>
       </Position19>
       <Position20>
         <Filename Value="form_template.pas"/>
-        <Caret Line="308" Column="85" TopLine="291"/>
+        <Caret Line="470" Column="24" TopLine="439"/>
       </Position20>
       <Position21>
         <Filename Value="form_template.pas"/>
-        <Caret Line="533" Column="105" TopLine="473"/>
+        <Caret Line="471" Column="23" TopLine="440"/>
       </Position21>
       <Position22>
         <Filename Value="form_template.pas"/>
-        <Caret Line="534" Column="105" TopLine="504"/>
+        <Caret Line="472" Column="21" TopLine="441"/>
       </Position22>
       <Position23>
         <Filename Value="form_template.pas"/>
-        <Caret Line="276" Column="3" TopLine="267"/>
+        <Caret Line="529" TopLine="499"/>
       </Position23>
       <Position24>
         <Filename Value="form_template.pas"/>
-        <Caret Line="277" Column="3" TopLine="274"/>
+        <Caret Line="535" TopLine="505"/>
       </Position24>
       <Position25>
         <Filename Value="form_template.pas"/>
-        <Caret Line="271" Column="21" TopLine="269"/>
+        <Caret Line="19" Column="5"/>
       </Position25>
       <Position26>
         <Filename Value="form_template.pas"/>
-        <Caret Line="272" Column="3" TopLine="270"/>
+        <Caret Line="197" TopLine="178"/>
       </Position26>
       <Position27>
         <Filename Value="form_template.pas"/>
-        <Caret Line="279" Column="3" TopLine="276"/>
+        <Caret Line="519" Column="17" TopLine="505"/>
       </Position27>
       <Position28>
-        <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="516" Column="16" TopLine="104"/>
       </Position28>
       <Position29>
-        <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="522" TopLine="503"/>
       </Position29>
       <Position30>
-        <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="517" TopLine="504"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
@@ -398,7 +411,7 @@
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="form_template.pas"/>
-        <Line Value="312"/>
+        <Line Value="134"/>
       </Item1>
     </BreakPoints>
   </Debugging>

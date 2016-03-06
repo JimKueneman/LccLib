@@ -50,7 +50,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms\form_settings.pas"/>
@@ -58,7 +57,6 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_settings"/>
       </Unit2>
       <Unit3>
         <Filename Value="X:\Library\LCC\lcc_rootnode.pas"/>

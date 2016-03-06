@@ -9,7 +9,7 @@ uses
   ActnList, Menus, LCLType, StdCtrls, ExtCtrls, Spin, lcc_app_common_settings,
   lcc_comport, lcc_ethernetclient, lcc_nodemanager, lcc_ethenetserver,
   form_settings, file_utilities, lcc_messages, form_logging, lcc_defines,
-  lcc_utilities, frame_lcc_logging;
+  lcc_utilities, frame_lcc_logging, lcc_can_message_assembler_disassembler;
 
 const
   BUNDLENAME             = 'LCCAppTemplate';
@@ -137,18 +137,6 @@ begin
   ProtocolSupport.Identification := False;
   ProtocolSupport.Valid := True;
 
-  // Setup the SNIP constants, this information MUST be idential to the information
-  // in the  <identification> tag of the CDI to comply with the LCC specs
-  SimpleNodeInfo.Version := 1;
-  SimpleNodeInfo.Manufacturer := 'Mustangpeak';
-  SimpleNodeInfo.Model := 'SW100';
-  SimpleNodeInfo.SoftwareVersion := '1.0.0.0';
-  SimpleNodeInfo.HardwareVersion := '1.0.0.0';
-  SimpleNodeInfo.UserVersion := 1;
-  SimpleNodeInfo.UserDescription := '';
-  SimpleNodeInfo.UserName := '';
-  ProtocolSupport.Valid := True;
-
   // When the node ID is generated the defined events will be generated from the
   // NodeID + StartIndex and incremented up to Count - 1
   EventsConsumed.AutoGenerate.Enable := True;
@@ -167,8 +155,8 @@ begin
   Configuration.Valid := True;
 
   // Load a CDI XML file from the same folder that the Setting.ini is stored
-  CDI.LoadFromXml( GetSettingsPath + 'example_cdi.xml');
-  CDI.Valid := True;
+  // Also sync up the SNIP with this data as well
+  CDI.LoadFromXml( GetSettingsPath + 'example_cdi.xml', SimpleNodeInfo);
 
   // Setup the Configuraion Memory Options:
   ConfigMemOptions.HighSpace := MSI_CDI;
@@ -312,6 +300,9 @@ procedure TFormTemplate.FormShow(Sender: TObject);
 begin
   if not ShownOnce then
   begin
+    Max_Allowed_Datagrams := 1;    // Python Compatible
+
+
     {$IFDEF DARWIN}
     OSXMenu := TMenuItem.Create(Self);  {Application menu}
     OSXMenu.Caption := #$EF#$A3#$BF;  {Unicode Apple logo char}

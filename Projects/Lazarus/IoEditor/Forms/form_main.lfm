@@ -8,7 +8,7 @@ object Form1: TForm1
   ClientWidth = 1015
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.6.0.4'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -287,6 +287,7 @@ object Form1: TForm1
     Ethernet.LocalClientPort = 12022
     Ethernet.RemoteListenerPort = 12021
     Ethernet.LocalListenerPort = 12021
+    Ethernet.Tcp = False
     General.AliasID = '0x000'
     General.NodeID = '0x020112FAA1C8'
     Logging.Detailed = False

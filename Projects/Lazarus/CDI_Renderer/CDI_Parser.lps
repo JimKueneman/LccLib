@@ -20,9 +20,8 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
-        <TopLine Value="29"/>
-        <CursorPos X="25" Y="51"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="45" Y="9"/>
         <UsageCount Value="98"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -110,7 +109,6 @@
       </Unit15>
       <Unit16>
         <Filename Value="/Developer/lazarus/packager/registration/fcllaz.pas"/>
-        <UnitName Value="fcllaz"/>
         <WindowIndex Value="1"/>
         <UsageCount Value="12"/>
         <Loaded Value="True"/>
@@ -127,8 +125,6 @@
       </Unit18>
       <Unit19>
         <Filename Value="../../../Library/LCC/lcc_cdi_parser.pas"/>
-        <UnitName Value="lcc_cdi_parser"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="1644"/>
         <CursorPos X="5" Y="1636"/>
@@ -136,7 +132,7 @@
         <Loaded Value="True"/>
       </Unit19>
     </Units>
-    <JumpHistory Count="3" HistoryIndex="2">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="form_main.pas"/>
         <Caret Line="51" Column="25" TopLine="29"/>
@@ -149,6 +145,10 @@
         <Filename Value="../../../Library/LCC/lcc_cdi_parser.pas"/>
         <Caret Line="1974" Column="21" TopLine="1957"/>
       </Position3>
+      <Position4>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="51" Column="25" TopLine="23"/>
+      </Position4>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

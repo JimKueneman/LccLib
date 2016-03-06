@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, Spin, lcc_cdi_parser, laz2_DOM, laz2_XMLRead;
+  StdCtrls, ComCtrls, Spin, lcc_cdi_parser, DOM, XMLRead;
 
 type
 

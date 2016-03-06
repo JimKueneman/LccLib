@@ -54,7 +54,6 @@
   UsageCustomOptions += ' -k-macosx_version_min -k10.5';
  // UsageCustomOptions += ' -XR/Developer/SDKs/MacOSX10.5.sdk/';
 end;"/>
-            <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -88,7 +87,6 @@ end;"/>
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
       </Unit1>
     </Units>
   </ProjectOptions>
@@ -125,7 +123,6 @@ end;"/>
   UsageCustomOptions += ' -k-macosx_version_min -k10.5';
  // UsageCustomOptions += ' -XR/Developer/SDKs/MacOSX10.5.sdk/';
 end;"/>
-      <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
   <Debugging>

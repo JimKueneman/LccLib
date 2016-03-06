@@ -178,7 +178,7 @@ begin
   LccGuiNode := LccNodeSelector.ClientPtToVisibleNode(Point( LastMouseDownInfo.X, LastMouseDownInfo.Y), True);
   if Assigned(LccGuiNode) then
   begin
-    LccNode := LccNodeManager.FindByGuiNode(LccGuiNode);
+    LccNode := LccNodeManager.FindNodeByGuiNode(LccGuiNode);
     if Assigned(LccNode) then
     begin
     end;
@@ -240,7 +240,7 @@ procedure TForm1.ActionShowNodePropertiesExecute(Sender: TObject);
 var
   Node: TLccNode;
 begin
-  Node := LccNodeManager.FindByGuiNode(LccNodeSelector.FocusedNode);
+  Node := LccNodeManager.FindNodeByGuiNode(LccNodeSelector.FocusedNode);
   UpdateNodePropertiesForm(Node);
   if Assigned(Node) then
     FormNodeProperties.Show;
@@ -272,9 +272,7 @@ begin
   FormSettings.ClientHeight := FormSettings.FrameLccSettings1.ButtonOk.Top + FormSettings.FrameLccSettings1.ButtonOk.Height + 8; // Now resize the form to fit its child controls
   LccNodeManager.RootNode.Configuration.FilePath := GetSettingsPath + 'Configuration.dat';  // Set the name for the configuration file.  If this is not set the configuration will persist in a local stream object but when the application is closed it will be lost
   LccNodeManager.RootNode.Configuration.LoadFromFile;
-  LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
-  LccNodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
-
+  LccNodeManager.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml', LccNodeManager.RootNode.SimpleNodeInfo);   // You must place a XML file in the Setting Folder for this to have any effect We also need to syncronize the SNIP to be the same as the <identification> section of the CDI
   {$IFDEF WINDOWS}
   FormLogging.FrameLccLogging.SynEdit.Font.Size := 11;
   {$ENDIF}
@@ -491,7 +489,7 @@ procedure TForm1.LccNodeSelectorFocusedChanged(Sender: TObject; FocusedNode, Old
 var
   Node: TLccNode;
 begin
-  Node := LccNodeManager.FindByGuiNode(FocusedNode);
+  Node := LccNodeManager.FindNodeByGuiNode(FocusedNode);
   if Assigned(Node) then
   begin
     EditUserDesc.Text := Node.SimpleNodeInfo.UserDescription;
@@ -528,7 +526,7 @@ begin
   LccGuiNode := LccNodeSelector.ClientPtToVisibleNode(Point( LastMouseDownInfo.X, LastMouseDownInfo.Y), True);
   if Assigned(LccGuiNode) then
   begin
-    LccNode := LccNodeManager.FindByGuiNode(LccGuiNode);
+    LccNode := LccNodeManager.FindNodeByGuiNode(LccGuiNode);
     if Assigned(LccNode) then
       ActionEditUserStrings.Enabled := LccGuiNode.Enabled and LccNode.ProtocolSupport.CDI
   end;

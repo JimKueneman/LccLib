@@ -7,7 +7,7 @@ object Form1: TForm1
   ClientHeight = 627
   ClientWidth = 1072
   OnShow = FormShow
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.6.0.4'
   object Panel1: TPanel
     Left = 0
     Height = 627

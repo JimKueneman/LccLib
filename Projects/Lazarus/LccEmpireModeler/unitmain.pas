@@ -307,11 +307,11 @@ begin
         ListViewInputActions.Clear;
         LccObject := TLccObject( ListViewObjects.Selected.Data);
         for i := 0 to LccObject.InputActionGroups.Count - 1 do
-          for j := 0 to LccObject.InputActionGroup[i].Actions.Count - 1 do
-            AddListviewItem(ListViewInputActions, LccObject.InputActionGroup[i].Action[j].Name, LccObject.InputActionGroup[i].Action[j].Description, LccObject.InputActionGroup[i].Action[j].LccClass, LccObject.InputActionGroup[i].Action[j]);
+          for j := 0 to LccObject.InputActionGroups[i].Actions.Count - 1 do
+            AddListviewItem(ListViewInputActions, LccObject.InputActionGroups[i].Actions[j].Name, LccObject.InputActionGroups[i].Actions[j].Description, LccObject.InputActionGroups[i].Actions[j].LccClass, LccObject.InputActionGroups[i].Actions[j]);
         for i := 0 to LccObject.OutputActionGroups.Count - 1 do
-          for j := 0 to LccObject.OutputActionGroup[i].Actions.Count - 1 do
-            AddListviewItem(ListViewOuputActions, LccObject.OutputActionGroup[i].Action[j].Name, LccObject.OutputActionGroup[i].Action[j].Description, LccObject.OutputActionGroup[i].Action[j].LccClass, LccObject.OutputActionGroup[i].Action[j]);
+          for j := 0 to LccObject.OutputActionGroups[i].Actions.Count - 1 do
+            AddListviewItem(ListViewOuputActions, LccObject.OutputActionGroups[i].Actions[j].Name, LccObject.OutputActionGroups[i].Actions[j].Description, LccObject.OutputActionGroups[i].Actions[j].LccClass, LccObject.OutputActionGroups[i].Actions[j]);
       end;
     end;
   finally
@@ -341,7 +341,7 @@ begin
         ListViewInputActions.Clear;
         LccSegment := TLccDistrict( ListviewSegments.Selected.Data);
         for i := 0 to LccSegment.LccObjects.Count - 1 do
-          AddListviewItem(ListViewObjects, LccSegment.LccObject[i].Name, LccSegment.LccObject[i].Description, LccSegment.LccObject[i].LccClass, LccSegment.LccObject[i]);
+          AddListviewItem(ListViewObjects, LccSegment.LccObjects[i].Name, LccSegment.LccObjects[i].Description, LccSegment.LccObjects[i].LccClass, LccSegment.LccObjects[i]);
       end;
     end;
   finally
@@ -367,7 +367,7 @@ begin
   try
     ClearListviews;
     for i := 0 to LccSdnController.LccDistricts.Count - 1 do
-      AddListviewItem(ListViewSegments, LccSdnController.LccDistrict[i].Name, LccSdnController.LccDistrict[i].Description, LccSdnController.LccDistrict[i].LccClass, LccSdnController.LccDistrict[i]);
+      AddListviewItem(ListViewSegments, LccSdnController.LccDistricts[i].Name, LccSdnController.LccDistricts[i].Description, LccSdnController.LccDistricts[i].LccClass, LccSdnController.LccDistricts[i]);
     if ListViewSegments.Items.Count > 0 then
       ListViewSegments.Items[0].Selected := True;
   finally

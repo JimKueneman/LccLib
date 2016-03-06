@@ -11,22 +11,21 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  FileUtil,
-  {$IFNDEF FPC_CONSOLE_APP}
-    Forms,
-    Controls,
-    Graphics,
-    Dialogs,
-    Menus,
-    ActnList,
-    ExtCtrls,
-    Buttons,
-  {$ENDIF}
-  lcc_utilities,
+    {$IFNDEF FPC_CONSOLE_APP}
+      Forms,
+      Controls,
+      Graphics,
+      Dialogs,
+      Menus,
+      ActnList,
+      ExtCtrls,
+      Buttons,
+    {$ENDIF}
+    lcc_utilities,
   {$ENDIF}
   {$IFNDEF FPC}
-  Types,
-  System.SyncObjs,
+    Types,
+    System.SyncObjs,
   {$ENDIF}
   IniFiles,
   lcc_defines,

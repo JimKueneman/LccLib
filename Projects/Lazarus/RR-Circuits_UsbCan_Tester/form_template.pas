@@ -18,13 +18,6 @@ const
 
 type
 
-  { TMyRootNode }
-
-  TMyRootNode = class(TLccOwnedNode)
-  public
-    constructor Create(AnOwner: TComponent); override;
-  end;
-
   { TFormTemplate }
 
   TFormTemplate = class(TForm)
@@ -107,9 +100,6 @@ type
     procedure LccEthernetClientReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
-    procedure LccNodeManagerLccGetRootNodeClass(Sender: TObject; var NodeClass: TLccOwnedNodeClass);
-    procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerRequestMessageSend(Sender: TObject; LccMessage: TLccMessage);
     procedure SpinEditDelayChange(Sender: TObject);
   private
@@ -141,42 +131,6 @@ var
 implementation
 
 {$R *.lfm}
-
-{ TMyRootNode }
-
-constructor TMyRootNode.Create(AnOwner: TComponent);
-begin
-  inherited Create(AnOwner);
-  // Define what Protcol this Node Supports
-
-  // Common Protocols
-  // We support CDI so we must support datagrams
-  ProtocolSupport.Datagram := True;
-  // We support CDI so we must support datagrams
-  ProtocolSupport.MemConfig := True;
-  // We Support CDI
-  ProtocolSupport.CDI := True;
-  // We support Events
-  ProtocolSupport.EventExchange := True;
-  // We Support SNIP
-  ProtocolSupport.SimpleNodeInfo := True;
-
-  // Setup the SNIP constants, this information MUST be idential to the information
-  // in the  <identification> tag of the CDI to comply with the LCC specs
-  SimpleNodeInfo.Version := 1;
-  SimpleNodeInfo.Manufacturer := 'Mustangpeak';
-  SimpleNodeInfo.Model := 'SW100';
-  SimpleNodeInfo.SoftwareVersion := '1.0.0.0';
-  SimpleNodeInfo.HardwareVersion := '1.0.0.0';
-  SimpleNodeInfo.UserVersion := 1;
-  SimpleNodeInfo.UserDescription := '';
-  SimpleNodeInfo.UserName := '';
-
-  // Load a CDI XML file from the same folder that the Setting.ini is stored
-//  CDI.AStream.LoadFromFile( GetSettingsPath + 'TemplateCDI.xml');
-//  CDI.Valid := True;
-
-end;
 
 { TFormTemplate }
 
@@ -558,47 +512,6 @@ begin
   finally
     if not CheckBoxLockUpdate.Checked then
       MemoIncoming.Lines.EndUpdate;
-  end;
-end;
-
-procedure TFormTemplate.LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
-var
-  Temp: TNodeID;
-begin
-  if LccSourceNode is TMyRootNode then                                          // If it is our Root Node then save the AliasID
-  begin
-    if LccSettings.General.AliasIDAsVal <> LccSourceNode.AliasID then
-    begin
-      LccSettings.General.AliasID := '0x'+ IntToHex(LccSourceNode.AliasID, 4);
-      FormSettings.FrameLccSettings.StoreSettings;
-    end;
-    StatusBarMain.Panels[1].Text := '0x' +IntToHex(LccSourceNode.NodeID[1], 3) + IntToHex(LccSourceNode.NodeID[0], 3) + ': 0x' + IntToHex(LccSourceNode.AliasID, 4)
-  end;
-end;
-
-procedure TFormTemplate.LccNodeManagerLccGetRootNodeClass(Sender: TObject; var NodeClass: TLccOwnedNodeClass);
-begin
-  NodeClass := TMyRootNode;
-end;
-
-procedure TFormTemplate.LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
-var
-  Temp: TNodeID;
-  TempID, TempID1, TempID2: QWord;
-begin
-  if LccSourceNode is TMyRootNode then                                          // If it is our Root Node then set its NodeID we saved
-  begin
-    LccSettings.General.NodeIDAsTNodeID(Temp);
-    if not EqualNodeID(Temp, LccSourceNode.NodeID, True) then
-    begin
-       TempID1 := QWord( LccSourceNode.NodeID[0]);
-       TempID2 := QWord(LccSourceNode.NodeID[1]);
-       TempID2 := TempID2 shl 24;
-       TempID := TempID1 or TempID2;
-       LccSettings.General.NodeID := '0x'+IntToHex(TempID, 12);
-       FormSettings.FrameLccSettings.StoreSettings
-    end;
-    StatusBarMain.Panels[1].Text := '0x' +IntToHex(LccSourceNode.NodeID[1], 3) + IntToHex(LccSourceNode.NodeID[0], 3) + ': 0x' + IntToHex(LccSourceNode.AliasID, 4)
   end;
 end;
 

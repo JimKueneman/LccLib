@@ -148,8 +148,7 @@ begin
   // You must place a XML file in the Setting Folder for this to have any effect
   // We also need to syncronize the SNIP to be the same as the <identification> section of
   // the CDI
-  LccNodeManager1.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
-  LccNodeManager1.RootNode.SimpleNodeInfo.LoadFromXml(GetSettingsPath + 'SampleCdi.xml');
+  LccNodeManager1.RootNode.CDI.LoadFromXml(GetSettingsPath + 'SampleCdi.xml', LccNodeManager1.RootNode.SimpleNodeInfo);
 end;
 
 procedure TForm1.LccComPort1ConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);

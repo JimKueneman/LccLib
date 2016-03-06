@@ -9,9 +9,9 @@ interface
 uses
   Classes,
     {$IFDEF FPC}
-  laz2_DOM,
-  laz2_XMLRead,
-  laz2_XMLWrite,
+  DOM,
+  XMLRead,
+  XMLWrite,
   {$ELSE}
   Xml.XMLDoc,
   Xml.xmldom,
@@ -27,6 +27,7 @@ type
 
 // Document functions
 function XmlLoadFromFile(FIlePath: string): LccXmlDocument;
+function XmlLoadFromStream(XmlStream: TStream): LccXmlDocument;
 function BuildConfigurationDocument(CdiXMLFilePath: string): LccXmlDocument;
 procedure XmlFreeDocument(var XmlDoc: LccXmlDocument);
 function XmlCreateEmptyDocument: LccXmlDocument;
@@ -120,6 +121,17 @@ begin
   Node := TargetNode.AttributeNodes.FindNode(Attribute);
   if Assigned(Node) then
     TargetNode.AttributeNodes.Remove(Node)
+  {$ENDIF}
+end;
+
+function XmlLoadFromStream(XmlStream: TStream): LccXmlDocument;
+begin
+  Result := nil;
+  {$IFDEF FPC}
+  ReadXMLFile(Result, XmlStream);
+  {$ELSE}
+  Result := TXMLDocument.Create(nil) as IXMLDocument;
+  Result.LoadFromXML(XmlStream);
   {$ENDIF}
 end;
 

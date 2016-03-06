@@ -933,7 +933,7 @@ begin
         imgcr_ErrorToSend :
           begin
             if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedSourceNode(WorkerMsg) <> nil then
+              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then
                 Owner.NodeManager.SendLccMessage(WorkerMsg);
           end;
       end

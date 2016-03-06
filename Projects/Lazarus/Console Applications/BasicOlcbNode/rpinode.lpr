@@ -22,7 +22,7 @@ uses
   lcc_raspberrypi,
   {$ENDIF}
   {$IFDEF FPC}
-  laz2_XMLWrite,
+  XMLWrite,
   {$ELSE}
   Xml.XMLDoc,
   Xml.xmldom,
@@ -134,8 +134,7 @@ begin
       Terminate;
       Exit;
     end;
-    NodeManager.RootNode.CDI.LoadFromXml(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
-    NodeManager.RootNode.SimpleNodeInfo.LoadFromXml(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'));
+    NodeManager.RootNode.CDI.LoadFromXml(GetAppConfigDir(False) + GetOptionValue('C', 'cdi'), NodeManager.RootNode.SimpleNodeInfo);
     WriteLn('Node CDI file: ' + GetAppConfigDir(False) + GetOptionValue('C', 'cdi'))
   end;
 

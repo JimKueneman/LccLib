@@ -18,8 +18,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF FPC}
-  laz2_DOM,
-  laz2_XMLRead,
+  DOM,
+  XMLRead,
   {$ELSE}
   Generics.Collections,
   {$ENDIF}

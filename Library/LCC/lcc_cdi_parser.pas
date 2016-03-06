@@ -10,7 +10,7 @@ uses
   Classes, SysUtils,
   {$IFDEF FPC}
   FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, Spin, laz2_DOM, laz2_XMLRead, LResources, Buttons,
+  StdCtrls, ComCtrls, Spin, DOM, XMLRead, LResources, Buttons,
   {$ELSE}
   {$ENDIF}
   Types,

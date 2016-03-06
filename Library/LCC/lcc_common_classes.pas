@@ -11,15 +11,16 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  contnrs,
+    contnrs,
   {$ELSE}
-  System.Generics.Collections,
+    System.Generics.Collections,
   {$ENDIF}
-   lcc_messages, lcc_can_message_assembler_disassembler, lcc_threadedcirculararray, lcc_threaded_stringlist;
+  lcc_messages,
+  lcc_can_message_assembler_disassembler,
+  lcc_threadedcirculararray,
+  lcc_threaded_stringlist;
 
 type
-   { TLccEthernetBaseThread }
-
   { TLccConnectionThread }
 
   TLccConnectionThread = class(TThread)

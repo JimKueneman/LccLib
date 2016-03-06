@@ -1,14 +1,14 @@
 object Form1: TForm1
-  Left = 535
+  Left = 354
   Height = 472
-  Top = 305
+  Top = 170
   Width = 1013
   Caption = 'Form1'
   ClientHeight = 472
   ClientWidth = 1013
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.2.6.0'
+  LCLVersion = '1.6.0.4'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -26,6 +26,7 @@ object Form1: TForm1
     end
     object ToolButton2: TToolButton
       Left = 72
+      Height = 44
       Top = 2
       Width = 10
       Caption = 'ToolButton2'
@@ -65,9 +66,8 @@ object Form1: TForm1
       Top = 375
     end
     inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 15
+      Left = 14
       Top = 379
-      Width = 127
       OnChange = nil
     end
     inherited CheckBoxJMRIFormat: TCheckBox
@@ -163,7 +163,7 @@ object Form1: TForm1
         Left = 152
         Height = 18
         Top = 8
-        Width = 133
+        Width = 134
         Action = ActionShowLocalNodes
         TabOrder = 2
       end
@@ -181,7 +181,7 @@ object Form1: TForm1
         Left = 8
         Height = 18
         Top = 8
-        Width = 156
+        Width = 157
         Action = ActionConnectNetworkTree
         TabOrder = 0
       end
@@ -218,6 +218,7 @@ object Form1: TForm1
     Ethernet.LocalClientPort = 12022
     Ethernet.RemoteListenerPort = 12021
     Ethernet.LocalListenerPort = 12021
+    Ethernet.Tcp = False
     General.AliasID = '0x000'
     General.NodeID = '0x000000000000'
     Logging.Detailed = False

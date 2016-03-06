@@ -47,7 +47,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unitmain"/>
       </Unit1>
       <Unit2>
         <Filename Value="unitobjectwizardform.pas"/>
@@ -55,7 +54,6 @@
         <ComponentName Value="FormObjectWizard"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unitobjectwizardform"/>
       </Unit2>
       <Unit3>
         <Filename Value="ObjectOptionsForms\unitdistrictwizardform.pas"/>
@@ -63,7 +61,6 @@
         <ComponentName Value="FormDistrictWizard"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unitdistrictwizardform"/>
       </Unit3>
       <Unit4>
         <Filename Value="ObjectOptionsForms\turnoutoptions.pas"/>
@@ -71,7 +68,6 @@
         <ComponentName Value="FormTurnoutOptions"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="turnoutoptions"/>
       </Unit4>
       <Unit5>
         <Filename Value="ObjectOptionsForms\signalheadoptions.pas"/>
@@ -79,7 +75,6 @@
         <ComponentName Value="FormSignalHeadOptions"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="signalheadoptions"/>
       </Unit5>
     </Units>
   </ProjectOptions>

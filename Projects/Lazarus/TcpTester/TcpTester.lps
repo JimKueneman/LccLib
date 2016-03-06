@@ -18,13 +18,13 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_main"/>
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="517"/>
-        <CursorPos X="27" Y="526"/>
+        <TopLine Value="734"/>
+        <CursorPos X="39" Y="755"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="Forms/form_settings.pas"/>
@@ -51,9 +51,11 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="130"/>
-        <CursorPos X="3" Y="133"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="1"/>
+        <CursorPos X="19" Y="10"/>
         <UsageCount Value="203"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="Forms/form_about.pas"/>
@@ -428,7 +430,7 @@
         <UsageCount Value="10"/>
       </Unit61>
     </Units>
-    <JumpHistory Count="7" HistoryIndex="6">
+    <JumpHistory Count="13" HistoryIndex="12">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="152" Column="15" TopLine="131"/>
@@ -457,6 +459,30 @@
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="531" TopLine="517"/>
       </Position7>
+      <Position8>
+        <Filename Value="Forms/form_properties.pas"/>
+        <Caret Line="133" Column="3" TopLine="130"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="526" Column="27" TopLine="517"/>
+      </Position9>
+      <Position10>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="240" Column="39" TopLine="219"/>
+      </Position10>
+      <Position11>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="311" Column="34" TopLine="290"/>
+      </Position11>
+      <Position12>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="430" TopLine="408"/>
+      </Position12>
+      <Position13>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="708" Column="34" TopLine="687"/>
+      </Position13>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

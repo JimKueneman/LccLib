@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, lcc_nodeselector, lcc_nodemanager, lcc_defines,
-  lcc_cdi_parser, laz2_DOM, laz2_XMLRead, laz2_XMLWrite, SynEdit,
+  lcc_cdi_parser, DOM, XMLRead, XMLWrite, SynEdit,
   SynHighlighterHTML;
 
 type

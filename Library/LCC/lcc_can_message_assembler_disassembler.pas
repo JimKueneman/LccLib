@@ -1,7 +1,7 @@
 unit lcc_can_message_assembler_disassembler;
 
 {$IFDEF FPC}
-{$mode objfpc}{$H+}
+{$mode delphi}{$H+}
 {$ENDIF}
 
 
@@ -12,6 +12,7 @@ interface
 uses
   Classes, SysUtils, lcc_messages,
   {$IFDEF FPC}
+    Generics.Collections,
   {$ELSE}
     System.Generics.Collections,
     Types,
@@ -32,22 +33,14 @@ type
 
 TLccMessageAssembler = class
 private
-  {$IFDEF FPC} FInProcessMessageList: TList; {$ELSE}
-               FInProcessMessageList: TObjectList<TLccMessage>;{$ENDIF}
+  FInProcessMessageList: TObjectList<TLccMessage>;
   FWorkerMessage: TLccMessage;
   function GetCount: Integer;
-  function GetMessages(Index: Integer): TLccMessage;
-  procedure SetMessages(Index: Integer; AValue: TLccMessage);
 protected
-  {$IFDEF FPC}
-    property InProcessMessageList: TList read FInProcessMessageList write FInProcessMessageList;
-  {$ELSE}
-    property InProcessMessageList: TObjectList<TLccMessage> read FInProcessMessageList write FInProcessMessageList;
-  {$ENDIF}
   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 public
   property Count: Integer read GetCount;
-  property Messages[Index: Integer]: TLccMessage read GetMessages write SetMessages;
+  property Messages: TObjectList<TLccMessage> read FInProcessMessageList write FInProcessMessageList;
 
   constructor Create;
   destructor Destroy; override;
@@ -93,40 +86,22 @@ end;
 
 { TLccMessageAssembler }
 
-function TLccMessageAssembler.GetMessages(Index: Integer): TLccMessage;
-begin
-  {$IFDEF FPC}
-  Result := TLccMessage( InProcessMessageList[Index]);
-  {$ELSE}
-  Result := InProcessMessageList[Index]
-  {$ENDIF}
-end;
-
 function TLccMessageAssembler.GetCount: Integer;
 begin
   Result := FInProcessMessageList.Count;
 end;
 
-procedure TLccMessageAssembler.SetMessages(Index: Integer; AValue: TLccMessage);
-begin
-  InProcessMessageList[Index] := AValue;
-end;
-
 constructor TLccMessageAssembler.Create;
 begin
   inherited Create;
-  {$IFDEF FPC}
-  FInProcessMessageList := TList.Create;
-  {$ELSE}
   FInProcessMessageList := TObjectList<TLccMessage>.Create;
-  InProcessMessageList.OwnsObjects := False;
-  {$ENDIF}
+  Messages.OwnsObjects := False;
   WorkerMessage := TLccMessage.Create;
 end;
 
 procedure TLccMessageAssembler.Remove(AMessage: TLccMessage; DoFree: Boolean);
 begin
-  InProcessMessageList.Remove(AMessage);
+  Messages.Remove(AMessage);
   if DoFree then
     AMessage.Free;
 end;
@@ -141,7 +116,7 @@ end;
 
 procedure TLccMessageAssembler.Add(AMessage: TLccMessage);
 begin
-  InProcessMessageList.Add(AMessage);
+  Messages.Add(AMessage);
 end;
 
 procedure TLccMessageAssembler.Clear;
@@ -149,14 +124,10 @@ var
   i: Integer;
 begin
   try
-    for i := 0 to InProcessMessageList.Count - 1 do
-    {$IFDEF FPC}
-      TObject( InProcessMessageList[i]).Free
-    {$ELSE}
-      InProcessMessageList[i].Free
-    {$ENDIF}
+    for i := 0 to Messages.Count - 1 do
+      Messages[i].Free
   finally
-    InProcessMessageList.Clear;
+    Messages.Clear;
   end;
 end;
 
@@ -167,13 +138,9 @@ var
   LccMessage: TLccMessage;
 begin
   Result := nil;
-  for i := 0 to InProcessMessageList.Count - 1 do
+  for i := 0 to Messages.Count - 1 do
   begin
-    {$IFDEF FPC}
-    LccMessage := TLccMessage( InProcessMessageList[i]);
-    {$ELSE}
-    LccMessage := InProcessMessageList[i];
-    {$ENDIF}
+    LccMessage := Messages[i];
     if (AMessage.CAN.SourceAlias = LccMessage.CAN.SourceAlias) and (AMessage.CAN.DestAlias = LccMessage.CAN.DestAlias) and (AMessage.MTI = LccMessage.MTI) then
     begin
       Result := LccMessage;
@@ -188,14 +155,14 @@ var
   i: Integer;
   AMessage: TLccMessage;
 begin
-  for i := InProcessMessageList.Count - 1 downto 0  do
+  for i := Messages.Count - 1 downto 0  do
   begin
     AMessage := Messages[i];
     if (AMessage.CAN.SourceAlias = Alias) or (AMessage.CAN.DestAlias = Alias) then
     begin
       if AMessage.MTI = MTI_DATAGRAM then
         Dec(AllocatedDatagrams);
-      InProcessMessageList.Delete(i);
+      Messages.Delete(i);
       AMessage.Free
     end;
   end;
