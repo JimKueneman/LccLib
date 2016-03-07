@@ -8,9 +8,8 @@
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="118"/>
-        <CursorPos Y="138"/>
+        <TopLine Value="482"/>
+        <CursorPos X="56" Y="482"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -96,9 +95,10 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../../../Library/LCC/lcc_node.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="945"/>
         <CursorPos X="3" Y="15"/>
         <UsageCount Value="110"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="/usr/fpc/3.0.0/packages/rtl-console/src/inc/crth.inc"/>

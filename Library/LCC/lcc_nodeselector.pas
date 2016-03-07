@@ -136,7 +136,9 @@ type
     procedure Clear;
     function Add(ANodeID: TNodeID; AnAliasID: Word): TLccGuiNode;
     procedure Delete(Index: Integer);
+    function Remove(ANodeID: TNodeID): TLccGuiNode;
     function Find(ANodeID: TNodeID): TLccGuiNode;
+    function FindIndex(ANodeID: TNodeID): Integer;
     procedure Sort;
   end;
 
@@ -215,6 +217,7 @@ type
     procedure DoOnResize; override;
     procedure DoOnShowHint(HintInfo: PHintInfo); override;
     function DoOnSort(Node1, Node2: TLccGuiNode): Integer; virtual;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -707,7 +710,7 @@ end;
 procedure TLccNodeSelectorBase.DoOnResize;
 begin
   inherited DoOnResize;
-  RebuildNodes;
+   RebuildNodes;
 end;
 
 procedure TLccNodeSelectorBase.DoOnShowHint(HintInfo: PHintInfo);
@@ -729,6 +732,12 @@ begin
   Result := 0;
   if Assigned(OnSort) then
     Result := OnSort(Self, Node1, Node2);
+end;
+
+procedure TLccNodeSelectorBase.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited MouseMove(Shift, X, Y);
+
 end;
 
 procedure TLccNodeSelectorBase.EndUpdate;
@@ -951,8 +960,6 @@ begin
         LccNodes[i].Height := 0;
       end;
     end;
-
-    UpdateScrollbars;
     Invalidate;
     Update;
   end;
@@ -987,9 +994,9 @@ end;
 procedure TLccNodeSelectorBase.CurrentViewRect(var ARect: TRect);
 begin
   ARect.Top := VertScrollBar.Position;
-  ARect.Bottom := ARect.Top + VertScrollBar.Page;
+  ARect.Bottom := ARect.Top + ClientHeight;
   ARect.Left := HorzScrollBar.Position;
-  ARect.Right := ARect.Left + HorzScrollBar.Page;
+  ARect.Right := ARect.Left + ClientWidth;
 end;
 
 procedure TLccNodeSelectorBase.WMShowWindow(var Message: TLMShowWindow);
@@ -1100,6 +1107,18 @@ begin
   NodeList.Delete(Index);
 end;
 
+function TLccGuiNodeList.Remove(ANodeID: TNodeID): TLccGuiNode;
+var
+  i: Integer;
+begin
+  i := FindIndex(ANodeID);
+  if i > -1 then
+  begin
+    Result := Nodes[i];
+    NodeList.Delete(i);
+  end;
+end;
+
 function TLccGuiNodeList.Find(ANodeID: TNodeID): TLccGuiNode;
 var
   i: Integer;
@@ -1110,6 +1129,20 @@ begin
   begin
     if (Nodes[i].NodeID[0] = ANodeID[0]) and (Nodes[i].NodeID[1] = ANodeID[1]) then
       Result := Nodes[i];
+    Inc(i);
+  end;
+end;
+
+function TLccGuiNodeList.FindIndex(ANodeID: TNodeID): Integer;
+var
+  i: Integer;
+begin
+  Result := -1;
+  i := 0;
+  while (i < NodeList.Count) and (Result < 0) do
+  begin
+    if (Nodes[i].NodeID[0] = ANodeID[0]) and (Nodes[i].NodeID[1] = ANodeID[1]) then
+      Result := i;
     Inc(i);
   end;
 end;

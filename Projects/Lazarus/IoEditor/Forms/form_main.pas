@@ -114,6 +114,7 @@ type
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccEthernetServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure LccNodeManagerLccCANAliasMapReset(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
     procedure LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte);
     procedure LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
@@ -126,6 +127,8 @@ type
     procedure LccNodeManagerNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure LccNodeSelectorFocusedChanged(Sender: TObject; FocusedNode, OldFocusedNode: TLccGuiNode);
     procedure LccNodeSelectorMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure LccNodeSelectorMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure LccNodeSelectorResize(Sender: TObject);
     procedure PopupMenuSelectorPopup(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
@@ -408,6 +411,16 @@ begin
     StatusBar1.Panels[1].Text := LccSourceNode.NodeIDStr + ': 0x' + IntToHex(LccSourceNode.AliasID, 4);
 end;
 
+procedure TForm1.LccNodeManagerLccCANAliasMapReset(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  LccNodeSelector.BeginUpdate;
+  try
+    LccNodeSelector.LccNodes.Remove(LccSourceNode.NodeID);
+  finally
+    LccNodeSelector.EndUpdate;
+  end;
+end;
+
 procedure TForm1.LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
   LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Cdi];
@@ -510,6 +523,11 @@ begin
   FLastMouseDownInfo.Shift := Shift;
   FLastMouseDownInfo.X := X;
   FLastMouseDownInfo.Y := Y;
+end;
+
+procedure TForm1.LccNodeSelectorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  StatusBar1.Panels[3].Text := 'X: ' + IntToStr(X) + '  Y: ' + IntToStr(Y);
 end;
 
 procedure TForm1.LccNodeSelectorResize(Sender: TObject);

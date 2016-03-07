@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 477
+  Left = 213
   Height = 532
-  Top = 137
+  Top = 116
   Width = 1015
   Caption = 'Form1'
   ClientHeight = 532
@@ -20,12 +20,12 @@ object Form1: TForm1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 328
+      Left = 264
       Top = 2
       Action = ActionSettings
     end
     object ToolButton2: TToolButton
-      Left = 226
+      Left = 180
       Height = 44
       Top = 2
       Width = 18
@@ -33,7 +33,7 @@ object Form1: TForm1
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 164
+      Left = 131
       Top = 2
       Action = ActionComPort
     end
@@ -43,20 +43,20 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButton4: TToolButton
-      Left = 244
+      Left = 198
       Top = 2
       Action = ActionLogWindow
     end
     object ToolButton6: TToolButton
-      Left = 62
+      Left = 51
       Top = 2
       Action = ActionEthernetClient
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 15
-    Top = 517
+    Height = 23
+    Top = 509
     Width = 1015
     Panels = <    
       item
@@ -66,22 +66,25 @@ object Form1: TForm1
         Width = 200
       end    
       item
+        Width = 300
+      end    
+      item
         Width = 500
       end>
     SimplePanel = False
   end
   object PanelNetworkTree: TPanel
     Left = 0
-    Height = 469
+    Height = 461
     Top = 48
     Width = 210
     Align = alLeft
-    ClientHeight = 469
+    ClientHeight = 461
     ClientWidth = 210
     TabOrder = 2
     object LabelMyNodes: TLabel
       Left = 1
-      Height = 16
+      Height = 13
       Top = 1
       Width = 208
       Align = alTop
@@ -91,8 +94,8 @@ object Form1: TForm1
     end
     object LccNodeSelector: TLccNodeSelector
       Left = 1
-      Height = 359
-      Top = 17
+      Height = 354
+      Top = 14
       Width = 208
       HorzScrollBar.Page = 10
       HorzScrollBar.Tracking = True
@@ -108,6 +111,7 @@ object Form1: TForm1
       ShowHint = True
       TabOrder = 0
       OnMouseDown = LccNodeSelectorMouseDown
+      OnMouseMove = LccNodeSelectorMouseMove
       OnResize = LccNodeSelectorResize
       Alignment = taLeftJustify
       CaptionIndent = 4
@@ -122,7 +126,7 @@ object Form1: TForm1
     object PanelNodeUserInfo: TPanel
       Left = 1
       Height = 92
-      Top = 376
+      Top = 368
       Width = 208
       Align = alBottom
       ClientHeight = 92
@@ -130,7 +134,7 @@ object Form1: TForm1
       TabOrder = 1
       object EditUserName: TEdit
         Left = 16
-        Height = 22
+        Height = 21
         Top = 24
         Width = 176
         Anchors = [akTop, akLeft, akRight]
@@ -138,7 +142,7 @@ object Form1: TForm1
       end
       object EditUserDesc: TEdit
         Left = 16
-        Height = 22
+        Height = 21
         Top = 64
         Width = 176
         Anchors = [akTop, akLeft, akRight]
@@ -146,17 +150,17 @@ object Form1: TForm1
       end
       object LabelUseName: TLabel
         Left = 8
-        Height = 16
+        Height = 13
         Top = 8
-        Width = 68
+        Width = 52
         Caption = 'User Name'
         ParentColor = False
       end
       object LabelUserDesc: TLabel
         Left = 8
-        Height = 16
+        Height = 13
         Top = 48
-        Width = 105
+        Width = 78
         Caption = 'User Description'
         ParentColor = False
       end
@@ -164,13 +168,13 @@ object Form1: TForm1
   end
   object SplitterMain: TSplitter
     Left = 210
-    Height = 469
+    Height = 461
     Top = 48
     Width = 8
   end
   object PageControl1: TPageControl
     Left = 554
-    Height = 469
+    Height = 461
     Top = 48
     Width = 461
     ActivePage = TabSheet2
@@ -182,16 +186,16 @@ object Form1: TForm1
     end
     object TabSheet2: TTabSheet
       Caption = 'TabSheet2'
-      ClientHeight = 430
-      ClientWidth = 455
+      ClientHeight = 435
+      ClientWidth = 453
       object PanelMain: TPanel
         Left = 0
-        Height = 430
+        Height = 435
         Top = 0
-        Width = 455
+        Width = 453
         Align = alClient
-        ClientHeight = 430
-        ClientWidth = 455
+        ClientHeight = 435
+        ClientWidth = 453
         TabOrder = 0
         object TrackBar1: TTrackBar
           Left = 177
@@ -208,12 +212,12 @@ object Form1: TForm1
   end
   object Panel1: TPanel
     Left = 218
-    Height = 469
+    Height = 461
     Top = 48
     Width = 336
     Align = alLeft
     Caption = 'Panel1'
-    ClientHeight = 469
+    ClientHeight = 461
     ClientWidth = 336
     TabOrder = 5
     object LccNodeSelectorProducer: TLccNodeSelector
@@ -250,7 +254,7 @@ object Form1: TForm1
     end
     object LccNodeSelectorConsumer: TLccNodeSelector
       Left = 1
-      Height = 252
+      Height = 244
       Top = 216
       Width = 334
       HorzScrollBar.Page = 10
@@ -319,6 +323,7 @@ object Form1: TForm1
     HardwareConnection = LccComPort
     LccSettings = LccSettings
     OnAliasIDChanged = LccNodeManagerAliasIDChanged
+    OnLccCANAliasMapReset = LccNodeManagerLccCANAliasMapReset
     OnLccNodeCDI = LccNodeManagerLccNodeCDI
     OnLccNodeConfigMemAddressSpaceInfoReply = LccNodeManagerLccNodeConfigMemAddressSpaceInfoReply
     OnLccNodeConfigMemOptionsReply = LccNodeManagerLccNodeConfigMemOptionsReply
@@ -329,8 +334,8 @@ object Form1: TForm1
     OnLccNodeProtocolIdentifyReply = LccNodeManagerLccNodeProtocolIdentifyReply
     OnLccNodeSimpleNodeIdentReply = LccNodeManagerLccNodeSimpleNodeIdentReply
     OnLccNodeVerifiedNodeID = LccNodeManagerLccNodeVerifiedNodeID
-    left = 256
-    top = 241
+    left = 264
+    top = 320
   end
   object ActionList1: TActionList
     Images = ImageList1

@@ -98,8 +98,6 @@ type
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
   TOnLccNodeEventIdentified = procedure(Sender: TObject; LccSourceNode: TLccNode; var Event: TEventID; State: TEventState) of object;
   {$IFDEF TRACTION}
-  TOnLccNodeTractionProxyReplyAllocate = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; LegacyTechnology: Byte; TrainID: Word; var TrainNode: TNodeID; TrainAlias: Word) of object;
-  TOnLccNodeTractionProxyReplyAttach = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ReplyCode: Byte) of object;
   TOnLccNodeMessageResultCode = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ResultCode: Byte) of object;
   TOnLccNodeTractionControllerQuery = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word) of object;
   TOnLccNodeTractionControllerChangeNotify = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean) of object;
@@ -726,6 +724,7 @@ type
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
     FOnNodeIDChanged: TOnLccNodeMessage;
+    FOnLccCANAliasMapReset: TOnLccNodeMessage;
     FOnLccGetRootNodeClass: TOnLccGetRootNodeClass;
     FOnLccNodeCDI: TOnLccNodeMessageWithDest;
     FOnLccNodeConfigMemReadReply: TOnLccNodeConfigMem;
@@ -747,9 +746,6 @@ type
     {$IFDEF TRACTION}
     FOnLccNodeSimpleTrainNodeIdentReply: TOnLccNodeMessageWithDest;
     FOnLccNodeTractionControllerChangeNotify: TOnLccNodeTractionControllerChangeNotify;
-    FOnLccNodeTractionProxyReplyAllocate: TOnLccNodeTractionProxyReplyAllocate;
-    FOnLccNodeTractionProxyReplyAttach: TOnLccNodeTractionProxyReplyAttach;
-    FOnLccNodeTractionProxyReplyManage: TOnLccNodeMessageResultCode;
     FOnLccNodeTractionReplyControllerAssign: TOnLccNodeMessageResultCode;
     FOnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode;
     FOnLccNodeTractionReplyControllerQuery: TOnLccNodeTractionControllerQuery;
@@ -799,9 +795,6 @@ type
     {$IFDEF TRACTION}
     procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoTractionControllerChangeNotify(SourceLccNode, DestLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean); virtual;
-    procedure DoTractionProxyReplyAllocate(SourceLccNode, DestLccNode: TLccNode; LegacyTechnology: Byte; TrainID: Word; var TrainNode: TNodeID; TrainAlias: Word); virtual;
-    procedure DoTractionProxyReplyAttach(SourceLccNode, DestLccNode: TLccNode; ReplyCode: Byte); virtual;
-    procedure DoTractionProxyReplyManage(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoTractionReplyQuerySpeed(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoTractionReplyQueryFunction(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoTractionReplyControllerAssign(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
@@ -862,6 +855,7 @@ type
     property NetworkTree: TLccNetworkTree read FTLccNetworkTree write FTLccNetworkTree;
     {$ENDIF} {$ENDIF}
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
+    property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;
     property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
     property OnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace read FOnLccNodeConfigMemAddressSpaceInfoReply write FOnLccNodeConfigMemAddressSpaceInfoReply;
@@ -892,9 +886,6 @@ type
     property OnLccNodeTractionReplyControllerQuery: TOnLccNodeTractionControllerQuery read FOnLccNodeTractionReplyControllerQuery write FOnLccNodeTractionReplyControllerQuery;
     property OnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyControllerChangeNotify write FOnLccNodeTractionReplyControllerChangeNotify;
     property OnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyManage write FOnLccNodeTractionReplyManage;
-    property OnLccNodeTractionProxyReplyAllocate: TOnLccNodeTractionProxyReplyAllocate read FOnLccNodeTractionProxyReplyAllocate write FOnLccNodeTractionProxyReplyAllocate;
-    property OnLccNodeTractionProxyReplyAttach: TOnLccNodeTractionProxyReplyAttach read FOnLccNodeTractionProxyReplyAttach write FOnLccNodeTractionProxyReplyAttach;
-    property OnLccNodeTractionProxyReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionProxyReplyManage write FOnLccNodeTractionProxyReplyManage;
     {$ENDIF}
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
     property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
@@ -2672,6 +2663,8 @@ begin
    if Assigned(NetworkTree) then
      NetworkTree.DoCANAliasMapReset(LccNode);
    {$ENDIF} {$ENDIF}
+   if Assigned(FOnLccCANAliasMapReset) then
+     FOnLccCANAliasMapReset(Self, LccNode);
 end;
 
 procedure TLccNodeManager.DoCDI(SourceLccNode, DestLccNode: TLccNode);
@@ -2859,35 +2852,6 @@ procedure TLccNodeManager.DoTractionControllerChangeNotify(SourceLccNode,
 begin
   if Assigned(OnLccNodeTractionControllerChangeNotify) then
     OnLccNodeTractionControllerChangeNotify(Self, SourceLccNode, DestLccNode, NewRequestingNode, NewRequestingNodeAlias, Allow);
-end;
-{$ENDIF}
-
-{$IFDEF TRACTION}
-procedure TLccNodeManager.DoTractionProxyReplyAllocate(SourceLccNode,
-  DestLccNode: TLccNode; LegacyTechnology: Byte; TrainID: Word;
-  var TrainNode: TNodeID; TrainAlias: Word);
-begin
-  if Assigned(OnLccNodeTractionProxyReplyAllocate) then
-    OnLccNodeTractionProxyReplyAllocate(Self, SourceLccNode, DestLccNode, LegacyTechnology, TrainID, TrainNode, TrainAlias);
-end;
-{$ENDIF}
-
-
-{$IFDEF TRACTION}
-procedure TLccNodeManager.DoTractionProxyReplyAttach(SourceLccNode,
-  DestLccNode: TLccNode; ReplyCode: Byte);
-begin
-  if Assigned(OnLccNodeTractionProxyReplyAttach) then
-    OnLccNodeTractionProxyReplyAttach(Self, SourceLccNode, DestLccNode, ReplyCode);
-end;
-{$ENDIF}
-
-{$IFDEF TRACTION}
-procedure TLccNodeManager.DoTractionProxyReplyManage(SourceLccNode,
-  DestLccNode: TLccNode; ResultCode: Byte);
-begin
-  if Assigned(OnLccNodeTractionProxyReplyManage) then
-    OnLccNodeTractionProxyReplyManage(Self, SourceLccNode, DestLccNode, ResultCode);
 end;
 {$ENDIF}
 
