@@ -34,6 +34,8 @@ type
   TLccEthernetClient = class;   // Forward
 
 
+  { TLccEthernetRec }
+
   TLccEthernetRec = record
     Thread: TLccConnectionThread;    // Thread owing the Record
     AutoResolveIP: Boolean;          // Tries to autoresolve the local unique netword IP of the machine

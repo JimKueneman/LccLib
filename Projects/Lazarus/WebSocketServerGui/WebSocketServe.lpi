@@ -3,14 +3,12 @@
   <ProjectOptions>
     <Version Value="9"/>
     <General>
-      <Flags>
-        <MainUnitHasCreateFormStatements Value="False"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="OpenLcb Node"/>
-      <UseAppBundle Value="False"/>
+      <Title Value="WebSocketServe"/>
       <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -27,38 +25,51 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -C cdi_16_24_PC_default.xml -f piface.xml -t sdn_signaltemplate.xml -d 2048"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <RequiredPackages Count="2">
+      <Item1>
+        <PackageName Value="LCC"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+    </RequiredPackages>
+    <Units Count="2">
       <Unit0>
-        <Filename Value="rpinode.lpr"/>
+        <Filename Value="WebSocketServe.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="unitmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit1>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="rpinode"/>
+      <Filename Value="WebSocketServe"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;../../../../Library/Generics/src"/>
+      <OtherUnitFiles Value="../../../Library/Synapse_LCC"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
   CustomOptions += ' -dUseCThreads';
 if TargetOS = 'darwin' then
   CustomOptions += ' -dUseCThreads';"/>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="0"/>
-      </Optimizations>
-    </CodeGeneration>
-    <Other>
-      <CustomOptions Value="-dFPC_CONSOLE_APP"/>
-    </Other>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

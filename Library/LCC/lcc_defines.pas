@@ -203,7 +203,7 @@ const
   PIP_CDI                            = $000800000000;
   PIP_TRACTION                       = $000400000000;
   PIP_FDI                            = $000200000000;
-  PIP_TRACTION_PROXY                 = $000100000000;
+//  PIP_TRACTION_PROXY                 = $000100000000;   depreciated
   PIP_SIMPLE_TRAIN_NODE_INFO         = $000080000000;
   PIP_FUNCTION_CONFIGURATION         = $000040000000;
 

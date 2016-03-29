@@ -8,14 +8,14 @@ interface
 
 uses
   lcc_app_common_settings, lcc_can_message_assembler_disassembler, 
-  lcc_cdi_parser, lcc_comport, lcc_defines, lcc_detailed_logging, 
-  lcc_ethenetserver, lcc_ethernetclient, lcc_gridconnect, lcc_math_float16, 
-  lcc_messages, lcc_nodemanager, lcc_tcp_protocol, lcc_threaded_stringlist, 
+  lcc_cdi_parser, lcc_comport, lcc_defines, lcc_ethenetserver, 
+  lcc_ethernetclient, lcc_gridconnect, lcc_math_float16, lcc_messages, 
+  lcc_nodemanager, lcc_tcp_protocol, lcc_threaded_stringlist, 
   lcc_threadedcirculararray, lcc_utilities, lcc_common_classes, 
   lcc_nodeselector, lcc_raspberrypi_spiport, lcc_compiler_types, 
-  lcc_raspberrypi_gpio_file, lcc_raspberrypi, lcc_node, 
-  lcc_node_protocol_helpers, lcc_sdn_utilities, lcc_xmlutilities, 
-  LazarusPackageIntf;
+  lcc_raspberrypi_gpio_file, lcc_raspberrypi, lcc_sdn_utilities, 
+  lcc_xmlutilities, lcc_websocketserver, frame_lcc_logging, 
+  frame_lcc_settings, LazarusPackageIntf;
 
 implementation
 
@@ -30,6 +30,7 @@ begin
   RegisterUnit('lcc_nodeselector', @lcc_nodeselector.Register);
   RegisterUnit('lcc_raspberrypi_spiport', @lcc_raspberrypi_spiport.Register);
   RegisterUnit('lcc_sdn_utilities', @lcc_sdn_utilities.Register);
+  RegisterUnit('lcc_websocketserver', @lcc_websocketserver.Register);
 end;
 
 initialization

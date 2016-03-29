@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="38">
+    <Units Count="39">
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -26,11 +26,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="249"/>
+        <TopLine Value="344"/>
         <CursorPos X="26" Y="259"/>
         <UsageCount Value="160"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -197,7 +196,7 @@
       </Unit26>
       <Unit27>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="179"/>
         <CursorPos Y="180"/>
         <UsageCount Value="25"/>
@@ -205,7 +204,7 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="768"/>
         <CursorPos Y="783"/>
         <UsageCount Value="25"/>
@@ -213,7 +212,7 @@
       </Unit28>
       <Unit29>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="44"/>
         <CursorPos Y="60"/>
         <UsageCount Value="25"/>
@@ -221,7 +220,7 @@
       </Unit29>
       <Unit30>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="20"/>
         <CursorPos Y="31"/>
         <UsageCount Value="25"/>
@@ -229,7 +228,7 @@
       </Unit30>
       <Unit31>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="610"/>
         <CursorPos Y="621"/>
         <UsageCount Value="25"/>
@@ -237,7 +236,7 @@
       </Unit31>
       <Unit32>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <CursorPos X="91" Y="23"/>
         <UsageCount Value="25"/>
         <Loaded Value="True"/>
@@ -251,14 +250,14 @@
       </Unit33>
       <Unit34>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <CursorPos X="11" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <CursorPos X="33" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -266,7 +265,7 @@
       <Unit36>
         <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
         <UnitName Value="Generics.Defaults"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="59"/>
         <CursorPos X="14" Y="6"/>
         <UsageCount Value="10"/>
@@ -274,12 +273,20 @@
       </Unit36>
       <Unit37>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="375"/>
         <CursorPos X="14" Y="393"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit37>
+      <Unit38>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="170"/>
+        <CursorPos X="112" Y="183"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit38>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>

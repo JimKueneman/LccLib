@@ -4,8 +4,6 @@ unit lcc_nodemanager;
 {$mode delphi}{$H+}
 {$ENDIF}
 
-{$DEFINE TRACTION}
-
 interface
 
 {$I lcc_compilers.inc}
@@ -13,8 +11,6 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  DOM,
-  XMLRead,
   Generics.Collections,
     {$IFNDEF FPC_CONSOLE_APP}
     LResources,
@@ -36,25 +32,40 @@ uses
   Xml.XMLIntf,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
-  lcc_common_classes, lcc_defines, lcc_compiler_types, lcc_xmlutilities,
+  lcc_common_classes, lcc_defines, lcc_xmlutilities,
   lcc_sdn_utilities;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
 
-const
-  // These must be IDENTICAL to the values in the CDI file below
-  SNIP_VER = 1;
-  SNIP_MFG = 'Mustangpeak';
-  SNIP_MODEL = 'SW100';
-  SNIP_HW_VER = '1.0.0.0';
-  SNIP_SW_VER = '1.0.0.0';
-  SNIP_USER_VER = 1;
-  SNIP_USER_NAME = '';
-  SNIP_USER_DESC = '';
-
 
 const
+  CDI_XML: string = (
+  '<?xml version="1.0" encoding="utf-8"?>                                       ' +
+  '<?xml-stylesheet type="text/xsl" href="http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl"?>  ' +
+  '<cdi xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://openlcb.org/trunk/specs/schema/cdi.xsd"> ' +
+    '<identification>                                                           ' +
+      '<manufacturer>Mustangpeak</manufacturer>                                 ' +
+      '<model>SW100</model>                                                     ' +
+      '<hardwareVersion>1.0.0.0</hardwareVersion>                               ' +
+      '<softwareVersion>1.0.0.0</softwareVersion>                               ' +
+    '</identification>                                                          ' +
+    '<segment origin="1" space="253">                                           ' +
+      '<name>User</name>                                                        ' +
+      '<description>User defined information</description>                      ' +
+      '<group>                                                                  ' +
+        '<name>User Data</name>                                                 ' +
+       '<description>Add your own unique node info here</description>           ' +
+         '<string size="63">                                                    ' +
+          '<name>User Name</name>                                               ' +
+        '</string>                                                              ' +
+        '<string size="64">                                                     ' +
+          '<name>User Description</name>                                        ' +
+        '</string>                                                              ' +
+      '</group>                                                                 ' +
+    '</segment>                                                                 ' +
+  '</cdi>                                                                       '
+);
   MAX_CDI_ARRAY = 766;
   CDI_ARRAY: array[0..MAX_CDI_ARRAY-1] of byte = (
     $3C, $3F, $78, $6D, $6C, $20, $76, $65, $72, $73, $69, $6F, $6E, $3D, $22, $31, $2E, $30, $22, $20, $65, $6E, $63, $6F, $64, $69, $6E, $67, $3D, $22, $75, $74, $66, $2D, $38, $22, $3F, $3E,    // <?xml version="1.0" encoding="utf-8"?>
@@ -88,7 +99,7 @@ const
 type
   TLccNode = class;
   TLccNodeManager = class;
-  {$IFDEF TRACTION}TTraction = class;{$ENDIF}
+  TTraction = class;
   TConfigurationMemory = class;
   TLccOwnedNode = class;
   TLccOwnedNodeClass = class of TLccOwnedNode;
@@ -97,23 +108,12 @@ type
   TOnLccNodeMessage = procedure(Sender: TObject; LccSourceNode: TLccNode) of object;
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
   TOnLccNodeEventIdentified = procedure(Sender: TObject; LccSourceNode: TLccNode; var Event: TEventID; State: TEventState) of object;
-  {$IFDEF TRACTION}
   TOnLccNodeMessageResultCode = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ResultCode: Byte) of object;
   TOnLccNodeTractionControllerQuery = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word) of object;
   TOnLccNodeTractionControllerChangeNotify = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean) of object;
-  {$ENDIF}
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
   TOnLccNodeConfigMemAddressSpace = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte) of object;
   TOnLccGetRootNodeClass = procedure(Sender: TObject; var NodeClass: TLccOwnedNodeClass) of object;
-
-  TMessageInFlight = (mif_Snip,
-                      mif_Pip,
-                      mif_Cdi,
-                      mif_Acdi_Mfg,
-                      mif_Acdi_User,
-                      mif_ConfigMem,
-                      mif_ConfigMemOptions);
-  TMessageInFlightSet = set of TMessageInFlight;
 
   { TDatagramQueue }
 
@@ -168,7 +168,7 @@ type
     FDatagram: Boolean;
     FDisplay: Boolean;
     FEventExchange: Boolean;
-    {$IFDEF TRACTION}FFDI: Boolean;{$ENDIF}
+    FFDI: Boolean;
     FIdentification: Boolean;
     FMemConfig: Boolean;
     FRemoteButton: Boolean;
@@ -176,22 +176,17 @@ type
     FSimpleNodeInfo: Boolean;
     FStream: Boolean;
     FTeach_Learn: Boolean;
-    {$IFDEF TRACTION}
     FTractionControl: Boolean;
-    FTractionProxy: Boolean;
     FSimpleTrainNodeInfo: Boolean;
     FFunctionConfiguration: Boolean;
-    {$ENDIF}
   protected
     Flags: array of QWord;
     procedure DecodeFlags;
     function EncodeFlags: QWord;
   public
     property Datagram: Boolean read FDatagram write FDatagram;
-    {$IFDEF TRACTION}
     property FDI: Boolean read FFDI write FFDI;
     property FunctionConfiguration: Boolean read FFunctionConfiguration write FFunctionConfiguration;
-    {$ENDIF}
     property Stream: Boolean read FStream write FStream;
     property MemConfig: Boolean read FMemConfig write FMemConfig;
     property Reservation: Boolean read FReservation write FReservation;
@@ -203,11 +198,8 @@ type
     property Display: Boolean read FDisplay write FDisplay;
     property SimpleNodeInfo: Boolean read FSimpleNodeInfo write FSimpleNodeInfo;
     property CDI: Boolean read FCDI write FCDI;
-    {$IFDEF TRACTION}
     property TractionControl: Boolean read FTractionControl write FTractionControl;
-    property TractionProxy: Boolean read FTractionProxy write FTractionProxy;
     property SimpleTrainNodeInfo: Boolean read FSimpleTrainNodeInfo write FSimpleTrainNodeInfo;
-    {$ENDIF}
 
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
@@ -246,7 +238,6 @@ type
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
-  {$IFDEF TRACTION}
   { TSimpleTrainNodeInfo }
 
   TSimpleTrainNodeInfo = class(TNodeProtocolBase)
@@ -269,7 +260,6 @@ type
 
     function ProcessMessage(LccMessage: TLccMessage; Traction: TTraction): Boolean; reintroduce; virtual;
   end;
-  {$ENDIF}
 
   { TLccEvent }
 
@@ -352,16 +342,13 @@ type
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
-  {$IFDEF TRACTION}
   { TFDI }
 
   TFDI = class(TStreamBasedProtocol)
   protected
     procedure DoLoadComplete(LccMessage: TLccMessage); override;
   end;
-  {$ENDIF}
 
-  {$IFDEF TRACTION}
   { TFunctionConfiguration }
 
   TFunctionConfiguration = class(TNodeProtocolBase)
@@ -374,7 +361,6 @@ type
     property FunctionStates[iIndex: Integer]: Boolean read GetFunctionStates;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
-  {$ENDIF}
 
   { TCDI }
 
@@ -497,7 +483,6 @@ type
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
 
-  {$IFDEF TRACTION}
   { TTraction }
 
   TTraction = class(TNodeProtocolBase)
@@ -529,7 +514,6 @@ type
     function IsLinked: Boolean;
     function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
   end;
-  {$ENDIF}
 
   { TConfigurationMemOptions }
 
@@ -579,10 +563,8 @@ type
     FConfigMemOptions: TConfigurationMemOptions;
     FEventsConsumed: TLccEvents;
     FEventsProduced: TLccEvents;
-    {$IFDEF TRACTION}
     FFDI: TFDI;
     FFunctionConfiguration: TFunctionConfiguration;
-    {$ENDIF}
     FiStartupSequence: Word;
     {$IFDEF FPC}
       {$IFNDEF FPC_CONSOLE_APP}
@@ -592,12 +574,9 @@ type
     FNodeID: TNodeID;
     FProtocolSupport: TProtocolSupport;
     FSimpleNodeInfo: TSimpleNodeInfo;
-    {$IFDEF TRACTION}
     FSimpleTrainNodeInfo: TSimpleTrainNodeInfo;
     FTraction: TTraction;
-    {$ENDIF}
     FConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo;
-    FUserMsgInFlight: TMessageInFlightSet;
     function GetAliasIDStr: String;
     function GetNodeIDStr: String;
     procedure SetOwnerManager(AValue: TLccNodeManager); override;
@@ -614,10 +593,8 @@ type
     property ConfigMemAddressSpaceInfo: TConfigMemAddressSpaceInfo read FConfigMemAddressSpaceInfo write FConfigMemAddressSpaceInfo;
     property EventsConsumed: TLccEvents read FEventsConsumed write FEventsConsumed;
     property EventsProduced: TLccEvents read FEventsProduced write FEventsProduced;
-    {$IFDEF TRACTION}
     property FDI: TFDI read FFDI write FFDI;
     property FunctionConfiguration: TFunctionConfiguration read FFunctionConfiguration write FFunctionConfiguration;
-    {$ENDIF}
     {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     property LccGuiNode: TLccGuiNode read FLccGuiNode write FLccGuiNode;
     {$ENDIF} {$ENDIF}
@@ -626,11 +603,8 @@ type
     property ProtocolSupport: TProtocolSupport read FProtocolSupport;
     property iStartupSequence: Word read FiStartupSequence write FiStartupSequence;
     property SimpleNodeInfo: TSimpleNodeInfo read FSimpleNodeInfo;
-    {$IFDEF TRACTION}
     property SimpleTrainNodeInfo: TSimpleTrainNodeInfo read FSimpleTrainNodeInfo;
     property Traction: TTraction read FTraction write FTraction;
-    {$ENDIF}
-    property UserMsgInFlight: TMessageInFlightSet read FUserMsgInFlight write FUserMsgInFlight;
 
     constructor Create(AnOwner: TComponent); override;
     destructor Destroy; override;
@@ -733,17 +707,14 @@ type
     FOnLccNodeCreate: TOnLccNodeMessage;
     FOnLccNodeDatagramReply: TOnLccNodeMessageWithDest;
     FOnLccNodeDestroy: TOnLccNodeMessage;
-    {$IFDEF TRACTION}
     FOnLccNodeFDI: TOnLccNodeMessageWithDest;
     FOnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest;
-    {$ENDIF}
     FOnLccNodeInitializationComplete: TOnLccNodeMessage;
     FOnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest;
     FOnLccNodeProducerIdentified: TOnLccNodeEventIdentified;
     FOnLccNodeProtocolIdentifyReply: TOnLccNodeMessageWithDest;
     FOnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest;
     FOnLccNodeSimpleNodeIdentReply: TOnLccNodeMessageWithDest;
-    {$IFDEF TRACTION}
     FOnLccNodeSimpleTrainNodeIdentReply: TOnLccNodeMessageWithDest;
     FOnLccNodeTractionControllerChangeNotify: TOnLccNodeTractionControllerChangeNotify;
     FOnLccNodeTractionReplyControllerAssign: TOnLccNodeMessageResultCode;
@@ -752,7 +723,6 @@ type
     FOnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode;
     FOnLccNodeTractionReplyQueryFunction: TOnLccNodeMessageWithDest;
     FOnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest;
-    {$ENDIF}
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnRequestMessageSend: TOnMessageEvent;
     FOwnedNodes: TObjectList<TLccOwnedNode>;
@@ -779,10 +749,8 @@ type
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoDatagramReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoDestroyLccNode(LccNode: TLccNode); virtual;
-    {$IFDEF TRACTION}
     procedure DoFDI(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoFunctionConfiguration(SourceLccNode, DestLccNode: TLccNode); virtual;
-    {$ENDIF}
     procedure DoGetRootNodeClass(var RootNodeClass: TLccOwnedNodeClass); virtual;
     procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;
     procedure DoNodeIDChanged(LccNode: TLccNode); virtual;
@@ -792,7 +760,6 @@ type
     procedure DoRemoteButtonReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoRequestMessageSend(Message: TLccMessage); virtual;
     procedure DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    {$IFDEF TRACTION}
     procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoTractionControllerChangeNotify(SourceLccNode, DestLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean); virtual;
     procedure DoTractionReplyQuerySpeed(SourceLccNode, DestLccNode: TLccNode); virtual;
@@ -801,7 +768,6 @@ type
     procedure DoTractionReplyControllerQuery(SourceLccNode, DestLccNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word); virtual;
     procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoTractionReplyManage(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
-    {$ENDIF}
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -866,10 +832,8 @@ type
     property OnLccNodeCreate: TOnLccNodeMessage read FOnLccNodeCreate write FOnLccNodeCreate;
     property OnLccNodeDatagramReply: TOnLccNodeMessageWithDest read FOnLccNodeDatagramReply write FOnLccNodeDatagramReply;
     property OnLccNodeDestroy: TOnLccNodeMessage read FOnLccNodeDestroy write FOnLccNodeDestroy;
-    {$IFDEF TRACTION}
     property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
     property OnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest read FOnLccNodeFunctionConfiguration write FOnLccNodeFunctionConfiguration;
-    {$ENDIF}
     property OnNodeIDChanged: TOnLccNodeMessage read FOnNodeIDChanged write FOnNodeIDChanged;
     property OnLccNodeInitializationComplete: TOnLccNodeMessage read FOnLccNodeInitializationComplete write FOnLccNodeInitializationComplete;
     property OnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest read FOnLccNodeOptionalInteractionRejected write FOnLccNodeOptionalInteractionRejected;
@@ -877,7 +841,6 @@ type
     property OnLccNodeProtocolIdentifyReply: TOnLccNodeMessageWithDest read FOnLccNodeProtocolIdentifyReply write FOnLccNodeProtocolIdentifyReply;
     property OnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest read FOnLccNodeRemoteButtonReply write FOnLccNodeRemoteButtonReply;
     property OnLccNodeSimpleNodeIdentReply: TOnLccNodeMessageWithDest read FOnLccNodeSimpleNodeIdentReply write FOnLccNodeSimpleNodeIdentReply;
-    {$IFDEF TRACTION}
     property OnLccNodeSimpleTrainNodeIdentReply: TOnLccNodeMessageWithDest read FOnLccNodeSimpleTrainNodeIdentReply write FOnLccNodeSimpleTrainNodeIdentReply;
     property OnLccNodeTractionControllerChangeNotify: TOnLccNodeTractionControllerChangeNotify read FOnLccNodeTractionControllerChangeNotify write FOnLccNodeTractionControllerChangeNotify;
     property OnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest read FOnLccNodeTractionReplyQuerySpeed write FOnLccNodeTractionReplyQuerySpeed;
@@ -886,7 +849,6 @@ type
     property OnLccNodeTractionReplyControllerQuery: TOnLccNodeTractionControllerQuery read FOnLccNodeTractionReplyControllerQuery write FOnLccNodeTractionReplyControllerQuery;
     property OnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyControllerChangeNotify write FOnLccNodeTractionReplyControllerChangeNotify;
     property OnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyManage write FOnLccNodeTractionReplyManage;
-    {$ENDIF}
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
     property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
@@ -1210,27 +1172,22 @@ begin
   ProtocolSupport.ACDI := True;            // We Support ACDI
   ProtocolSupport.Valid := True;
 
-  // Setup the SNIP constants, this information MUST be idential to the information
-  // in the  <identification> tag of the CDI to comply with the LCC specs
-  SimpleNodeInfo.Version := SNIP_VER;
-  SimpleNodeInfo.Manufacturer := SNIP_MFG;
-  SimpleNodeInfo.Model := SNIP_MODEL;
-  SimpleNodeInfo.SoftwareVersion := SNIP_SW_VER;
-  SimpleNodeInfo.HardwareVersion := SNIP_HW_VER;
-  SimpleNodeInfo.UserVersion := SNIP_USER_VER;
-  SimpleNodeInfo.UserDescription := SNIP_USER_DESC;
-  SimpleNodeInfo.UserName := SNIP_USER_NAME;
-  SimpleNodeInfo.Valid := True;
-
   // Setup a basic CDI
   CDI.AStream.Clear;
-  for i := 0 to MAX_CDI_ARRAY - 1 do
-  {$IFDEF FPC}
-    CDI.AStream.WriteByte(CDI_ARRAY[i]);
+  {$IFDEF LCC_MOBILE}     // Delphi only
+    for i := 0 to Length(CDI_XML) - 1 do
+      CDI.AStream.Write(Ord(CDI_XML[i]), 1);
   {$ELSE}
-    CDI.AStream.Write(CDI_ARRAY[i], 1);
+    for i := 1 to Length(CDI_XML) do
+    {$IFDEF FPC}
+      CDI.AStream.WriteByte(Ord(CDI_XML[i]));
+    {$ELSE}
+      CDI.AStream.Write( Ord(CDI_XML[i]), 1);
+    {$ENDIF}
   {$ENDIF}
   CDI.Valid := True;
+
+  CDI.LoadSNIP(SimpleNodeInfo);
 
   // Setup the Configuraion Memory Options:
   ConfigMemOptions.HighSpace := MSI_CDI;
@@ -1757,14 +1714,12 @@ begin
                                            ACDIUser.WriteRequest(LccMessage);
                                            Result := True;
                                          end;
-                                     {$IFDEF TRACTION}
                                      MSI_FDI             :
                                          begin
                                          end;  // Not writeable
                                      MSI_FUNCTION_CONFIG :
                                          begin
                                          end;
-                                     {$ENDIF}
                                    end
                                  end;
                              MCP_CONFIGURATION :
@@ -1842,14 +1797,12 @@ begin
                                              end;
                                              Result := True;
                                            end;
-                                       {$IFDEF TRACTION}
                                        MSI_FDI             :
                                             begin
                                             end;
                                        MSI_FUNCTION_CONFIG :
                                             begin
                                             end;
-                                       {$ENDIF}
                                      end
                                    end;
                                MCP_CONFIGURATION : begin
@@ -2125,7 +2078,6 @@ begin
   end;
 end;
 
-{$IFDEF TRACTION}
 { TFunctionConfiguration }
 
 function TFunctionConfiguration.GetFunctionStates(iIndex: Integer): Boolean;
@@ -2135,9 +2087,7 @@ begin
   else
     Result := False;
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 function TFunctionConfiguration.ProcessMessage(LccMessage: TLccMessage): Boolean;
 var
   SourceNode, DestNode: TLccNode;
@@ -2166,7 +2116,6 @@ begin
     end;
   end;
 end;
-{$ENDIF}
 
 { TLccEvents }
 
@@ -2471,7 +2420,6 @@ begin
   end;
 end;
 
-{$IFDEF TRACTION}
 { TFDI }
 
 procedure TFDI.DoLoadComplete(LccMessage: TLccMessage);
@@ -2486,9 +2434,7 @@ begin
       OwnerManager.DoFDI(SourceNode, DestNode);
   end;
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 { TTraction }
 
 procedure TTraction.SetFunctions(Index: DWord; AValue: Word);
@@ -2566,7 +2512,6 @@ begin
         end;
   end;
 end;
-{$ENDIF}
 
 { TNodeProtocolBase }
 
@@ -2742,21 +2687,17 @@ begin
     OnLccNodeDestroy(Self, LccNode);
 end;
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoFDI(SourceLccNode, DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeFDI) then
     OnLccNodeFDI(Self, SourceLccNode, DestLccNode)
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoFunctionConfiguration(SourceLccNode, DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeFunctionConfiguration) then
     OnLccNodeFunctionConfiguration(Self, SourceLccNode, DestLccNode)
 end;
-{$ENDIF}
 
 procedure TLccNodeManager.DoGetRootNodeClass( var RootNodeClass: TLccOwnedNodeClass);
 begin
@@ -2836,16 +2777,13 @@ begin
     OnLccNodeSimpleNodeIdentReply(Self, SourceLccNode, DestLccNode);
 end;
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoSimpleTrainNodeIdentReply(SourceLccNode,
   DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeSimpleTrainNodeIdentReply) then
     OnLccNodeSimpleTrainNodeIdentReply(Self, SourceLccNode, DestLccNode);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionControllerChangeNotify(SourceLccNode,
   DestLccNode: TLccNode; NewRequestingNode: TNodeID;
   NewRequestingNodeAlias: Word; var Allow: Boolean);
@@ -2853,36 +2791,28 @@ begin
   if Assigned(OnLccNodeTractionControllerChangeNotify) then
     OnLccNodeTractionControllerChangeNotify(Self, SourceLccNode, DestLccNode, NewRequestingNode, NewRequestingNodeAlias, Allow);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyQuerySpeed(SourceLccNode,
   DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeTractionReplyQuerySpeed) then
     OnLccNodeTractionReplyQuerySpeed(Self, SourceLccNode, DestLccNode);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyQueryFunction(SourceLccNode,
   DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeTractionReplyQueryFunction) then
     OnLccNodeTractionReplyQueryFunction(Self, SourceLccNode, DestLccNode);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyControllerAssign(SourceLccNode,
   DestLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyControllerAssign) then
     OnLccNodeTractionReplyControllerAssign(Self, SourceLccNode, DestLccNode, ResultCode);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyControllerQuery(SourceLccNode,
   DestLccNode: TLccNode; ActiveControllerNodeID: TNodeID;
   ActiveControllerAlias: Word);
@@ -2890,25 +2820,20 @@ begin
   if Assigned(OnLccNodeTractionReplyControllerQuery) then
     OnLccNodeTractionReplyControllerQuery(Self, SourceLccNode, DestLccNode, ActiveControllerNodeID, ActiveControllerAlias);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyControllerChangeNotify(
   SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyControllerChangeNotify) then
     OnLccNodeTractionReplyControllerChangeNotify(Self, SourceLccNode, DestLccNode, ResultCode);
 end;
-{$ENDIF}
 
-{$IFDEF TRACTION}
 procedure TLccNodeManager.DoTractionReplyManage(SourceLccNode,
   DestLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyManage) then
     OnLccNodeTractionReplyManage(Self, SourceLccNode, DestLccNode, ResultCode);
 end;
-{$ENDIF}
 
 procedure TLccNodeManager.DoVerifiedNodeID(SourceLccNode: TLccNode);
 begin
@@ -3336,7 +3261,6 @@ begin
   DoRequestMessageSend(LccMessage);
 end;
 
-{$IFDEF TRACTION}
 { TSimpleTrainNodeInfo }
 
 function TSimpleTrainNodeInfo.ProcessMessage(LccMessage: TLccMessage;
@@ -3388,7 +3312,6 @@ begin
   end;
   Valid := True;
 end;
-{$ENDIF}
 
 { TSimpleNodeInfo }
 
@@ -3546,24 +3469,17 @@ begin
     FDatagram := Flags[0] and PIP_DATAGRAM <> 0;
     FDisplay := Flags[0] and PIP_DISPLAY <> 0;
     FEventExchange := Flags[0] and PIP_EVENT_EXCHANGE <> 0;
-    {$IFDEF TRACTION}
     FFDI := Flags[0] and PIP_FDI <> 0;
     FFunctionConfiguration := Flags[0] and PIP_FUNCTION_CONFIGURATION <> 0;
-    {$ENDIF}
     FIdentification := Flags[0] and PIP_PIP <> 0;
     FMemConfig := Flags[0] and PIP_MEMORY_CONFIG <> 0;
     FRemoteButton := Flags[0] and PIP_REMOTE_BUTTON <> 0;
     FReservation := Flags[0] and PIP_RESERVATION <> 0;
     FSimpleNodeInfo := Flags[0] and PIP_SIMPLE_NODE_INFO <> 0;
-    {$IFDEF TRACTION}
     FSimpleTrainNodeInfo := Flags[0] and PIP_SIMPLE_TRAIN_NODE_INFO <> 0;
-    {$ENDIF}
     FStream := Flags[0] and PIP_STREAM <> 0;
     FTeach_Learn := Flags[0] and PIP_TEACH_LEARN <> 0;
-    {$IFDEF TRACTION}
     FTractionControl := Flags[0] and PIP_TRACTION <> 0;
-    FTractionProxy := Flags[0] and PIP_TRACTION_PROXY <> 0;
-    {$ENDIF}
     Valid := True;
   end;
 end;
@@ -3576,10 +3492,8 @@ begin
   if Datagram then Result := Result or PIP_DATAGRAM;
   if Display then Result := Result or PIP_DISPLAY;
   if EventExchange then Result := Result or PIP_EVENT_EXCHANGE;
-  {$IFDEF TRACTION}
   if FDI then Result := Result or PIP_FDI;
   if FunctionConfiguration then Result := Result or PIP_FUNCTION_CONFIGURATION;
-  {$ENDIF}
   if Identification then Result := Result or PIP_PIP;
   if MemConfig then Result := Result or PIP_MEMORY_CONFIG;
   if RemoteButton then Result := Result or PIP_REMOTE_BUTTON;
@@ -3587,11 +3501,8 @@ begin
   if SimpleNodeInfo then Result := Result or PIP_SIMPLE_NODE_INFO;
   if Stream then Result := Result or PIP_STREAM;
   if Teach_Learn then Result := Result or PIP_TEACH_LEARN;
-  {$IFDEF TRACTION}
   if SimpleTrainNodeInfo then Result := Result or PIP_SIMPLE_TRAIN_NODE_INFO;
   if TractionControl then Result := Result or PIP_TRACTION;
-  if TractionProxy then Result := Result or PIP_TRACTION_PROXY;
-  {$ENDIF}
 end;
 
 function TProtocolSupport.ProcessMessage(LccMessage: TLccMessage): Boolean;
@@ -3767,11 +3678,9 @@ begin
   inherited SetOwnerManager(AValue);
   ProtocolSupport.OwnerManager := AValue;
   SimpleNodeInfo.OwnerManager := AValue;
-  {$IFDEF TRACTION}
   FDI.OwnerManager := AValue;
   FunctionConfiguration.OwnerManager := AValue;
   SimpleTrainNodeInfo.OwnerManager := AValue;
-  {$ENDIF}
   CDI.OwnerManager := AValue;
   ConfigurationMem.OwnerManager := AValue;
   EventsProduced.OwnerManager := AValue;
@@ -3809,12 +3718,10 @@ begin
   FProtocolSupport := TProtocolSupport.Create(Self);
   FSimpleNodeInfo := TSimpleNodeInfo.Create(Self);
   FCDI := TCDI.Create(Self, MSI_CDI, True);
-  {$IFDEF TRACTION}
   FSimpleTrainNodeInfo := TSimpleTrainNodeInfo.Create(Self);
   FFDI := TFDI.Create(Self, MSI_FDI, True);
   FTraction := TTraction.Create(Self);
   FFunctionConfiguration := TFunctionConfiguration.Create(Self);
-  {$ENDIF}
   FConfigurationMem := TConfigurationMemory.Create(Self);
   FiStartupSequence := 0;
   FEventsConsumed := TLccEvents.Create(Self);
@@ -3827,12 +3734,10 @@ destructor TLccNode.Destroy;
 begin
   FreeAndNil(FProtocolSupport);
   FreeAndNil(FSimpleNodeInfo);
-  {$IFDEF TRACTION}
   FreeAndNil(FSimpleTrainNodeInfo);
   FreeAndNil(FFDI);
   FreeAndNil(FTraction);
   FreeAndNil(FFunctionConfiguration);
-  {$ENDIF}
   FreeAndNil(FCDI);
   FreeAndNil(FConfigurationMem);
   FreeAndNil(FEventsConsumed);
@@ -3867,18 +3772,15 @@ end;
 
 function TLccNode.ProcessMessage(LccMessage: TLccMessage): Boolean;
 var
-  {$IFDEF TRACTION}
   ANodeID: TNodeID;
   Allow: Boolean;
-  {$ENDIF}
   LccDestNode: TLccNode;
   EventPtr: PEventID;
 begin
   Result := False;
-  {$IFDEF TRACTION}
   ANodeID[0] := 0;
   ANodeID[1] := 0;
-  {$ENDIF}
+
   LccDestNode := nil;
 
   if Assigned(OwnerManager) then
@@ -3945,7 +3847,6 @@ begin
               OwnerManager.DoSimpleNodeIdentReply(Self, LccDestNode);
             Result := True;
           end;
-      {$IFDEF TRACTION}
       MTI_SIMPLE_TRAIN_INFO_REPLY :
           begin
             Inc(TotalSTNIPMessage);
@@ -3954,7 +3855,6 @@ begin
               OwnerManager.DoSimpleTrainNodeIdentReply(Self, LccDestNode);
             Result := True;
           end;
-      {$ENDIF}
       MTI_PRODUCER_IDENTIFIED_SET :
           begin
             EventPtr := LccMessage.ExtractDataBytesAsEventID(0);
@@ -4003,7 +3903,6 @@ begin
               OwnerManager.DoConsumerIdentified(Self, EventPtr^, evs_Unknown);
             Result := True;
           end;
-      {$IFDEF TRACTION}
       MTI_TRACTION_PROTOCOL :
           begin
             if Assigned(OwnerManager) then
@@ -4065,7 +3964,6 @@ begin
             end;
           end;
         end;
-        {$ENDIF}
         MTI_DATAGRAM :
             begin
               case LccMessage.DataArrayIndexer[0] of
@@ -4095,7 +3993,6 @@ begin
                                                         end;
                                   MSI_ACDI_MFG        : begin end;
                                   MSI_ACDI_USER       : begin end;
-                                  {$IFDEF TRACTION}
                                   MSI_FDI             : begin
                                                        //   SendAckReply(LccMessage, False, 0);
                                                           FDI.ProcessMessage(LccMessage);
@@ -4106,7 +4003,6 @@ begin
                                                           FunctionConfiguration.ProcessMessage(LccMessage);
                                                           Result := True;
                                                         end;
-                                  {$ENDIF}
                                 end;
                               end else
                               begin
@@ -4131,14 +4027,12 @@ begin
                                                          end;
                                   MSI_ACDI_MFG         : begin end;
                                   MSI_ACDI_USER        : begin end;
-                                  {$IFDEF TRACTION}
                                   MSI_FDI              : begin end; // Not writeable
                                   MSI_FUNCTION_CONFIG  : begin
                                                        //    SendAckReply(LccMessage, False, 0);   // We don't need to send a Reply
                                                            FunctionConfiguration.ProcessMessage(LccMessage);
                                                            Result := True;
                                                          end;
-                                  {$ENDIF}
                                 end;
                               end else
                               begin
@@ -4798,10 +4692,8 @@ begin
             AddChildNode(PIP, 'Display', nil);
           if SourceLccNode.ProtocolSupport.EventExchange then
             AddChildNode(PIP, 'Events', nil);
-          {$IFDEF TRACTION}
           if SourceLccNode.ProtocolSupport.FDI then
             AddChildNode(PIP, 'FDI', nil);
-          {$ENDIF}
           if SourceLccNode.ProtocolSupport.Identification then
             AddChildNode(PIP, 'Identification', nil);
           if SourceLccNode.ProtocolSupport.MemConfig then
@@ -4810,23 +4702,18 @@ begin
             AddChildNode(PIP, 'RemoteButton', nil);
           if SourceLccNode.ProtocolSupport.Reservation then
             AddChildNode(PIP, 'Reservation', nil);
-
           if SourceLccNode.ProtocolSupport.SimpleNodeInfo then
             AddChildNode(PIP, 'SNIP (SNII)', nil);
           if SourceLccNode.ProtocolSupport.Stream then
             AddChildNode(PIP, 'Stream', nil);
           if SourceLccNode.ProtocolSupport.Teach_Learn then
             AddChildNode(PIP, 'Teach Learn', nil);
-          {$IFDEF TRACTION}
           if SourceLccNode.ProtocolSupport.TractionControl then
             AddChildNode(PIP, 'TractionControl', nil);
-          if SourceLccNode.ProtocolSupport.TractionProxy then
-            AddChildNode(PIP, 'TractionProxy', nil);
           if SourceLccNode.ProtocolSupport.SimpleTrainNodeInfo then
             AddChildNode(PIP, 'Simple Train PIP Information Protocol (STNIP', nil);
           if SourceLccNode.ProtocolSupport.FunctionConfiguration then
             AddChildNode(PIP, 'Function Configuration', nil);
-          {$ENDIF}
         end;
       end else
         {$IFDEF FPC}Items.Clear;{$ELSE}Clear;{$ENDIF}
