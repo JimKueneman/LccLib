@@ -190,7 +190,7 @@ Const
 //  SO_PRIORITY   = sockets.SO_PRIORITY;
   SO_LINGER     = sockets.SO_LINGER;
 //  SO_BSDCOMPAT  = sockets.SO_BSDCOMPAT;
-//  SO_REUSEPORT  = sockets.SO_REUSEPORT;
+  SO_REUSEPORT  = sockets.SO_REUSEPORT;
 //  SO_PASSCRED   = sockets.SO_PASSCRED;
 //  SO_PEERCRED   = sockets.SO_PEERCRED;
   SO_RCVLOWAT   = sockets.SO_RCVLOWAT;

@@ -14,7 +14,7 @@
     </CompilerOptions>
     <Description Value="Components to help with the developement of NMRA LCC applications for Delphi, Firemonkey, and Lazarus"/>
     <Version Major="1"/>
-    <Files Count="26">
+    <Files Count="27">
       <Item1>
         <Filename Value="../lcc_app_common_settings.pas"/>
         <HasRegisterProc Value="True"/>
@@ -117,9 +117,9 @@
         <UnitName Value="lcc_xmlutilities"/>
       </Item23>
       <Item24>
-        <Filename Value="../lcc_websocketserver.pas"/>
+        <Filename Value="../lcc_mdns_singleshot.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="lcc_websocketserver"/>
+        <UnitName Value="lcc_mdns_singleshot"/>
       </Item24>
       <Item25>
         <Filename Value="../../Lib/frame_lcc_logging.pas"/>
@@ -129,6 +129,11 @@
         <Filename Value="../../Lib/frame_lcc_settings.pas"/>
         <UnitName Value="frame_lcc_settings"/>
       </Item26>
+      <Item27>
+        <Filename Value="../lcc_websocketserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="lcc_websocketserver"/>
+      </Item27>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

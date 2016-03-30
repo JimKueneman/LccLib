@@ -259,6 +259,7 @@ type
     SOT_RecvTimeout,
     SOT_SendTimeout,
     SOT_Reuse,
+    SOT_ReusePort,
     SOT_TTL,
     SOT_Broadcast,
     SOT_MulticastTTL,
@@ -280,6 +281,9 @@ type
    This is parent class for other class with protocol implementations. Do not
    use this class directly! Use @link(TICMPBlockSocket), @link(TRAWBlockSocket),
    @link(TTCPBlockSocket) or @link(TUDPBlockSocket) instead.}
+
+  { TBlockSocket }
+
   TBlockSocket = class(TObject)
   private
     FOnStatus: THookSocketStatus;
@@ -686,10 +690,15 @@ type
     function GroupCanRead(const SocketList: TList; Timeout: Integer;
       const CanReadList: TList): Boolean;
 {$ENDIF}
-    {:By this method you may turn address reuse mode for local @link(bind). It
+    {:By this method you may turn address reuse Address mode for local @link(bind). It
      is good specially for UDP protocol. Using this with TCP protocol is
      hazardous!}
     procedure EnableReuse(Value: Boolean);
+
+    {:By this method you may turn address reuse Port mode for local @link(bind). It
+     is good specially for UDP protocol. Using this with TCP protocol is
+     hazardous!}
+    procedure EnableReusePort(Value: Boolean);
 
     {:Try set timeout for all sending and receiving operations, if socket
      provider can do it. (It not supported by all socket providers!)}
@@ -1691,6 +1700,16 @@ begin
         {$ENDIF}
         synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEADDR), buf, SizeOf(x));
       end;
+    SOT_ReusePort:
+      begin
+        x := Ord(Value.Enabled);
+        {$IFDEF CIL}
+        buf := System.BitConverter.GetBytes(x);
+        {$ELSE}
+        buf := @x;
+        {$ENDIF}
+        synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEPORT), buf, SizeOf(x));
+      end;
     SOT_TTL:
       begin
         {$IFDEF CIL}
@@ -2014,7 +2033,7 @@ begin
 end;
 
 
-function TBlockSocket.SendBuffer(Buffer: TMemory; Length: Integer): Integer;
+function TBlockSocket.SendBuffer(Buffer: Tmemory; Length: Integer): Integer;
 {$IFNDEF CIL}
 var
   x, y: integer;
@@ -2203,7 +2222,7 @@ begin
   end;
 end;
 
-function TBlockSocket.RecvBufferEx(Buffer: TMemory; Len: Integer;
+function TBlockSocket.RecvBufferEx(Buffer: Tmemory; Len: Integer;
   Timeout: Integer): Integer;
 var
   s: AnsiString;
@@ -2946,7 +2965,7 @@ end;
 
 {$IFNDEF CIL}
 function TBlockSocket.GroupCanRead(const SocketList: TList; Timeout: Integer;
-  const CanReadList: TList): boolean;
+  const CanReadList: TList): Boolean;
 var
   FDSet: TFDSet;
   TimeVal: PTimeVal;
@@ -2989,6 +3008,16 @@ var
 begin
   d := TSynaOption.Create;
   d.Option := SOT_reuse;
+  d.Enabled := Value;
+  DelayedOption(d);
+end;
+
+procedure TBlockSocket.EnableReusePort(Value: Boolean);
+var
+  d: TSynaOption;
+begin
+  d := TSynaOption.Create;
+  d.Option := SOT_ReusePort;
   d.Enabled := Value;
   DelayedOption(d);
 end;
@@ -8713,4 +8742,4 @@ end;
 
 {$ENDIF}
 
- end.
+ end.

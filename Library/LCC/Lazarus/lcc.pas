@@ -14,8 +14,8 @@ uses
   lcc_threadedcirculararray, lcc_utilities, lcc_common_classes, 
   lcc_nodeselector, lcc_raspberrypi_spiport, lcc_compiler_types, 
   lcc_raspberrypi_gpio_file, lcc_raspberrypi, lcc_sdn_utilities, 
-  lcc_xmlutilities, lcc_websocketserver, frame_lcc_logging, 
-  frame_lcc_settings, LazarusPackageIntf;
+  lcc_xmlutilities, lcc_mdns_singleshot, frame_lcc_logging, 
+  frame_lcc_settings, lcc_websocketserver, LazarusPackageIntf;
 
 implementation
 
@@ -30,6 +30,7 @@ begin
   RegisterUnit('lcc_nodeselector', @lcc_nodeselector.Register);
   RegisterUnit('lcc_raspberrypi_spiport', @lcc_raspberrypi_spiport.Register);
   RegisterUnit('lcc_sdn_utilities', @lcc_sdn_utilities.Register);
+  RegisterUnit('lcc_mdns_singleshot', @lcc_mdns_singleshot.Register);
   RegisterUnit('lcc_websocketserver', @lcc_websocketserver.Register);
 end;
 
