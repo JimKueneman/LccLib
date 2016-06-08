@@ -2,7 +2,7 @@
   <Project version="2" subversion="2">
     <Name>OlcbThrottle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2016-03-28T21:48:00.897</Modified>
+    <Modified>2016-06-07T04:49:54.031</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -11,7 +11,7 @@
     <VendorSpecific>
       <Apple>
         <FormatDetection>1</FormatDetection>
-        <StatusBarStyle>default</StatusBarStyle>
+        <StatusBarStyle>black</StatusBarStyle>
         <WebAppCapable>1</WebAppCapable>
       </Apple>
       <ChromeApp>
@@ -20,7 +20,7 @@
         <OfflineEnabled>1</OfflineEnabled>
       </ChromeApp>
       <Cordova>
-        <WidgetID>com.smartmobilestudio.app</WidgetID>
+        <WidgetID></WidgetID>
         <AllowIntent>http://*/*&#13;&#10;https://*/*&#13;&#10;tel:*&#13;&#10;sms:*&#13;&#10;mailto:*&#13;&#10;geo:*</AllowIntent>
       </Cordova>
     </VendorSpecific>
@@ -142,7 +142,7 @@ end.
       <File type="form">
         <Name>FormMain</Name>
         <Created>2016-03-25T06:33:14.729Z</Created>
-        <Modified>2016-03-28T21:48:00.887</Modified>
+        <Modified>2016-06-07T04:48:55.156</Modified>
         <Source>
           <![CDATA[unit FormMain;
 
@@ -153,7 +153,8 @@ uses
   SmartCL.Fonts, SmartCL.Borders, SmartCL.Application, SmartCL.Controls.Panel,
   SmartCL.Controls.Button, SmartCL.Layout, SmartCL.Controls.Header,
   SmartCL.Controls.ToolBar, SmartCL.Controls.ToolButton, SmartCL.Inet,
-  SmartCL.Dialogs;
+  SmartCL.Dialogs, SmartCL.Controls.Label, SmartCL.Controls.EditBox,
+  SmartCL.Controls.ProgressBar, SmartCL.Controls.ScrollBar, SmartCL.Slider;
 
 const
   COUNT_FOOTER_BUTTONS = 3;
@@ -196,7 +197,7 @@ end;
 
 procedure TFormMain.W3Button1Click(Sender: TObject);
 begin
-  FSocket.Connect('ws://' + IP_SERVER + ':12021', ['openlcb.websocket']);
+  FSocket.Connect('ws://' + W3EditBox1.Text + ':12021', ['openlcb.websocket']);
 end;
 
 procedure TFormMain.W3Button2Click(Sender: TObject);
@@ -235,6 +236,7 @@ begin
   // this is a good place to initialize components
   FLayoutHeader := Layout.Top(Layout.Stretch,[W3ToolbarHeader]);
   FLayoutFooter := Layout.Bottom(Layout.Stretch,[W3ToolbarFooter]);
+  W3EditBox1.Text := IP_SERVER;
 end;
 
 procedure TFormMain.InitializeObject;
@@ -289,7 +291,7 @@ end.
           <![CDATA[<?xml version="1.0" encoding="utf-16"?>
 <Form version="2" subversion="2">
   <Created>2016-03-25T06:33:14.729</Created>
-  <Modified>2016-03-27T20:11:48.443</Modified>
+  <Modified>2016-06-07T04:49:52.519</Modified>
   <object type="TW3Form">
     <Caption>W3Form</Caption>
     <Name>FormMain</Name>
@@ -323,7 +325,7 @@ end.
     </object>
     <object type="TW3Toolbar">
       <Width>424</Width>
-      <Top>48</Top>
+      <Top>24</Top>
       <Left>24</Left>
       <Height>32</Height>
       <Name>W3ToolbarHeader</Name>
@@ -386,6 +388,24 @@ end.
       <Left>240</Left>
       <Height>32</Height>
       <Name>W3Button6</Name>
+    </object>
+    <object type="TW3Label">
+      <Caption>IP Address</Caption>
+      <Width>128</Width>
+      <Top>96</Top>
+      <Left>32</Left>
+      <Height>32</Height>
+      <Name>W3Label1</Name>
+    </object>
+    <object type="TW3EditBox">
+      <Value></Value>
+      <Text>W3EditBox</Text>
+      <Range></Range>
+      <Width>128</Width>
+      <Top>128</Top>
+      <Left>48</Left>
+      <Height>32</Height>
+      <Name>W3EditBox1</Name>
     </object>
   </object>
 </Form>]]>
@@ -506,12 +526,12 @@ end.
     <Target>Browser</Target>
     <Generator>Visual Components Project</Generator>
     <Statistics>
-      <BackgroundCompilations>1955</BackgroundCompilations>
-      <EditTime>00:29:43.251</EditTime>
-      <CompileTime>00:01:14.882</CompileTime>
-      <TotalTime>15:51:53.958</TotalTime>
-      <DesigningTime>01:13:12.073</DesigningTime>
-      <RunningTime>14:58:22.050</RunningTime>
+      <BackgroundCompilations>2077</BackgroundCompilations>
+      <EditTime>00:30:35.395</EditTime>
+      <CompileTime>00:01:21.613</CompileTime>
+      <TotalTime>19:07:37.099</TotalTime>
+      <DesigningTime>01:14:09.604</DesigningTime>
+      <RunningTime>12:12:03.558</RunningTime>
     </Statistics>
   </Project>
 </SMART>

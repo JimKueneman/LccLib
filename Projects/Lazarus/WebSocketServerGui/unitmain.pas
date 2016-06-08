@@ -38,8 +38,10 @@ type
     procedure LccWebSocketServer1ConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccWebSocketServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure LccWebSocketServer1ReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure Lcc_mDNS_SinglShotServer1ConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure Lcc_mDNS_SinglShotServer1ConnectionStateChange(Sender: TObject;
+      EthernetRec: TLccEthernetRec);
     procedure Lcc_mDNS_SinglShotServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure Lcc_mDNS_SinglShotServer1Question(AQuestion: TmDNSQuestionRec);
   private
     FConnected: Boolean;
     FWorkerMessage: TLccMessage;
@@ -194,8 +196,7 @@ begin
   Memo1.Lines.EndUpdate;
 end;
 
-procedure TForm1.Lcc_mDNS_SinglShotServer1ConnectionStateChange(
-  Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.Lcc_mDNS_SinglShotServer1ConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
     ccsListenerConnecting :
@@ -224,9 +225,17 @@ begin
   end;
 end;
 
+
 procedure TForm1.Lcc_mDNS_SinglShotServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   ShowMessage('mDNS Error Code: ' + IntToStr(EthernetRec.ErrorCode) + ' ' + EthernetRec.MessageStr);
+end;
+
+procedure TForm1.Lcc_mDNS_SinglShotServer1Question(AQuestion: TmDNSQuestionRec);
+begin
+
+  if AQuestion.QName = 'openlcb.local' then
+    beep;
 end;
 
 end.

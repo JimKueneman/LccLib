@@ -326,15 +326,7 @@ begin
   if FEthernetRec.AutoResolveIP then
   begin
     {$IFDEF LCC_WINDOWS}
-    LocalName := Socket.LocalName;
-    IpStrings := TStringList.Create;
-    try
-       Socket.ResolveNameToIP(String( LocalName), IpStrings) ;  // '192.168.0.8';
-       for i := 0 to IpStrings.Count - 1 do
-         FEthernetRec.ListenerIP := IpStrings[i];
-    finally
-      IpStrings.Free;
-    end;
+    FEthernetRec.ListenerIP := ResolveWindowsIp(Socket);
     {$ELSE}
     FEthernetRec.ListenerIP := ResolveUnixIp;
     {$ENDIF}
@@ -727,7 +719,7 @@ begin
                     OutgoingGridConnect.UnlockList;
                   end;
 
-                  if TxStr <> '' then
+                  if (TxStr <> '') and WebSocketInitialized then
                     SendWebSocketStateMachine(Socket, TxStr);
                   LocalSleepCount := 0;
                 end;
@@ -741,7 +733,7 @@ begin
                     GridConnectStrPtr := nil;
                     for i := 0 to Length(DynamicByteArray) - 1 do
                     begin
-                      if GridConnectHelper.GridConnect_DecodeMachine(DynamicByteArray[i], GridConnectStrPtr) then
+                      if GridConnectHelper.GridConnect_DecodeMachine(DynamicByteArray[i], GridConnectStrPtr) and WebSocketInitialized then
                       begin
                         FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                         FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
@@ -858,7 +850,7 @@ begin
   Owner.EthernetThreads.Remove(Self);
   FEthernetRec.ErrorCode := Socket.LastError;
   FEthernetRec.MessageStr := Socket.LastErrorDesc;
-  if not FEthernetRec.SuppressNotification then
+  if not FEthernetRec.SuppressNotification and (FEthernetRec.ErrorCode <> 0) then
     Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
   HandleSendConnectionNotification(ccsListenerClientDisconnected);
   Terminate;

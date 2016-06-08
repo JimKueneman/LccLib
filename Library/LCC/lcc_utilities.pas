@@ -18,7 +18,13 @@ uses
     strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
-  Types, lcc_defines;
+  Types, lcc_defines, blcksock;
+
+type
+  TIp4Address = array[0..3] of Byte;
+  Pip4Address = ^TIp4Address;
+  TIp6Address = array[0..5] of Byte;
+  Pip6Address = ^TIp6Address;
 
   function GetTickCount : DWORD;
   function _Lo(Data: DWORD): Byte;
@@ -41,9 +47,12 @@ uses
   function ValidateNodeID(NodeID: TNodeID): Boolean;
   function StrToNodeID(NodeID: string): TNodeID;
   function StrToEventID(Event: string): TEventID;
-  {$IFNDEF LCC_WINDOWS}
+  {$IFDEF LCC_WINDOWS}
+  function ResolveWindowsIp(Socket: TBlockSocket): string;
+  {$ELSE}
   function ResolveUnixIp: String;
   {$ENDIF}
+  function Ip4Address_StrToBytes(IpAddress: String): TIp4Address;
 
 {$IFDEF FPC}
 type
@@ -430,7 +439,25 @@ begin
     FillChar(Result, 0, SizeOf(TEventID))
 end;
 
-{$IFNDEF LCC_WINDOWS}
+{$IFDEF LCC_WINDOWS}
+  function ResolveWindowsIp(Socket: TBlockSocket): String;
+  var
+    IpStrings: TStringList;
+    LocalName: String;
+    i: Integer;
+  begin
+    Result := '';
+    LocalName := Socket.LocalName;
+    IpStrings := TStringList.Create;
+    try
+       Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
+       for i := 0 to IpStrings.Count - 1 do
+         Result := IpStrings[i];
+    finally
+      IpStrings.Free;
+    end;
+  end;
+{$ELSE}
   {$IFDEF FPC}
 
   function ResolveUnixIp: String;
@@ -482,6 +509,24 @@ end;
       // report error
     end;
   end;
+
+  function Ip4Address_StrToBytes(IpAddress: String): TIp4Address;
+  var
+    StringList: TStringList;
+    i: Integer;
+  begin
+    StringList := TStringList.Create;
+    try
+      StringList.Text := StringReplace(IpAddress, '.', #13, [rfReplaceAll, rfIgnoreCase]);
+      for i := 0 to StringList.Count - 1 do
+      begin
+        Result[i] := StrToInt(StringList[i]);
+      end;
+    finally
+      StringList.Free
+    end;
+  end;
+
   {$ELSE}
   type
     TArray4Int = array[1..4] of byte;

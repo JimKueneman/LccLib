@@ -1698,7 +1698,11 @@ begin
         {$ELSE}
         buf := @x;
         {$ENDIF}
+        {$IFDEF MSWINDOWS}
+        synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEADDR or SO_BROADCAST), buf, SizeOf(x));
+        {$ELSE}
         synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEADDR), buf, SizeOf(x));
+        {$ENDIF}
       end;
     SOT_ReusePort:
       begin
@@ -1708,7 +1712,11 @@ begin
         {$ELSE}
         buf := @x;
         {$ENDIF}
+        {$IFDEF MSWINDOWS}
+        synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEADDR or SO_BROADCAST), buf, SizeOf(x));
+        {$ELSE}
         synsock.SetSockOpt(FSocket, integer(SOL_SOCKET), integer(SO_REUSEPORT), buf, SizeOf(x));
+        {$ENDIF}
       end;
     SOT_TTL:
       begin

@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="16">
+    <Units Count="21">
       <Unit0>
         <Filename Value="WebSocketServe.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -11,7 +11,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="61"/>
+        <UsageCount Value="145"/>
       </Unit0>
       <Unit1>
         <Filename Value="unitmain.pas"/>
@@ -19,257 +19,274 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <CursorPos X="33" Y="9"/>
-        <UsageCount Value="61"/>
+        <TopLine Value="76"/>
+        <CursorPos X="26" Y="100"/>
+        <UsageCount Value="145"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="243"/>
-        <CursorPos X="18" Y="256"/>
-        <UsageCount Value="31"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="374"/>
+        <CursorPos X="93" Y="390"/>
+        <UsageCount Value="73"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="30"/>
-        <CursorPos X="28" Y="47"/>
-        <UsageCount Value="10"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="448"/>
+        <CursorPos X="49" Y="459"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="27"/>
         <CursorPos Y="39"/>
-        <UsageCount Value="29"/>
+        <UsageCount Value="71"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <EditorIndex Value="7"/>
-        <TopLine Value="1756"/>
-        <CursorPos Y="1790"/>
-        <UsageCount Value="29"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1082"/>
+        <CursorPos X="43" Y="1098"/>
+        <UsageCount Value="57"/>
       </Unit5>
       <Unit6>
         <Filename Value="../WebSocketServer/project1.lpr"/>
         <EditorIndex Value="10"/>
         <TopLine Value="142"/>
         <CursorPos Y="145"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="70"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="/usr/local/share/fpcsrc/packages/rtl-extra/src/unix/sockets.pp"/>
         <UnitName Value="Sockets"/>
-        <EditorIndex Value="9"/>
-        <CursorPos X="41" Y="25"/>
+        <EditorIndex Value="5"/>
+        <CursorPos X="5" Y="20"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
-        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/sysutils/sysstrh.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="10"/>
-        <CursorPos X="40" Y="27"/>
-        <UsageCount Value="7"/>
-      </Unit8>
-      <Unit9>
         <Filename Value="../../../Library/LCC/TLccWebSocketServer.lrs"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="4"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
+        <EditorIndex Value="6"/>
+        <CursorPos Y="169"/>
+        <UsageCount Value="44"/>
+        <Loaded Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="71" Y="36"/>
-        <UsageCount Value="7"/>
-      </Unit10>
-      <Unit11>
         <Filename Value="../../../Library/LCC/lcc_defines.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="390"/>
         <CursorPos X="3" Y="411"/>
-        <UsageCount Value="26"/>
+        <UsageCount Value="68"/>
         <Loaded Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="47"/>
+        <CursorPos X="19" Y="51"/>
+        <UsageCount Value="54"/>
       </Unit11>
       <Unit12>
-        <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="44"/>
-        <CursorPos X="7" Y="56"/>
-        <UsageCount Value="26"/>
-        <Loaded Value="True"/>
-      </Unit12>
-      <Unit13>
         <Filename Value="../../../Library/Synapse_LCC/httpsend.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="271"/>
         <CursorPos X="25" Y="83"/>
-        <UsageCount Value="26"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="54"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../../Library/Synapse_LCC/ssfpc.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="177"/>
+        <CursorPos X="3" Y="193"/>
+        <UsageCount Value="39"/>
       </Unit13>
       <Unit14>
-        <Filename Value="../../../Library/Synapse_LCC/ssfpc.inc"/>
-        <EditorIndex Value="8"/>
-        <TopLine Value="277"/>
-        <CursorPos X="18" Y="290"/>
-        <UsageCount Value="10"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="319"/>
+        <CursorPos X="15" Y="332"/>
+        <UsageCount Value="52"/>
         <Loaded Value="True"/>
       </Unit14>
       <Unit15>
-        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="758"/>
-        <CursorPos X="35" Y="796"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <Filename Value="../../../Library/Synapse_LCC/dnssend.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="62" Y="133"/>
+        <UsageCount Value="34"/>
       </Unit15>
+      <Unit16>
+        <Filename Value="../../../Library/Synapse_LCC/sslinux.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="253"/>
+        <CursorPos X="9" Y="253"/>
+        <UsageCount Value="38"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="../../../Library/Synapse_LCC/ssposix.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="186"/>
+        <CursorPos Y="199"/>
+        <UsageCount Value="38"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="../../../Library/Synapse_LCC/sswin32.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="460"/>
+        <CursorPos X="3" Y="475"/>
+        <UsageCount Value="38"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="496"/>
+        <CursorPos Y="521"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="294"/>
+        <CursorPos X="46" Y="303"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit20>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1784" TopLine="1750"/>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="199" Column="65" TopLine="184"/>
       </Position1>
       <Position2>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1786" TopLine="1752"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="388" TopLine="377"/>
       </Position2>
       <Position3>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1787" TopLine="1753"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="389" TopLine="377"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1618" TopLine="1597"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="390" TopLine="377"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1705" TopLine="1685"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="391" TopLine="377"/>
       </Position5>
       <Position6>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1709" TopLine="1685"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="392" TopLine="377"/>
       </Position6>
       <Position7>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1711" TopLine="1685"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="393" TopLine="377"/>
       </Position7>
       <Position8>
-        <Filename Value="../../../Library/Synapse_LCC/ssfpc.inc"/>
-        <Caret Line="605" TopLine="584"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="394" TopLine="377"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../Library/Synapse_LCC/ssfpc.inc"/>
-        <Caret Line="606" TopLine="584"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="395" TopLine="377"/>
       </Position9>
       <Position10>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1766" TopLine="1746"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="396" TopLine="377"/>
       </Position10>
       <Position11>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1767" TopLine="1746"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="397" TopLine="377"/>
       </Position11>
       <Position12>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1784" TopLine="1750"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="398" TopLine="377"/>
       </Position12>
       <Position13>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1789" TopLine="1755"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="399" TopLine="377"/>
       </Position13>
       <Position14>
-        <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <Caret Line="1790" TopLine="1756"/>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <Caret Line="400" TopLine="377"/>
       </Position14>
       <Position15>
         <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="254" TopLine="234"/>
+        <Caret Line="404" TopLine="377"/>
       </Position15>
       <Position16>
         <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="252" TopLine="234"/>
+        <Caret Line="406" TopLine="377"/>
       </Position16>
       <Position17>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="254" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="517" TopLine="496"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="252" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="518" TopLine="496"/>
       </Position18>
       <Position19>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="254" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="519" TopLine="496"/>
       </Position19>
       <Position20>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="252" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="520" TopLine="496"/>
       </Position20>
       <Position21>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="254" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="522" Column="27" TopLine="496"/>
       </Position21>
       <Position22>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="267" TopLine="242"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="523" TopLine="496"/>
       </Position22>
       <Position23>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="250" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="521" TopLine="496"/>
       </Position23>
       <Position24>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="254" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="523" TopLine="496"/>
       </Position24>
       <Position25>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="261" Column="23" TopLine="234"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="521" TopLine="496"/>
       </Position25>
       <Position26>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="190" Column="15" TopLine="187"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="523" TopLine="496"/>
       </Position26>
       <Position27>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="257" Column="19" TopLine="247"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="521" TopLine="496"/>
       </Position27>
       <Position28>
-        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="253" Column="62" TopLine="246"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="523" TopLine="496"/>
       </Position28>
       <Position29>
-        <Filename Value="unitmain.pas"/>
-        <Caret Line="9" Column="33"/>
+        <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
+        <Caret Line="521" TopLine="496"/>
       </Position29>
       <Position30>
         <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Caret Line="267" Column="35" TopLine="252"/>
+        <Caret Line="406" TopLine="377"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="2">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Line Value="275"/>
-      </Item1>
-      <Item2>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
-        <Line Value="255"/>
-      </Item2>
-    </BreakPoints>
-  </Debugging>
 </CONFIG>

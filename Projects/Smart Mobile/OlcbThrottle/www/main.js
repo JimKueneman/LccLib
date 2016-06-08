@@ -22,6 +22,7 @@ var $R = [
 	"Failed to write attribute field, browser threw exception: %s",
 	"invalid owner handle error",
 	"Failed to initialize from graphics-context: "];
+function Trunc(v) { return (v>=0)?Math.floor(v):Math.ceil(v) }
 function Trim$_String_Integer_Integer_(s,a,b) { if (a<0) a=0; if (b<0) b=0; return s.substr(a,s.length-a-b) }
 function Trim$_String_(s) { return s.replace(/^\s\s*/, "").replace(/\s\s*$/, "") }
 var TObject={
@@ -1111,13 +1112,24 @@ var TInteger = {
       Result = ClampInt(aValue$8,aMin,aMax);
       return Result
    }
+   /// function TInteger.PercentOfValue(const Value: Integer; const Total: Integer) : Integer
+   ///  [line: 1466, column: 25, file: System.Types]
+   ,PercentOfValue:function(Value$4, Total$2) {
+      var Result = 0;
+      if (Value$4<=Total$2) {
+         Result = Trunc(Value$4/Total$2*100);
+      } else {
+         Result = 0;
+      }
+      return Result
+   }
    /// function TInteger.ToNearest(const Value: Integer; const Factor: Integer) : Integer
    ///  [line: 1426, column: 25, file: System.Types]
-   ,ToNearest:function(Value$2, Factor) {
+   ,ToNearest:function(Value$5, Factor) {
       var Result = 0;
       var FTemp = 0;
-      Result = Value$2;
-      FTemp = Value$2%Factor;
+      Result = Value$5;
+      FTemp = Value$5%Factor;
       if (FTemp>0) {
          (Result+= (Factor-FTemp));
       }
@@ -1411,7 +1423,7 @@ var TW3CustomApplication = {
       return Result
    }
    /// procedure TW3CustomApplication.GotoFormByRef(aForm: TW3CustomForm; Effect: TFormEntryEffect = 0)
-   ///  [line: 1155, column: 32, file: SmartCL.Application]
+   ///  [line: 1153, column: 32, file: SmartCL.Application]
    ,GotoFormByRef:function(Self, aForm, Effect) {
       var mIndex = 0;
       if (Self.FTerminated) {
@@ -1507,7 +1519,7 @@ var TW3CustomApplication = {
       }
    }
    /// procedure TW3CustomApplication.HandleEnterAnimEnds(Sender: TObject)
-   ///  [line: 1116, column: 32, file: SmartCL.Application]
+   ///  [line: 1114, column: 32, file: SmartCL.Application]
    ,HandleEnterAnimEnds:function(Self, Sender$2) {
       var mAnim = null;
       mAnim = $As(Sender$2,TW3NamedAnimation);
@@ -1531,7 +1543,7 @@ var TW3CustomApplication = {
       mAnim = null;
    }
    /// procedure TW3CustomApplication.HandleLeaveAnimEnds(Sender: TObject)
-   ///  [line: 1107, column: 32, file: SmartCL.Application]
+   ///  [line: 1105, column: 32, file: SmartCL.Application]
    ,HandleLeaveAnimEnds:function(Self, Sender$3) {
       var mAnim$1 = null;
       mAnim$1 = $As(Sender$3,TW3NamedAnimation);
@@ -1651,8 +1663,6 @@ var TW3CustomApplication = {
                } else {
                   throw EW3Exception.CreateFmt($New(EW3Application),$R[0],["TW3CustomApplication.UnRegisterFormInstance", TObject.ClassName(Self.ClassType), "Main form cannot be removed error"]);
                }
-            } else {
-               throw EW3Exception.CreateFmt($New(EW3Application),$R[0],["TW3CustomApplication.UnRegisterFormInstance", TObject.ClassName(Self.ClassType), "Form is not registered"]);
             }
          } else {
             throw EW3Exception.CreateFmt($New(EW3Application),$R[0],["TW3CustomApplication.UnRegisterFormInstance", TObject.ClassName(Self.ClassType), "Form parameter is NIL error"]);
@@ -2050,6 +2060,18 @@ var TW3Component = {
    ,InitializeObject:function(Self) {
       TW3TagObj.InitializeObject(Self);
    }
+   /// function TW3Component.OwnerForm() : TW3CustomForm
+   ///  [line: 121, column: 23, file: SmartCL.Forms]
+   ,OwnerForm:function(Self) {
+      var Result = null;
+      var p = null;
+      p = Self.FParent;
+      while (p.FParent!==null&&(!$Is(p,TW3CustomForm))) {
+         p = p.FParent;
+      }
+      Result = $As(p,TW3CustomForm);
+      return Result
+   }
    /// procedure TW3Component.RegisterChild(aChild: TW3Component)
    ///  [line: 1435, column: 24, file: SmartCL.Components]
    ,RegisterChild:function(Self, aChild$2) {
@@ -2061,8 +2083,8 @@ var TW3Component = {
    }
    /// procedure TW3Component.SetName(Value: String)
    ///  [line: 1396, column: 24, file: SmartCL.Components]
-   ,SetName:function(Self, Value$3) {
-      Self.FName = Value$3;
+   ,SetName:function(Self, Value$6) {
+      Self.FName = Value$6;
    }
    /// function TW3Component.Showing() : Boolean
    ///  [line: 1312, column: 23, file: SmartCL.Components]
@@ -2628,6 +2650,16 @@ setTimeout(function () {
          },50);
       }
    }
+   /// function TW3MovableControl.GetBackGround() : TW3ControlBackground
+   ///  [line: 1998, column: 28, file: SmartCL.Components]
+   ,GetBackGround:function(Self) {
+      var Result = null;
+      if (Self.FBackground===null) {
+         Self.FBackground = TW3OwnedObject.Create$11$($New(TW3ControlBackground),Self);
+      }
+      Result = Self.FBackground;
+      return Result
+   }
    /// function TW3MovableControl.GetBorder() : TW3Borders
    ///  [line: 1986, column: 28, file: SmartCL.Components]
    ,GetBorder:function(Self) {
@@ -2775,7 +2807,7 @@ setTimeout(function () {
    /// procedure TW3MovableControl.ReadySync()
    ///  [line: 1771, column: 29, file: SmartCL.Components]
    ,ReadySync:function(Self) {
-      if (Self.FHandle&&Self.FHandle.Ready&&(!$SetIn(Self.FComponentState,0,0,6))&&(!$SetIn(Self.FComponentState,1,0,6))) {
+      if (Self.FHandle&&TControlHandleHelper$Ready$2(Self.FHandle)&&(!$SetIn(Self.FComponentState,0,0,6))&&(!$SetIn(Self.FComponentState,1,0,6))) {
          TW3MovableControl.ObjectReady(Self);
       } else {
          ++Self.FSyncCount;
@@ -3154,7 +3186,7 @@ var TW3CustomControl = {
       shiftState = TShiftState.Current();
       shiftState.FMouseButtons = shiftState.FMouseButtons|(1<<eventObj$8.button);
       TShiftState.SetMouseEvent(shiftState,eventObj$8);
-      TW3CustomControl.MouseDown(Self,parseInt(eventObj$8.button,10),shiftState,eventObj$8.clientX-sr$1.Left$1,eventObj$8.clientY-sr$1.Top$1);
+      TW3CustomControl.MouseDown$(Self,parseInt(eventObj$8.button,10),shiftState,eventObj$8.clientX-sr$1.Left$1,eventObj$8.clientY-sr$1.Top$1);
    }
    /// procedure TW3CustomControl.CBMouseEnter(eventObj: JMouseEvent)
    ///  [line: 2750, column: 28, file: SmartCL.Components]
@@ -3184,7 +3216,7 @@ var TW3CustomControl = {
       sr$4 = TW3MovableControl.ScreenRect(Self);
       shiftState$3 = TShiftState.Current();
       TShiftState.SetMouseEvent(shiftState$3,eventObj$11);
-      TW3CustomControl.MouseMove(Self,shiftState$3,eventObj$11.clientX-sr$4.Left$1,eventObj$11.clientY-sr$4.Top$1);
+      TW3CustomControl.MouseMove$(Self,shiftState$3,eventObj$11.clientX-sr$4.Left$1,eventObj$11.clientY-sr$4.Top$1);
    }
    /// procedure TW3CustomControl.CBMouseUp(eventObj: JMouseEvent)
    ///  [line: 2704, column: 28, file: SmartCL.Components]
@@ -3195,7 +3227,7 @@ var TW3CustomControl = {
       shiftState$4 = TShiftState.Current();
       shiftState$4.FMouseButtons = shiftState$4.FMouseButtons&(~(1<<eventObj$12.button));
       TShiftState.SetMouseEvent(shiftState$4,eventObj$12);
-      TW3CustomControl.MouseUp(Self,parseInt(eventObj$12.button,10),shiftState$4,eventObj$12.clientX-sr$5.Left$1,eventObj$12.clientY-sr$5.Top$1);
+      TW3CustomControl.MouseUp$(Self,parseInt(eventObj$12.button,10),shiftState$4,eventObj$12.clientX-sr$5.Left$1,eventObj$12.clientY-sr$5.Top$1);
    }
    /// procedure TW3CustomControl.CBMouseWheel(eventObj: JMouseWheelEvent)
    ///  [line: 2809, column: 28, file: SmartCL.Components]
@@ -3962,6 +3994,10 @@ var TW3CustomControl = {
    ,CBMouseUp$:function($){return $.ClassType.CBMouseUp.apply($.ClassType, arguments)}
    ,GetEnabled$:function($){return $.ClassType.GetEnabled($)}
    ,Invalidate$:function($){return $.ClassType.Invalidate($)}
+   ,MouseDown$:function($){return $.ClassType.MouseDown.apply($.ClassType, arguments)}
+   ,MouseMove$:function($){return $.ClassType.MouseMove.apply($.ClassType, arguments)}
+   ,MouseUp$:function($){return $.ClassType.MouseUp.apply($.ClassType, arguments)}
+   ,SetBorderRadius$:function($){return $.ClassType.SetBorderRadius.apply($.ClassType, arguments)}
    ,SetEnabled$:function($){return $.ClassType.SetEnabled.apply($.ClassType, arguments)}
 };
 /// TW3DisplayView = class (TW3CustomControl)
@@ -4066,6 +4102,10 @@ var TW3DisplayView = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3Display = class (TW3CustomControl)
@@ -4174,6 +4214,10 @@ var TW3Display = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3BlockBox = class (TW3CustomControl)
@@ -4206,6 +4250,10 @@ var TW3BlockBox = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TModalResult enumeration
@@ -4228,7 +4276,7 @@ var TApplicationFormsList = {
       $.FNextAutoCreate = 0;
    }
    /// procedure TApplicationFormsList.AutoCreateForm(aFormInfo: TApplicationFormInfo)
-   ///  [line: 1245, column: 33, file: SmartCL.Application]
+   ///  [line: 1243, column: 33, file: SmartCL.Application]
    ,AutoCreateForm:function(Self, aFormInfo) {
       if (!aFormInfo.Instance) {
          aFormInfo.Instance = TW3Component.Create$28$($NewDyn(aFormInfo.FormClass,""),Self.FFormOwner);
@@ -4237,7 +4285,7 @@ var TApplicationFormsList = {
       aFormInfo.InitialAutoCreateDone = true;
    }
    /// procedure TApplicationFormsList.AutoCreateForms(owner: TW3Component)
-   ///  [line: 1255, column: 33, file: SmartCL.Application]
+   ///  [line: 1253, column: 33, file: SmartCL.Application]
    ,AutoCreateForms:function(Self, owner) {
       var a$85 = 0;
       var info = null;
@@ -4257,7 +4305,7 @@ var TApplicationFormsList = {
       setTimeout($Event0(Self,TApplicationFormsList.AutoCreateNextForm),50);
    }
    /// procedure TApplicationFormsList.AutoCreateNextForm()
-   ///  [line: 1270, column: 33, file: SmartCL.Application]
+   ///  [line: 1268, column: 33, file: SmartCL.Application]
    ,AutoCreateNextForm:function(Self) {
       var iForm = 0;
       var info$1 = null;
@@ -4275,7 +4323,7 @@ var TApplicationFormsList = {
       }
    }
    /// function TApplicationFormsList.IndexOfFormClass(aFormClass: TW3CustomFormClass) : Integer
-   ///  [line: 1304, column: 32, file: SmartCL.Application]
+   ///  [line: 1302, column: 32, file: SmartCL.Application]
    ,IndexOfFormClass:function(Self, aFormClass) {
       var Result = 0;
       var $temp18;
@@ -4288,7 +4336,7 @@ var TApplicationFormsList = {
       return Result
    }
    /// function TApplicationFormsList.IndexOfUnitName(aUnitName: String) : Integer
-   ///  [line: 1312, column: 32, file: SmartCL.Application]
+   ///  [line: 1310, column: 32, file: SmartCL.Application]
    ,IndexOfUnitName:function(Self, aUnitName) {
       var Result = 0;
       var $temp19;
@@ -4301,7 +4349,7 @@ var TApplicationFormsList = {
       return Result
    }
    /// procedure TApplicationFormsList.RegisterAutoCreate(aUnitName: String; isAutoCreate: Boolean; isMainForm: Boolean)
-   ///  [line: 1320, column: 33, file: SmartCL.Application]
+   ///  [line: 1318, column: 33, file: SmartCL.Application]
    ,RegisterAutoCreate:function(Self, aUnitName$1, isAutoCreate, isMainForm$1) {
       var formInfo = null;
       var idx = 0;
@@ -4317,7 +4365,7 @@ var TApplicationFormsList = {
       formInfo.IsAutoCreated = isAutoCreate;
    }
    /// procedure TApplicationFormsList.RegisterForm(aUnitName: String; aFormClass: TW3CustomFormClass)
-   ///  [line: 1336, column: 33, file: SmartCL.Application]
+   ///  [line: 1334, column: 33, file: SmartCL.Application]
    ,RegisterForm:function(Self, aUnitName$2, aFormClass$1) {
       var formInfo$1 = null;
       var idx$1 = 0;
@@ -4332,7 +4380,7 @@ var TApplicationFormsList = {
       formInfo$1.FormClass = aFormClass$1;
    }
    /// procedure TApplicationFormsList.RegisterFormInstance(aFormClass: TW3CustomFormClass; aFormInstance: TW3CustomForm)
-   ///  [line: 1351, column: 33, file: SmartCL.Application]
+   ///  [line: 1349, column: 33, file: SmartCL.Application]
    ,RegisterFormInstance$1:function(Self, aFormClass$2, aFormInstance) {
       var formInfo$2 = null;
       var idx$2 = 0;
@@ -4348,7 +4396,7 @@ var TApplicationFormsList = {
       formInfo$2.InitialAutoCreateDone = true;
    }
    /// procedure TApplicationFormsList.UnregisterFormInstance(aFormInstance: TW3CustomForm)
-   ///  [line: 1367, column: 33, file: SmartCL.Application]
+   ///  [line: 1365, column: 33, file: SmartCL.Application]
    ,UnregisterFormInstance:function(Self, aFormInstance$1) {
       var i$1 = 0;
       var $temp20;
@@ -4444,37 +4492,40 @@ var TW3CustomForm = {
    ,Destroy:function(Self) {
       TW3CustomApplication.UnRegisterFormInstance(Application(),Self);
       TApplicationFormsList.UnregisterFormInstance(Forms$2(),Self);
+      TW3TagObj.Destroy(Self);
    }
    /// procedure TW3CustomForm.FormActivated()
-   ///  [line: 96, column: 25, file: SmartCL.Forms]
+   ///  [line: 97, column: 25, file: SmartCL.Forms]
    ,FormActivated:function(Self) {
       if (!Self.FInitialized) {
          Self.FInitialized = true;
          TW3CustomForm.InitializeForm$(Self);
+         if (Self.FOnActivate) {
+            Self.FOnActivate(Self);
+         }
          TW3CustomControl.LayoutChildren(Self);
-      }
-      if (Self.FOnActivate) {
+      } else if (Self.FOnActivate) {
          Self.FOnActivate(Self);
       }
    }
    /// procedure TW3CustomForm.FormDeactivated()
-   ///  [line: 108, column: 25, file: SmartCL.Forms]
+   ///  [line: 111, column: 25, file: SmartCL.Forms]
    ,FormDeactivated:function(Self) {
       if (Self.FOnDeactivate) {
          Self.FOnDeactivate(Self);
       }
    }
    /// procedure TW3CustomForm.InitializeForm()
-   ///  [line: 86, column: 25, file: SmartCL.Forms]
+   ///  [line: 87, column: 25, file: SmartCL.Forms]
    ,InitializeForm:function(Self) {
    }
    /// procedure TW3CustomForm.setCaption(Value: String)
-   ///  [line: 91, column: 25, file: SmartCL.Forms]
-   ,setCaption:function(Self, Value$4) {
-      Self.FCaption = Value$4;
+   ///  [line: 92, column: 25, file: SmartCL.Forms]
+   ,setCaption:function(Self, Value$7) {
+      Self.FCaption = Value$7;
    }
    /// procedure TW3CustomForm.StyleTagObject()
-   ///  [line: 78, column: 25, file: SmartCL.Forms]
+   ///  [line: 79, column: 25, file: SmartCL.Forms]
    ,StyleTagObject:function(Self) {
       TW3CustomControl.StyleTagObject(Self);
       w3_setStyle(Self.FHandle,w3_CSSPrefix("Transform"),"none");
@@ -4503,6 +4554,10 @@ var TW3CustomForm = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -4536,6 +4591,10 @@ var TW3Form = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,InitializeForm:TW3CustomForm.InitializeForm
 };
@@ -4724,6 +4783,10 @@ var TW3GraphicControl = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate$:function($){return $.ClassType.Invalidate($)}
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,Paint$:function($){return $.ClassType.Paint($)}
 };
@@ -4906,6 +4969,15 @@ var TW3ControlBackground = {
       }
       return Result
    }
+   /// procedure TW3ControlBackground.FromColor(const aValue: TColor)
+   ///  [line: 1001, column: 32, file: SmartCL.Components]
+   ,FromColor$1:function(Self, aValue$51) {
+      if (aValue$51!=536870911) {
+         Self.FHandle$4.style.backgroundColor = ColorToWebStr(aValue$51,255);
+      } else {
+         Self.FHandle$4.style.backgroundColor = "transparent";
+      }
+   }
    ,Destroy:TObject.Destroy
    ,AcceptParent$:function($){return $.ClassType.AcceptParent.apply($.ClassType, arguments)}
    ,Create$11:TW3OwnedObject.Create$11
@@ -4970,38 +5042,38 @@ var TW3Constraints = {
    }
    /// procedure TW3Constraints.SetMaxHeight(aValue: Integer)
    ///  [line: 965, column: 26, file: SmartCL.Components]
-   ,SetMaxHeight:function(Self, aValue$51) {
+   ,SetMaxHeight:function(Self, aValue$52) {
       var mRef$18 = undefined;
       mRef$18 = $As(Self.FOwner,TW3MovableControl).FHandle;
       if (mRef$18) {
-         mRef$18.style["max-height"] = TInteger.ToPxStr(aValue$51);
+         mRef$18.style["max-height"] = TInteger.ToPxStr(aValue$52);
       }
    }
    /// procedure TW3Constraints.SetMaxWidth(aValue: Integer)
    ///  [line: 956, column: 26, file: SmartCL.Components]
-   ,SetMaxWidth:function(Self, aValue$52) {
+   ,SetMaxWidth:function(Self, aValue$53) {
       var mRef$19 = undefined;
       mRef$19 = $As(Self.FOwner,TW3MovableControl).FHandle;
       if (mRef$19) {
-         mRef$19.style["max-width"] = TInteger.ToPxStr(aValue$52);
+         mRef$19.style["max-width"] = TInteger.ToPxStr(aValue$53);
       }
    }
    /// procedure TW3Constraints.SetMinHeight(aValue: Integer)
    ///  [line: 929, column: 26, file: SmartCL.Components]
-   ,SetMinHeight:function(Self, aValue$53) {
+   ,SetMinHeight:function(Self, aValue$54) {
       var mRef$20 = undefined;
       mRef$20 = $As(Self.FOwner,TW3MovableControl).FHandle;
       if (mRef$20) {
-         mRef$20.style["min-height"] = TInteger.ToPxStr(aValue$53);
+         mRef$20.style["min-height"] = TInteger.ToPxStr(aValue$54);
       }
    }
    /// procedure TW3Constraints.SetMinWidth(aValue: Integer)
    ///  [line: 920, column: 26, file: SmartCL.Components]
-   ,SetMinWidth:function(Self, aValue$54) {
+   ,SetMinWidth:function(Self, aValue$55) {
       var mRef$21 = undefined;
       mRef$21 = $As(Self.FOwner,TW3MovableControl).FHandle;
       if (mRef$21) {
-         mRef$21.style["min-width"] = TInteger.ToPxStr(aValue$54);
+         mRef$21.style["min-width"] = TInteger.ToPxStr(aValue$55);
       }
    }
    ,Destroy:TObject.Destroy
@@ -5045,11 +5117,11 @@ var TW3AttrAccess = {
    }
    /// procedure TW3AttrAccess.Write(aName: String; const aValue: Variant)
    ///  [line: 764, column: 25, file: SmartCL.Components]
-   ,Write:function(Self, aName$2, aValue$55) {
+   ,Write:function(Self, aName$2, aValue$56) {
       var mName$2 = "";
       mName$2 = ("data-"+aName$2).toLowerCase();
       try {
-         Self.FHandle$5.setAttribute(mName$2,aValue$55);
+         Self.FHandle$5.setAttribute(mName$2,aValue$56);
       } catch ($e) {
          var e$7 = $W($e);
          throw EW3Exception.CreateFmt($New(EW3Exception),$R[20],[e$7.FMessage]);
@@ -5277,10 +5349,10 @@ var TObjectList = {
    }
    /// function TObjectList.Add(Value: TObject) : Integer
    ///  [line: 138, column: 22, file: System.Lists]
-   ,Add$1:function(Self, Value$5) {
+   ,Add$1:function(Self, Value$8) {
       var Result = 0;
       Result = Self.FData$1.length;
-      Self.FData$1.push(Value$5);
+      Self.FData$1.push(Value$8);
       if (Self.FOnAdded$1) {
          Self.FOnAdded$1(Self);
       }
@@ -5322,15 +5394,15 @@ var TObjectList = {
    }
    /// function TObjectList.IndexOf(Value: TObject) : Integer
    ///  [line: 106, column: 22, file: System.Lists]
-   ,IndexOf$1:function(Self, Value$6) {
+   ,IndexOf$1:function(Self, Value$9) {
       var Result = 0;
-      Result = Self.FData$1.indexOf(Value$6);
+      Result = Self.FData$1.indexOf(Value$9);
       return Result
    }
    /// procedure TObjectList.Insert(Index: Integer; Value: TObject)
    ///  [line: 146, column: 23, file: System.Lists]
-   ,Insert$2:function(Self, Index, Value$7) {
-      Self.FData$1.splice(Index,0,Value$7);
+   ,Insert$2:function(Self, Index, Value$10) {
+      Self.FData$1.splice(Index,0,Value$10);
    }
    /// procedure TObjectList.Remove(ondex: Integer)
    ///  [line: 99, column: 23, file: System.Lists]
@@ -5971,13 +6043,13 @@ var TW3Canvas = {
    }
    /// procedure TW3Canvas.SetFillStyle(aValue: String)
    ///  [line: 1580, column: 21, file: SmartCL.Graphics]
-   ,SetFillStyle:function(Self, aValue$56) {
-      Self.FDC.fillStyle = aValue$56;
+   ,SetFillStyle:function(Self, aValue$57) {
+      Self.FDC.fillStyle = aValue$57;
    }
    /// procedure TW3Canvas.SetGlobalAlpha(aValue: Float)
    ///  [line: 1446, column: 21, file: SmartCL.Graphics]
-   ,SetGlobalAlpha:function(Self, aValue$57) {
-      Self.FDC.globalAlpha = aValue$57;
+   ,SetGlobalAlpha:function(Self, aValue$58) {
+      Self.FDC.globalAlpha = aValue$58;
    }
    /// function TW3Canvas.ToDataURL(aMimeType: String) : String
    ///  [line: 1325, column: 20, file: SmartCL.Graphics]
@@ -6358,26 +6430,26 @@ var TW3Border = {
    }
    /// procedure TW3Border.SetPadding(aValue: Integer)
    ///  [line: 146, column: 21, file: SmartCL.Borders]
-   ,SetPadding:function(Self, aValue$58) {
+   ,SetPadding:function(Self, aValue$59) {
       var mRef$26 = undefined;
       var mKey$2 = "";
       mRef$26 = $As(Self.FOwner$4.FOwner,TW3TagObj).FHandle;
       if (mRef$26) {
          mKey$2 = "padding-"+Self.FEdgeName;
-         w3_setStyle(mRef$26,mKey$2,TInteger.ToPxStr(aValue$58));
+         w3_setStyle(mRef$26,mKey$2,TInteger.ToPxStr(aValue$59));
       } else {
          throw EW3Exception.CreateFmt($New(EW3TagObj),$R[0],["TW3Border.SetPadding", TObject.ClassName(Self.ClassType), $R[21]]);
       }
    }
    /// procedure TW3Border.SetWidth(aValue: Integer)
    ///  [line: 208, column: 21, file: SmartCL.Borders]
-   ,SetWidth$2:function(Self, aValue$59) {
+   ,SetWidth$2:function(Self, aValue$60) {
       var mRef$27 = undefined;
       var mKey$3 = "";
       mRef$27 = $As(Self.FOwner$4.FOwner,TW3TagObj).FHandle;
       if (mRef$27) {
          mKey$3 = "border-"+Self.FEdgeName+"-width";
-         w3_setStyle(mRef$27,mKey$3,TInteger.ToPxStr(aValue$59));
+         w3_setStyle(mRef$27,mKey$3,TInteger.ToPxStr(aValue$60));
       } else {
          throw EW3Exception.CreateFmt($New(EW3TagObj),$R[0],["TW3Border.SetWidth", TObject.ClassName(Self.ClassType), $R[21]]);
       }
@@ -6469,9 +6541,9 @@ var TW3CustomAnimation = {
    }
    /// procedure TW3CustomAnimation.SetDuration(Value: Float)
    ///  [line: 1427, column: 30, file: SmartCL.Effects]
-   ,SetDuration:function(Self, Value$8) {
+   ,SetDuration:function(Self, Value$11) {
       if (!Self.FBusy) {
-         Self.FDuration = Value$8;
+         Self.FDuration = Value$11;
       } else {
          throw Exception.Create($New(Exception),"Duration cannot be altered while the transition is active error");
       }
@@ -6975,6 +7047,10 @@ var TW3AlertDialog = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 TW3AlertDialog.$Intf={
@@ -7122,9 +7198,9 @@ var TW3Button = {
    }
    /// procedure TW3Button.SetCaption(Value: String)
    ///  [line: 64, column: 21, file: SmartCL.Controls.Button]
-   ,SetCaption:function(Self, Value$9) {
+   ,SetCaption:function(Self, Value$12) {
       if (Self.FHandle) {
-         Self.FHandle.innerHTML = Value$9;
+         Self.FHandle.innerHTML = Value$12;
       }
    }
    /// procedure TW3Button.SetPressed(value: Boolean)
@@ -7162,6 +7238,10 @@ var TW3Button = {
    ,CBMouseUp$:function($){return $.ClassType.CBMouseUp.apply($.ClassType, arguments)}
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3AlertButton = class (TW3Button)
@@ -7194,6 +7274,10 @@ var TW3AlertButton = {
    ,CBMouseUp:TW3Button.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3LabelText = class (TW3CustomControl)
@@ -7226,6 +7310,10 @@ var TW3LabelText = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3Label = class (TW3CustomControl)
@@ -7296,20 +7384,20 @@ var TW3Label = {
    }
    /// procedure TW3Label.SetCaption(const aValue: String)
    ///  [line: 122, column: 20, file: SmartCL.Controls.Label]
-   ,SetCaption$1:function(Self, aValue$60) {
-      if (aValue$60!=Self.FCaption$1) {
+   ,SetCaption$1:function(Self, aValue$61) {
+      if (aValue$61!=Self.FCaption$1) {
          TW3TagObj.BeginUpdate(Self);
-         Self.FCaption$1 = aValue$60;
-         TW3TagObj.SetInnerHTML(Self.FContainer,aValue$60);
+         Self.FCaption$1 = aValue$61;
+         TW3TagObj.SetInnerHTML(Self.FContainer,aValue$61);
          TW3TagObj.AddToComponentState(Self,[24]);
          TW3TagObj.EndUpdate(Self);
       }
    }
    /// procedure TW3Label.SetEnabled(aValue: Boolean)
    ///  [line: 134, column: 20, file: SmartCL.Controls.Label]
-   ,SetEnabled:function(Self, aValue$61) {
-      TW3CustomControl.SetEnabled(Self,aValue$61);
-      TW3CustomControl.SetEnabled$(Self.FContainer,aValue$61);
+   ,SetEnabled:function(Self, aValue$62) {
+      TW3CustomControl.SetEnabled(Self,aValue$62);
+      TW3CustomControl.SetEnabled$(Self.FContainer,aValue$62);
    }
    /// procedure TW3Label.SetTextAlign(aNewAlignment: TTextAlign)
    ///  [line: 140, column: 20, file: SmartCL.Controls.Label]
@@ -7362,6 +7450,10 @@ var TW3Label = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled$:function($){return $.ClassType.SetEnabled.apply($.ClassType, arguments)}
 };
 /// TTextAlign enumeration
@@ -7399,22 +7491,23 @@ var PerformanceTimer = {
    ,Destroy:TObject.Destroy
 };
 /// TFormMain = class (TW3Form)
-///  [line: 18, column: 3, file: FormMain]
+///  [line: 19, column: 3, file: FormMain]
 var TFormMain = {
    $ClassName:"TFormMain",$Parent:TW3Form
    ,$Init:function ($) {
       TW3Form.$Init($);
-      $.FLayoutFooter = $.FLayoutHeader = $.FSocket = $.W3Button1 = $.W3Button2 = $.W3Button3 = $.W3Button4 = $.W3Button5 = $.W3Button6 = $.W3ToolbarFooter = $.W3ToolbarHeader = $.W3ToolButtonAccy = $.W3ToolButtonBack = $.W3ToolButtonSettings = $.W3ToolButtonTrains = null;
+      $.FLayoutFooter = $.FLayoutHeader = $.FSocket = $.W3Button1 = $.W3Button2 = $.W3Button3 = $.W3Button4 = $.W3Button5 = $.W3Button6 = $.W3EditBox1 = $.W3Label1$1 = $.W3ToolbarFooter = $.W3ToolbarHeader = $.W3ToolButtonAccy = $.W3ToolButtonBack = $.W3ToolButtonSettings = $.W3ToolButtonTrains = null;
    }
    /// procedure TFormMain.InitializeForm()
-   ///  [line: 86, column: 21, file: FormMain]
+   ///  [line: 87, column: 21, file: FormMain]
    ,InitializeForm:function(Self) {
       TW3CustomForm.InitializeForm(Self);
       Self.FLayoutHeader = Layout.Top$5(Layout,Layout.Stretch$1(Layout),[Self.W3ToolbarHeader].slice());
       Self.FLayoutFooter = Layout.Bottom$3(Layout,Layout.Stretch$1(Layout),[Self.W3ToolbarFooter].slice());
+      TW3EditBox.setText(Self.W3EditBox1,"10.0.3.182");
    }
    /// procedure TFormMain.InitializeObject()
-   ///  [line: 94, column: 21, file: FormMain]
+   ///  [line: 96, column: 21, file: FormMain]
    ,InitializeObject:function(Self) {
       TW3CustomControl.InitializeObject(Self);
       TW3CustomForm.setCaption(Self,"W3Form");
@@ -7445,7 +7538,7 @@ var TFormMain = {
       TW3CustomControl._setMouseClick(Self.W3ToolButtonSettings,$Event1(Self,TFormMain.W3ToolButtonSettingsClick));
       Self.W3ToolbarHeader = TW3Component.Create$28$($New(TW3Toolbar),Self);
       TW3MovableControl.SetWidth$(Self.W3ToolbarHeader,424);
-      TW3MovableControl.SetTop(Self.W3ToolbarHeader,48);
+      TW3MovableControl.SetTop(Self.W3ToolbarHeader,24);
       TW3MovableControl.SetLeft(Self.W3ToolbarHeader,24);
       TW3MovableControl.SetHeight$(Self.W3ToolbarHeader,32);
       TW3Component.SetName(Self.W3ToolbarHeader,"W3ToolbarHeader");
@@ -7501,6 +7594,20 @@ var TFormMain = {
       TW3MovableControl.SetLeft(Self.W3Button6,240);
       TW3MovableControl.SetHeight$(Self.W3Button6,32);
       TW3Component.SetName(Self.W3Button6,"W3Button6");
+      Self.W3Label1$1 = TW3Component.Create$28$($New(TW3Label),Self);
+      TW3Label.SetCaption$1(Self.W3Label1$1,"IP Address");
+      TW3MovableControl.SetWidth$(Self.W3Label1$1,128);
+      TW3MovableControl.SetTop(Self.W3Label1$1,96);
+      TW3MovableControl.SetLeft(Self.W3Label1$1,32);
+      TW3MovableControl.SetHeight$(Self.W3Label1$1,32);
+      TW3Component.SetName(Self.W3Label1$1,"W3Label1");
+      Self.W3EditBox1 = TW3Component.Create$28$($New(TW3EditBox),Self);
+      TW3EditBox.setText(Self.W3EditBox1,"W3EditBox");
+      TW3MovableControl.SetWidth$(Self.W3EditBox1,128);
+      TW3MovableControl.SetTop(Self.W3EditBox1,128);
+      TW3MovableControl.SetLeft(Self.W3EditBox1,48);
+      TW3MovableControl.SetHeight$(Self.W3EditBox1,32);
+      TW3Component.SetName(Self.W3EditBox1,"W3EditBox1");
       Self.FSocket = TW3WebSocket.Create$96($New(TW3WebSocket));
       Self.FSocket.FOnClose = $Event1(Self,TFormMain.SocketClose);
       Self.FSocket.FOnError = $Event1(Self,TFormMain.SocketError);
@@ -7508,7 +7615,7 @@ var TFormMain = {
       Self.FSocket.FOnOpen = $Event1(Self,TFormMain.SocketOpen);
    }
    /// procedure TFormMain.Resize()
-   ///  [line: 105, column: 21, file: FormMain]
+   ///  [line: 107, column: 21, file: FormMain]
    ,Resize:function(Self) {
       TW3MovableControl.Resize(Self);
       if (Self.FLayoutFooter) {
@@ -7524,60 +7631,60 @@ var TFormMain = {
       TW3MovableControl.SetLeft(Self.W3ToolButtonSettings,TW3MovableControl.GetBoundsRect(Self.W3ToolButtonAccy).Right$1);
    }
    /// procedure TFormMain.SocketClose(Sender: TW3WebSocket)
-   ///  [line: 122, column: 21, file: FormMain]
+   ///  [line: 124, column: 21, file: FormMain]
    ,SocketClose:function(Self, Sender$12) {
       TW3CustomApplication.ShowDialog(Application(),"Closed","Socket is Closed",3);
    }
    /// procedure TFormMain.SocketError(Sender: TW3WebSocket)
-   ///  [line: 127, column: 21, file: FormMain]
+   ///  [line: 129, column: 21, file: FormMain]
    ,SocketError:function(Self, Sender$13) {
       TW3CustomApplication.ShowDialog(Application(),"Error","Socket Error",3);
    }
    /// procedure TFormMain.SocketMessage(Sender: TW3WebSocket; Message: TWebSocketMessageData)
-   ///  [line: 132, column: 21, file: FormMain]
+   ///  [line: 134, column: 21, file: FormMain]
    ,SocketMessage:function(Self, Sender$14, Message$1) {
       TW3CustomApplication.ShowDialog(Application(),"Message","Socket Message: "+Message$1.mdText,3);
    }
    /// procedure TFormMain.SocketOpen(Sender: TW3WebSocket)
-   ///  [line: 117, column: 21, file: FormMain]
+   ///  [line: 119, column: 21, file: FormMain]
    ,SocketOpen:function(Self, Sender$15) {
       TW3CustomApplication.ShowDialog(Application(),"Opened","Socket is Opened",3);
    }
    /// procedure TFormMain.W3Button1Click(Sender: TObject)
-   ///  [line: 51, column: 21, file: FormMain]
+   ///  [line: 52, column: 21, file: FormMain]
    ,W3Button1Click:function(Self, Sender$16) {
-      TW3WebSocket.Connect(Self.FSocket,"ws:\/\/"+"10.0.3.182"+":12021",["openlcb.websocket"].slice());
+      TW3WebSocket.Connect(Self.FSocket,"ws:\/\/"+TW3EditBox.getText(Self.W3EditBox1)+":12021",["openlcb.websocket"].slice());
    }
    /// procedure TFormMain.W3Button2Click(Sender: TObject)
-   ///  [line: 56, column: 21, file: FormMain]
+   ///  [line: 57, column: 21, file: FormMain]
    ,W3Button2Click:function(Self, Sender$17) {
       if (TW3WebSocket.Connected(Self.FSocket)) {
          TW3WebSocket.Disconnect(Self.FSocket);
       }
    }
    /// procedure TFormMain.W3Button3Click(Sender: TObject)
-   ///  [line: 62, column: 21, file: FormMain]
+   ///  [line: 63, column: 21, file: FormMain]
    ,W3Button3Click:function(Self, Sender$18) {
       if (TW3WebSocket.Connected(Self.FSocket)) {
          TW3WebSocket.Write$1(Self.FSocket,":X19490098N;");
       }
    }
    /// procedure TFormMain.W3Button4Click(Sender: TObject)
-   ///  [line: 70, column: 21, file: FormMain]
+   ///  [line: 71, column: 21, file: FormMain]
    ,W3Button4Click:function(Self, Sender$19) {
       if (TW3WebSocket.Connected(Self.FSocket)) {
          TW3WebSocket.Write$1(Self.FSocket,"");
       }
    }
    /// procedure TFormMain.W3Button5Click(Sender: TObject)
-   ///  [line: 78, column: 21, file: FormMain]
+   ///  [line: 79, column: 21, file: FormMain]
    ,W3Button5Click:function(Self, Sender$20) {
       if (TW3WebSocket.Connected(Self.FSocket)) {
          TW3WebSocket.Write$1(Self.FSocket,"Ping");
       }
    }
    /// procedure TFormMain.W3ToolButtonSettingsClick(Sender: TObject)
-   ///  [line: 46, column: 21, file: FormMain]
+   ///  [line: 47, column: 21, file: FormMain]
    ,W3ToolButtonSettingsClick:function(Self, Sender$21) {
    }
    ,Destroy:TW3CustomForm.Destroy
@@ -7603,6 +7710,10 @@ var TFormMain = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -7636,6 +7747,10 @@ var TW3CustomPanel = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3Panel = class (TW3CustomPanel)
@@ -7668,6 +7783,10 @@ var TW3Panel = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TLayoutConfig = class (TObject)
@@ -8658,6 +8777,10 @@ var TW3ToolButton = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3ToolbarButton = class (TW3CustomControl)
@@ -8768,8 +8891,8 @@ var TW3ToolbarButton = {
    }
    /// procedure TW3ToolbarButton.setDown(Value: Boolean)
    ///  [line: 165, column: 28, file: SmartCL.Controls.ToolBar]
-   ,setDown:function(Self, Value$10) {
-      if (Value$10) {
+   ,setDown:function(Self, Value$13) {
+      if (Value$13) {
          if (!TW3ToolbarButton.getDown(Self)) {
             TW3CSSClassStyleNames.Add$2(TW3CustomControl.GetClassNames(Self),"ButtonDown");
          }
@@ -8807,6 +8930,10 @@ var TW3ToolbarButton = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3Toolbar = class (TW3CustomControl)
@@ -8860,26 +8987,26 @@ var TW3Toolbar = {
    }
    /// procedure TW3Toolbar.setBtnHeight(Value: Integer)
    ///  [line: 208, column: 22, file: SmartCL.Controls.ToolBar]
-   ,setBtnHeight:function(Self, Value$11) {
+   ,setBtnHeight:function(Self, Value$14) {
       if ($SetIn(Self.FComponentState,2,0,6)) {
-         Value$11 = ClampInt(Value$11,16,TW3MovableControl.GetHeight$(Self));
+         Value$14 = ClampInt(Value$14,16,TW3MovableControl.GetHeight$(Self));
       } else {
-         Value$11 = Math.max(Value$11,16);
+         Value$14 = Math.max(Value$14,16);
       }
-      if (Value$11!=Self.FBtnHeight) {
+      if (Value$14!=Self.FBtnHeight) {
          TW3TagObj.BeginUpdate(Self);
-         Self.FBtnHeight = Value$11;
+         Self.FBtnHeight = Value$14;
          TW3TagObj.AddToComponentState(Self,[8]);
          TW3TagObj.EndUpdate(Self);
       }
    }
    /// procedure TW3Toolbar.setBtnSpacing(Value: Integer)
    ///  [line: 223, column: 22, file: SmartCL.Controls.ToolBar]
-   ,setBtnSpacing:function(Self, Value$12) {
-      Value$12 = Math.max(Value$12,1);
-      if (Value$12!=Self.FBtnSpacing) {
-         Self.FBtnSpacing = Value$12;
-         if (TBufferHandleHelper$Valid$2(Self.FHandle)&&Self.FHandle.Ready&&$SetIn(Self.FComponentState,2,0,6)) {
+   ,setBtnSpacing:function(Self, Value$15) {
+      Value$15 = Math.max(Value$15,1);
+      if (Value$15!=Self.FBtnSpacing) {
+         Self.FBtnSpacing = Value$15;
+         if (TControlHandleHelper$Valid(Self.FHandle)&&TControlHandleHelper$Ready$2(Self.FHandle)&&$SetIn(Self.FComponentState,2,0,6)) {
             TW3TagObj.BeginUpdate(Self);
             TW3TagObj.AddToComponentState(Self,[8]);
             TW3TagObj.EndUpdate(Self);
@@ -8888,11 +9015,11 @@ var TW3Toolbar = {
    }
    /// procedure TW3Toolbar.setBtnWidth(Value: Integer)
    ///  [line: 196, column: 22, file: SmartCL.Controls.ToolBar]
-   ,setBtnWidth:function(Self, Value$13) {
-      Value$13 = Math.max(Value$13,16);
-      if (Value$13!=Self.FBtnWidth) {
+   ,setBtnWidth:function(Self, Value$16) {
+      Value$16 = Math.max(Value$16,16);
+      if (Value$16!=Self.FBtnWidth) {
          TW3TagObj.BeginUpdate(Self);
-         Self.FBtnWidth = Value$13;
+         Self.FBtnWidth = Value$16;
          TW3TagObj.AddToComponentState(Self,[8]);
          TW3TagObj.EndUpdate(Self);
       }
@@ -8920,6 +9047,10 @@ var TW3Toolbar = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TW3Image = class (TW3CustomControl)
@@ -9008,16 +9139,16 @@ var TW3Image = {
    }
    /// procedure TW3Image.setSrc(Value: String)
    ///  [line: 221, column: 20, file: SmartCL.Controls.Image]
-   ,setSrc:function(Self, Value$14) {
-      if (Value$14!=TW3Image.getSrc(Self)) {
-         w3_setAttrib(Self.FHandle,"src",Value$14);
+   ,setSrc:function(Self, Value$17) {
+      if (Value$17!=TW3Image.getSrc(Self)) {
+         w3_setAttrib(Self.FHandle,"src",Value$17);
       }
    }
    /// procedure TW3Image._setOnLoad(aValue: TNotifyEvent)
    ///  [line: 157, column: 20, file: SmartCL.Controls.Image]
-   ,_setOnLoad:function(Self, aValue$62) {
-      Self.FOnLoad = aValue$62;
-      w3_bind2(Self.FHandle,"onload",(aValue$62)?$Event0(Self,TW3Image.CBOnLoad):$Event0(Self,TW3Component.CBNoBehavior));
+   ,_setOnLoad:function(Self, aValue$63) {
+      Self.FOnLoad = aValue$63;
+      w3_bind2(Self.FHandle,"onload",(aValue$63)?$Event0(Self,TW3Image.CBOnLoad):$Event0(Self,TW3Component.CBNoBehavior));
    }
    ,Destroy:TW3TagObj.Destroy
    ,AfterUpdate:TW3CustomControl.AfterUpdate
@@ -9042,6 +9173,10 @@ var TW3Image = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled$:function($){return $.ClassType.GetEnabled($)}
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
 };
 /// TStreamSeekOrigin enumeration
@@ -9450,16 +9585,16 @@ var TDatatype = {
    }
    /// function TDatatype.ByteToChar(const Value: Byte) : String
    ///  [line: 338, column: 26, file: System.Types.Convert]
-   ,ByteToChar:function(Self, Value$15) {
+   ,ByteToChar:function(Self, Value$18) {
       var Result = "";
-      Result = String.fromCharCode(Value$15);
+      Result = String.fromCharCode(Value$18);
       return Result
    }
    /// function TDatatype.CharToByte(const Value: String) : Byte
    ///  [line: 345, column: 26, file: System.Types.Convert]
-   ,CharToByte:function(Self, Value$16) {
+   ,CharToByte:function(Self, Value$19) {
       var Result = 0;
-      Result = (Value$16).charCodeAt(0);
+      Result = (Value$19).charCodeAt(0);
       return Result
    }
    /// function TDatatype.SizeOfType(const Kind: TRTLDatatype) : Integer
@@ -9662,8 +9797,8 @@ var TAllocationOptions = {
    }
    /// procedure TAllocationOptions.setUseCache(const Value: Boolean)
    ///  [line: 137, column: 30, file: System.Memory.Allocation]
-   ,setUseCache:function(Self, Value$17) {
-      Self.FUseCache = Value$17;
+   ,setUseCache:function(Self, Value$20) {
+      Self.FUseCache = Value$20;
    }
    ,Destroy:TObject.Destroy
    ,AcceptParent:TW3OwnedObject.AcceptParent
@@ -9946,19 +10081,19 @@ var TBinaryData = {
    }
    /// procedure TBinaryData.AppendFloat32(const Value: Float32)
    ///  [line: 878, column: 23, file: System.interop]
-   ,AppendFloat32:function(Self, Value$18) {
+   ,AppendFloat32:function(Self, Value$21) {
       var mOffset$3 = 0;
       mOffset$3 = TAllocation.getSize(Self);
       TAllocation.Grow$1(Self,TDatatype.SizeOfType(TDatatype,7));
-      TBinaryData.WriteFloat32(Self,mOffset$3,Value$18);
+      TBinaryData.WriteFloat32(Self,mOffset$3,Value$21);
    }
    /// procedure TBinaryData.AppendFloat64(const Value: Float64)
    ///  [line: 888, column: 23, file: System.interop]
-   ,AppendFloat64:function(Self, Value$19) {
+   ,AppendFloat64:function(Self, Value$22) {
       var mOffset$4 = 0;
       mOffset$4 = TAllocation.getSize(Self);
       TAllocation.Grow$1(Self,TDatatype.SizeOfType(TDatatype,8));
-      TBinaryData.WriteFloat64(Self,mOffset$4,Value$19);
+      TBinaryData.WriteFloat64(Self,mOffset$4,Value$22);
    }
    /// procedure TBinaryData.AppendMemory(const Buffer: TBinaryData; ReleasEBinaryData: Boolean)
    ///  [line: 915, column: 23, file: System.interop]
@@ -10277,10 +10412,10 @@ var TBinaryData = {
    }
    /// procedure TBinaryData.setByte(const Index: Integer; const Value: Byte)
    ///  [line: 518, column: 23, file: System.interop]
-   ,setByte:function(Self, Index$2, Value$20) {
+   ,setByte:function(Self, Index$2, Value$23) {
       if (TAllocation.getHandle(Self)) {
          if (TBinaryData.OffsetInRange(Self,Index$2)) {
-            Self.FDataView.setUint8(Index$2,Value$20);
+            Self.FDataView.setUint8(Index$2,Value$23);
          } else {
             throw EW3Exception.CreateFmt($New(EBinaryData),"Invalid byte index, expected %d..%d, not %d",[0, TAllocation.getHandle(Self).length-1, Index$2]);
          }
@@ -10575,12 +10710,12 @@ var TBitAccess = {
    }
    /// function TBitAccess.Get(const index: Integer; const Value: Byte) : Boolean
    ///  [line: 103, column: 27, file: System.Types.Bits]
-   ,Get$1:function(Self, index$5, Value$21) {
+   ,Get$1:function(Self, index$5, Value$24) {
       var Result = false;
       var mMask = 0;
       if (index$5>=0&&index$5<8) {
          mMask = 1<<index$5;
-         Result = (Value$21&mMask)!=0;
+         Result = (Value$24&mMask)!=0;
       } else {
          throw EW3Exception.CreateFmt($New(EW3Exception),"Invalid bit index, expected 0..7 not %d",[index$5]);
       }
@@ -10588,14 +10723,14 @@ var TBitAccess = {
    }
    /// function TBitAccess.Set(const Index: Integer; const Value: Byte; const Data: Boolean) : Byte
    ///  [line: 116, column: 27, file: System.Types.Bits]
-   ,Set$3:function(Self, Index$3, Value$22, Data$8) {
+   ,Set$3:function(Self, Index$3, Value$25, Data$8) {
       var Result = 0;
       var mSet = false;
       var mMask$1 = 0;
-      Result = Value$22;
+      Result = Value$25;
       if (Index$3>=0&&Index$3<8) {
          mMask$1 = 1<<Index$3;
-         mSet = (Value$22&mMask$1)!=0;
+         mSet = (Value$25&mMask$1)!=0;
          if (mSet!=Data$8) {
             switch (Data$8) {
                case true :
@@ -10965,6 +11100,306 @@ var EWebSocket = {
    }
    ,Destroy:Exception.Destroy
 };
+/// TW3InputType enumeration
+///  [line: 17, column: 3, file: SmartCL.Controls.EditBox]
+var TW3InputType = [ "itNone", "itColor", "itDate", "itDateTime", "itDateTimeLocal", "itEmail", "itMonth", "itNumber", "itRange", "itSearch", "itTel", "itTime", "itUrl", "itWeek", "itPassword", "itFile" ];
+/// TW3EditBox = class (TW3CustomControl)
+///  [line: 21, column: 3, file: SmartCL.Controls.EditBox]
+var TW3EditBox = {
+   $ClassName:"TW3EditBox",$Parent:TW3CustomControl
+   ,$Init:function ($) {
+      TW3CustomControl.$Init($);
+   }
+   /// function TW3EditBox.getAutoCapitalize() : Boolean
+   ///  [line: 253, column: 21, file: SmartCL.Controls.EditBox]
+   ,getAutoCapitalize:function(Self) {
+      var Result = false;
+      var mTemp$10 = "";
+      Result = false;
+      mTemp$10 = w3_getAttribAsStr(Self.FHandle,"autocapitalize","");
+      if (mTemp$10.length>0) {
+         Result = (mTemp$10).toLowerCase()=="on";
+      }
+      return Result
+   }
+   /// function TW3EditBox.getAutoCorrect() : Boolean
+   ///  [line: 230, column: 21, file: SmartCL.Controls.EditBox]
+   ,getAutoCorrect:function(Self) {
+      var Result = false;
+      var mTemp$11 = "";
+      Result = false;
+      mTemp$11 = w3_getAttribAsStr(Self.FHandle,"autocorrect","");
+      if (mTemp$11.length>0) {
+         Result = (mTemp$11).toLowerCase()=="on";
+      }
+      return Result
+   }
+   /// function TW3EditBox.getPlaceHolder() : String
+   ///  [line: 216, column: 21, file: SmartCL.Controls.EditBox]
+   ,getPlaceHolder:function(Self) {
+      var Result = "";
+      Result = w3_getAttribAsStr(Self.FHandle,"placeholder","");
+      return Result
+   }
+   /// function TW3EditBox.getRange() : Variant
+   ///  [line: 145, column: 21, file: SmartCL.Controls.EditBox]
+   ,getRange:function(Self) {
+      var Result = undefined;
+      if (Self.FHandle) {
+         Result = Self.FHandle.value;
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.getRange", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+      return Result
+   }
+   /// function TW3EditBox.getText() : String
+   ///  [line: 275, column: 21, file: SmartCL.Controls.EditBox]
+   ,getText:function(Self) {
+      var Result = "";
+      Result = w3_getPropertyAsStr(Self.FHandle,"value");
+      return Result
+   }
+   /// function TW3EditBox.getTextAlign() : TTextAlign
+   ///  [line: 82, column: 21, file: SmartCL.Controls.EditBox]
+   ,getTextAlign:function(Self) {
+      var Result = 0;
+      var mText$4 = "";
+      mText$4 = (w3_getStyleAsStr(Self.FHandle,"textAlign")).toLowerCase();
+      if (mText$4=="left") {
+         Result = 0;
+      } else if (mText$4=="center") {
+         Result = 1;
+      } else if (mText$4=="right") {
+         Result = 2;
+      }
+      return Result
+   }
+   /// function TW3EditBox.getType() : TW3InputType
+   ///  [line: 163, column: 21, file: SmartCL.Controls.EditBox]
+   ,getType:function(Self) {
+      var Result = 0;
+      var mText$5 = "";
+      mText$5 = (w3_getAttribAsStr(Self.FHandle,"type","")).toLowerCase();
+      if (mText$5=="") {
+         Result = 0;
+      } else if (mText$5=="color") {
+         Result = 1;
+      } else if (mText$5=="date") {
+         Result = 2;
+      } else if (mText$5=="datetime") {
+         Result = 3;
+      } else if (mText$5=="datetime-local") {
+         Result = 4;
+      } else if (mText$5=="email") {
+         Result = 5;
+      } else if (mText$5=="month") {
+         Result = 6;
+      } else if (mText$5=="number") {
+         Result = 7;
+      } else if (mText$5=="range") {
+         Result = 8;
+      } else if (mText$5=="search") {
+         Result = 9;
+      } else if (mText$5=="tel") {
+         Result = 10;
+      } else if (mText$5=="time") {
+         Result = 11;
+      } else if (mText$5=="url") {
+         Result = 12;
+      } else if (mText$5=="week") {
+         Result = 13;
+      } else if (mText$5=="password") {
+         Result = 14;
+      }
+      if (mText$5=="file") {
+         Result = 15;
+      }
+      return Result
+   }
+   /// function TW3EditBox.makeElementTagObj() : THandle
+   ///  [line: 65, column: 21, file: SmartCL.Controls.EditBox]
+   ,MakeElementTagObj:function(Self) {
+      var Result = undefined;
+      Result = w3_createHtmlElement("input");
+      if (Result) {
+         w3_setAttrib(Result,"type","text");
+      }
+      return Result
+   }
+   /// procedure TW3EditBox.setAutoCapitalize(const aValue: Boolean)
+   ///  [line: 263, column: 22, file: SmartCL.Controls.EditBox]
+   ,setAutoCapitalize:function(Self, aValue$64) {
+      if (Self.FHandle) {
+         switch (aValue$64) {
+            case false :
+               w3_setAttrib(Self.FHandle,"autocapitalize","off");
+               break;
+            case true :
+               w3_setAttrib(Self.FHandle,"autocapitalize","on");
+               break;
+         }
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setAutoCapitalize", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.setAutoCorrect(const aValue: Boolean)
+   ///  [line: 240, column: 22, file: SmartCL.Controls.EditBox]
+   ,setAutoCorrect:function(Self, aValue$65) {
+      if (Self.FHandle) {
+         switch (aValue$65) {
+            case false :
+               w3_setAttrib(Self.FHandle,"autocorrect","off");
+               break;
+            case true :
+               w3_setAttrib(Self.FHandle,"autocorrect","on");
+               break;
+         }
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setAutoCorrect", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.setPlaceHolder(const aValue: String)
+   ///  [line: 221, column: 22, file: SmartCL.Controls.EditBox]
+   ,setPlaceHolder:function(Self, aValue$66) {
+      if (Self.FHandle) {
+         w3_setAttrib(Self.FHandle,"placeholder",aValue$66);
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setPlaceHolder", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.setRange(const aValue: Variant)
+   ///  [line: 154, column: 22, file: SmartCL.Controls.EditBox]
+   ,setRange:function(Self, aValue$67) {
+      if (Self.FHandle) {
+         Self.FHandle.value = aValue$67;
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setRange", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.setText(aValue: String)
+   ///  [line: 280, column: 22, file: SmartCL.Controls.EditBox]
+   ,setText:function(Self, aValue$68) {
+      w3_setProperty(Self.FHandle,"value",aValue$68);
+   }
+   /// procedure TW3EditBox.setTextAlign(const aValue: TTextAlign)
+   ///  [line: 92, column: 22, file: SmartCL.Controls.EditBox]
+   ,setTextAlign:function(Self, aValue$69) {
+      var mToWrite = "";
+      switch (aValue$69) {
+         case 0 :
+            mToWrite = "left";
+            break;
+         case 1 :
+            mToWrite = "center";
+            break;
+         case 2 :
+            mToWrite = "right";
+            break;
+      }
+      if (Self.FHandle) {
+         w3_setStyle(Self.FHandle,"textAlign",mToWrite);
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setTextAlign", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.setType(const aValue: TW3InputType)
+   ///  [line: 186, column: 22, file: SmartCL.Controls.EditBox]
+   ,setType:function(Self, aValue$70) {
+      var mToWrite$1 = "";
+      if (Self.FHandle) {
+         switch (aValue$70) {
+            case 0 :
+               mToWrite$1 = "";
+               break;
+            case 1 :
+               mToWrite$1 = "color";
+               break;
+            case 2 :
+               mToWrite$1 = "date";
+               break;
+            case 3 :
+               mToWrite$1 = "datetime";
+               break;
+            case 4 :
+               mToWrite$1 = "datetime-local";
+               break;
+            case 5 :
+               mToWrite$1 = "email";
+               break;
+            case 6 :
+               mToWrite$1 = "month";
+               break;
+            case 7 :
+               mToWrite$1 = "number";
+               break;
+            case 8 :
+               mToWrite$1 = "range";
+               break;
+            case 9 :
+               mToWrite$1 = "search";
+               break;
+            case 10 :
+               mToWrite$1 = "tel";
+               break;
+            case 11 :
+               mToWrite$1 = "time";
+               break;
+            case 12 :
+               mToWrite$1 = "url";
+               break;
+            case 13 :
+               mToWrite$1 = "week";
+               break;
+            case 14 :
+               mToWrite$1 = "password";
+               break;
+            case 15 :
+               mToWrite$1 = "file";
+               break;
+         }
+         w3_setAttrib(Self.FHandle,"type",mToWrite$1);
+      } else {
+         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setType", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
+      }
+   }
+   /// procedure TW3EditBox.StyleTagObject()
+   ///  [line: 73, column: 22, file: SmartCL.Controls.EditBox]
+   ,StyleTagObject:function(Self) {
+      w3_setAttrib(Self.FHandle,"autocorrect","off");
+      w3_setAttrib(Self.FHandle,"autocapitalize","off");
+      w3_setAttrib(Self.FHandle,"placeholder","");
+      w3_setStyle(Self.FHandle,"textAlign","left");
+      TW3CustomControl.StyleTagObject(Self);
+   }
+   ,Destroy:TW3TagObj.Destroy
+   ,AfterUpdate:TW3CustomControl.AfterUpdate
+   ,FinalizeObject:TW3CustomControl.FinalizeObject
+   ,InitializeObject:TW3CustomControl.InitializeObject
+   ,MakeElementTagId:TW3TagObj.MakeElementTagId
+   ,MakeElementTagObj$:function($){return $.ClassType.MakeElementTagObj($)}
+   ,Showing:TW3MovableControl.Showing
+   ,StyleTagObject$:function($){return $.ClassType.StyleTagObject($)}
+   ,Create$28:TW3CustomControl.Create$28
+   ,GetHeight:TW3MovableControl.GetHeight
+   ,GetWidth:TW3MovableControl.GetWidth
+   ,Resize:TW3MovableControl.Resize
+   ,SetHeight:TW3MovableControl.SetHeight
+   ,SetWidth:TW3MovableControl.SetWidth
+   ,supportAdjustment:TW3MovableControl.supportAdjustment
+   ,CBClick:TW3CustomControl.CBClick
+   ,CBKeyDown:TW3CustomControl.CBKeyDown
+   ,CBKeyUp:TW3CustomControl.CBKeyUp
+   ,CBMouseDown:TW3CustomControl.CBMouseDown
+   ,CBMouseMove:TW3CustomControl.CBMouseMove
+   ,CBMouseUp:TW3CustomControl.CBMouseUp
+   ,GetEnabled:TW3CustomControl.GetEnabled
+   ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
+   ,SetEnabled:TW3CustomControl.SetEnabled
+};
 /// TFrameSettings = class (TW3Form)
 ///  [line: 11, column: 3, file: FrameSettings]
 var TFrameSettings = {
@@ -11045,6 +11480,10 @@ var TFrameSettings = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3CustomControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -11078,6 +11517,10 @@ var TW3PaintBox = {
    ,CBMouseUp:TW3CustomControl.CBMouseUp
    ,GetEnabled:TW3CustomControl.GetEnabled
    ,Invalidate:TW3GraphicControl.Invalidate
+   ,MouseDown:TW3CustomControl.MouseDown
+   ,MouseMove:TW3CustomControl.MouseMove
+   ,MouseUp:TW3CustomControl.MouseUp
+   ,SetBorderRadius:TW3CustomControl.SetBorderRadius
    ,SetEnabled:TW3CustomControl.SetEnabled
    ,Paint:TW3GraphicControl.Paint
 };
@@ -11116,8 +11559,8 @@ var TW3CustomRepeater = {
    }
    /// procedure TW3CustomRepeater.setDelay(aValue: Integer)
    ///  [line: 186, column: 29, file: SmartCL.Time]
-   ,setDelay:function(Self, aValue$63) {
-      Self.FDelay$1 = Math.max(aValue$63,1);
+   ,setDelay:function(Self, aValue$71) {
+      Self.FDelay$1 = Math.max(aValue$71,1);
       if (Self.FHandle$6!=0) {
          TW3CustomRepeater.AllocTimer(Self);
       }
@@ -11472,302 +11915,6 @@ var TMoveAnimation = {
    ,Destroy:TAnimation.Destroy
    ,Initialize$:function($){return $.ClassType.Initialize.apply($.ClassType, arguments)}
 };
-/// TW3InputType enumeration
-///  [line: 17, column: 3, file: SmartCL.Controls.EditBox]
-var TW3InputType = [ "itNone", "itColor", "itDate", "itDateTime", "itDateTimeLocal", "itEmail", "itMonth", "itNumber", "itRange", "itSearch", "itTel", "itTime", "itUrl", "itWeek", "itPassword", "itFile" ];
-/// TW3EditBox = class (TW3CustomControl)
-///  [line: 21, column: 3, file: SmartCL.Controls.EditBox]
-var TW3EditBox = {
-   $ClassName:"TW3EditBox",$Parent:TW3CustomControl
-   ,$Init:function ($) {
-      TW3CustomControl.$Init($);
-   }
-   /// function TW3EditBox.getAutoCapitalize() : Boolean
-   ///  [line: 253, column: 21, file: SmartCL.Controls.EditBox]
-   ,getAutoCapitalize:function(Self) {
-      var Result = false;
-      var mTemp$10 = "";
-      Result = false;
-      mTemp$10 = w3_getAttribAsStr(Self.FHandle,"autocapitalize","");
-      if (mTemp$10.length>0) {
-         Result = (mTemp$10).toLowerCase()=="on";
-      }
-      return Result
-   }
-   /// function TW3EditBox.getAutoCorrect() : Boolean
-   ///  [line: 230, column: 21, file: SmartCL.Controls.EditBox]
-   ,getAutoCorrect:function(Self) {
-      var Result = false;
-      var mTemp$11 = "";
-      Result = false;
-      mTemp$11 = w3_getAttribAsStr(Self.FHandle,"autocorrect","");
-      if (mTemp$11.length>0) {
-         Result = (mTemp$11).toLowerCase()=="on";
-      }
-      return Result
-   }
-   /// function TW3EditBox.getPlaceHolder() : String
-   ///  [line: 216, column: 21, file: SmartCL.Controls.EditBox]
-   ,getPlaceHolder:function(Self) {
-      var Result = "";
-      Result = w3_getAttribAsStr(Self.FHandle,"placeholder","");
-      return Result
-   }
-   /// function TW3EditBox.getRange() : Variant
-   ///  [line: 145, column: 21, file: SmartCL.Controls.EditBox]
-   ,getRange:function(Self) {
-      var Result = undefined;
-      if (Self.FHandle) {
-         Result = Self.FHandle.value;
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.getRange", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-      return Result
-   }
-   /// function TW3EditBox.getText() : String
-   ///  [line: 275, column: 21, file: SmartCL.Controls.EditBox]
-   ,getText:function(Self) {
-      var Result = "";
-      Result = w3_getPropertyAsStr(Self.FHandle,"value");
-      return Result
-   }
-   /// function TW3EditBox.getTextAlign() : TTextAlign
-   ///  [line: 82, column: 21, file: SmartCL.Controls.EditBox]
-   ,getTextAlign:function(Self) {
-      var Result = 0;
-      var mText$4 = "";
-      mText$4 = (w3_getStyleAsStr(Self.FHandle,"textAlign")).toLowerCase();
-      if (mText$4=="left") {
-         Result = 0;
-      } else if (mText$4=="center") {
-         Result = 1;
-      } else if (mText$4=="right") {
-         Result = 2;
-      }
-      return Result
-   }
-   /// function TW3EditBox.getType() : TW3InputType
-   ///  [line: 163, column: 21, file: SmartCL.Controls.EditBox]
-   ,getType:function(Self) {
-      var Result = 0;
-      var mText$5 = "";
-      mText$5 = (w3_getAttribAsStr(Self.FHandle,"type","")).toLowerCase();
-      if (mText$5=="") {
-         Result = 0;
-      } else if (mText$5=="color") {
-         Result = 1;
-      } else if (mText$5=="date") {
-         Result = 2;
-      } else if (mText$5=="datetime") {
-         Result = 3;
-      } else if (mText$5=="datetime-local") {
-         Result = 4;
-      } else if (mText$5=="email") {
-         Result = 5;
-      } else if (mText$5=="month") {
-         Result = 6;
-      } else if (mText$5=="number") {
-         Result = 7;
-      } else if (mText$5=="range") {
-         Result = 8;
-      } else if (mText$5=="search") {
-         Result = 9;
-      } else if (mText$5=="tel") {
-         Result = 10;
-      } else if (mText$5=="time") {
-         Result = 11;
-      } else if (mText$5=="url") {
-         Result = 12;
-      } else if (mText$5=="week") {
-         Result = 13;
-      } else if (mText$5=="password") {
-         Result = 14;
-      }
-      if (mText$5=="file") {
-         Result = 15;
-      }
-      return Result
-   }
-   /// function TW3EditBox.makeElementTagObj() : THandle
-   ///  [line: 65, column: 21, file: SmartCL.Controls.EditBox]
-   ,MakeElementTagObj:function(Self) {
-      var Result = undefined;
-      Result = w3_createHtmlElement("input");
-      if (Result) {
-         w3_setAttrib(Result,"type","text");
-      }
-      return Result
-   }
-   /// procedure TW3EditBox.setAutoCapitalize(const aValue: Boolean)
-   ///  [line: 263, column: 22, file: SmartCL.Controls.EditBox]
-   ,setAutoCapitalize:function(Self, aValue$64) {
-      if (Self.FHandle) {
-         switch (aValue$64) {
-            case false :
-               w3_setAttrib(Self.FHandle,"autocapitalize","off");
-               break;
-            case true :
-               w3_setAttrib(Self.FHandle,"autocapitalize","on");
-               break;
-         }
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setAutoCapitalize", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.setAutoCorrect(const aValue: Boolean)
-   ///  [line: 240, column: 22, file: SmartCL.Controls.EditBox]
-   ,setAutoCorrect:function(Self, aValue$65) {
-      if (Self.FHandle) {
-         switch (aValue$65) {
-            case false :
-               w3_setAttrib(Self.FHandle,"autocorrect","off");
-               break;
-            case true :
-               w3_setAttrib(Self.FHandle,"autocorrect","on");
-               break;
-         }
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setAutoCorrect", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.setPlaceHolder(const aValue: String)
-   ///  [line: 221, column: 22, file: SmartCL.Controls.EditBox]
-   ,setPlaceHolder:function(Self, aValue$66) {
-      if (Self.FHandle) {
-         w3_setAttrib(Self.FHandle,"placeholder",aValue$66);
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setPlaceHolder", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.setRange(const aValue: Variant)
-   ///  [line: 154, column: 22, file: SmartCL.Controls.EditBox]
-   ,setRange:function(Self, aValue$67) {
-      if (Self.FHandle) {
-         Self.FHandle.value = aValue$67;
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setRange", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.setText(aValue: String)
-   ///  [line: 280, column: 22, file: SmartCL.Controls.EditBox]
-   ,setText:function(Self, aValue$68) {
-      w3_setProperty(Self.FHandle,"value",aValue$68);
-   }
-   /// procedure TW3EditBox.setTextAlign(const aValue: TTextAlign)
-   ///  [line: 92, column: 22, file: SmartCL.Controls.EditBox]
-   ,setTextAlign:function(Self, aValue$69) {
-      var mToWrite = "";
-      switch (aValue$69) {
-         case 0 :
-            mToWrite = "left";
-            break;
-         case 1 :
-            mToWrite = "center";
-            break;
-         case 2 :
-            mToWrite = "right";
-            break;
-      }
-      if (Self.FHandle) {
-         w3_setStyle(Self.FHandle,"textAlign",mToWrite);
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setTextAlign", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.setType(const aValue: TW3InputType)
-   ///  [line: 186, column: 22, file: SmartCL.Controls.EditBox]
-   ,setType:function(Self, aValue$70) {
-      var mToWrite$1 = "";
-      if (Self.FHandle) {
-         switch (aValue$70) {
-            case 0 :
-               mToWrite$1 = "";
-               break;
-            case 1 :
-               mToWrite$1 = "color";
-               break;
-            case 2 :
-               mToWrite$1 = "date";
-               break;
-            case 3 :
-               mToWrite$1 = "datetime";
-               break;
-            case 4 :
-               mToWrite$1 = "datetime-local";
-               break;
-            case 5 :
-               mToWrite$1 = "email";
-               break;
-            case 6 :
-               mToWrite$1 = "month";
-               break;
-            case 7 :
-               mToWrite$1 = "number";
-               break;
-            case 8 :
-               mToWrite$1 = "range";
-               break;
-            case 9 :
-               mToWrite$1 = "search";
-               break;
-            case 10 :
-               mToWrite$1 = "tel";
-               break;
-            case 11 :
-               mToWrite$1 = "time";
-               break;
-            case 12 :
-               mToWrite$1 = "url";
-               break;
-            case 13 :
-               mToWrite$1 = "week";
-               break;
-            case 14 :
-               mToWrite$1 = "password";
-               break;
-            case 15 :
-               mToWrite$1 = "file";
-               break;
-         }
-         w3_setAttrib(Self.FHandle,"type",mToWrite$1);
-      } else {
-         throw EW3Exception.CreateFmt($New(EW3Exception),$R[0],["TW3EditBox.setType", TObject.ClassName(Self.ClassType), "Invalid handle error"]);
-      }
-   }
-   /// procedure TW3EditBox.StyleTagObject()
-   ///  [line: 73, column: 22, file: SmartCL.Controls.EditBox]
-   ,StyleTagObject:function(Self) {
-      w3_setAttrib(Self.FHandle,"autocorrect","off");
-      w3_setAttrib(Self.FHandle,"autocapitalize","off");
-      w3_setAttrib(Self.FHandle,"placeholder","");
-      w3_setStyle(Self.FHandle,"textAlign","left");
-      TW3CustomControl.StyleTagObject(Self);
-   }
-   ,Destroy:TW3TagObj.Destroy
-   ,AfterUpdate:TW3CustomControl.AfterUpdate
-   ,FinalizeObject:TW3CustomControl.FinalizeObject
-   ,InitializeObject:TW3CustomControl.InitializeObject
-   ,MakeElementTagId:TW3TagObj.MakeElementTagId
-   ,MakeElementTagObj$:function($){return $.ClassType.MakeElementTagObj($)}
-   ,Showing:TW3MovableControl.Showing
-   ,StyleTagObject$:function($){return $.ClassType.StyleTagObject($)}
-   ,Create$28:TW3CustomControl.Create$28
-   ,GetHeight:TW3MovableControl.GetHeight
-   ,GetWidth:TW3MovableControl.GetWidth
-   ,Resize:TW3MovableControl.Resize
-   ,SetHeight:TW3MovableControl.SetHeight
-   ,SetWidth:TW3MovableControl.SetWidth
-   ,supportAdjustment:TW3MovableControl.supportAdjustment
-   ,CBClick:TW3CustomControl.CBClick
-   ,CBKeyDown:TW3CustomControl.CBKeyDown
-   ,CBKeyUp:TW3CustomControl.CBKeyUp
-   ,CBMouseDown:TW3CustomControl.CBMouseDown
-   ,CBMouseMove:TW3CustomControl.CBMouseMove
-   ,CBMouseUp:TW3CustomControl.CBMouseUp
-   ,GetEnabled:TW3CustomControl.GetEnabled
-   ,Invalidate:TW3CustomControl.Invalidate
-   ,SetEnabled:TW3CustomControl.SetEnabled
-};
 /// TW3RegEx = class (TObject)
 ///  [line: 22, column: 3, file: SmartCL.RegEx]
 var TW3RegEx = {
@@ -11932,8 +12079,10 @@ var LittleEndian = false,
    LittleEndian = false;
 var a$58 = null;
 var vJSON_ID = 0;
-var Application$1 = null;
-var GAnimationManager = null;
+var vCaptureControl = null;
+var vCaptureInitialized = false;
+var Application$1 = null,
+   GAnimationManager = null;
 var GlobalRepeaterList = [];
 var __CONV_BUFFER = null;
 var __CONV_VIEW = null;
@@ -11945,8 +12094,6 @@ var NullConfig = null,
 var LayoutCount = 0;
 var NullConfig = TObject.Create($New(TLayoutConfigImpl));
 var GForms = null;
-var vCaptureControl = null;
-var vCaptureInitialized = false;
 var _FontDetect = null;
 var vUniqueNumber = 0;
 var vVendor = 0;

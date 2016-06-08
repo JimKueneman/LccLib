@@ -301,15 +301,7 @@ begin
   if FEthernetRec.AutoResolveIP then
   begin
     {$IFDEF LCC_WINDOWS}
-    LocalName := Socket.LocalName;
-    IpStrings := TStringList.Create;
-    try
-       Socket.ResolveNameToIP(String( LocalName), IpStrings) ;  // '192.168.0.8';
-       for i := 0 to IpStrings.Count - 1 do
-         FEthernetRec.ListenerIP := IpStrings[i];
-    finally
-      IpStrings.Free;
-    end;
+    FEthernetRec.ListenerIP := ResolveWindowsIp(Socket);
     {$ELSE}
     FEthernetRec.ListenerIP := ResolveUnixIp;
     {$ENDIF}

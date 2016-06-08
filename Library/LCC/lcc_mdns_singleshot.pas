@@ -28,10 +28,41 @@ uses
   lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
-  lcc_common_classes;
+  lcc_common_classes, dnssend;
 
+const
+  QCLASS_INET = 1;  // Class = Internet
 
 type
+  TmDNSQuestionRec = record
+    QName: AnsiString;
+    QType,
+    QClass: Word;
+  end;
+
+  TmDNSAnswerRec = record
+    AName: AnsiString;
+    AType,
+    AClass: Word;
+    ATTL: DWORD;
+    ARDLength: Word;
+    ARData: array of Byte;
+  end;
+
+type
+  TmDNSRec = record
+    ID,
+    Flags,
+    QDCount,
+    ANCount,
+    NSCount,
+    ARCount: Word;
+    Questions: array of TmDNSQuestionRec;
+    Answers: array of TmDNSAnswerRec;
+  end;
+
+type
+  TOnLccMdnsQuestion = procedure(AQuestion: TmDNSQuestionRec) of object;
   TLcc_mDNS_SinglShotServer = class;
 
   { TLcc_mDNS_SingleShotListener }
@@ -40,11 +71,12 @@ type
   private
     FEthernetRec: TLccEthernetRec;
     FGridConnect: Boolean;
+    FmDNSIncomingRec: TmDNSRec;
+    FmDNSOutgoingRec: TmDNSRec;
     FOnClientDisconnect: TOnEthernetRecFunc;
     FOnConnectionStateChange: TOnEthernetRecFunc;
     FOnErrorMessage: TOnEthernetRecFunc;
-    FOnReceiveMessage: TOnEthernetReceiveFunc;
-    FOnSendMessage: TOnMessageEvent;
+    FOnQuestion: TOnLccMdnsQuestion;
     FOwner: TLcc_mDNS_SinglShotServer;
     FRunning: Boolean;
     FSleepCount: Integer;
@@ -56,10 +88,12 @@ type
     property Running: Boolean read FRunning write FRunning;
     property Socket: TUDPBlockSocket read FSocket write FSocket;
     property IsTerminated: Boolean read GetIsTerminated;
+    property mDNSIncomingRec: TmDNSRec read FmDNSIncomingRec write FmDNSIncomingRec;
+    property mDNSOutgoingRec: TmDNSRec read FmDNSOutgoingRec write FmDNSOutgoingRec;
 
     procedure DoConnectionState;
     procedure DoErrorMessage;
-    procedure DoReceiveMessage;
+    procedure DoQuestion;
     procedure Execute; override;
   public
     constructor Create(CreateSuspended: Boolean; AnOwner: TLcc_mDNS_SinglShotServer; const AnEthernetRec: TLccEthernetRec); reintroduce; virtual;
@@ -69,8 +103,7 @@ type
     property OnClientDisconnect: TOnEthernetRecFunc read FOnClientDisconnect write FOnClientDisconnect;
     property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-    property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
+    property OnQuestion: TOnLccMdnsQuestion read FOnQuestion write FOnQuestion;
     property SleepCount: Integer read FSleepCount write FSleepCount;
   end;
 
@@ -83,6 +116,7 @@ type
     FNodeManager: TLccNodeManager;
     FOnErrorMessage: TOnEthernetRecFunc;
     FOnConnectionStateChange: TOnEthernetRecFunc;
+    FOnQuestion: TOnLccMdnsQuestion;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
     { Private declarations }
@@ -106,8 +140,7 @@ type
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-    property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
+    property OnQuestion: TOnLccMdnsQuestion read FOnQuestion write FOnQuestion;
   end;
 
 procedure Register;
@@ -156,15 +189,15 @@ begin
   end;
 end;
 
-procedure TLcc_mDNS_SingleShotListener.DoReceiveMessage;
+procedure TLcc_mDNS_SingleShotListener.DoQuestion;
+var
+  i: Integer;
 begin
-  if not IsTerminated then
+  if Assigned(OnQuestion) then
   begin
-    // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
-  end
+    for i := 0 to Length(mDNSIncomingRec.Questions) - 1 do
+      OnQuestion(mDNSIncomingRec.Questions[i]);
+  end;
 end;
 
 procedure TLcc_mDNS_SingleShotListener.Execute;
@@ -186,13 +219,26 @@ procedure TLcc_mDNS_SingleShotListener.Execute;
     Terminate
   end;
 
+  function DecodeUrlLabel(var StartOffset: Integer; RawUrl: AnsiString): AnsiString;
+  var
+    i: Integer;
+    Count: Integer;
+  begin
+    Result := '';
+    Count := Ord( RawUrl[StartOffset]);
+    Inc(StartOffset);
+    for i := 0 to Count - 1 do
+    begin
+      Result := Result + RawUrl[StartOffset];
+      Inc(StartOffset);
+    end;
+  end;
+
 var
-  AByte: Byte;
-  {$IFDEF LCC_WINDOWS}
-  LocalName: String;
-  IpStrings: TStringList;
+  Packet: AnsiString;
+  PacketOffset, UrlOffset: Integer;
   i: Integer;
-  {$ENDIF}
+  IpAddress: String;
 begin
   FRunning := True;
 
@@ -205,15 +251,7 @@ begin
   if FEthernetRec.AutoResolveIP then
   begin
     {$IFDEF LCC_WINDOWS}
-    LocalName := Socket.LocalName;
-    IpStrings := TStringList.Create;
-    try
-       Socket.ResolveNameToIP(String( LocalName), IpStrings) ;  // '192.168.0.8';
-       for i := 0 to IpStrings.Count - 1 do
-         FEthernetRec.ListenerIP := IpStrings[i];
-    finally
-      IpStrings.Free;
-    end;
+    FEthernetRec.ListenerIP := ResolveWindowsIp(Socket);
     {$ELSE}
     FEthernetRec.ListenerIP := ResolveUnixIp;
     {$ENDIF}
@@ -221,6 +259,7 @@ begin
 
 
   Socket.EnableReusePort(True);
+  Socket.EnableMulticastLoop(True);
   Socket.Bind(String( EthernetRec.ListenerIP), String( IntToStr(EthernetRec.ListenerPort)));
   if Socket.LastError <> 0 then
   begin
@@ -254,20 +293,129 @@ begin
               begin
                 while Socket.LastError = 0 do
                 begin
-                  AByte := Socket.RecvByte(0);
+                  Packet := Socket.RecvPacket(0);
                   case Socket.LastError of
-                     0 :
-                       begin
-                       end;
-                     WSAETIMEDOUT :
-                       begin
-                       end;
-                     WSAECONNABORTED :
-                       begin
-                         HandleErrorAndDisconnect;
-                       end;
-                   end;
-                 end
+                    0 :
+                      begin
+                        if Length(Packet) > 12 then
+                        begin
+                          {$IFDEF LCC_MOBILE}
+                            PacketOffset := 0;
+                          {$ELSE}
+                            PacketOffset := 1;
+                          {$ENDIF}
+                          FmDNSIncomingRec.ID := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.ID := FmDNSIncomingRec.ID or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.Flags := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.Flags := FmDNSIncomingRec.Flags or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.QDCount := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.QDCount := FmDNSIncomingRec.QDCount or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.ANCount := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.ANCount := FmDNSIncomingRec.ANCount or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.NSCount := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.NSCount := FmDNSIncomingRec.NSCount or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.ARCount := Ord(Packet[PacketOffset]) shl 8;
+                          Inc(PacketOffset);
+                          FmDNSIncomingRec.ARCount := FmDNSIncomingRec.ARCount or Ord(Packet[PacketOffset]);
+                          Inc(PacketOffset);
+
+                          SetLength(FmDNSIncomingRec.Questions, FmDNSIncomingRec.QDCount);
+                          SetLength(FmDNSIncomingRec.Answers, FmDNSIncomingRec.ANCount);
+
+                 //         if FmDNSIncomingRec.QDCount > 10 then
+                //            beep;
+
+                          for i := 0 to FmDNSIncomingRec.QDCount - 1 do
+                          begin
+                            FmDNSIncomingRec.Questions[i].QName := '';
+                            FmDNSIncomingRec.Questions[i].QClass := 0;
+                            FmDNSIncomingRec.Questions[i].QType := 0;
+
+                            while Packet[PacketOffset] <> #0 do
+                            begin
+                              // This could be an offset into the stucture some where else
+                              if Ord(Packet[PacketOffset]) and $C0 = $C0 then
+                              begin
+                                // Get the Offset into the structure
+                                UrlOffset := Ord(Packet[PacketOffset]) shl 8;
+                                Inc(PacketOffset);
+                                UrlOffset := UrlOffset or Ord(Packet[PacketOffset]);
+                                UrlOffset := UrlOffset and not $C000;
+                                {$IFNDEF LCC_MOBILE}
+                                Inc(UrlOffset);
+                                {$ENDIF}
+                                while Packet[UrlOffset] <> #0 do
+                                  FmDNSIncomingRec.Questions[i].QName := FmDNSIncomingRec.Questions[i].QName + DecodeUrlLabel(UrlOffset, Packet) + '.';
+                                Inc(PacketOffset);
+                              end else
+                              begin
+                                FmDNSIncomingRec.Questions[i].QName := FmDNSIncomingRec.Questions[i].QName + DecodeUrlLabel(PacketOffset, Packet) + '.';
+                              end;
+                            end;
+                            SetLength(FmDNSIncomingRec.Questions[i].QName, Length(FmDNSIncomingRec.Questions[i].QName) - 1); // Strip off '.';
+
+                            Inc(PacketOffset);
+                            FmDNSIncomingRec.Questions[i].QType := Ord(Packet[PacketOffset]) shl 8;
+                            Inc(PacketOffset);
+                            FmDNSIncomingRec.Questions[i].QType := FmDNSIncomingRec.Questions[i].QType or Ord(Packet[PacketOffset]);
+
+                            Inc(PacketOffset);
+                            FmDNSIncomingRec.Questions[i].QClass := Ord(Packet[PacketOffset]) shl 8;
+                            Inc(PacketOffset);
+                            FmDNSIncomingRec.Questions[i].QClass := FmDNSIncomingRec.Questions[i].QClass or Ord(Packet[PacketOffset]);
+
+                            Inc(PacketOffset);
+                          end;
+                        end;
+
+                        for i := 0 to FmDNSIncomingRec.QDCount - 1 do
+                          Synchronize({$IFDEF FPC}@{$ENDIF}DoQuestion);
+
+                        for i := 0 to FmDNSIncomingRec.QDCount - 1 do
+                        begin
+                          if (LowerCase(FmDNSIncomingRec.Questions[i].QName) = 'openlcb.local') and (FmDNSIncomingRec.Questions[i].QType = QTYPE_A) and (FmDNSIncomingRec.Questions[i].QClass = QCLASS_INET) then
+                          begin
+                            SetLength(FmDNSOutgoingRec.Answers, 1);
+                            SetLength(FmDNSOutgoingRec.Questions, 1);
+                            FmDNSOutgoingRec.Questions[0] := FmDNSIncomingRec.Questions[i];
+                            FmDNSOutgoingRec.Flags := $01;  // Reply
+                            FmDNSOutgoingRec.QDCount := 1;
+                            FmDNSOutgoingRec.ANCount := 1;
+                            FmDNSOutgoingRec.ARCount := 0;
+                            FmDNSOutgoingRec.NSCount := 0;
+                            FmDNSOutgoingRec.Answers[0].AName := FmDNSIncomingRec.Questions[i].QName;
+                            FmDNSOutgoingRec.Answers[0].AType := QTYPE_A;
+                            FmDNSOutgoingRec.Answers[0].AClass := QCLASS_INET;
+                            FmDNSOutgoingRec.Answers[0].ARDLength := 4;
+                            SetLength(FmDNSOutgoingRec.Answers[0].ARData, 4);
+                            {$IFDEF LCC_WINDOWS}
+                            IpAddress := ResolveWindowsIp(Socket);
+                            {$ELSE}
+                            IpAddress := ResolveUnixIp;
+                            {$ENDIF}
+                            FmDNSOutgoingRec.Answers[0].ARData := Ip4Address_StrToBytes(IpAddress);
+                          end;
+                        end;
+                      end;
+                    WSAETIMEDOUT :
+                      begin
+                      end;
+                    WSAECONNABORTED :
+                      begin
+                        HandleErrorAndDisconnect;
+                      end;
+                  end;
+                end
               end
             end
           end;
@@ -330,8 +478,7 @@ begin
   begin
     AListenerThread.OnConnectionStateChange := OnConnectionStateChange;
     AListenerThread.OnErrorMessage := OnErrorMessage;
-    AListenerThread.OnReceiveMessage := OnReceiveMessage;
-    AListenerThread.OnSendMessage := OnSendMessage;
+    AListenerThread.OnQuestion := OnQuestion;
   end;
 end;
 
@@ -349,7 +496,7 @@ function TLcc_mDNS_SinglShotServer.OpenConnection(var AnEthernetRec: TLccEtherne
 begin
   // Default mDNS port to listen too
   if AnEthernetRec.ListenerIP = '' then
-    AnEthernetRec.ListenerIP := '0.0.0.0';
+    AnEthernetRec.ListenerIP := '224.0.0.251' ; //'0.0.0.0';
   if AnEthernetRec.ListenerPort = 0 then
     AnEthernetRec.ListenerPort := 5353;
 
