@@ -7,6 +7,7 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="149"/>
         <CursorPos Y="162"/>
         <UsageCount Value="76"/>
@@ -15,11 +16,10 @@
       <Unit1>
         <Filename Value="/usr/local/share/fpcsrc/packages/rtl-extra/src/unix/sockets.pp"/>
         <UnitName Value="Sockets"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="5" Y="20"/>
         <UsageCount Value="16"/>
-        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../../Documents/LccLib/Library/Synapse_LCC/httpsend.pas"/>
@@ -77,8 +77,7 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="1"/>
         <TopLine Value="547"/>
         <CursorPos Y="568"/>
         <UsageCount Value="30"/>
@@ -128,7 +127,7 @@
       </Unit16>
       <Unit17>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="19"/>
         <CursorPos X="47" Y="15"/>
         <UsageCount Value="28"/>
@@ -136,7 +135,7 @@
       </Unit17>
       <Unit18>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="24"/>
         <CursorPos X="25" Y="50"/>
         <UsageCount Value="27"/>
@@ -151,7 +150,7 @@
       </Unit19>
       <Unit20>
         <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="320"/>
         <CursorPos Y="336"/>
         <UsageCount Value="16"/>
@@ -173,11 +172,10 @@
       </Unit22>
       <Unit23>
         <Filename Value="/usr/local/share/fpcsrc/rtl/unix/cthreads.pp"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1027"/>
         <CursorPos X="18" Y="1053"/>
         <UsageCount Value="16"/>
-        <Loaded Value="True"/>
       </Unit23>
     </Units>
     <OtherDefines Count="1">

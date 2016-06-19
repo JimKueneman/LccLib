@@ -1,19 +1,19 @@
 object Form1: TForm1
-  Left = 312
-  Height = 449
-  Top = 223
-  Width = 770
+  Left = 256
+  Height = 499
+  Top = 108
+  Width = 772
   Caption = 'Form1'
-  ClientHeight = 449
-  ClientWidth = 770
+  ClientHeight = 499
+  ClientWidth = 772
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.6.0.4'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 15
-    Top = 434
-    Width = 770
+    Height = 21
+    Top = 478
+    Width = 772
     Panels = <    
       item
         Width = 250
@@ -29,8 +29,8 @@ object Form1: TForm1
   object ListView1: TListView
     Left = 0
     Height = 150
-    Top = 284
-    Width = 770
+    Top = 328
+    Width = 772
     Align = alBottom
     AutoWidthLastColumn = True
     Columns = <    
@@ -44,7 +44,7 @@ object Form1: TForm1
       end    
       item
         Caption = 'Extra'
-        Width = 404
+        Width = 394
       end>
     GridLines = True
     TabOrder = 1
@@ -54,19 +54,19 @@ object Form1: TForm1
     Cursor = crVSplit
     Left = 0
     Height = 8
-    Top = 276
-    Width = 770
+    Top = 320
+    Width = 772
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object Panel1: TPanel
     Left = 0
-    Height = 276
+    Height = 320
     Top = 0
-    Width = 770
+    Width = 772
     Align = alClient
-    ClientHeight = 276
-    ClientWidth = 770
+    ClientHeight = 320
+    ClientWidth = 772
     TabOrder = 3
     object Button2: TButton
       Left = 216
@@ -88,10 +88,12 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 1
-      Height = 134
+      Height = 178
       Top = 141
-      Width = 768
+      Width = 770
       Align = alBottom
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ScrollBars = ssAutoBoth
       TabOrder = 2
     end
     object Button3: TButton

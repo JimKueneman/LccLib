@@ -1,7 +1,8 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="FormMain" topline="10" col="75" row="11" splitview="0" designview="1" splitter="0.549636781215668" />
+      <tab filename="SmartCL.Grid.Classes" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\SmartCL\SmartCL.Grid.Classes.pas" topline="40" col="3" row="53" />
+      <tab filename="FormMain" topline="89" col="3" row="91" splitview="0" designview="0" splitter="0.549636781215668" />
       <tab filename="UnitApplication" topline="1" col="14" row="16" />
       <tab filename="SmartCL.Layout" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\SmartCL\SmartCL.Layout.pas" topline="800" col="29" row="568" />
       <tab filename="FrameSettings" topline="11" col="17" row="11" splitview="0" designview="0" splitter="0.444444447755814" />
@@ -12,11 +13,11 @@
       <breakpoints />
     </editor>
     <Statistics>
-      <BackgroundCompilations>2077</BackgroundCompilations>
-      <EditTime>00:30:35.395</EditTime>
+      <BackgroundCompilations>2092</BackgroundCompilations>
+      <EditTime>00:30:53.551</EditTime>
       <CompileTime>00:01:22.364</CompileTime>
-      <TotalTime>19:07:37.099</TotalTime>
-      <DesigningTime>01:14:09.604</DesigningTime>
+      <TotalTime>19:07:37.229</TotalTime>
+      <DesigningTime>01:14:13.490</DesigningTime>
       <RunningTime>12:12:05.812</RunningTime>
     </Statistics>
   </state>

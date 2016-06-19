@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="63">
+    <Units Count="64">
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -27,7 +27,7 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_template"/>
+        <IsVisibleTab Value="True"/>
         <CursorPos X="54" Y="10"/>
         <UsageCount Value="159"/>
         <Loaded Value="True"/>
@@ -337,22 +337,20 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <ExtraEditorCount Value="3"/>
         <ExtraEditor1>
-          <EditorIndex Value="3"/>
-          <CursorPos X="93" Y="21"/>
+          <EditorIndex Value="1"/>
         </ExtraEditor1>
         <ExtraEditor2>
-          <EditorIndex Value="2"/>
-          <CursorPos X="54" Y="27"/>
+          <EditorIndex Value="-1"/>
+          <CursorPos X="93" Y="21"/>
         </ExtraEditor2>
         <ExtraEditor3>
-          <EditorIndex Value="5"/>
+          <EditorIndex Value="-1"/>
+          <CursorPos X="54" Y="27"/>
         </ExtraEditor3>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit48>
       <Unit49>
@@ -446,6 +444,13 @@
         <EditorIndex Value="-1"/>
         <UsageCount Value="24"/>
       </Unit62>
+      <Unit63>
+        <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="265"/>
+        <CursorPos X="6" Y="273"/>
+        <UsageCount Value="10"/>
+      </Unit63>
     </Units>
     <JumpHistory Count="1">
       <Position1>

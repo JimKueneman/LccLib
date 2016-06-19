@@ -233,9 +233,11 @@ end;
 
 procedure TForm1.Lcc_mDNS_SinglShotServer1Question(AQuestion: TmDNSQuestionRec);
 begin
-
-  if AQuestion.QName = 'openlcb.local' then
-    beep;
+  Memo1.Lines.BeginUpdate;
+  Memo1.Lines.Add(AQuestion.QName);
+  Memo1.Lines.EndUpdate;
+ // if AQuestion.QName = 'openlcb.local' then
+ //   beep;
 end;
 
 end.

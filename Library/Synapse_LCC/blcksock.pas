@@ -2324,8 +2324,7 @@ begin
   begin
     Result := FBuffer;
     FBuffer := '';
-  end
-  else
+  end else
   begin
     {$IFDEF MSWINDOWS}
     //not drain CPU on large downloads...
@@ -2348,8 +2347,7 @@ begin
       if x >= 0 then
         SetLength(Result, x);
       {$ENDIF}
-    end
-    else
+    end else
     begin
       if CanRead(Timeout) then
       begin

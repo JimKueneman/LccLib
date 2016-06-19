@@ -510,23 +510,6 @@ end;
     end;
   end;
 
-  function Ip4Address_StrToBytes(IpAddress: String): TIp4Address;
-  var
-    StringList: TStringList;
-    i: Integer;
-  begin
-    StringList := TStringList.Create;
-    try
-      StringList.Text := StringReplace(IpAddress, '.', #13, [rfReplaceAll, rfIgnoreCase]);
-      for i := 0 to StringList.Count - 1 do
-      begin
-        Result[i] := StrToInt(StringList[i]);
-      end;
-    finally
-      StringList.Free
-    end;
-  end;
-
   {$ELSE}
   type
     TArray4Int = array[1..4] of byte;
@@ -629,6 +612,23 @@ end;
   end;
   {$ENDIF}
 {$ENDIF}
+
+function Ip4Address_StrToBytes(IpAddress: String): TIp4Address;
+var
+  StringList: TStringList;
+  i: Integer;
+begin
+  StringList := TStringList.Create;
+  try
+    StringList.Text := StringReplace(IpAddress, '.', #13, [rfReplaceAll, rfIgnoreCase]);
+    for i := 0 to StringList.Count - 1 do
+    begin
+      Result[i] := StrToInt(StringList[i]);
+    end;
+  finally
+    StringList.Free
+  end;
+end;
 
 {$IFDEF FPC}
 { TCriticalSection }
