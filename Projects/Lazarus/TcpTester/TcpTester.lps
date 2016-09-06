@@ -18,9 +18,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="734"/>
         <CursorPos X="39" Y="755"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
@@ -51,11 +49,10 @@
         <ComponentName Value="FormNodeProperties"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="19" Y="10"/>
         <UsageCount Value="203"/>
-        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="Forms/form_about.pas"/>
@@ -338,15 +335,17 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="244"/>
-        <CursorPos X="61" Y="245"/>
-        <ExtraEditorCount Value="1"/>
+        <TopLine Value="742"/>
+        <ExtraEditorCount Value="2"/>
         <ExtraEditor1>
+          <EditorIndex Value="1"/>
+          <WindowIndex Value="1"/>
+        </ExtraEditor1>
+        <ExtraEditor2>
           <EditorIndex Value="-1"/>
           <WindowIndex Value="1"/>
-          <TopLine Value="282"/>
-          <CursorPos X="21" Y="276"/>
-        </ExtraEditor1>
+          <CursorPos X="3"/>
+        </ExtraEditor2>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit51>
@@ -430,7 +429,7 @@
         <UsageCount Value="10"/>
       </Unit61>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="12" HistoryIndex="11">
       <Position1>
         <Filename Value="Forms/form_main.pas"/>
         <Caret Line="152" Column="15" TopLine="131"/>
@@ -460,29 +459,25 @@
         <Caret Line="531" TopLine="517"/>
       </Position7>
       <Position8>
-        <Filename Value="Forms/form_properties.pas"/>
-        <Caret Line="133" Column="3" TopLine="130"/>
+        <Filename Value="Forms/form_main.pas"/>
+        <Caret Line="526" Column="27" TopLine="517"/>
       </Position8>
       <Position9>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="526" Column="27" TopLine="517"/>
+        <Caret Line="240" Column="39" TopLine="219"/>
       </Position9>
       <Position10>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="240" Column="39" TopLine="219"/>
+        <Caret Line="311" Column="34" TopLine="290"/>
       </Position10>
       <Position11>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="311" Column="34" TopLine="290"/>
+        <Caret Line="430" TopLine="408"/>
       </Position11>
       <Position12>
         <Filename Value="Forms/form_main.pas"/>
-        <Caret Line="430" TopLine="408"/>
-      </Position12>
-      <Position13>
-        <Filename Value="Forms/form_main.pas"/>
         <Caret Line="708" Column="34" TopLine="687"/>
-      </Position13>
+      </Position12>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

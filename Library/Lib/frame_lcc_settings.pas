@@ -125,6 +125,7 @@ type
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property UserSettings: TUserSettings read FUserSettings write FUserSettings;
   end;
+
 implementation
 
 {$R *.lfm}

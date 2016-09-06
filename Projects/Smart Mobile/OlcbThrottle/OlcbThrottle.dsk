@@ -1,0 +1,26 @@
+<SMART>
+  <state>
+    <editor>
+      <tab filename="SmartCL.Grid.Classes" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\SmartCL\SmartCL.Grid.Classes.pas" topline="40" col="3" row="53" />
+      <tab filename="FormMain" topline="89" col="3" row="91" splitview="0" designview="1" splitter="0.549636781215668" />
+      <tab filename="UnitApplication" topline="1" col="14" row="16" />
+      <tab filename="SmartCL.Layout" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\SmartCL\SmartCL.Layout.pas" topline="800" col="29" row="568" />
+      <tab filename="FrameSettings" topline="11" col="17" row="11" splitview="0" designview="0" splitter="0.444444447755814" />
+      <tab filename="NodeJS.net" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\NodeJS\NodeJS.net.pas" topline="81" col="36" row="105" />
+      <tab filename="SmartCL.Inet" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\SmartCL\SmartCL.Inet.pas" topline="370" col="23" row="386" />
+      <tab filename="W3C.WebSocket" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\APIs\W3C\W3C.WebSocket.pas" topline="1" col="13" row="37" />
+      <tab filename="OlcbThrottle" topline="1" col="1" row="1" />
+      <tab filename="W3C.DOM" fullname="C:\Documents and Settings\All Users\Application Data\Optimale Systemer AS\Smart Mobile Studio\RTL\APIs\W3C\W3C.DOM.pas" topline="30" col="32" row="784" />
+      <activetab>W3C.DOM</activetab>
+      <breakpoints />
+    </editor>
+    <Statistics>
+      <BackgroundCompilations>2150</BackgroundCompilations>
+      <EditTime>00:31:22.482</EditTime>
+      <CompileTime>00:01:24.447</CompileTime>
+      <TotalTime>19:28:09.290</TotalTime>
+      <DesigningTime>01:18:01.027</DesigningTime>
+      <RunningTime>12:14:41.936</RunningTime>
+    </Statistics>
+  </state>
+</SMART>

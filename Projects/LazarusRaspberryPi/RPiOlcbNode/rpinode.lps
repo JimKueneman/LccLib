@@ -7,9 +7,10 @@
       <Unit0>
         <Filename Value="rpinode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="77"/>
-        <CursorPos Y="82"/>
-        <UsageCount Value="99"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="147"/>
+        <CursorPos X="45" Y="3"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -74,7 +75,6 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_gpio_file.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <CursorPos X="69" Y="4"/>
         <UsageCount Value="39"/>

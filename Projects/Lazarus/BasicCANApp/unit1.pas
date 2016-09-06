@@ -5,9 +5,9 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  ComCtrls, lcc_app_common_settings, lcc_comport, lcc_nodemanager, Unit2,
-  file_utilities, frame_lcc_logging, lcc_messages;
+  Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
+  ActnList, ComCtrls, Buttons, StdCtrls, lcc_app_common_settings, lcc_comport,
+  lcc_nodemanager, Unit2, file_utilities, frame_lcc_logging, lcc_messages;
 
 type
 

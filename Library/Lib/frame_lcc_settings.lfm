@@ -8,8 +8,8 @@ object FrameLccSettings: TFrameLccSettings
   Color = clDefault
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 569
-  DesignTop = 308
+  DesignLeft = 452
+  DesignTop = 122
   object ButtonOk: TButton
     Left = 451
     Height = 22
@@ -38,12 +38,12 @@ object FrameLccSettings: TFrameLccSettings
     Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'COM Port'
-    ClientHeight = 50
-    ClientWidth = 573
+    ClientHeight = 51
+    ClientWidth = 569
     TabOrder = 2
     object ComboBoxComPort: TComboBox
       Left = 17
-      Height = 35
+      Height = 20
       Top = 9
       Width = 226
       ItemHeight = 0
@@ -69,20 +69,20 @@ object FrameLccSettings: TFrameLccSettings
     Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Client'
-    ClientHeight = 137
-    ClientWidth = 573
+    ClientHeight = 138
+    ClientWidth = 569
     TabOrder = 3
     object LabelLocalIP: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 8
-      Width = 100
+      Width = 88
       Caption = 'Local Client IP'
       ParentColor = False
     end
     object EditLocalClientIP: TEdit
       Left = 27
-      Height = 31
+      Height = 22
       Top = 28
       Width = 149
       Enabled = False
@@ -90,15 +90,15 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelLocalPort: TLabel
       Left = 192
-      Height = 21
+      Height = 16
       Top = 8
-      Width = 116
+      Width = 103
       Caption = 'Local Client Port'
       ParentColor = False
     end
     object SpinEditLocalClientPort: TSpinEdit
       Left = 208
-      Height = 31
+      Height = 16
       Top = 28
       Width = 101
       MaxValue = 65535
@@ -116,15 +116,15 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemoteIP: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 80
-      Width = 132
+      Width = 117
       Caption = 'Remote Listener IP'
       ParentColor = False
     end
     object EditRemoteListenerIP: TEdit
       Left = 27
-      Height = 31
+      Height = 22
       Top = 102
       Width = 149
       OnExit = EditRemoteListenerIPExit
@@ -133,7 +133,7 @@ object FrameLccSettings: TFrameLccSettings
     end
     object SpinEditRemoteListenerPort: TSpinEdit
       Left = 208
-      Height = 31
+      Height = 16
       Top = 102
       Width = 101
       MaxValue = 65535
@@ -153,17 +153,17 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelRemotePort: TLabel
       Left = 192
-      Height = 21
+      Height = 16
       Top = 80
-      Width = 148
+      Width = 131
       Caption = 'Remote Listener Port'
       ParentColor = False
     end
     object CheckBoxAutoResolveLocalAddressClient: TCheckBox
       Left = 40
-      Height = 25
+      Height = 18
       Top = 56
-      Width = 178
+      Width = 158
       Caption = 'Auto Resolve Address'
       Checked = True
       OnChange = CheckBoxAutoResolveLocalAddressClientChange
@@ -179,20 +179,20 @@ object FrameLccSettings: TFrameLccSettings
     Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Ethernet Server'
-    ClientHeight = 73
-    ClientWidth = 573
+    ClientHeight = 74
+    ClientWidth = 569
     TabOrder = 4
     object LabelLocalIP1: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 0
-      Width = 115
+      Width = 102
       Caption = 'Local Listener IP'
       ParentColor = False
     end
     object EditLocalListenerIP: TEdit
       Left = 27
-      Height = 31
+      Height = 22
       Top = 20
       Width = 149
       Enabled = False
@@ -200,15 +200,15 @@ object FrameLccSettings: TFrameLccSettings
     end
     object LabelLocalPort1: TLabel
       Left = 192
-      Height = 21
+      Height = 16
       Top = 0
-      Width = 131
+      Width = 116
       Caption = 'Local Listener Port'
       ParentColor = False
     end
     object SpinEditLocalListenerPort: TSpinEdit
       Left = 208
-      Height = 31
+      Height = 16
       Top = 20
       Width = 101
       MaxValue = 65535
@@ -226,9 +226,9 @@ object FrameLccSettings: TFrameLccSettings
     end
     object CheckBoxAutoResolveLocalAddressServer: TCheckBox
       Left = 40
-      Height = 25
+      Height = 18
       Top = 48
-      Width = 178
+      Width = 158
       Caption = 'Auto Resolve Address'
       Checked = True
       OnChange = CheckBoxAutoResolveLocalAddressServerChange
@@ -244,12 +244,12 @@ object FrameLccSettings: TFrameLccSettings
     Width = 577
     Anchors = [akTop, akLeft, akRight]
     Caption = 'Rasberry Pi SPI Port'
-    ClientHeight = 193
-    ClientWidth = 573
+    ClientHeight = 194
+    ClientWidth = 569
     TabOrder = 5
     object ComboBoxPiSpiPort: TComboBox
       Left = 17
-      Height = 35
+      Height = 20
       Top = 9
       Width = 226
       ItemHeight = 0
@@ -268,7 +268,7 @@ object FrameLccSettings: TFrameLccSettings
     end
     object ComboBoxSpiSpeed: TComboBox
       Left = 15
-      Height = 33
+      Height = 20
       Top = 80
       Width = 249
       ItemHeight = 0
@@ -296,23 +296,23 @@ object FrameLccSettings: TFrameLccSettings
     end
     object Label1: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 56
-      Width = 67
+      Width = 57
       Caption = 'SPI Clock'
       ParentColor = False
     end
     object Label2: TLabel
       Left = 8
-      Height = 21
+      Height = 16
       Top = 120
-      Width = 40
+      Width = 35
       Caption = 'Mode'
       ParentColor = False
     end
     object ComboBoxSpiMode: TComboBox
       Left = 16
-      Height = 33
+      Height = 20
       Top = 144
       Width = 249
       ItemHeight = 0
@@ -329,15 +329,15 @@ object FrameLccSettings: TFrameLccSettings
     end
     object Label3: TLabel
       Left = 304
-      Height = 21
+      Height = 16
       Top = 56
-      Width = 27
+      Width = 23
       Caption = 'Bits'
       ParentColor = False
     end
     object ComboBoxSpiBits: TComboBox
       Left = 312
-      Height = 33
+      Height = 20
       Top = 80
       Width = 172
       ItemHeight = 0

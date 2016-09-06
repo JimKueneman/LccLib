@@ -1,0 +1,537 @@
+<SMART>
+  <Project version="2" subversion="2">
+    <Name>OlcbThrottle</Name>
+    <Created>T00:00:00.000</Created>
+    <Modified>2016-06-28T18:04:02.976</Modified>
+    <Version>
+      <Major>0</Major>
+      <Minor>0</Minor>
+      <Revision>0</Revision>
+    </Version>
+    <VendorSpecific>
+      <Apple>
+        <FormatDetection>1</FormatDetection>
+        <StatusBarStyle>black</StatusBarStyle>
+        <WebAppCapable>1</WebAppCapable>
+      </Apple>
+      <ChromeApp>
+        <Kiosk>0</Kiosk>
+        <KioskOnly>1</KioskOnly>
+        <OfflineEnabled>1</OfflineEnabled>
+      </ChromeApp>
+      <Cordova>
+        <WidgetID></WidgetID>
+        <AllowIntent>http://*/*&#13;&#10;https://*/*&#13;&#10;tel:*&#13;&#10;sms:*&#13;&#10;mailto:*&#13;&#10;geo:*</AllowIntent>
+      </Cordova>
+    </VendorSpecific>
+    <Options>
+      <Compiler>
+        <Assertions>1</Assertions>
+        <Optimize>1</Optimize>
+        <HintsLevel>1</HintsLevel>
+      </Compiler>
+      <Codegen>
+        <Obfuscation>0</Obfuscation>
+        <RangeChecking>0</RangeChecking>
+        <InstanceChecking>0</InstanceChecking>
+        <ConditionChecking>0</ConditionChecking>
+        <LoopChecking>0</LoopChecking>
+        <InlineMagics>1</InlineMagics>
+        <IgnorePublishedInImplementation>0</IgnorePublishedInImplementation>
+        <EmitSourceLocation>0</EmitSourceLocation>
+        <EmitRTTI>0</EmitRTTI>
+        <Devirtualize>1</Devirtualize>
+        <MainBody>1</MainBody>
+        <CodePacking>0</CodePacking>
+        <SmartLinking>1</SmartLinking>
+        <Verbosity>1</Verbosity>
+      </Codegen>
+      <ConditionalDefines>
+        <HandleExceptions>1</HandleExceptions>
+        <AutoRefresh>0</AutoRefresh>
+        <LegacySupportForIE>0</LegacySupportForIE>
+      </ConditionalDefines>
+      <Linker>
+        <SourceMap>0</SourceMap>
+        <CompressCSS>0</CompressCSS>
+        <GenerateAppCacheManifest>1</GenerateAppCacheManifest>
+        <GenerateChromeAppManifest>0</GenerateChromeAppManifest>
+        <GenerateFireFoxManifest>0</GenerateFireFoxManifest>
+        <GenerateWebAppManifest>1</GenerateWebAppManifest>
+        <GenerateWidgetPackageConfigXML>0</GenerateWidgetPackageConfigXML>
+        <GenerateCordovaConfigXML>0</GenerateCordovaConfigXML>
+        <ExternalCSS>1</ExternalCSS>
+        <Theme>iOS.css</Theme>
+        <CustomTheme>0</CustomTheme>
+        <EmbedJavaScript>1</EmbedJavaScript>
+      </Linker>
+      <Output>
+        <JavaScriptFileName>main.js</JavaScriptFileName>
+        <HtmlFileName>index.html</HtmlFileName>
+        <OutputFilePath>www\</OutputFilePath>
+      </Output>
+      <Import />
+      <Execute>
+        <ServeManifest>0</ServeManifest>
+        <Server>1</Server>
+        <CustomFile></CustomFile>
+        <LoadCustomFile>0</LoadCustomFile>
+        <PauseAfterExecution>0</PauseAfterExecution>
+        <ExecuteType>0</ExecuteType>
+      </Execute>
+    </Options>
+    <Files>
+      <File type="main">
+        <Name>OlcbThrottle</Name>
+        <Created>2016-03-25T06:33:14.729Z</Created>
+        <Modified>2016-06-28T18:04:02.966</Modified>
+        <Source>
+          <![CDATA[uses SmartCL.System, UnitApplication, FrameSettings;
+
+{$IFDEF SMART_INTERNAL_HANDLE_EXCEPTIONS}
+try
+{$ENDIF}
+  var Application := TApplication.Create;
+  Application.RunApp;
+{$IFDEF SMART_INTERNAL_HANDLE_EXCEPTIONS}
+except
+  on e: Exception do
+    ShowMessage(e.Message);
+end;
+{$ENDIF}
+]]>
+        </Source>
+      </File>
+      <File type="unit">
+        <Name>UnitApplication</Name>
+        <Created>2016-03-25T06:33:14.729Z</Created>
+        <Modified>2016-03-26T16:42:47.758</Modified>
+        <Source>
+          <![CDATA[unit UnitApplication;
+
+interface
+
+uses
+  Pseudo.CreateForms, // auto-generated unit that creates forms during startup
+  System.Types, SmartCL.System, SmartCL.Components, SmartCL.Forms, 
+  SmartCL.Application, FormMain, FrameSettings;
+
+type
+  TApplication  = class(TW3CustomApplication)
+  protected
+    FSettingsFrame: TW3Form;
+    procedure ApplicationStarted; override;
+  end;
+
+implementation
+
+{ TApplication }
+
+procedure TApplication.ApplicationStarted;
+begin
+  inherited;
+  FSettingsFrame := TFrameSettings.Create(Display.View);
+  FSettingsFrame.Name := 'Settings';
+  RegisterFormInstance(FSettingsFrame);
+end;
+
+end.
+]]>
+        </Source>
+      </File>
+      <File type="form">
+        <Name>FormMain</Name>
+        <Created>2016-03-25T06:33:14.729Z</Created>
+        <Modified>2016-06-07T04:48:55.156</Modified>
+        <Source>
+          <![CDATA[unit FormMain;
+
+interface
+
+uses 
+  SmartCL.System, SmartCL.Graphics, SmartCL.Components, SmartCL.Forms, 
+  SmartCL.Fonts, SmartCL.Borders, SmartCL.Application, SmartCL.Controls.Panel,
+  SmartCL.Controls.Button, SmartCL.Layout, SmartCL.Controls.Header,
+  SmartCL.Controls.ToolBar, SmartCL.Controls.ToolButton, SmartCL.Inet,
+  SmartCL.Dialogs, SmartCL.Controls.Label, SmartCL.Controls.EditBox,
+  SmartCL.Controls.ProgressBar, SmartCL.Controls.ScrollBar, SmartCL.Slider;
+
+const
+  COUNT_FOOTER_BUTTONS = 3;
+  IP_SERVER = '10.0.3.182';   // This IP
+ // IP_SERVER = '10.0.3.198';   // OSX IP
+
+type
+  TFormMain = class(TW3Form)
+    procedure W3Button5Click(Sender: TObject);
+    procedure W3Button4Click(Sender: TObject);
+    procedure W3Button3Click(Sender: TObject);
+    procedure W3Button2Click(Sender: TObject);
+    procedure W3Button1Click(Sender: TObject);
+    procedure W3ToolButtonSettingsClick(Sender: TObject);
+  private
+    {$I 'FormMain:intf'}
+  protected
+    FLayoutHeader: TLayout;
+    FLayoutFooter: TLayout;
+    FSocket: TW3WebSocket;
+    procedure InitializeForm; override;
+    procedure InitializeObject; override;
+    procedure Resize; override;
+
+    procedure SocketOpen(Sender: TW3WebSocket);
+    procedure SocketClose(Sender: TW3WebSocket);
+    procedure SocketError(Sender: TW3WebSocket);
+    procedure SocketMessage(Sender: TW3WebSocket; Message: TWebSocketMessageData);
+
+  end;
+
+implementation
+
+{ TFormMain }
+
+procedure TFormMain.W3ToolButtonSettingsClick(Sender: TObject);
+begin
+ //  Application.GotoForm('Settings', feFromRight);
+end;
+
+procedure TFormMain.W3Button1Click(Sender: TObject);
+begin
+  FSocket.Connect('ws://' + W3EditBox1.Text + ':12021', ['openlcb.websocket']);
+end;
+
+procedure TFormMain.W3Button2Click(Sender: TObject);
+begin
+  if FSocket.Connected then
+    FSocket.Disconnect
+end;
+
+procedure TFormMain.W3Button3Click(Sender: TObject);
+begin
+  if FSocket.Connected then
+  begin
+    FSocket.Write(':X19490098N;');
+  end
+end;
+
+procedure TFormMain.W3Button4Click(Sender: TObject);
+begin
+  if FSocket.Connected then
+  begin
+    FSocket.Write('');
+  end
+end;
+
+procedure TFormMain.W3Button5Click(Sender: TObject);
+begin
+  if FSocket.Connected then
+  begin
+    FSocket.Write('Ping');
+  end;
+end;
+
+procedure TFormMain.InitializeForm;
+begin
+  inherited;
+  // this is a good place to initialize components
+  FLayoutHeader := Layout.Top(Layout.Stretch,[W3ToolbarHeader]);
+  FLayoutFooter := Layout.Bottom(Layout.Stretch,[W3ToolbarFooter]);
+  W3EditBox1.Text := IP_SERVER;
+end;
+
+procedure TFormMain.InitializeObject;
+begin
+  inherited;
+  {$I 'FormMain:impl'}
+  FSocket := TW3WebSocket.Create();
+  FSocket.OnClosed := @SocketClose;
+  FSocket.OnError := @SocketError;
+  FSocket.OnMessage := @SocketMessage;
+  FSocket.OnOpen := @SocketOpen;
+end;
+ 
+procedure TFormMain.Resize;
+begin
+  inherited;
+  if Assigned(FLayoutFooter) then FLayoutFooter.Resize(Self);
+  if Assigned(FLayoutHeader) then FLayoutHeader.Resize(Self);
+  W3ToolButtonTrains.Width := W3ToolbarHeader.Width div COUNT_FOOTER_BUTTONS;
+  W3ToolButtonAccy.Width := W3ToolbarHeader.Width div COUNT_FOOTER_BUTTONS;
+  W3ToolButtonSettings.Width := W3ToolbarHeader.Width div COUNT_FOOTER_BUTTONS;
+  W3ToolButtonAccy.Left := W3ToolButtonTrains.BoundsRect.Right;
+  W3ToolButtonSettings.Left := W3ToolButtonAccy.BoundsRect.Right;
+end;
+ 
+procedure TFormMain.SocketOpen(Sender: TW3WebSocket);
+begin
+  Application.ShowDialog('Opened', 'Socket is Opened', aoOK);
+end;
+
+procedure TFormMain.SocketClose(Sender: TW3WebSocket);
+begin
+  Application.ShowDialog('Closed', 'Socket is Closed', aoOK);
+end;
+
+procedure TFormMain.SocketError(Sender: TW3WebSocket);
+begin
+  Application.ShowDialog('Error', 'Socket Error', aoOK);
+end;
+
+procedure TFormMain.SocketMessage(Sender: TW3WebSocket; Message: TWebSocketMessageData);
+begin
+  Application.ShowDialog('Message', 'Socket Message: ' + Message.mdText, aoOK);
+end;
+
+initialization
+  Forms.RegisterForm({$I %FILE%}, TFormMain);
+end.
+]]>
+        </Source>
+        <Design>
+          <![CDATA[<?xml version="1.0" encoding="utf-16"?>
+<Form version="2" subversion="2">
+  <Created>2016-03-25T06:33:14.729</Created>
+  <Modified>2016-06-07T04:49:52.519</Modified>
+  <object type="TW3Form">
+    <Caption>W3Form</Caption>
+    <Name>FormMain</Name>
+    <object type="TW3Toolbar">
+      <Width>440</Width>
+      <Top>288</Top>
+      <Left>24</Left>
+      <Height>32</Height>
+      <Name>W3ToolbarFooter</Name>
+      <object type="TW3ToolButton">
+        <Caption>Trains</Caption>
+        <Width>128</Width>
+        <Height>32</Height>
+        <Name>W3ToolButtonTrains</Name>
+      </object>
+      <object type="TW3ToolButton">
+        <Caption>Accessories</Caption>
+        <Width>128</Width>
+        <Left>128</Left>
+        <Height>32</Height>
+        <Name>W3ToolButtonAccy</Name>
+      </object>
+      <object type="TW3ToolButton">
+        <Caption>Settings</Caption>
+        <Width>128</Width>
+        <Left>256</Left>
+        <Height>32</Height>
+        <Name>W3ToolButtonSettings</Name>
+        <OnClick>W3ToolButtonSettingsClick</OnClick>
+      </object>
+    </object>
+    <object type="TW3Toolbar">
+      <Width>424</Width>
+      <Top>24</Top>
+      <Left>24</Left>
+      <Height>32</Height>
+      <Name>W3ToolbarHeader</Name>
+      <object type="TW3ToolButton">
+        <Caption>Back</Caption>
+        <Width>48</Width>
+        <Height>32</Height>
+        <Name>W3ToolButtonBack</Name>
+      </object>
+    </object>
+    <object type="TW3Button">
+      <Caption>Connect</Caption>
+      <Width>128</Width>
+      <Top>176</Top>
+      <Left>80</Left>
+      <Height>32</Height>
+      <Name>W3Button1</Name>
+      <OnClick>W3Button1Click</OnClick>
+    </object>
+    <object type="TW3Button">
+      <Caption>Disconnect</Caption>
+      <Width>128</Width>
+      <Top>248</Top>
+      <Left>88</Left>
+      <Height>32</Height>
+      <Name>W3Button2</Name>
+      <OnClick>W3Button2Click</OnClick>
+    </object>
+    <object type="TW3Button">
+      <Caption>Send</Caption>
+      <Width>128</Width>
+      <Top>136</Top>
+      <Left>240</Left>
+      <Height>32</Height>
+      <Name>W3Button3</Name>
+      <OnClick>W3Button3Click</OnClick>
+    </object>
+    <object type="TW3Button">
+      <Caption>Send Empty</Caption>
+      <Width>128</Width>
+      <Top>96</Top>
+      <Left>240</Left>
+      <Height>32</Height>
+      <Name>W3Button4</Name>
+      <OnClick>W3Button4Click</OnClick>
+    </object>
+    <object type="TW3Button">
+      <Caption>Ping</Caption>
+      <Width>128</Width>
+      <Top>176</Top>
+      <Left>240</Left>
+      <Height>32</Height>
+      <Name>W3Button5</Name>
+      <OnClick>W3Button5Click</OnClick>
+    </object>
+    <object type="TW3Button">
+      <Caption>W3Button</Caption>
+      <Width>128</Width>
+      <Top>216</Top>
+      <Left>240</Left>
+      <Height>32</Height>
+      <Name>W3Button6</Name>
+    </object>
+    <object type="TW3Label">
+      <Caption>IP Address</Caption>
+      <Width>128</Width>
+      <Top>96</Top>
+      <Left>32</Left>
+      <Height>32</Height>
+      <Name>W3Label1</Name>
+    </object>
+    <object type="TW3EditBox">
+      <Value></Value>
+      <Text>W3EditBox</Text>
+      <Range></Range>
+      <Width>128</Width>
+      <Top>128</Top>
+      <Left>48</Left>
+      <Height>32</Height>
+      <Name>W3EditBox1</Name>
+    </object>
+  </object>
+</Form>]]>
+        </Design>
+        <AutoCreate>
+          <IsAutoCreate>1</IsAutoCreate>
+          <IsMainForm>1</IsMainForm>
+          <Order>1</Order>
+        </AutoCreate>
+      </File>
+      <File type="form">
+        <Name>FrameSettings</Name>
+        <Created>2016-03-26T16:28:38.076Z</Created>
+        <Modified>2016-03-26T16:36:57.545</Modified>
+        <Source>
+          <![CDATA[unit FrameSettings;
+
+interface
+
+uses 
+  System.Types, SmartCL.System, SmartCL.Graphics, SmartCL.Components, SmartCL.Forms,
+  SmartCL.Fonts, SmartCL.Borders, SmartCL.Application, SmartCL.Layout,
+  SmartCL.Controls.Listbox, SmartCL.Controls.Label, SmartCL.Controls.EditBox;
+
+type
+  TFrameSettings = class(TW3Form)
+  private
+    {$I 'FrameSettings:intf'}
+  protected
+    FLayout: TLayout;
+    procedure InitializeForm; override;
+    procedure InitializeObject; override;
+    procedure Resize; override;
+  end;
+
+implementation
+
+{ TFrameSettings }
+
+procedure TFrameSettings.InitializeForm;
+begin
+  inherited;
+  // this is a good place to initialize components
+  FLayout := Layout.Top(Layout.Margins(4).Spacing(4), [W3Label1, W3EditBoxServer, W3Label2, W3EditBoxPort]);
+end;
+
+procedure TFrameSettings.InitializeObject;
+begin
+  inherited;
+  {$I 'FrameSettings:impl'}
+end;
+ 
+procedure TFrameSettings.Resize;
+begin
+  inherited;
+  if Assigned(FLayout) then FLayout.Resize(Self)
+end;
+ 
+initialization
+  Forms.RegisterForm({$I %FILE%}, TFrameSettings);
+end.
+]]>
+        </Source>
+        <Design>
+          <![CDATA[<?xml version="1.0" encoding="utf-16"?>
+<Form version="2" subversion="2">
+  <Created>2016-03-26T16:28:38.076</Created>
+  <Modified>2016-03-26T16:32:56.668</Modified>
+  <object type="TW3Form">
+    <Caption>W3Form</Caption>
+    <Name>FrameSettings</Name>
+    <object type="TW3Label">
+      <Caption>LCC Ethernet Server</Caption>
+      <Width>128</Width>
+      <Top>8</Top>
+      <Left>16</Left>
+      <Height>32</Height>
+      <Name>W3Label1</Name>
+    </object>
+    <object type="TW3EditBox">
+      <Value></Value>
+      <Text>W3EditBox</Text>
+      <Range></Range>
+      <Width>208</Width>
+      <Top>40</Top>
+      <Left>24</Left>
+      <Height>32</Height>
+      <Name>W3EditBoxServer</Name>
+    </object>
+    <object type="TW3Label">
+      <Caption>LCC Ethernet Server Port</Caption>
+      <Width>240</Width>
+      <Top>88</Top>
+      <Left>16</Left>
+      <Height>32</Height>
+      <Name>W3Label2</Name>
+    </object>
+    <object type="TW3EditBox">
+      <Value></Value>
+      <Text>12021</Text>
+      <Range></Range>
+      <Width>128</Width>
+      <Top>128</Top>
+      <Left>24</Left>
+      <Height>32</Height>
+      <Name>W3EditBoxPort</Name>
+    </object>
+  </object>
+</Form>]]>
+        </Design>
+        <AutoCreate>
+          <IsAutoCreate>1</IsAutoCreate>
+          <IsMainForm>0</IsMainForm>
+          <Order>2</Order>
+        </AutoCreate>
+      </File>
+    </Files>
+    <Target>Browser</Target>
+    <Generator>Visual Components Project</Generator>
+    <Statistics>
+      <BackgroundCompilations>2149</BackgroundCompilations>
+      <EditTime>00:31:22.482</EditTime>
+      <CompileTime>00:01:24.447</CompileTime>
+      <TotalTime>19:28:09.120</TotalTime>
+      <DesigningTime>01:18:00.957</DesigningTime>
+      <RunningTime>12:14:41.936</RunningTime>
+    </Statistics>
+  </Project>
+</SMART>

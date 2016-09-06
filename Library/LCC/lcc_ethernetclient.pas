@@ -34,6 +34,8 @@ type
   TLccEthernetClient = class;   // Forward
 
 
+  { TLccEthernetRec }
+
   TLccEthernetRec = record
     Thread: TLccConnectionThread;    // Thread owing the Record
     AutoResolveIP: Boolean;          // Tries to autoresolve the local unique netword IP of the machine
@@ -454,15 +456,7 @@ begin
     if FEthernetRec.AutoResolveIP then
     begin
       {$IFDEF LCC_WINDOWS}
-      LocalName := Socket.LocalName;
-      IpStrings := TStringList.Create;
-      try
-         Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
-         for i := 0 to IpStrings.Count - 1 do
-           FEthernetRec.ClientIP := IpStrings[i];
-      finally
-        IpStrings.Free;
-      end;
+      FEthernetRec.ClientIP := ResolveWindowsIp(Socket);
       {$ELSE}
       FEthernetRec.ClientIP := ResolveUnixIp;
       {$ENDIF}

@@ -196,7 +196,7 @@ Const
 //  SO_PRIORITY   = SysSocket.SO_PRIORITY;
   SO_LINGER     = Posix.SysSocket.SO_LINGER;
 //  SO_BSDCOMPAT  = SysSocket.SO_BSDCOMPAT;
-//  SO_REUSEPORT  = SysSocket.SO_REUSEPORT;
+  SO_REUSEPORT  = SysSocket.SO_REUSEPORT;
 //  SO_PASSCRED   = SysSocket.SO_PASSCRED;
 //  SO_PEERCRED   = SysSocket.SO_PEERCRED;
   SO_RCVLOWAT   = Posix.SysSocket.SO_RCVLOWAT;

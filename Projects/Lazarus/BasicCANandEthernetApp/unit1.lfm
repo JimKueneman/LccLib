@@ -56,27 +56,6 @@ object Form1: TForm1
     ClientHeight = 323
     ClientWidth = 748
     TabOrder = 1
-    inherited SpeedButtonPause: TSpeedButton
-      Left = 413
-      Top = 289
-    end
-    inherited SpeedButtonClear: TSpeedButton
-      Left = 573
-      Top = 289
-    end
-    inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 61
-      Top = 293
-      OnChange = nil
-    end
-    inherited CheckBoxJMRIFormat: TCheckBox
-      Left = 237
-      Top = 293
-    end
-    inherited SynEdit: TSynEdit
-      Height = 279
-      Width = 748
-    end
   end
   object StatusBar1: TStatusBar
     Left = 0

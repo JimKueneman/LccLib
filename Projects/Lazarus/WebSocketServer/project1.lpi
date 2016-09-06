@@ -5,10 +5,11 @@
     <General>
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="OpenLcb Node"/>
+      <Title Value="project1"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -27,12 +28,11 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -C cdi_16_24_PC_default.xml -f piface.xml -t sdn_signaltemplate.xml -d 2048"/>
       </local>
     </RunParams>
     <Units Count="1">
       <Unit0>
-        <Filename Value="rpinode.lpr"/>
+        <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
     </Units>
@@ -40,24 +40,22 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="rpinode"/>
+      <Filename Value="project1"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils;C:/lazarus/components/lazutils/;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils"/>
+      <OtherUnitFiles Value="../../../Library/Synapse_LCC;../../../Library/LCC;../../../Library/Generics/src"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then
   CustomOptions += ' -dUseCThreads';
 if TargetOS = 'darwin' then
   CustomOptions += ' -dUseCThreads';"/>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="0"/>
-      </Optimizations>
-    </CodeGeneration>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
+      <OtherDefines Count="1">
+        <Define0 Value="FPC_CONSOLE_APP"/>
+      </OtherDefines>
     </Other>
   </CompilerOptions>
   <Debugging>
