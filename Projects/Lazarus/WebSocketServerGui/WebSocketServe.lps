@@ -19,6 +19,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <CursorPos X="10" Y="12"/>
         <UsageCount Value="192"/>
         <Loaded Value="True"/>
@@ -28,7 +29,7 @@
         <Filename Value="../../../Library/LCC/lcc_mdns_singleshot.pas"/>
         <EditorIndex Value="2"/>
         <TopLine Value="273"/>
-        <CursorPos X="17" Y="283"/>
+        <CursorPos X="59" Y="286"/>
         <UsageCount Value="96"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -48,7 +49,6 @@
       </Unit4>
       <Unit5>
         <Filename Value="../../../Library/Synapse_LCC/blcksock.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
         <TopLine Value="88"/>
         <CursorPos X="12" Y="99"/>
