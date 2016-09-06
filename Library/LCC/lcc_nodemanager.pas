@@ -18,6 +18,7 @@ uses
     ComCtrls,
     lcc_nodeselector,
     Dialogs,
+    Laz_XMLRead,
     {$ELSE}
     fptimer,
     {$ENDIF}
@@ -2414,7 +2415,11 @@ var
 begin
   if Assigned(ASnip) then
   begin
+    {$IFDEF FPC}
+    ReadXMLFile(XmlDoc, AStream);
+    {$ELSE}
     XmlDoc := XmlLoadFromStream(AStream);
+    {$ENDIF}
     ASnip.LoadFromXmlDoc(XmlDoc);
     XmlDoc.Free;
   end;

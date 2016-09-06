@@ -32,12 +32,17 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <Units Count="2">
       <Unit0>
         <Filename Value="EthernetCanBridge.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Project1"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="nodeconnections.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="NodeConnections"/>
+      </Unit1>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

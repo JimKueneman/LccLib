@@ -11,7 +11,10 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  FileUtil,
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    FileUtil,
+    {$ENDIF}
   {$IFNDEF FPC_CONSOLE_APP}
     Forms,
     Controls,
@@ -29,8 +32,8 @@ uses
   System.SyncObjs,
   {$ENDIF}
   IniFiles,
-  lcc_defines,
-  lcc_raspberrypi;
+  lcc_raspberrypi,
+  lcc_defines;
 
  // Classes, SysUtils, FileUtil, IniFiles;
 

@@ -8,10 +8,13 @@ interface
 
 uses
   Classes,
-    {$IFDEF FPC}
-  laz2_DOM,
-  laz2_XMLRead,
-  laz2_XMLWrite,
+  {$IFDEF FPC}
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    laz2_DOM,
+    laz2_XMLRead,
+    laz2_XMLWrite,
+    {$ENDIF}
   {$ELSE}
   Xml.XMLDoc,
   Xml.xmldom,

@@ -12,10 +12,13 @@ uses
   Classes,
   SysUtils,
   {$IFDEF FPC}
-  laz2_DOM,
-  laz2_XMLRead,
-  fptimer,
-  contnrs,
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    laz2_DOM,
+    laz2_XMLRead,
+    fptimer,
+    contnrs,
+    {$ENDIF}
   {$ELSE}
   FMX.Types,
   Generics.Collections,

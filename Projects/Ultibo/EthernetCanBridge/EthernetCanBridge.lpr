@@ -32,16 +32,9 @@ uses
   lcc_gridconnect,
   lcc_can_message_assembler_disassembler,
   lcc_defines,
-  lcc_utilities
+  lcc_utilities,
+  NodeConnections
   ;
-
-const
-  LCC_MESSAGES_PER_SPI_PACKET = 8;
-  BYTES_PER_LCC_GRIDCONNECT_MESSAGE = 30;
-  BYTES_PER_SPI_PACKET = BYTES_PER_LCC_GRIDCONNECT_MESSAGE * LCC_MESSAGES_PER_SPI_PACKET;
-
-type
-  TPiSpiBuffer = array[0..BYTES_PER_SPI_PACKET-1] of Byte;
 
 var
   SpiDevice: PSPIDevice;
@@ -49,11 +42,12 @@ var
   WriteBuff, ReadBuff: TPiSpiBuffer;
   ReadCount: LongWord;
   HTTPListener: THTTPListener;
-  TcpSocket: TTCPSocket;
+  TcpClient: TWinsock2TCPClient;
   i: Integer;
   GridConnectHelper: TGridConnectHelper;
   InBuffer: TStringList;
   Xon, Verbose: Boolean;
+  AChar: AnsiChar;
 
 function EnumerateDevices(Device:PDevice;Data:Pointer): LongWord;
 begin
@@ -114,6 +108,7 @@ begin
   XOn := True;  // Software handshake ON
   Verbose := True;
 
+
   for i := 0 to BYTES_PER_SPI_PACKET - 1 do
     WriteBuff[i] := 0;
 
@@ -124,7 +119,9 @@ begin
   WebStatusRegister(HTTPListener,'','',True);
 
   // Create TCP Socket
-
+  TcpClient := TWinsock2TCPClient.Create;
+  TcpClient.RemoteAddress := '10.0.3.200';
+  TcpClient.RemotePort := 12021;
 
 
   MainConsole := ConsoleWindowCreate(ConsoleDeviceGetDefault, CONSOLE_POSITION_FULL, True);
@@ -135,11 +132,15 @@ begin
   {To prove that worked let's output some text on the console window}
   ConsoleWriteLn('Welcome to Example SPI test');
 
-  ConsoleWriteLn('Looking IP Address');
+  ConsoleWriteLn('Looking for my IP Address');
   while GetNetworkConnected = False do
     Sleep(1000);
-
   ConsoleWriteLn('IP Address found: ' + ResolveUltiboIp);
+
+  ConsoleWriteLn('Looking for Lcc Server...');
+  while not TcpClient.Connect do
+    Sleep(1000);
+  ConsoleWriteLn('Lcc Server found and connected');
 
   ConsoleWriteLn('Looking for the SPI Device');
   SpiDevice := PSPIDevice(DeviceFindByDescription('BCM2836 SPI0 Master'));
@@ -158,6 +159,15 @@ begin
           if ReadCount > 0 then
           begin
             ExtractSpiRxBuffer(ReadBuff, BYTES_PER_SPI_PACKET);
+            if TcpClient.Connected then
+            begin
+              for i := 0 to InBuffer.Count - 1 do
+              begin
+                TcpClient.WriteData(@InBuffer[i][1], Length(InBuffer[i]));
+                AChar := #10;
+                TcpClient.WriteData(@AChar, 1);
+              end;
+            end;
             // Throw them away for now
             InBuffer.Clear;
           end;
@@ -167,5 +177,11 @@ begin
       ConsoleWriteLn('Device not started');
   end else
     ConsoleWriteLn('Device not found');
+
+  TcpClient.Disconnect;
+  GridConnectHelper.Free;
+  TcpClient.Free;
+  HTTPListener.Free;
+  InBuffer.Free;
 end.
 
