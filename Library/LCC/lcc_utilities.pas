@@ -13,12 +13,20 @@ uses
       {$IFNDEF FPC_CONSOLE_APP}
       LclIntf,
       {$ENDIF}
-      baseUnix, sockets,
+      {$IFNDEF ULTIBO}
+      baseUnix,
+      {$ENDIF}
+      sockets,
     {$ELSE}
     strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
-  Types, lcc_defines, blcksock;
+  {$IFNDEF ULTIBO}
+  blcksock,
+  {$ELSE}
+  Winsock2,
+  {$ENDIF}
+  Types, lcc_defines;
 
 type
   TIp4Address = array[0..3] of Byte;
@@ -50,7 +58,11 @@ type
   {$IFDEF LCC_WINDOWS}
   function ResolveWindowsIp(Socket: TBlockSocket): string;
   {$ELSE}
-  function ResolveUnixIp: String;
+    {$IFDEF ULTIBO}
+      function ResolveUltiboIp: String;
+    {$ELSE}
+      function ResolveUnixIp: String;
+    {$ENDIF}
   {$ENDIF}
   function Ip4Address_StrToBytes(IpAddress: String): TIp4Address;
 
@@ -458,158 +470,172 @@ end;
     end;
   end;
 {$ELSE}
-  {$IFDEF FPC}
+  {$IFNDEF ULTIBO}
+    {$IFDEF FPC}
+    function ResolveUnixIp: String;
+    const
+      CN_GDNS_ADDR = '127.0.0.1';
+      CN_GDNS_PORT = 53;
+    var
+      sock: longint;
+      err: longint;
+      HostAddr: TSockAddr;
+      l: Integer;
+      UnixAddr: TInetSockAddr;
 
-  function ResolveUnixIp: String;
-  const
-    CN_GDNS_ADDR = '127.0.0.1';
-    CN_GDNS_PORT = 53;
-  var
-    sock: longint;
-    err: longint;
-    HostAddr: TSockAddr;
-    l: Integer;
-    UnixAddr: TInetSockAddr;
-
-  begin
-    err := 0;
-
-    sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
-    assert(sock <> -1);
-
-    UnixAddr.sin_family := AF_INET;
-    UnixAddr.sin_port := htons(CN_GDNS_PORT);
-    UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
-
-    if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
     begin
-      try
-        l := SizeOf(HostAddr);
-        if (fpgetsockname(sock, @HostAddr, @l) = 0) then
-        begin
-          Result := NetAddrToStr(HostAddr.sin_addr);
-        end
-        else
-        begin
-          err:=socketError;
+      err := 0;
+
+      sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
+      assert(sock <> -1);
+
+      UnixAddr.sin_family := AF_INET;
+      UnixAddr.sin_port := htons(CN_GDNS_PORT);
+      UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+      if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
+      begin
+        try
+          l := SizeOf(HostAddr);
+          if (fpgetsockname(sock, @HostAddr, @l) = 0) then
+          begin
+            Result := NetAddrToStr(HostAddr.sin_addr);
+          end
+          else
+          begin
+            err:=socketError;
+          end;
+        finally
+          if (fpclose(sock) <> 0) then
+          begin
+            err := socketError;
+          end;
         end;
-      finally
-        if (fpclose(sock) <> 0) then
-        begin
-          err := socketError;
-        end;
+      end else
+      begin
+        err:=socketError;
       end;
-    end else
-    begin
-      err:=socketError;
-    end;
 
-    if (err <> 0) then
-    begin
-      // report error
-    end;
-  end;
-
-  {$ELSE}
-  type
-    TArray4Int = array[1..4] of byte;
-    PArray4Int = ^TArray4Int;
-
-  function StrToHostAddr(IP : String): in_addr ;
-
-    Var
-      Dummy: String;
-      I, j, k: Longint;
-      Temp: TArray4Int;
- //     Temp: in_addr;
-    begin
-      Result.s_addr := 0;              //:=NoAddress;
-      For I := 1 to 4 do
-        begin
-          If I < 4 Then
-            begin
-              J := Pos('.', String( IP));
-              If J = 0 then
-                exit;
-              Dummy := Copy(String( IP) , 1, J-1);
-              Delete(IP, 1, J);
-            end
-           else
-             Dummy:=IP;
-          k := StrToInt(string( Dummy));
-          Temp[i] := k;
-      //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
-       end;
-       Result.s_addr := ntohl(UInt32( Temp));
-   //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
-    end;
-
-    function NetAddrToStr (Entry : in_addr) : String;
-    Var
-      Dummy: String;
-      i, j: Longint;
-    begin
-      NetAddrToStr := '';
-      j := entry.s_addr;
-      For i := 1 to 4 do
-       begin
-  //       Dummy := IntToStr( PArray4Int(j)^[i]);        // Crashes Delphi
-         Dummy := IntToStr( Entry.s_addr and $000000FF);
-         Entry.s_addr  :=  Entry.s_addr  shr 8;
-         NetAddrToStr := Result + Dummy;
-         If i < 4 Then
-           NetAddrToStr := Result + '.';
-       end;
-    end;
-
-  function ResolveUnixIp: String;
-  const
-    CN_GDNS_ADDR = '127.0.0.1';
-    CN_GDNS_PORT = 53;
-  var
-    sock: longint;
-    err: longint;
-    HostAddr: SockAddr;
-    l: Cardinal;
-    UnixAddr: sockaddr_in;
-    i: Integer;
-
-  begin
-    err := 0;
-
-    sock := socket(AF_INET, SOCK_DGRAM, 0);
-    assert(sock <> -1);
-
-    UnixAddr.sin_family := AF_INET;
-    UnixAddr.sin_port := htons(CN_GDNS_PORT);
-    UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
-
-    if (Connect(sock, psockaddr(@UnixAddr)^, SizeOf(UnixAddr)) = 0) then
-    begin
-      try
-        l := SizeOf(HostAddr);
-        if (getsockname(sock, HostAddr, l) = 0) then
-          Result := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr)
-        else
-        begin
-          err:=errno;
-        end;
-      finally
-        if (__close(sock) <> 0) then
-        begin
-          err := errno;
-        end;
+      if (err <> 0) then
+      begin
+        // report error
       end;
-    end else
-    begin
-      err:=errno;
     end;
 
-    if (err <> 0) then
+    {$ELSE}
+    type
+      TArray4Int = array[1..4] of byte;
+      PArray4Int = ^TArray4Int;
+
+    function StrToHostAddr(IP : String): in_addr ;
+
+      Var
+        Dummy: String;
+        I, j, k: Longint;
+        Temp: TArray4Int;
+   //     Temp: in_addr;
+      begin
+        Result.s_addr := 0;              //:=NoAddress;
+        For I := 1 to 4 do
+          begin
+            If I < 4 Then
+              begin
+                J := Pos('.', String( IP));
+                If J = 0 then
+                  exit;
+                Dummy := Copy(String( IP) , 1, J-1);
+                Delete(IP, 1, J);
+              end
+             else
+               Dummy:=IP;
+            k := StrToInt(string( Dummy));
+            Temp[i] := k;
+        //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
+         end;
+         Result.s_addr := ntohl(UInt32( Temp));
+     //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
+      end;
+
+      function NetAddrToStr (Entry : in_addr) : String;
+      Var
+        Dummy: String;
+        i, j: Longint;
+      begin
+        NetAddrToStr := '';
+        j := entry.s_addr;
+        For i := 1 to 4 do
+         begin
+    //       Dummy := IntToStr( PArray4Int(j)^[i]);        // Crashes Delphi
+           Dummy := IntToStr( Entry.s_addr and $000000FF);
+           Entry.s_addr  :=  Entry.s_addr  shr 8;
+           NetAddrToStr := Result + Dummy;
+           If i < 4 Then
+             NetAddrToStr := Result + '.';
+         end;
+      end;
+
+    function ResolveUnixIp: String;
+    const
+      CN_GDNS_ADDR = '127.0.0.1';
+      CN_GDNS_PORT = 53;
+    var
+      sock: longint;
+      err: longint;
+      HostAddr: SockAddr;
+      l: Cardinal;
+      UnixAddr: sockaddr_in;
+      i: Integer;
+
     begin
-      // report error
+      err := 0;
+
+      sock := socket(AF_INET, SOCK_DGRAM, 0);
+      assert(sock <> -1);
+
+      UnixAddr.sin_family := AF_INET;
+      UnixAddr.sin_port := htons(CN_GDNS_PORT);
+      UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+      if (Connect(sock, psockaddr(@UnixAddr)^, SizeOf(UnixAddr)) = 0) then
+      begin
+        try
+          l := SizeOf(HostAddr);
+          if (getsockname(sock, HostAddr, l) = 0) then
+            Result := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr)
+          else
+          begin
+            err:=errno;
+          end;
+        finally
+          if (__close(sock) <> 0) then
+          begin
+            err := errno;
+          end;
+        end;
+      end else
+      begin
+        err:=errno;
+      end;
+
+      if (err <> 0) then
+      begin
+        // report error
+      end;
     end;
-  end;
+    {$ENDIF}
+  {$ELSE} // Is ULTIBO
+    function ResolveUltiboIp: String;
+    var
+      Winsock2TCPClient:TWinsock2TCPClient;
+    begin
+     {Create TCP Client}
+     Winsock2TCPClient:=TWinsock2TCPClient.Create;
+     {Get the Address}
+     Result:=Winsock2TCPClient.LocalAddress;
+     {Destroy the Client}
+     Winsock2TCPClient.Free;
+    end;
+
   {$ENDIF}
 {$ENDIF}
 

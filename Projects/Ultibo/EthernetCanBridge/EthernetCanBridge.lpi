@@ -48,11 +48,12 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..\..\Library\LCC;..\..\..\Library\Generics\src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
       <SmartLinkUnit Value="True"/>
-      <TargetProcessor Value="armv7a"/>
+      <TargetProcessor Value="ARMV7A"/>
       <TargetController Value="RPI2B"/>
       <TargetCPU Value="arm"/>
       <TargetOS Value="ultibo"/>
@@ -67,6 +68,12 @@
       </Debugging>
       <LinkSmart Value="True"/>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dFPC_CONSOLE_APP"/>
+      <OtherDefines Count="1">
+        <Define0 Value="FPC_CONSOLE_APP"/>
+      </OtherDefines>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
