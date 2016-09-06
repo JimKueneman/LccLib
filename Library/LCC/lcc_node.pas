@@ -12,8 +12,8 @@ uses
   Classes,
   SysUtils,
   {$IFDEF FPC}
-  DOM,
-  XMLRead,
+  laz2_DOM,
+  laz2_XMLRead,
   fptimer,
   contnrs,
   {$ELSE}

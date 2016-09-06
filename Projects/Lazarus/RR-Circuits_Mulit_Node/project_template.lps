@@ -28,10 +28,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <TopLine Value="238"/>
-        <CursorPos Y="245"/>
+        <CursorPos X="63" Y="256"/>
         <UsageCount Value="159"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -199,8 +198,7 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="1485"/>
         <CursorPos Y="1512"/>
         <UsageCount Value="44"/>
@@ -229,13 +227,13 @@
       </Unit31>
       <Unit32>
         <Filename Value="../../../Library/LCC/lcc_utilities.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="41"/>
         <Loaded Value="True"/>
       </Unit32>
       <Unit33>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="26"/>
         <CursorPos Y="49"/>
         <UsageCount Value="27"/>
@@ -271,7 +269,7 @@
       </Unit37>
       <Unit38>
         <Filename Value="../../../Library/LCC/lcc_messages.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="812"/>
         <CursorPos Y="839"/>
         <UsageCount Value="37"/>
@@ -292,7 +290,7 @@
       </Unit40>
       <Unit41>
         <Filename Value="../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <CursorPos X="44"/>
         <UsageCount Value="41"/>
         <Loaded Value="True"/>
@@ -320,7 +318,7 @@
       </Unit44>
       <Unit45>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="688"/>
         <CursorPos Y="706"/>
         <UsageCount Value="42"/>
@@ -344,9 +342,10 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="111" Y="6"/>
-        <UsageCount Value="4"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit48>
       <Unit49>
@@ -358,7 +357,7 @@
       </Unit49>
       <Unit50>
         <Filename Value="../../../Library/LCC/lcc_app_common_settings.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="437"/>
         <CursorPos Y="464"/>
         <UsageCount Value="35"/>
@@ -388,7 +387,7 @@
       <Unit54>
         <Filename Value="../../../../Lazarus_1.6.0/lazarus_1_6/lcl/lresources.pp"/>
         <UnitName Value="LResources"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="781"/>
         <CursorPos X="24" Y="793"/>
         <UsageCount Value="27"/>
@@ -443,7 +442,7 @@
       </Unit61>
       <Unit62>
         <Filename Value="../../../Library/LCC/TLccEthernetClient.lrs"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <UsageCount Value="24"/>
         <Loaded Value="True"/>
       </Unit62>
