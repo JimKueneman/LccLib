@@ -56,15 +56,12 @@ type
 
 var
   SpiDevice: PSPIDevice;
-  MainConsole:  THandle;
   WriteBuff, ReadBuff: TPiSpiBuffer;
   ReadCount: LongWord;
   HTTPListener: THTTPListener;
   TcpClient: TWinsock2TCPClient;
-  i: Integer;
   GridConnectHelper: TGridConnectHelper;
   Xon: Boolean;
-  AChar: AnsiChar;
   TcpReadThread: TTcpReadThread;
   AStringList: TThreadStringList;
 
@@ -103,12 +100,12 @@ begin
  ConsoleWriteLn('IP Address found: ' + ResolveUltiboIp);
 end;
 
-procedure WaitForLccConnection;
+procedure WaitForLccConnection(Socket: TWinsock2TCPClient);
 begin
  ConsoleWriteLn('Looking for the Lcc Server...');
- TcpClient.RemoteAddress := '10.0.3.178';
- TcpClient.RemotePort := 12021;
- while not TcpClient.Connect do
+ Socket.RemoteAddress := '10.0.3.178';
+ Socket.RemotePort := 12021;
+ while not Socket.Connect do
    Sleep(1000);
  ConsoleWriteLn('Lcc Server found and connected');
 end;
@@ -216,7 +213,7 @@ begin
 
             // Transfer the packet
             if SPIDeviceWriteRead(SpiDevice, SPI_CS_0, @TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET, SPI_TRANSFER_NONE, ReadCount) = ERROR_SUCCESS then
-              ExtractSpiRxBufferAndSendToSocket(RxBuffer, BYTES_PER_SPI_PACKET, TcpClient);
+              ExtractSpiRxBufferAndSendToSocket(RxBuffer, BYTES_PER_SPI_PACKET, Socket);
           end;
         end;
       end;
@@ -235,8 +232,6 @@ var
   IsClosed: Boolean;
   i: Integer;
   GridConnectStrPtr: PGridConnectString;
-  MessageStr: ansistring;
-  DelimiterChar: char;
 begin
   while not Terminated do
   begin
@@ -250,7 +245,6 @@ begin
         Terminate
       else begin
         GridConnectStrPtr := nil;
-        DelimiterChar := #10;
         for i := 0 to ACount - 1 do
         begin
           if GridConnectHelper.GridConnect_DecodeMachine(RxBuff[i], GridConnectStrPtr) then
@@ -268,6 +262,7 @@ begin
   { Add your program code here }
   SpiDevice := nil;
   FillChar(WriteBuff, SizeOf(WriteBuff), #0);
+  FillChar(ReadBuff, SizeOf(WriteBuff), #0);
   AStringList := TThreadStringList.Create;
   GridConnectHelper := TGridConnectHelper.Create;
   TcpClient := TWinsock2TCPClient.Create;
@@ -287,11 +282,11 @@ begin
   WebStatusRegister(HTTPListener,'','',True);
 
   ConsoleWriteLn('Welcome to the Mustangpeak CAN to Ethernet Bridge');
-  MainConsole := ConsoleWindowCreate(ConsoleDeviceGetDefault, CONSOLE_POSITION_FULL, True);
+  ConsoleWindowCreate(ConsoleDeviceGetDefault, CONSOLE_POSITION_FULL, True);
   ConsoleWriteLn('Console Created');
   SetOnMsg(@FtpMsg);
   WaitForNetworkConnection;
-  WaitForLccConnection;
+  WaitForLccConnection(TcpClient);
   WaitForSpiConnection;
 
   TcpReadThread := TTcpReadThread.Create(True);
