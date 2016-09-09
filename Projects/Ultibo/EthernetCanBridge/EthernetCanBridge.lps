@@ -4,25 +4,24 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="41">
+    <Units Count="43">
       <Unit0>
         <Filename Value="EthernetCanBridge.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Project1"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="164"/>
-        <CursorPos X="48" Y="152"/>
-        <UsageCount Value="40"/>
+        <CursorPos X="48" Y="302"/>
+        <UsageCount Value="114"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="nodeconnections.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="NodeConnections"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="26"/>
-        <CursorPos X="3" Y="36"/>
-        <UsageCount Value="33"/>
+        <TopLine Value="22"/>
+        <CursorPos X="34" Y="35"/>
+        <UsageCount Value="107"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
@@ -31,7 +30,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="487"/>
         <CursorPos X="11" Y="512"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="102"/>
       </Unit2>
       <Unit3>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\spi.pas"/>
@@ -39,7 +38,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="206"/>
         <CursorPos X="59" Y="221"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit3>
       <Unit4>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\devices.pas"/>
@@ -47,13 +46,13 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="6092"/>
         <CursorPos X="29" Y="6103"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit4>
       <Unit5>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\globalconst.pas"/>
         <UnitName Value="GlobalConst"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit5>
       <Unit6>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\platform.pas"/>
@@ -61,7 +60,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="5637"/>
         <CursorPos X="29" Y="5654"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit6>
       <Unit7>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\console.pas"/>
@@ -69,60 +68,60 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="6752"/>
         <CursorPos X="15" Y="6752"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\..\..\Library\Synapse_LCC\ftpsend.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="169"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\..\..\Library\Synapse_LCC\synafpc.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="56"/>
         <CursorPos X="8" Y="68"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit9>
       <Unit10>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\ftp.pas"/>
         <UnitName Value="FTP"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="31"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit10>
       <Unit11>
         <Filename Value="..\..\..\Library\Synapse_Ultibo\ftptsend.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="141"/>
         <CursorPos X="3" Y="160"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit11>
       <Unit12>
         <Filename Value="..\..\..\Library\Synapse_Ultibo\synafpc.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="75"/>
         <CursorPos X="4" Y="90"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\..\..\Library\Synapse_Ultibo\ssfpc.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="83"/>
         <CursorPos X="12" Y="98"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit13>
       <Unit14>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\sockets.pas"/>
         <UnitName Value="Sockets"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="4"/>
       </Unit14>
       <Unit15>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\extra\ShellUpdate.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="3"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="5"/>
       </Unit15>
       <Unit16>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\tcp.pas"/>
@@ -130,16 +129,15 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="304"/>
         <CursorPos X="2" Y="319"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="8"/>
       </Unit16>
       <Unit17>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\protocol.pas"/>
         <UnitName Value="Protocol"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="188"/>
         <CursorPos X="43" Y="37"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="14"/>
       </Unit17>
       <Unit18>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\transport.pas"/>
@@ -147,297 +145,297 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="455"/>
         <CursorPos X="2" Y="458"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="4"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\..\..\Library\LCC\lcc_messages.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="59" Y="11"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="4"/>
       </Unit19>
       <Unit20>
         <Filename Value="..\..\..\Library\LCC\lcc_utilities.pas"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="8"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\..\..\Library\LCC\lcc_can_message_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="9"/>
         <CursorPos X="38" Y="33"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="4"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\..\..\Library\LCC\lcc_gridconnect.pas"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="15"/>
-        <CursorPos X="39" Y="25"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="55"/>
+        <CursorPos X="35" Y="55"/>
+        <UsageCount Value="8"/>
       </Unit22>
       <Unit23>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\keyboard.pas"/>
         <UnitName Value="Keyboard"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="14" Y="105"/>
-        <UsageCount Value="16"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="12"/>
       </Unit23>
       <Unit24>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\packages\amunits\src\otherlibs\amarquee.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="74"/>
         <CursorPos X="16" Y="85"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit24>
       <Unit25>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\services.pas"/>
         <UnitName Value="Services"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="118"/>
         <CursorPos X="70" Y="22"/>
-        <UsageCount Value="16"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="12"/>
       </Unit25>
       <Unit26>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\http.pas"/>
         <UnitName Value="HTTP"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="665"/>
         <CursorPos X="29" Y="682"/>
-        <UsageCount Value="16"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="12"/>
       </Unit26>
       <Unit27>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\winsock2.pas"/>
         <UnitName Value="Winsock2"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1429"/>
         <CursorPos X="35" Y="1405"/>
-        <UsageCount Value="16"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="12"/>
       </Unit27>
       <Unit28>
         <Filename Value="..\..\..\Library\LCC\lcc_node.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="27" Y="7"/>
-        <UsageCount Value="12"/>
+        <CursorPos X="28" Y="19"/>
+        <UsageCount Value="6"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\..\..\Library\LCC\lcc_app_common_settings.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="32" Y="38"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="5"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\..\..\Library\LCC\lcc_raspberrypi.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="577"/>
         <CursorPos X="14" Y="603"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="5"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\..\..\Library\Generics\src\generics.defaults.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="75"/>
         <CursorPos X="13" Y="90"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="3"/>
       </Unit31>
       <Unit32>
         <Filename Value="..\..\..\Library\LCC\lcc_xmlutilities.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="10"/>
-        <CursorPos X="51" Y="24"/>
-        <UsageCount Value="11"/>
+        <EditorIndex Value="2"/>
+        <CursorPos X="5" Y="13"/>
+        <UsageCount Value="34"/>
+        <Loaded Value="True"/>
       </Unit32>
       <Unit33>
         <Filename Value="uTFTP.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="80"/>
-        <CursorPos X="19" Y="92"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="9"/>
       </Unit33>
       <Unit34>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\ultiboclasses.pas"/>
         <UnitName Value="UltiboClasses"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="163"/>
         <CursorPos X="2" Y="178"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit34>
       <Unit35>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\globalsock.pas"/>
         <UnitName Value="GlobalSock"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="677"/>
         <CursorPos X="30" Y="692"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit35>
       <Unit36>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\globaltypes.pas"/>
         <UnitName Value="GlobalTypes"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="174"/>
         <CursorPos X="2" Y="189"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit36>
       <Unit37>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\objpas\classes\classesh.inc"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1663"/>
         <CursorPos X="15" Y="1676"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit37>
       <Unit38>
         <Filename Value="..\..\..\Library\LCC\lcc_threaded_stringlist.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="29"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit38>
       <Unit39>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\objpas\classes\classes.inc"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="241"/>
         <CursorPos X="3" Y="243"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="8"/>
       </Unit39>
       <Unit40>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\gpio.pas"/>
         <UnitName Value="GPIO"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="256"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="4"/>
       </Unit40>
+      <Unit41>
+        <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\packages\fcl-xml\src\xmlwrite.pp"/>
+        <UnitName Value="XMLWrite"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="4"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="10"/>
+        <CursorPos X="11" Y="19"/>
+        <UsageCount Value="34"/>
+        <Loaded Value="True"/>
+      </Unit42>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="30" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="305" Column="44" TopLine="295"/>
+        <Caret Line="190" Column="27" TopLine="166"/>
       </Position1>
       <Position2>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="271" Column="16" TopLine="268"/>
+        <Caret Line="53" Column="79" TopLine="32"/>
       </Position2>
       <Position3>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="63" Column="33" TopLine="57"/>
+        <Caret Line="197" Column="19" TopLine="175"/>
       </Position3>
       <Position4>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="269" Column="20" TopLine="259"/>
+        <Caret Line="201" Column="47" TopLine="181"/>
       </Position4>
       <Position5>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="58" Column="25" TopLine="49"/>
+        <Caret Line="159" Column="53" TopLine="153"/>
       </Position5>
       <Position6>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="288" Column="3" TopLine="278"/>
+        <Caret Line="233" Column="13" TopLine="224"/>
       </Position6>
       <Position7>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="234" Column="41" TopLine="225"/>
+        <Caret Line="234" Column="20" TopLine="224"/>
       </Position7>
       <Position8>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="248" TopLine="239"/>
+        <Caret Line="240" Column="18" TopLine="224"/>
       </Position8>
       <Position9>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="216" Column="90" TopLine="205"/>
+        <Caret Line="138" Column="27" TopLine="125"/>
       </Position9>
       <Position10>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="241" Column="17" TopLine="227"/>
+        <Caret Line="142" Column="29" TopLine="127"/>
       </Position10>
       <Position11>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="268" Column="34" TopLine="251"/>
+        <Caret Line="133" Column="60" TopLine="129"/>
       </Position11>
       <Position12>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="300" Column="55" TopLine="283"/>
+        <Caret Line="193" Column="44" TopLine="175"/>
       </Position12>
       <Position13>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="302" Column="82" TopLine="285"/>
+        <Caret Line="288" Column="20" TopLine="265"/>
       </Position13>
       <Position14>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="309" Column="12" TopLine="292"/>
+        <Caret Line="171" Column="21" TopLine="153"/>
       </Position14>
       <Position15>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="311" Column="12" TopLine="294"/>
+        <Caret Line="140" Column="20" TopLine="116"/>
       </Position15>
       <Position16>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="62" Column="32" TopLine="52"/>
+        <Caret Line="160" Column="35" TopLine="152"/>
       </Position16>
       <Position17>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="106" Column="8" TopLine="92"/>
+        <Caret Line="32" Column="5" TopLine="10"/>
       </Position17>
       <Position18>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="129" Column="115" TopLine="112"/>
+        <Caret Line="167" Column="11" TopLine="158"/>
       </Position18>
       <Position19>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="158" Column="95" TopLine="141"/>
+        <Caret Line="12" Column="42"/>
       </Position19>
       <Position20>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="216" Column="87" TopLine="203"/>
+        <Caret Line="167" Column="11" TopLine="142"/>
       </Position20>
       <Position21>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="241" Column="17" TopLine="224"/>
+        <Caret Line="168" Column="11" TopLine="143"/>
       </Position21>
       <Position22>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="268" Column="34" TopLine="251"/>
+        <Caret Line="243" Column="13" TopLine="218"/>
       </Position22>
       <Position23>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="300" Column="55" TopLine="283"/>
+        <Caret Line="270" Column="12" TopLine="245"/>
       </Position23>
       <Position24>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="288" Column="21" TopLine="279"/>
+        <Caret Line="31" Column="4" TopLine="23"/>
       </Position24>
       <Position25>
-        <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="98" Column="20" TopLine="85"/>
+        <Filename Value="..\..\..\Library\LCC\lcc_xmlutilities.pas"/>
+        <Caret Line="24" Column="51" TopLine="10"/>
       </Position25>
       <Position26>
-        <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="201" Column="41" TopLine="190"/>
+        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
       </Position26>
       <Position27>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="216" Column="42" TopLine="202"/>
+        <Caret Line="39" Column="10" TopLine="25"/>
       </Position27>
       <Position28>
         <Filename Value="EthernetCanBridge.lpr"/>
-        <Caret Line="132" Column="26" TopLine="128"/>
+        <Caret Line="159" Column="30" TopLine="155"/>
       </Position28>
       <Position29>
-        <Filename Value="..\..\..\Library\LCC\lcc_gridconnect.pas"/>
-        <Caret Line="25" Column="39" TopLine="15"/>
+        <Filename Value="EthernetCanBridge.lpr"/>
+        <Caret Line="301" Column="18" TopLine="280"/>
       </Position29>
       <Position30>
-        <Filename Value="..\..\..\Library\LCC\lcc_gridconnect.pas"/>
-        <Caret Line="24" Column="3" TopLine="11"/>
+        <Filename Value="EthernetCanBridge.lpr"/>
+        <Caret Line="218" TopLine="207"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

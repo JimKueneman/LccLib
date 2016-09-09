@@ -10,6 +10,9 @@ uses
   Classes,
   {$IFDEF FPC}
     {$IFDEF ULTIBO}
+    DOM,
+    XMLRead,
+    XMLWrite,
     {$ELSE}
     laz2_DOM,
     laz2_XMLRead,
@@ -29,7 +32,8 @@ type
 
 
 // Document functions
-function XmlLoadFromFile(FIlePath: string): LccXmlDocument;
+function XmlLoadFromFile(FilePath: string): LccXmlDocument;
+function XmlLoadFromStream(Stream: TStream): LccXmlDocument;
 function BuildConfigurationDocument(CdiXMLFilePath: string): LccXmlDocument;
 procedure XmlFreeDocument(var XmlDoc: LccXmlDocument);
 function XmlCreateEmptyDocument: LccXmlDocument;
@@ -123,6 +127,17 @@ begin
   Node := TargetNode.AttributeNodes.FindNode(Attribute);
   if Assigned(Node) then
     TargetNode.AttributeNodes.Remove(Node)
+  {$ENDIF}
+end;
+
+function XmlLoadFromStream(Stream: TStream): LccXmlDocument;
+begin
+  Result := nil;
+  Stream.Position := 0;
+  {$IFDEF FPC}
+  ReadXMLFile(Result, Stream);
+  {$ELSE}
+  Result := XmlLoadFromStream(Stream);
   {$ENDIF}
 end;
 
@@ -263,7 +278,7 @@ begin
   {$ENDIF}
 end;
 
-function XmlLoadFromFile(FIlePath: string): LccXmlDocument;
+function XmlLoadFromFile(FilePath: string): LccXmlDocument;
 begin
   Result := nil;
   {$IFDEF FPC}

@@ -4,7 +4,7 @@ object FormTemplate: TFormTemplate
   Top = 185
   Width = 718
   Caption = 'LCC Template Application'
-  ClientHeight = 446
+  ClientHeight = 426
   ClientWidth = 718
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
@@ -27,17 +27,17 @@ object FormTemplate: TFormTemplate
       Action = ActionComPortConnect
     end
     object ToolButtonEthernetClient: TToolButton
-      Left = 63
+      Left = 50
       Top = 2
       Action = ActionEthenetClientConnect
     end
     object ToolButtonEthernetServer: TToolButton
-      Left = 165
+      Left = 130
       Top = 2
       Action = ActionEthernetServerConnect
     end
     object ToolButtonSeparator: TToolButton
-      Left = 269
+      Left = 215
       Height = 44
       Top = 2
       Width = 20
@@ -45,20 +45,20 @@ object FormTemplate: TFormTemplate
       Style = tbsSeparator
     end
     object ToolButtonMsgTrace: TToolButton
-      Left = 361
+      Left = 290
       Top = 2
       Action = ActionMsgTrace
     end
     object ToolButtonLccLogIn: TToolButton
-      Left = 289
+      Left = 235
       Top = 2
       Action = ActionLccLogin
     end
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 431
+    Height = 23
+    Top = 403
     Width = 718
     Panels = <    
       item
@@ -73,16 +73,16 @@ object FormTemplate: TFormTemplate
   end
   object PanelAppSpace: TPanel
     Left = 0
-    Height = 242
+    Height = 214
     Top = 46
     Width = 718
     Align = alClient
-    ClientHeight = 242
+    ClientHeight = 214
     ClientWidth = 718
     TabOrder = 2
     object SpinEditVNodes: TSpinEdit
       Left = 31
-      Height = 16
+      Height = 21
       Top = 40
       Width = 146
       MaxValue = 2147483647
@@ -91,9 +91,9 @@ object FormTemplate: TFormTemplate
     end
     object Label1: TLabel
       Left = 31
-      Height = 16
+      Height = 13
       Top = 18
-      Width = 219
+      Width = 165
       Caption = 'Number of Virtual Nodes to Create'
       ParentColor = False
     end
@@ -107,12 +107,20 @@ object FormTemplate: TFormTemplate
       OnClick = ButtonCreateVirtualNodesClick
       TabOrder = 1
     end
+    object ButtonSendVerifyNodeMsg: TButton
+      Left = 349
+      Height = 25
+      Top = 41
+      Width = 283
+      Action = ActionSendVerifyNodeMsg
+      TabOrder = 2
+    end
   end
   object SplitterApp: TSplitter
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 288
+    Top = 260
     Width = 718
     Align = alBottom
     ResizeAnchor = akBottom
@@ -120,7 +128,7 @@ object FormTemplate: TFormTemplate
   object PanelAddOns: TPanel
     Left = 0
     Height = 138
-    Top = 293
+    Top = 265
     Width = 718
     Align = alBottom
     ClientHeight = 138
@@ -128,7 +136,7 @@ object FormTemplate: TFormTemplate
     TabOrder = 4
     object LabelServerConnections: TLabel
       Left = 9
-      Height = 16
+      Height = 13
       Top = 1
       Width = 700
       Align = alTop
@@ -139,8 +147,8 @@ object FormTemplate: TFormTemplate
     end
     object ListViewServerConnections: TListView
       Left = 1
-      Height = 120
-      Top = 17
+      Height = 123
+      Top = 14
       Width = 716
       Align = alClient
       Columns = <      
@@ -219,6 +227,11 @@ object FormTemplate: TFormTemplate
       Caption = 'LCC Login'
       ImageIndex = 356
       OnExecute = ActionLccLoginExecute
+    end
+    object ActionSendVerifyNodeMsg: TAction
+      Category = 'Messages'
+      Caption = 'Send Global Verify Node Message'
+      OnExecute = ActionSendVerifyNodeMsgExecute
     end
   end
   object ImageListToolbar: TImageList

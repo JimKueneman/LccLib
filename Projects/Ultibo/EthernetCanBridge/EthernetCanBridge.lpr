@@ -35,6 +35,7 @@ uses
   lcc_can_message_assembler_disassembler,
   lcc_defines,
   lcc_utilities,
+  lcc_nodemanager,
   NodeConnections,
   lcc_threaded_stringlist
   ;
@@ -102,9 +103,9 @@ end;
 
 procedure WaitForLccConnection(Socket: TWinsock2TCPClient);
 begin
- ConsoleWriteLn('Looking for the Lcc Server...');
  Socket.RemoteAddress := '10.0.3.178';
  Socket.RemotePort := 12021;
+ ConsoleWriteLn('Looking for the Lcc Server at ' + Socket.RemoteAddress + ':' + IntToStr(Socket.RemotePort));
  while not Socket.Connect do
    Sleep(1000);
  ConsoleWriteLn('Lcc Server found and connected');
@@ -179,7 +180,7 @@ begin
         for iSpiPacket := 0 to SpiPacketCount - 1 do
         begin
 
-   //       GPIOOutputSet(GPIO_PIN_18,GPIO_LEVEL_HIGH);
+          GPIOOutputSet(GPIO_PIN_18,GPIO_LEVEL_HIGH);
 
           // The micro could have signaled us to stop when we sent the last packet
           if XOn then
@@ -209,7 +210,7 @@ begin
               end;
             end;
 
-      //      GPIOOutputSet(GPIO_PIN_18,GPIO_LEVEL_LOW);
+            GPIOOutputSet(GPIO_PIN_18,GPIO_LEVEL_LOW);
 
             // Transfer the packet
             if SPIDeviceWriteRead(SpiDevice, SPI_CS_0, @TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET, SPI_TRANSFER_NONE, ReadCount) = ERROR_SUCCESS then
@@ -298,6 +299,7 @@ begin
     ReadCount := 0;
 
     ExtractSocketBuffer(WriteBuff, ReadBuff, TcpClient);
+    FillChar(WriteBuff, SizeOf(WriteBuff), #0);
     if SPIDeviceWriteRead(SpiDevice, SPI_CS_0, @WriteBuff, @ReadBuff, BYTES_PER_SPI_PACKET, SPI_TRANSFER_NONE, ReadCount) = ERROR_SUCCESS then
       ExtractSpiRxBufferAndSendToSocket(ReadBuff, BYTES_PER_SPI_PACKET, TcpClient);
   end;

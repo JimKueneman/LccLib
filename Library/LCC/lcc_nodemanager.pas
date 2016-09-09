@@ -11,26 +11,29 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-  Generics.Collections,
-    {$IFNDEF FPC_CONSOLE_APP}
-    LResources,
-    ExtCtrls,
-    ComCtrls,
-    lcc_nodeselector,
-    Dialogs,
-    Laz_XMLRead,
+    Generics.Collections,
+    {$IFDEF FPC_CONSOLE_APP}
+      fptimer,
+      XMLRead,
+      XMLWrite,
+      DOM,
     {$ELSE}
-    fptimer,
+      LResources,
+      ExtCtrls,
+      ComCtrls,
+      lcc_nodeselector,
+      Dialogs,
+      Laz_XMLRead,
     {$ENDIF}
   {$ELSE}
-  FMX.Dialogs,
-  Types,
-  FMX.Types,
-  FMX.Treeview,
-  System.Generics.Collections,
-  Xml.XMLDoc,
-  Xml.xmldom,
-  Xml.XMLIntf,
+    FMX.Dialogs,
+    Types,
+    FMX.Types,
+    FMX.Treeview,
+    System.Generics.Collections,
+    Xml.XMLDoc,
+    Xml.xmldom,
+    Xml.XMLIntf,
   {$ENDIF}
   lcc_utilities, lcc_math_float16, lcc_messages, lcc_app_common_settings,
   lcc_common_classes, lcc_defines, lcc_xmlutilities,
@@ -41,32 +44,32 @@ const
 
 
 const
-  CDI_XML: string = (
-  '<?xml version="1.0" encoding="utf-8"?>                                       ' +
-  '<?xml-stylesheet type="text/xsl" href="http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl"?>  ' +
-  '<cdi xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://openlcb.org/trunk/specs/schema/cdi.xsd"> ' +
-    '<identification>                                                           ' +
-      '<manufacturer>Mustangpeak</manufacturer>                                 ' +
-      '<model>SW100</model>                                                     ' +
-      '<hardwareVersion>1.0.0.0</hardwareVersion>                               ' +
-      '<softwareVersion>1.0.0.0</softwareVersion>                               ' +
-    '</identification>                                                          ' +
-    '<segment origin="1" space="253">                                           ' +
-      '<name>User</name>                                                        ' +
-      '<description>User defined information</description>                      ' +
-      '<group>                                                                  ' +
-        '<name>User Data</name>                                                 ' +
-       '<description>Add your own unique node info here</description>           ' +
-         '<string size="63">                                                    ' +
-          '<name>User Name</name>                                               ' +
-        '</string>                                                              ' +
-        '<string size="64">                                                     ' +
-          '<name>User Description</name>                                        ' +
-        '</string>                                                              ' +
-      '</group>                                                                 ' +
-    '</segment>                                                                 ' +
-  '</cdi>                                                                       '
-);
+ CDI_XML: string = (
+'<?xml version="1.0" encoding="utf-8"?>'+
+'<?xml-stylesheet type="text/xsl" href="http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl"?>'+
+'<cdi xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://openlcb.org/trunk/specs/schema/cdi.xsd">'+
+	'<identification>'+
+		'<manufacturer>Mustangpeak</manufacturer>'+
+		'<model>SW100</model>'+
+		'<hardwareVersion>1.0.0.0</hardwareVersion>'+
+		'<softwareVersion>1.0.0.0</softwareVersion>'+
+	'</identification>'+
+	'<segment origin="1" space="253">'+
+		'<name>User</name>'+
+		'<description>User defined information</description>'+
+		'<group>'+
+			'<name>User Data</name>'+
+			'<description>Add your own unique node info here</description>'+
+			'<string size="63">'+
+				'<name>User Name</name>'+
+			'</string>'+
+			'<string size="64">'+
+				'<name>User Description</name>'+
+			'</string>'+
+		'</group>'+
+	'</segment>'+
+'</cdi>');
+
   MAX_CDI_ARRAY = 766;
   CDI_ARRAY: array[0..MAX_CDI_ARRAY-1] of byte = (
     $3C, $3F, $78, $6D, $6C, $20, $76, $65, $72, $73, $69, $6F, $6E, $3D, $22, $31, $2E, $30, $22, $20, $65, $6E, $63, $6F, $64, $69, $6E, $67, $3D, $22, $75, $74, $66, $2D, $38, $22, $3F, $3E,    // <?xml version="1.0" encoding="utf-8"?>
@@ -2415,11 +2418,7 @@ var
 begin
   if Assigned(ASnip) then
   begin
-    {$IFDEF FPC}
-    ReadXMLFile(XmlDoc, AStream);
-    {$ELSE}
     XmlDoc := XmlLoadFromStream(AStream);
-    {$ENDIF}
     ASnip.LoadFromXmlDoc(XmlDoc);
     XmlDoc.Free;
   end;
