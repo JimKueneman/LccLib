@@ -3370,7 +3370,7 @@ begin
   begin
     try
       XMLDoc := XmlLoadFromFile(CdiFilePath);
-      Result :=  LoadFromXmlDoc(XMLDoc);
+      Result := LoadFromXmlDoc(XMLDoc);
       XMLDoc.Free;
       Valid := True;
     except
