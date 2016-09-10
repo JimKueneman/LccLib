@@ -7,7 +7,7 @@
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="65" Y="22"/>
+        <CursorPos X="13" Y="17"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -30,7 +30,8 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="34" Y="10"/>
+        <TopLine Value="267"/>
+        <CursorPos X="11" Y="274"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -323,7 +324,24 @@
         <UsageCount Value="6"/>
       </Unit41>
     </Units>
-    <JumpHistory HistoryIndex="-1"/>
+    <JumpHistory Count="4" HistoryIndex="3">
+      <Position1>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="10" Column="34"/>
+      </Position1>
+      <Position2>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="20" Column="33" TopLine="58"/>
+      </Position2>
+      <Position3>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="254" Column="3" TopLine="252"/>
+      </Position3>
+      <Position4>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="256" Column="3" TopLine="254"/>
+      </Position4>
+    </JumpHistory>
   </ProjectSession>
   <Debugging>
     <BreakPoints Count="1">

@@ -28,6 +28,7 @@ type
   { TFormTemplate }
 
   TFormTemplate = class(TForm)
+    ActionSendGlobalVerifyNodeMsg: TAction;
     ActionLccLogin: TAction;
     ActionToolsSettingsShowWin: TAction;
     ActionToolsPreferenceShowMac: TAction;
@@ -38,6 +39,7 @@ type
     ActionEthernetServerConnect: TAction;
     ActionList: TActionList;
     ButtonCreateVirtualNodes: TButton;
+    ButtonSendVerifyNodeMsg: TButton;
     ImageListToolbar: TImageList;
     Label1: TLabel;
     LabelServerConnections: TLabel;
@@ -69,6 +71,7 @@ type
     procedure ActionEthernetServerConnectExecute(Sender: TObject);
     procedure ActionLccLoginExecute(Sender: TObject);
     procedure ActionMsgTraceExecute(Sender: TObject);
+    procedure ActionSendGlobalVerifyNodeMsgExecute(Sender: TObject);
     procedure ActionToolsPreferenceShowMacExecute(Sender: TObject);
     procedure ActionToolsSettingsShowWinExecute(Sender: TObject);
     procedure ButtonCreateVirtualNodesClick(Sender: TObject);
@@ -259,6 +262,16 @@ begin
     FormLogging.FrameLccLogging.Paused := True;
     FormLogging.Hide
   end;
+end;
+
+procedure TFormTemplate.ActionSendGlobalVerifyNodeMsgExecute(Sender: TObject);
+var
+  Msg: TLccMessage;
+begin
+  Msg := TLccMessage.Create;
+  Msg.LoadVerifyNodeID(LccNodeManager.RootNodeID, LccNodeManager.RootNodeAlias);
+  LccNodeManager.SendLccMessage(Msg);
+  Msg.Free
 end;
 
 procedure TFormTemplate.ActionToolsPreferenceShowMacExecute(Sender: TObject);
