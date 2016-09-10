@@ -124,6 +124,7 @@ type
     FOnReceiveMessage: TOnEthernetReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
     FSleepCount: Integer;
+    function GetConnected: Boolean;
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
@@ -140,6 +141,7 @@ type
     procedure CloseConnection( EthernetThread: TLccEthernetClientThread);
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure SendMessageRawGridConnect(GridConnectStr: String); override;
+    property Connected: Boolean read GetConnected;
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
   published
@@ -259,6 +261,15 @@ begin
     FSleepCount := AValue;
     UpdateThreadsEvents;
   end;
+end;
+
+function TLccEthernetClient.GetConnected: Boolean;
+var
+  List: TList;
+begin
+  List := EthernetThreads.LockList;
+  Result := List.Count > 0;
+  EthernetThreads.UnlockList;
 end;
 
 procedure TLccEthernetClient.UpdateThreadEvents(EthernetThread: TLccEthernetClientThread);
