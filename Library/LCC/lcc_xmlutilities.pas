@@ -9,15 +9,9 @@ interface
 uses
   Classes,
   {$IFDEF FPC}
-    {$IFDEF ULTIBO}
     DOM,
     XMLRead,
     XMLWrite,
-    {$ELSE}
-    laz2_DOM,
-    laz2_XMLRead,
-    laz2_XMLWrite,
-    {$ENDIF}
   {$ELSE}
   Xml.XMLDoc,
   Xml.xmldom,

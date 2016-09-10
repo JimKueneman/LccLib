@@ -24,7 +24,11 @@ uses
   {$IFDEF LOGGING}
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect, blcksock, synsock,
+  lcc_gridconnect,
+  {$IFDEF ULTIBO}
+  {$ELSE}
+  blcksock, synsock,
+  {$ENDIF}
   lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_utilities, lcc_app_common_settings,
@@ -67,7 +71,10 @@ type
       FOnReceiveMessage: TOnEthernetReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
       FOwner: TLccEthernetClient;
+      {$IFDEF ULTIBO}
+      {$ELSE}
       FSocket: TTCPBlockSocket;
+      {$ENDIF}
       FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
     protected
       procedure DoConnectionState;
@@ -78,7 +85,10 @@ type
       procedure SendMessage(AMessage: TLccMessage);
 
       property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
+      {$IFDEF ULTIBO}
+      {$ELSE}
       property Socket: TTCPBlockSocket read FSocket write FSocket;
+      {$ENDIF}
       property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
       property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
       property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
@@ -92,11 +102,7 @@ type
 
   { TLccEthernetThreadList }
 
- // {$IFDEF FPC}
   TLccEthernetThreadList = class(TThreadList)      // Contains TClientSocketThread objects
- // {$ELSE}
- // TLccEthernetThreadList<T> = class(TThreadList<T>)
- // {$ENDIF}
   public
     destructor Destroy; override;
     procedure CloseEthernetPorts;
@@ -107,12 +113,8 @@ type
 
   TLccEthernetClient = class(TLccHardwareConnectionManager)
   private
- //   {$IFDEF FPC}
     FEthernetThreads: TLccEthernetThreadList;
     FGridConnect: Boolean;
-  //  {$ELSE}
-  //  FEthernetThreads: TThreadList<TLccEthernetClientThread>;
-  //  {$ENDIF}
     FHub: Boolean;
     FLccSettings: TLccSettings;
     {$IFDEF LOGGING}FLoggingFrame: TFrameLccLogging;{$ENDIF}
@@ -138,11 +140,7 @@ type
     procedure CloseConnection( EthernetThread: TLccEthernetClientThread);
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure SendMessageRawGridConnect(GridConnectStr: String); override;
-  //  {$IFDEF FPC}
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
-  //  {$ELSE}
- //   property EthernetThreads: TThreadList<TLccEthernetClientThread> read FEthernetThreads write FEthernetThreads;
- //   {$ENDIF}
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
   published
     { Published declarations }
@@ -173,19 +171,15 @@ end;
 
 { TLccEthernetThreadList }
 
-destructor TLccEthernetThreadList(*{$IFNDEF FPC}<T>{$ENDIF}*).Destroy;
+destructor TLccEthernetThreadList.Destroy;
 begin
   CloseEthernetPorts;
   inherited Destroy;
 end;
 
-procedure TLccEthernetThreadList(*{$IFNDEF FPC}<T>{$ENDIF}*).CloseEthernetPorts;
+procedure TLccEthernetThreadList.CloseEthernetPorts;
 var
- // {$IFDEF FPC}
   List: TList;
- // {$ELSE}
- // List: TList<TLccEthernetClientThread>;
- // {$ENDIF}
   Len: Integer;
   Thread: TLccEthernetClientThread;
 begin
@@ -200,11 +194,7 @@ begin
   begin
     List := LockList;
     try
-  //    {$IFDEF FPC}
       Thread := TLccEthernetClientThread( List[0]);
-  //    {$ELSE}
-  //    Thread := List[0];
-  //    {$ENDIF}
       List.Delete(0);
     finally
       UnlockList
@@ -220,7 +210,7 @@ begin
   end;
 end;
 
-procedure TLccEthernetThreadList(*{$IFNDEF FPC}<T>{$ENDIF}*).CloseEthernetPort( EthernetThread: TLccEthernetClientThread);
+procedure TLccEthernetThreadList.CloseEthernetPort( EthernetThread: TLccEthernetClientThread);
 var
   TimeCount: Cardinal;
 begin
@@ -238,10 +228,13 @@ begin
     Sleep(100);
     if TimeCount = 10 then
     begin
+       {$IFDEF ULTIBO}
+       {$ELSE}
        if Assigned(EthernetThread.Socket) then
          EthernetThread.Socket.CloseSocket
        else
          Break // Something went really wrong
+       {$ENDIF}
     end;
   end;
   FreeAndNil( EthernetThread);
@@ -384,6 +377,13 @@ begin
 end;
 
 { TLccEthernetClientThread }
+
+{$IFDEF ULTIBO}
+procedure TLccEthernetClientThread.Execute;
+begin
+
+end;
+{$ELSE}
 
 procedure TLccEthernetClientThread.Execute;
 
@@ -595,6 +595,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 procedure TLccEthernetClientThread.SendMessage(AMessage: TLccMessage);
 var

@@ -11,22 +11,19 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF FPC}
-    {$IFDEF ULTIBO}
+    {$IFDEF FPC_CONSOLE_APP}
     {$ELSE}
-    FileUtil,
+      Forms,
+      Controls,
+      Graphics,
+      Dialogs,
+      Menus,
+      ActnList,
+      ExtCtrls,
+      Buttons,
     {$ENDIF}
-  {$IFNDEF FPC_CONSOLE_APP}
-    Forms,
-    Controls,
-    Graphics,
-    Dialogs,
-    Menus,
-    ActnList,
-    ExtCtrls,
-    Buttons,
-  {$ENDIF}
-  lcc_utilities,
-  {$ENDIF}
+    lcc_utilities,
+    {$ENDIF}
   {$IFNDEF FPC}
   Types,
   System.SyncObjs,

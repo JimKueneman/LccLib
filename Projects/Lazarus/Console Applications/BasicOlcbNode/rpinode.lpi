@@ -27,7 +27,6 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-s -C cdi_16_24_PC_default.xml -f piface.xml -t sdn_signaltemplate.xml -d 2048"/>
       </local>
     </RunParams>
     <Units Count="1">
@@ -44,7 +43,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils/;C:/lazarus/components/lazutils;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils/"/>
+      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils;C:/lazarus/components/lazutils/;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then

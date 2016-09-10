@@ -24,7 +24,11 @@ uses
   {$IFDEF LOGGING}
   frame_lcc_logging, lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect, blcksock, synsock,
+  lcc_gridconnect,
+  {$IFDEF ULTIBO}
+  {$ELSE}
+  blcksock, synsock,
+  {$ENDIF}
   lcc_can_message_assembler_disassembler,
   lcc_nodemanager, lcc_messages, lcc_ethernetclient, lcc_threadedcirculararray,
   lcc_tcp_protocol, lcc_app_common_settings, lcc_utilities,
@@ -45,8 +49,11 @@ type
       FOnReceiveMessage: TOnEthernetReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
       FOwner: TLccEthernetServer;
+      {$IFDEF ULTIBO}
+      {$ELSE}
       FSocket: TTCPBlockSocket;
       FSocketHandleForListener: TSocket;
+      {$ENDIF}
       FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
     protected
       procedure DoClientDisconnect;
@@ -58,8 +65,11 @@ type
       procedure SendMessage(AMessage: TLccMessage);
 
       property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
+      {$IFDEF ULTIBO}
+      {$ELSE}
       property Socket: TTCPBlockSocket read FSocket write FSocket;
       property SocketHandleForListener: TSocket read FSocketHandleForListener write FSocketHandleForListener;
+      {$ENDIF}
       property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
       property OnClientDisconnect: TOnEthernetRecFunc read FOnClientDisconnect write FOnClientDisconnect;
       property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
@@ -99,16 +109,25 @@ type
     FOwner: TLccEthernetServer;
     FRunning: Boolean;
     FSleepCount: Integer;
+    {$IFDEF ULTIBO}
+    {$ELSE}
     FSocket: TTCPBlockSocket;
+    {$ENDIF}
     function GetIsTerminated: Boolean;
   protected
     property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
     property Owner: TLccEthernetServer read FOwner write FOwner;
     property Running: Boolean read FRunning write FRunning;
+    {$IFDEF ULTIBO}
+    {$ELSE}
     property Socket: TTCPBlockSocket read FSocket write FSocket;
+    {$ENDIF}
     property IsTerminated: Boolean read GetIsTerminated;
 
+    {$IFDEF ULTIBO}
+    {$ELSE}
     function CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
+    {$ENDIF}
     procedure DoConnectionState;
     procedure DoErrorMessage;
     procedure DoReceiveMessage;
@@ -211,6 +230,8 @@ begin
  // FWorkerMsg := TLccMessage.Create;
 end;
 
+{$IFDEF ULTIBO}
+{$ELSE}
 function TLccEthernetListener.CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
 begin
   Result := TLccEthernetServerThread.Create(True, Owner, FEthernetRec);
@@ -224,6 +245,7 @@ begin
   Result.GridConnect := FGridConnect;
   Result.Start;
 end;
+{$ENDIF}
 
 destructor TLccEthernetListener.Destroy;
 begin
@@ -261,6 +283,12 @@ begin
   end
 end;
 
+{$IFDEF ULTIBO}
+procedure TLccEthernetListener.Execute;
+begin
+
+end;
+{$ELSE}
 procedure TLccEthernetListener.Execute;
 
   procedure SendConnectionNotification(NewConnectionState: TConnectionState);
@@ -359,6 +387,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 function TLccEthernetListener.GetIsTerminated: Boolean;
 begin
@@ -421,13 +450,19 @@ begin
     Sleep(100);
     if TimeCount = 10 then
     begin
+      {$IFDEF ULTIBO}
+      {$ELSE}
       if Assigned(EthernetThread.Socket) then
         EthernetThread.Socket.CloseSocket
       else
         Break // Something went really wrong
+      {$ENDIF}
     end;
   end;
+  {$IFDEF ULTIBO}
+  {$ELSE}
   FreeAndNil( EthernetThread);
+  {$ENDIF}
 end;
 
 { TLccEthernetServer }
@@ -446,8 +481,11 @@ begin
   begin
     TimeCount := 0;
     ListenerThread.Terminate;
+    {$IFDEF ULTIBO}
+    {$ELSE}
     if Assigned(ListenerThread.Socket) then
       ListenerThread.Socket.CloseSocket;  // Force out of wait state with an error
+    {$ENDIF}
     while ListenerThread.Running do
     begin
       {$IFNDEF FPC_CONSOLE_APP}
@@ -459,12 +497,14 @@ begin
       Sleep(100);
       if TimeCount = 10 then
       begin
+        {$IFDEF ULTIBO}
+        {$ELSE}
          if Assigned(ListenerThread.Socket) then
            ListenerThread.Socket.CloseSocket
          else
            Break // Something went really wrong
+        {$ENDIF}
       end;
-
     end;
     FreeAndNil(FListenerThread);
   end;
@@ -606,6 +646,12 @@ end;
 
 { TLccEthernetServerThread }
 
+{$IFDEF ULTIBO}
+procedure TLccEthernetServerThread.Execute;
+begin
+
+end;
+{$ELSE}
 procedure TLccEthernetServerThread.Execute;
 
   procedure SendConnectionNotification(NewConnectionState: TConnectionState);
@@ -795,6 +841,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 procedure TLccEthernetServerThread.SendMessage(AMessage: TLccMessage);
 var
