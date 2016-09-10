@@ -4,197 +4,197 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="8">
+    <Units Count="12">
       <Unit0>
         <Filename Value="SimpleOlcbNode.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="92"/>
-        <CursorPos X="37" Y="109"/>
-        <UsageCount Value="23"/>
+        <TopLine Value="161"/>
+        <CursorPos X="5" Y="195"/>
+        <UsageCount Value="33"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="837"/>
         <CursorPos X="30" Y="855"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="15"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\..\..\Library\LCC\lcc_utilities.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="12"/>
         <CursorPos X="3" Y="25"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="15"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\..\..\Library\LCC\lcc_app_common_settings.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="16" Y="22"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="15"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\..\..\Library\LCC\lcc_xmlutilities.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="8"/>
         <CursorPos X="14" Y="14"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="15"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\..\Library\LCC\lcc_messages.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="28"/>
         <CursorPos X="40" Y="41"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="15"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="34"/>
-        <CursorPos X="5" Y="53"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="791"/>
+        <CursorPos Y="808"/>
+        <UsageCount Value="14"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="326"/>
-        <CursorPos X="36" Y="337"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="206"/>
+        <CursorPos Y="224"/>
+        <UsageCount Value="13"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_common_classes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="69"/>
+        <CursorPos X="17" Y="72"/>
+        <UsageCount Value="10"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\..\..\..\..\..\..\usr\local\share\fpcsrc\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1627"/>
+        <CursorPos X="17" Y="1643"/>
+        <UsageCount Value="10"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\..\..\..\..\..\..\usr\local\share\fpcsrc\rtl\objpas\classes\classes.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="216"/>
+        <CursorPos X="3" Y="219"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\..\..\..\..\..\..\..\usr\local\share\fpcsrc\rtl\unix\cthreads.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1021"/>
+        <CursorPos X="21" Y="1047"/>
+        <UsageCount Value="10"/>
+      </Unit11>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="22" HistoryIndex="21">
       <Position1>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="487" TopLine="467"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="111" TopLine="95"/>
       </Position1>
       <Position2>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="488" TopLine="468"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="112" TopLine="95"/>
       </Position2>
       <Position3>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="489" TopLine="469"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="114" TopLine="95"/>
       </Position3>
       <Position4>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="490" TopLine="470"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="115" TopLine="95"/>
       </Position4>
       <Position5>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="493" TopLine="473"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="116" TopLine="95"/>
       </Position5>
       <Position6>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="54" Column="29" TopLine="37"/>
+        <Caret Line="117" TopLine="95"/>
       </Position6>
       <Position7>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="151" Column="47" TopLine="139"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="118" TopLine="95"/>
       </Position7>
       <Position8>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="22" Column="52" TopLine="4"/>
+        <Caret Line="120" TopLine="95"/>
       </Position8>
       <Position9>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="41" Column="28" TopLine="39"/>
+        <Caret Line="121" TopLine="95"/>
       </Position9>
       <Position10>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="51" Column="25" TopLine="38"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="122" TopLine="95"/>
       </Position10>
       <Position11>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="48" Column="39" TopLine="39"/>
+        <Caret Line="123" TopLine="95"/>
       </Position11>
       <Position12>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="69" Column="23" TopLine="57"/>
+        <Caret Line="124" TopLine="96"/>
       </Position12>
       <Position13>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="151" Column="54" TopLine="140"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="124" TopLine="96"/>
       </Position13>
       <Position14>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="69" Column="46" TopLine="57"/>
+        <Caret Line="7" Column="3"/>
       </Position14>
       <Position15>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="30" Column="51" TopLine="16"/>
+        <Caret Line="128" Column="59" TopLine="111"/>
       </Position15>
       <Position16>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="76" Column="40" TopLine="75"/>
+        <Caret Line="8" Column="8"/>
       </Position16>
       <Position17>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="31" Column="92" TopLine="10"/>
+        <Caret Line="4" Column="2"/>
       </Position17>
       <Position18>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="73" Column="52" TopLine="62"/>
+        <Caret Line="172" Column="8" TopLine="138"/>
       </Position18>
       <Position19>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="25" Column="31" TopLine="12"/>
+        <Caret Line="29" Column="13" TopLine="10"/>
       </Position19>
       <Position20>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="31" Column="33" TopLine="10"/>
+        <Caret Line="159" Column="11" TopLine="139"/>
       </Position20>
       <Position21>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="144" Column="51" TopLine="125"/>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="23" Column="19"/>
       </Position21>
       <Position22>
         <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="32" Column="36" TopLine="10"/>
+        <Caret Line="3" Column="22"/>
       </Position22>
-      <Position23>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
-        <Caret Line="185" Column="32" TopLine="169"/>
-      </Position23>
-      <Position24>
-        <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="32" Column="36" TopLine="10"/>
-      </Position24>
-      <Position25>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
-        <Caret Line="156" Column="38" TopLine="154"/>
-      </Position25>
-      <Position26>
-        <Filename Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
-        <Caret Line="322" Column="3" TopLine="352"/>
-      </Position26>
-      <Position27>
-        <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="110" Column="18" TopLine="92"/>
-      </Position27>
-      <Position28>
-        <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="109" Column="19" TopLine="92"/>
-      </Position28>
-      <Position29>
-        <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="72" Column="35" TopLine="49"/>
-      </Position29>
-      <Position30>
-        <Filename Value="SimpleOlcbNode.lpr"/>
-        <Caret Line="64" Column="15" TopLine="49"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\..\..\..\..\..\usr\local\share\fpcsrc\rtl\unix\cthreads.pp"/>
+        <Line Value="1055"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

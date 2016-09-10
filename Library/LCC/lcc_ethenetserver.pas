@@ -26,6 +26,9 @@ uses
   {$ENDIF}
   lcc_gridconnect,
   {$IFDEF ULTIBO}
+  lcc_threaded_stringlist,
+  Winsock2,
+  Console,
   {$ELSE}
   blcksock, synsock,
   {$ENDIF}
@@ -110,6 +113,8 @@ type
     FRunning: Boolean;
     FSleepCount: Integer;
     {$IFDEF ULTIBO}
+    FStringList: TThreadStringList;
+    FTcpServer: TWinsock2TCPServer;
     {$ELSE}
     FSocket: TTCPBlockSocket;
     {$ENDIF}
@@ -119,6 +124,8 @@ type
     property Owner: TLccEthernetServer read FOwner write FOwner;
     property Running: Boolean read FRunning write FRunning;
     {$IFDEF ULTIBO}
+    property StringList: TThreadStringList read FStringList write FStringList;
+    property TcpServer: TWinsock2TCPServer read FTcpServer write FTcpServer;
     {$ELSE}
     property Socket: TTCPBlockSocket read FSocket write FSocket;
     {$ENDIF}

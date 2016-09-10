@@ -13,7 +13,9 @@ uses
       {$IFNDEF FPC_CONSOLE_APP}
       LclIntf,
       {$ENDIF}
-      {$IFNDEF ULTIBO}
+      {$IFDEF ULTIBO}
+      console,
+      {$ELSE}
       baseUnix,
       {$ENDIF}
       sockets,
@@ -60,6 +62,8 @@ type
   {$ELSE}
     {$IFDEF ULTIBO}
       function ResolveUltiboIp: String;
+      function GetNetworkConnected:Boolean;
+      procedure WaitForNetworkConnection(PrintToConsole: Boolean);
     {$ELSE}
       function ResolveUnixIp: String;
     {$ENDIF}
@@ -118,6 +122,37 @@ begin
   Result := TThread.GetTickCount;
 {$ENDIF}
 end;
+
+{$IFDEF ULTIBO}
+function GetNetworkConnected:Boolean;
+var
+ Address:String;
+begin
+ {}
+ Result:=False;
+
+ {Get Address}
+ Address := ResolveUltiboIp;
+
+ {Check Address}
+ if Address = '' then Exit;
+ if Address = '0.0.0.0' then Exit;
+ if Address = '255.255.255.255' then Exit;
+ if Copy(Address,1,Length('192.168.100.')) = '192.168.100.' then Exit;
+
+ Result:=True;
+end;
+
+procedure WaitForNetworkConnection(PrintToConsole: Boolean);
+begin
+ if PrintToConsole then
+   ConsoleWriteLn('Looking for the Raspberry Pi''s IP Address');
+ while GetNetworkConnected = False do
+    Sleep(1000);
+ if PrintToConsole then
+   ConsoleWriteLn('IP Address found: ' + ResolveUltiboIp);
+end;
+{$ENDIF}
 
 function _Lo(Data: DWORD): Byte;
 begin

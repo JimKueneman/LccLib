@@ -282,8 +282,8 @@ begin
   {Register Web Status}
   WebStatusRegister(HTTPListener,'','',True);
 
-  ConsoleWriteLn('Welcome to the Mustangpeak CAN to Ethernet Bridge');
   ConsoleWindowCreate(ConsoleDeviceGetDefault, CONSOLE_POSITION_FULL, True);
+  ConsoleWriteLn('Welcome to the Mustangpeak CAN to Ethernet Bridge');
   ConsoleWriteLn('Console Created');
   SetOnMsg(@FtpMsg);
   WaitForNetworkConnection;

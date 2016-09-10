@@ -49,6 +49,8 @@
       <OtherUnitFiles Value="..\..\..\..\Library\LCC;..\..\..\..\Library\Synapse_LCC;..\..\..\..\Library\Generics\src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Conditionals Value="if TargetOS = 'linux' then
+  CustomOptions += ' -dUseCThreads';"/>
     <Other>
       <CustomOptions Value="-dFPC_CONSOLE_APP"/>
       <OtherDefines Count="1">

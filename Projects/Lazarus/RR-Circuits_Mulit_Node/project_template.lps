@@ -7,7 +7,7 @@
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="13" Y="17"/>
+        <CursorPos X="36" Y="14"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -30,8 +30,8 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="267"/>
-        <CursorPos X="11" Y="274"/>
+        <TopLine Value="246"/>
+        <CursorPos X="3" Y="248"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -331,27 +331,16 @@
       </Position1>
       <Position2>
         <Filename Value="form_template.pas"/>
-        <Caret Line="20" Column="33" TopLine="58"/>
+        <Caret Line="254" Column="3" TopLine="252"/>
       </Position2>
       <Position3>
         <Filename Value="form_template.pas"/>
-        <Caret Line="254" Column="3" TopLine="252"/>
+        <Caret Line="256" Column="3" TopLine="254"/>
       </Position3>
       <Position4>
         <Filename Value="form_template.pas"/>
-        <Caret Line="256" Column="3" TopLine="254"/>
+        <Caret Line="267" Column="94" TopLine="267"/>
       </Position4>
     </JumpHistory>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../../../Library/LCC/lcc_nodemanager.pas"/>
-        <Line Value="1552"/>
-      </Item1>
-    </BreakPoints>
-  </Debugging>
 </CONFIG>

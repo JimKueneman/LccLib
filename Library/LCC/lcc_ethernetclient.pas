@@ -10,6 +10,10 @@ unit lcc_ethernetclient;
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF ULTIBO}
+  {$DEFINE DEBUG}
+{$ENDIF}
+
 interface
 
 {$I lcc_compilers.inc}
@@ -26,6 +30,9 @@ uses
   {$ENDIF}
   lcc_gridconnect,
   {$IFDEF ULTIBO}
+  lcc_threaded_stringlist,
+  Winsock2,
+  Console,
   {$ELSE}
   blcksock, synsock,
   {$ENDIF}
@@ -61,6 +68,22 @@ type
   TOnEthernetReceiveFunc = procedure(Sender: TObject; EthernetRec: TLccEthernetRec) of object;
 
 
+  {$IFDEF ULTIBO}
+
+  { TUltiboTcpReadThread }
+
+  TUltiboTcpReadThread = class(TThread)
+  private
+    FStringList: TThreadStringList;
+    FTcpClient: TWinsock2TCPClient;
+  protected
+    procedure Execute; override;
+  public
+    property StringList: TThreadStringList read FStringList write FStringList;
+    property TcpClient: TWinsock2TCPClient read FTcpClient write FTcpClient;
+  end;
+  {$ENDIF}
+
   { TLccEthernetClientThread }
 
   TLccEthernetClientThread =  class(TLccConnectionThread)
@@ -72,6 +95,8 @@ type
       FOnSendMessage: TOnMessageEvent;
       FOwner: TLccEthernetClient;
       {$IFDEF ULTIBO}
+      FStringList: TThreadStringList;
+      FTcpClient: TWinsock2TCPClient;
       {$ELSE}
       FSocket: TTCPBlockSocket;
       {$ENDIF}
@@ -86,6 +111,8 @@ type
 
       property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
       {$IFDEF ULTIBO}
+      property StringList: TThreadStringList read FStringList write FStringList;
+      property TcpClient: TWinsock2TCPClient read FTcpClient write FTcpClient;
       {$ELSE}
       property Socket: TTCPBlockSocket read FSocket write FSocket;
       {$ENDIF}
@@ -170,6 +197,46 @@ begin
     RegisterComponents('LCC',[TLccEthernetClient]);
   {$ENDIF}
 end;
+
+{$IFDEF ULTIBO}
+{ TUltiboTcpReadThread }
+
+procedure TUltiboTcpReadThread.Execute;
+var
+  RxBuffer: array[0..1199] of Byte;
+  ACount: Integer;
+  IsClosed: Boolean;
+  i: Integer;
+  GridConnectStrPtr: PGridConnectString;
+  GridConnectHelper: TGridConnectHelper;
+begin
+  {$IFDEF DEBUG}ConsoleWriteLn('Starting ClientRead Thread');{$ENDIF}
+  GridConnectHelper := TGridConnectHelper.Create;
+  while not Terminated do
+  begin
+    ACount := 0;
+    IsClosed := False;
+    if TcpClient.ReadAvailable(@RxBuffer, Sizeof(RxBuffer), ACount, IsClosed) then
+    begin
+      if IsClosed then
+        Terminate
+      else begin
+        GridConnectStrPtr := nil;
+        for i := 0 to ACount - 1 do
+        begin
+          if GridConnectHelper.GridConnect_DecodeMachine(RxBuffer[i], GridConnectStrPtr) then
+          begin
+             if Assigned(StringList) then
+               StringList.Add(GridConnectBufferToString(GridConnectStrPtr^));
+          end;
+        end
+      end;
+     end
+  end;
+  FreeAndNil(GridConnectHelper);
+  {$IFDEF DEBUG}ConsoleWriteLn('Terminating ClientRead Thread');{$ENDIF}
+end;
+{$ENDIF}
 
 { TLccEthernetThreadList }
 
@@ -315,7 +382,7 @@ begin
   Result.OnSendMessage := OnSendMessage;
   Result.GridConnect := Gridconnect;
   EthernetThreads.Add(Result);
-  Result.Suspended := False;
+  Result.Start
 end;
 
 function TLccEthernetClient.OpenConnectionWithLccSettings: TLccEthernetClientThread;
@@ -391,8 +458,91 @@ end;
 
 {$IFDEF ULTIBO}
 procedure TLccEthernetClientThread.Execute;
+var
+  TcpReadThread: TUltiboTcpReadThread;
+  SafetyNet: Integer;
+  List: TStringList;
+  i: Integer;
+  OutString: ansistring;
 begin
+  {$IFDEF DEBUG}ConsoleWriteLn('Starting Client Thread');{$ENDIF}
+  FEthernetRec.ConnectionState := ccsClientConnecting;
+  DoConnectionState;
 
+
+  if EthernetRec.AutoResolveIP then
+    FEthernetRec.ClientIP := ResolveUltiboIp;
+
+  TcpClient.RemoteAddress := EthernetRec.ListenerIP;
+  TcpClient.RemotePort := EthernetRec.ListenerPort;
+
+  {$IFDEF DEBUG}ConsoleWriteLn('RPi IP Address: ' + EthernetRec.ClientIP);{$ENDIF}
+  {$IFDEF DEBUG}ConsoleWriteLn('Connecting to: ' + TcpClient.RemoteAddress + ':' + IntToStr(TcpClient.RemotePort));{$ENDIF}
+  while (not TcpClient.Connect) and (not Terminated) do;
+
+  if not Terminated then
+  begin
+    {$IFDEF DEBUG}ConsoleWriteLn('Started, creating read thread');{$ENDIF}
+    TcpReadThread := TUltiboTcpReadThread.Create(True);
+    TcpReadThread.StringList := StringList;
+    TcpReadThread.TcpClient := TcpClient;
+    TcpReadThread.Start;
+
+    FEthernetRec.ConnectionState := ccsClientConnected;
+    DoConnectionState;
+    while not Terminated do
+    begin
+      List := StringList.LockList;
+      try
+        for i := 0 to List.Count - 1 do
+        begin
+          FEthernetRec.MessageStr := List[i];
+          FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
+          Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+        end;
+      finally
+        List.Clear;
+        StringList.UnlockList;
+      end;
+
+      List := OutgoingGridConnect.LockList;
+      try
+        for i := 0 to List.Count - 1 do
+        begin
+          OutString := List[i] + #10;
+          TcpClient.WriteData(@OutString[1], Length(OutString));
+        end;
+      finally
+        List.Clear;
+        OutgoingGridConnect.UnlockList;
+      end;
+      Sleep(1);
+    end;
+  end else
+    Terminate;
+
+  {$IFDEF DEBUG}ConsoleWriteLn('Terminating Client Thread');{$ENDIF}
+  FEthernetRec.ConnectionState := ccsClientDisconnecting;
+  DoConnectionState;
+
+  TcpReadThread.StringList := nil;
+  TcpReadThread.Terminate;
+  SafetyNet := 0;
+  while not TcpReadThread.Terminated do
+  begin
+    Inc(SafetyNet);
+    Sleep(1000);
+    if SafetyNet > 10 then
+    begin
+      TcpReadThread.Free;
+      Break;
+    end;
+  end;
+  TcpClient.CloseSocket;
+
+  FEthernetRec.ConnectionState := ccsClientDisconnected;
+  DoConnectionState;
+  {$IFDEF DEBUG}ConsoleWriteLn('Terminated Client Thread');{$ENDIF}
 end;
 {$ELSE}
 
@@ -661,10 +811,18 @@ begin
   FEthernetRec.Thread := Self;
   FEthernetRec.LccMessage := TLccMessage.Create;
   FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
+  {$IFDEF ULTIBO}
+  StringList := TThreadStringList.Create;
+  TcpClient := TWinsock2TCPClient.Create;
+  {$ENDIF}
 end;
 
 destructor TLccEthernetClientThread.Destroy;
 begin
+  {$IFDEF ULTIBO}
+  FreeAndNil(FStringList);
+  FreeAndNil(FTcpClient);
+  {$ENDIF}
   FreeAndNil(FEthernetRec.LccMessage);
   FreeAndNil(FTcpDecodeStateMachine);
   inherited Destroy;
