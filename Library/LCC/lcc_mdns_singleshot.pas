@@ -408,6 +408,7 @@ var
   i: Integer;
   IpAddress: String;
   DecodeDone: Boolean;
+  SocketTx: TUDPBlockSocket;
 
   s: string;
 
@@ -426,13 +427,14 @@ begin
 
   SocketRx.EnableReuse(True);
   SocketRx.EnableReusePort(True);
-  SocketRx.EnableMulticastLoop(False);        //  Loop back so the address that sends a MultiCast will also recieve i
+//  SocketRx.EnableMulticastLoop(False);        //  Loop back so the address that sends a MultiCast will also recieve i
 
 
   begin
     // Bind to the local adapter(s) to the port
     SocketRx.Bind('0.0.0.0', '5353' );
- //   SocketRx.Bind('127.0.0.1', '5353' );
+    if SocketRx.LastError <> 0 then
+      SocketRx.Bind('127.0.0.1', '5353' );
     if SocketRx.LastError <> 0 then
     begin
       HandleErrorAndDisconnect;
@@ -503,9 +505,6 @@ begin
                             SetLength(FmDNSIncomingRec.Questions, FmDNSIncomingRec.QDCount);
                             SetLength(FmDNSIncomingRec.Answers, FmDNSIncomingRec.ANCount);
 
-                   //         if FmDNSIncomingRec.QDCount > 10 then
-                  //            beep;
-
                             for i := 0 to FmDNSIncomingRec.QDCount - 1 do
                             begin
                               FmDNSIncomingRec.Questions[i].QName := '';
@@ -548,27 +547,13 @@ begin
 
                           for i := 0 to FmDNSIncomingRec.QDCount - 1 do
                           begin
-                            if FmDNSIncomingRec.Flags and DNS_FLAGS_QUERY = 0 then        // Make sure it is a request and not a reply
+                            if FmDNSIncomingRec.Flags and DNS_FLAGS_RESPONSE = 0 then        // Make sure it is a request and not a reply
                             begin
                               Synchronize({$IFDEF FPC}@{$ENDIF}DoQuestion);
-
                               // Iv4
-                              if (LowerCase(FmDNSIncomingRec.Questions[i].QName) = 'openlcb.local') and (FmDNSIncomingRec.Questions[i].QType = QTYPE_AAAA) and (FmDNSIncomingRec.Questions[i].QClass = QCLASS_INET) then
-                              begin
-                           {     SetLength(FmDNSOutgoingRec.Questions, 1);
-                                FmDNSOutgoingRec.Questions[0] := FmDNSIncomingRec.Questions[i];
-                                FmDNSOutgoingRec.Flags := DNS_FLAGS_RESPONSE or DNS_FLAGS_ERRORCODE_NOTIMPLEMENTED;  // Reply, not implmenented
-                                FmDNSOutgoingRec.QDCount := 1;
-                                FmDNSOutgoingRec.ANCount := 0;
-                                FmDNSOutgoingRec.ARCount := 0;
-                                FmDNSOutgoingRec.NSCount := 0;
-                                SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));      }
-                              end;
-
-                              // Iv6
                               if (LowerCase(FmDNSIncomingRec.Questions[i].QName) = 'openlcb.local') and (FmDNSIncomingRec.Questions[i].QType = QTYPE_A) and (FmDNSIncomingRec.Questions[i].QClass = QCLASS_INET) then
                               begin
-                              (*  SetLength(FmDNSOutgoingRec.Answers, 1);
+                                SetLength(FmDNSOutgoingRec.Answers, 1);
                                 SetLength(FmDNSOutgoingRec.Questions, 1);
                                 FmDNSOutgoingRec.Questions[0] := FmDNSIncomingRec.Questions[i];
                                 FmDNSOutgoingRec.Flags := DNS_FLAGS_RESPONSE;  // Reply
@@ -589,10 +574,16 @@ begin
                                 {$ENDIF}
                                 FmDNSOutgoingRec.Answers[0].ARData := Ip4Address_StrToBytes(IpAddress);
 
-                                // Test
-          //    FmDNSOutgoingRec.Answers[0].ARData[3] := FmDNSOutgoingRec.Answers[0].ARData[3] + 1;
-
-                                 SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));      *)
+                                SocketTx:=TUDPBlockSocket.Create;
+                                try
+                                  SocketTx.CreateSocket;
+                                  SocketTx.Bind('0.0.0.0','0');
+                                  SocketTx.MulticastTTL := 1;
+                                  SocketTx.connect('224.0.0.251','5353');
+                                  SocketTx.SendString(TranlateDNSPacket(FmDNSOutgoingRec));
+                                finally
+                                  SocketTx.free;
+                                end;
                               end;
                             end;
                           end;

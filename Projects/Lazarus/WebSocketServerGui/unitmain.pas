@@ -142,7 +142,7 @@ end;
 
 procedure TForm1.ButtonMDNSSendClick(Sender: TObject);
 begin
-  lcc_mdns_singleshot.SendmDNSQuery('commandstation.openlcb.local', True);
+  lcc_mdns_singleshot.SendmDNSQuery('openlcb.local', True);
 end;
 
 procedure TForm1.ButtonTestMulitCastClick(Sender: TObject);
