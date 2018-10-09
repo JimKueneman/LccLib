@@ -7,7 +7,6 @@
       <Unit0>
         <Filename Value="rr_circuits.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <CursorPos X="55" Y="16"/>
         <UsageCount Value="160"/>
@@ -30,7 +29,8 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="345"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="346"/>
         <CursorPos X="17" Y="351"/>
         <UsageCount Value="160"/>
         <Loaded Value="True"/>

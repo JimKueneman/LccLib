@@ -1,5 +1,9 @@
 unit lcc_utilities;
 
+{$IFDEF FPC}
+{$mode objfpc}{$H+}
+{$ENDIF}
+
 interface
 
 {$I lcc_compilers.inc}

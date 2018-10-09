@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
     <Units Count="42">
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="36" Y="14"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="49" Y="2"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -28,13 +29,10 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="246"/>
-        <CursorPos X="3" Y="248"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="340"/>
+        <CursorPos X="60" Y="348"/>
         <UsageCount Value="205"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -122,8 +120,7 @@
       <Unit14>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="26"/>
-        <CursorPos Y="49"/>
+        <CursorPos X="39" Y="16"/>
         <UsageCount Value="23"/>
       </Unit14>
       <Unit15>
@@ -324,23 +321,19 @@
         <UsageCount Value="6"/>
       </Unit41>
     </Units>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="3" HistoryIndex="2">
       <Position1>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="10" Column="34"/>
+        <Filename Value="project_template.lpr"/>
+        <Caret Line="14" Column="36"/>
       </Position1>
       <Position2>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="254" Column="3" TopLine="252"/>
+        <Filename Value="project_template.lpr"/>
+        <Caret Line="22"/>
       </Position2>
       <Position3>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="256" Column="3" TopLine="254"/>
+        <Filename Value="project_template.lpr"/>
+        <Caret Line="22"/>
       </Position3>
-      <Position4>
-        <Filename Value="form_template.pas"/>
-        <Caret Line="267" Column="94" TopLine="267"/>
-      </Position4>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

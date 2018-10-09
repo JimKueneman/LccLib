@@ -595,7 +595,7 @@ end;
 
 procedure TForm1.LccNodeManagerLccNodeCDI(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
-  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Cdi];
+ // LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Cdi];
   UpdateForNodeEnabled(LccSourceNode);
 end;
 
@@ -608,7 +608,7 @@ procedure TForm1.LccNodeManagerLccNodeConfigMemOptionsReply(Sender: TObject; Lcc
 var
   i: Integer;
 begin
-  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_ConfigMemOptions];
+//  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_ConfigMemOptions];
   if LccSourceNode.ConfigMemOptions.Valid then
   begin
     for i := LccSourceNode.ConfigMemOptions.LowSpace to LccSourceNode.ConfigMemOptions.HighSpace do
@@ -634,7 +634,7 @@ end;
 
 procedure TForm1.LccNodeManagerLccNodeProtocolIdentifyReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
-  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Pip];
+//  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Pip];
   if LccSourceNode.ProtocolSupport.SimpleNodeInfo then
     SendSnipRequest(LccSourceNode);
 
@@ -646,7 +646,7 @@ end;
 
 procedure TForm1.LccNodeManagerLccNodeSimpleNodeIdentReply(Sender: TObject; LccSourceNode, LccDestNode: TLccNode);
 begin
-  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Snip];
+//  LccSourceNode.UserMsgInFlight := LccSourceNode.UserMsgInFlight - [mif_Snip];
   if Assigned(LccSourceNode.LccGuiNode) then
   begin
     LccSourceNode.LccGuiNode.Captions.Clear;
@@ -783,7 +783,7 @@ procedure TForm1.UpdateForNodeEnabled(TestNode: TLccNode);
 begin
   if Assigned(TestNode.LccGuiNode) then
   begin
-    TestNode.LccGuiNode.Enabled := TestNode.UserMsgInFlight = [];
+ //   TestNode.LccGuiNode.Enabled := TestNode.UserMsgInFlight = [];
   end;
 end;
 
@@ -825,11 +825,11 @@ end;
 procedure TForm1.SendSnipRequest(Node: TLccNode);
 begin
   if DumbNode then Exit;
-  if Node.UserMsgInFlight * [mif_Snip] = [] then
+ // if Node.UserMsgInFlight * [mif_Snip] = [] then
   begin
     LccNodeManager.UserMessage.LoadSimpleNodeIdentInfoRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
     LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Snip];
+//    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Snip];
   end;
 end;
 
@@ -851,33 +851,33 @@ end;
 procedure TForm1.SendPipRequest(Node: TLccNode);
 begin
   if DumbNode then Exit;
-  if Node.UserMsgInFlight * [mif_Pip] = [] then
+ // if Node.UserMsgInFlight * [mif_Pip] = [] then
   begin
     LccNodeManager.UserMessage.LoadProtocolIdentifyInquiry(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
     LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Pip];
+ //   Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Pip];
   end;
 end;
 
 procedure TForm1.SendCdiRequest(Node: TLccNode);
 begin
   if DumbNode then Exit;
-  if Node.UserMsgInFlight * [mif_Cdi] = [] then
+ // if Node.UserMsgInFlight * [mif_Cdi] = [] then
   begin
     LccNodeManager.UserMessage.LoadCDIRequest(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
     LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Cdi];
+//    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_Cdi];
   end;
 end;
 
 procedure TForm1.SendConfigMemOptionsRequest(Node: TLccNode);
 begin
   if DumbNode then Exit;
-  if Node.UserMsgInFlight * [mif_ConfigMemOptions] = [] then
+ // if Node.UserMsgInFlight * [mif_ConfigMemOptions] = [] then
   begin
     LccNodeManager.UserMessage.LoadConfigMemOptions(LccNodeManager.RootNode.NodeID, LccNodeManager.RootNode.AliasID, Node.NodeID, Node.AliasID);
     LccNodeManager.HardwareConnection.SendMessage(LccNodeManager.UserMessage);
-    Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];
+ //   Node.UserMsgInFlight := Node.UserMsgInFlight + [mif_ConfigMemOptions];
   end;
 end;
 

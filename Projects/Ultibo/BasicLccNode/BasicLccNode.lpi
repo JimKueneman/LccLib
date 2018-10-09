@@ -36,6 +36,7 @@
       <Unit0>
         <Filename Value="BasicLccNode.lpr"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="SimpleOlcbNode"/>
       </Unit0>
     </Units>
   </ProjectOptions>

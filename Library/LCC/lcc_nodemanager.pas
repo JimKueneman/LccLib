@@ -744,34 +744,34 @@ type
   protected
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;
-    procedure DoCDI(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoConfigMemAddressSpaceInfoReply(SourceLccNode, DestLccNode: TLccNode; AddressSpace: Byte); virtual;
-    procedure DoConfigMemOptionsReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoConfigMemReadReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoConfigMemWriteReply(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoCDI(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoConfigMemAddressSpaceInfoReply(SourceLccNode, DesTLccNode: TLccNode; AddressSpace: Byte); virtual;
+    procedure DoConfigMemOptionsReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoConfigMemReadReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
-    procedure DoDatagramReply(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoDatagramReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoDestroyLccNode(LccNode: TLccNode); virtual;
-    procedure DoFDI(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoFunctionConfiguration(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoFDI(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoFunctionConfiguration(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoGetRootNodeClass(var RootNodeClass: TLccOwnedNodeClass); virtual;
     procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;
     procedure DoNodeIDChanged(LccNode: TLccNode); virtual;
-    procedure DoOptionalInteractionRejected(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
-    procedure DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoRemoteButtonReply(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoRequestMessageSend(Message: TLccMessage); virtual;
-    procedure DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoTractionControllerChangeNotify(SourceLccNode, DestLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean); virtual;
-    procedure DoTractionReplyQuerySpeed(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoTractionReplyQueryFunction(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoTractionReplyControllerAssign(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
-    procedure DoTractionReplyControllerQuery(SourceLccNode, DestLccNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word); virtual;
-    procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
-    procedure DoTractionReplyManage(SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte); virtual;
+    procedure DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoTractionControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean); virtual;
+    procedure DoTractionReplyQuerySpeed(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoTractionReplyQueryFunction(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoTractionReplyControllerAssign(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
+    procedure DoTractionReplyControllerQuery(SourceLccNode, DesTLccNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word); virtual;
+    procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
+    procedure DoTractionReplyManage(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -883,7 +883,7 @@ type
     procedure SetShowRootNode(AValue: Boolean);
   protected
     function AddChildNode(ParentNode: TLccTreeViewItem; ACaption: String; AnObject: TObject): TLccTreeViewItem;
-    function FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem;
+    function FindNodeByData(TesTLccNode: TLccNode): TLccTreeViewItem;
     function FindNodeByCaption(ACaption: String): TLccTreeViewItem;
     function FindNodeByCaptionAndParent(ParentNode: TLccTreeViewItem; ACaption: String): TLccTreeViewItem;
     function FindOrCreateNewTreeNodeByLccNodeObject(LccNode: TLccNode): TLccTreeViewItem;
@@ -896,8 +896,8 @@ type
     procedure DoInitializationComplete(LccNode: TLccNode); virtual;
     procedure DoNodeIDChanged(LccNode: TLccNode); virtual;
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
-    procedure DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode); virtual;
-    procedure DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode); virtual;
+    procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure ShowAliasIDChild(LccNode: TLccNode);
@@ -2616,37 +2616,37 @@ begin
      FOnLccCANAliasMapReset(Self, LccNode);
 end;
 
-procedure TLccNodeManager.DoCDI(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoCDI(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeCDI) then
-    OnLccNodeCDI(Self, SourceLccNode, DestLccNode)
+    OnLccNodeCDI(Self, SourceLccNode, DesTLccNode)
 end;
 
 procedure TLccNodeManager.DoConfigMemAddressSpaceInfoReply(SourceLccNode,
-  DestLccNode: TLccNode; AddressSpace: Byte);
+  DesTLccNode: TLccNode; AddressSpace: Byte);
 begin
  if Assigned(OnLccNodeConfigMemAddressSpaceInfoReply) then
-   OnLccNodeConfigMemAddressSpaceInfoReply(Self, SourceLccNode, DestLccNode, AddressSpace);
+   OnLccNodeConfigMemAddressSpaceInfoReply(Self, SourceLccNode, DesTLccNode, AddressSpace);
 end;
 
 procedure TLccNodeManager.DoConfigMemOptionsReply(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeConfigMemOptionsReply) then
-    OnLccNodeConfigMemOptionsReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeConfigMemOptionsReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoConfigMemReadReply(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeConfigMemReadReply) then
-    OnLccNodeConfigMemReadReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeConfigMemReadReply(Self, SourceLccNode, DesTLccNode);
 end;
 
-procedure TLccNodeManager.DoConfigMemWriteReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeConfigMemWriteReply) then
-    OnLccNodeConfigMemWriteReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeConfigMemWriteReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoCreateLccNode(SourceLccNode: TLccNode);
@@ -2670,10 +2670,10 @@ begin
 end;
 
 procedure TLccNodeManager.DoDatagramReply(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeDatagramReply) then
-    OnLccNodeDatagramReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeDatagramReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode);
@@ -2691,16 +2691,16 @@ begin
     OnLccNodeDestroy(Self, LccNode);
 end;
 
-procedure TLccNodeManager.DoFDI(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoFDI(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeFDI) then
-    OnLccNodeFDI(Self, SourceLccNode, DestLccNode)
+    OnLccNodeFDI(Self, SourceLccNode, DesTLccNode)
 end;
 
-procedure TLccNodeManager.DoFunctionConfiguration(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoFunctionConfiguration(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeFunctionConfiguration) then
-    OnLccNodeFunctionConfiguration(Self, SourceLccNode, DestLccNode)
+    OnLccNodeFunctionConfiguration(Self, SourceLccNode, DesTLccNode)
 end;
 
 procedure TLccNodeManager.DoGetRootNodeClass( var RootNodeClass: TLccOwnedNodeClass);
@@ -2731,10 +2731,10 @@ begin
 
 end;
 
-procedure TLccNodeManager.DoOptionalInteractionRejected(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeOptionalInteractionRejected) then
-    OnLccNodeOptionalInteractionRejected(Self, SourceLccNode, DestLccNode);
+    OnLccNodeOptionalInteractionRejected(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
@@ -2747,20 +2747,20 @@ begin
     OnLccNodeProducerIdentified(Self, SourceLccNode, Event, State);
 end;
 
-procedure TLccNodeManager.DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode);
 begin
   {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
-    NetworkTree.DoProtocolIdentifyReply(SourceLccNode, DestLccNode);
+    NetworkTree.DoProtocolIdentifyReply(SourceLccNode, DesTLccNode);
   {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeProtocolIdentifyReply) then
-    OnLccNodeProtocolIdentifyReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeProtocolIdentifyReply(Self, SourceLccNode, DesTLccNode);
 end;
 
-procedure TLccNodeManager.DoRemoteButtonReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeRemoteButtonReply) then
-    OnLccNodeRemoteButtonReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeRemoteButtonReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoRequestMessageSend(Message: TLccMessage);
@@ -2771,72 +2771,72 @@ begin
     OnRequestMessageSend(Self, Message);
 end;
 
-procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
 begin
   {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
   if Assigned(NetworkTree) then
-    NetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode);
+    NetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode);
   {$ENDIF} {$ENDIF}
   if Assigned(OnLccNodeSimpleNodeIdentReply) then
-    OnLccNodeSimpleNodeIdentReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeSimpleNodeIdentReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoSimpleTrainNodeIdentReply(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeSimpleTrainNodeIdentReply) then
-    OnLccNodeSimpleTrainNodeIdentReply(Self, SourceLccNode, DestLccNode);
+    OnLccNodeSimpleTrainNodeIdentReply(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoTractionControllerChangeNotify(SourceLccNode,
-  DestLccNode: TLccNode; NewRequestingNode: TNodeID;
+  DesTLccNode: TLccNode; NewRequestingNode: TNodeID;
   NewRequestingNodeAlias: Word; var Allow: Boolean);
 begin
   if Assigned(OnLccNodeTractionControllerChangeNotify) then
-    OnLccNodeTractionControllerChangeNotify(Self, SourceLccNode, DestLccNode, NewRequestingNode, NewRequestingNodeAlias, Allow);
+    OnLccNodeTractionControllerChangeNotify(Self, SourceLccNode, DesTLccNode, NewRequestingNode, NewRequestingNodeAlias, Allow);
 end;
 
 procedure TLccNodeManager.DoTractionReplyQuerySpeed(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeTractionReplyQuerySpeed) then
-    OnLccNodeTractionReplyQuerySpeed(Self, SourceLccNode, DestLccNode);
+    OnLccNodeTractionReplyQuerySpeed(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoTractionReplyQueryFunction(SourceLccNode,
-  DestLccNode: TLccNode);
+  DesTLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeTractionReplyQueryFunction) then
-    OnLccNodeTractionReplyQueryFunction(Self, SourceLccNode, DestLccNode);
+    OnLccNodeTractionReplyQueryFunction(Self, SourceLccNode, DesTLccNode);
 end;
 
 procedure TLccNodeManager.DoTractionReplyControllerAssign(SourceLccNode,
-  DestLccNode: TLccNode; ResultCode: Byte);
+  DesTLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyControllerAssign) then
-    OnLccNodeTractionReplyControllerAssign(Self, SourceLccNode, DestLccNode, ResultCode);
+    OnLccNodeTractionReplyControllerAssign(Self, SourceLccNode, DesTLccNode, ResultCode);
 end;
 
 procedure TLccNodeManager.DoTractionReplyControllerQuery(SourceLccNode,
-  DestLccNode: TLccNode; ActiveControllerNodeID: TNodeID;
+  DesTLccNode: TLccNode; ActiveControllerNodeID: TNodeID;
   ActiveControllerAlias: Word);
 begin
   if Assigned(OnLccNodeTractionReplyControllerQuery) then
-    OnLccNodeTractionReplyControllerQuery(Self, SourceLccNode, DestLccNode, ActiveControllerNodeID, ActiveControllerAlias);
+    OnLccNodeTractionReplyControllerQuery(Self, SourceLccNode, DesTLccNode, ActiveControllerNodeID, ActiveControllerAlias);
 end;
 
 procedure TLccNodeManager.DoTractionReplyControllerChangeNotify(
-  SourceLccNode, DestLccNode: TLccNode; ResultCode: Byte);
+  SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyControllerChangeNotify) then
-    OnLccNodeTractionReplyControllerChangeNotify(Self, SourceLccNode, DestLccNode, ResultCode);
+    OnLccNodeTractionReplyControllerChangeNotify(Self, SourceLccNode, DesTLccNode, ResultCode);
 end;
 
 procedure TLccNodeManager.DoTractionReplyManage(SourceLccNode,
-  DestLccNode: TLccNode; ResultCode: Byte);
+  DesTLccNode: TLccNode; ResultCode: Byte);
 begin
   if Assigned(OnLccNodeTractionReplyManage) then
-    OnLccNodeTractionReplyManage(Self, SourceLccNode, DestLccNode, ResultCode);
+    OnLccNodeTractionReplyManage(Self, SourceLccNode, DesTLccNode, ResultCode);
 end;
 
 procedure TLccNodeManager.DoVerifiedNodeID(SourceLccNode: TLccNode);
@@ -3450,19 +3450,7 @@ begin
   Valid := True;
 end;
 
-{ TSimpleNodeInfo }
-
-{function TSimpleNodeInfo.GetPackedFormat: TSimpleNodeInfoPacked;
-begin
-
-end;
-
- function TSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
-begin
-
-end;
-
-TProtocolSupport }
+{ TProtocolSupport }
 
 procedure TProtocolSupport.DecodeFlags;
 begin
@@ -4671,7 +4659,7 @@ begin
   end;
 end;
 
-procedure TLccNetworkTree.DoProtocolIdentifyReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNetworkTree.DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode);
 var
   Node, PIP: TLccTreeViewItem;
 begin
@@ -4727,7 +4715,7 @@ begin
   end;
 end;
 
-procedure TLccNetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DestLccNode: TLccNode);
+procedure TLccNetworkTree.DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
 var
   Node, SNIP: TLccTreeViewItem;
 begin
@@ -4953,9 +4941,9 @@ begin
   {$ENDIF}
 end;
 
-function TLccNetworkTree.FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem;
+function TLccNetworkTree.FindNodeByData(TesTLccNode: TLccNode): TLccTreeViewItem;
 {$IFNDEF FPC}
-  function LocalFind(ParentNode: TLccTreeViewItem; TestLccNode: TLccNode): TLccTreeViewItem;
+  function LocalFind(ParentNode: TLccTreeViewItem; TesTLccNode: TLccNode): TLccTreeViewItem;
   var
     i: Integer;
     Obj: TObject;
@@ -4964,7 +4952,7 @@ function TLccNetworkTree.FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem
     for i := 0 to ParentNode.ChildrenCount - 1 do
     begin
       Obj := ParentNode.Items[i].Data.AsObject;
-      if Obj = TestLccNode then
+      if Obj = TesTLccNode then
       begin
         Result := ParentNode.Items[i] as TLccTreeViewItem;
         Break
@@ -4972,7 +4960,7 @@ function TLccNetworkTree.FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem
       begin
         if ParentNode.ChildrenCount > 0 then
         begin
-          Result := LocalFind(ParentNode.Items[0], TestLccNode);
+          Result := LocalFind(ParentNode.Items[0], TesTLccNode);
           if Assigned(Result) then
             break
         end
@@ -4984,10 +4972,10 @@ function TLccNetworkTree.FindNodeByData(TestLccNode: TLccNode): TLccTreeViewItem
 begin
   Result := nil;
   {$IFDEF FPC}
-  Result := Items.FindNodeWithData(TestLccNode);
+  Result := Items.FindNodeWithData(TesTLccNode);
   {$ELSE}
   if ChildrenCount > 0 then
-    Result := LocalFind(Items[0], TestLccNode)
+    Result := LocalFind(Items[0], TesTLccNode)
   {$ENDIF}
 end;
 

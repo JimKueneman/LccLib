@@ -1,19 +1,19 @@
 object Form1: TForm1
-  Left = 256
+  Left = 116
   Height = 499
-  Top = 108
-  Width = 772
+  Top = 100
+  Width = 733
   Caption = 'Form1'
   ClientHeight = 499
-  ClientWidth = 772
+  ClientWidth = 733
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.8.4.0'
   object StatusBar1: TStatusBar
     Left = 0
     Height = 21
     Top = 478
-    Width = 772
+    Width = 733
     Panels = <    
       item
         Width = 250
@@ -30,7 +30,7 @@ object Form1: TForm1
     Left = 0
     Height = 150
     Top = 328
-    Width = 772
+    Width = 733
     Align = alBottom
     AutoWidthLastColumn = True
     Columns = <    
@@ -44,7 +44,7 @@ object Form1: TForm1
       end    
       item
         Caption = 'Extra'
-        Width = 394
+        Width = 355
       end>
     GridLines = True
     TabOrder = 1
@@ -55,7 +55,7 @@ object Form1: TForm1
     Left = 0
     Height = 8
     Top = 320
-    Width = 772
+    Width = 733
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -63,34 +63,34 @@ object Form1: TForm1
     Left = 0
     Height = 320
     Top = 0
-    Width = 772
+    Width = 733
     Align = alClient
     ClientHeight = 320
-    ClientWidth = 772
+    ClientWidth = 733
     TabOrder = 3
-    object Button2: TButton
+    object ButtonLccDisconnect: TButton
       Left = 216
       Height = 25
       Top = 16
       Width = 171
       Caption = 'Disconnnect'
-      OnClick = Button2Click
+      OnClick = ButtonLccDisconnectClick
       TabOrder = 0
     end
-    object Button1: TButton
+    object ButtonLccConnect: TButton
       Left = 24
       Height = 25
       Top = 16
       Width = 171
       Caption = 'Connect'
-      OnClick = Button1Click
+      OnClick = ButtonLccConnectClick
       TabOrder = 1
     end
     object Memo1: TMemo
       Left = 1
       Height = 178
       Top = 141
-      Width = 770
+      Width = 731
       Align = alBottom
       Anchors = [akTop, akLeft, akRight, akBottom]
       ScrollBars = ssAutoBoth
@@ -105,32 +105,50 @@ object Form1: TForm1
       OnClick = Button3Click
       TabOrder = 3
     end
-    object Button4: TButton
+    object ButtonLccSendVerifyNode: TButton
       Left = 424
       Height = 25
       Top = 16
-      Width = 75
-      Caption = 'Button4'
-      OnClick = Button4Click
+      Width = 163
+      Caption = 'Verify Node'
+      OnClick = ButtonLccSendVerifyNodeClick
       TabOrder = 4
     end
-    object Button5: TButton
+    object ButtonMDNSConnect: TButton
       Left = 24
       Height = 25
       Top = 48
       Width = 171
       Caption = 'mDNS Connect'
-      OnClick = Button5Click
+      OnClick = ButtonMDNSConnectClick
       TabOrder = 5
     end
-    object Button6: TButton
+    object ButtonMDNSDisconnect: TButton
       Left = 216
       Height = 25
       Top = 48
       Width = 171
       Caption = 'mDNS Disconnnect'
-      OnClick = Button6Click
+      OnClick = ButtonMDNSDisconnectClick
       TabOrder = 6
+    end
+    object ButtonMDNSSend: TButton
+      Left = 424
+      Height = 25
+      Top = 48
+      Width = 163
+      Caption = 'Send OpenLCB mDNS'
+      OnClick = ButtonMDNSSendClick
+      TabOrder = 7
+    end
+    object ButtonTestMulitCast: TButton
+      Left = 427
+      Height = 25
+      Top = 85
+      Width = 160
+      Caption = 'Test MultiCast'
+      OnClick = ButtonTestMulitCastClick
+      TabOrder = 8
     end
   end
   object LccWebSocketServer1: TLccWebSocketServer
@@ -143,10 +161,10 @@ object Form1: TForm1
     left = 136
     top = 88
   end
-  object Lcc_mDNS_SinglShotServer1: TLcc_mDNS_SinglShotServer
-    OnConnectionStateChange = Lcc_mDNS_SinglShotServer1ConnectionStateChange
-    OnErrorMessage = Lcc_mDNS_SinglShotServer1ErrorMessage
-    OnQuestion = Lcc_mDNS_SinglShotServer1Question
+  object Lcc_mDNS_SingleShotServer1: TLcc_mDNS_SinglShotServer
+    OnConnectionStateChange = Lcc_mDNS_SingleShotServer1ConnectionStateChange
+    OnErrorMessage = Lcc_mDNS_SingleShotServer1ErrorMessage
+    OnQuestion = Lcc_mDNS_SingleShotServer1Question
     left = 328
     top = 72
   end

@@ -225,7 +225,7 @@ const
   STR_PIP_CDI                        = 'Configuration Description Information (CDI) Protocol';
   STR_PIP_TRACTION                   = 'Traction Protocol';
   STR_PIP_FDI                        = 'Function Description Information (FDI) Protocol';
-  STR_PIP_TRACTION_PROTOCOL                        = 'Traction Proxy Protocol';
+  STR_PIP_TRACTION_PROTOCOL          = 'Traction Proxy Protocol';
 
 
   COMMON_TEMPORARY_ERROR                 = $2000;

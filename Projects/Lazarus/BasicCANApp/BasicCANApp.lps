@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
     <Units Count="31">
       <Unit0>
@@ -21,9 +21,10 @@
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
         <TopLine Value="32"/>
-        <CursorPos X="23" Y="56"/>
+        <CursorPos X="30" Y="46"/>
         <UsageCount Value="50"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit2.pas"/>

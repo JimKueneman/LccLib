@@ -224,9 +224,7 @@ end;
 
 { TLccEthernetListener }
 
-constructor TLccEthernetListener.Create(CreateSuspended: Boolean;
-  AnOwner: TLccEthernetServer;
-  const AnEthernetRec: TLccEthernetRec);
+constructor TLccEthernetListener.Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec);
 begin
   inherited Create(CreateSuspended);
   FOwner := AnOwner;

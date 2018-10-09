@@ -2,14 +2,13 @@
 <CONFIG>
   <ProjectSession>
     <PathDelim Value="\"/>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="12">
+    <Units Count="13">
       <Unit0>
         <Filename Value="SimpleOlcbNode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="161"/>
+        <TopLine Value="160"/>
         <CursorPos X="5" Y="195"/>
         <UsageCount Value="33"/>
         <Loaded Value="True"/>
@@ -91,11 +90,21 @@
         <CursorPos X="21" Y="1047"/>
         <UsageCount Value="10"/>
       </Unit11>
+      <Unit12>
+        <Filename Value="..\..\..\..\Library\Generics\src\generics.hashes.pas"/>
+        <UnitName Value="Generics.Hashes"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1411"/>
+        <CursorPos X="19" Y="1420"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit12>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="22" HistoryIndex="21">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="SimpleOlcbNode.lpr"/>
         <Caret Line="111" TopLine="95"/>
@@ -184,6 +193,10 @@
         <Filename Value="SimpleOlcbNode.lpr"/>
         <Caret Line="3" Column="22"/>
       </Position22>
+      <Position23>
+        <Filename Value="SimpleOlcbNode.lpr"/>
+        <Caret Line="195" Column="5" TopLine="161"/>
+      </Position23>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

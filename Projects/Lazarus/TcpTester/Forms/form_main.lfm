@@ -11,7 +11,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.6.2.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
@@ -241,7 +241,7 @@ object Form1: TForm1
           Left = 8
           Height = 18
           Top = 56
-          Width = 352
+          Width = 339
           Caption = 'Automatically send a Verify Nodes query on Connect'
           OnChange = CheckBoxAutoSendVerifyNodesChange
           TabOrder = 0
@@ -250,7 +250,7 @@ object Form1: TForm1
           Left = 8
           Height = 18
           Top = 32
-          Width = 401
+          Width = 383
           Caption = 'Automatically query newly discovered nodes for information'
           OnChange = CheckBoxAutoQueryInfoChange
           TabOrder = 1
@@ -259,7 +259,7 @@ object Form1: TForm1
           Left = 8
           Height = 18
           Top = 8
-          Width = 376
+          Width = 360
           Caption = 'Make me a dumb node that only speaks when spoken to'
           OnChange = CheckBoxDumbNodeChange
           TabOrder = 2

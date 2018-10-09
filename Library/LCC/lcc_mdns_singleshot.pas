@@ -10,6 +10,44 @@ unit lcc_mdns_singleshot;
   {$ENDIF}
 {$ENDIF}
 
+(*
+
+ Synapse example for a Multicast Send Receive......
+
+procedure MulticastSendTest;
+var
+  sndsock:TUDPBlockSocket;
+begin
+  sndsock:=TUDPBlockSocket.Create;
+  try
+    sndsock.createsocket;
+    sndsock.Bind('0.0.0.0','0');
+    sndsock.MulticastTTL := 1;
+    sndsock.connect('234.5.6.7','22401');
+    sndsock.SendString('Ahoy!'+CRLF);
+  finally
+    sndsock.free;
+  end;
+end;
+
+procedure MulticastRecvTest;
+var
+  rcvsock:TUDPBlockSocket;
+  buf:string;
+begin
+  rcvsock:=TUDPBlockSocket.Create;
+  try
+    rcvsock.createsocket;
+    rcvsock.Bind('0.0.0.0','22401');
+    rcvsock.AddMulticast('234.5.6.7');
+    buf:=rcvsock.RecvPacket(60000);
+    showmessage(buf);
+  finally
+    rcvsock.free;
+  end;
+end;
+*)
+
 interface
 
 {$I lcc_compilers.inc}
@@ -33,17 +71,26 @@ uses
 const
   QCLASS_INET = 1;  // Class = Internet
 
+  DNS_FLAGS_QUERY = $0000;
+  DNS_FLAGS_RESPONSE = $8000;
+
+  DNS_FLAGS_ERRORCODE_NONE = $0000;
+  DNS_FLAGS_ERRORCODE_FORMAT = $0001;
+  DNS_FLAGS_ERRORCODE_SERVERFAILURE = $0002;
+  DNS_FLAGS_ERRORCODE_NAME = $0003;
+  DNS_FLAGS_ERRORCODE_NOTIMPLEMENTED = $0004;
+
 type
   TmDNSQuestionRec = record
     QName: AnsiString;
     QType,
-    QClass: Word;
+    QClass: Word;   // First Bit is Unicast Response then QClass is 15 bits
   end;
 
   TmDNSAnswerRec = record
     AName: AnsiString;
-    AType,
-    AClass: Word;
+    AType: Word;      // 16 Bit
+    AClass: Word;     // First Bit is Cache Flush flag then AClass is 15 Bits
     ATTL: DWORD;
     ARDLength: Word;
     ARData: array of Byte;
@@ -52,7 +99,7 @@ type
 type
   TmDNSRec = record
     ID,
-    Flags,
+    Flags,   //    [Bit 15: 1 = Response; 0 = Query] [Bit 14-11: Standard Query = 0; Inverse Query = 1; Server Status Request = 2] [Bit 10: 1 = Authorative Answer] [Bit 9: Truncated] [Bit 8: Resurson Denied] [Bit 7: Recursian Available] [Bit 4-6: Reserved Must be zero] [Bit 0-3: Response Code 0 = No Error; 1 = Format Error; 2 = Server Failure; 3 = Name Error; 4 = Not Implemented; 5 = Refused]
     QDCount,
     ANCount,
     NSCount,
@@ -82,14 +129,12 @@ type
     FRunning: Boolean;
     FSleepCount: Integer;
     FSocketRx: TUDPBlockSocket;
-    FSocketTx: TUDPBlockSocket;
     function GetIsTerminated: Boolean;
   protected
     property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
     property Owner: TLcc_mDNS_SinglShotServer read FOwner write FOwner;
     property Running: Boolean read FRunning write FRunning;
     property SocketRx: TUDPBlockSocket read FSocketRx write FSocketRx;
-    property SocketTx: TUDPBlockSocket read FSocketTx write FSocketTx;
     property IsTerminated: Boolean read GetIsTerminated;
     property mDNSIncomingRec: TmDNSRec read FmDNSIncomingRec write FmDNSIncomingRec;
     property mDNSOutgoingRec: TmDNSRec read FmDNSOutgoingRec write FmDNSOutgoingRec;
@@ -98,7 +143,6 @@ type
     procedure DoErrorMessage;
     procedure DoQuestion;
     procedure Execute; override;
-    function TranlateDNSPacket(DNS: TmDNSRec): AnsiString;
   public
     constructor Create(CreateSuspended: Boolean; AnOwner: TLcc_mDNS_SinglShotServer; const AnEthernetRec: TLccEthernetRec); reintroduce; virtual;
     destructor Destroy; override;
@@ -132,8 +176,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenConnection(var AnEthernetRec: TLccEthernetRec): TLcc_mDNS_SingleShotListener;
-    function OpenConnectionWithLccSettings: TLcc_mDNS_SingleShotListener;
+    function OpenConnection: TLcc_mDNS_SingleShotListener;
     procedure CloseConnection;
 
     property ListenerThread: TLcc_mDNS_SingleShotListener read FListenerThread write FListenerThread;
@@ -147,9 +190,131 @@ type
     property OnQuestion: TOnLccMdnsQuestion read FOnQuestion write FOnQuestion;
   end;
 
+function SendmDNSQuery(LocalName: string; SendReplyMultiCast: Boolean): Boolean;
+
 procedure Register;
 
 implementation
+
+function TranlateDNSPacket(DNS: TmDNSRec): AnsiString;
+var
+  i, j, iLabel, LabelPtr: Integer;
+begin
+  Result := chr( _Hi(DNS.ID));
+  Result := Result + chr( _Lo(DNS.ID));
+  Result := Result + chr( _Hi(DNS.Flags));
+  Result := Result + chr( _Lo(DNS.Flags));
+  Result := Result + chr(_hi(DNS.QDCount));
+  Result := Result + chr(_lo(DNS.QDCount));
+  Result := Result + chr(_hi(DNS.ANCount));
+  Result := Result + chr(_lo(DNS.ANCount));
+  Result := Result + chr(_hi(DNS.NSCount));
+  Result := Result + chr(_lo(DNS.NSCount));
+  Result := Result + chr(_hi(DNS.ARCount));
+  Result := Result + chr(_lo(DNS.ARCount));
+
+  for i := 0 to Length(DNS.Questions) - 1 do
+  begin
+    iLabel := 0;
+    {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
+    Result := Result + '%';  // Filler till we know the value to write
+    {$IFDEF LCC_MOBILE}for j := 0 to Length(DNS.Questions[i].QName) - 1 do{$ELSE}for j := 1 to Length(DNS.Questions[i].QName) do{$ENDIF}
+    begin
+      if DNS.Questions[i].QName[j] <> '.' then
+      begin
+        Result := Result + DNS.Questions[i].QName[j];
+        Inc(iLabel);
+      end else
+      begin
+        {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
+        {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
+        Result := Result + '%';  // Filler till we know the value to write
+        iLabel := 0;
+      end;
+    end;
+    {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
+    Result := Result + #0;
+    Result := Result + chr( _Hi(DNS.Questions[i].QType));
+    Result := Result + chr( _Lo(DNS.Questions[i].QType));
+    Result := Result + chr( _Hi(DNS.Questions[i].QClass));
+    Result := Result + chr( _Lo(DNS.Questions[i].QClass));
+  end;
+
+  for i := 0 to Length(DNS.Answers) - 1 do
+  begin
+    iLabel := 0;
+    {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
+    Result := Result + '%';  // Filler till we know the value to write
+    {$IFDEF LCC_MOBILE}for j := 0 to Length(DNS.Answers[i].QName) - 1 do{$ELSE}for j := 1 to Length(DNS.Answers[i].AName) do{$ENDIF}
+    begin
+      if DNS.Answers[i].AName[j] <> '.' then
+      begin
+        Result := Result + DNS.Answers[i].AName[j];
+        Inc(iLabel);
+      end else
+      begin
+        {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
+        {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
+        Result := Result + '%';  // Filler till we know the value to write
+        iLabel := 0;
+      end;
+    end;
+    {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
+    Result := Result + #0;
+
+
+    Result := Result + chr( _Hi(DNS.Answers[i].AType));
+    Result := Result + chr( _Lo(DNS.Answers[i].AType));
+    Result := Result + chr( _Hi(DNS.Answers[i].AClass));
+    Result := Result + chr( _Lo(DNS.Answers[i].AClass));
+    Result := Result + chr( _Highest(DNS.Answers[i].ATTL));
+    Result := Result + chr( _Higher(DNS.Answers[i].ATTL));
+    Result := Result + chr( _Hi(DNS.Answers[i].ATTL));
+    Result := Result + chr( _Lo(DNS.Answers[i].ATTL));
+    Result := Result + chr( _Hi(DNS.Answers[i].ARDLength));
+    Result := Result + chr( _Lo(DNS.Answers[i].ARDLength));
+    for j := 0 to DNS.Answers[i].ARDLength - 1 do
+      Result := Result + chr( DNS.Answers[i].ARData[j]);
+  end;
+end;
+
+function SendmDNSQuery(LocalName: string; SendReplyMultiCast: Boolean): Boolean;
+var
+  Socket: TUDPBlockSocket;
+  DnsRec: TmDNSRec;
+begin
+  Socket := TUDPBlockSocket.Create;
+  Socket.Family := SF_IP4;                  // IP4
+
+  DnsRec.ID := $CACA;
+  DnsRec.Flags := DNS_FLAGS_QUERY;
+  DnsRec.QDCount := 1;
+  DnsRec.ANCount := 0;
+  DnsRec.ARCount := 0;
+  DnsRec.NSCount := 0;
+  SetLength(DnsRec.Answers, 0);
+  SetLength(DnsRec.Questions, 1);
+  DnsRec.Questions[0].QName := LocalName;
+  DnsRec.Questions[0].QType := QTYPE_A;
+  DnsRec.Questions[0].QClass := QCLASS_INET;
+
+  Result := False;
+  Socket.Bind('0.0.0.0', '0' );     // All addresses on this adapter all ports?  Just bind it to the the generic adapter
+  if Socket.LastError = 0 then
+  begin
+    Socket.MulticastTTL := 1;       // Local network only
+    Socket.Connect('224.0.0.251', '5353');
+    if Socket.LastError = 0 then
+    begin
+      Socket.SendString( TranlateDNSPacket(DnsRec));
+      Result := Socket.LastError = 0;
+      if not Result then
+        ShowMessage(Socket.GetErrorDescEx);
+    end;
+  end;
+  Socket.CloseSocket;
+  Socket.Free;
+end;
 
 procedure Register;
 begin
@@ -249,35 +414,25 @@ var
 begin
   FRunning := True;
 
+  // Receive Socket that listens for UDP mDNS messages
   SocketRx := TUDPBlockSocket.Create;          // Created in context of the thread
   SocketRx.Family := SF_IP4;                  // IP4
   SocketRx.HeartbeatRate := EthernetRec.HeartbeatRate;
   SocketRx.SetTimeout(0);
 
-  SocketTx := TUDPBlockSocket.Create;          // Created in context of the thread
-  SocketTx.Family := SF_IP4;                  // IP4
-  SocketTx.HeartbeatRate := EthernetRec.HeartbeatRate;
-  SocketTx.SetTimeout(0);
-
   SendConnectionNotification(ccsListenerConnecting);
 
-  if FEthernetRec.AutoResolveIP then
-  begin
-    {$IFDEF LCC_WINDOWS}
-    FEthernetRec.ListenerIP := ResolveWindowsIp(SocketRx);
-    {$ELSE}
-    FEthernetRec.ListenerIP := ResolveUnixIp;
-    {$ENDIF}
-  end;
+  // No autoresolve since we are a defined IP and Port for multicast
 
+  SocketRx.EnableReuse(True);
   SocketRx.EnableReusePort(True);
-  SocketRx.EnableMulticastLoop(True);
+  SocketRx.EnableMulticastLoop(False);        //  Loop back so the address that sends a MultiCast will also recieve i
 
-  SocketTx.Connect(EthernetRec.ListenerIP, String( IntToStr(EthernetRec.ListenerPort)));
 
   begin
+    // Bind to the local adapter(s) to the port
     SocketRx.Bind('0.0.0.0', '5353' );
-  //  SocketRx.Bind(EthernetRec.ListenerIP, String( IntToStr(EthernetRec.ListenerPort)));
+ //   SocketRx.Bind('127.0.0.1', '5353' );
     if SocketRx.LastError <> 0 then
     begin
       HandleErrorAndDisconnect;
@@ -287,7 +442,7 @@ begin
       FRunning := False
     end else
     begin
-      SocketRx.AddMulticast(EthernetRec.ListenerIP);
+      SocketRx.AddMulticast('224.0.0.251');
       if SocketRx.LastError <> 0 then
       begin
         HandleErrorAndDisconnect;
@@ -297,7 +452,6 @@ begin
         FRunning := False
       end else
       begin
-        SocketRx.MulticastTTL := 1;
         // UDP Connections do not "Listen"
         SendConnectionNotification(ccsListenerConnected);
         try
@@ -394,29 +548,30 @@ begin
 
                           for i := 0 to FmDNSIncomingRec.QDCount - 1 do
                           begin
-                            if FmDNSIncomingRec.Flags and $8000 = 0 then        // Make sure it is a request and not a reply
+                            if FmDNSIncomingRec.Flags and DNS_FLAGS_QUERY = 0 then        // Make sure it is a request and not a reply
                             begin
                               Synchronize({$IFDEF FPC}@{$ENDIF}DoQuestion);
 
+                              // Iv4
                               if (LowerCase(FmDNSIncomingRec.Questions[i].QName) = 'openlcb.local') and (FmDNSIncomingRec.Questions[i].QType = QTYPE_AAAA) and (FmDNSIncomingRec.Questions[i].QClass = QCLASS_INET) then
                               begin
-                                SetLength(FmDNSOutgoingRec.Questions, 1);
+                           {     SetLength(FmDNSOutgoingRec.Questions, 1);
                                 FmDNSOutgoingRec.Questions[0] := FmDNSIncomingRec.Questions[i];
-                                FmDNSOutgoingRec.Flags := $8004;  // Reply, not implmenented
+                                FmDNSOutgoingRec.Flags := DNS_FLAGS_RESPONSE or DNS_FLAGS_ERRORCODE_NOTIMPLEMENTED;  // Reply, not implmenented
                                 FmDNSOutgoingRec.QDCount := 1;
                                 FmDNSOutgoingRec.ANCount := 0;
                                 FmDNSOutgoingRec.ARCount := 0;
                                 FmDNSOutgoingRec.NSCount := 0;
-                                SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));
+                                SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));      }
                               end;
 
-
+                              // Iv6
                               if (LowerCase(FmDNSIncomingRec.Questions[i].QName) = 'openlcb.local') and (FmDNSIncomingRec.Questions[i].QType = QTYPE_A) and (FmDNSIncomingRec.Questions[i].QClass = QCLASS_INET) then
                               begin
-                                SetLength(FmDNSOutgoingRec.Answers, 1);
+                              (*  SetLength(FmDNSOutgoingRec.Answers, 1);
                                 SetLength(FmDNSOutgoingRec.Questions, 1);
                                 FmDNSOutgoingRec.Questions[0] := FmDNSIncomingRec.Questions[i];
-                                FmDNSOutgoingRec.Flags := $8000;  // Reply
+                                FmDNSOutgoingRec.Flags := DNS_FLAGS_RESPONSE;  // Reply
                                 FmDNSOutgoingRec.QDCount := 1;
                                 FmDNSOutgoingRec.ANCount := 1;
                                 FmDNSOutgoingRec.ARCount := 0;
@@ -437,7 +592,7 @@ begin
                                 // Test
           //    FmDNSOutgoingRec.Answers[0].ARData[3] := FmDNSOutgoingRec.Answers[0].ARData[3] + 1;
 
-                                 SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));
+                                 SocketTx.SendString( TranlateDNSPacket(FmDNSOutgoingRec));      *)
                               end;
                             end;
                           end;
@@ -456,9 +611,6 @@ begin
             end;
           finally
             SendConnectionNotification(ccsListenerDisconnecting);
-            SocketTx.CloseSocket;
-            SocketTx.Free;
-            SocketTx := nil;
             SocketRx.CloseSocket;
             SocketRx.Free;
             SocketRx := nil;
@@ -469,88 +621,6 @@ begin
         end;
       end;
     end;
-  end;
-end;
-
-function TLcc_mDNS_SingleShotListener.TranlateDNSPacket(DNS: TmDNSRec): AnsiString;
-var
-  i, j, iLabel, LabelPtr: Integer;
-begin
-  Result := chr( _Hi(DNS.ID));
-  Result := Result + chr( _Lo(DNS.ID));
-  Result := Result + chr( _Hi(DNS.Flags));
-  Result := Result + chr( _Lo(DNS.Flags));
-  Result := Result + chr(_hi(DNS.QDCount));
-  Result := Result + chr(_lo(DNS.QDCount));
-  Result := Result + chr(_hi(DNS.ANCount));
-  Result := Result + chr(_lo(DNS.ANCount));
-  Result := Result + chr(_hi(DNS.NSCount));
-  Result := Result + chr(_lo(DNS.NSCount));
-  Result := Result + chr(_hi(DNS.ARCount));
-  Result := Result + chr(_lo(DNS.ARCount));
-
-  for i := 0 to Length(DNS.Questions) - 1 do
-  begin
-    iLabel := 0;
-    {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
-    Result := Result + '%';  // Filler till we know the value to write
-    {$IFDEF LCC_MOBILE}for j := 0 to Length(DNS.Questions[i].QName) - 1 do{$ELSE}for j := 1 to Length(DNS.Questions[i].QName) do{$ENDIF}
-    begin
-      if DNS.Questions[i].QName[j] <> '.' then
-      begin
-        Result := Result + DNS.Questions[i].QName[j];
-        Inc(iLabel);
-      end else
-      begin
-        {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
-        {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
-        Result := Result + '%';  // Filler till we know the value to write
-        iLabel := 0;
-      end;
-    end;
-    {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
-    Result := Result + #0;
-    Result := Result + chr( _Hi(DNS.Questions[i].QType));
-    Result := Result + chr( _Lo(DNS.Questions[i].QType));
-    Result := Result + chr( _Hi(DNS.Questions[i].QClass));
-    Result := Result + chr( _Lo(DNS.Questions[i].QClass));
-  end;
-
-  for i := 0 to Length(DNS.Answers) - 1 do
-  begin
-    iLabel := 0;
-    {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
-    Result := Result + '%';  // Filler till we know the value to write
-    {$IFDEF LCC_MOBILE}for j := 0 to Length(DNS.Answers[i].QName) - 1 do{$ELSE}for j := 1 to Length(DNS.Answers[i].AName) do{$ENDIF}
-    begin
-      if DNS.Answers[i].AName[j] <> '.' then
-      begin
-        Result := Result + DNS.Answers[i].AName[j];
-        Inc(iLabel);
-      end else
-      begin
-        {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
-        {$IFDEF LCC_MOBILE}LabelPtr := Length(Result){$ELSE}LabelPtr := Length(Result) + 1;{$ENDIF}
-        Result := Result + '%';  // Filler till we know the value to write
-        iLabel := 0;
-      end;
-    end;
-    {$IFDEF LCC_MOBILE}Result[LabelPtr] := chr(iLabel){$ELSE}Result[LabelPtr] := chr(iLabel);{$ENDIF}
-    Result := Result + #0;
-
-
-    Result := Result + chr( _Hi(DNS.Answers[i].AType));
-    Result := Result + chr( _Lo(DNS.Answers[i].AType));
-    Result := Result + chr( _Hi(DNS.Answers[i].AClass));
-    Result := Result + chr( _Lo(DNS.Answers[i].AClass));
-    Result := Result + chr( _Highest(DNS.Answers[i].ATTL));
-    Result := Result + chr( _Higher(DNS.Answers[i].ATTL));
-    Result := Result + chr( _Hi(DNS.Answers[i].ATTL));
-    Result := Result + chr( _Lo(DNS.Answers[i].ATTL));
-    Result := Result + chr( _Hi(DNS.Answers[i].ARDLength));
-    Result := Result + chr( _Lo(DNS.Answers[i].ARDLength));
-    for j := 0 to DNS.Answers[i].ARDLength - 1 do
-      Result := Result + chr( DNS.Answers[i].ARData[j]);
   end;
 end;
 
@@ -613,42 +683,20 @@ begin
   inherited Destroy;
 end;
 
-function TLcc_mDNS_SinglShotServer.OpenConnection(var AnEthernetRec: TLccEthernetRec): TLcc_mDNS_SingleShotListener;
+function TLcc_mDNS_SinglShotServer.OpenConnection: TLcc_mDNS_SingleShotListener;
+var
+  AnEthernetRec: TLccEthernetRec;
 begin
+  FillChar(AnEthernetRec, Sizeof(AnEthernetRec), #0);
   // Default mDNS port to listen too
-  if AnEthernetRec.ListenerIP = '' then
-    AnEthernetRec.ListenerIP := '224.0.0.251' ; //'0.0.0.0';
-  if AnEthernetRec.ListenerPort = 0 then
-    AnEthernetRec.ListenerPort := 5353;
+  AnEthernetRec.ListenerIP := '224.0.0.251' ; //'0.0.0.0';
+  AnEthernetRec.ListenerPort := 5353;
 
   Result := TLcc_mDNS_SingleShotListener.Create(True, Self, AnEthernetRec);
   Result.Owner := Self;
   UpdateListenerEvents(Result, True);
   Result.Suspended := False;
   ListenerThread := Result;
-end;
-
-function TLcc_mDNS_SinglShotServer.OpenConnectionWithLccSettings: TLcc_mDNS_SingleShotListener;
-var
-  AnEthernetRec: TLccEthernetRec;
-begin
-  Result := nil;
-  if Assigned(LccSettings) then
-  begin
-    AnEthernetRec.ConnectionState := ccsListenerDisconnected;
-    AnEthernetRec.SuppressNotification := False;
-    AnEthernetRec.Thread := nil;
-    AnEthernetRec.MessageStr := '';
-    AnEthernetRec.ListenerPort := LccSettings.Ethernet.LocalListenerPort;
-    AnEthernetRec.ListenerIP := LccSettings.Ethernet.LocalListenerIP;
-    AnEthernetRec.ClientIP := '';
-    AnEthernetRec.ClientPort := 0;
-    AnEthernetRec.HeartbeatRate := 0;
-    AnEthernetRec.ErrorCode := 0;
-    AnEthernetRec.MessageArray := nil;
-    AnEthernetRec.AutoResolveIP := LccSettings.Ethernet.AutoResolveListenerIP;
-    Result := OpenConnection(AnEthernetRec);
-  end;
 end;
 
 

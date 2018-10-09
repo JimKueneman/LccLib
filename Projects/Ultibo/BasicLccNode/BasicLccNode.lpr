@@ -77,7 +77,7 @@ begin
   if EthernetClient.Connected then
     EthernetClient.SendMessage(LccMessage);
   if EthernetServer.Connected then
-    EthernetClient.SendMessage(LccMessage);
+    EthernetServer.SendMessage(LccMessage);
 end;
 
 procedure TLccConsoleApplication.OnEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -98,12 +98,24 @@ end;
 procedure TLccConsoleApplication.OnEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
+     ccsListenerConnecting :
+       begin
+         // Be the node
+         {$IFDEF ULTIBO}
+         ConsoleWriteLn('Connecting');
+         {$ELSE}
+         WriteLn('Connecting');
+         WriteLn(EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort));
+         {$ENDIF}
+       end;
      ccsListenerConnected :
        begin
           // Be the node
          {$IFDEF ULTIBO}
+         ConsoleWriteLn('Connected');
          ConsoleWriteLn('Starting the Node');
          {$ELSE}
+         WriteLn('Connected');
          WriteLn('Starting the Node');
          WriteLn(EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort));
          {$ENDIF}
@@ -111,14 +123,43 @@ begin
        end;
      ccsListenerDisconnecting:
        begin
+         {$IFDEF ULTIBO}
+         ConsoleWriteLn('Disconnecting');
+         ConsoleWriteLn('Stopping the Node');
+         {$ELSE}
+         WriteLn('Disconnected');
+         WriteLn('Stopping the Node');
+         WriteLn(EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort));
+         {$ENDIF}
          NodeManager.Enabled := False;
          FTerminated := True;
        end;
+     ccsListenerDisconnected :
+       begin
+         {$IFDEF ULTIBO}
+         ConsoleWriteLn('Disconnected');
+         {$ELSE}
+         WriteLn('Disconnectted');
+         WriteLn(EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort));
+         {$ENDIF}
+       end;
      ccsListenerClientConnected :
        begin
+         {$IFDEF ULTIBO}
+         ConsoleWriteLn('New Client Connected');
+         ConsoleWriteLn(EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort));
+         {$ELSE}
+         WriteLn('New Client Connected');
+         WriteLn(EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort));
+         {$ENDIF}
        end;
      ccsListenerClientConnecting :
        begin
+         {$IFDEF ULTIBO}
+         ConsoleWriteLn('New Client Connecting');
+         {$ELSE}
+         WriteLn('New Client Connecting');
+         {$ENDIF}
        end;
   end;
 end;
