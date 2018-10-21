@@ -57,7 +57,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\Library\LCC;..\..\..\Library\Generics\src"/>
+      <OtherUnitFiles Value="..\..\..\Library\LCC;..\..\..\Library\Generics\src;..\CommonLib"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
