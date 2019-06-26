@@ -1,0 +1,67 @@
+object FrameItemEditor: TFrameItemEditor
+  Left = 0
+  Height = 415
+  Top = 0
+  Width = 401
+  ClientHeight = 415
+  ClientWidth = 401
+  ParentShowHint = False
+  ShowHint = True
+  TabOrder = 0
+  DesignLeft = 547
+  DesignTop = 119
+  object PanelActionInfo: TPanel
+    Left = 0
+    Height = 415
+    Top = 0
+    Width = 401
+    Align = alClient
+    ClientHeight = 415
+    ClientWidth = 401
+    TabOrder = 0
+    object EditName: TEdit
+      Left = 19
+      Height = 22
+      Top = 48
+      Width = 367
+      Anchors = [akTop, akLeft, akRight]
+      OnChange = EditNameChange
+      TabOrder = 0
+    end
+    object LabelName: TLabel
+      Left = 8
+      Height = 16
+      Top = 23
+      Width = 36
+      Caption = 'Name'
+      ParentColor = False
+    end
+    object LabelLayoutActionDescription: TLabel
+      Left = 8
+      Height = 16
+      Top = 80
+      Width = 72
+      Caption = 'Description'
+      ParentColor = False
+    end
+    object EditDescription: TEdit
+      Left = 19
+      Height = 22
+      Top = 104
+      Width = 367
+      Anchors = [akTop, akLeft, akRight]
+      OnChange = EditDescriptionChange
+      TabOrder = 1
+    end
+    object ButtonApply: TButton
+      Left = 19
+      Height = 22
+      Top = 383
+      Width = 367
+      Anchors = [akLeft, akRight, akBottom]
+      Caption = 'Apply'
+      OnClick = ButtonApplyClick
+      TabOrder = 2
+    end
+  end
+end

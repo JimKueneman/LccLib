@@ -8,8 +8,8 @@
       <Unit0>
         <Filename Value="SimpleOlcbNode.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="160"/>
-        <CursorPos X="5" Y="195"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="47" Y="167"/>
         <UsageCount Value="33"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -93,12 +93,10 @@
       <Unit12>
         <Filename Value="..\..\..\..\Library\Generics\src\generics.hashes.pas"/>
         <UnitName Value="Generics.Hashes"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="1411"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1380"/>
         <CursorPos X="19" Y="1420"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit12>
     </Units>
     <OtherDefines Count="1">

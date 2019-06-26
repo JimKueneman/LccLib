@@ -1,0 +1,112 @@
+object FrameBlockName: TFrameBlockName
+  Left = 0
+  Height = 409
+  Top = 0
+  Width = 463
+  ClientHeight = 409
+  ClientWidth = 463
+  TabOrder = 0
+  DesignLeft = 592
+  DesignTop = 125
+  object LabelName: TLabel
+    Left = 8
+    Height = 16
+    Top = 8
+    Width = 74
+    Caption = 'Block Name'
+    ParentColor = False
+  end
+  object EditBlockName: TEdit
+    Left = 24
+    Height = 22
+    Top = 32
+    Width = 428
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 0
+    Text = 'New Block Name'
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 16
+    Top = 64
+    Width = 110
+    Caption = 'Block Description'
+    ParentColor = False
+  end
+  object EditBlockDescription: TEdit
+    Left = 24
+    Height = 22
+    Top = 88
+    Width = 428
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 1
+    Text = 'Add your description here'
+  end
+  object SpinEditStartBlock: TSpinEdit
+    Left = 24
+    Height = 16
+    Top = 312
+    Width = 130
+    Enabled = False
+    MaxValue = 1000000
+    ParentColor = True
+    ParentFont = False
+    TabOrder = 2
+  end
+  object LabelMultiple: TLabel
+    Left = 8
+    Height = 122
+    Top = 126
+    Width = 444
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = False
+    Caption = 'To create mulitple Block Actions place a "?" in the name and the beginning and ending numbers of the Blocks. '#10#10'i.e. "My Block ?" with start of 10 and and end of 13 would create the following blocks: My Block 10, My Block 11, My Block 12 and My Block 13.'
+    ParentColor = False
+    WordWrap = True
+  end
+  object CheckBoxMultipleBlocks: TCheckBox
+    Left = 24
+    Height = 18
+    Top = 256
+    Width = 156
+    Caption = 'Create Multiple Blocks'
+    OnChange = CheckBoxMultipleBlocksChange
+    TabOrder = 3
+  end
+  object Label3: TLabel
+    Left = 8
+    Height = 16
+    Top = 288
+    Width = 121
+    Caption = 'Start Block Number'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 192
+    Height = 16
+    Top = 288
+    Width = 116
+    Caption = 'End Block Number'
+    ParentColor = False
+  end
+  object SpinEditEndBlock: TSpinEdit
+    Left = 208
+    Height = 16
+    Top = 312
+    Width = 130
+    Enabled = False
+    MaxValue = 1000000
+    ParentColor = True
+    TabOrder = 4
+  end
+  object ButtonCreateBlocks: TButton
+    Left = 8
+    Height = 25
+    Top = 344
+    Width = 444
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Create Block(s)'
+    OnClick = ButtonCreateBlocksClick
+    TabOrder = 5
+  end
+end

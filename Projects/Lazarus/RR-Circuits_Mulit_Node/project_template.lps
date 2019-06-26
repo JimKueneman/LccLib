@@ -7,8 +7,7 @@
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos X="49" Y="2"/>
+        <CursorPos X="15" Y="13"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -18,10 +17,11 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="5"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="11"/>
         <CursorPos X="66" Y="8"/>
         <UsageCount Value="205"/>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>
@@ -29,10 +29,13 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="340"/>
-        <CursorPos X="60" Y="348"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="265"/>
+        <CursorPos X="22" Y="281"/>
         <UsageCount Value="205"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -159,10 +162,11 @@
       </Unit19>
       <Unit20>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="688"/>
-        <CursorPos Y="706"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="154"/>
+        <CursorPos X="14" Y="167"/>
         <UsageCount Value="38"/>
+        <Loaded Value="True"/>
       </Unit20>
       <Unit21>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
@@ -182,7 +186,7 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="2"/>
         <ExtraEditorCount Value="3"/>
         <ExtraEditor1>
           <EditorIndex Value="-1"/>
@@ -196,7 +200,8 @@
           <TopLine Value="2"/>
           <CursorPos X="54" Y="27"/>
         </ExtraEditor3>
-        <UsageCount Value="6"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit23>
       <Unit24>
@@ -321,7 +326,7 @@
         <UsageCount Value="6"/>
       </Unit41>
     </Units>
-    <JumpHistory Count="3" HistoryIndex="2">
+    <JumpHistory Count="6" HistoryIndex="4">
       <Position1>
         <Filename Value="project_template.lpr"/>
         <Caret Line="14" Column="36"/>
@@ -334,6 +339,18 @@
         <Filename Value="project_template.lpr"/>
         <Caret Line="22"/>
       </Position3>
+      <Position4>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="353" Column="96" TopLine="300"/>
+      </Position4>
+      <Position5>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="218" Column="33" TopLine="210"/>
+      </Position5>
+      <Position6>
+        <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
+        <Caret Line="167" Column="14" TopLine="154"/>
+      </Position6>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

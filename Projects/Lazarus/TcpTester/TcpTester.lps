@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
     <Units Count="68">
       <Unit0>
@@ -10,7 +10,7 @@
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="28" Y="11"/>
-        <UsageCount Value="148"/>
+        <UsageCount Value="149"/>
       </Unit0>
       <Unit1>
         <Filename Value="Forms/form_main.pas"/>
@@ -20,8 +20,8 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="292"/>
-        <CursorPos X="27" Y="312"/>
+        <TopLine Value="3"/>
+        <CursorPos X="128" Y="15"/>
         <UsageCount Value="217"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -66,7 +66,7 @@
         <ResourceBaseClass Value="Form"/>
         <TopLine Value="14"/>
         <CursorPos X="16"/>
-        <UsageCount Value="145"/>
+        <UsageCount Value="146"/>
       </Unit5>
       <Unit6>
         <Filename Value="X:/Library/LCC/lcc_rootnode.pas"/>
@@ -374,7 +374,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="33"/>
         <CursorPos Y="48"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit54>
       <Unit55>
@@ -391,7 +391,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="177"/>
         <CursorPos X="59" Y="182"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit56>
       <Unit57>
@@ -416,7 +416,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="579"/>
         <CursorPos X="3" Y="583"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit59>
       <Unit60>
@@ -442,8 +442,8 @@
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
-        <CursorPos X="37" Y="48"/>
-        <UsageCount Value="10"/>
+        <CursorPos Y="7"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit62>
       <Unit63>
@@ -451,16 +451,15 @@
         <EditorIndex Value="8"/>
         <WindowIndex Value="1"/>
         <CursorPos X="54" Y="756"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit63>
       <Unit64>
         <Filename Value="../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="73"/>
         <CursorPos X="39" Y="84"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit64>
       <Unit65>
@@ -469,7 +468,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="55"/>
         <CursorPos X="59" Y="70"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit65>
       <Unit66>
@@ -478,7 +477,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="117"/>
         <CursorPos X="3" Y="129"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit66>
       <Unit67>
