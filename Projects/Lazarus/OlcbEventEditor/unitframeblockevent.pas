@@ -52,33 +52,50 @@ begin
     begin
       for i := SpinEditStartBlock.Value to SpinEditEndBlock.Value do
       begin
-         s := StringReplace(EditBlockName.Caption, '?', IntToStr(i), [rfReplaceAll]);
-         Item := VirtualListviewActions.Items.Add(s, -1);
-         Item.Captions.Add('Block Enter Action');
-         Item.Captions.Add('Results initiated: 0');
-         Item := VirtualListviewActions.Items.Add(s);
-         Item.Captions.Add('Block Leave Action');
-         Item.Captions.Add('Results initiated: 0');
+        s := StringReplace(EditBlockName.Caption, '?', IntToStr(i), [rfReplaceAll]);
+
+        BlockItem := VirtualListviewActions.Items.Add(s, -1);
+        BlockItem.Captions.Add('Block Description');
+        BlockItem.AllowExpand := True;
+        BlockItem.Expanded := True;
+        BlockItem.ImageIndex := 62;
+        BlockItem.StateImageIndex := 0;
+        BlockItem.AllowSelect := False;
+        BlockItem.AllowFocus := False;
+
+        Item := BlockItem.ChildItems.Add(s+': EnterBlock', -1);
+        Item.Captions.Add('Block Enter Action');
+        Item.Captions.Add('Results initiated: 0');
+        Item.ImageIndex := 62;
+        Item.StateImageIndex := 0;
+
+        Item := BlockItem.ChildItems.Add(s+': LeaveBlock', -1);
+        Item.Captions.Add('Block Leave Action');
+        Item.Captions.Add('Results initiated: 0');
+        Item.ImageIndex := 62;
+        Item.StateImageIndex := 0;
       end;
     end else
     begin
       BlockItem := VirtualListviewActions.Items.Add('New Block', -1);
       BlockItem.Captions.Add('Block Description');
-      BlockItem.Expandable := True;
+      BlockItem.AllowExpand := True;
       BlockItem.Expanded := True;
-      BlockItem.ImageIndex := 0;
+      BlockItem.ImageIndex := 62;
       BlockItem.StateImageIndex := 0;
+      BlockItem.AllowSelect := False;
+      BlockItem.AllowFocus := False;
 
       Item := BlockItem.ChildItems.Add('New Block: EnterBlock', -1);
       Item.Captions.Add('Block Enter Action');
       Item.Captions.Add('Results initiated: 0');
-      Item.ImageIndex := 0;
+      Item.ImageIndex := 62;
       Item.StateImageIndex := 0;
 
       Item := BlockItem.ChildItems.Add('New Block: LeaveBlock', -1);
       Item.Captions.Add('Block Leave Action');
       Item.Captions.Add('Results initiated: 0');
-      Item.ImageIndex := 0;
+      Item.ImageIndex := 62;
       Item.StateImageIndex := 0;
     end;
   finally
