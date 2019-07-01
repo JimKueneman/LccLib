@@ -63,13 +63,13 @@ begin
         BlockItem.AllowSelect := False;
         BlockItem.AllowFocus := False;
 
-        Item := BlockItem.ChildItems.Add(s+': EnterBlock', -1);
+        Item := BlockItem.ChildItems.Add('EnterBlock', -1);
         Item.Captions.Add('Block Enter Action');
         Item.Captions.Add('Results initiated: 0');
         Item.ImageIndex := 62;
         Item.StateImageIndex := 0;
 
-        Item := BlockItem.ChildItems.Add(s+': LeaveBlock', -1);
+        Item := BlockItem.ChildItems.Add('LeaveBlock', -1);
         Item.Captions.Add('Block Leave Action');
         Item.Captions.Add('Results initiated: 0');
         Item.ImageIndex := 62;
@@ -86,13 +86,13 @@ begin
       BlockItem.AllowSelect := False;
       BlockItem.AllowFocus := False;
 
-      Item := BlockItem.ChildItems.Add('New Block: EnterBlock', -1);
+      Item := BlockItem.ChildItems.Add('EnterBlock', -1);
       Item.Captions.Add('Block Enter Action');
       Item.Captions.Add('Results initiated: 0');
       Item.ImageIndex := 62;
       Item.StateImageIndex := 0;
 
-      Item := BlockItem.ChildItems.Add('New Block: LeaveBlock', -1);
+      Item := BlockItem.ChildItems.Add('LeaveBlock', -1);
       Item.Captions.Add('Block Leave Action');
       Item.Captions.Add('Results initiated: 0');
       Item.ImageIndex := 62;
