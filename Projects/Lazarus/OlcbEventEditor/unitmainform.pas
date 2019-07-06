@@ -52,6 +52,8 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    LabelSelectedCount: TLabel;
+    LabelSelectedAddress: TLabel;
     MenuItemSelectAll: TMenuItem;
     MenuItemUnSelectAll: TMenuItem;
     MenuItemCollapseAll: TMenuItem;
@@ -99,6 +101,7 @@ type
     procedure SpinEdit3Change(Sender: TObject);
     procedure SpinEdit4Change(Sender: TObject);
     procedure VirtualListviewActionsFocusedChanged(Sender: TObject; FocusedItem, OldFocusedItem: TVirtualListviewItem);
+    procedure VirtualListviewActionsSelectedChanged(Sender: TObject);
     procedure VirtualListviewResponsesFocusedChanged(Sender: TObject; FocusedItem, OldFocusedItem: TVirtualListviewItem);
   private
     FActiveFrame: TFrame;
@@ -367,6 +370,12 @@ procedure TForm1.VirtualListviewActionsFocusedChanged(Sender: TObject;
   FocusedItem, OldFocusedItem: TVirtualListviewItem);
 begin
   DisplayedItem := FocusedItem;
+end;
+
+procedure TForm1.VirtualListviewActionsSelectedChanged(Sender: TObject);
+begin
+  LabelSelectedCount.Caption := 'Selected Count = ' + IntToStr(VirtualListviewActions.SelectedCount);
+  LabelSelectedAddress.Caption := 'Selected Address = $' + IntToHex(Cardinal (VirtualListviewActions.SelectedItem), 8);
 end;
 
 procedure TForm1.VirtualListviewResponsesFocusedChanged(Sender: TObject;

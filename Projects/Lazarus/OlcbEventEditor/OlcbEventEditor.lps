@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="27">
+    <Units Count="54">
       <Unit0>
         <Filename Value="OlcbEventEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,8 +18,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="unitMainForm"/>
-        <TopLine Value="126"/>
-        <CursorPos X="14" Y="137"/>
+        <TopLine Value="148"/>
+        <CursorPos X="28" Y="150"/>
         <UsageCount Value="220"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -31,12 +31,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <UnitName Value="unitFrameBlockEvent"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="56"/>
         <CursorPos X="43" Y="72"/>
         <UsageCount Value="220"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="unitframeitemeditor.pas"/>
@@ -45,56 +43,57 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <UnitName Value="unitFrameItemEditor"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="28"/>
         <CursorPos X="71" Y="45"/>
         <UsageCount Value="220"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="1598"/>
-        <CursorPos Y="1601"/>
+        <TopLine Value="1596"/>
+        <CursorPos X="3" Y="1598"/>
         <UsageCount Value="110"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="87"/>
-        <CursorPos X="22" Y="102"/>
-        <UsageCount Value="22"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="315"/>
+        <CursorPos X="3" Y="298"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="/Developer/lazarus/lcl/include/control.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2229"/>
-        <CursorPos Y="2244"/>
-        <UsageCount Value="19"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="2528"/>
+        <CursorPos X="32" Y="2537"/>
+        <UsageCount Value="51"/>
+        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="/Developer/lazarus/lcl/include/wincontrol.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="5404"/>
-        <CursorPos Y="5420"/>
-        <UsageCount Value="19"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="3886"/>
+        <CursorPos Y="3913"/>
+        <UsageCount Value="36"/>
+        <Loaded Value="True"/>
       </Unit7>
       <Unit8>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/persist.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="40"/>
         <CursorPos Y="43"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="4"/>
       </Unit8>
       <Unit9>
         <Filename Value="unitmainform.lfm"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="121"/>
         <CursorPos X="34" Y="129"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="4"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit9>
       <Unit10>
@@ -103,249 +102,437 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1091"/>
         <CursorPos Y="1093"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="14"/>
       </Unit10>
       <Unit11>
-        <Filename Value="/Developer/lazarus/lcl/lresources.pp"/>
-        <UnitName Value="LResources"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="3142"/>
-        <CursorPos X="72" Y="3148"/>
-        <UsageCount Value="10"/>
-      </Unit11>
-      <Unit12>
         <Filename Value="/Developer/lazarus/lcl/graphics.pp"/>
         <UnitName Value="Graphics"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="274"/>
         <CursorPos X="18" Y="285"/>
-        <UsageCount Value="26"/>
-      </Unit12>
-      <Unit13>
+        <UsageCount Value="13"/>
+      </Unit11>
+      <Unit12>
         <Filename Value="/Developer/lazarus/lcl/lcltype.pp"/>
         <UnitName Value="LCLType"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1637"/>
-        <CursorPos X="3" Y="1653"/>
-        <UsageCount Value="20"/>
-      </Unit13>
-      <Unit14>
+        <TopLine Value="2635"/>
+        <CursorPos X="3" Y="2651"/>
+        <UsageCount Value="7"/>
+      </Unit12>
+      <Unit13>
         <Filename Value="/Developer/lazarus/lcl/graphmath.pp"/>
         <UnitName Value="GraphMath"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="27"/>
         <CursorPos X="17" Y="42"/>
-        <UsageCount Value="9"/>
-      </Unit14>
-      <Unit15>
+        <UsageCount Value="6"/>
+      </Unit13>
+      <Unit14>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/typshrdh.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="60"/>
-        <CursorPos X="3" Y="62"/>
-        <UsageCount Value="9"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-image/src/fpcanvas.pp"/>
-        <UnitName Value="FPCanvas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="102"/>
-        <CursorPos X="12" Y="120"/>
-        <UsageCount Value="10"/>
-      </Unit16>
-      <Unit17>
+        <TopLine Value="54"/>
+        <CursorPos X="8" Y="67"/>
+        <UsageCount Value="25"/>
+      </Unit14>
+      <Unit15>
         <Filename Value="/Developer/lazarus/lcl/include/pen.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="129"/>
         <CursorPos Y="147"/>
-        <UsageCount Value="9"/>
-      </Unit17>
-      <Unit18>
+        <UsageCount Value="6"/>
+      </Unit15>
+      <Unit16>
         <Filename Value="/Developer/lazarus/lcl/controls.pp"/>
         <UnitName Value="Controls"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="63"/>
-        <CursorPos X="3" Y="80"/>
-        <UsageCount Value="10"/>
-      </Unit18>
-      <Unit19>
-        <Filename Value="/Developer/lazarus/lcl/include/popupmenu.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="59"/>
-        <CursorPos Y="82"/>
-        <UsageCount Value="9"/>
-      </Unit19>
-      <Unit20>
-        <Filename Value="/Developer/lazarus/lcl/include/winapi.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="789"/>
-        <CursorPos Y="806"/>
-        <UsageCount Value="9"/>
-      </Unit20>
-      <Unit21>
-        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonwsmenus.pp"/>
-        <UnitName Value="CarbonWSMenus"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="275"/>
-        <CursorPos Y="305"/>
-        <UsageCount Value="9"/>
-      </Unit21>
-      <Unit22>
-        <Filename Value="/Developer/lazarus/lcl/include/menu.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="274"/>
-        <CursorPos Y="292"/>
-        <UsageCount Value="9"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonmenus.pp"/>
-        <UnitName Value="CarbonMenus"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="75"/>
-        <CursorPos Y="92"/>
-        <UsageCount Value="9"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="/Developer/lazarus/lcl/include/intfbasewinapi.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="627"/>
-        <CursorPos X="37" Y="641"/>
-        <UsageCount Value="9"/>
-      </Unit24>
-      <Unit25>
+        <EditorIndex Value="5"/>
+        <TopLine Value="1316"/>
+        <CursorPos X="94" Y="1334"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
+      </Unit16>
+      <Unit17>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivatecommon.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="360"/>
         <CursorPos Y="378"/>
-        <UsageCount Value="10"/>
-      </Unit25>
-      <Unit26>
+        <UsageCount Value="24"/>
+      </Unit17>
+      <Unit18>
         <Filename Value="/Developer/lazarus/lcl/interfaces/carbon/carbonprivatewindow.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="366"/>
         <CursorPos Y="382"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="24"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPCommonObjects.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="498"/>
+        <CursorPos X="9" Y="515"/>
+        <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPShellTypes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="96"/>
+        <CursorPos X="35" Y="112"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyListview.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="71"/>
+        <CursorPos X="3" Y="90"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyListviewAccessible.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="37"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyLVResources.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyMSAAIntf.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyScrollFrame.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakEasyListview/Source/EasyTaskPanelForm.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="33"/>
+        <CursorPos X="3" Y="49"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPCommonUtilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="5570"/>
+        <CursorPos X="90" Y="5591"/>
+        <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPCommonWizardHelpers.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPCommonWizardTemplates.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPDataObject.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="43" Y="14"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPResources.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPShellUtilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1336"/>
+        <CursorPos X="25" Y="1350"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="../../../../Mustangpeak Engineering/Software/Components/MustangpeakCommonLib/Source/MPThreadManager.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="199"/>
+        <CursorPos X="25" Y="215"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="/Developer/lazarus/components/virtualtreeview/VirtualTrees.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="68"/>
+        <CursorPos X="8" Y="73"/>
+        <UsageCount Value="2"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/win32/win32proc.pp"/>
+        <UnitName Value="Win32Proc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="187"/>
+        <CursorPos X="23" Y="203"/>
+        <UsageCount Value="2"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/wince/wincecallback.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1322"/>
+        <CursorPos X="13" Y="1337"/>
+        <UsageCount Value="2"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/wince/windows.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="41"/>
+        <CursorPos X="5" Y="44"/>
+        <UsageCount Value="2"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="/Developer/lazarus/lcl/nonwin32/messages.pp"/>
+        <UnitName Value="Messages"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="27"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/gtk/gtkwidgetset.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3406"/>
+        <CursorPos X="11" Y="3421"/>
+        <UsageCount Value="2"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="/Developer/lazarus/lcl/lmessages.pp"/>
+        <UnitName Value="LMessages"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="122"/>
+        <CursorPos X="3" Y="138"/>
+        <UsageCount Value="2"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="/Developer/lazarus/components/lclextensions/delphicompat.pas"/>
+        <UnitName Value="DelphiCompat"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/sysutils/diskh.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="11" Y="16"/>
+        <UsageCount Value="2"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="/Developer/lazarus/lcl/interfaces/customdrawn/customdrawn_winproc.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="433"/>
+        <CursorPos X="21" Y="448"/>
+        <UsageCount Value="2"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="/Developer/lazarus/components/virtualtreeview/lclconstants.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="20" Y="3"/>
+        <UsageCount Value="2"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classes.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1039"/>
+        <CursorPos X="3" Y="1042"/>
+        <UsageCount Value="18"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="/Developer/lazarus/lcl/include/dragmanager.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="808"/>
+        <CursorPos Y="824"/>
+        <UsageCount Value="18"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="/Developer/lazarus/lcl/include/controlcanvas.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="21"/>
+        <UsageCount Value="8"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="/Developer/lazarus/lcl/include/dragobject.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="51"/>
+        <CursorPos Y="67"/>
+        <UsageCount Value="9"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="/Developer/lazarus/lcl/imglist.pp"/>
+        <UnitName Value="ImgList"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="449"/>
+        <CursorPos Y="479"/>
+        <UsageCount Value="9"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="/Developer/lazarus/lcl/include/imglist.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1267"/>
+        <CursorPos Y="1282"/>
+        <UsageCount Value="9"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="/Developer/lazarus/lcl/include/dragimagelist.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="254"/>
+        <CursorPos Y="274"/>
+        <FoldState Value=" T3n704?"/>
+        <UsageCount Value="8"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-base/src/contnrs.pp"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="64"/>
+        <CursorPos X="27" Y="74"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/lists.inc"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="800"/>
+        <CursorPos X="3" Y="802"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit53>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1578" TopLine="1558"/>
+        <Caret Line="1793" TopLine="1776"/>
       </Position1>
       <Position2>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1579" TopLine="1559"/>
+        <Caret Line="1788" TopLine="1776"/>
       </Position2>
       <Position3>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1580" TopLine="1560"/>
+        <Caret Line="1790" TopLine="1776"/>
       </Position3>
       <Position4>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1581" TopLine="1561"/>
+        <Caret Line="1791" TopLine="1776"/>
       </Position4>
       <Position5>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1583" TopLine="1563"/>
+        <Caret Line="1319" TopLine="1303"/>
       </Position5>
       <Position6>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1584" TopLine="1564"/>
+        <Caret Line="1327" TopLine="1303"/>
       </Position6>
       <Position7>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1586" TopLine="1566"/>
+        <Caret Line="1334" TopLine="1307"/>
       </Position7>
       <Position8>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1588" TopLine="1568"/>
+        <Caret Line="1324" TopLine="1307"/>
       </Position8>
       <Position9>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1595" TopLine="1583"/>
+        <Caret Line="1805" TopLine="1789"/>
       </Position9>
       <Position10>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1596" TopLine="1583"/>
+        <Caret Line="1807" TopLine="1789"/>
       </Position10>
       <Position11>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1597" TopLine="1583"/>
+        <Caret Line="1808" TopLine="1789"/>
       </Position11>
       <Position12>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1599" Column="56" TopLine="1587"/>
+        <Caret Line="1809" TopLine="1789"/>
       </Position12>
       <Position13>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1562" TopLine="1549"/>
+        <Caret Line="1815" TopLine="1789"/>
       </Position13>
       <Position14>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1564" TopLine="1549"/>
+        <Caret Line="1817" TopLine="1790"/>
       </Position14>
       <Position15>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1566" TopLine="1549"/>
+        <Caret Line="1818" TopLine="1791"/>
       </Position15>
       <Position16>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1568" TopLine="1549"/>
+        <Caret Line="1824" TopLine="1809"/>
       </Position16>
       <Position17>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1570" TopLine="1549"/>
+        <Caret Line="1598" TopLine="1581"/>
       </Position17>
       <Position18>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1572" TopLine="1551"/>
+        <Caret Line="1599" Column="15" TopLine="1581"/>
       </Position18>
       <Position19>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1574" TopLine="1553"/>
+        <Caret Line="451" Column="18" TopLine="433"/>
       </Position19>
       <Position20>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1575" TopLine="1554"/>
+        <Caret Line="2240" Column="53" TopLine="2224"/>
       </Position20>
       <Position21>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1576" TopLine="1556"/>
+        <Caret Line="448" Column="17" TopLine="428"/>
       </Position21>
       <Position22>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1578" TopLine="1558"/>
+        <Caret Line="1801" Column="30" TopLine="1782"/>
       </Position22>
       <Position23>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1579" TopLine="1559"/>
+        <Caret Line="451" Column="15" TopLine="434"/>
       </Position23>
       <Position24>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1580" TopLine="1560"/>
+        <Caret Line="2244" Column="30" TopLine="2227"/>
       </Position24>
       <Position25>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1581" TopLine="1561"/>
+        <Caret Line="448" Column="15" TopLine="437"/>
       </Position25>
       <Position26>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1583" TopLine="1563"/>
+        <Caret Line="1789" Column="3" TopLine="1782"/>
       </Position26>
       <Position27>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1584" TopLine="1564"/>
+        <Caret Line="1324" Column="30" TopLine="1308"/>
       </Position27>
       <Position28>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1623" TopLine="1611"/>
+        <Caret Line="387" Column="15" TopLine="387"/>
       </Position28>
       <Position29>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1624" TopLine="1611"/>
+        <Caret Line="1828" Column="13" TopLine="1805"/>
       </Position29>
       <Position30>
         <Filename Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
-        <Caret Line="1626" TopLine="1602"/>
+        <Caret Line="422" Column="15" TopLine="422"/>
       </Position30>
     </JumpHistory>
     <RunParams>
@@ -353,4 +540,22 @@
       <Modes Count="0" ActiveMode="default"/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="2">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="/Developer/lazarus/lcl/include/dragimagelist.inc"/>
+        <Line Value="177"/>
+      </Item1>
+      <Item2>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="../../../../Mustangpeak Engineering/Software/Components/VirtualListview/virtuallistview.pas"/>
+        <Line Value="2487"/>
+      </Item2>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>
