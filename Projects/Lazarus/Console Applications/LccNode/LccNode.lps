@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="11"/>
+    <BuildModes Active="Default"/>
+    <Units Count="21">
+      <Unit0>
+        <Filename Value="LccNode.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <TopLine Value="234"/>
+        <CursorPos X="9" Y="248"/>
+        <UsageCount Value="112"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="938"/>
+        <CursorPos X="20" Y="961"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_utilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="12"/>
+        <CursorPos X="3" Y="25"/>
+        <UsageCount Value="7"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_app_common_settings.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="268"/>
+        <CursorPos X="26" Y="290"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_xmlutilities.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="113"/>
+        <CursorPos Y="136"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_messages.pas"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="452"/>
+        <CursorPos Y="478"/>
+        <UsageCount Value="53"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="55"/>
+        <CursorPos X="84" Y="68"/>
+        <UsageCount Value="52"/>
+        <Loaded Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="349"/>
+        <CursorPos Y="365"/>
+        <UsageCount Value="51"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_common_classes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="69"/>
+        <CursorPos X="17" Y="72"/>
+        <UsageCount Value="2"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="usr\local\share\fpcsrc\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1627"/>
+        <CursorPos X="17" Y="1643"/>
+        <UsageCount Value="2"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="usr\local\share\fpcsrc\rtl\objpas\classes\classes.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="216"/>
+        <CursorPos X="3" Y="219"/>
+        <UsageCount Value="2"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="usr\local\share\fpcsrc\rtl\unix\cthreads.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1021"/>
+        <CursorPos X="21" Y="1047"/>
+        <UsageCount Value="2"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\..\..\..\Library\Generics\src\generics.hashes.pas"/>
+        <UnitName Value="Generics.Hashes"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1380"/>
+        <CursorPos X="19" Y="1420"/>
+        <UsageCount Value="2"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\BasicOlcbNode\rpinode.lpr"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="124"/>
+        <CursorPos X="83" Y="137"/>
+        <UsageCount Value="4"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\BasicOlcbNode\rpinode.lpi"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+        <DefaultSyntaxHighlighter Value="XML"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="usr\local\share\fpcsrc\packages\fcl-base\src\custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="74"/>
+        <CursorPos X="14" Y="88"/>
+        <UsageCount Value="3"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\lazarus\fpc\3.0.4\source\packages\fcl-base\src\custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="40"/>
+        <CursorPos X="17" Y="32"/>
+        <UsageCount Value="3"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_sdn_utilities.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="28" Y="7"/>
+        <UsageCount Value="2"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_detailed_logging.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="3"/>
+        <CursorPos X="112" Y="4"/>
+        <UsageCount Value="47"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\..\..\..\Library\Generics\src\generics.collections.pas"/>
+        <UnitName Value="Generics.Collections"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="2194"/>
+        <CursorPos Y="2210"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_can_message_assembler_disassembler.pas"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="301"/>
+        <CursorPos Y="322"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit20>
+    </Units>
+    <OtherDefines Count="1">
+      <Define0 Value="FPC_CONSOLE_APP"/>
+    </OtherDefines>
+    <JumpHistory Count="20" HistoryIndex="19">
+      <Position1>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="270" TopLine="244"/>
+      </Position1>
+      <Position2>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="271" TopLine="245"/>
+      </Position2>
+      <Position3>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="272" TopLine="246"/>
+      </Position3>
+      <Position4>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="273" TopLine="247"/>
+      </Position4>
+      <Position5>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="274" TopLine="248"/>
+      </Position5>
+      <Position6>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="275" TopLine="249"/>
+      </Position6>
+      <Position7>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="276" TopLine="277"/>
+      </Position7>
+      <Position8>
+        <Filename Value="LccNode.lpr"/>
+        <Caret Line="300" TopLine="277"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="2575" TopLine="2559"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="2577" TopLine="2559"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="2578" TopLine="2559"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="2580" TopLine="2559"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="2581" TopLine="2559"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1381" TopLine="1365"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1382" TopLine="1365"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1383" TopLine="1365"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1384" TopLine="1365"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1386" Column="26" TopLine="1375"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="1419" Column="41" TopLine="1434"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Caret Line="683" Column="15" TopLine="413"/>
+      </Position20>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="7">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="usr\local\share\fpcsrc\rtl\unix\cthreads.pp"/>
+        <Line Value="1055"/>
+      </Item1>
+      <Item2>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Line Value="1402"/>
+      </Item2>
+      <Item3>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <Line Value="1481"/>
+      </Item3>
+      <Item4>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
+        <Line Value="385"/>
+      </Item4>
+      <Item5>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\..\Library\LCC\lcc_ethenetserver.pas"/>
+        <Line Value="391"/>
+      </Item5>
+      <Item6>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="LccNode.lpr"/>
+        <Line Value="251"/>
+      </Item6>
+      <Item7>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="LccNode.lpr"/>
+        <Line Value="300"/>
+      </Item7>
+    </BreakPoints>
+  </Debugging>
+</CONFIG>
