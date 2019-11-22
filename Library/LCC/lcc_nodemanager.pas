@@ -101,6 +101,7 @@ const
 
 
 type
+  TLccEvents = class;
   TLccNode = class;
   TLccNodeManager = class;
   TTraction = class;
@@ -287,12 +288,19 @@ type
     FEnable: Boolean;
     FCount: Integer;
     FDefaultState: TEventState;
+    FOwner: TLccEvents;
     FStartIndex: Integer;
+    procedure SetCount(AValue: Integer);
+    procedure SetDefaultState(AValue: TEventState);
+    procedure SetEnable(AValue: Boolean);
+    procedure SetStartIndex(AValue: Integer);
   public
-    property Enable: Boolean read FEnable write FEnable;
-    property Count: Integer read FCount write FCount;
-    property DefaultState: TEventState read FDefaultState write FDefaultState;
-    property StartIndex: Integer read FStartIndex write FStartIndex;
+    constructor Create(AnOwner: TLccEvents);
+    property Enable: Boolean read FEnable write SetEnable;
+    property Count: Integer read FCount write SetCount;
+    property DefaultState: TEventState read FDefaultState write SetDefaultState;
+    property StartIndex: Integer read FStartIndex write SetStartIndex;
+    property Owner: TLccEvents read FOwner;
   end;
 
   { TLccEvents }
@@ -939,6 +947,38 @@ begin
   {$ENDIF}
 end;
 
+{ TLccEventAutoGenerate }
+
+constructor TLccEventAutoGenerate.Create(AnOwner: TLccEvents);
+begin
+  inherited Create;
+  FOwner := AnOwner;
+end;
+
+procedure TLccEventAutoGenerate.SetCount(AValue: Integer);
+begin
+  if FCount = AValue then Exit;
+  FCount := AValue;
+end;
+
+procedure TLccEventAutoGenerate.SetDefaultState(AValue: TEventState);
+begin
+  if FDefaultState = AValue then Exit;
+  FDefaultState := AValue;
+end;
+
+procedure TLccEventAutoGenerate.SetEnable(AValue: Boolean);
+begin
+  if FEnable = AValue then Exit;
+  FEnable := AValue;
+end;
+
+procedure TLccEventAutoGenerate.SetStartIndex(AValue: Integer);
+begin
+  if FStartIndex = AValue then Exit;
+  FStartIndex := AValue;
+end;
+
 { TLccEvent }
 
 procedure TLccEvent.SetID(AValue: TEventID);
@@ -1423,6 +1463,7 @@ begin
       end;
       EventsProduced.Valid := True;
     end;
+
     Configuration.LoadFromFile;
     if Assigned(OwnerManager) then
       OwnerManager.DoNodeIDChanged(Self);
@@ -2128,7 +2169,7 @@ begin
   inherited Create(AnOwner);
   FEventList := TObjectList<TLccEvent>.Create;
   EventList.OwnsObjects := False;
-  FAutoGenerate := TLccEventAutoGenerate.Create;
+  FAutoGenerate := TLccEventAutoGenerate.Create(Self);
 end;
 
 destructor TLccEvents.Destroy;

@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 446
+  Left = 432
   Height = 609
-  Top = 182
+  Top = 75
   Width = 973
   Caption = 'Form1'
   ClientHeight = 609
@@ -39,11 +39,11 @@ object Form1: TForm1
       end
       object ComboBoxLayoutActions: TComboBox
         Left = 8
-        Height = 20
+        Height = 21
         Top = 2
         Width = 272
         Anchors = [akTop, akLeft, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         Style = csDropDownList
         TabOrder = 1
       end
@@ -122,10 +122,10 @@ object Form1: TForm1
       end
       object ComboBoxLayoutResponses: TComboBox
         Left = 8
-        Height = 20
+        Height = 21
         Top = 2
         Width = 272
-        ItemHeight = 0
+        ItemHeight = 13
         Style = csDropDownList
         TabOrder = 1
       end
@@ -190,9 +190,9 @@ object Form1: TForm1
     TabOrder = 3
     object CheckBox1: TCheckBox
       Left = 16
-      Height = 18
+      Height = 17
       Top = 88
-      Width = 155
+      Width = 125
       Caption = 'Use Expandable Items'
       Checked = True
       OnChange = CheckBox1Change
@@ -213,8 +213,8 @@ object Form1: TForm1
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 52
-      ClientWidth = 177
+      ClientHeight = 56
+      ClientWidth = 181
       ItemIndex = 0
       Items.Strings = (
         'Top Justify'
@@ -226,7 +226,7 @@ object Form1: TForm1
     end
     object SpinEdit1: TSpinEdit
       Left = 248
-      Height = 16
+      Height = 21
       Top = 43
       Width = 95
       OnChange = SpinEdit1Change
@@ -235,7 +235,7 @@ object Form1: TForm1
     end
     object SpinEdit2: TSpinEdit
       Left = 248
-      Height = 16
+      Height = 21
       Top = 96
       Width = 95
       OnChange = SpinEdit2Change
@@ -244,25 +244,25 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 252
-      Height = 16
+      Height = 13
       Top = 20
-      Width = 93
+      Width = 72
       Caption = 'Caption Indent'
       ParentColor = False
     end
     object Label2: TLabel
       Left = 248
-      Height = 16
+      Height = 13
       Top = 71
-      Width = 87
+      Width = 67
       Caption = 'Details Indent'
       ParentColor = False
     end
     object CheckBox2: TCheckBox
       Left = 248
-      Height = 18
+      Height = 17
       Top = 136
-      Width = 113
+      Width = 92
       Caption = 'Expand Images'
       Checked = True
       OnChange = CheckBox2Change
@@ -271,9 +271,9 @@ object Form1: TForm1
     end
     object CheckBox3: TCheckBox
       Left = 248
-      Height = 18
+      Height = 17
       Top = 160
-      Width = 100
+      Width = 82
       Caption = 'State Images'
       Checked = True
       OnChange = CheckBox3Change
@@ -282,9 +282,9 @@ object Form1: TForm1
     end
     object CheckBox4: TCheckBox
       Left = 248
-      Height = 18
+      Height = 17
       Top = 184
-      Width = 94
+      Width = 78
       Caption = 'Item Images'
       Checked = True
       OnChange = CheckBox4Change
@@ -293,15 +293,15 @@ object Form1: TForm1
     end
     object Label3: TLabel
       Left = 368
-      Height = 16
+      Height = 13
       Top = 20
-      Width = 121
+      Width = 91
       Caption = 'Caption Line Count'
       ParentColor = False
     end
     object SpinEdit3: TSpinEdit
       Left = 368
-      Height = 16
+      Height = 21
       Top = 43
       Width = 106
       OnChange = SpinEdit3Change
@@ -310,7 +310,7 @@ object Form1: TForm1
     end
     object SpinEdit4: TSpinEdit
       Left = 368
-      Height = 16
+      Height = 21
       Top = 96
       Width = 106
       OnChange = SpinEdit4Change
@@ -319,16 +319,16 @@ object Form1: TForm1
     end
     object SpinEdit5: TSpinEdit
       Left = 736
-      Height = 16
+      Height = 21
       Top = 40
       Width = 98
       TabOrder = 9
     end
     object Label4: TLabel
       Left = 368
-      Height = 16
+      Height = 13
       Top = 73
-      Width = 74
+      Width = 56
       Caption = 'Item Height'
       ParentColor = False
     end
@@ -346,8 +346,8 @@ object Form1: TForm1
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 51
-      ClientWidth = 177
+      ClientHeight = 55
+      ClientWidth = 181
       ItemIndex = 0
       Items.Strings = (
         'Expand Image Left'
@@ -358,9 +358,9 @@ object Form1: TForm1
     end
     object CheckBox5: TCheckBox
       Left = 508
-      Height = 18
+      Height = 17
       Top = 41
-      Width = 161
+      Width = 127
       Caption = 'Enable BkGnd Gradient'
       OnChange = CheckBox5Change
       TabOrder = 11
@@ -397,50 +397,50 @@ object Form1: TForm1
     end
     object Label5: TLabel
       Left = 508
-      Height = 16
+      Height = 13
       Top = 71
-      Width = 111
+      Width = 83
       Caption = 'BkGnd Gradient 1'
       ParentColor = False
     end
     object Label6: TLabel
       Left = 508
-      Height = 16
+      Height = 13
       Top = 113
-      Width = 111
+      Width = 83
       Caption = 'BkGnd Gradient 2'
       ParentColor = False
     end
     object Label7: TLabel
       Left = 508
-      Height = 16
+      Height = 13
       Top = 153
-      Width = 79
+      Width = 58
       Caption = 'BkGnd Color'
       ParentColor = False
     end
     object CheckBox6: TCheckBox
       Left = 374
-      Height = 18
+      Height = 17
       Top = 145
-      Width = 125
+      Width = 100
       Caption = 'Show Focus Rect'
       OnChange = CheckBox6Change
       TabOrder = 12
     end
     object LabelSelectedAddress: TLabel
       Left = 663
-      Height = 16
+      Height = 13
       Top = 84
-      Width = 145
+      Width = 109
       Caption = 'Selected = $00000000'
       ParentColor = False
     end
     object LabelSelectedCount: TLabel
       Left = 663
-      Height = 16
+      Height = 13
       Top = 104
-      Width = 121
+      Width = 93
       Caption = 'Selected Count = 0'
       ParentColor = False
     end

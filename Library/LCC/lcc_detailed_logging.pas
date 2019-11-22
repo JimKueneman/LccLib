@@ -7,14 +7,21 @@ unit lcc_detailed_logging;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, math, lcc_math_float16, strutils, lcc_defines,
+  Classes, SysUtils,
+  {$IFNDEF FPC_CONSOLE_APP}
+  SynEdit,
+  {$ENDIF}
+  math, lcc_math_float16, strutils, lcc_defines,
   lcc_threadedcirculararray, lcc_utilities;
 
 
+  {$IFNDEF FPC_CONSOLE_APP}
   procedure PrintToSynEdit(MessageStr: AnsiString; SynEditLog: TSynEdit; Paused: Boolean; Detailed: Boolean; JMRIFormat: Boolean);
   procedure PrintTCPToSynEdit(MessageStr: WideString; ByteArray: TDynamicByteArray; SynEditLog: TSynEdit; Paused: Boolean; Detailed: Boolean; JMRIFormat: Boolean);
   function MTI_ToString(MTI: DWord): WideString;
+  {$ENDIF}
 
+  function MessageToDetailedMessage(MessageString: string): string;
 
 implementation
 
@@ -924,6 +931,9 @@ begin
   end;
 end;
 
+
+{$IFNDEF FPC_CONSOLE_APP}
+
 procedure PrintToSynEdit(MessageStr: AnsiString; SynEditLog: TSynEdit; Paused: Boolean; Detailed: Boolean; JMRIFormat: Boolean);
 var
   SemiColonPos: Integer;
@@ -1043,6 +1053,8 @@ begin
      SynEditLog.EndUpdate;
   end;
 end;
+
+{$ENDIF}
 
 { TMultiFrameBuffer }
 

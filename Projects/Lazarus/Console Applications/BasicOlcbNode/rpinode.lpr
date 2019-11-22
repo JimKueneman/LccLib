@@ -46,6 +46,7 @@ type
     FEthernetClient: TLccEthernetClient;
     FEthernetServer: TLccEthernetServer;
     FFailedConnecting: Boolean;
+    FIsInLoopback: Boolean;
     FIsServer: Boolean;
     FLccMessage: TLccMessage;
     FLccSettings: TLccSettings;
@@ -73,6 +74,7 @@ type
     property ConfigFile: string read FConfigFile write FConfigFile;
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
+    property IsInLoopback: Boolean read FIsInLoopback write FIsInLoopback;
     property IsServer: Boolean read FIsServer write FIsServer;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property LccMessage: TLccMessage read FLccMessage write FLccMessage;
@@ -108,7 +110,7 @@ begin
   end;
 
   // quick check parameters
-  ErrorMsg:=CheckOptions('h s C i t f d -H', 'help server cdi id templatefile configurationfile datagram hub');
+  ErrorMsg:=CheckOptions('h s C i t f d H L', 'help server cdi id templatefile configurationfile datagram hub loopback');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -116,6 +118,8 @@ begin
   end;
 
   // parse parameters
+  IsInLoopback := HasOption('L', 'loopback');
+
   if HasOption('h', 'help') then begin
     WriteHelp;
     Terminate;
@@ -428,53 +432,58 @@ begin
   case EthernetRec.ConnectionState of
     ccsClientConnecting :
       begin
-        WriteLn('Connecting');
+        WriteLn('Connecting......');
         TriedConnecting := True;
       end;
     ccsClientConnected :
       begin
-        WriteLn('Connected');
-        WriteLn('IP = ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+        WriteLn('Connected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
         Connected := True;
       end;
     ccsClientDisconnecting :
       begin
-        WriteLn('DisConnecting');
+        WriteLn('DisConnecting......');
       end;
     ccsClientDisconnected :
       begin
-        WriteLn('DisConnected');
+        WriteLn('DisConnected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
         FailedConnecting := True;
+        Connected := False;
       end;
     ccsListenerConnecting :
       begin
-        WriteLn('Connecting Listener');
+        WriteLn('Connecting Listener......');
         TriedConnecting := True;
       end;
     ccsListenerConnected :
       begin
-        WriteLn('Connected Listener');
-        WriteLn('IP = ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
+        WriteLn('Connected Listener: ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
         Connected := True;
       end;
     ccsListenerDisconnecting :
       begin
-
+        WriteLn('Disconnecting Listener......');
       end;
     ccsListenerDisconnected :
       begin
-
+        WriteLn('Disconnected Listener: ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
+        Connected := False;
       end;
     ccsListenerClientConnecting :
       begin
-
+        WriteLn('Client Connecting......');
       end;
     ccsListenerClientConnected :
       begin
-        WriteLn('New Client');
-        WriteLn('IP = ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
-        WriteLn('IP = ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
-        Connected := True;
+        WriteLn('Client Connected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+      end;
+    ccsListenerClientDisconnecting :
+      begin
+        WriteLn('Client Disconnecting......');
+      end;
+    ccsListenerClientDisconnected :
+      begin
+         WriteLn('Client Disconnected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
       end;
   end;
 end;
@@ -577,6 +586,7 @@ begin
   begin
     TriedConnecting := False;
     FailedConnecting := False;
+    EthernetServer.LccSettings.Ethernet.AutoResolveListenerIP := not IsInLoopback;
     EthernetServer.OpenConnectionWithLccSettings;
     while not TriedConnecting and Result do
     begin
@@ -620,13 +630,17 @@ begin
   writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
   writeln('-H   : If the node is a server (-s) this switch enables the node to be a hub to relay messages to other connections');
   writeln('-T   : Use pure LCC TCP protocol instead of CAN Gridconnect over TCP');
+  writeln('-L   : Use the loopback IP address');
+
+//  writeln('Press and key to continue');
+//  readln;
 end;
 
 var
   Application: TOlcbNodeApplication;
 begin
   Application:=TOlcbNodeApplication.Create(nil);
-  Application.Title:='OpenLcb Node';
+  Application.Title :='OpenLcb Node';
   Application.Run;
   Application.Free;
 end.

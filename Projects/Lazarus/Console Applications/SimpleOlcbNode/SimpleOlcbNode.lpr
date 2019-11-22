@@ -42,7 +42,6 @@ type
     FEthernetClient: TLccEthernetClient;
     FEthernetServer: TLccEthernetServer;
     FNodeManager: TLccNodeManager;
-    FTerminated: Boolean;
     {$IFDEF ULTIBO}
     FHTTPListener: THTTPListener;
     {$ENDIF}
@@ -59,7 +58,6 @@ type
     {$IFDEF ULTIBO}
     property HTTPListener: THTTPListener read FHTTPListener write FHTTPListener;
     {$ENDIF}
-    property Terminated: Boolean read FTerminated;
   end;
 
 var
@@ -83,43 +81,64 @@ end;
 procedure TLccConsoleApplication.OnEthernetClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
-     ccsClientConnected :
-       begin
-         NodeManager.Enabled := True;
-       end;
-     ccsClientDisconnecting :
-       begin
-          NodeManager.Enabled := False;
-          FTerminated := True;
-       end;
+    ccsClientConnecting :
+      begin
+        WriteLn('Connecting......');
+      end;
+    ccsClientConnected :
+      begin
+        WriteLn('Connected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+        NodeManager.Enabled := True;
+      end;
+    ccsClientDisconnecting :
+      begin
+        WriteLn('DisConnecting......');
+      end;
+    ccsClientDisconnected :
+      begin
+        WriteLn('DisConnected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+        NodeManager.Enabled := False;
+      end;
   end;
 end;
 
 procedure TLccConsoleApplication.OnEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
-     ccsListenerConnected :
-       begin
-          // Be the node
-         {$IFDEF ULTIBO}
-         ConsoleWriteLn('Starting the Node');
-         {$ELSE}
-         WriteLn('Starting the Node');
-         WriteLn(EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort));
-         {$ENDIF}
-         NodeManager.Enabled := True;
-       end;
-     ccsListenerDisconnecting:
-       begin
-         NodeManager.Enabled := False;
-         FTerminated := True;
-       end;
-     ccsListenerClientConnected :
-       begin
-       end;
-     ccsListenerClientConnecting :
-       begin
-       end;
+    ccsListenerConnecting :
+      begin
+        WriteLn('Connecting Listener......');
+      end;
+    ccsListenerConnected :
+      begin
+        WriteLn('Connected Listener: ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
+        NodeManager.Enabled := True;
+      end;
+    ccsListenerDisconnecting :
+      begin
+        WriteLn('Disconnecting Listener......');
+      end;
+    ccsListenerDisconnected :
+      begin
+        WriteLn('Disconnected Listener: ' + EthernetRec.ListenerIP + ' ' + IntToStr(EthernetRec.ListenerPort));
+        NodeManager.Enabled := False;
+      end;
+    ccsListenerClientConnecting :
+      begin
+        WriteLn('Client Connecting......');
+      end;
+    ccsListenerClientConnected :
+      begin
+        WriteLn('Client Connected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+      end;
+    ccsListenerClientDisconnecting :
+      begin
+        WriteLn('Client Disconnecting......');
+      end;
+    ccsListenerClientDisconnected :
+      begin
+         WriteLn('Client Disconnected: ' + EthernetRec.ClientIP + ' ' + IntToStr(EthernetRec.ClientPort));
+      end;
   end;
 end;
 
@@ -180,7 +199,7 @@ end;
 
 procedure TLccConsoleApplication.DoRun;
 begin
-  while not Terminated do
+  while True do
   begin
     CheckSynchronize();
     Sleep(1);

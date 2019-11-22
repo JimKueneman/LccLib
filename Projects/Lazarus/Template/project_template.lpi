@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -14,9 +14,6 @@
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
-    <VersionInfo>
-      <StringTable ProductVersion=""/>
-    </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
     </BuildModes>
@@ -24,9 +21,10 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <FormatVersion Value="1"/>
-      </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default"/>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>
@@ -47,7 +45,6 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_settings"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>
@@ -55,7 +52,6 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="form_template"/>
       </Unit2>
       <Unit3>
         <Filename Value="form_logging.pas"/>
@@ -80,7 +76,6 @@
     <Conditionals Value="if TargetOS = 'darwin' then
 begin
   CustomOptions += '-k-macosx_version_min -k10.4';
-  CustomOptions += '-XR/Developer/SDKs/MacOSX10.4u.sdk/';
   CustomOptions += ' -dUseCThreads';
 end;
 if TargetOS = 'linux' then
@@ -107,9 +102,6 @@ if TargetOS = 'linux' then
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

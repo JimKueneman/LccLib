@@ -566,7 +566,8 @@ begin
       LccNodeSelector.EndUpdate;
     end;
   end;
-  TestNode.LccGuiNode.Captions.Add('Loading Node Info...');
+  if Assigned(TestNode.LccGuiNode) then
+    TestNode.LccGuiNode.Captions.Add('Loading Node Info...');
   SendPipRequest(TestNode);
   UpdateForNodeEnabled(TestNode);
 end;

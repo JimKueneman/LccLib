@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <General>
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
@@ -23,8 +23,16 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <FormatVersion Value="1"/>
+        <CommandLineParams Value="-s"/>
       </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="-s"/>
+          </local>
+        </Mode0>
+      </Modes>
     </RunParams>
     <Units Count="1">
       <Unit0>
@@ -40,7 +48,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils/;C:/lazarus/components/lazutils;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils/"/>
+      <OtherUnitFiles Value="../../../../Library/Lib;../../../../Library/LCC;../../../../Library/Synapse_LCC;/Developer/lazarus/components/lazutils;C:/lazarus/components/lazutils/;../../../../../../dev/lazarus/1.6RC1/components/lazutils;../../../../Library/Generics/src;/usr/share/lazarus/1.6/components/lazutils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'linux' then

@@ -8,19 +8,20 @@ object Form1: TForm1
   ClientWidth = 1015
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.0.2.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
     Top = 0
     Width = 1015
     ButtonHeight = 44
+    ButtonWidth = 23
     Caption = 'ToolBar1'
     Images = ImageList1
     ShowCaptions = True
     TabOrder = 0
     object ToolButton1: TToolButton
-      Left = 328
+      Left = 318
       Top = 2
       Action = ActionSettings
     end
@@ -28,7 +29,6 @@ object Form1: TForm1
       Left = 226
       Height = 44
       Top = 2
-      Width = 18
       Caption = 'ToolButton2'
       Style = tbsSeparator
     end
@@ -43,7 +43,7 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButton4: TToolButton
-      Left = 244
+      Left = 234
       Top = 2
       Action = ActionLogWindow
     end
