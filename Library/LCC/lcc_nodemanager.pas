@@ -655,6 +655,7 @@ type
     {$ENDIF}
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
+    procedure AutoGenerateEvents;
     function CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
     function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
     procedure GenerateNewNodeID;
@@ -1208,12 +1209,11 @@ var
 begin
   inherited Create(AnOwner);
   // Common Protocols
-  ProtocolSupport.Datagram := True;        // We support CDI so we must support datagrams
-  ProtocolSupport.MemConfig := True;       // We support CDI so we must support datagrams
+  ProtocolSupport.Datagram := True;        // We support CDI and Configruation Memory so we must support datagrams
+  ProtocolSupport.MemConfig := True;       // Memory Configuration
   ProtocolSupport.CDI := True;             // We Support CDI
   ProtocolSupport.EventExchange := True;   // We support Events
   ProtocolSupport.SimpleNodeInfo := True;  // We Support SNIP
-  ProtocolSupport.ACDI := True;            // We Support ACDI
   ProtocolSupport.Valid := True;
 
   // Setup a basic CDI
@@ -1354,6 +1354,35 @@ begin
   FDatagramQueue := TDatagramQueue.Create(Self);
 end;
 
+procedure TLccOwnedNode.AutoGenerateEvents;
+var
+  i: Integer;
+  TempEventID: TEventID;
+begin
+  // SDN expects the auto generated number to sart with inputs then move to outputs
+  if EventsConsumed.AutoGenerate.Enable then
+  begin
+    EventsConsumed.Clear;
+    for i := 0 to EventsConsumed.AutoGenerate.Count - 1 do
+    begin
+      NodeIDToEventID(NodeID, EventsConsumed.AutoGenerate.StartIndex + i, TempEventID);
+      EventsConsumed.Add(TempEventID, EventsConsumed.AutoGenerate.DefaultState);
+    end;
+    EventsConsumed.Valid := True;
+  end;
+
+  if EventsProduced.AutoGenerate.Enable then
+  begin
+    EventsProduced.Clear;
+    for i := 0 to EventsProduced.AutoGenerate.Count - 1 do
+    begin
+      NodeIDToEventID(NodeID, EventsProduced.AutoGenerate.StartIndex + i, TempEventID);
+      EventsProduced.Add(TempEventID, EventsProduced.AutoGenerate.DefaultState);
+    end;
+    EventsProduced.Valid := True;
+  end;
+end;
+
 function TLccOwnedNode.CreateAliasID(var Seed: TNodeID; Regenerate: Boolean): Word;
 begin
   if Regenerate then
@@ -1402,6 +1431,7 @@ begin
   if NewNodeID then
     GenerateNewNodeID;
 
+  AutoGenerateEvents;
   Configuration.LoadFromFile;
   if Assigned(OwnerManager) then
     OwnerManager.DoNodeIDChanged(Self);
@@ -1416,8 +1446,6 @@ procedure TLccOwnedNode.LoginWithLccSettings(RegenerateAliasSeed: Boolean);
 var
   TempNodeID: TNodeID;
   TempID, TempID1, TempID2: QWord;
-  TempEventID: TEventID;
-  i: Integer;
 begin
   TempNodeID[0] := 0;
   TempNodeID[1] := 0;
@@ -1442,28 +1470,7 @@ begin
       FNodeID[0] := TempNodeID[0];
       FNodeID[1] := TempNodeID[1];
     end;
-
-    // SDN expects the auto generated number to sart with inputs then move to outputs
-    if EventsConsumed.AutoGenerate.Enable then
-    begin
-      for i := 0 to EventsConsumed.AutoGenerate.Count - 1 do
-      begin
-        NodeIDToEventID(NodeID, EventsConsumed.AutoGenerate.StartIndex + i, TempEventID);
-        EventsConsumed.Add(TempEventID, EventsConsumed.AutoGenerate.DefaultState);
-      end;
-      EventsConsumed.Valid := True;
-    end;
-
-    if EventsProduced.AutoGenerate.Enable then
-    begin
-      for i := 0 to EventsProduced.AutoGenerate.Count - 1 do
-      begin
-        NodeIDToEventID(NodeID, EventsProduced.AutoGenerate.StartIndex + EventsConsumed.Count + i, TempEventID);
-        EventsProduced.Add(TempEventID, EventsProduced.AutoGenerate.DefaultState);
-      end;
-      EventsProduced.Valid := True;
-    end;
-
+    AutoGenerateEvents;
     Configuration.LoadFromFile;
     if Assigned(OwnerManager) then
       OwnerManager.DoNodeIDChanged(Self);
@@ -1483,6 +1490,7 @@ begin
   FSeedNodeID[0] := ANodeID[0];
   FSeedNodeID[1] := ANodeID[1];
 
+  AutoGenerateEvents;
   Configuration.LoadFromFile;
   if Assigned(OwnerManager) then
     OwnerManager.DoNodeIDChanged(Self);
@@ -4349,10 +4357,12 @@ begin
   end;
   if AutoSaveOnWrite then
   begin
+    Assert(FilePath = '', 'Configuration filename not set with AutoSaveOnWrite enabled');
     if not FileExists(String( FilePath)) then
     begin
-      if DirectoryExists(ExtractFilePath(FilePath)) then
-        AStream.SaveToFile(String( FilePath))
+      if not DirectoryExists(ExtractFilePath(FilePath)) then
+        if ForceDirectories(ExtractFileDir(FilePath)) then
+          AStream.SaveToFile(String( FilePath))
     end else
       AStream.SaveToFile(String( FilePath))
   end;

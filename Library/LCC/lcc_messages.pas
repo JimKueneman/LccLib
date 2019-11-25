@@ -432,7 +432,7 @@ begin
           // Extract the General OpenLCB message if possible
           if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
           begin
-            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK <= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
+            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
             begin
               CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
               MTI := 0;

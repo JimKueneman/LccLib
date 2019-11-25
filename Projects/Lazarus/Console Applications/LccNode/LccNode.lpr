@@ -19,6 +19,9 @@ uses
   lcc_detailed_logging
   ;
 
+const
+  CONFIGURATION_FILE = 'config.dat';
+
 type
 
   { TLccConsoleApplication }
@@ -255,10 +258,11 @@ begin
   NodeManager.RootNode.EventsConsumed.AutoGenerate.Enable := True;
   NodeManager.OnRequestMessageSend := @OnNodeManagerOnRequestMessageSend;
 
-  NodeManager.RootNode.EventsConsumed.AutoGenerate.Count := 5;;
-  NodeManager.RootNode.EventsConsumed.AutoGenerate.Enable := True;
-  NodeManager.RootNode.EventsProduced.AutoGenerate.Count := 5;;
-  NodeManager.RootNode.EventsProduced.AutoGenerate.Enable := True;
+  // Point the Configuration object to the configuration file path
+  NodeManager.RootNode.Configuration.FilePath := GetAppConfigDir(False) + CONFIGURATION_FILE;
+  // If a configuration file exists load it
+  if FileExists(GetAppConfigDir(False) + CONFIGURATION_FILE) then
+    NodeManager.RootNode.Configuration.LoadFromFile;
 
   FillChar(EthernetRec, SizeOf(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not IsLoopback;
