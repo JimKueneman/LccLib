@@ -5,6 +5,8 @@ program LccNode;
 uses
   {$IFDEF UNIX}
   cthreads,
+  {$ELSE}
+  blcksock,
   {$ENDIF}
   SysUtils,
   Classes,
@@ -16,7 +18,8 @@ uses
   lcc_ethernetclient,
   lcc_messages,
   lcc_utilities,
-  lcc_detailed_logging
+  lcc_detailed_logging,
+  lcc_threadedcirculararray
   ;
 
 const
@@ -30,10 +33,12 @@ type
   private
     FEthernetClient: TLccEthernetClient;
     FEthernetServer: TLccEthernetServer;
+    FIsHub: Boolean;
     FIsLoopback: Boolean;
     FIsServer: Boolean;
-    FIsServerIP: string;
-    FIsServerPort: string;
+    FIsTcp: Boolean;
+    FServerIP: string;
+    FServerPort: string;
     FIsVeryVerbose: Boolean;
     FNodeManager: TLccNodeManager;
     FIsVerbose: Boolean;
@@ -46,6 +51,7 @@ type
     procedure DecodeCommandLineParameters;
     procedure PrintHelp;
     procedure PrintMsg(AMessage: string);
+    procedure PrintMessageInfo(LccMessage: TLccMessage; IsSend: Boolean);
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -54,10 +60,12 @@ type
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
-    property IsServerIP: string read FIsServerIP;
-    property IsServerPort: string read FIsServerPort;
+    property ServerIP: string read FServerIP;
+    property ServerPort: string read FServerPort;
     property IsLoopback: Boolean read FIsLoopback;
+    property IsHub: Boolean read FIsHub;
     property IsServer: Boolean read FIsServer;
+    property IsTcp: Boolean read FIsTcp;
     property IsVerbose: Boolean read FIsVerbose;
     property IsVeryVerbose: Boolean read FIsVeryVerbose;
     property Terminating: Boolean read FTerminating;
@@ -72,10 +80,12 @@ begin
   writeln('-h   : prints help [-h]');
   writeln('-s   : starts as a ethernet server [-s]');
   WriteLn('-I   : connect to IP address [-I 10.0.3.123]');
-  WriteLn('-P    : connect to Port [-P 12021]');
-  WriteLn('-v    : verbose output [-h]');
+  WriteLn('-P   : connect to Port [-P 12021]');
+  WriteLn('-v   : verbose output [-h]');
   WriteLn('-V   : Very Verbose output [-V]');
   writeln('-l   : Use the loopback IP address');
+  writeln('-h   : Server is a hub and sends messages to all clients [-h]');
+  writeln('-T   : use raw binary TCP instead of GridConnect strings [-T]');
 
 //  writeln('-C   : filename of the CDI file [-C MyCdi.xml]');
 //  writeln('-i   : nodeID for node [-i 0x203456123456]');
@@ -84,6 +94,36 @@ begin
 //  writeln('-d   : define the number of datagram buffers available, use 1 to run against Olcb python test suite [-d 1]');
 //  writeln('-H   : If the node is a server (-s) this switch enables the node to be a hub to relay messages to other connections');
 // writeln('-T   : Use pure LCC TCP protocol instead of CAN Gridconnect over TCP');
+end;
+
+procedure TLccConsoleApplication.PrintMessageInfo(LccMessage: TLccMessage;
+  IsSend: Boolean);
+var
+  TcpArray: TDynamicByteArray;
+  Dir: string;
+begin
+ if IsVeryVerbose then
+  begin
+    if IsSend then Dir := 'S: ' else Dir := 'R: ';
+    if IsTcp then
+      WriteLn(Dir + 'TCP Message')
+    else
+      WriteLn(Dir + MessageToDetailedMessage(LccMessage.ConvertToGridConnectStr('')))
+  end else
+  if IsVerbose then
+  begin
+    if IsSend then Dir := 'S: ' else Dir := 'R: ';
+    if IsTcp then
+    begin
+      if LccMessage.IsCAN then
+        WriteLn('Ignored CAN Message')
+      else begin
+        LccMessage.ConvertToLccTcp(TcpArray);
+        WriteLn(Dir + LccMessage.ConvertToLccTcpString(TcpArray))
+      end
+    end else
+      WriteLn(Dir + LccMessage.ConvertToGridConnectStr(''))
+  end
 end;
 
 procedure TLccConsoleApplication.PrintMsg(AMessage: string);
@@ -159,11 +199,7 @@ end;
 procedure TLccConsoleApplication.OnEthernetMessageReceive(Sender: TObject;
   EthernetRec: TLccEthernetRec);
 begin
-  if IsVeryVerbose then
-    WriteLn('R: ' + MessageToDetailedMessage( EthernetRec.LccMessage.ConvertToGridConnectStr('')))
-  else
-  if IsVerbose then
-    WriteLn('R: ' + EthernetRec.LccMessage.ConvertToGridConnectStr(''))
+  PrintMessageInfo(EthernetRec.LccMessage, False);
 end;
 
 procedure TLccConsoleApplication.OnNodeManagerOnRequestMessageSend(Sender: TObject; LccMessage: TLccMessage);
@@ -178,21 +214,21 @@ begin
     if EthernetServer.Connected then
       EthernetServer.SendMessage(LccMessage);
   end;
-  if IsVeryVerbose then
-    WriteLn('S: ' + MessageToDetailedMessage(LccMessage.ConvertToGridConnectStr('')))
-  else
-  if IsVerbose then
-    WriteLn('S: ' + LccMessage.ConvertToGridConnectStr(''))
+
+  PrintMessageInfo(LccMessage, True);
 end;
 
 procedure TLccConsoleApplication.DecodeCommandLineParameters;
 var
   ErrorMsg: string;
+  {$IFNDEF UNIX}
+  Socket: TBlockSocket;
+  {$ENDIF}
 begin
   // quick check parameters
-//  ErrorMsg := CheckOptions('h s C i t f d H L', 'help server cdi id templatefile configurationfile datagram hub loopback');
+//  ErrorMsg := CheckOptions('h s C i t f d H L T', 'help server cdi id templatefile configurationfile datagram hub loopback, tcp');
 
-  ErrorMsg := CheckOptions('h s l, I, P, v, V', 'help server loopback serverip serverport verbose veryverbose');
+  ErrorMsg := CheckOptions('h s l I P v V h T', 'help server loopback serverip serverport verbose veryverbose hub tcp');
   if ErrorMsg <> '' then begin
     WriteLn('Invalid parameter list');
     WriteLn(ErrorMsg);
@@ -201,17 +237,27 @@ begin
   end;
 
   FIsServer := HasOption('s', 'server');
+  FIsHub := HasOption('h', 'hub');
   FIsLoopback :=  HasOption('l', 'loopback');
   FIsVerbose := HasOption('v', 'verbose');
   FIsVeryVerbose := HasOption('V', 'veryverbose');
+  FIsTcp := HasOption('T', 'tcp');
   if HasOption('I', 'serverip') then
-  begin
-    FIsServerIP := GetOptionValue('I', 'serverip');
+    FServerIP := GetOptionValue('I', 'serverip')
+  else begin
+    if IsLoopback then
+      FServerIP := '127.0.0.1'
+    else
+      {$IFDEF UNIX}
+      FServerIP := ResolveUnixIp;
+      {$ELSE}
+      FServerIP := ResolveWindowsIp(nil);
+      {$ENDIF}
   end;
   if HasOption('P', 'serverport') then
-  begin
-    FIsServerPort := GetOptionValue('P', 'serverport');
-  end;
+    FServerPort := GetOptionValue('P', 'serverport')
+  else
+    FServerPort := '12021';
   if HasOption('h', 'help') then
   begin
     PrintHelp;
@@ -248,7 +294,7 @@ begin
   inherited;
   Writeln('Starting....');
   DecodeCommandLineParameters;
-  Writeln('Decoded....');
+  Writeln('CommandLine Parameters Decoded....');
 
   NodeManager := TLccNodeManager.Create(nil);
   NodeManager.CreateRootNode;
@@ -265,15 +311,14 @@ begin
     NodeManager.RootNode.Configuration.LoadFromFile;
 
   FillChar(EthernetRec, SizeOf(EthernetRec), #0);
-  EthernetRec.AutoResolveIP := not IsLoopback;
-  EthernetRec.ListenerIP := '127.0.0.1';  // Loopback for now
-  EthernetRec.ListenerPort := 12021;      // standard port for now
+  EthernetRec.ListenerIP := ServerIP;
+  EthernetRec.ListenerPort := StrToInt(ServerPort);
 
   if IsServer then
   begin
     EthernetServer := TLccEthernetServer.Create(nil);
-    EthernetServer.Gridconnect := True;
-    EthernetServer.Hub := False;
+    EthernetServer.Gridconnect := not IsTcp;
+    EthernetServer.Hub := IsHub;
     EthernetServer.NodeManager := NodeManager;
     EthernetServer.OnConnectionStateChange := @OnEthernetServerConnectionStateChange;
     EthernetServer.OnReceiveMessage := @OnEthernetMessageReceive;
@@ -281,7 +326,7 @@ begin
   end else
   begin
     EthernetClient := TLccEthernetClient.Create(nil);
-    EthernetClient.Gridconnect := True;
+    EthernetClient.Gridconnect := not IsTcp;
     EthernetClient.NodeManager := NodeManager;
     EthernetClient.OnConnectionStateChange := @OnEthernetClientConnectionStateChange;
     EthernetClient.OnReceiveMessage := @OnEthernetMessageReceive;
@@ -297,6 +342,10 @@ begin
         Break;
   end;
   DoStartNode(False);
+  if Assigned(EthernetServer) then
+    EthernetServer.CloseConnection(nil);
+  if Assigned(EthernetClient) then
+    EthernetClient.CloseConnection(nil);
 end;
 
 procedure TLccConsoleApplication.DoStartNode(Start: Boolean);

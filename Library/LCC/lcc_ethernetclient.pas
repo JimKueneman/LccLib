@@ -142,7 +142,6 @@ type
   private
     FEthernetThreads: TLccEthernetThreadList;
     FGridConnect: Boolean;
-    FHub: Boolean;
     FLccSettings: TLccSettings;
     {$IFDEF LOGGING}FLoggingFrame: TFrameLccLogging;{$ENDIF}
     FNodeManager: TLccNodeManager;
@@ -173,7 +172,6 @@ type
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
   published
     { Published declarations }
-    property Hub: Boolean read FHub write FHub;
     property Gridconnect: Boolean read FGridConnect write FGridConnect;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
@@ -364,7 +362,6 @@ constructor TLccEthernetClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FEthernetThreads := TLccEthernetThreadList.Create;
-  FHub := False;
 end;
 
 destructor TLccEthernetClient.Destroy;

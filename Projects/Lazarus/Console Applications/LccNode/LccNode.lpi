@@ -25,13 +25,13 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <CommandLineParams Value="-s -V -l"/>
+        <CommandLineParams Value="-s -v -l -T"/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="-s -V -l"/>
+            <CommandLineParams Value="-s -v -l -T"/>
           </local>
         </Mode0>
       </Modes>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="45">
       <Unit0>
@@ -30,8 +30,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="346"/>
-        <CursorPos X="17" Y="351"/>
+        <TopLine Value="151"/>
+        <CursorPos X="5" Y="163"/>
         <UsageCount Value="160"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -200,7 +200,7 @@
       </Unit26>
       <Unit27>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi_spiport.pas"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="179"/>
         <CursorPos Y="180"/>
         <UsageCount Value="25"/>
@@ -208,7 +208,7 @@
       </Unit27>
       <Unit28>
         <Filename Value="../../../Library/LCC/lcc_ethenetserver.pas"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="768"/>
         <CursorPos Y="783"/>
         <UsageCount Value="25"/>
@@ -216,7 +216,7 @@
       </Unit28>
       <Unit29>
         <Filename Value="../../../Library/LCC/lcc_comport.pas"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="44"/>
         <CursorPos Y="60"/>
         <UsageCount Value="25"/>
@@ -224,7 +224,7 @@
       </Unit29>
       <Unit30>
         <Filename Value="../../../Library/LCC/lcc_common_classes.pas"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="20"/>
         <CursorPos Y="31"/>
         <UsageCount Value="25"/>
@@ -232,7 +232,7 @@
       </Unit30>
       <Unit31>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="610"/>
         <CursorPos Y="621"/>
         <UsageCount Value="25"/>
@@ -240,7 +240,7 @@
       </Unit31>
       <Unit32>
         <Filename Value="../../../Library/Lib/file_utilities.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="9"/>
         <CursorPos X="91" Y="23"/>
         <UsageCount Value="25"/>
         <Loaded Value="True"/>
@@ -254,14 +254,14 @@
       </Unit33>
       <Unit34>
         <Filename Value="../../../Library/LCC/lcc_raspberrypi.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="7"/>
         <CursorPos X="11" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../Library/LCC/lcc_gridconnect.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="8"/>
         <CursorPos X="33" Y="11"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -269,7 +269,7 @@
       <Unit36>
         <Filename Value="../../../Library/Generics/src/generics.defaults.pas"/>
         <UnitName Value="Generics.Defaults"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="59"/>
         <CursorPos X="14" Y="6"/>
         <UsageCount Value="10"/>
@@ -309,10 +309,9 @@
       <Unit41>
         <Filename Value="../../../../Lazarus_1.6.0/lazarus_1_6/components/lazutils/laz_xmlread.pas"/>
         <UnitName Value="Laz_XMLRead"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="28" Y="9"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit41>
       <Unit42>
         <Filename Value="../../../../Lazarus_1.6.0/lazarus_1_6/components/lazutils/laz2_dom.pas"/>
@@ -335,7 +334,7 @@
         <UsageCount Value="10"/>
       </Unit44>
     </Units>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="form_template.pas"/>
         <Caret Line="401" Column="19" TopLine="371"/>
@@ -444,10 +443,22 @@
         <Caret Line="21" Column="11"/>
       </Position27>
       <Position28>
-        <Filename Value="../../../../Lazarus_1.6.0/lazarus_1_6/components/lazutils/laz_xmlread.pas"/>
-        <Caret Line="9" Column="28"/>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="351" Column="17" TopLine="346"/>
       </Position28>
+      <Position29>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="350" Column="17" TopLine="345"/>
+      </Position29>
+      <Position30>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="351" Column="17" TopLine="346"/>
+      </Position30>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
   <Debugging>
     <BreakPoints Count="1">

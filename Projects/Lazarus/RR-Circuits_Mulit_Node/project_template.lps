@@ -7,8 +7,7 @@
       <Unit0>
         <Filename Value="project_template.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos X="15" Y="13"/>
+        <CursorPos X="12" Y="7"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -18,11 +17,10 @@
         <ComponentName Value="FormSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="66" Y="8"/>
         <UsageCount Value="205"/>
-        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_template.pas"/>
@@ -30,9 +28,10 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="263"/>
-        <CursorPos X="62" Y="294"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="531"/>
+        <CursorPos X="106" Y="556"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -102,9 +101,9 @@
       </Unit10>
       <Unit11>
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="452"/>
-        <CursorPos X="3" Y="213"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="1409"/>
+        <CursorPos X="53" Y="805"/>
         <UsageCount Value="41"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -163,7 +162,7 @@
       </Unit19>
       <Unit20>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="155"/>
         <CursorPos X="31" Y="179"/>
         <UsageCount Value="38"/>
@@ -187,22 +186,21 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <ExtraEditorCount Value="3"/>
         <ExtraEditor1>
           <EditorIndex Value="-1"/>
+          <CursorPos X="93" Y="21"/>
         </ExtraEditor1>
         <ExtraEditor2>
           <EditorIndex Value="-1"/>
-          <CursorPos X="93" Y="21"/>
+          <TopLine Value="2"/>
+          <CursorPos X="54" Y="27"/>
         </ExtraEditor2>
         <ExtraEditor3>
           <EditorIndex Value="-1"/>
-          <TopLine Value="2"/>
-          <CursorPos X="54" Y="27"/>
         </ExtraEditor3>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit23>
       <Unit24>
@@ -328,13 +326,13 @@
       </Unit41>
       <Unit42>
         <Filename Value="../../../Library/LCC/lcc_sdn_utilities.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="173"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit42>
     </Units>
-    <JumpHistory Count="17" HistoryIndex="16">
+    <JumpHistory Count="25" HistoryIndex="24">
       <Position1>
         <Filename Value="project_template.lpr"/>
         <Caret Line="14" Column="36"/>
@@ -403,6 +401,38 @@
         <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
         <Caret Line="609" Column="36" TopLine="591"/>
       </Position17>
+      <Position18>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="294" Column="62" TopLine="263"/>
+      </Position18>
+      <Position19>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="297" Column="10" TopLine="289"/>
+      </Position19>
+      <Position20>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="110" Column="15" TopLine="110"/>
+      </Position20>
+      <Position21>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="559" Column="23" TopLine="532"/>
+      </Position21>
+      <Position22>
+        <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="808" Column="14" TopLine="794"/>
+      </Position22>
+      <Position23>
+        <Filename Value="../../../Library/LCC/lcc_nodemanager.pas"/>
+        <Caret Line="3071" Column="3" TopLine="3067"/>
+      </Position23>
+      <Position24>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="556" Column="106" TopLine="9"/>
+      </Position24>
+      <Position25>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="555" Column="106" TopLine="530"/>
+      </Position25>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

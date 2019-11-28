@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="55">
       <Unit0>
         <Filename Value="BasicCANandEthernetApp.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <CursorPos Y="21"/>
         <UsageCount Value="148"/>
@@ -20,6 +19,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="4"/>
         <CursorPos X="40" Y="12"/>
         <UsageCount Value="148"/>
@@ -420,5 +420,9 @@
         <Caret Line="21" Column="60"/>
       </Position11>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
 </CONFIG>

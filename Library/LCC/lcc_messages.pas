@@ -744,13 +744,17 @@ var
   i: Integer;
 begin
   Result := '';
-  Result := Result + LF + 'TCP Header: ';
-  for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+  if Length(ByteArray) > 0 then
+  begin
+    Result := '';
+    Result := Result + LF + 'TCP Header: ';
+    for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
+      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
 
-  Result := Result + LF + 'TCP Message: ';
-  for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+    Result := Result + LF + 'TCP Message: ';
+    for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
+      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+  end;
 end;
 
 procedure TLccMessage.Copy(TargetMessage: TLccMessage);

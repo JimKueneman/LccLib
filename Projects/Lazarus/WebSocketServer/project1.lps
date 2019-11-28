@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="24">
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="149"/>
         <CursorPos Y="157"/>
         <UsageCount Value="76"/>
@@ -76,7 +77,6 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="311"/>
         <CursorPos Y="331"/>
@@ -303,6 +303,10 @@
         <Caret Line="326" TopLine="311"/>
       </Position30>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
   <Debugging>
     <BreakPoints Count="4">

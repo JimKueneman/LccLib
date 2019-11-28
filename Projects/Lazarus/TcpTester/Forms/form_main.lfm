@@ -11,32 +11,32 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '1.6.2.0'
+  LCLVersion = '2.0.2.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
     Top = 0
     Width = 742
     ButtonHeight = 44
+    ButtonWidth = 23
     Caption = 'ToolBar1'
     Images = ImageListMain
     ShowCaptions = True
     TabOrder = 0
     object ToolButtonSettings: TToolButton
-      Left = 493
+      Left = 465
       Top = 2
       Action = ActionToolsSettingsShowWin
     end
     object ToolButtonSpace1: TToolButton
-      Left = 350
+      Left = 336
       Height = 44
       Top = 2
-      Width = 22
       Caption = 'ToolButtonSpace1'
       Style = tbsSeparator
     end
     object ToolButtonComPort: TToolButton
-      Left = 288
+      Left = 274
       Top = 2
       Action = ActionComPort
     end
@@ -46,7 +46,7 @@ object Form1: TForm1
       Action = ActionEthernetServer
     end
     object ToolButtonLogWindow: TToolButton
-      Left = 372
+      Left = 344
       Top = 2
       Action = ActionLogWindow
     end
@@ -59,20 +59,18 @@ object Form1: TForm1
       Left = 266
       Height = 44
       Top = 2
-      Width = 22
       Caption = 'ToolButtonSpace0'
       Style = tbsSeparator
     end
     object ToolButtonProperties: TToolButton
-      Left = 586
+      Left = 544
       Top = 2
       Action = ActionPropertiesWindow
     end
     object ToolButtonSpace2: TToolButton
-      Left = 564
+      Left = 536
       Height = 44
       Top = 2
-      Width = 22
       Caption = 'ToolButtonSpace2'
       Style = tbsSeparator
     end
@@ -3496,17 +3494,6 @@ object Form1: TForm1
       OnExecute = ActionShowNodePropertiesExecute
     end
   end
-  object LccEthernetClient: TLccEthernetClient
-    Hub = False
-    Gridconnect = False
-    LccSettings = LccSettings
-    NodeManager = LccNodeManager
-    OnConnectionStateChange = LccEthernetClientConnectionStateChange
-    OnErrorMessage = LccEthernetClientErrorMessage
-    SleepCount = 0
-    left = 544
-    top = 192
-  end
   object MainMenu: TMainMenu
     left = 624
     top = 192
@@ -3549,5 +3536,15 @@ object Form1: TForm1
     object MenuItemHelp: TMenuItem
       Caption = 'Help'
     end
+  end
+  object LccEthernetClient: TLccEthernetClient
+    Gridconnect = False
+    LccSettings = LccSettings
+    NodeManager = LccNodeManager
+    OnConnectionStateChange = LccEthernetClientConnectionStateChange
+    OnErrorMessage = LccEthernetClientErrorMessage
+    SleepCount = 0
+    left = 468
+    top = 208
   end
 end

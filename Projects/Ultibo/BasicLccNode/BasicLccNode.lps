@@ -4,13 +4,13 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="19">
+    <Units Count="20">
       <Unit0>
         <Filename Value="BasicLccNode.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SimpleOlcbNode"/>
-        <TopLine Value="181"/>
-        <CursorPos X="24" Y="206"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="34" Y="169"/>
         <UsageCount Value="689"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -25,10 +25,10 @@
       <Unit2>
         <Filename Value="..\..\..\Library\Generics\src\generics.collections.pas"/>
         <UnitName Value="Generics.Collections"/>
-        <EditorIndex Value="4"/>
-        <CursorPos X="59" Y="12"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="37"/>
+        <CursorPos X="11" Y="53"/>
         <UsageCount Value="343"/>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\..\Library\LCC\lcc_sdn_utilities.pas"/>
@@ -45,9 +45,7 @@
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="493"/>
         <CursorPos X="17" Y="814"/>
         <UsageCount Value="343"/>
         <Bookmarks Count="1">
@@ -124,7 +122,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="..\..\..\Library\LCC\lcc_defines.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="176"/>
         <CursorPos X="21" Y="292"/>
         <UsageCount Value="20"/>
@@ -132,7 +130,7 @@
       </Unit15>
       <Unit16>
         <Filename Value="..\..\..\Library\LCC\lcc_messages.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="75"/>
         <CursorPos Y="84"/>
         <UsageCount Value="18"/>
@@ -152,131 +150,126 @@
         <CursorPos Y="174"/>
         <UsageCount Value="8"/>
       </Unit18>
+      <Unit19>
+        <Filename Value="..\..\..\Library\Generics\src\inc\generics.dictionariesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="525"/>
+        <CursorPos X="17" Y="534"/>
+        <UsageCount Value="10"/>
+      </Unit19>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="27" HistoryIndex="26">
       <Position1>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="96" Column="52" TopLine="80"/>
+        <Caret Line="98" Column="45" TopLine="82"/>
       </Position1>
       <Position2>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="97" Column="62" TopLine="81"/>
+        <Caret Line="127" Column="25" TopLine="111"/>
       </Position2>
       <Position3>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="98" Column="45" TopLine="82"/>
+        <Caret Line="130" Column="25" TopLine="114"/>
       </Position3>
       <Position4>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="127" Column="25" TopLine="111"/>
+        <Caret Line="1078" Column="28" TopLine="1062"/>
       </Position4>
       <Position5>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="130" Column="25" TopLine="114"/>
+        <Caret Line="420" Column="21" TopLine="415"/>
       </Position5>
       <Position6>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="1078" Column="28" TopLine="1062"/>
+        <Caret Line="421" Column="22" TopLine="415"/>
       </Position6>
       <Position7>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="420" Column="21" TopLine="415"/>
+        <Caret Line="2281" Column="51" TopLine="2265"/>
       </Position7>
       <Position8>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="421" Column="22" TopLine="415"/>
+        <Caret Line="42" TopLine="32"/>
       </Position8>
       <Position9>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="2281" Column="51" TopLine="2265"/>
+        <Caret Line="1234" Column="76" TopLine="1218"/>
       </Position9>
       <Position10>
-        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="42" TopLine="32"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <Caret Line="1234" Column="76" TopLine="1218"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\..\..\Library\Generics\src\generics.collections.pas"/>
-        <Caret Line="308" Column="3" TopLine="297"/>
-      </Position12>
-      <Position13>
         <Filename Value="BasicLccNode.lpr"/>
         <Caret Line="206" Column="24" TopLine="181"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
+        <Caret Line="166" Column="14" TopLine="109"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
+        <Caret Line="8" Column="91"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
+        <Caret Line="13" Column="15"/>
       </Position13>
       <Position14>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="166" Column="14" TopLine="109"/>
+        <Caret Line="32" Column="17" TopLine="8"/>
       </Position14>
       <Position15>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="8" Column="91"/>
+        <Caret Line="71" Column="17" TopLine="65"/>
       </Position15>
       <Position16>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="13" Column="15"/>
+        <Caret Line="73" Column="12" TopLine="65"/>
       </Position16>
       <Position17>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="32" Column="17" TopLine="8"/>
+        <Caret Line="75" Column="10" TopLine="65"/>
       </Position17>
       <Position18>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="71" Column="17" TopLine="65"/>
+        <Caret Line="97" Column="21" TopLine="73"/>
       </Position18>
       <Position19>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="73" Column="12" TopLine="65"/>
+        <Caret Line="113" Column="21" TopLine="89"/>
       </Position19>
       <Position20>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="75" Column="10" TopLine="65"/>
+        <Caret Line="201" Column="15" TopLine="177"/>
       </Position20>
       <Position21>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="97" Column="21" TopLine="73"/>
+        <Caret Line="202" Column="10" TopLine="178"/>
       </Position21>
       <Position22>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="113" Column="21" TopLine="89"/>
+        <Caret Line="204" Column="18" TopLine="180"/>
       </Position22>
       <Position23>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="201" Column="15" TopLine="177"/>
+        <Caret Line="300" Column="22" TopLine="276"/>
       </Position23>
       <Position24>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="202" Column="10" TopLine="178"/>
+        <Caret Line="459" Column="15" TopLine="435"/>
       </Position24>
       <Position25>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="204" Column="18" TopLine="180"/>
+        <Caret Line="462" Column="25" TopLine="438"/>
       </Position25>
       <Position26>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="300" Column="22" TopLine="276"/>
+        <Caret Line="474" Column="43" TopLine="450"/>
       </Position26>
       <Position27>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="459" Column="15" TopLine="435"/>
-      </Position27>
-      <Position28>
-        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="462" Column="25" TopLine="438"/>
-      </Position28>
-      <Position29>
-        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <Caret Line="474" Column="43" TopLine="450"/>
-      </Position29>
-      <Position30>
-        <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
         <Caret Line="486" Column="29" TopLine="463"/>
-      </Position30>
+      </Position27>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

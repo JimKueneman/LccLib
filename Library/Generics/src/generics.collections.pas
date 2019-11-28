@@ -48,6 +48,9 @@ uses
 {.$define ENABLE_METHODS_WITH_TEnumerableWithPointers}
 
 type
+  {$IFDEF ULTIBO}
+  EArgumentNilException = class(EArgumentException);
+  {$ENDIF}
   EAVLTree = class(Exception);
   EIndexedAVLTree = class(EAVLTree);
 

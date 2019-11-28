@@ -844,7 +844,7 @@ begin
   FormSettings.FrameLccSettings.SyncWithLccSettings;
   if FormSettings.ShowModal = mrOK then
   begin
-
+     FormSettings.FrameLccSettings.StoreSettings;
   end;
 end;
 

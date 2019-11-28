@@ -496,8 +496,15 @@ end;
     IpStrings: TStringList;
     LocalName: String;
     i: Integer;
+    LocalSocket: TTCPBlockSocket;
   begin
     Result := '';
+    LocalSocket := nil;
+    if not Assigned(Socket) then
+    begin
+      LocalSocket := TTCPBlockSocket.Create;
+      Socket := LocalSocket;
+    end;
     LocalName := Socket.LocalName;
     IpStrings := TStringList.Create;
     try
@@ -506,6 +513,8 @@ end;
          Result := IpStrings[i];
     finally
       IpStrings.Free;
+      if Assigned(LocalSocket) then
+        LocalSocket.Free;
     end;
   end;
 {$ELSE}

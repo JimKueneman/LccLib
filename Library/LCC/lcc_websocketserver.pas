@@ -1,6 +1,7 @@
 unit lcc_websocketserver;
 
-// NOTE THIS DOES NOT HANDLE FRAGMENTATION CORRECTLY YET!!!!!!!!!
+// This does not support fragmentation so don't purposefully try to split a message up
+// either send a complete OpenLCB message or send nothing.
 
 {$IFDEF FPC}
 {$mode objfpc}{$H+}
