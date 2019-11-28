@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="4">
+      <Unit0>
+        <Filename Value="UltiboNode.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <TopLine Value="5"/>
+        <CursorPos X="12" Y="22"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\..\..\Library\LCC\lcc_node.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="6"/>
+        <UsageCount Value="10"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\..\Library\LCC\lcc_app_common_settings.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="20"/>
+        <CursorPos X="6" Y="30"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="5009"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit3>
+    </Units>
+    <OtherDefines Count="1">
+      <Define0 Value="FPC_CONSOLE_APP"/>
+    </OtherDefines>
+    <JumpHistory Count="5" HistoryIndex="4">
+      <Position1>
+        <Filename Value="UltiboNode.lpr"/>
+        <Caret Line="21" Column="32"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\..\..\Library\LCC\lcc_app_common_settings.pas"/>
+      </Position2>
+      <Position3>
+        <Filename Value="UltiboNode.lpr"/>
+        <Caret Line="22" Column="3"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
+      </Position4>
+      <Position5>
+        <Filename Value="UltiboNode.lpr"/>
+        <Caret Line="22" Column="12" TopLine="5"/>
+      </Position5>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
