@@ -99,8 +99,7 @@ private
   function GetIsStream: Boolean;
   function GetDataArrayIndexer(iIndex: DWord): Byte;
 
-  procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);
-protected
+  procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);protected
   FSourceID: TNodeID;
 public
   property AbandonTimeout: Integer read FAbandonTimeout write FAbandonTimeout;
@@ -131,7 +130,7 @@ public
   procedure InsertDWordAsDataBytes(DoubleWord: DWord; StartByteIndex: Integer);
   procedure InsertWordAsDataBytes(AWord: DWord; StartByteIndex: Integer);
   function ExtractDataBytesAsEventID(StartIndex: Integer): PEventID;
-  function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD; //QWord;
+  function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
   function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): PNodeID;
   function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
 
@@ -347,26 +346,7 @@ begin
   Result := @DataArray[StartIndex];
 end;
 
-function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD; // QWord;
-var
-  i, Offset, Shift: Integer;
-  ByteAsDWORD, ShiftedByte: DWORD;
-begin
-  // Dec 2019, changed from QWORD to DWORD to work with Smart Mobile Studio and JScript
-  // Can't find an instance where more than 4 bytes are requested in the library but this will test to be sure at runtime
-  Result := 0;
-  Offset := EndByteIndex - StartByteIndex;
-  Assert(Offset > 4, 'ExtractDataBytesAsInt requested larger than a DWORD result');
-  for i := StartByteIndex to EndByteIndex do
-  begin
-    Shift := Offset * 4;
-    ByteAsDWORD := DWORD( DataArray[i]);
-    ShiftedByte := ByteAsDWORD shl Shift;
-    Result := Result or ShiftedByte;
-    Dec(Offset)
-  end;
-end;
-{
+function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
 var
   i, Offset, Shift: Integer;
   ByteAsQ, ShiftedByte: QWord;
@@ -382,7 +362,6 @@ begin
     Dec(Offset)
   end;
 end;
-}
 
 function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): PNodeID;
 begin
@@ -453,7 +432,7 @@ begin
           // Extract the General OpenLCB message if possible
           if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
           begin
-            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
+            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK <= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
             begin
               CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
               MTI := 0;
@@ -765,17 +744,13 @@ var
   i: Integer;
 begin
   Result := '';
-  if Length(ByteArray) > 0 then
-  begin
-    Result := '';
-    Result := Result + LF + 'TCP Header: ';
-    for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
-      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+  Result := Result + LF + 'TCP Header: ';
+  for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
+    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
 
-    Result := Result + LF + 'TCP Message: ';
-    for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
-      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
-  end;
+  Result := Result + LF + 'TCP Message: ';
+  for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
+    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
 end;
 
 procedure TLccMessage.Copy(TargetMessage: TLccMessage);

@@ -1,0 +1,20 @@
+<SMART>
+  <Form version="3" subversion="0">
+    <Created>2018-02-04T15:37:01.191</Created>
+    <Modified>2019-12-01T10:46:05.194</Modified>
+    <object type="TW3Form">
+      <Caption>W3Form</Caption>
+      <Name>FormThrottle</Name>
+      <object type="TW3TabControl">
+        <Tabs>form:TTabMainForm
+form:TTabSettingsForm
+</Tabs>
+        <Width>848</Width>
+        <Top>8</Top>
+        <Left>8</Left>
+        <Height>800</Height>
+        <Name>W3TabControl1</Name>
+      </object>
+    </object>
+  </Form>
+</SMART>

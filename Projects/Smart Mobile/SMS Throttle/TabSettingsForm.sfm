@@ -1,0 +1,78 @@
+<SMART>
+  <Form version="3" subversion="0">
+    <Created>2019-11-25T18:45:18.029</Created>
+    <Modified>2019-12-01T10:19:23.504</Modified>
+    <object type="TW3Form">
+      <Caption>Settings</Caption>
+      <Name>TabSettingsForm</Name>
+      <object type="TW3Panel">
+        <Width>368</Width>
+        <Height>200</Height>
+        <Name>W3Panel1</Name>
+        <object type="TW3EditBox">
+          <Text>127.0.0.1</Text>
+          <Width>128</Width>
+          <Top>8</Top>
+          <Left>152</Left>
+          <Height>32</Height>
+          <Name>W3EditBoxIpAddress</Name>
+        </object>
+        <object type="TW3EditBox">
+          <Text>12021</Text>
+          <Width>128</Width>
+          <Top>48</Top>
+          <Left>152</Left>
+          <Height>32</Height>
+          <Name>W3EditBoxIpPort</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>IP Address</Caption>
+          <Width>128</Width>
+          <Top>8</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3LabelIpAddress</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>IP Port</Caption>
+          <Width>128</Width>
+          <Top>48</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3LabelIpPort</Name>
+        </object>
+        <object type="TW3CheckBox">
+          <Caption>Use Pure TCP</Caption>
+          <Width>128</Width>
+          <Top>88</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3CheckBoxTcp</Name>
+        </object>
+      </object>
+      <object type="TW3Button">
+        <Caption>Connect</Caption>
+        <Width>128</Width>
+        <Top>152</Top>
+        <Left>112</Left>
+        <Height>32</Height>
+        <Name>W3ButtonConnection</Name>
+        <OnClick>W3Button1Click</OnClick>
+      </object>
+      <object type="TW3Memo">
+        <Text>W3Memo</Text>
+        <Width>360</Width>
+        <Top>208</Top>
+        <Left>480</Left>
+        <Height>208</Height>
+        <Name>W3Memo1</Name>
+      </object>
+      <object type="TW3ListBox">
+        <Width>368</Width>
+        <Top>208</Top>
+        <Height>200</Height>
+        <Name>W3ListBox1</Name>
+      </object>
+    </object>
+  </Form>
+</SMART>

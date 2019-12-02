@@ -1,0 +1,79 @@
+<SMART>
+  <Form version="3" subversion="0">
+    <Created>2019-11-25T18:45:05.525</Created>
+    <Modified>2019-11-26T18:51:39.997</Modified>
+    <object type="TW3Form">
+      <Caption>Throttle Control</Caption>
+      <Name>TabMainForm</Name>
+      <object type="TW3Panel">
+        <Width>312</Width>
+        <Height>216</Height>
+        <Name>W3Panel1</Name>
+        <object type="TW3Label">
+          <Caption>Address</Caption>
+          <Width>128</Width>
+          <Top>40</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3LabelAddress</Name>
+        </object>
+        <object type="TW3EditBox">
+          <Text>W3EditBox</Text>
+          <Width>128</Width>
+          <Top>40</Top>
+          <Left>152</Left>
+          <Height>32</Height>
+          <Name>W3EditBoxDccAddress</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>Forward</Caption>
+          <Width>128</Width>
+          <Top>88</Top>
+          <Left>8</Left>
+          <Height>32</Height>
+          <Name>W3ButtonForward</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>Reverse</Caption>
+          <Width>128</Width>
+          <Top>88</Top>
+          <Left>144</Left>
+          <Height>32</Height>
+          <Name>W3ButtonReverse</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>F0</Caption>
+          <Width>64</Width>
+          <Top>136</Top>
+          <Left>8</Left>
+          <Height>32</Height>
+          <Name>W3ButtonF0</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>F1</Caption>
+          <Width>64</Width>
+          <Top>136</Top>
+          <Left>72</Left>
+          <Height>32</Height>
+          <Name>W3ButtonF1</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>F2</Caption>
+          <Width>64</Width>
+          <Top>136</Top>
+          <Left>136</Left>
+          <Height>32</Height>
+          <Name>W3ButtonF2</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>F3</Caption>
+          <Width>64</Width>
+          <Top>136</Top>
+          <Left>200</Left>
+          <Height>32</Height>
+          <Name>W3ButtonF3</Name>
+        </object>
+      </object>
+    </object>
+  </Form>
+</SMART>

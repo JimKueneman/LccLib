@@ -6,13 +6,14 @@ object Form1: TForm1
   Caption = 'Form1'
   ClientHeight = 499
   ClientWidth = 733
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.2.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 21
-    Top = 478
+    Height = 23
+    Top = 476
     Width = 733
     Panels = <    
       item
@@ -29,7 +30,7 @@ object Form1: TForm1
   object ListView1: TListView
     Left = 0
     Height = 150
-    Top = 328
+    Top = 326
     Width = 733
     Align = alBottom
     AutoWidthLastColumn = True
@@ -44,7 +45,7 @@ object Form1: TForm1
       end    
       item
         Caption = 'Extra'
-        Width = 355
+        Width = 369
       end>
     GridLines = True
     TabOrder = 1
@@ -54,18 +55,18 @@ object Form1: TForm1
     Cursor = crVSplit
     Left = 0
     Height = 8
-    Top = 320
+    Top = 318
     Width = 733
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object Panel1: TPanel
     Left = 0
-    Height = 320
+    Height = 318
     Top = 0
     Width = 733
     Align = alClient
-    ClientHeight = 320
+    ClientHeight = 318
     ClientWidth = 733
     TabOrder = 3
     object ButtonLccDisconnect: TButton
@@ -88,7 +89,7 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 1
-      Height = 178
+      Height = 176
       Top = 141
       Width = 731
       Align = alBottom

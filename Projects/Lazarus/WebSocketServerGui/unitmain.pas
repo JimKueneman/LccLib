@@ -105,7 +105,8 @@ var
   EthernetRec: TLccEthernetRec;
 begin
   FillChar(EthernetRec, SizeOf(TLccEthernetRec), #0);
-  EthernetRec.AutoResolveIP := True;
+  EthernetRec.AutoResolveIP := False;
+  EthernetRec.ListenerIP := '127.0.0.1';   // Loopback
   EthernetRec.ListenerPort := 12021;
   LccWebSocketServer1.OpenConnection(EthernetRec);
 end;
@@ -126,6 +127,9 @@ end;
 procedure TForm1.ButtonLccSendVerifyNodeClick(Sender: TObject);
 begin
   WorkerMessage.LoadVerifyNodeID(NULL_NODE_ID, $0ABC);
+  LccWebSocketServer1.SendMessage(WorkerMessage);
+  LccWebSocketServer1.SendMessage(WorkerMessage);
+  LccWebSocketServer1.SendMessage(WorkerMessage);
   LccWebSocketServer1.SendMessage(WorkerMessage);
 end;
 

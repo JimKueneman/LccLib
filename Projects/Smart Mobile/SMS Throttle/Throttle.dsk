@@ -1,0 +1,27 @@
+<SMART>
+  <state>
+    <editor>
+      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="32" col="42" row="51" splitview="0" designview="1" splitter="0.569369375705719" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="25" col="3" row="19" splitview="0" designview="0" splitter="0.444144129753113" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="74" col="5" row="86" splitview="0" designview="0" splitter="0.554954946041107" />
+      <tab filename="lcc_message" fullname="lcc_message.pas" topline="1" col="18" row="18" />
+      <tab filename="lcc_defines" fullname="lcc_defines.pas" topline="13" col="20" row="34" />
+      <tab filename="lcc_nodemanager" fullname="lcc_nodemanager.pas" topline="2729" col="16" row="2178" />
+      <tab filename="lcc_utilities" fullname="lcc_utilities.pas" topline="68" col="7" row="93" />
+      <tab filename="Storage" fullname="Storage.pas" topline="1" col="27" row="21" />
+      <tab filename="System.Types.Convert" fullname="..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Types.Convert.pas" topline="1" col="26" row="9" />
+      <tab filename="System.Memory" fullname="..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Memory.pas" topline="104" col="66" row="119" />
+      <activetab>lcc_nodemanager</activetab>
+      <breakpoints />
+    </editor>
+    <Statistics>
+      <BackgroundCompilations>4336</BackgroundCompilations>
+      <EditTime>T01:48:10.157</EditTime>
+      <CompileTime>T00:00:00.000</CompileTime>
+      <TotalTime>1900-01-01T21:51:28.512</TotalTime>
+      <DesigningTime>T07:03:57.187</DesigningTime>
+      <RunningTime>1899-12-31T03:02:03.640</RunningTime>
+      <TotalLinesOfCode>7973</TotalLinesOfCode>
+    </Statistics>
+  </state>
+</SMART>
