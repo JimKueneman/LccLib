@@ -392,7 +392,10 @@ type
   protected
     procedure DoLoadComplete(LccMessage: TLccMessage); override;
   public
+    {$IFNDEF DWSCRIPT}
+    // JScript does not have file access
     function LoadFromXml(CdiFilePath: String; Snip: TSimpleNodeInfo): Boolean;
+    {$ENDIF}
     function LoadSNIP(ASnip: TSimpleNodeInfo): Boolean;
   end;
 
@@ -869,9 +872,11 @@ type
     {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
     function FindNodeByGuiNode(GuiNode: TLccGuiNode): TLccNode;
     {$ENDIF} {$ENDIF}
+    {$IFNDEF DWSCRIPT}
     function FindMirroredNode(ANodeID: TNodeID; ANodeAlias: Word): TLccNode;
     function FindMirroredNodeBySourceID(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
     function FindMirroredNodeByDestID(LccMessage: TLccMessage; IncludeRoot: Boolean): TLccNode;
+    {$ENDIF}
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccOwnedNode;
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccOwnedNode;
     function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
@@ -2175,8 +2180,20 @@ end;
 procedure TLccOwnedNode.SendConsumedEvents;
 var
   i: Integer;
+  {$IFDEF DWSCRIPT}
+  Temp: TEventID;
+  {$ELSE}
   LocalAction: TLccBinaryAction;
+  {$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+  for i := 0 to EventsConsumed.EventList.Count - 1 do
+  begin
+    Temp := EventsConsumed.Event[i].FID;
+    WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Temp, EventsConsumed.Event[i].State);
+    OwnerManager.DoRequestMessageSend(WorkerMessage);
+  end;
+  {$ELSE}
   if Assigned(SdnController) then
   begin
     for i := 0 to SdnController.Actions.Count - 1 do
@@ -2190,7 +2207,6 @@ begin
         OwnerManager.DoRequestMessageSend(WorkerMessage);
       end;
     end;
-
   end else
   begin
     for i := 0 to EventsConsumed.EventList.Count - 1 do
@@ -2199,13 +2215,27 @@ begin
       OwnerManager.DoRequestMessageSend(WorkerMessage);
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TLccOwnedNode.SendConsumerIdentify(var Event: TEventID);
 var
   EventObj: TLccEvent;
+  {$IFDEF DWSCRIPT}
+  Temp: TEventID;
+  {$ELSE}
   Action: TLccBinaryAction;
+  {$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+  EventObj := EventsConsumed.Supports(Event);
+  if Assigned(EventObj) then
+  begin
+    Temp := EventObj.FID;
+    WorkerMessage.LoadConsumerIdentified(NodeID, AliasID, Temp, EventObj.State);
+    OwnerManager.DoRequestMessageSend(WorkerMessage);
+  end;
+  {$ELSE}
   if Assigned(SdnController) then
   begin
      case SdnController.SupportsConsumed(Event, Action) of
@@ -2230,6 +2260,7 @@ begin
       OwnerManager.DoRequestMessageSend(WorkerMessage);
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TLccOwnedNode.SendEvents;
@@ -2241,8 +2272,20 @@ end;
 procedure TLccOwnedNode.SendProducedEvents;
 var
   i: Integer;
+  {$IFDEF DWSCRIPT}
+  Temp: TEventID;
+  {$ELSE}
   LocalAction: TLccBinaryAction;
+  {$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+  for i := 0 to EventsProduced.EventList.Count - 1 do
+  begin
+    Temp := EventsProduced.Event[i].FID;
+    WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Temp, EventsProduced.Event[i].State);
+    OwnerManager.DoRequestMessageSend(WorkerMessage);
+  end;
+  {$ELSE}
   if Assigned(SdnController) then
   begin
     for i := 0 to SdnController.Actions.Count - 1 do
@@ -2264,13 +2307,26 @@ begin
       OwnerManager.DoRequestMessageSend(WorkerMessage);
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TLccOwnedNode.SendProducerIdentify(var Event: TEventID);
 var
   EventObj: TLccEvent;
+  {$IFDEF DWSCRIPT}
+  Temp: TEventID;
+  {$ELSE}
   Action: TLccBinaryAction;
+  {$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+   EventObj := EventsProduced.Supports(Event);
+   if Assigned(EventObj) then
+   begin
+     WorkerMessage.LoadProducerIdentified(NodeID, AliasID, Temp, EventObj.State);
+     OwnerManager.DoRequestMessageSend(WorkerMessage);
+   end;
+  {$ELSE}
   if Assigned(SdnController) then
   begin
     case SdnController.SupportsProduced(Event, Action) of
@@ -2295,6 +2351,7 @@ begin
       OwnerManager.DoRequestMessageSend(WorkerMessage);
     end;
   end;
+  {$ENDIF}
 end;
 
 { TFunctionConfiguration }
@@ -2338,19 +2395,30 @@ end;
 
 { TLccEvents }
 
-constructor TLccEvents.Create{$IFDEF DWSCRIPT};{$ELSE}(AnOwner: TComponent); override;{$ENDIF}
+{$IFDEF DWSCRIPT}
+constructor TLccEvents.Create(AnOwner: TLccOwnedNode);
+{$ELSE}
+constructor TLccEvents.Create(AnOwner: TComponent); override;
+{$ENDIF}
 begin
-  inherited Create{$IFDEF DWSCRIPT};{$ELSE}(AnOwner);{$ENDIF}
-  FEventList := TObjectList<TLccEvent>.Create;
+  inherited Create(AnOwner);
+  FEventList := TObjectList.Create;
+  {$IFNDEF DWSCRIPT}
   EventList.OwnsObjects := False;
+  {$ENDIF}
   FAutoGenerate := TLccEventAutoGenerate.Create(Self);
 end;
 
 destructor TLccEvents.Destroy;
 begin
   Clear;
+  {$IFDEF DWSCRIPT}
+  FEventList.Free;
+  FAutoGenerate.Free;
+  {$ELSE}
   FreeAndNil(FEventList);
   FreeAndNil(FAutoGenerate);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -2359,7 +2427,11 @@ begin
   {$IFDEF FPC}
     Result := TLccEvent( EventList[Index])
   {$ELSE}
+    {$IFDEF DWSCRIPT}
+    Result := TLccEvent( EventList[Index])
+    {$ELSE}
     Result := EventList[Index]
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -2426,9 +2498,13 @@ end;
 
 { TConfigurationMemory }
 
-constructor TConfigurationMemory.CreateCreate{$IFDEF DWSCRIPT};{$ELSE}(AnOwner: TComponent); override;{$ENDIF}
+{$IFDEF DWSCRIPT}
+constructor  TConfigurationMemory.Create(AnOwner: TLccOwnedNode);
+{$ELSE}
+constructor  TConfigurationMemory.Create(AnOwner: TComponent);
+{$ENDIF}
 begin
-  inherited Create{$IFDEF DWSCRIPT};{$ELSE}(AnOwner);{$ENDIF}
+  inherited Create(AnOwner);
 end;
 
 destructor TConfigurationMemory.Destroy;
@@ -2532,7 +2608,7 @@ begin
           end;
         cdt_EventID :
           begin
-            FDataTypeEvent := LccMessage.ExtractDataBytesAsEventID(iStart)^;
+            FDataTypeEvent := LccMessage.ExtractDataBytesAsEventID(iStart){$IFNDEF DWSCRIPT}^{$ENDIF};
             RemainingCount := 0;
           end;
         cdt_Bit :
@@ -2546,8 +2622,10 @@ begin
     begin
       Valid := ErrorCode = 0;
       SourceNode := OwnerManager.FindMirroredNodeBySourceID(LccMessage, True);
-      if Assigned(OwnerManager.CdiParser) then    // Callback on the CDI Parser if available
+      {$IFNDEF DWSCRIPT}
+      if Assigned(OwnerManager.CdiParser) then    // Callback on the CDI Parser if available to sync its UI
         OwnerManager.CdiParser.DoConfigMemReadReply(SourceNode);
+      {$ENDIF}
       OwnerManager.DoConfigMemReadReply(SourceNode, OwnerManager.FindMirroredNodeByDestID(LccMessage, True));
     end;
   end else
@@ -2558,8 +2636,10 @@ begin
     if ErrorCode = 0 then
     begin
       SourceNode := OwnerManager.FindMirroredNodeBySourceID(LccMessage, True);
-      if Assigned(OwnerManager.CdiParser) then    // Callback on the CDI Parser if available
+      {$IFNDEF DWSCRIPT}
+      if Assigned(OwnerManager.CdiParser) then    // Callback on the CDI Parser if available to sync its UI
         OwnerManager.CdiParser.DoConfigMemWriteReply(SourceNode);
+      {$ENDIF}
       OwnerManager.DoConfigMemWriteReply(SourceNode, OwnerManager.FindMirroredNodeByDestID(LccMessage, True));
     end;
   end;
@@ -2585,6 +2665,8 @@ begin
   end;
 end;
 
+{$IFNDEF DWSCRIPT}
+ // JScript does not have file access
 function TCDI.LoadFromXml(CdiFilePath: String; Snip: TSimpleNodeInfo): Boolean;
 var
   XmlFile: TStringList;
@@ -2638,6 +2720,7 @@ begin
     XmlDoc.Free;
   end;
 end;
+{$ENDIF}
 
 { TFDI }
 
@@ -2675,7 +2758,13 @@ begin
   OldSize := Length(FunctionArray);
   if NewSize > OldSize then
   begin
-    SetLength(FunctionArray, NewSize);
+    {$IFDEF DWSCRIPT}
+    var BinaryData: TBinaryData;
+    BinaryData := TBinaryData.Create(TMarshal.AllocMem(NewSize).Segment);
+    FunctionArray := BinaryData.ToBytes;
+    {$ELSE}
+      SetLength(FunctionArray, NewSize);
+    {$ENDIF}
     i := OldSize;
     while i < NewSize do
     begin
@@ -2696,9 +2785,9 @@ begin
   case LccMessage.DataArrayIndexer[0] of
     TRACTION_QUERY_SPEED :
         begin
-          FSpeed := LccMessage.ExtractDataBytesAsInt(1, 2);
-          FSpeedCommanded := LccMessage.ExtractDataBytesAsInt(4, 5);
-          FSpeedActual := LccMessage.ExtractDataBytesAsInt(6, 7); ;
+ //JDK         FSpeed := LccMessage.ExtractDataBytesAsInt(1, 2);
+// JDK          FSpeedCommanded := LccMessage.ExtractDataBytesAsInt(4, 5);
+ //JDK         FSpeedActual := LccMessage.ExtractDataBytesAsInt(6, 7); ;
         end;
     TRACTION_QUERY_FUNCTION :
         begin
@@ -2746,16 +2835,28 @@ begin
   FValid:=AValue;
 end;
 
-constructor TNodeProtocolBase.CreateCreate{$IFDEF DWSCRIPT};{$ELSE}(AnOwner: TComponent); override;{$ENDIF}
+{$IFDEF DWSCRIPT}
+constructor TNodeProtocolBase.Create(AnOwner: TLccOwnedNode);
+{$ELSE}
+constructor TNodeProtocolBase.Create(AnOwner: TComponent);
+{$ENDIF}
 begin
-  inherited Create{$IFDEF DWSCRIPT};{$ELSE}(AnOwner);{$ENDIF}
-  FCreateTime := GetTickCount;
+  {$IFDEF DWSCRIPT}
+  inherited Create;
+  {$ELSE}
+  inherited Create(AnOwner);
+  {$ENDIF}
+// JDK FCreateTime := GetTickCount;
   FWorkerMessage := TLccMessage.Create;
 end;
 
 destructor TNodeProtocolBase.Destroy;
 begin
+  {$IFDEF DWSCRIPT}
+  FWorkerMessage.Free;
+  {$ELSE}
   FreeAndNil(FWorkerMessage);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -2792,7 +2893,7 @@ begin
     if FEnabled then
     begin
       if Assigned(RootNode) then
-        RootNode.LoginWithLccSettings(False);
+//JDK        RootNode.LoginWithLccSettings(False);
     end else
     begin
       {$IFDEF FPC} {$IFNDEF FPC_CONSOLE_APP}
@@ -2801,7 +2902,7 @@ begin
       {$ENDIF} {$ENDIF}
       ClearMirrored;
       ClearOwned;
-      RootNode.LoginTimer.Enabled := False;
+//JDK      RootNode.LoginTimer.Enabled := False;
       RootNode.SendAMR;
       RootNode.DatagramQueue.Clear;
       RootNode.FLoggedIn := False;
@@ -2893,6 +2994,7 @@ end;
 
 procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode);
 begin
+  {$IFNDEF DWSCRIPT}
   if not (csDestroying in ComponentState) then
   begin
     if Assigned(CdiParser) then
@@ -2902,6 +3004,7 @@ begin
   if Assigned(NetworkTree) then
     NetworkTree.DoDestroyLccNode(LccNode);
   {$ENDIF} {$ENDIF}
+  {$ENDIF}
   if Assigned(OnLccNodeDestroy) then
     OnLccNodeDestroy(Self, LccNode);
 end;
@@ -2980,10 +3083,12 @@ end;
 
 procedure TLccNodeManager.DoRequestMessageSend(Message: TLccMessage);
 begin
+  {$IFNDEF DWSCRIPT}
   if Assigned(HardwareConnection) then
     HardwareConnection.SendMessage(Message);
   if Assigned(OnRequestMessageSend) then
     OnRequestMessageSend(Self, Message);
+  {$ENDIF}
 end;
 
 procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
@@ -3543,7 +3648,15 @@ var
 begin
   i :=  Length(Manufacturer) + Length(Model) + Length(HardwareVersion) + Length(SoftwareVersion) + Length(UserName) + Length(UserDescription);
   i := i + NULL_COUNT + VERSION_COUNT;
-  SetLength(FPackedInfo, i);
+
+  {$IFDEF DWSCRIPT}
+  var BinaryData: TBinaryData;
+  BinaryData := TBinaryData.Create(TMarshal.AllocMem(i).Segment);
+  FPackedArray := BinaryData.ToBytes;
+  {$ELSE}
+    SetLength(FPackedInfo, i);
+ {$ENDIF}
+
   iArray := 0;
 
   FPackedInfo[iArray] := Version;      // 4 Items follow
@@ -3718,7 +3831,15 @@ var
 begin
   Result := True;
   FlagBlocks := LccMessage.DataCount div 6;
+
+  {$IFDEF DWSCRIPT}
+  var BinaryData: TBinaryData;
+  BinaryData := TBinaryData.Create(TMarshal.AllocMem(FlagBlocks).Segment);
+  Flags := BinaryData.ToBytes;
+  {$ELSE}
   SetLength(Flags, FlagBlocks);
+  {$ENDIF}
+
   Offset := 0;
   for i := 0 to FlagBlocks - 1 do
   begin

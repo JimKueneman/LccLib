@@ -14,6 +14,9 @@ uses
   SmartCL.Application,
   SmartCL.Components,
   SmartCL.System,
+  System.Memory,
+  System.Memory.Buffer,
+  System.Memory.Views,
   lcc_defines,
   lcc_utilities;
 
@@ -91,7 +94,7 @@ public
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
   function LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
   function ConvertToGridConnectStr(Delimiter: String): String;
- // function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
+  function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
   procedure Copy(TargetMessage: TLccMessage);
   class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
   procedure ZeroFields;
@@ -138,7 +141,7 @@ public
   // Traction Identification (STNIP)
   procedure LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   // Node Ident (SNIP)
-   procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TSimpleNodeInfoPacked);
+  procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TSimpleNodeInfoPacked);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   // FDI
   procedure LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -637,7 +640,6 @@ begin
   end;
 end;
 
-(*
 function TLccMessage.ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
 var
   Flags: Word;
@@ -647,10 +649,19 @@ begin
   if IsCAN then
     Result := False
   else begin
+    {$IFDEF DWSCRIPT}
+    var BinaryData: TBinaryData;
+    if HasDestination then
+      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE).Segment)
+    else
+      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE).Segment);
+    ByteArray := BinaryData.ToBytes;
+    {$ELSE}
     if HasDestination then
       SetLength(ByteArray, DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE)
     else
       SetLength(ByteArray, DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE);
+    {$ENDIF}
     Size := Length(ByteArray) - 5;
 
     Flags := OPSTACK_TCP_FLAG_LCC_MESSAGE;
@@ -713,7 +724,6 @@ begin
     Result := True;
   end
 end;
- *)
 
 class function TLccMessage.ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
 const

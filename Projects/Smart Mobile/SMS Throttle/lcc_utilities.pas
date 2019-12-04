@@ -21,6 +21,8 @@ uses
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
   procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
+  function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
+  function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
   function _Lo(Data: DWORD): Byte;
   function _Hi(Data: DWORD): Byte;
   function _Higher(Data: DWORD): Byte;
@@ -95,6 +97,62 @@ end;
 function NullNodeID(ANodeID: TNodeID): Boolean;
 begin
   Result := (ANodeID[0] = 0) and (ANodeID[1] = 0)
+end;
+
+function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
+var
+  i: Integer;
+begin
+  Result := '';
+  if InsertDots then
+  begin
+    for i := 0 to MAX_EVENT_LEN - 1 do
+    begin
+      if i < MAX_EVENT_LEN - 1 then
+        Result := Result + IntToHex(EventID[i], 2) + '.'
+      else
+        Result := Result + IntToHex(EventID[i], 2);
+    end;
+  end else
+  begin
+    for i := 0 to MAX_EVENT_LEN - 1 do
+      Result := Result + IntToHex(EventID[i], 2);
+  end;
+end;
+
+function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
+var
+  i: Integer;
+begin
+  Result := '';
+  if InsertDots then
+  begin
+    for i := MAX_NODEID_LEN - 1 downto 0 do
+    begin
+      if i > 0 then
+      begin
+        if i < MAX_NODEID_LEN div 2 then
+          Result := Result + IntToHex(((NodeID[0] shr (i*8)) and $0000FF), 2) + '.'
+        else
+          Result := Result + IntToHex(((NodeID[1] shr ((i-3)*8)) and $0000FF), 2) + '.'
+      end else
+      begin
+         if i < MAX_NODEID_LEN div 2 then
+          Result := Result + IntToHex(((NodeID[0] shr (i*8)) and $0000FF), 2)
+        else
+          Result := Result + IntToHex(((NodeID[1] shr ((i-3)*8)) and $0000FF), 2)
+      end;
+    end;
+  end else
+  begin
+    for i := MAX_NODEID_LEN - 1 downto 0 do
+    begin
+      if i < MAX_NODEID_LEN div 2 then
+        Result := Result + IntToHex(((NodeID[0] shr (i*8)) and $0000FF), 2)
+      else
+        Result := Result + IntToHex(((NodeID[1] shr ((i-3)*8)) and $0000FF), 2)
+    end
+  end;
 end;
 
 function _Lo(Data: DWORD): Byte;
