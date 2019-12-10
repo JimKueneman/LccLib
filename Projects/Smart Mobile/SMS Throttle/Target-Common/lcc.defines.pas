@@ -1,42 +1,86 @@
-unit lcc_defines;
-
-// ******************************************************************************
-//
-// * Copyright:
-//     (c) Mustangpeak Software 2012.
-//
-//     The contents of this file are subject to the GNU GPL v3 licence/ you maynot use
-//     this file except in compliance with the License. You may obtain a copy of the
-//     License at http://www.gnu.org/licenses/gpl.html
-//
-// * Revision History:
-//     2012-08-05:   Created
-//
-// * Description:
-
-//
-// *****************************************************************************
+unit lcc.defines;
 
 interface
 
 uses
-  System.Types, SmartCL.System, SmartCL.Components;
-
-
-{$IFNDEF FPC}
-//type
- // QWORD = UInt64;
+  {$IFDEF DWSCRIPT}
+  System.Types,
+  System.Types.Convert,
+  System.Time,
+  System.Streams,
+  System.Reader,
+  System.Writer,
+  System.Device.Storage,
+  SmartCL.Device.Storage,
+  SmartCL.Application,
+  SmartCL.Components,
+  SmartCL.System;
+{$ELSE}
+  Classes,
+  SysUtils;
 {$ENDIF}
 
-{$IFDEF DWSCRIPT}
-type
-  DWORD = LONGWORD;
-{$ENDIF}
+const
+  LCC_BYTE_COUNT        = 1024;       // This is longest data structure defined in Lcc
+  MAX_DATAGRAM_LENGTH   = 72;
+  MAX_EVENT_LEN         = 8;
+  MAX_NODEID_LEN        = 6;
+  MAX_MULTIFRAME_LEN    = 12;
 
+  {$IFDEF DWSCRIPT}
+  type
+    DWord = Longword;
+    _QWord = array[0..1] of LongWord;
+    TComponent = TObject;
+  {$ENDIF}
+
+  type
+    TLccByteArray = array[0..LCC_BYTE_COUNT-1] of Byte;
+
+    TNodeID = array[0..1] of DWord;
+    {$IFNDEF DWSCRIPT}
+    PNodeID = ^TNodeID;
+    {$ENDIF}
+
+    TSimpleNodeInfoPacked = array of Byte;
+    TFunctionStatesArray = array[0..28] of Word;
+    TDynamicByteArray = array of Byte;
+
+  type
+    TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
+
+    TStreamArray = array of Byte;
+
+    TEventID = array[0..MAX_EVENT_LEN-1] of Byte;
+    {$IFNDEF DWSCRIPT}
+    PEventID = ^TEventID;
+    {$ENDIF}
+
+    THexArray = TEventID;
+
+    TMultiFrameArray = array[0..MAX_MULTIFRAME_LEN-1] of Byte;
+
+  type
+    TEventState = (evs_Unknown, evs_Valid, evs_InValid);
+    TIsNodeTestType = (ntt_Dest, ntt_Source);
+    TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
+
+    TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,      // TEthernetClient States
+                    ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,  // TEthernetSever States
+                    ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
+                    ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);                 // TComPort States
+
+{$IFNDEF DWSCRIPT}
+// Solves circular reference as the parser need to know about lcc_nodemanager and vice versa
 type
-  TEventState = (evs_Unknown, evs_Valid, evs_InValid);
-  TIsNodeTestType = (ntt_Dest, ntt_Source);
-  TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
+  TLccCdiParserBase = class(TComponent)
+  public
+    procedure SetNodeManager(ANodeManager: TObject); virtual; abstract;
+    procedure DoConfigMemReadReply(ANode: TObject); virtual; abstract;
+    procedure DoConfigMemWriteReply(ANode: TObject); virtual; abstract;
+    procedure NotifyLccNodeDestroy(LccNode: TObject); virtual; abstract;
+  end;
+{$ENDIF}
 
 const
   // Full CAN MTI
@@ -336,10 +380,7 @@ const
   TRACTION_MANAGE_RESERVE_REPLY_OK   = $00;    // Failed is not 0
   TRACTION_MANAGE_RESERVE_REPLY_FAIL = $FF;    // Failed
 
-  MAX_DATAGRAM_LENGTH = 72;
   MAX_CONFIG_MEM_READWRITE_SIZE = 64;
-
-  MAX_MULTIFRAME_LEN = 12;
 
   REJECTED                        = $0000;
   REJECTED_PERMANENT_ERROR        = $1000;
@@ -360,9 +401,6 @@ const
   DATAGRAM_PROTOCOL_TRAINCONTROL           = $30;
   DATAGRAM_PROTOCOL_TWOBYTE                = $E0;
   DATAGRAM_PROTOCOL_SIXBYTE                = $F0;
-
-  MAX_EVENT_LEN                            = 8;
-  MAX_NODEID_LEN                           = 6;
 
   ACDI_MFG_SIZE_VERSION                    = 1;
   ACDI_MFG_SIZE_MANUFACTURER               = 41;
@@ -386,25 +424,8 @@ const
   ACDI_USER_OFFSET_NAME                     =  ACDI_USER_SIZE_VERSION;
   ACDI_USER_OFFSET_DESCRIPTION              =  ACDI_USER_OFFSET_NAME + ACDI_USER_SIZE_NAME;
 
-type
-  TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
- // PDatagramArray = ^TDatagramArray;
-
-  TStreamArray = array of Byte;
-
-  TEventID = array[0..MAX_EVENT_LEN-1] of Byte;
-//  PEventID = ^TEventID;
-
-  THexArray = TEventID;
-
-  TMultiFrameArray = array[0..MAX_MULTIFRAME_LEN-1] of Byte;
-//  PMultiFrameArray = ^TMultiFrameArray;
-
-  TNodeID = array[0..1] of DWORD;
-//  PNodeID = ^TNodeID;
-
-//const
-//  NULL_NODE_ID: TNodeID = (0, 0);
+const
+  NULL_NODE_ID: TNodeID = (0, 0);
 
 const
   NULL_EVENT_ID : TEventID = (0, 0, 0, 0, 0, 0, 0, 0);
@@ -455,3 +476,8 @@ implementation
 
 end.
 
+implementation
+
+
+
+end.

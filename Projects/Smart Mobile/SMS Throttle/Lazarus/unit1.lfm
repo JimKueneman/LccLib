@@ -1,0 +1,44 @@
+object Form1: TForm1
+  Left = 547
+  Height = 338
+  Top = 119
+  Width = 655
+  Caption = 'Form1'
+  ClientHeight = 338
+  ClientWidth = 655
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  LCLVersion = '2.0.6.0'
+  object CheckBox1: TCheckBox
+    Left = 56
+    Height = 18
+    Top = 15
+    Width = 90
+    Caption = 'CheckBox1'
+    TabOrder = 0
+  end
+  object Button1: TButton
+    Left = 73
+    Height = 22
+    Top = 101
+    Width = 167
+    Caption = 'Connect'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 15
+    Top = 323
+    Width = 655
+    Panels = <    
+      item
+        Text = 'Disconnected'
+        Width = 300
+      end    
+      item
+        Width = 300
+      end>
+    SimplePanel = False
+  end
+end

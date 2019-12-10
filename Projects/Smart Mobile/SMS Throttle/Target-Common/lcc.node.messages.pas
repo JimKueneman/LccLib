@@ -1,82 +1,52 @@
-unit lcc_messages;
-
-{$IFDEF FPC}
-{$mode objfpc}{$H+}
-{$ENDIF}
+unit lcc.node.messages;
 
 interface
 
-{$I lcc_compilers.inc}
-
 uses
-  Classes, SysUtils,
-  {$IFDEF FPC}
-    {$IFNDEF FPC_CONSOLE_APP}
-    ExtCtrls,
-    {$ENDIF}
+  {$IFDEF DWSCRIPT}
+  System.Types,
+  System.Types.Convert,
+  System.Time,
+  System.Streams,
+  System.Reader,
+  System.Writer,
+  System.Device.Storage,
+  SmartCL.Device.Storage,
+  SmartCL.Application,
+  SmartCL.Components,
+  SmartCL.System,
+  System.Memory,
+  System.Memory.Buffer,
+  System.Memory.Views,
+  {$ELSE}
+  Classes,
+  SysUtils,
+  strutils,
   {$ENDIF}
-  {$IFNDEF FPC}
-  Types,
-  {$ENDIF}
-  lcc_defines,
-  lcc_math_float16,
-  lcc_utilities,
-  lcc_threadedcirculararray,
-  strutils;
-
-const
-  CAN_BYTE_COUNT = 8;
-  LCC_BYTE_COUNT = 1024;       // This is longest data structure defined in Lcc
+  lcc.defines,
+  lcc.utilities;
 
 type
-  TCANByteArray = array[0..CAN_BYTE_COUNT-1] of Byte;
-  TLccByteArray = array[0..LCC_BYTE_COUNT-1] of Byte;
+  TLccMessage = class; // forward
+  TOnMessageEvent = procedure(Sender: TObject; LccMessage: TLccMessage) of object;
 
-  TSimpleNodeInfoPacked = array of Byte;
+  TLccSendMessageFunc = procedure(AMessage: TLccMessage) of object;
 
-TLccMessage = class;  // forward
-
-TOnMessageEvent = procedure(Sender: TObject; LccMessage: TLccMessage) of object;
-
-TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,
-                    ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,
-                    ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
-                    ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);
-
-TFunctionStatesArray = array[0..28] of Word;
-
-TLccCdiParserBase = class(TComponent)
-public
-  procedure SetNodeManager(ANodeManager: TObject); virtual; abstract;
-  procedure DoConfigMemReadReply(ANode: TObject); virtual; abstract;
-  procedure DoConfigMemWriteReply(ANode: TObject); virtual; abstract;
-  procedure NotifyLccNodeDestroy(LccNode: TObject); virtual; abstract;
-end;
-
-// TLccMessage encapsulates the information needed for full MTI messages.  The
-// data bytes are limited only by the longest OpenLCB data structure (TCP frame
-// current set to 1024 bytes).  It allows easy peaking and poking into the array
-// to pull or push OpenLCB data strutures from/to the byte array as well as
-// hold the raw data for the MTI and nodes involved in the message.  This
-// class does not handle CAN only messages
-
-{ TLccCANMessage }
-
-TLccCANMessage = class
-private
-  FDestAlias: Word;
-  FFramingBits: Byte;
-  FiTag: Integer;
-  FMTI: DWord;
-  FSourceAlias: Word;
-public
-  property iTag: Integer read FiTag write FiTag;        // General purpose counter/integer depending on the message
-  property MTI: DWord read FMTI write FMTI;
-  property DestAlias: Word read FDestAlias write FDestAlias;
-  property FramingBits: Byte read FFramingBits write FFramingBits;            // Bottom 2 bits, upper nibble
-  property SourceAlias: Word read FSourceAlias write FSourceAlias;
-end;
-
+type
+  TLccCANMessage = class
+  private
+    FDestAlias: Word;
+    FFramingBits: Byte;
+    FiTag: Integer;
+    FMTI: DWord;
+    FSourceAlias: Word;
+  public
+    property iTag: Integer read FiTag write FiTag;        // General purpose counter/integer depending on the message
+    property MTI: DWord read FMTI write FMTI;
+    property DestAlias: Word read FDestAlias write FDestAlias;
+    property FramingBits: Byte read FFramingBits write FFramingBits;            // Bottom 2 bits, upper nibble
+    property SourceAlias: Word read FSourceAlias write FSourceAlias;
+  end;
 
 
 { TLccMessage }
@@ -99,7 +69,8 @@ private
   function GetIsStream: Boolean;
   function GetDataArrayIndexer(iIndex: DWord): Byte;
 
-  procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);protected
+  procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);
+protected
   FSourceID: TNodeID;
 public
   property AbandonTimeout: Integer read FAbandonTimeout write FAbandonTimeout;
@@ -129,9 +100,9 @@ public
   procedure InsertEventID(StartIndex: Integer; var AnEventID: TEventID);
   procedure InsertDWordAsDataBytes(DoubleWord: DWord; StartByteIndex: Integer);
   procedure InsertWordAsDataBytes(AWord: DWord; StartByteIndex: Integer);
-  function ExtractDataBytesAsEventID(StartIndex: Integer): PEventID;
-  function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
-  function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): PNodeID;
+  function ExtractDataBytesAsEventID(StartIndex: Integer): {$IFDEF DWSCRIPT}TEventID {$ELSE}PEventID{$ENDIF};
+  function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD;
+  function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): {$IFDEF DWSCRIPT}TNodeID {$ELSE}PNodeID{$ENDIF};
   function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
@@ -155,7 +126,7 @@ public
   procedure LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word);
   // Protocol Support (PIP)
   procedure LoadProtocolIdentifyInquiry(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: QWord);
+  procedure LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: {$IFDEF DWSCRIPT}_QWord{$ELSE}QWord{$ENDIF});
   // Event Exchange
   procedure LoadConsumerIdentify(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID);
   procedure LoadConsumerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);
@@ -163,9 +134,9 @@ public
   procedure LoadProducerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);
   procedure LoadIdentifyEventsAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadIdentifyEvents(ASourceID: TNodeID; ASourceAlias: Word);
-  procedure LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: PEventID);
+  procedure LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: {$IFDEF DWSCRIPT}TEventID{$ELSE}PEventID{$ENDIF});
   // Traction Control
-  procedure LoadTractionSetSpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
+//  procedure LoadTractionSetSpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
   procedure LoadTractionSetFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AnAddress: DWord; AValue: Word);
   procedure LoadTractionEStop(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionQuerySpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -197,6 +168,7 @@ public
   procedure LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean; TimeOutValueN: Byte);
   procedure LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word);
   // ConfigurationMemory
+  function ExtractAddressSpace: Byte;
   procedure LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
   procedure LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadConfigMemRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ConfigMemSize: Byte);
@@ -212,7 +184,7 @@ end;
 implementation
 
 var
-  CaptureTime: QWord;
+  CaptureTime: Longword;
 
 { TLccMessage }
 
@@ -337,37 +309,66 @@ end;
 
 destructor TLccMessage.Destroy;
 begin
-  FreeAndNil(FCAN);
+  FCAN.Free;
   inherited Destroy;
 end;
 
-function TLccMessage.ExtractDataBytesAsEventID(StartIndex: Integer): PEventID;
+function TLccMessage.ExtractAddressSpace: Byte;
 begin
-  Result := @DataArray[StartIndex];
+  // Only valid if the message is a configuration memeory message!!!!!!!
+  Result := 0;
+  case DataArrayIndexer[1] and $03 of
+    0 : Result := DataArrayIndexer[6];
+    1 : Result := MSI_CONFIG;
+    2 : Result := MSI_ALL;
+    3 : Result := MSI_CDI;
+  end;
 end;
 
-function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): QWord;
+function TLccMessage.ExtractDataBytesAsEventID(StartIndex: Integer): {$IFDEF DWSCRIPT}TEventID {$ELSE}PEventID{$ENDIF};
+begin
+  {$IFDEF DWSCRIPT}
+  Result[0] := DataArray[StartIndex];
+  Result[1] := DataArray[StartIndex+1];
+  Result[2] := DataArray[StartIndex+2];
+  Result[3] := DataArray[StartIndex+3];
+  {$ELSE}
+  Result := @DataArray[StartIndex];
+  {$ENDIF}
+end;
+
+function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD; // QWord;
 var
   i, Offset, Shift: Integer;
-  ByteAsQ, ShiftedByte: QWord;
+  ByteAsDWORD, ShiftedByte: DWORD;
 begin
+  // Dec 2019, changed from QWORD to DWORD to work with Smart Mobile Studio and JScript
+  // Can't find an instance where more than 4 bytes are requested in the library but this will test to be sure at runtime
   Result := 0;
   Offset := EndByteIndex - StartByteIndex;
+  Assert(Offset > 3, 'ExtractDataBytesAsInt requested larger than a DWORD result');
   for i := StartByteIndex to EndByteIndex do
   begin
     Shift := Offset * 8;
-    ByteAsQ := QWord( DataArray[i]);
-    ShiftedByte := ByteAsQ shl Shift;
+    ByteAsDWORD := DWORD( DataArray[i]);
+    ShiftedByte := ByteAsDWORD shl Shift;
     Result := Result or ShiftedByte;
     Dec(Offset)
   end;
 end;
 
-function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): PNodeID;
+
+function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID):{$IFDEF DWSCRIPT}TNodeID {$ELSE}PNodeID{$ENDIF};
 begin
+  {$IFDEF DWSCRIPT}
+  ANodeID[1] := (DataArray[StartIndex] shl 16) or (DataArray[StartIndex+1] shl 8) or DataArray[StartIndex+2];
+  ANodeID[0] := (DataArray[StartIndex+3] shl 16) or (DataArray[StartIndex+4] shl 8) or DataArray[StartIndex+5];
+  Result := ANodeID;
+  {$ELSE}
   Result := @ANodeID;
   ANodeID[1] := (DataArray[StartIndex] shl 16) or (DataArray[StartIndex+1] shl 8) or DataArray[StartIndex+2];
   ANodeID[0] := (DataArray[StartIndex+3] shl 16) or (DataArray[StartIndex+4] shl 8) or DataArray[StartIndex+5];
+  {$ENDIF}
 end;
 
 function TLccMessage.ExtractDataBytesAsString(StartIndex, Count: Integer): String;
@@ -432,7 +433,7 @@ begin
           // Extract the General OpenLCB message if possible
           if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
           begin
-            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK <= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
+            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
             begin
               CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
               MTI := 0;
@@ -675,10 +676,19 @@ begin
   if IsCAN then
     Result := False
   else begin
+    {$IFDEF DWSCRIPT}
+    var BinaryData: TBinaryData;
+    if HasDestination then
+      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE).Segment)
+    else
+      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE).Segment);
+    ByteArray := BinaryData.ToBytes;
+    {$ELSE}
     if HasDestination then
       SetLength(ByteArray, DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE)
     else
       SetLength(ByteArray, DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE);
+    {$ENDIF}
     Size := Length(ByteArray) - 5;
 
     Flags := OPSTACK_TCP_FLAG_LCC_MESSAGE;
@@ -699,8 +709,13 @@ begin
     ByteArray[10] := _Lo(SourceID[0]);
 
     // Let the socket fill in the monotonicly increasing Capture Time
+    {$IFDEF DWSCRIPT}
+    ByteArray[11] := 0;
+    ByteArray[12] := 0;
+    {$ELSE}
     ByteArray[11] := _Highest2(CaptureTime);
     ByteArray[12] := _Highest1(CaptureTime);
+    {$ENDIF}
     ByteArray[13] := _Highest(CaptureTime);
     ByteArray[14] := _Higher(CaptureTime);  ;
     ByteArray[15] := _Hi(CaptureTime);
@@ -744,13 +759,17 @@ var
   i: Integer;
 begin
   Result := '';
-  Result := Result + LF + 'TCP Header: ';
-  for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+  if Length(ByteArray) > 0 then
+  begin
+    Result := '';
+    Result := Result + LF + 'TCP Header: ';
+    for i := 0 to MAX_HEADER_ONLY_LEN - 1 do
+      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
 
-  Result := Result + LF + 'TCP Message: ';
-  for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
-    Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+    Result := Result + LF + 'TCP Message: ';
+    for i := MAX_HEADER_ONLY_LEN to Length(ByteArray) - 1 do
+      Result := Result + ' ' + IntToHex(ByteArray[i], 2);
+  end;
 end;
 
 procedure TLccMessage.Copy(TargetMessage: TLccMessage);
@@ -865,12 +884,13 @@ begin
   FDataArray[3] := _Lo(AnMTI);
 end;
 
-procedure TLccMessage.LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: PEventID);
+
+procedure TLccMessage.LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: {$IFDEF DWSCRIPT}TEventID{$ELSE}PEventID{$ENDIF});
 begin
   ZeroFields;
   SourceID := ASourceID;
   CAN.SourceAlias := ASourceAlias;
-  InsertEventID(0, AnEvent^);
+  InsertEventID(0, AnEvent{$IFNDEF DWSCRIPT}^{$ENDIF});
   DataCount := 8;
   MTI := MTI_PC_EVENT_REPORT;
 end;
@@ -935,26 +955,28 @@ begin
   MTI := MTI_PROTOCOL_SUPPORT_INQUIRY;
 end;
 
-procedure TLccMessage.LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: QWord);
+procedure TLccMessage.LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: {$IFDEF DWSCRIPT}_QWord{$ELSE}QWord{$ENDIF});
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
+  {$IFDEF DWSCRIPT}
+  FDataArray[5] := _Lo(Flags[0]);
+  FDataArray[4] := _Hi(Flags[0]);
+  FDataArray[3] := _Higher(Flags[0]);
+  FDataArray[2] := _Highest(Flags[0]);
+  FDataArray[1] := _Lo(Flags[1]);
+  FDataArray[0] := _Hi(Flags[1]);
+  {$ELSE}
   FDataArray[5] := _Lo(Flags);
   FDataArray[4] := _Hi(Flags);
   FDataArray[3] := _Higher(Flags);
   FDataArray[2] := _Highest(Flags);
   FDataArray[1] := _Highest1(Flags);
   FDataArray[0] := _Highest2(Flags);
-
-{  DataArray[0] := _Lo(Flags);
-  DataArray[1] := _Hi(Flags);
-  DataArray[2] := _Higher(Flags);
-  DataArray[3] := _Highest(Flags);
-  DataArray[4] := _Highest1(Flags);
-  DataArray[5] := _Highest2(Flags); }
+  {$ENDIF}
   DataCount := 6;
   MTI := MTI_PROTOCOL_SUPPORT_REPLY;
 end;
@@ -1022,6 +1044,7 @@ begin
   MTI := MTI_EVENTS_IDENTIFY;
 end;
 
+{
 procedure TLccMessage.LoadTractionSetSpeed(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
 begin
@@ -1037,7 +1060,7 @@ begin
   MTI := MTI_TRACTION_PROTOCOL;
 end;
 
-
+}
 procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word
   );
 begin
@@ -1748,3 +1771,6 @@ finalization
 
 end.
 
+
+
+end.
