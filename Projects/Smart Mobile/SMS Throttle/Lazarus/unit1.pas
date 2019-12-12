@@ -13,6 +13,7 @@ uses
   Dialogs,
   StdCtrls,
   ComCtrls,
+  lcc.node,
   lcc.node.manager,
   lcc.node.messages,
   lcc.defines,
@@ -34,7 +35,7 @@ type
 
   public
      EthernetServer: TLccEthernetServer;
-     NodeManager: TLccNodeManager;
+     NodeManager: TLccCanNodeManager;
     procedure OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
   end;
 
@@ -57,19 +58,19 @@ begin
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
-    //JDK    NodeManager.RootNode := TLccOwnedNode.Create(nil);
-    NodeManager.RootNode.Login(True, False);
+    NodeManager.LogoutAll;
     EthernetServer.CloseConnection(nil);
     Button1.Caption := 'Connect';
   end else
   begin
-    NodeManager.RootNode.LogOut;
     EthernetServer.OpenConnection(EthernetRec);
     Button1.Caption := 'Disconnect';
   end;
 end;
 
 procedure TForm1.OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+var
+  CanNode: TLccCanNode;
 begin
   case EthernetRec.ConnectionState of
     ccsListenerConnecting:          StatusBar1.Panels[0].Text := 'Server Connecting: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
@@ -77,7 +78,15 @@ begin
     ccsListenerDisconnecting:       StatusBar1.Panels[0].Text := 'Server Disconnecting: ';
     ccsListenerDisconnected:        StatusBar1.Panels[0].Text := 'Server Disconnected: ';
     ccsListenerClientConnecting:    StatusBar1.Panels[1].Text := 'Client Connecting: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-    ccsListenerClientConnected:     StatusBar1.Panels[1].Text := 'Client Connected: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+    ccsListenerClientConnected:
+      begin
+        StatusBar1.Panels[1].Text := 'Client Connected: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        if NodeManager.Nodes.Count = 0 then
+        begin
+          CanNode := NodeManager.AddNode;
+          CanNode.Login(NULL_NODE_ID); // Create our own ID
+        end;
+      end;
     ccsListenerClientDisconnecting: StatusBar1.Panels[1].Text := 'Client Disconnecting: ';
     ccsListenerClientDisconnected:  StatusBar1.Panels[1].Text := 'Client Disconnected: ';
   end;
@@ -86,18 +95,18 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
+  NodeManager.Free;
   // There is a race of CloseSocket here... called twice in thread and in the CloseConnection call
   EthernetServer.CloseConnection(nil);
-  NodeManager.RootNode.LogOut;
+ // NodeManager.RootNode.LogOut;
   EthernetServer.Free;
-  NodeManager.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   EthernetServer := TLccEthernetServer.Create(nil);
   EthernetServer.Gridconnect := True;
-  NodeManager := TLccNodeManager.Create(nil);
+  NodeManager := TLccCanNodeManager.Create(nil);
 end;
 
 end.

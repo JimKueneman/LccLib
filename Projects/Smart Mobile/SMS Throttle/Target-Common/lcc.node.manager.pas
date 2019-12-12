@@ -45,19 +45,16 @@ type
 
   TLccNodeManager = class(TComponent)
   private
-    FCAN: Boolean;
     {$IFNDEF DWSCRIPT}
     FCdiParser: TLccCdiParserBase;
-   FHardwareConnection: TLccHardwareConnectionManager;
+    FHardwareConnection: TLccHardwareConnectionManager;
 // JDK   FLccSettings: TLccSettings;
     {$ENDIF}
-    FEnabled: Boolean;
     FOnAliasIDChanged: TOnLccNodeMessage;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
     FOnNodeIDChanged: TOnLccNodeMessage;
     FOnLccCANAliasMapReset: TOnLccNodeMessage;
-//JDK    FOnLccGetRootNodeClass: TOnLccGetRootNodeClass;
     FOnLccNodeCDI: TOnLccNodeMessageWithDest;
     FOnLccNodeConfigMemReadReply: TOnLccNodeConfigMem;
     FOnLccNodeConfigMemWriteReply: TOnLccNodeConfigMem;
@@ -83,13 +80,7 @@ type
     FOnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
  //JDK   FOnRequestMessageSend: TOnMessageEvent;
-    FOwnedNodes: TObjectList;
-    FRootNode: TLccOwnedNode;
-    FUserMessage: TLccMessage;
-    FWorkerMessage: TLccMessage;
-    function GetRootNodeAlias: Word;
-    function GetRootNodeID: TNodeID;
-    procedure SetCAN(AValue: Boolean);
+    FNodes: TObjectList;
   protected
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
     procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;
@@ -104,7 +95,6 @@ type
     procedure DoDestroyLccNode(LccNode: TLccNode); virtual;
     procedure DoFDI(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoFunctionConfiguration(SourceLccNode, DesTLccNode: TLccNode); virtual;
- //JDK   procedure DoGetRootNodeClass(var RootNodeClass: TLccOwnedNodeClass); virtual;
     procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;
     procedure DoNodeIDChanged(LccNode: TLccNode); virtual;
     procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode); virtual;
@@ -122,18 +112,9 @@ type
     procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoTractionReplyManage(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
-    {$IFNDEF DWSCRIPT}
-    procedure Loaded; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    {$ENDIF}
 
-    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
   public
-    property OwnedNodes: TOBjectList read FOwnedNodes write FOwnedNodes;
-    property RootNode: TLccOwnedNode read FRootNode write FRootNode;
-    property RootNodeID: TNodeID read GetRootNodeID;
-    property RootNodeAlias: Word read GetRootNodeAlias;
-    property UserMessage: TLccMessage read FUserMessage;
+    property Nodes: TOBjectList read FNodes write FNodes;
 
     {$IFDEF DWSCRIPT}
     constructor Create(AnOwner: TLccOwnedNode); virtual;
@@ -143,21 +124,17 @@ type
     destructor Destroy; override;
 
  //JDK   procedure CreateRootNode;
-    procedure ClearOwned;
-    function CreateOwnedNode: TLccOwnedNode;
+    procedure Clear;
+//JDK    function CreateOwnedNode: TLccOwnedNode;
   //JDK   function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
-    function EqualEventID(var Event1, Event2: TNodeID): Boolean;
-    function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccOwnedNode;
-    function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccOwnedNode;
-    function IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
-    procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
-    function NodeIDToNodeIDStr(ANodeID: TNodeID): String;
-    function ProcessMessage(LccMessage: TLccMessage): Boolean;
+    function AddNode: TLccNode; virtual;
+    function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
+    function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
+    procedure LogoutAll;
+    procedure ProcessMessage(LccMessage: TLccMessage);
     procedure SendLccMessage(LccMessage: TLccMessage);
 
   published
-    property Enabled: Boolean read FEnabled;
-    property CAN: Boolean read FCAN write SetCAN;
     {$IFNDEF DWSCRIPT}
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
     property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
@@ -165,7 +142,6 @@ type
     {$ENDIF}
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;
-  //JDK   property OnLccGetRootNodeClass: TOnLccGetRootNodeClass read FOnLccGetRootNodeClass write FOnLccGetRootNodeClass;
     property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
     property OnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace read FOnLccNodeConfigMemAddressSpaceInfoReply write FOnLccNodeConfigMemAddressSpaceInfoReply;
     property OnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemOptionsReply write FOnLccNodeConfigMemOptionsReply;
@@ -196,37 +172,27 @@ type
 //JDK    property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
 
-  TLccNetworkTreePropeties = (tp_NodeID, tp_AliasID, tp_ConsumedEvents, tp_ProducedEvents, tp_Snip, tp_Protocols, tp_Acid);
-  TLccNetworkTreePropetiesSet = set of TLccNetworkTreePropeties;
+
+  { TLccCanNodeManager }
+
+  TLccCanNodeManager = class(TLccNodeManager)
+  public
+    function AddNode: TLccCanNode; virtual ;reintroduce;
+  end;
 
 implementation
+
+{ TLccCanNodeManager }
+
+function TLccCanNodeManager.AddNode: TLccCanNode;
+begin
+  Result := TLccCanNode.Create(@DoRequestMessageSend);
+  Nodes.Add(Result);
+end;
 
 
 
 { TLccNodeManager }
-
-function TLccNodeManager.GetRootNodeAlias: Word;
-begin
-  Result := RootNode.AliasID;
-end;
-
-function TLccNodeManager.GetRootNodeID: TNodeID;
-begin
-  Result := RootNode.NodeID;
-end;
-
-procedure TLccNodeManager.SetCAN(AValue: Boolean);
-begin
-  if AValue <> FCAN then
-  begin
-    FCAN:=AValue;
-    if Enabled then
-    begin
-//      Enabled := False;                                                         // ReEnable if the CAN is set while enabled
-//      Enabled := True;
-    end;
-  end;
-end;
 
 procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode);
 begin
@@ -316,16 +282,6 @@ begin
   if Assigned(OnLccNodeFunctionConfiguration) then
     OnLccNodeFunctionConfiguration(Self, SourceLccNode, DesTLccNode)
 end;
-
-//JDK
-{
-procedure TLccNodeManager.DoGetRootNodeClass( var RootNodeClass: TLccOwnedNodeClass);
-begin
-  RootNodeClass := TLccDefaultRootNode;
-  if Assigned(OnLccGetRootNodeClass) then
-    OnLccGetRootNodeClass(Self, RootNodeClass);
-end;
-}
 
 procedure TLccNodeManager.DoInitializationComplete(SourceLccNode: TLccNode);
 begin
@@ -443,48 +399,6 @@ begin
     OnLccNodeVerifiedNodeID(Self, SourceLccNode);
 end;
 
-procedure TLccNodeManager.NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
-var
-  TempStr: String;
-  TempNodeID: QWord;
-begin
-  ANodeIDStr := Trim( String( ANodeIDStr));
-  TempStr := StringReplace(String( ANodeIDStr), '0x', '', [rfReplaceAll, rfIgnoreCase]);
-  TempStr := StringReplace(String( TempStr), '$', '', [rfReplaceAll, rfIgnoreCase]);
-  try
-    TempNodeID := StrToInt64('$' + String( TempStr));
-    ANodeID[0] := DWord( TempNodeID and $0000000000FFFFFF);
-    ANodeID[1] := DWord( (TempNodeID shr 24) and $0000000000FFFFFF);
-  except
-    ANodeID[0] := 0;
-    ANodeID[1]  := 0;
-  end;
-end;
-
-function TLccNodeManager.NodeIDToNodeIDStr(ANodeID: TNodeID): String;
-begin
-  Result := IntToHex(ANodeID[1], 6);
-  Result := Result + IntToHex(ANodeID[0], 6);
-end;
-
-procedure TLccNodeManager.Notification(AComponent: TComponent; Operation: TOperation);
-begin
-  inherited Notification(AComponent, Operation);
-  if AComponent is TLccCdiParserBase then
-  begin
-     case Operation of
-       opInsert :
-           begin
-             TLccCdiParserBase(AComponent).SetNodeManager(Self);
-           end;
-       opRemove :
-           begin
-             TLccCdiParserBase(AComponent).SetNodeManager(nil);
-           end;
-     end;
-  end;
-end;
-
 {$IFDEF DWSCRIPT}
 constructor TLccNodeManager.Create(AnOwner: TLccOwnedNode); virtual;
 {$ELSE}
@@ -492,50 +406,35 @@ constructor TLccNodeManager.Create(AnOwner: TComponent);
 {$ENDIF}
 begin
   inherited Create(AnOwner);
-  FOwnedNodes := TObjectList.Create;
-  FOwnedNodes.OwnsObjects := False;
-  FWorkerMessage := TLccMessage.Create;
-  FUserMessage := TLccMessage.Create;
+  FNodes := TObjectList.Create;
+  FNodes.OwnsObjects := False;
+end;
+
+function TLccNodeManager.AddNode: TLccNode;
+begin
+  Result := TLccNode.Create(@DoRequestMessageSend);
+  Nodes.Add(Result);
 end;
 
 destructor TLccNodeManager.Destroy;
 begin
-  ClearOwned;
-  FreeAndNil(FWorkerMessage);
-  FreeAndNil(FOwnedNodes);
-  FreeAndNil(FRootNode);
-  FreeAndNil(FUserMessage);
+  LogoutAll;
+  Clear;
+  FreeAndNil(FNodes);
   inherited Destroy;
 end;
 
-procedure TLccNodeManager.ClearOwned;
+procedure TLccNodeManager.Clear;
 var
   i: Integer;
 begin
   try
-    for i := 0 to FOwnedNodes.Count - 1 do
-      TObject( FOwnedNodes[i]).Free;
+    for i := 0 to FNodes.Count - 1 do
+      TObject( FNodes[i]).Free;
   finally
-    OwnedNodes.Clear;
+    Nodes.Clear;
   end;
 end;
-
-function TLccNodeManager.CreateOwnedNode: TLccOwnedNode;
-begin
-  Result := TLccOwnedNode.Create(@DoRequestMessageSend);
-  //JDK  Result.OwnerManager := Self;
-  OwnedNodes.Add(Result);
-end;
-
-//JDK
-{
-function TLccNodeManager.CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
-begin
-  Result := OwnedNodeClass.Create(Self);
-  Result.OwnerManager := Self;
-  OwnedNodes.Add(Result);
-end;
- }
 
 {$IFDEF FPC_CONSOLE_APP}
 procedure TLccNodeManager.CreateRootNode;
@@ -551,112 +450,54 @@ begin
 end;
 {$ENDIF}
 
-function TLccNodeManager.EqualEventID(var Event1, Event2: TNodeID): Boolean;
-var
-  i: Integer;
-begin
-  Result := True;
-  i := 0;
-  while (i < 8) and Result do
-  begin
-    if Event1[i] <> Event2[i] then
-    begin
-      Result := False;
-      Break
-    end;
-    Inc(i);
-  end;
-end;
-
-function TLccNodeManager.FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccOwnedNode;
+function TLccNodeManager.FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
 var
   i: Integer;
 begin
   Result := nil;
-  if RootNode.IsNode(LccMessage, ntt_Dest) then
-    Result := RootNode
-  else begin
-    i := 0;     // Cheap, slow linear search for now
-    while i < OwnedNodes.Count do
+  i := 0;     // Cheap, slow linear search for now
+  while i < Nodes.Count do
+  begin
+    if TLccNode(Nodes[i]).IsNode(LccMessage, ntt_Dest) then
     begin
-      if TLccOwnedNode(OwnedNodes[i]).IsNode(LccMessage, ntt_Dest) then
-      begin
-        Result := TLccOwnedNode(OwnedNodes[i]);
-        Break;
-      end;
-      Inc(i)
+      Result := TLccNode(Nodes[i]);
+      Break;
     end;
+    Inc(i)
   end;
 end;
 
-function TLccNodeManager.FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccOwnedNode;
+function TLccNodeManager.FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
 var
   i: Integer;
 begin
   Result := nil;
-  if RootNode.IsNode(LccMessage, ntt_Source) then
-    Result := RootNode
-  else begin
-    i := 0;     // Cheap, slow linear search for now
-    while i < OwnedNodes.Count do
+  i := 0;     // Cheap, slow linear search for now
+  while i < Nodes.Count do
+  begin
+    if TLccNode(Nodes[i]).IsNode(LccMessage, ntt_Source) then
     begin
-      if TLccOwnedNode(OwnedNodes[i]).IsNode(LccMessage, ntt_Source) then
-      begin
-        Result := TLccOwnedNode(OwnedNodes[i]);
-        Break;
-      end;
-      Inc(i)
+      Result := TLccNode(Nodes[i]);
+      Break;
     end;
+    Inc(i)
   end;
 end;
 
-function TLccNodeManager.IsManagerNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
-begin
-  Result := False;
-  if Assigned(RootNode) then
-  begin
-    if TestType = ntt_Dest then
-    begin
-      if LccMessage.HasDestNodeID and not NullNodeID(RootNode.NodeID) then
-        Result := ((RootNode.NodeID[0] = LccMessage.DestID[0]) and (RootNode.NodeID[1] = LccMessage.DestID[1])) or (RootNode.AliasID = LccMessage.CAN.DestAlias)
-      else
-      if (RootNode.AliasID <> 0) and (LccMessage.CAN.DestAlias <> 0) then
-        Result := RootNode.AliasID = LccMessage.CAN.DestAlias
-    end else
-    if TestType = ntt_Source then
-    begin
-      if LccMessage.HasSourceNodeID and not NullNodeID(RootNode.NodeID) then
-        Result := ((RootNode.NodeID[0] = LccMessage.SourceID[0]) and (RootNode.NodeID[1] = LccMessage.SourceID[1])) or (RootNode.AliasID = LccMessage.CAN.SourceAlias)
-      else
-      if (RootNode.AliasID <> 0) and (LccMessage.CAN.SourceAlias <> 0) then
-        Result := RootNode.AliasID = LccMessage.CAN.SourceAlias
-    end;
-  end
-end;
-
-procedure TLccNodeManager.Loaded;
-//JDKvar
-//JDK  RootNodeClass: TLccOwnedNodeClass;
-begin
-  inherited Loaded;
-  //JDK  RootNodeClass := nil;
-  //JDK  DoGetRootNodeClass(RootNodeClass);
-  //JDK  FRootNode := RootNodeClass.Create(Self);
-  //JDK  FRootNode.OwnerManager := Self;
-  DoCreateLccNode(FRootNode);
-end;
-
-function TLccNodeManager.ProcessMessage(LccMessage: TLccMessage): Boolean;
+procedure TLccNodeManager.LogoutAll;
 var
   i: Integer;
 begin
-  Result := True;
-  if Enabled then
-  begin
-    RootNode.ProcessMessage(LccMessage);
-    for i := 0 to OwnedNodes.Count - 1 do
-      TLccOwnedNode( OwnedNodes[i]).ProcessMessage(LccMessage);
-  end
+  for i := 0 to Nodes.Count - 1 do
+    TLccNode( Nodes[i]).Logout;
+end;
+
+procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage);
+var
+  i: Integer;
+begin
+  for i := 0 to Nodes.Count - 1 do
+    TLccNode( Nodes[i]).ProcessMessage(LccMessage);
 end;
 
 procedure TLccNodeManager.SendLccMessage(LccMessage: TLccMessage);

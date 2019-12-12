@@ -51,6 +51,7 @@ uses
   procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
+  procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
   function StrToNodeID(NodeID: string): TNodeID;
   function StrToEventID(Event: string): TEventID;
   function _Lo(Data: DWORD): Byte;
@@ -393,6 +394,24 @@ begin
       else
         Result := Result + IntToHex(((NodeID[1] shr ((i-3)*8)) and $0000FF), 2)
     end
+  end;
+end;
+
+procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
+var
+  TempStr: String;
+  TempNodeID: QWord;
+begin
+  ANodeIDStr := Trim( String( ANodeIDStr));
+  TempStr := StringReplace(String( ANodeIDStr), '0x', '', [rfReplaceAll, rfIgnoreCase]);
+  TempStr := StringReplace(String( TempStr), '$', '', [rfReplaceAll, rfIgnoreCase]);
+  try
+    TempNodeID := StrToInt64('$' + String( TempStr));
+    ANodeID[0] := DWord( TempNodeID and $0000000000FFFFFF);
+    ANodeID[1] := DWord( (TempNodeID shr 24) and $0000000000FFFFFF);
+  except
+    ANodeID[0] := 0;
+    ANodeID[1]  := 0;
   end;
 end;
 
