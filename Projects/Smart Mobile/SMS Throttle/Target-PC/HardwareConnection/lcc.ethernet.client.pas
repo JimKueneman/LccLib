@@ -33,7 +33,7 @@ uses
   frame_lcc_logging,
   lcc_detailed_logging,
   {$ENDIF}
-  lcc_gridconnect,
+  lcc.gridconnect,
   {$IFDEF ULTIBO}
   lcc_threaded_stringlist,
   Winsock2,
