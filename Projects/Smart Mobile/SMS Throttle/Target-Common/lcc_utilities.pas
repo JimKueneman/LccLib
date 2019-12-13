@@ -1,4 +1,4 @@
-unit lcc.utilities;
+unit lcc_utilities;
 
 interface
 
@@ -42,7 +42,7 @@ uses
     Winsock2,
     {$ENDIF}
   {$ENDIF}
-  lcc.defines;
+  lcc_defines;
 
   function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;

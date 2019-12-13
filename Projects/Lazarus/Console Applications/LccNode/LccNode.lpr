@@ -19,7 +19,7 @@ uses
   lcc_messages,
   lcc_utilities,
   lcc_detailed_logging,
-  lcc_threadedcirculararray
+  lcc_threadedcirculararray, test_test, unit1
   ;
 
 const
@@ -273,6 +273,9 @@ end;
 constructor TLccConsoleApplication.Create(TheOwner: TComponent);
 begin
   inherited;
+
+  SomeFunction;
+  SomeFunction1;
 end;
 
 destructor TLccConsoleApplication.Destroy;

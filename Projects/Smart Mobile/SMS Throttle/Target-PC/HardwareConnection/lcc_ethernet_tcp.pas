@@ -1,4 +1,4 @@
-unit lcc.ethernet.tcp;
+unit lcc_ethernet_tcp;
 
 {$IFDEF FPC}
 {$mode objfpc}{$H+}
@@ -13,8 +13,8 @@ interface
   {$IFNDEF FPC}
   Types,
   {$ENDIF}
-  lcc.defines,
-  lcc.threaded.circulararray;
+  lcc_defines,
+  lcc_threaded_circulararray;
 
  const
   STATE_FLAGS_BYTE_1 = 0;

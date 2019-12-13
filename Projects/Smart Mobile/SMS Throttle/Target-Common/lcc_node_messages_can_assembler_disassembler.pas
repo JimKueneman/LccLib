@@ -1,4 +1,4 @@
-unit lcc.node.messages.can.assembler_disassembler;
+unit lcc_node_messages_can_assembler_disassembler;
 
 interface
 
@@ -6,14 +6,14 @@ uses
   Classes,
   SysUtils,
   contnrs,
-  lcc.node.messages,
-  lcc.defines,
+  lcc_node_messages,
+  lcc_defines,
   lcc_compiler_types;
 
 // TLccMessageQueue holds TLccMessages that are being received piece-meal over
 // an interface such as CAN where it can't sent entire message arrays and decodes
 // TCP message frames into easy and common TLccMessage structures that the application
-// can use.  Pass all messages from the wire protocols through this class to receive
+// can use_  Pass all messages from the wire protocols through this class to receive
 // a TLccMessage to use independantly of wire protocol
 
 type

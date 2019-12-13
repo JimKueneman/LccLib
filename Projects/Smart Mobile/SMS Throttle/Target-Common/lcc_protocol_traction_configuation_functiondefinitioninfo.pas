@@ -1,4 +1,4 @@
-unit lcc.protocol.traction.configuation.functiondefinitioninfo;
+unit lcc_protocol_traction_configuation_functiondefinitioninfo;
 
 interface
 

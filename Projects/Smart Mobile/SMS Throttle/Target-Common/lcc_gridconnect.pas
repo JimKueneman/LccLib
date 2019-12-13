@@ -1,4 +1,4 @@
-unit lcc.gridconnect;
+unit lcc_gridconnect;
 
 {$IFDEF FPC}
 {$mode objfpc}{$H+}
@@ -9,7 +9,7 @@ interface
 uses
   Classes,
   SysUtils,
-  lcc.defines;
+  lcc_defines;
 
 const
   // :X19170640N0501010107015555;#0  Example.....

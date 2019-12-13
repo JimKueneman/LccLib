@@ -1,4 +1,4 @@
-unit lcc.node.messages;
+unit lcc_node_messages;
 
 interface
 
@@ -23,8 +23,8 @@ uses
   SysUtils,
   strutils,
   {$ENDIF}
-  lcc.defines,
-  lcc.utilities;
+  lcc_defines,
+  lcc_utilities;
 
 type
   TLccMessage = class; // forward

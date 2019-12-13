@@ -1,4 +1,4 @@
-unit lcc.protocol.simplenodeinfo;
+unit lcc_protocol_simplenodeinfo;
 
 interface
 
@@ -21,10 +21,10 @@ uses
   SysUtils,
   lcc_xmlutilities,
 {$ENDIF}
-  lcc.protocol.base,
-  lcc.defines,
-  lcc.node.messages,
-  lcc.utilities;
+  lcc_protocol_base,
+  lcc_defines,
+  lcc_node_messages,
+  lcc_utilities;
 
 type
 

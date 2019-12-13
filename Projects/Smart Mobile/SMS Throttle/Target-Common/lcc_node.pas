@@ -1,4 +1,4 @@
-unit lcc.node;
+unit lcc_node;
 
 {$mode objfpc}{$H+}
 
@@ -23,23 +23,23 @@ uses
   SysUtils,
   ExtCtrls,
 {$ENDIF}
-  lcc.defines,
-  lcc.node.messages,
-  lcc.utilities,
-//  lcc.protocol.traction,
-//  lcc.protocol.traction.simpletrainnodeinfo,
-//  lcc.protocol.traction.configuruation.functiondefinitioninfo,
-//  lcc.protocol.traction.configuration.functions,
-  lcc.protocol.configuration.configuration,
-  lcc.protocol.configuration.configurationdefinitioninfo,
-  lcc.protocol.configuration.options,
-  lcc.protocol.configuration.information,
-  lcc.protocol.simplenodeinfo,
-  lcc.protocol.acdi,
-  lcc.protocol.events,
-  lcc.protocol.supportedprotocols,
-  lcc.protocol.datagram,
-  lcc.protocol.base;
+  lcc_defines,
+  lcc_node_messages,
+  lcc_utilities,
+//  lcc_protocol_traction,
+//  lcc_protocol_traction_simpletrainnodeinfo,
+//  lcc_protocol_traction_configuruation_functiondefinitioninfo,
+//  lcc_protocol_traction_configuration_functions,
+  lcc_protocol_configuration_configuration,
+  lcc_protocol_configuration_configurationdefinitioninfo,
+  lcc_protocol_configuration_options,
+  lcc_protocol_configuration_information,
+  lcc_protocol_simplenodeinfo,
+  lcc_protocol_acdi,
+  lcc_protocol_events,
+  lcc_protocol_supportedprotocols,
+  lcc_protocol_datagram,
+  lcc_protocol_base;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -88,7 +88,7 @@ end;
 
 TLccNode = class(TNodeProtocolBase)
 private
-  FInitalized: Boolean;
+  FInitialized: Boolean;
   FTProtocolConfigurationDefinitionInfo: TProtocolConfigurationDefinitionInfo;
   FProtocolConfigurationOptions: TProtocolConfigurationOptions;
   FProtocolEventConsumed: TProtocolEvents;
@@ -122,7 +122,7 @@ protected
 public
   property NodeID: TNodeID read FNodeID;
   property NodeIDStr: String read GetNodeIDStr;
-  property Initialized: Boolean read FInitalized;
+  property Initialized: Boolean read FInitialized;
 
   property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
   property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
@@ -146,6 +146,7 @@ public
   procedure SendConsumerIdentify(var Event: TEventID);
   procedure SendProducedEvents;
   procedure SendProducerIdentify(var Event: TEventID);
+  procedure SendInitializeComplete;
 end;
 
 { TLccCanNode }
@@ -267,8 +268,9 @@ begin
   //
   if NullNodeID(ANodeID) then
     CreateNodeID(ANodeID);
-  SeedNodeID := NodeID;
+  SeedNodeID := ANodeID;
   FAliasID := GenerateID_Alias_From_Seed(FSeedNodeID);
+  FNodeID := ANodeID;
 
   Assert(SendMessageFunc = nil, 'SentMessageFunc is nil');
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
@@ -375,34 +377,8 @@ begin
           end;
       end
     end;
-    Result := inherited ProcessMessage(LccMessage);
-  end;
-
-
-
- //JDK if LoggedIn then
-  begin
-
-  {  if LogInAliasID <> 0 then
-    begin
-      if LccMessage.CAN.SourceAlias = LogInAliasID then
-      begin
-       {$IFDEF DWSCRIPT}
-        var Temp: TNodeID;
-        Temp := FNodeID;
-        LoginAliasID := CreateAliasID(Temp, True);
-        FNodeID := Temp;
-        {$ELSE}
-        LoginAliasID := CreateAliasID(FSeedNodeID, True);
-        {$ENDIF}
-        SendAliasLoginRequest;
-        FLoggedIn := False;
- //JDK       LoginTimer.Enabled := True;
-        Exit;
-      end
-    end;
-  end;    }
-
+    if not Result then
+      Result := inherited ProcessMessage(LccMessage);
   end;
 end;
 
@@ -605,6 +581,15 @@ var
   TestNodeID: TNodeID;
 begin
   Result := False;
+  if not Initialized then
+  begin
+    SendInitializeComplete;
+    SendEvents;
+    FInitialized := True;
+  end;
+
+
+
                        (*
   if LoggedIn then
   begin
@@ -1095,6 +1080,11 @@ procedure TLccNode.SendEvents;
 begin
   SendConsumedEvents;
   SendProducedEvents;
+end;
+
+procedure TLccNode.SendInitializeComplete;
+begin
+  WorkerMessage.LoadInitializationComplete(NodeID, );
 end;
 
 procedure TLccNode.SendProducedEvents;

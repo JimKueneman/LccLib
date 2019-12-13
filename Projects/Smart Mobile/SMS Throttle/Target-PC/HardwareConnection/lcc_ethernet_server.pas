@@ -1,4 +1,4 @@
-unit lcc.ethernet.server;
+unit lcc_ethernet_server;
 
 {$IFDEF FPC}
 {$mode objfpc}{$H+}
@@ -23,9 +23,10 @@ uses
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
   {$IFDEF LOGGING}
-  frame_lcc_logging, lcc_detailed_logging,
+  frame_lcc_logging,
+  lcc_detailed_logging,
   {$ENDIF}
-  lcc.gridconnect,
+
   {$IFDEF ULTIBO}
   lcc_threaded_stringlist,
   Winsock2,
@@ -34,14 +35,15 @@ uses
   blcksock,
   synsock,
   {$ENDIF}
-  lcc.utilities,
-  lcc.defines,
-  lcc.node.messages.can.assembler_disassembler,
-  lcc.node.manager,
-  lcc.node.messages,
-  lcc.ethernet.client,
-  lcc.threaded.circulararray,
-  lcc.ethernet.tcp,
+  lcc_gridconnect,
+  lcc_utilities,
+  lcc_defines,
+  lcc_node_messages_can_assembler_disassembler,
+  lcc_node_manager,
+  lcc_node_messages,
+  lcc_ethernet_client,
+  lcc_threaded_circulararray,
+  lcc_ethernet_tcp,
   lcc_app_common_settings,
   lcc_common_classes;
 

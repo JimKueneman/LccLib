@@ -1,4 +1,4 @@
-program LccTest;
+program TestLcc;
 
 {$mode objfpc}{$H+}
 

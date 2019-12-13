@@ -1,4 +1,4 @@
-unit lcc.defines;
+unit lcc_defines;
 
 interface
 

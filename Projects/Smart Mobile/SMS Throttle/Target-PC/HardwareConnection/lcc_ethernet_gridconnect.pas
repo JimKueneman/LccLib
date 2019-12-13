@@ -1,4 +1,4 @@
-unit lcc.ethernet.gridconnect;
+unit lcc_ethernet_gridconnect;
 
 interface
 

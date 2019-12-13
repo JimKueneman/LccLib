@@ -1,4 +1,4 @@
-unit lcc.protocol.traction;
+unit lcc_protocol_traction;
 
 interface
 

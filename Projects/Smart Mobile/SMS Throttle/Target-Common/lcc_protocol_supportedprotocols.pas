@@ -1,4 +1,4 @@
-unit lcc.protocol.supportedprotocols;
+unit lcc_protocol_supportedprotocols;
 
 interface
 
@@ -20,9 +20,9 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
-  lcc.protocol.base,
-  lcc.defines,
-  lcc.node.messages;
+  lcc_protocol_base,
+  lcc_defines,
+  lcc_node_messages;
 
 type
 

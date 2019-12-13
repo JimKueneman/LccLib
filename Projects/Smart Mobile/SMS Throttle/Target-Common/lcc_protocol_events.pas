@@ -1,4 +1,4 @@
-unit lcc.protocol.events;
+unit lcc_protocol_events;
 
 
 interface
@@ -22,10 +22,10 @@ uses
   SysUtils,
   contnrs,
 {$ENDIF}
-  lcc.protocol.base,
-  lcc.defines,
-  lcc.node.messages,
-  lcc.utilities;
+  lcc_protocol_base,
+  lcc_defines,
+  lcc_node_messages,
+  lcc_utilities;
 
 type
 

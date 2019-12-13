@@ -1,4 +1,4 @@
-unit lcc.protocol.configuration.configurationdefinitioninfo;
+unit lcc_protocol_configuration_configurationdefinitioninfo;
 
 interface
 
@@ -21,9 +21,9 @@ uses
   SysUtils,
   lcc_xmlutilities,
 {$ENDIF}
-  lcc.protocol.base,
-  lcc.protocol.simplenodeinfo,
-  lcc.node.messages;
+  lcc_protocol_base,
+  lcc_protocol_simplenodeinfo,
+  lcc_node_messages;
 
 const
 

@@ -13,12 +13,12 @@ uses
   Dialogs,
   StdCtrls,
   ComCtrls,
-  lcc.node,
-  lcc.node.manager,
-  lcc.node.messages,
-  lcc.defines,
-  lcc.ethernet.server,
-  lcc.ethernet.client;
+  lcc_node,
+  lcc_node_manager,
+  lcc_node_messages,
+  lcc_defines,
+  lcc_ethernet_server,
+  lcc_ethernet_client;
 
 type
 
@@ -26,17 +26,19 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
-    CheckBox1: TCheckBox;
+    Button2: TButton;
     StatusBar1: TStatusBar;
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
 
   public
-     EthernetServer: TLccEthernetServer;
-     NodeManager: TLccCanNodeManager;
+    EthernetServer: TLccEthernetServer;
+    NodeManager: TLccCanNodeManager;
     procedure OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
   end;
 
 var
@@ -68,28 +70,16 @@ begin
   end;
 end;
 
-procedure TForm1.OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.Button2Click(Sender: TObject);
 var
   CanNode: TLccCanNode;
 begin
-  case EthernetRec.ConnectionState of
-    ccsListenerConnecting:          StatusBar1.Panels[0].Text := 'Server Connecting: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-    ccsListenerConnected:           StatusBar1.Panels[0].Text := 'Server Connected: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
-    ccsListenerDisconnecting:       StatusBar1.Panels[0].Text := 'Server Disconnecting: ';
-    ccsListenerDisconnected:        StatusBar1.Panels[0].Text := 'Server Disconnected: ';
-    ccsListenerClientConnecting:    StatusBar1.Panels[1].Text := 'Client Connecting: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-    ccsListenerClientConnected:
-      begin
-        StatusBar1.Panels[1].Text := 'Client Connected: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-        if NodeManager.Nodes.Count = 0 then
-        begin
-          CanNode := NodeManager.AddNode;
-          CanNode.Login(NULL_NODE_ID); // Create our own ID
-        end;
-      end;
-    ccsListenerClientDisconnecting: StatusBar1.Panels[1].Text := 'Client Disconnecting: ';
-    ccsListenerClientDisconnected:  StatusBar1.Panels[1].Text := 'Client Disconnected: ';
-  end;
+  if NodeManager.Nodes.Count = 0 then
+  begin
+    CanNode := NodeManager.AddNode;
+    CanNode.Login(NULL_NODE_ID); // Create our own ID
+  end else
+    NodeManager.Clear;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -107,6 +97,26 @@ begin
   EthernetServer := TLccEthernetServer.Create(nil);
   EthernetServer.Gridconnect := True;
   NodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager.OnRequestMessageSend := @SendMessage;
+end;
+
+procedure TForm1.OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+begin
+  case EthernetRec.ConnectionState of
+    ccsListenerConnecting:          StatusBar1.Panels[0].Text := 'Server Connecting: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
+    ccsListenerConnected:           StatusBar1.Panels[0].Text := 'Server Connected: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
+    ccsListenerDisconnecting:       StatusBar1.Panels[0].Text := 'Server Disconnecting: ';
+    ccsListenerDisconnected:        StatusBar1.Panels[0].Text := 'Server Disconnected: ';
+    ccsListenerClientConnecting:    StatusBar1.Panels[1].Text := 'Client Connecting: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+    ccsListenerClientConnected:     StatusBar1.Panels[1].Text := 'Client Connected: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+    ccsListenerClientDisconnecting: StatusBar1.Panels[1].Text := 'Client Disconnecting: ';
+    ccsListenerClientDisconnected:  StatusBar1.Panels[1].Text := 'Client Disconnected: ';
+  end;
+end;
+
+procedure TForm1.SendMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  EthernetServer.SendMessage(LccMessage);
 end;
 
 end.

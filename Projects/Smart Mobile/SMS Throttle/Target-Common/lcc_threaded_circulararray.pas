@@ -1,16 +1,16 @@
-unit lcc.threaded.circulararray;
+unit lcc_threaded_circulararray;
 
 interface
 
 uses
   Classes,
   {$IFDEF FPC}
-  lcc.utilities,
   syncobjs,
   {$ELSE}
   System.SyncObjs,
   {$ENDIF}
-  SysUtils;
+  SysUtils,
+  lcc_utilities;
 
 type
 

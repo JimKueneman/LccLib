@@ -32,7 +32,7 @@ uses
   {$IFDEF RASPBERRY_PI}
   lcc_raspberrypi,
   {$ENDIF}
-  lcc.defines;
+  lcc_defines;
 
  // Classes, SysUtils, FileUtil, IniFiles;
 

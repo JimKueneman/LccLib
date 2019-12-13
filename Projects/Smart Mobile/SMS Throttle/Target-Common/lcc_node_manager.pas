@@ -1,4 +1,4 @@
-unit lcc.node.manager;
+unit lcc_node_manager;
 
 interface
 
@@ -23,10 +23,10 @@ uses
   ExtCtrls,
   lcc_common_classes,
 {$ENDIF}
-  lcc.node,
-  lcc.defines,
-  lcc.node.messages,
-  lcc.utilities;
+  lcc_node,
+  lcc_defines,
+  lcc_node_messages,
+  lcc_utilities;
 
 type
 
@@ -79,7 +79,8 @@ type
     FOnLccNodeTractionReplyQueryFunction: TOnLccNodeMessageWithDest;
     FOnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
- //JDK   FOnRequestMessageSend: TOnMessageEvent;
+    FOnRequestMessageSend: TOnMessageEvent;
+
     FNodes: TObjectList;
   protected
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
@@ -123,10 +124,7 @@ type
     {$ENDIF}
     destructor Destroy; override;
 
- //JDK   procedure CreateRootNode;
     procedure Clear;
-//JDK    function CreateOwnedNode: TLccOwnedNode;
-  //JDK   function CreateOwnedNodeByClass(OwnedNodeClass: TLccOwnedNodeClass): TLccOwnedNode;
     function AddNode: TLccNode; virtual;
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
@@ -169,7 +167,7 @@ type
     property OnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyControllerChangeNotify write FOnLccNodeTractionReplyControllerChangeNotify;
     property OnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyManage write FOnLccNodeTractionReplyManage;
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
-//JDK    property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
+    property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
   end;
 
 
@@ -324,8 +322,8 @@ begin
   {$IFNDEF DWSCRIPT}
   if Assigned(HardwareConnection) then
     HardwareConnection.SendMessage(Message);
-//JDK  if Assigned(OnRequestMessageSend) then
-//JDK    OnRequestMessageSend(Self, Message);
+  if Assigned(OnRequestMessageSend) then
+    OnRequestMessageSend(Self, Message);
   {$ENDIF}
 end;
 
@@ -429,6 +427,7 @@ var
   i: Integer;
 begin
   try
+    LogoutAll;
     for i := 0 to FNodes.Count - 1 do
       TObject( FNodes[i]).Free;
   finally

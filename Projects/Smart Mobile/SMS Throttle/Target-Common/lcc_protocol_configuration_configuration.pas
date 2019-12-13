@@ -1,4 +1,4 @@
-unit lcc.protocol.configuration.configuration;
+unit lcc_protocol_configuration_configuration;
 interface
 
 uses
@@ -19,8 +19,8 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
-  lcc.protocol.base,
-  lcc.node.messages;
+  lcc_protocol_base,
+  lcc_node_messages;
 
 type
 

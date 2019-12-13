@@ -1,4 +1,4 @@
-unit lcc.protocol.datagram;
+unit lcc_protocol_datagram;
 
 interface
 
@@ -22,9 +22,9 @@ uses
   contnrs,
   ExtCtrls,
 {$ENDIF}
-  lcc.defines,
-  lcc.node.messages,
-  lcc.utilities;
+  lcc_defines,
+  lcc_node_messages,
+  lcc_utilities;
 
 type
   { TDatagramQueue }

@@ -1,4 +1,4 @@
-unit lcc.protocol.traction.configuration.functions;
+unit lcc_protocol_traction_configuration_functions;
 
 
 uses

@@ -1,4 +1,4 @@
-unit lcc.protocol.traction.simpletrainnodeinfo;
+unit lcc_protocol_traction_simpletrainnodeinfo;
 
 interface
 

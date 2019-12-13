@@ -16,10 +16,10 @@ uses
   {$ELSE}
     System.Generics.Collections,
   {$ENDIF}
-  lcc.node.messages,
-  lcc.node.messages.can.assembler_disassembler,
-  lcc.threaded.circulararray,
-  lcc.threaded.stringlist;
+  lcc_node_messages,
+  lcc_node_messages_can_assembler_disassembler,
+  lcc_threaded_circulararray,
+  lcc_threaded_stringlist;
 
 type
   { TLccConnectionThread }
