@@ -1,4 +1,4 @@
-unit lcc_protocol_configuration_information;
+unit lcc_protocol_memory_information;
 
 interface
 
@@ -45,9 +45,9 @@ type
     property HighAddress: DWord read FHighAddress;
   end;
 
-  { TProtocolConfiguratinInfo }
+  { TProtocolMemoryInfo }
 
-  TProtocolConfiguratinInfo = class(TNodeProtocolBase)
+  TProtocolMemoryInfo = class(TNodeProtocolBase)
   private
     FList: TObjectList;
     function GetAddressSpace(Index: Integer): TConfigMemAddressSpaceInfoObject;
@@ -69,9 +69,9 @@ type
 
 implementation
 
-{ TProtocolConfiguratinInfo }
+{ TProtocolMemoryInfo }
 
-procedure TProtocolConfiguratinInfo.Add(_Space: Byte; _IsPresent, _IsReadOnly, _ImpliedZeroLowAddress: Boolean; _LowAddress, _HighAddress: DWord);
+procedure TProtocolMemoryInfo.Add(_Space: Byte; _IsPresent, _IsReadOnly, _ImpliedZeroLowAddress: Boolean; _LowAddress, _HighAddress: DWord);
 var
  Info: TConfigMemAddressSpaceInfoObject;
 begin
@@ -85,7 +85,7 @@ begin
  List.Add(Info);
 end;
 
-procedure TProtocolConfiguratinInfo.Clear;
+procedure TProtocolMemoryInfo.Clear;
 var
  i: Integer;
 begin
@@ -100,7 +100,7 @@ end;
 {$IFDEF DWSCRIPT}
 constructor TConfigMemAddressSpaceInfo.Create(AnOwner: TLccOwnedNode); override;
 {$ELSE}
-constructor TProtocolConfiguratinInfo.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TProtocolMemoryInfo.Create(ASendMessageFunc: TLccSendMessageFunc);
 {$ENDIF}
 begin
  inherited Create(ASendMessageFunc);
@@ -108,14 +108,14 @@ begin
  List.OwnsObjects := False;
 end;
 
-destructor TProtocolConfiguratinInfo.Destroy;
+destructor TProtocolMemoryInfo.Destroy;
 begin
  Clear;
  FreeAndNil(FList);
  inherited;
 end;
 
-function TProtocolConfiguratinInfo.FindByAddressSpace(Space: Byte): TConfigMemAddressSpaceInfoObject;
+function TProtocolMemoryInfo.FindByAddressSpace(Space: Byte): TConfigMemAddressSpaceInfoObject;
 var
  i: Integer;
 begin
@@ -129,17 +129,17 @@ begin
  end;
 end;
 
-function TProtocolConfiguratinInfo.GetAddressSpace(Index: Integer): TConfigMemAddressSpaceInfoObject;
+function TProtocolMemoryInfo.GetAddressSpace(Index: Integer): TConfigMemAddressSpaceInfoObject;
 begin
  Result := TConfigMemAddressSpaceInfoObject( List[Index])
 end;
 
-function TProtocolConfiguratinInfo.GetCount: Integer;
+function TProtocolMemoryInfo.GetCount: Integer;
 begin
  Result := List.Count
 end;
 
-procedure TProtocolConfiguratinInfo.LoadReply(LccMessage, OutMessage: TLccMessage);
+procedure TProtocolMemoryInfo.LoadReply(LccMessage, OutMessage: TLccMessage);
 var
  Info: TConfigMemAddressSpaceInfoObject;
 begin
@@ -183,7 +183,7 @@ begin
  OutMessage.UserValid := True;
 end;
 
-function TProtocolConfiguratinInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolMemoryInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
 var
  Info: TConfigMemAddressSpaceInfoObject;
  IsPresent, ImpliedZeroAddress, IsReadOnly: Boolean;

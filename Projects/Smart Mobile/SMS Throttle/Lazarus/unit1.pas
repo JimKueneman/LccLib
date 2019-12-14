@@ -12,7 +12,9 @@ uses
   Graphics,
   Dialogs,
   StdCtrls,
-  ComCtrls, SynEdit,
+  ComCtrls,
+  SynEdit,
+  lcc_utilities,
   lcc_node,
   lcc_node_manager,
   lcc_node_messages,
@@ -27,10 +29,12 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
@@ -79,9 +83,48 @@ begin
   if NodeManager.Nodes.Count = 0 then
   begin
     CanNode := NodeManager.AddNode;
+    CanNode.ProtocolSupportedProtocols.CDI := True;
+    CanNode.ProtocolSupportedProtocols.Datagram := True;
+    CanNode.ProtocolSupportedProtocols.EventExchange := True;
+    CanNode.ProtocolSupportedProtocols.ACDI := True;
+    CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
+
+    CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+
+    CanNode.ProtocolMemoryOptions.WriteUnderMask := True;
+    CanNode.ProtocolMemoryOptions.UnAlignedReads := True;
+    CanNode.ProtocolMemoryOptions.UnAlignedWrites := True;
+    CanNode.ProtocolMemoryOptions.SupportACDIMfgRead := True;
+    CanNode.ProtocolMemoryOptions.SupportACDIUserRead := True;
+    CanNode.ProtocolMemoryOptions.SupportACDIUserWrite := True;
+    CanNode.ProtocolMemoryOptions.WriteLenOneByte := True;
+    CanNode.ProtocolMemoryOptions.WriteLenTwoBytes := True;
+    CanNode.ProtocolMemoryOptions.WriteLenFourBytes := True;
+    CanNode.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
+    CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
+    CanNode.ProtocolMemoryOptions.WriteStream := True;
+    CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
+    CanNode.ProtocolMemoryOptions.LowSpace := MSI_CONFIG;
+
+    CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
+    CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
+    CanNode.ProtocolEventConsumed.AutoGenerate.Enable := True;
+
+    CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
+    CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
+    CanNode.ProtocolEventsProduced.AutoGenerate.Enable := True;
+
     CanNode.Login(NULL_NODE_ID); // Create our own ID
+
   end else
     NodeManager.Clear;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  SynEdit1.Clear;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -123,7 +166,7 @@ procedure TForm1.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   SynEdit1.BeginUpdate(False);
   try
-    SynEdit1.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr(''));
+    SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
     SynEdit1.EndUpdate;
   finally
   end;
@@ -135,7 +178,7 @@ begin
 
   SynEdit1.BeginUpdate(False);
   try
-    SynEdit1.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr(''));
+    SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
     SynEdit1.EndUpdate;
   finally
   end;

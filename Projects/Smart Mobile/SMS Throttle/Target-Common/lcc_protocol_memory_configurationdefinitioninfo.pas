@@ -1,4 +1,4 @@
-unit lcc_protocol_configuration_configurationdefinitioninfo;
+unit lcc_protocol_memory_configurationdefinitioninfo;
 
 interface
 
@@ -83,9 +83,9 @@ const
 
 type
 
-  { TProtocolConfigurationDefinitionInfo }
+  { TProtocolMemoryConfigurationDefinitionInfo }
 
-TProtocolConfigurationDefinitionInfo = class(TStreamBasedProtocol)
+TProtocolMemoryConfigurationDefinitionInfo = class(TStreamBasedProtocol)
 protected
   procedure DoLoadComplete(LccMessage: TLccMessage); override;
 public
@@ -98,9 +98,9 @@ end;
 
 implementation
 
-{TProtocolConfigurationDefinitionInfo}
+{TProtocolMemoryConfigurationDefinitionInfo}
 
-procedure TProtocolConfigurationDefinitionInfo.DoLoadComplete(LccMessage: TLccMessage);
+procedure TProtocolMemoryConfigurationDefinitionInfo.DoLoadComplete(LccMessage: TLccMessage);
 //var
  // SourceNode, DestNode: TLccNode;
 begin
@@ -118,7 +118,7 @@ end;
 
 {$IFNDEF DWSCRIPT}
  // JScript does not have file access
-function TProtocolConfigurationDefinitionInfo.LoadFromXml(CdiFilePath: String; Snip: TProtocolSimpleNodeInfo): Boolean;
+function TProtocolMemoryConfigurationDefinitionInfo.LoadFromXml(CdiFilePath: String; Snip: TProtocolSimpleNodeInfo): Boolean;
 var
   XmlFile: TStringList;
   i, j: Integer;
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-function TProtocolConfigurationDefinitionInfo.LoadSNIP(ASnip: TProtocolSimpleNodeInfo): Boolean;
+function TProtocolMemoryConfigurationDefinitionInfo.LoadSNIP(ASnip: TProtocolSimpleNodeInfo): Boolean;
 var
   XmlDoc: LccXmlDocument;
 begin

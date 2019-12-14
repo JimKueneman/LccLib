@@ -30,10 +30,10 @@ uses
 //  lcc_protocol_traction_simpletrainnodeinfo,
 //  lcc_protocol_traction_configuruation_functiondefinitioninfo,
 //  lcc_protocol_traction_configuration_functions,
-  lcc_protocol_configuration_configuration,
-  lcc_protocol_configuration_configurationdefinitioninfo,
-  lcc_protocol_configuration_options,
-  lcc_protocol_configuration_information,
+  lcc_protocol_memory_configuration,
+  lcc_protocol_memory_configurationdefinitioninfo,
+  lcc_protocol_memory_options,
+  lcc_protocol_memory_information,
   lcc_protocol_simplenodeinfo,
   lcc_protocol_acdi,
   lcc_protocol_events,
@@ -89,17 +89,17 @@ end;
 TLccNode = class(TNodeProtocolBase)
 private
   FInitialized: Boolean;
-  FTProtocolConfigurationDefinitionInfo: TProtocolConfigurationDefinitionInfo;
-  FProtocolConfigurationOptions: TProtocolConfigurationOptions;
+  FTProtocolMemoryConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo;
+  FProtocolMemoryOptions: TProtocolMemoryOptions;
+  FMemoryConfiguration: TMemoryConfiguration;
   FProtocolEventConsumed: TProtocolEvents;
   FProtocolEventsProduced: TProtocolEvents;
   FProtocolSupportedProtocols: TProtocolSupportedProtocols;
   FProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo;
-  FProtocolConfigurationInfo: TProtocolConfiguratinInfo;
+  FProtocolMemoryInfo: TProtocolMemoryInfo;
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
   FNodeID: TNodeID;
-  FConfiguration: TConfiguration;
   FDatagramQueue: TDatagramQueue;
   {$IFNDEF FPC_CONSOLE_APP}
   F_800msTimer: TTimer;
@@ -128,10 +128,10 @@ public
 
   property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
   property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
-  property Configuration: TConfiguration read FConfiguration write FConfiguration;
-  property ProtocolConfigurationDefinitionInfo: TProtocolConfigurationDefinitionInfo read FTProtocolConfigurationDefinitionInfo write FTProtocolConfigurationDefinitionInfo;
-  property ProtocolConfigurationOptions: TProtocolConfigurationOptions read FProtocolConfigurationOptions write FProtocolConfigurationOptions;
-  property ProtocolConfigurationInfo: TProtocolConfiguratinInfo read FProtocolConfigurationInfo write FProtocolConfigurationInfo;
+  property MemoryConfiguration: TMemoryConfiguration read FMemoryConfiguration write FMemoryConfiguration;
+  property ProtocolConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo read FTProtocolMemoryConfigurationDefinitionInfo write FTProtocolMemoryConfigurationDefinitionInfo;
+  property ProtocolMemoryOptions: TProtocolMemoryOptions read FProtocolMemoryOptions write FProtocolMemoryOptions;
+  property ProtocolMemoryInfo: TProtocolMemoryInfo read FProtocolMemoryInfo write FProtocolMemoryInfo;
   property ProtocolEventConsumed: TProtocolEvents read FProtocolEventConsumed write FProtocolEventConsumed;
   property ProtocolEventsProduced: TProtocolEvents read FProtocolEventsProduced write FProtocolEventsProduced;
   property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
@@ -500,15 +500,16 @@ begin
   inherited Create(ASendMessageFunc);
   FProtocolSupportedProtocols := TProtocolSupportedProtocols.Create(ASendMessageFunc);
   FProtocolSimpleNodeInfo := TProtocolSimpleNodeInfo.Create(ASendMessageFunc);
-  FTProtocolConfigurationDefinitionInfo := TProtocolConfigurationDefinitionInfo.Create(ASendMessageFunc, MSI_CDI, True);
+  FTProtocolMemoryConfigurationDefinitionInfo := TProtocolMemoryConfigurationDefinitionInfo.Create(ASendMessageFunc, MSI_CDI, True);
+  FProtocolMemoryOptions := TProtocolMemoryOptions.Create(ASendMessageFunc);
+  FMemoryConfiguration := TMemoryConfiguration.Create(SendMessageFunc, MSI_CONFIG, False);
+  FProtocolMemoryInfo := TProtocolMemoryInfo.Create(ASendMessageFunc);
  //JDK FConfigurationMem := TConfigurationMemory.Create(ASendMessageFunc);
- FProtocolEventConsumed := TProtocolEvents.Create(ASendMessageFunc);
+  FProtocolEventConsumed := TProtocolEvents.Create(ASendMessageFunc);
   FProtocolEventsProduced := TProtocolEvents.Create(ASendMessageFunc);
-  FProtocolConfigurationOptions := TProtocolConfigurationOptions.Create(ASendMessageFunc);
-  FProtocolConfigurationInfo := TProtocolConfiguratinInfo.Create(ASendMessageFunc);
   FACDIMfg := TACDIMfg.Create(nil, MSI_ACDI_MFG, True);
   FACDIUser := TACDIUser.Create(SendMessageFunc, MSI_ACDI_USER, True);
-  FConfiguration := TConfiguration.Create(SendMessageFunc, MSI_CONFIG, False);
+
   FDatagramQueue := TDatagramQueue.Create(SendMessageFunc);
   {$IFNDEF FPC_CONSOLE_APP}
   _800msTimer := TTimer.Create(nil);
@@ -555,15 +556,15 @@ begin
   _800msTimer.Free;
   FProtocolSupportedProtocols.Free;
   FProtocolSimpleNodeInfo.Free;
-  FTProtocolConfigurationDefinitionInfo.Free;
+  FTProtocolMemoryConfigurationDefinitionInfo.Free;
  //JDK FConfigurationMem.Free;
   FProtocolEventConsumed.Free;
   FProtocolEventsProduced.Free;
-  FProtocolConfigurationOptions.Free;
-  FProtocolConfigurationInfo.Free;
+  FProtocolMemoryOptions.Free;
+  FProtocolMemoryInfo.Free;
   FACDIMfg.Free;
   FACDIUser.Free;
-  FConfiguration.Free;
+  FMemoryConfiguration.Free;
   FDatagramQueue.Free;
   inherited;
 end;
@@ -577,6 +578,7 @@ procedure TLccNode.Login(ANodeID: TNodeID);
 begin
   FInitialized := True;
   SendInitializeComplete;
+  AutoGenerateEvents;
   SendEvents;
 end;
 
@@ -749,7 +751,7 @@ begin
                                  MSI_CONFIG          :
                                      begin
                                        SendAckReply(LccMessage, False, 0);     // We will be sending a Write Reply
-                                       Configuration.WriteRequest(LccMessage);
+                                       MemoryConfiguration.WriteRequest(LccMessage);
                                        Result := True;
                                      end;
                                  MSI_ACDI_MFG        :
@@ -772,7 +774,7 @@ begin
                          MCP_CONFIGURATION :
                              begin
                                SendAckReply(LccMessage, False, 0);             // We will be sending a Write Reply
-                               Configuration.WriteRequest(LccMessage);
+                               MemoryConfiguration.WriteRequest(LccMessage);
                                Result := True;
                              end;
                          MCP_ALL           :
@@ -812,7 +814,7 @@ begin
                                        begin
                                          SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                          WorkerMessage.LoadDatagram(NodeID, GetAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                                         Configuration.LoadReply(LccMessage, WorkerMessage);
+                                         MemoryConfiguration.LoadReply(LccMessage, WorkerMessage);
                                          if WorkerMessage.UserValid then
                                          begin
                                            SendMessageFunc(WorkerMessage);
@@ -855,7 +857,7 @@ begin
                            MCP_CONFIGURATION : begin
                                                  SendAckReply(LccMessage, False, 0);   // We will be sending a Read Reply
                                                  WorkerMessage.LoadDatagram(NodeID, GetAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                                                 Configuration.LoadReply(LccMessage, WorkerMessage);
+                                                 MemoryConfiguration.LoadReply(LccMessage, WorkerMessage);
                                                  if WorkerMessage.UserValid then
                                                  begin
                                                    SendMessageFunc(WorkerMessage);
@@ -887,7 +889,7 @@ begin
                                begin
                                  SendAckReply(LccMessage, False, 0);
                                  WorkerMessage.LoadDatagram(NodeID, GetAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                                 ProtocolConfigurationOptions.LoadReply(WorkerMessage);
+                                 ProtocolMemoryOptions.LoadReply(WorkerMessage);
                                  if WorkerMessage.UserValid then;
                                  begin
                                    SendMessageFunc(WorkerMessage);
@@ -899,7 +901,7 @@ begin
                                begin
                                  SendAckReply(LccMessage, False, 0);
                                  WorkerMessage.LoadDatagram(NodeID, GetAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias);
-                                 ProtocolConfigurationInfo.LoadReply(LccMessage, WorkerMessage);
+                                 ProtocolMemoryInfo.LoadReply(LccMessage, WorkerMessage);
                                  if WorkerMessage.UserValid then
                                  begin
                                    SendMessageFunc(WorkerMessage);

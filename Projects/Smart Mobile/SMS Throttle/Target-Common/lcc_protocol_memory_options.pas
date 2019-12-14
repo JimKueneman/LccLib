@@ -1,4 +1,4 @@
-unit lcc_protocol_configuration_options;
+unit lcc_protocol_memory_options;
 
 interface
 
@@ -27,9 +27,9 @@ uses
 
 type
 
-  { TProtocolConfigurationOptions }
+  { TProtocolMemoryOptions }
 
-TProtocolConfigurationOptions = class(TNodeProtocolBase)
+TProtocolMemoryOptions = class(TNodeProtocolBase)
 private
   FHighSpace: Byte;
   FLowSpace: Byte;
@@ -67,9 +67,9 @@ end;
 
 implementation
 
-{ TProtocolConfigurationOptions }
+{ TProtocolMemoryOptions }
 
-procedure TProtocolConfigurationOptions.LoadReply(LccMessage: TLccMessage);
+procedure TProtocolMemoryOptions.LoadReply(LccMessage: TLccMessage);
 var
   OpsMask: Word;
 begin
@@ -109,7 +109,7 @@ begin
   LccMessage.UserValid := True;
 end;
 
-function TProtocolConfigurationOptions.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolMemoryOptions.ProcessMessage(LccMessage: TLccMessage): Boolean;
 var
   OpsMask: Word;
 begin

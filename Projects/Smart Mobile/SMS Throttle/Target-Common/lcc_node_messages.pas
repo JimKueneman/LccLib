@@ -331,6 +331,10 @@ begin
   Result[1] := DataArray[StartIndex+1];
   Result[2] := DataArray[StartIndex+2];
   Result[3] := DataArray[StartIndex+3];
+  Result[4] := DataArray[StartIndex+4];
+  Result[5] := DataArray[StartIndex+5];
+  Result[6] := DataArray[StartIndex+6];
+  Result[7] := DataArray[StartIndex+7];
 end;
 
 function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD; // QWord;

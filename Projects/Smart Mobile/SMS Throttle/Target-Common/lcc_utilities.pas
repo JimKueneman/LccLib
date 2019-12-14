@@ -82,7 +82,12 @@ uses
   function Hi(Data: Word): Byte;
 {$ENDIF}
 
+function GridConnectToDetailedGridConnect(MessageString: string): string;
+
 implementation
+
+uses
+  lcc_node_messages;
 
 {$IFDEF LCC_WINDOWS}
   function ResolveWindowsIp(Socket: TBlockSocket): String;
@@ -522,5 +527,395 @@ begin
   Result := Byte((Data shr 8) and $00FF);
 end;
 {$ENDIF}
+
+function MTI_ToString(MTI: DWord): WideString;
+
+begin
+  case MTI of
+    MTI_CAN_CID0 : Result := 'Check ID 0';
+    MTI_CAN_CID1 : Result := 'Check ID 1';
+    MTI_CAN_CID2 : Result := 'Check ID 2';
+    MTI_CAN_CID3 : Result := 'Check ID 3';
+    MTI_CAN_CID4 : Result := 'Check ID 4';
+    MTI_CAN_CID5 : Result := 'Check ID 5';
+    MTI_CAN_CID6 : Result := 'Check ID 6';
+
+    MTI_CAN_RID : Result := 'Reserve ID [RID]';
+    MTI_CAN_AMD : Result := 'Alias Map Definition [AMD]';
+    MTI_CAN_AME : Result := 'Alias Map Enquiry [AME]';
+    MTI_CAN_AMR : Result := 'Alias Map Reset [AMR]';
+
+    MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY : begin
+                                           Result := 'Datagram Single Frame:';
+
+                                         end;
+    MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_START : begin
+                                           Result := 'Datagram Start Frame:';
+
+                                         end;
+    MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME : Result := 'Datagram Frame';
+    MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END : Result := 'Datagram End Frame';
+
+    MTI_INITIALIZATION_COMPLETE : Result := 'Initialization Complete';
+    MTI_VERIFY_NODE_ID_NUMBER_DEST : Result := 'Verify Node ID with Destination Address';
+    MTI_VERIFY_NODE_ID_NUMBER      : Result := 'Verify Node ID Global';
+    MTI_VERIFIED_NODE_ID_NUMBER    : Result := 'Verified Node ID';
+    MTI_OPTIONAL_INTERACTION_REJECTED : Result := 'Optional Interaction Rejected';
+    MTI_TERMINATE_DUE_TO_ERROR        : Result := 'Terminate Due to Error';
+
+    MTI_PROTOCOL_SUPPORT_INQUIRY  : Result := 'Protocol Support Inquiry';
+    MTI_PROTOCOL_SUPPORT_REPLY    : Result := 'Protocol Support Reply';
+
+    MTI_CONSUMER_IDENTIFY              : Result := 'Consumer Identify';
+    MTI_CONSUMER_IDENTIFY_RANGE        : Result := 'Consumer Identify Range';
+    MTI_CONSUMER_IDENTIFIED_UNKNOWN    : Result := 'Consumer Identified Unknown';
+    MTI_CONSUMER_IDENTIFIED_SET        : Result := 'Consumer Identified Valid';
+    MTI_CONSUMER_IDENTIFIED_CLEAR      : Result := 'Consumer Identified Clear';
+    MTI_CONSUMER_IDENTIFIED_RESERVED   : Result := 'Consumer Identified Reserved';
+    MTI_PRODUCER_IDENDIFY              : Result := 'Producer Identify';
+    MTI_PRODUCER_IDENTIFY_RANGE        : Result := 'Producer Identify Range';
+    MTI_PRODUCER_IDENTIFIED_UNKNOWN    : Result := 'Producer Identified Unknown';
+    MTI_PRODUCER_IDENTIFIED_SET        : Result := 'Producer Identified Valid';
+    MTI_PRODUCER_IDENTIFIED_CLEAR      : Result := 'Producer Identified Clear';
+    MTI_PRODUCER_IDENTIFIED_RESERVED   : Result := 'Producer Identified Reserved';
+    MTI_EVENTS_IDENTIFY_DEST           : Result := 'Events Identify with Destination Address';
+    MTI_EVENTS_IDENTIFY                : Result := 'Events Identify Global';
+    MTI_EVENT_LEARN                    : Result := 'Event Learn';
+    MTI_PC_EVENT_REPORT                : Result := 'Producer/Consumer Event Report [PCER] ';
+
+    MTI_SIMPLE_NODE_INFO_REQUEST       : Result := 'Simple Node Info Request [SNIP]';
+    MTI_SIMPLE_NODE_INFO_REPLY         : Result := 'Simple Node Info Reply [SNIP]';
+
+    MTI_SIMPLE_TRAIN_INFO_REQUEST       : Result := 'Simple Train Node Info Request [STNIP]';
+    MTI_SIMPLE_TRAIN_INFO_REPLY         : Result := 'Simple Train Node Info Reply [STNIP]';
+
+    MTI_DATAGRAM                       : Result := 'Datagram';
+    MTI_DATAGRAM_OK_REPLY              : Result := 'Datagram Reply OK';
+    MTI_DATAGRAM_REJECTED_REPLY        : Result := 'Datagram Rejected Reply';
+
+    MTI_TRACTION_PROTOCOL              : Result := 'Traction Protocol';
+    MTI_TRACTION_REPLY                 : Result := 'Traction Reply';
+    MTI_STREAM_INIT_REQUEST            : Result := 'Stream Init Request';
+    MTI_STREAM_INIT_REPLY              : Result := 'Stream Init Reply';
+    MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND     : Result := 'Stream Send - CAN Frame';
+    MTI_STREAM_PROCEED                 : Result := 'Stream Proceed';
+    MTI_STREAM_COMPLETE                : Result := 'Stream Complete';
+   else
+    Result := 'Unknown MTI';
+  end;
+end;
+
+function IsPrintableChar(C: Char): Boolean;
+begin
+  Result := ((Ord( C) >= 32) and (Ord( C) <= 126))  or ((Ord( C) >= 128) and (Ord( C) <= 255))
+end;
+
+function RawHelperDataToStr(Message: TLccMessage; ASCII: Boolean): string;
+var
+  j, iStart: Integer;
+begin
+  Result := '';
+  iStart := 0;
+  Result := Result + ' [';
+  for j := iStart to Message.DataCount - 1 do                     // Skip the Address
+  begin
+    if ASCII then
+    begin
+      if IsPrintableChar( Chr( Message.DataArray[j])) then
+        Result := Result + Chr( Message.DataArray[j])
+      else
+        Result := Result + '.';
+    end else
+    begin
+      Result := Result + IntToHex(Message.DataArray[j], 2);
+      if j < Message.DataCount then
+        Result := Result + '.'
+    end;
+  end;
+  Result := Result + ']';
+end;
+
+function GridConnectToDetailedGridConnect(MessageString: string): string;
+var
+  j, S_Len: Integer;
+  f: single;
+  Half: Word;
+  Message: TLccMessage;
+
+//  MultiFrame: TMultiFrameBuffer;
+//  LocalHelper: TLccMessageHelper;
+begin
+//  LocalHelper := TLccMessageHelper.Create;
+
+  Message := TLccMessage.Create;
+  try
+    if Message.LoadByGridConnectStr(MessageString) then
+    begin
+      Result := MessageString;
+      S_Len := Length(Result);
+      for j := 0 to (28-S_Len) do
+        Result := Result + ' ' ;
+
+      if Message.HasDestination then
+        Result := Result + '0x' + IntToHex( Message.CAN.SourceAlias, 4) + ' -> ' + '0x' + IntToHex( Message.CAN.DestAlias, 4)
+      else
+        Result := Result + '0x' + IntToHex( Message.CAN.SourceAlias, 4);
+
+      if Message.IsDatagram then
+        Result := Result + RawHelperDataToStr(Message, True) + ' MTI: ' + MTI_ToString(Message.MTI)
+      else
+        Result := Result + '   MTI: ' + MTI_ToString(Message.MTI) + ' - ';
+
+      if Message.IsStream then
+      begin
+        case Message.MTI of
+          MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((Message.DataArray[2] shl 8) or Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(Message.DataArray[6]);
+          MTI_STREAM_INIT_REPLY              : Result := Result + ' Negotiated Bufer Size: ' + IntToStr((Message.DataArray[2] shl 8) or Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(Message.DataArray[6]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[7]);
+          MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND     : begin end;
+          MTI_STREAM_PROCEED                 : Result := Result + ' Source Stream ID: ' + IntToStr(Message.DataArray[2]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2);
+          MTI_STREAM_COMPLETE                : Result := Result + ' Source Stream ID: ' + IntToStr(Message.DataArray[2]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2);
+        end
+      end;
+
+      if Message.MTI = MTI_OPTIONAL_INTERACTION_REJECTED then
+      begin
+      end;
+
+      // SNII/SNIP
+      if Message.MTI = MTI_SIMPLE_NODE_INFO_REPLY then
+        Result := Result + RawHelperDataToStr(Message, True);
+
+      // STNIP
+      if Message.MTI = MTI_SIMPLE_TRAIN_INFO_REPLY then
+        Result := Result + RawHelperDataToStr(Message, True);
+
+      // Events
+      if (Message.MTI = MTI_PRODUCER_IDENDIFY) or (Message.MTI = MTI_PRODUCER_IDENTIFIED_SET) or (Message.MTI = MTI_PRODUCER_IDENTIFIED_CLEAR) or
+        (Message.MTI = MTI_PRODUCER_IDENTIFIED_UNKNOWN) or (Message.MTI = MTI_CONSUMER_IDENTIFY) or (Message.MTI = MTI_CONSUMER_IDENTIFIED_SET) or
+        (Message.MTI = MTI_CONSUMER_IDENTIFIED_CLEAR) or (Message.MTI = MTI_CONSUMER_IDENTIFIED_UNKNOWN) or (Message.MTI = MTI_PC_EVENT_REPORT)
+      then begin
+          Result := Result + 'EventID: ' + EventIDToString(Message.ExtractDataBytesAsEventID(0), False);
+      end;
+
+    (*
+      // Traction Protocol
+      if Message.MTI = MTI_TRACTION_PROTOCOL then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(Message);
+        if Assigned(MultiFrame) then
+        begin
+          case MultiFrame.DataArray[0] of
+              TRACTION_SPEED_DIR :
+                begin
+                  Result := Result + ' LCC Speed/Dir Operation; Speed = ';
+                  f := HalfToFloat( (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2]);
+                  if f = 0 then
+                  begin
+                    if DWord( f) and $80000000 = $80000000 then
+                      Result := Result + '-0.0'
+                    else
+                      Result := Result + '+0.0'
+                  end else
+                    Result := Result + IntToStr( round(f));
+                end;
+              TRACTION_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(4, 5), 2) + ']';
+              TRACTION_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
+              TRACTION_QUERY_SPEED : Result := Result + ' Query Speeds';
+              TRACTION_QUERY_FUNCTION : Result := Result + ' Query Function - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + ']';
+              TRACTION_CONTROLLER_CONFIG :
+                begin;
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Assign - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_RELEASE :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Release - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_QUERY :
+                      begin
+                        Result := Result + ' Controller Config Query';
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_NOTIFY :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + MultiFrame.ExtractDataBytesAsHex(9, 10) + ']'
+                        else
+                          Result := Result + ' Controller Config Notify - Flags: ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + MultiFrame.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                      end
+                  end
+                end;
+              TRACTION_CONSIST :
+                begin
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach';
+                    TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach';
+                    TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query';
+                  end
+                end;
+              TRACTION_MANAGE :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_MANAGE_RESERVE : Result := Result + 'Traction Management Reserve';
+                      TRACTION_MANAGE_RELEASE : Result := Result + 'Traction Management Release'
+                  end
+                end
+          else
+            Result := Result + 'Unknown Traction Operation';
+          end;
+
+          FreeAndNil(MultiFrame);
+        end;
+      end;
+
+      // Traction Protocol Reply
+      if LocalHelper.MTI = MTI_TRACTION_REPLY then
+      begin
+        MultiFrame := MultiFrames.ProcessFrame(LocalHelper);
+        if Assigned(MultiFrame) then
+        begin
+          case MultiFrame.DataArray[0] of
+              TRACTION_QUERY_SPEED :
+                begin
+                  Result := Result + 'Query Speed Reply : Set Speed = ';
+                    Half := (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end;
+
+                    Result := Result + ': Status = ' + MultiFrame.ExtractDataBytesAsHex(3, 3);
+
+                    Result := Result + ': Commanded Speed = ';
+                    Half := (MultiFrame.DataArray[4] shl 8) or MultiFrame.DataArray[5];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end;
+
+                    Result := Result + ': Actual Speed = ';
+                    Half := (MultiFrame.DataArray[6] shl 8) or MultiFrame.DataArray[7];
+                    if Half = $FFFF then
+                    begin
+                      Result := Result + 'NaN'
+                    end else
+                    begin
+                      f := HalfToFloat( Half);
+                      if f = 0 then
+                      begin
+                        if DWord( f) and $80000000 = $80000000 then
+                          Result := Result + '-0.0'
+                        else
+                          Result := Result + '+0.0'
+                      end else
+                        Result := Result + IntToStr( round(f));
+                    end
+                end;
+              TRACTION_QUERY_FUNCTION : Result := Result + 'Query Function Reply - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ', Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5));
+              TRACTION_CONTROLLER_CONFIG :
+                begin;
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                      begin
+                        Result := Result + 'Controller Config Assign Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_QUERY :
+                      begin
+                        if MultiFrame.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
+                          Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12) + ' Alias = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(10, 11), 4)
+                        else
+                          Result := Result + 'Controller Config Query Reply - Flags = ' + MultiFrame.ExtractDataBytesAsHex(2, 2) + ' Result = ' + MultiFrame.ExtractDataBytesAsHex(3, 3) + ' Active Controller = 0x' + IntToHex(MultiFrame.ExtractDataBytesAsInt(4, 9), 12);
+                      end;
+                    TRACTION_CONTROLLER_CONFIG_NOTIFY :
+                      begin
+                        Result := Result + 'Controller Config Notify Reply - Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2)
+                      end;
+                  end
+                end;
+              TRACTION_CONSIST :
+                begin
+                  case MultiFrame.DataArray[1] of
+                    TRACTION_CONSIST_ATTACH : Result := Result + 'Consist Config Attach Reply';
+                    TRACTION_CONSIST_DETACH : Result := Result + 'Consist Config Detach Reply';
+                    TRACTION_CONSIST_QUERY : Result := Result + 'Consit Config Query Reply';
+                  end
+                end;
+              TRACTION_MANAGE :
+                begin
+                  case MultiFrame.DataArray[1] of
+                      TRACTION_MANAGE_RESERVE : Result := Result +  'Manage: Reserve' + 'Result = ' + MultiFrame.ExtractDataBytesAsHex(2, 2);
+                  end
+                end
+          else
+            Result := Result + 'Unknown Traction Reply Operation';
+          end;
+
+          FreeAndNil(MultiFrame);
+        end;
+      end;
+
+      *)
+    end;
+  finally
+    Message.Free
+  end;
+end;
+
+function GridConnectToJMRI(GridStr: AnsiString): AnsiString;
+var
+  NPos: integer;
+  Header: PChar;
+  i: Integer;
+begin
+  Result := GridStr;
+  NPos := Pos('N', GridStr);
+  GridStr[NPos] := #0;
+  Header := @GridStr[3];
+  Result := '[' + Header + ']';
+  Header := @GridStr[NPos] + 1;
+  if Header^ <> ';' then
+    Result := Result + ' ';
+  while Header^ <> ';' do
+  begin
+    Result := Result + Header^;
+    Inc(Header);
+    if Header^ = ';' then
+      Break;
+    Result := Result + Header^ + ' ';
+    Inc(Header);
+  end;
+  Result := Trim(Result);
+  for i := 0 to (40 - Length(Result)) do
+    Result := Result + ' ';  // Pad them all to the same length
+end;
 
 end.

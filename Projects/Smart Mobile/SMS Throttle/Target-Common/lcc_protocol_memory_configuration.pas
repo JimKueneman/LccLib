@@ -1,4 +1,4 @@
-unit lcc_protocol_configuration_configuration;
+unit lcc_protocol_memory_configuration;
 interface
 
 uses
@@ -24,9 +24,9 @@ uses
 
 type
 
-{ TConfiguration }
+{ TMemoryConfiguration }
 
-TConfiguration = class(TStreamBasedProtocol)
+TMemoryConfiguration = class(TStreamBasedProtocol)
 private
   FAutoSaveOnWrite: Boolean;
   FFilePath: String;
@@ -46,26 +46,26 @@ end;
 
 implementation
 
-{ TConfiguration }
+{ TMemoryConfiguration }
 
-constructor TConfiguration.Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
+constructor TMemoryConfiguration.Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
 begin
  inherited Create(ASendMessageFunc, AnAddressSpace, IsStringBasedStream);
  AutoSaveOnWrite := True;
 end;
 
-destructor TConfiguration.Destroy;
+destructor TMemoryConfiguration.Destroy;
 begin
  inherited Destroy;
 end;
 
-procedure TConfiguration.LoadFromFile;
+procedure TMemoryConfiguration.LoadFromFile;
 begin
  if FileExists(String( FilePath)) then
    AStream.LoadFromFile(String( FilePath))
 end;
 
-function TConfiguration.ReadAsString(Address: DWord): String;
+function TMemoryConfiguration.ReadAsString(Address: DWord): String;
 var
  i: DWord;
  C: Char;
@@ -93,7 +93,7 @@ begin
  end;
 end;
 
-procedure TConfiguration.WriteRequest(LccMessage: TLccMessage);
+procedure TMemoryConfiguration.WriteRequest(LccMessage: TLccMessage);
 var
  i: Integer;
  iStart : Integer;

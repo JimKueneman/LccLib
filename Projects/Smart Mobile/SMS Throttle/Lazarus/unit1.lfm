@@ -37,7 +37,7 @@ object Form1: TForm1
     Height = 22
     Top = 8
     Width = 203
-    Caption = 'Button2'
+    Caption = 'Log In'
     OnClick = Button2Click
     TabOrder = 2
   end
@@ -540,5 +540,14 @@ object Form1: TForm1
         MouseActionsCollapsed = <>
       end
     end
+  end
+  object Button3: TButton
+    Left = 696
+    Height = 22
+    Top = 8
+    Width = 75
+    Caption = 'Clear'
+    OnClick = Button3Click
+    TabOrder = 4
   end
 end
