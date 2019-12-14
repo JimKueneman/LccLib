@@ -48,16 +48,13 @@ end;
 
 TLccEventAutoGenerate = class(TObject)
 private
-  FEnable: Boolean;
   FCount: Integer;
   FDefaultState: TEventState;
   FStartIndex: Integer;
   procedure SetCount(AValue: Integer);
   procedure SetDefaultState(AValue: TEventState);
-  procedure SetEnable(AValue: Boolean);
   procedure SetStartIndex(AValue: Integer);
 public
-  property Enable: Boolean read FEnable write SetEnable;
   property Count: Integer read FCount write SetCount;
   property DefaultState: TEventState read FDefaultState write SetDefaultState;
   property StartIndex: Integer read FStartIndex write SetStartIndex;
@@ -125,12 +122,6 @@ procedure TLccEventAutoGenerate.SetDefaultState(AValue: TEventState);
 begin
   if FDefaultState = AValue then Exit;
   FDefaultState := AValue;
-end;
-
-procedure TLccEventAutoGenerate.SetEnable(AValue: Boolean);
-begin
-  if FEnable = AValue then Exit;
-  FEnable := AValue;
 end;
 
 procedure TLccEventAutoGenerate.SetStartIndex(AValue: Integer);

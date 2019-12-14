@@ -42,7 +42,7 @@ public
 
   constructor Create(ASendMessageFunc: TLccSendMessageFunc);
   destructor Destroy; override;
-  procedure Add(LccMessage: TLccMessage);
+  function Add(LccMessage: TLccMessage): Boolean;
   procedure Clear;
   procedure Resend(LccMessage: TLccMessage);
   procedure Remove(LccMessage: TLccMessage);
@@ -67,8 +67,9 @@ begin
     {$ENDIF}
 end;
 
-procedure TDatagramQueue.Add(LccMessage: TLccMessage);
+function TDatagramQueue.Add(LccMessage: TLccMessage): Boolean;
 begin
+  Result := True;
   Queue.Add(LccMessage);
   LccMessage.RetryAttempts := 0;
   LccMessage.AbandonTimeout := 0;
