@@ -61,7 +61,7 @@ type
     {$IFNDEF DWSCRIPT}
     function LoadFromXmlDoc(CdiXMLDoc: LccXmlDocument): Boolean;
     {$ENDIF}
-    function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   end;
 
 implementation
@@ -164,7 +164,7 @@ begin
   end;
 end;
 
-function TProtocolSimpleNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolSimpleNodeInfo.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 
   {$IFDEF LCC_MOBILE}
   function NextString(AStrPtr: PChar): PChar;
@@ -188,7 +188,7 @@ var
 {$ENDIF}
 begin
   Result := True;
-  StrPtr := @LccMessage.DataArray[0];
+  StrPtr := @SourceLccMessage.DataArray[0];
   FVersion := Ord(StrPtr^);
   Inc(StrPtr);
   FManufacturer := StrPtr;

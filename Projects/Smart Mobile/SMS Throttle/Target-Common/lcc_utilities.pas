@@ -2,7 +2,10 @@ unit lcc_utilities;
 
 interface
 
+{$IFDEF DWSCRIPT}
+{$ELSE}
 {$i lcc_compilers.inc}
+{$ENDIF}
 
 uses
  {$IFDEF DWSCRIPT}
@@ -60,7 +63,7 @@ uses
   function _Hi(Data: DWORD): Byte;
   function _Higher(Data: DWORD): Byte;
   function _Highest(Data: DWORD): Byte;
-  {$IFNDEF DW_SCRIPT}
+  {$IFNDEF DWSCRIPT}
   function _Highest1(Data: QWord): Byte;
   function _Highest2(Data: QWord): Byte;
   {$IFDEF LCC_WINDOWS}

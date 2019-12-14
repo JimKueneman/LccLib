@@ -148,7 +148,7 @@ begin
     if LocalMessage.RetryAttempts < 5 then
     begin
       LocalMessage := Queue[iLocalMessage] as TLccMessage;
-      Assert(SendMessageFunc = nil, 'SendMessge function not assigned');
+  //    Assert(SendMessageFunc = nil, 'SendMessge function not assigned');
       SendMessageFunc(LocalMessage);
       LocalMessage.RetryAttempts := LocalMessage.RetryAttempts + 1;
     end else

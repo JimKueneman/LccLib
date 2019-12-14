@@ -46,7 +46,7 @@ public
   constructor Create(ASendMessageFunc: TLccSendMessageFunc); virtual;
   destructor Destroy; override;
 
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; virtual; abstract;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual; abstract;
 end;
 
 { TStreamBasedProtocol }
@@ -72,7 +72,7 @@ public
 
   procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
   procedure WriteRequest(LccMessage: TLccMessage); virtual;
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
 end;
 
 implementation
@@ -199,7 +199,7 @@ begin
   OutMessage.UserValid := True;
 end;
 
-function TStreamBasedProtocol.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TStreamBasedProtocol.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   NullFound: Boolean;
   i: Integer;
@@ -210,14 +210,14 @@ begin
   if not Valid then
   begin
     NullFound := False;
-    if LccMessage.DataArrayIndexer[1] and $03 = 0 then
+    if SourceLccMessage.DataArrayIndexer[1] and $03 = 0 then
       iStart := 7
     else
       iStart := 6;
-    for i := iStart to LccMessage.DataCount - 1 do
+    for i := iStart to SourceLccMessage.DataCount - 1 do
     begin
-      NullFound := LccMessage.DataArrayIndexer[i] = Ord(#0);
-      AByte := LccMessage.DataArrayIndexer[i];
+      NullFound := SourceLccMessage.DataArrayIndexer[i] = Ord(#0);
+      AByte := SourceLccMessage.DataArrayIndexer[i];
       AStream.WriteBuffer(AByte, 1);
       if NullFound then
         Break
@@ -227,14 +227,14 @@ begin
     begin
       AStream.Position := 0;
       FValid := True;
-      DoLoadComplete(LccMessage);
+      DoLoadComplete(SourceLccMessage);
     end else
     begin
       WorkerMessage.IsCAN := False;
-      WorkerMessage.SourceID := LccMessage.DestID;
-      WorkerMessage.CAN.SourceAlias := LccMessage.CAN.DestAlias;
-      WorkerMessage.DestID := LccMessage.SourceID;
-      WorkerMessage.CAN.DestAlias := LccMessage.CAN.SourceAlias;
+      WorkerMessage.SourceID := SourceLccMessage.DestID;
+      WorkerMessage.CAN.SourceAlias := SourceLccMessage.CAN.DestAlias;
+      WorkerMessage.DestID := SourceLccMessage.SourceID;
+      WorkerMessage.CAN.DestAlias := SourceLccMessage.CAN.SourceAlias;
       WorkerMessage.DataCount := 0;
       WorkerMessage.DataArrayIndexer[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
       WorkerMessage.DataArrayIndexer[1] := MCP_READ;

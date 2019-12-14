@@ -20,7 +20,8 @@ uses
   SysUtils,
 {$ENDIF}
   lcc_protocol_base,
-  lcc_node_messages;
+  lcc_node_messages,
+  lcc_defines;
 
 type
 

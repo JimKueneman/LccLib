@@ -126,7 +126,7 @@ public
   procedure LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word);
   // Protocol Support (PIP)
   procedure LoadProtocolIdentifyInquiry(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: {$IFDEF DWSCRIPT}_QWord{$ELSE}QWord{$ENDIF});
+  procedure LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: TLccSupportedProtocolArray);
   // Event Exchange
   procedure LoadConsumerIdentify(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID);
   procedure LoadConsumerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);
@@ -949,28 +949,19 @@ begin
   MTI := MTI_PROTOCOL_SUPPORT_INQUIRY;
 end;
 
-procedure TLccMessage.LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: {$IFDEF DWSCRIPT}_QWord{$ELSE}QWord{$ENDIF});
+procedure TLccMessage.LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: TLccSupportedProtocolArray);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  {$IFDEF DWSCRIPT}
-  FDataArray[5] := _Lo(Flags[0]);
-  FDataArray[4] := _Hi(Flags[0]);
-  FDataArray[3] := _Higher(Flags[0]);
-  FDataArray[2] := _Highest(Flags[0]);
-  FDataArray[1] := _Lo(Flags[1]);
-  FDataArray[0] := _Hi(Flags[1]);
-  {$ELSE}
-  FDataArray[5] := _Lo(Flags);
-  FDataArray[4] := _Hi(Flags);
-  FDataArray[3] := _Higher(Flags);
-  FDataArray[2] := _Highest(Flags);
-  FDataArray[1] := _Highest1(Flags);
-  FDataArray[0] := _Highest2(Flags);
-  {$ENDIF}
+  FDataArray[5] := Flags[0];
+  FDataArray[4] := Flags[1];
+  FDataArray[3] := Flags[2];
+  FDataArray[2] := Flags[3];
+  FDataArray[1] := Flags[4];
+  FDataArray[0] := Flags[5];
   DataCount := 6;
   MTI := MTI_PROTOCOL_SUPPORT_REPLY;
 end;

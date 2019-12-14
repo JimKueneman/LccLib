@@ -16,6 +16,9 @@ uses
   SmartCL.Application,
   SmartCL.Components,
   SmartCL.System,
+  System.Memory,
+  System.Memory.Allocation,
+  System.Memory.Buffer,
 {$ELSE}
   Classes,
   SysUtils,
@@ -46,16 +49,16 @@ private
   FTractionControl: Boolean;
   FSimpleTrainNodeInfo: Boolean;
   FFunctionConfiguration: Boolean;
+  FFirmwareUpgradeActive: Boolean;
+  FFirmwareUpgrade: Boolean;
+
 protected
 
 public
-  {$IFDEF DWSCRIPT}
-  ????
-  {$ELSE}
-  Flags: array of QWord;
+  Flags: TLccSupportedProtocolArray;
+
   procedure DecodeFlags;
-  function EncodeFlags: QWord;
-  {$ENDIF}
+  function EncodeFlags: TLccSupportedProtocolArray;
 
   property Datagram: Boolean read FDatagram write FDatagram;
   property FDI: Boolean read FFDI write FFDI;
@@ -73,8 +76,10 @@ public
   property CDI: Boolean read FCDI write FCDI;
   property TractionControl: Boolean read FTractionControl write FTractionControl;
   property SimpleTrainNodeInfo: Boolean read FSimpleTrainNodeInfo write FSimpleTrainNodeInfo;
+  property FirmwareUpgrade: Boolean read FFirmwareUpgrade write FFirmwareUpgrade;
+  property FirmwareUpgradeActive: Boolean read FFirmwareUpgradeActive write FFirmwareUpgradeActive;
 
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
 end;
 
 implementation
@@ -85,68 +90,76 @@ procedure TProtocolSupportedProtocols.DecodeFlags;
 begin
   if Length(Flags) > 0 then
   begin
-    FACDI := Flags[0] and PIP_ABBREVIATED_CDI <> 0;
-    FCDI := Flags[0] and PIP_CDI <> 0;
-    FDatagram := Flags[0] and PIP_DATAGRAM <> 0;
-    FDisplay := Flags[0] and PIP_DISPLAY <> 0;
-    FEventExchange := Flags[0] and PIP_EVENT_EXCHANGE <> 0;
-    FFDI := Flags[0] and PIP_FDI <> 0;
-    FFunctionConfiguration := Flags[0] and PIP_FUNCTION_CONFIGURATION <> 0;
-    FIdentification := Flags[0] and PIP_PIP <> 0;
-    FMemConfig := Flags[0] and PIP_MEMORY_CONFIG <> 0;
-    FRemoteButton := Flags[0] and PIP_REMOTE_BUTTON <> 0;
-    FReservation := Flags[0] and PIP_RESERVATION <> 0;
-    FSimpleNodeInfo := Flags[0] and PIP_SIMPLE_NODE_INFO <> 0;
-    FSimpleTrainNodeInfo := Flags[0] and PIP_SIMPLE_TRAIN_NODE_INFO <> 0;
-    FStream := Flags[0] and PIP_STREAM <> 0;
-    FTeach_Learn := Flags[0] and PIP_TEACH_LEARN <> 0;
-    FTractionControl := Flags[0] and PIP_TRACTION <> 0;
+    // SimpleNode Flags[5]
+    FDatagram := Flags[5] and PIP_DATAGRAM <> 0;
+    FStream := Flags[5] and PIP_STREAM <> 0;
+    FMemConfig := Flags[5] and PIP_MEMORY_CONFIG <> 0;
+    FReservation := Flags[5] and PIP_RESERVATION <> 0;
+    FEventExchange := Flags[5] and PIP_EVENT_EXCHANGE <> 0;
+    FIdentification := Flags[5] and PIP_IDENTIFCIATION <> 0;
+    FTeach_Learn := Flags[5] and PIP_TEACH_LEARN <> 0;
+
+    FRemoteButton := Flags[4] and PIP_REMOTE_BUTTON <> 0;
+    FACDI := Flags[4] and PIP_ABBREVIATED_CDI <> 0;
+    FDisplay := Flags[4] and PIP_DISPLAY <> 0;
+    FSimpleNodeInfo := Flags[4] and PIP_SIMPLE_NODE_INFO <> 0;
+    FCDI := Flags[4] and PIP_CDI <> 0;
+    FTractionControl := Flags[4] and PIP_TRACTION <> 0;
+    FFDI := Flags[4] and PIP_FDI <> 0;
+    // Dcc_Command_Station Flags[4]
+
+    FSimpleTrainNodeInfo := Flags[3] and PIP_SIMPLE_TRAIN_NODE_INFO <> 0;
+    FFunctionConfiguration := Flags[3] and PIP_FUNCTION_CONFIGURATION <> 0;
+    FFirmwareUpgrade := Flags[3] and PIP_FIRMWARE_UPGRADE <> 0;
+    FirmwareUpgradeActive := Flags[3] and PIP_FIRMWARE_UPGRADE_ACTIVE <> 0;
+
     Valid := True;
   end;
 end;
 
-function TProtocolSupportedProtocols.EncodeFlags: QWord;
+function TProtocolSupportedProtocols.EncodeFlags: TLccSupportedProtocolArray;
+var
+  i: Integer;
 begin
-  Result := 0;
-  if ACDI then Result := Result or PIP_ABBREVIATED_CDI;
-  if CDI then Result := Result or PIP_CDI;
-  if Datagram then Result := Result or PIP_DATAGRAM;
-  if Display then Result := Result or PIP_DISPLAY;
-  if EventExchange then Result := Result or PIP_EVENT_EXCHANGE;
-  if FDI then Result := Result or PIP_FDI;
-  if FunctionConfiguration then Result := Result or PIP_FUNCTION_CONFIGURATION;
-  if Identification then Result := Result or PIP_PIP;
-  if MemConfig then Result := Result or PIP_MEMORY_CONFIG;
-  if RemoteButton then Result := Result or PIP_REMOTE_BUTTON;
-  if Reservation then Result := Result or PIP_RESERVATION;
-  if SimpleNodeInfo then Result := Result or PIP_SIMPLE_NODE_INFO;
-  if Stream then Result := Result or PIP_STREAM;
-  if Teach_Learn then Result := Result or PIP_TEACH_LEARN;
-  if SimpleTrainNodeInfo then Result := Result or PIP_SIMPLE_TRAIN_NODE_INFO;
-  if TractionControl then Result := Result or PIP_TRACTION;
+  for i := 0 to MAX_SUPPORTEDPROTOCOL_LEN - 1 do
+    Result[i] := 0;
+
+// if SimpleNode then Result[5] := ....
+  if Datagram then Result[5] := Result[5] or PIP_DATAGRAM;
+  if Stream then Result[5] := Result[5] or PIP_STREAM;
+  if MemConfig then Result[5] := Result[5] or PIP_MEMORY_CONFIG;
+  if Reservation then Result[5] := Result[5] or PIP_RESERVATION;
+  if EventExchange then Result[5] := Result[5] or PIP_EVENT_EXCHANGE;
+  if Identification then Result[5] := Result[5] or PIP_IDENTIFCIATION;
+  if Teach_Learn then Result[5] := Result[5] or PIP_TEACH_LEARN;
+
+  if RemoteButton then Result[4] := Result[4] or PIP_REMOTE_BUTTON;
+  if ACDI then Result[4] := Result[4] or PIP_ABBREVIATED_CDI;
+  if Display then Result[4] := Result[4] or PIP_DISPLAY;
+  if SimpleNodeInfo then Result[4] := Result[4] or PIP_SIMPLE_NODE_INFO;
+  if CDI then Result[4] := Result[4] or PIP_CDI;
+  if TractionControl then Result[4] := Result[4] or PIP_TRACTION;
+  if FDI then Result[4] := Result[4] or PIP_FDI;
+// if DccCommand Station then Result[4] := .... depreciated
+
+  if SimpleTrainNodeInfo then Result[3] := Result[3] or PIP_SIMPLE_TRAIN_NODE_INFO;
+  if FunctionConfiguration then Result[3] := Result[3] or PIP_FUNCTION_CONFIGURATION;
+  if FirmwareUpgrade then Result[3] := Result[3] or PIP_FIRMWARE_UPGRADE;
+  if FirmwareUpgradeActive then Result[3] := Result[3] or PIP_FIRMWARE_UPGRADE_ACTIVE
+
+
 end;
 
-function TProtocolSupportedProtocols.ProcessMessage(LccMessage: TLccMessage): Boolean;
-var
-  i, FlagBlocks, Offset: Integer;
+function TProtocolSupportedProtocols.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 begin
   Result := True;
-  FlagBlocks := LccMessage.DataCount div 6;
+  Flags[0] := SourceLccMessage.DataArrayIndexer[5];
+  Flags[1] := SourceLccMessage.DataArrayIndexer[4];
+  Flags[2] := SourceLccMessage.DataArrayIndexer[3];
+  Flags[3] := SourceLccMessage.DataArrayIndexer[2];
+  Flags[4] := SourceLccMessage.DataArrayIndexer[1];
+  Flags[5] := SourceLccMessage.DataArrayIndexer[0];
 
-  {$IFDEF DWSCRIPT}
-  var BinaryData: TBinaryData;
-  BinaryData := TBinaryData.Create(TMarshal.AllocMem(FlagBlocks).Segment);
-  Flags := BinaryData.ToBytes;
-  {$ELSE}
-  SetLength(Flags, FlagBlocks);
-  {$ENDIF}
-
-  Offset := 0;
-  for i := 0 to FlagBlocks - 1 do
-  begin
-    Flags[i] := LccMessage.ExtractDataBytesAsInt(Offset, 5);     // Protocol uses 6 byte chunks due to needing to use 2 in the CAN for the destination
-    Offset := Offset + 6;
-  end;
   DecodeFlags;
 end;
 

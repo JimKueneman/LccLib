@@ -1,7 +1,5 @@
 unit lcc_node;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
@@ -100,21 +98,30 @@ private
   FProtocolMemoryInfo: TProtocolMemoryInfo;
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
-  FNodeID: TNodeID;
   FDatagramQueue: TDatagramQueue;
-  {$IFNDEF FPC_CONSOLE_APP}
-  F_800msTimer: TTimer;
+  {$IFDEF DWSCRIPT}
+    F_800msTimer: TW3Timer;
   {$ELSE}
-  F_800msTimer: TFPTimer;
+    {$IFNDEF FPC_CONSOLE_APP}
+    F_800msTimer: TTimer;
+    {$ELSE}
+    F_800msTimer: TFPTimer;
+    {$ENDIF}
   {$ENDIF}
 
   function GetNodeIDStr: String;
 protected
+  FNodeID: TNodeID;
+
   property DatagramWorkerMessage: TLccMessage read FDatagramWorkerMessage write FDatagramWorkerMessage;
-  {$IFNDEF FPC_CONSOLE_APP}
-  property _800msTimer: TTimer read F_800msTimer write F_800msTimer;
+  {$IFDEF DWSCRIPT}
+    property _800msTimer: TW3Timer read F_800msTimer write F_800msTimer;
   {$ELSE}
-  property _800msTimer: TFPTimer read F_800msTimer write F_800msTimer;
+    {$IFNDEF FPC_CONSOLE_APP}
+    property _800msTimer: TTimer read F_800msTimer write F_800msTimer;
+    {$ELSE}
+    property _800msTimer: TFPTimer read F_800msTimer write F_800msTimer;
+    {$ENDIF}
   {$ENDIF}
 
   function GetAlias: Word; virtual;
@@ -186,7 +193,7 @@ public
 
    constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
    destructor Destroy; override;
-   function IsNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
+   function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
    procedure Login(ANodeID: TNodeID); override;
    procedure Logout; override;
    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
@@ -257,30 +264,33 @@ begin
   Result := AliasID = LccMessage.CAN.DestAlias;
 end;
 
-function TLccCanNode.IsNode(LccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
+function TLccCanNode.IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
 begin
   Result := False;
   if TestType = ntt_Dest then
   begin
-    if (AliasID <> 0) and (LccMessage.CAN.DestAlias <> 0) then
-      Result := AliasID = LccMessage.CAN.DestAlias
+    if (AliasID <> 0) and (ALccMessage.CAN.DestAlias <> 0) then
+      Result := AliasID = ALccMessage.CAN.DestAlias
   end else
   if TestType = ntt_Source then
   begin
-    if (AliasID <> 0) and (LccMessage.CAN.SourceAlias <> 0) then
-      Result := AliasID = LccMessage.CAN.SourceAlias
+    if (AliasID <> 0) and (ALccMessage.CAN.SourceAlias <> 0) then
+      Result := AliasID = ALccMessage.CAN.SourceAlias
   end;
 end;
 
 procedure TLccCanNode.Login(ANodeID: TNodeID);
+var
+  Temp: TNodeID;
 begin
   if NullNodeID(ANodeID) then
     CreateNodeID(ANodeID);
   SeedNodeID := ANodeID;
-  FAliasID := GenerateID_Alias_From_Seed(FSeedNodeID);
+  Temp := FSeedNodeID;
+  FAliasID := GenerateID_Alias_From_Seed(Temp);
   FNodeID := ANodeID;
 
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
   SendMessageFunc(WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
@@ -301,16 +311,20 @@ begin
 end;
 
 procedure TLccCanNode.On_800msTimer(Sender: TObject);
+var
+  Temp: TNodeID;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
 
   if not Permitted then
   begin
      // Did any node object to this Alias through ProcessMessage?
     if DuplicateAliasDetected then
     begin
-      GenerateNewSeed(FSeedNodeID);
-      FAliasID := GenerateID_Alias_From_Seed(FSeedNodeID);
+      Temp := FSeedNodeID;
+      GenerateNewSeed(Temp);     // DWSCRIPT Forced
+      FSeedNodeID := Temp;
+      FAliasID := GenerateID_Alias_From_Seed(Temp);
       WorkerMessage.LoadCID(NodeID, AliasID, 0);
       SendMessageFunc(WorkerMessage);
       WorkerMessage.LoadCID(NodeID, AliasID, 1);
@@ -339,7 +353,7 @@ var
 begin
   Result := False;
 
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
 
   if (AliasID <> 0) and (SourceLccMessage.CAN.SourceAlias = AliasID) then
   begin
@@ -393,12 +407,16 @@ begin
 end;
 
 procedure TLccCanNode.Relogin;
+var
+  Temp: TNodeID;
 begin
   // Typically due to an alias conflict to create a new one
-  GenerateNewSeed(FSeedNodeID);
-  FAliasID := GenerateID_Alias_From_Seed(FSeedNodeID);
+  Temp := FSeedNodeID;
+  GenerateNewSeed(Temp);   // DWSCRIPT forced
+  FSeedNodeID := Temp;
+  FAliasID := GenerateID_Alias_From_Seed(Temp);
 
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
   SendMessageFunc(WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
@@ -421,7 +439,7 @@ begin
   Randomize;
   Seed[1] := StrToInt('0x020112');
   {$IFDEF DWSCRIPT}
-  Result[0] := RandomInt($FFFFFF);
+  Seed[0] := RandomInt($FFFFFF);
   {$ELSE}
   Seed[0] := Random($FFFFFF);
   {$ENDIF}
@@ -452,7 +470,7 @@ begin
   if Permitted then
   begin
     WorkerMessage.LoadAMD(NodeID, AliasID);
-    Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ //   Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -463,7 +481,7 @@ begin
   begin
     FPermitted := False;
     WorkerMessage.LoadAMR(NodeID, AliasID);
-    Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ //   Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -517,14 +535,21 @@ begin
   FDatagramQueue := TDatagramQueue.Create(SendMessageFunc);
   FDatagramWorkerMessage := TLccMessage.Create;
 
-  {$IFNDEF FPC_CONSOLE_APP}
-  _800msTimer := TTimer.Create(nil);
-  {$ELSE}
-  _800msTimer := TFPTimer.Create(nil);
-  {$ENDIF}
+  {$IFDEF DWSCRIPT}
+  _800msTimer := TW3Timer.Create(nil);
   _800msTimer.Enabled := False;
-  _800msTimer.Interval := 800;
-  _800msTimer.OnTimer := @On_800msTimer;
+  _800msTimer.OnTime := @On_800msTimer;
+  _800msTimer.Delay := 800;
+  {$ELSE}
+    {$IFNDEF FPC_CONSOLE_APP}
+    _800msTimer := TTimer.Create(nil);
+    {$ELSE}
+    _800msTimer := TFPTimer.Create(nil);
+    {$ENDIF}
+    _800msTimer.Enabled := False;
+    _800msTimer.OnTimer := @On_800msTimer;
+    _800msTimer.Interval := 800;
+  {$ENDIF}
 end;
 
 procedure TLccNode.AutoGenerateEvents;
@@ -606,12 +631,12 @@ var
 begin
   Result := False;
 
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
 
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
 
-  if Initialized then;
+ // if Initialized then;
   begin
     // First look for a duplicate NodeID
     if EqualNodeID(NodeID, SourceLccMessage.SourceID, False) then
@@ -916,7 +941,7 @@ end;
 procedure TLccNode.SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   // Only Ack if we accept the datagram
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   DatagramWorkerMessage.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, True, ReplyPending, TimeOutValueN);
   SendMessageFunc(DatagramWorkerMessage);
 end;
@@ -926,12 +951,12 @@ var
   i: Integer;
   Temp: TEventID;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   for i := 0 to ProtocolEventConsumed.Count - 1 do
   begin
     Temp := ProtocolEventConsumed.Event[i].ID;
     WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, ProtocolEventConsumed.Event[i].State);
-    Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//    Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -941,7 +966,7 @@ var
   EventObj: TLccEvent;
   Temp: TEventID;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   EventObj := ProtocolEventConsumed.Supports(Event);
   if Assigned(EventObj) then
   begin
@@ -953,7 +978,7 @@ end;
 
 procedure TLccNode.SendDatagramRejectedReply(SourceLccMessage: TLccMessage);
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   DatagramWorkerMessage.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL);
   SendMessageFunc(DatagramWorkerMessage);
 end;
@@ -979,7 +1004,7 @@ end;
 
 procedure TLccNode.SendInitializeComplete;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
   SendMessageFunc(WorkerMessage);
 end;
@@ -989,7 +1014,7 @@ var
   i: Integer;
   Temp: TEventID;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+ // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   for i := 0 to ProtocolEventsProduced.Count - 1 do
   begin
     Temp := ProtocolEventsProduced.Event[i].ID;
@@ -1003,7 +1028,7 @@ var
   EventObj: TLccEvent;
   Temp: TEventID;
 begin
-  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
+//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   EventObj := ProtocolEventsProduced.Supports(Event);
   if Assigned(EventObj) then
   begin

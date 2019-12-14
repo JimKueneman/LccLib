@@ -21,54 +21,55 @@ uses
 {$ENDIF}
 
 const
-  LCC_BYTE_COUNT        = 1024;       // This is longest data structure defined in Lcc
-  MAX_DATAGRAM_LENGTH   = 72;
-  MAX_EVENT_LEN         = 8;
-  MAX_NODEID_LEN        = 6;
-  MAX_MULTIFRAME_LEN    = 12;
+  LCC_BYTE_COUNT            = 1024;       // This is longest data structure defined in Lcc
+  MAX_DATAGRAM_LENGTH       = 72;
+  MAX_EVENT_LEN             = 8;
+  MAX_NODEID_LEN            = 6;
+  MAX_MULTIFRAME_LEN        = 12;
+  MAX_SUPPORTEDPROTOCOL_LEN = 6;
 
-  {$IFDEF DWSCRIPT}
-  type
-    DWord = Longword;
-    _QWord = array[0..1] of LongWord;
-    TComponent = TObject;
+{$IFDEF DWSCRIPT}
+type
+  DWord = Longword;
+  TComponent = TObject;
+{$ENDIF}
+
+type
+  TLccByteArray = array[0..LCC_BYTE_COUNT-1] of Byte;
+  TLccSupportedProtocolArray = array[0..MAX_SUPPORTEDPROTOCOL_LEN] of Byte;
+
+  TNodeID = array[0..1] of DWord;
+  {$IFNDEF DWSCRIPT}
+  PNodeID = ^TNodeID;
   {$ENDIF}
 
-  type
-    TLccByteArray = array[0..LCC_BYTE_COUNT-1] of Byte;
+  TSimpleNodeInfoPacked = array of Byte;
+  TFunctionStatesArray = array[0..28] of Word;
+  TDynamicByteArray = array of Byte;
 
-    TNodeID = array[0..1] of DWord;
-    {$IFNDEF DWSCRIPT}
-    PNodeID = ^TNodeID;
-    {$ENDIF}
+type
+  TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
 
-    TSimpleNodeInfoPacked = array of Byte;
-    TFunctionStatesArray = array[0..28] of Word;
-    TDynamicByteArray = array of Byte;
+  TStreamArray = array of Byte;
 
-  type
-    TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
+  TEventID = array[0..MAX_EVENT_LEN-1] of Byte;
+  {$IFNDEF DWSCRIPT}
+  PEventID = ^TEventID;
+  {$ENDIF}
 
-    TStreamArray = array of Byte;
+  THexArray = TEventID;
 
-    TEventID = array[0..MAX_EVENT_LEN-1] of Byte;
-    {$IFNDEF DWSCRIPT}
-    PEventID = ^TEventID;
-    {$ENDIF}
+  TMultiFrameArray = array[0..MAX_MULTIFRAME_LEN-1] of Byte;
 
-    THexArray = TEventID;
+type
+  TEventState = (evs_Unknown, evs_Valid, evs_InValid);
+  TIsNodeTestType = (ntt_Dest, ntt_Source);
+  TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
 
-    TMultiFrameArray = array[0..MAX_MULTIFRAME_LEN-1] of Byte;
-
-  type
-    TEventState = (evs_Unknown, evs_Valid, evs_InValid);
-    TIsNodeTestType = (ntt_Dest, ntt_Source);
-    TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
-
-    TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,      // TEthernetClient States
-                    ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,  // TEthernetSever States
-                    ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
-                    ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);                 // TComPort States
+  TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,      // TEthernetClient States
+                  ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,  // TEthernetSever States
+                  ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
+                  ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);                 // TComPort States
 
 {$IFNDEF DWSCRIPT}
 // Solves circular reference as the parser need to know about lcc_nodemanager and vice versa
@@ -228,27 +229,37 @@ const
 
   MASK_SOURCE_ALIAS                  = $00000FFF;                                // Masks out just the Source Alias Address
 
-  PIP_PIP                            = $800000000000;
-  PIP_DATAGRAM                       = $400000000000;
-  PIP_STREAM                         = $200000000000;
-  PIP_MEMORY_CONFIG                  = $100000000000;
-  PIP_RESERVATION                    = $080000000000;
-  PIP_EVENT_EXCHANGE                 = $040000000000;
-  PIP_IDENTIFCIATION                 = $020000000000;
-  PIP_TEACH_LEARN                    = $010000000000;
-  PIP_REMOTE_BUTTON                  = $008000000000;
-  PIP_ABBREVIATED_CDI                = $004000000000;
-  PIP_DISPLAY                        = $002000000000;
-  PIP_SIMPLE_NODE_INFO               = $001000000000;
-  PIP_CDI                            = $000800000000;
-  PIP_TRACTION                       = $000400000000;
-  PIP_FDI                            = $000200000000;
-//  PIP_TRACTION_PROXY                 = $000100000000;   depreciated
-  PIP_SIMPLE_TRAIN_NODE_INFO         = $000080000000;
-  PIP_FUNCTION_CONFIGURATION         = $000040000000;
+  // Byte 0
+  PIP_SIMPLENODE                     = $80;
+  PIP_DATAGRAM                       = $40;
+  PIP_STREAM                         = $20;
+  PIP_MEMORY_CONFIG                  = $10;
+  PIP_RESERVATION                    = $08;
+  PIP_EVENT_EXCHANGE                 = $04;
+  PIP_IDENTIFCIATION                 = $02;
+  PIP_TEACH_LEARN                    = $01;
 
-  PIP_UNASSIGNED                     = $0000FFFFFFF0;
-  PIP_RESERVED                       = $00000000000F;
+  // Byte 2
+  PIP_REMOTE_BUTTON                  = $80;
+  PIP_ABBREVIATED_CDI                = $40;
+  PIP_DISPLAY                        = $20;
+  PIP_SIMPLE_NODE_INFO               = $10;
+  PIP_CDI                            = $80;
+  PIP_TRACTION                       = $40;
+  PIP_FDI                            = $20;
+// PIP_DCC_COMMAND_STATION            = $10; depreciated
+
+  // Byte 3
+  PIP_SIMPLE_TRAIN_NODE_INFO         = $80;
+  PIP_FUNCTION_CONFIGURATION         = $40;
+  PIP_FIRMWARE_UPGRADE               = $20;
+  PIP_FIRMWARE_UPGRADE_ACTIVE        = $10;
+
+
+  // Byte 3
+
+
+
 
   STR_PIP_PIP                        = 'Protocol Identification Protocol';
   STR_PIP_DATAGRAM                   = 'Datagram Protocol';

@@ -64,7 +64,7 @@ type
     procedure Clear;
     function FindByAddressSpace(Space: Byte): TConfigMemAddressSpaceInfoObject;
     procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
-    function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   end;
 
 implementation
@@ -97,21 +97,19 @@ begin
  end;
 end;
 
-{$IFDEF DWSCRIPT}
-constructor TConfigMemAddressSpaceInfo.Create(AnOwner: TLccOwnedNode); override;
-{$ELSE}
 constructor TProtocolMemoryInfo.Create(ASendMessageFunc: TLccSendMessageFunc);
-{$ENDIF}
 begin
  inherited Create(ASendMessageFunc);
  List := TObjectList.Create;
+ {$IFNDEF DWSCRIPT}
  List.OwnsObjects := False;
+ {$ENDIF}
 end;
 
 destructor TProtocolMemoryInfo.Destroy;
 begin
  Clear;
- FreeAndNil(FList);
+ FList.Free;
  inherited;
 end;
 
@@ -183,17 +181,17 @@ begin
  OutMessage.UserValid := True;
 end;
 
-function TProtocolMemoryInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolMemoryInfo.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
  Info: TConfigMemAddressSpaceInfoObject;
  IsPresent, ImpliedZeroAddress, IsReadOnly: Boolean;
  Space: Byte;
 begin
  Result := True;
- IsPresent := LccMessage.DataArrayIndexer[1] = MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY;
- ImpliedZeroAddress := LccMessage.DataArrayIndexer[7] and $02 = 0;
- IsReadOnly := LccMessage.DataArrayIndexer[7] and $01 <> 0;
- Space := LccMessage.DataArrayIndexer[2];
+ IsPresent := SourceLccMessage.DataArrayIndexer[1] = MCP_OP_GET_ADD_SPACE_INFO_PRESENT_REPLY;
+ ImpliedZeroAddress := SourceLccMessage.DataArrayIndexer[7] and $02 = 0;
+ IsReadOnly := SourceLccMessage.DataArrayIndexer[7] and $01 <> 0;
+ Space := SourceLccMessage.DataArrayIndexer[2];
 
  Info := FindByAddressSpace(Space);
  if not Assigned(Info) then
@@ -204,14 +202,14 @@ begin
          IsReadOnly,                                  // Readonly?
          ImpliedZeroAddress,                          // Implied Zero Address
          0,                                           // Low Memory Address
-         LccMessage.ExtractDataBytesAsInt(3, 6))      // High Memory Address
+         SourceLccMessage.ExtractDataBytesAsInt(3, 6))      // High Memory Address
    else
      Add(Space,                                       // Space
          IsPresent,                                   // Present?
          IsReadOnly,                                  // Readonly?
          ImpliedZeroAddress,                          // Implied Zero Address
-         LccMessage.ExtractDataBytesAsInt(8, 11),     // Low Memory Address
-         LccMessage.ExtractDataBytesAsInt(3, 6));     // High Memory Address
+         SourceLccMessage.ExtractDataBytesAsInt(8, 11),     // Low Memory Address
+         SourceLccMessage.ExtractDataBytesAsInt(3, 6));     // High Memory Address
 //   OwnerManager.DoConfigMemAddressSpaceInfoReply(OwnerManager.FindMirroredNodeBySourceID(LccMessage, True), OwnerManager.FindMirroredNodeByDestID(LccMessage, True), Space);
  end;
  Valid := True;                                       // Had at least one....

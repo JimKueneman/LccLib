@@ -27,9 +27,10 @@ uses
   System.Memory.Buffer,
   System.Memory.Allocation,
   System.Streams,
-  lcc_message,
-  lcc_nodemanager,
-  Storage;
+  Storage,
+  lcc_node_manager,
+  lcc_node,
+  lcc_node_messages;
 
 type
   TTabSettingsForm = class(TW3Form)

@@ -61,7 +61,7 @@ public
   property HighSpace: Byte read FHighSpace write FHighSpace;
   property LowSpace: Byte read FLowSpace write FLowSpace;
 
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   procedure LoadReply(LccMessage: TLccMessage);
 end;
 
@@ -109,25 +109,25 @@ begin
   LccMessage.UserValid := True;
 end;
 
-function TProtocolMemoryOptions.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolMemoryOptions.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   OpsMask: Word;
 begin
   Result := True;
-  if LccMessage.MTI = MTI_DATAGRAM then
+  if SourceLccMessage.MTI = MTI_DATAGRAM then
   begin
-    case LccMessage.DataArrayIndexer[1] of
+    case SourceLccMessage.DataArrayIndexer[1] of
       MCP_OP_GET_CONFIG_REPLY :
         begin
-          FHighSpace := LccMessage.DataArrayIndexer[5];
-          FLowSpace := LccMessage.DataArrayIndexer[6];
-          FWriteLenOneByte := LccMessage.DataArrayIndexer[4] and MCWL_ONE_BYTE <> 0;
-          FWriteLenTwoBytes := LccMessage.DataArrayIndexer[4] and MCWL_TWO_BYTE <> 0;
-          FWriteLenFourBytes := LccMessage.DataArrayIndexer[4] and MCWL_FOUR_BYTE <> 0;
-          FWriteLenSixyFourBytes := LccMessage.DataArrayIndexer[4] and MCWL_64_BYTE <> 0;
-          FWriteArbitraryBytes := LccMessage.DataArrayIndexer[4] and MCWL_ARBITRARY_BYTE <> 0;
-          FWriteStream := LccMessage.DataArrayIndexer[4] and MCWL_STREAM_WRITE_SUPPORTED <> 0;
-          OpsMask := LccMessage.ExtractDataBytesAsInt(2, 3);
+          FHighSpace := SourceLccMessage.DataArrayIndexer[5];
+          FLowSpace := SourceLccMessage.DataArrayIndexer[6];
+          FWriteLenOneByte := SourceLccMessage.DataArrayIndexer[4] and MCWL_ONE_BYTE <> 0;
+          FWriteLenTwoBytes := SourceLccMessage.DataArrayIndexer[4] and MCWL_TWO_BYTE <> 0;
+          FWriteLenFourBytes := SourceLccMessage.DataArrayIndexer[4] and MCWL_FOUR_BYTE <> 0;
+          FWriteLenSixyFourBytes := SourceLccMessage.DataArrayIndexer[4] and MCWL_64_BYTE <> 0;
+          FWriteArbitraryBytes := SourceLccMessage.DataArrayIndexer[4] and MCWL_ARBITRARY_BYTE <> 0;
+          FWriteStream := SourceLccMessage.DataArrayIndexer[4] and MCWL_STREAM_WRITE_SUPPORTED <> 0;
+          OpsMask := SourceLccMessage.ExtractDataBytesAsInt(2, 3);
           FWriteUnderMask := OpsMask and MCO_WRITE_UNDER_MASK <> 0;
           FUnAlignedReads := OpsMask and MCO_UNALIGNED_READS <> 0;
           FUnAlignedWrites := OpsMask and MCO_UNALIGNED_WRITES <> 0;
@@ -135,7 +135,7 @@ begin
           SupportACDIUserRead := OpsMask and MCO_ACDI_USER_READS <> 0;
           SupportACDIUserWrite := OpsMask and MCO_ACDI_USER_WRITES <> 0;
           Valid := True;
-     //     OwnerManager.DoConfigMemOptionsReply(OwnerManager.FindMirroredNodeBySourceID(LccMessage, True), OwnerManager.FindMirroredNodeBySourceID(LccMessage, True));
+     //     OwnerManager.DoConfigMemOptionsReply(OwnerManager.FindMirroredNodeBySourceID(SourceLccMessage, True), OwnerManager.FindMirroredNodeBySourceID(SourceLccMessage, True));
         end;
     end
   end;

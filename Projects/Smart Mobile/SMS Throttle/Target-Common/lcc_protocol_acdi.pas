@@ -112,7 +112,8 @@ begin
   OutMessage.DataArrayIndexer[5] := LccMessage.DataArrayIndexer[5];
   OutMessage.DataArrayIndexer[6] := LccMessage.DataArrayIndexer[6];
 
-  FillChar(FlatArray, ACDI_USER_SIZE, #0);
+  for i := 0 to ACDI_USER_SIZE - 1 do
+    FlatArray[i] := $0;
 
   //JDK
  { SNIP := (Owner as TLccOwnedNode).SimpleNodeInfo;
