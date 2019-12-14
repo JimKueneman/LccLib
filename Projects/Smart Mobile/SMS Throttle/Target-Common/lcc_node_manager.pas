@@ -51,6 +51,7 @@ type
 // JDK   FLccSettings: TLccSettings;
     {$ENDIF}
     FOnAliasIDChanged: TOnLccNodeMessage;
+    FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
     FOnNodeIDChanged: TOnLccNodeMessage;
@@ -79,7 +80,7 @@ type
     FOnLccNodeTractionReplyQueryFunction: TOnLccNodeMessageWithDest;
     FOnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
-    FOnRequestMessageSend: TOnMessageEvent;
+    FOnLccMessageSend: TOnMessageEvent;
 
     FNodes: TObjectList;
   protected
@@ -102,7 +103,6 @@ type
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
-    procedure DoRequestMessageSend(Message: TLccMessage); virtual;
     procedure DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoTractionControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean); virtual;
@@ -113,6 +113,9 @@ type
     procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoTractionReplyManage(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte); virtual;
     procedure DoVerifiedNodeID(SourceLccNode: TLccNode); virtual;
+
+    procedure DoLccMessageSend(Message: TLccMessage); virtual;
+    procedure DoLccMessageReceive(Message: TLccMessage); virtual;
 
   public
     property Nodes: TOBjectList read FNodes write FNodes;
@@ -130,7 +133,9 @@ type
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
     procedure LogoutAll;
     procedure ProcessMessage(LccMessage: TLccMessage);
-    procedure SendLccMessage(LccMessage: TLccMessage);
+
+    procedure LccMessageReceive(LccMessage: TLccMessage);
+    procedure LccMessageSend(LccMessage: TLccMessage);
 
   published
     {$IFNDEF DWSCRIPT}
@@ -167,7 +172,9 @@ type
     property OnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyControllerChangeNotify write FOnLccNodeTractionReplyControllerChangeNotify;
     property OnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyManage write FOnLccNodeTractionReplyManage;
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
-    property OnRequestMessageSend: TOnMessageEvent read FOnRequestMessageSend write FOnRequestMessageSend;
+
+    property OnLccMessageReceive: TOnMessageEvent read FOnLccMessageReceive write FOnLccMessageReceive;
+    property OnLccMessageSend: TOnMessageEvent read FOnLccMessageSend write FOnLccMessageSend;
   end;
 
 
@@ -184,7 +191,7 @@ implementation
 
 function TLccCanNodeManager.AddNode: TLccCanNode;
 begin
-  Result := TLccCanNode.Create(@DoRequestMessageSend);
+  Result := TLccCanNode.Create(@DoLccMessageSend);
   Nodes.Add(Result);
 end;
 
@@ -287,6 +294,26 @@ begin
     OnLccNodeInitializationComplete(Self, SourceLccNode);
 end;
 
+procedure TLccNodeManager.DoLccMessageReceive(Message: TLccMessage);
+begin
+  {$IFNDEF DWSCRIPT}
+  if Assigned(HardwareConnection) then
+    HardwareConnection.SendMessage(Message);
+  {$ENDIF}
+  if Assigned(OnLccMessageReceive) then
+    OnLccMessageReceive(Self, Message);
+end;
+
+procedure TLccNodeManager.DoLccMessageSend(Message: TLccMessage);
+begin
+  {$IFNDEF DWSCRIPT}
+  if Assigned(HardwareConnection) then
+    HardwareConnection.SendMessage(Message);
+  {$ENDIF}
+  if Assigned(OnLccMessageSend) then
+    OnLccMessageSend(Self, Message);
+end;
+
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
 begin
   if Assigned(OnNodeIDChanged) then
@@ -315,16 +342,6 @@ procedure TLccNodeManager.DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNo
 begin
   if Assigned(OnLccNodeRemoteButtonReply) then
     OnLccNodeRemoteButtonReply(Self, SourceLccNode, DesTLccNode);
-end;
-
-procedure TLccNodeManager.DoRequestMessageSend(Message: TLccMessage);
-begin
-  {$IFNDEF DWSCRIPT}
-  if Assigned(HardwareConnection) then
-    HardwareConnection.SendMessage(Message);
-  if Assigned(OnRequestMessageSend) then
-    OnRequestMessageSend(Self, Message);
-  {$ENDIF}
 end;
 
 procedure TLccNodeManager.DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
@@ -410,7 +427,7 @@ end;
 
 function TLccNodeManager.AddNode: TLccNode;
 begin
-  Result := TLccNode.Create(@DoRequestMessageSend);
+  Result := TLccNode.Create(@DoLccMessageSend);
   Nodes.Add(Result);
 end;
 
@@ -434,20 +451,6 @@ begin
     Nodes.Clear;
   end;
 end;
-
-{$IFDEF FPC_CONSOLE_APP}
-procedure TLccNodeManager.CreateRootNode;
-var
-  RootNodeClass: TLccOwnedNodeClass;
-begin
-  inherited Loaded;
-  RootNodeClass := nil;
-  DoGetRootNodeClass(RootNodeClass);
-  FRootNode := RootNodeClass.Create(Self);
-  FRootNode.OwnerManager := Self;
-  DoCreateLccNode(FRootNode);
-end;
-{$ENDIF}
 
 function TLccNodeManager.FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
 var
@@ -483,6 +486,11 @@ begin
   end;
 end;
 
+procedure TLccNodeManager.LccMessageReceive(LccMessage: TLccMessage);
+begin
+  DoLccMessageReceive(LccMessage);
+end;
+
 procedure TLccNodeManager.LogoutAll;
 var
   i: Integer;
@@ -497,11 +505,12 @@ var
 begin
   for i := 0 to Nodes.Count - 1 do
     TLccNode( Nodes[i]).ProcessMessage(LccMessage);
+  DoLccMessageReceive(LccMessage);
 end;
 
-procedure TLccNodeManager.SendLccMessage(LccMessage: TLccMessage);
+procedure TLccNodeManager.LccMessageSend(LccMessage: TLccMessage);
 begin
-  DoRequestMessageSend(LccMessage);
+  DoLccMessageSend(LccMessage);
 end;
 
 

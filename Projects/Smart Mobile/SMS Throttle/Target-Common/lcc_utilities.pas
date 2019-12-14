@@ -2,6 +2,8 @@ unit lcc_utilities;
 
 interface
 
+{$i lcc_compilers.inc}
+
 uses
  {$IFDEF DWSCRIPT}
   System.Types,

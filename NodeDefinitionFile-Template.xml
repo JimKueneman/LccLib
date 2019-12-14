@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NodeDefinition>
+	<!-- The  -->
+	<NodeID>0x050403020100</NodeID>
+	<!-- Must have the "EventExchange" Protocol enabled for this to function -->
+	<Producers>
+		<!-- Number of Producers this node implements -->
+		<Count>10</Count>
+		<!-- Where to start the count from then increments up from "Count".  Producer IDs are the NodeID with 4 extra bytes -->
+		<StartIndex>0x0000</StartIndex>
+	</Producers>
+	<!-- Must have the "EventExchange" Protocol enabled for this to function -->
+	<Consumers>
+		<!-- Number of Consumers this node implements -->
+		<Count>10</Count>
+		<!-- Where to start the count from then increments up from "Count".  Consumer IDs are the NodeID with 4 extra bytes -->
+		<StartIndex>0x0000</StartIndex>
+	</Consumers>
+	<ProtocolSupport>
+		<TransportProtocols>
+			<!-- Datagram = The node supports datagram interaction.  Required for node configuration and CDI/Memory -->
+			<Datagram>1</Datagram>
+			<!-- MemoryConfiguration = The node supports reading and writing to memory, this can be for configuration of the node or accessing its program memory -->
+			<!-- Must have the "Datagram" Protocol enabled for this to function -->
+			<MemoryConfiguration>1</MemoryConfiguration>
+			<!-- EventExchance = The node supports Consumer/Producter events -->
+			<EventExchange>1</EventExchange>
+			<!-- SimpleNodeInformation = A shortcut to access information from the node for building node trees, etc -->
+			<SimpleNodeInformation>1</SimpleNodeInformation>
+			<!-- FunctionDescription = A parallel to SimpleNodeInformation to define a way to access information about NMRA functions for the train -->
+			<FunctionDescription>0</FunctionDescription>
+		</TransportProtocols>
+		<SessionLayerProtocols>
+			<!-- ConfigurationDescriptionInformation = Template for tools to access the memory locations that store node configuration and defines -->
+			<!-- the user interface for the tool todisplay to the user -->
+			<!-- Must have the "Datagram" Transport Protocol enabled for this to function -->
+			<ConfigurationDescriptionInformation>1</ConfigurationDescriptionInformation>
+			<!-- Traction = The node support Traction to control a train-->
+			<!-- Must have the "Datagram" Transport Protocol enabled for this to function -->
+			<Traction>0</Traction>
+			<!-- FirmwareUpgrade = The node supports upgrading the firmware via the communication link -->
+			<FirmwareUpgrade>0</FirmwareUpgrade>
+			<!-- FirmwareUpgradeActive = The node is actively upgrading the node...? -->
+			<FirmwareUpgradeActive>0</FirmwareUpgradeActive>
+		</SessionLayerProtocols>
+		<LowCapabilityNodeProtocols>
+			<!-- Simple = If all nodes on a segment are simple then the gateway can reduce traffic to the segment and allow lower performance processors -->
+			<!-- to be used on those nodes.  Mostly out of dates since enough performance can be now had for a low cost -->
+			<Simple>0</Simple>
+			<!-- AbbreviatedDefaultCDI = The node supports a shortcut ConfigurationDescriptionInformation protocol again for performance limited processessor mostly outdated -->
+			<AbbreviatedDefaultCDI>0</AbbreviatedDefaultCDI>
+			<!-- Identification = Think this is part of the Teaching/Learning -->
+			<Identification>0</Identification>
+			<!-- TeachingLearning = The node supports being programmed through the Blue/Gold push button programming. NMRA wanted programmming without a computer in the -->
+			<!-- early days.  Mostly out of date and no one supports anymore -->
+			<TeachingLearning>0</TeachingLearning>
+			<!-- Reservation = Not completely defined as of 2019 -->
+			<Reservation>0</Reservation>
+		</LowCapabilityNodeProtocols>
+		<UndefinedProtocols>
+			<!-- Stream = The node supports stream interaction.  Protocol details are not yet accepted as of 2019 -->
+			<Stream>0</Stream>
+			<!-- RemoteButton = Not fully defined as of 2019 -->
+			<RemoteButton>0</RemoteButton>
+			<!-- Display = Not fully defined as of 2019 -->
+			<Display>0</Display>
+		</UndefinedProtocols>
+	</ProtocolSupport>
+</NodeDefinition>

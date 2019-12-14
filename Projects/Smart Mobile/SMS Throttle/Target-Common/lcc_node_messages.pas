@@ -100,9 +100,9 @@ public
   procedure InsertEventID(StartIndex: Integer; var AnEventID: TEventID);
   procedure InsertDWordAsDataBytes(DoubleWord: DWord; StartByteIndex: Integer);
   procedure InsertWordAsDataBytes(AWord: DWord; StartByteIndex: Integer);
-  function ExtractDataBytesAsEventID(StartIndex: Integer): {$IFDEF DWSCRIPT}TEventID {$ELSE}PEventID{$ENDIF};
+  function ExtractDataBytesAsEventID(StartIndex: Integer): TEventID;
   function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD;
-  function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): {$IFDEF DWSCRIPT}TNodeID {$ELSE}PNodeID{$ENDIF};
+  function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): TNodeID;
   function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
@@ -325,16 +325,12 @@ begin
   end;
 end;
 
-function TLccMessage.ExtractDataBytesAsEventID(StartIndex: Integer): {$IFDEF DWSCRIPT}TEventID {$ELSE}PEventID{$ENDIF};
+function TLccMessage.ExtractDataBytesAsEventID(StartIndex: Integer): TEventID;
 begin
-  {$IFDEF DWSCRIPT}
   Result[0] := DataArray[StartIndex];
   Result[1] := DataArray[StartIndex+1];
   Result[2] := DataArray[StartIndex+2];
   Result[3] := DataArray[StartIndex+3];
-  {$ELSE}
-  Result := @DataArray[StartIndex];
-  {$ENDIF}
 end;
 
 function TLccMessage.ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD; // QWord;
@@ -358,17 +354,11 @@ begin
 end;
 
 
-function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID):{$IFDEF DWSCRIPT}TNodeID {$ELSE}PNodeID{$ENDIF};
+function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): TNodeID;
 begin
-  {$IFDEF DWSCRIPT}
   ANodeID[1] := (DataArray[StartIndex] shl 16) or (DataArray[StartIndex+1] shl 8) or DataArray[StartIndex+2];
   ANodeID[0] := (DataArray[StartIndex+3] shl 16) or (DataArray[StartIndex+4] shl 8) or DataArray[StartIndex+5];
   Result := ANodeID;
-  {$ELSE}
-  Result := @ANodeID;
-  ANodeID[1] := (DataArray[StartIndex] shl 16) or (DataArray[StartIndex+1] shl 8) or DataArray[StartIndex+2];
-  ANodeID[0] := (DataArray[StartIndex+3] shl 16) or (DataArray[StartIndex+4] shl 8) or DataArray[StartIndex+5];
-  {$ENDIF}
 end;
 
 function TLccMessage.ExtractDataBytesAsString(StartIndex, Count: Integer): String;

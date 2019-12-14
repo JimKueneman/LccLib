@@ -884,8 +884,8 @@ begin
         imgcr_ErrorToSend :
           begin
             if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then
-                 Owner.NodeManager.SendLccMessage(WorkerMsg);
+              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then  // We decode ALL messages so only send the error if it was for our nodes
+                Owner.NodeManager.LccMessageSend(WorkerMsg);
           end;
       end;
     end else

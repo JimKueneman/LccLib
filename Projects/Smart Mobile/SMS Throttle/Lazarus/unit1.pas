@@ -12,7 +12,7 @@ uses
   Graphics,
   Dialogs,
   StdCtrls,
-  ComCtrls,
+  ComCtrls, SynEdit,
   lcc_node,
   lcc_node_manager,
   lcc_node_messages,
@@ -28,6 +28,7 @@ type
     Button1: TButton;
     Button2: TButton;
     StatusBar1: TStatusBar;
+    SynEdit1: TSynEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -39,6 +40,7 @@ type
     NodeManager: TLccCanNodeManager;
     procedure OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
   end;
 
 var
@@ -97,7 +99,10 @@ begin
   EthernetServer := TLccEthernetServer.Create(nil);
   EthernetServer.Gridconnect := True;
   NodeManager := TLccCanNodeManager.Create(nil);
-  NodeManager.OnRequestMessageSend := @SendMessage;
+  NodeManager.OnLccMessageSend := @SendMessage;
+  NodeManager.OnLccMessageReceive := @ReceiveMessage;
+  EthernetServer.NodeManager := NodeManager;
+  SynEdit1.Clear;
 end;
 
 procedure TForm1.OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -114,9 +119,26 @@ begin
   end;
 end;
 
+procedure TForm1.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  SynEdit1.BeginUpdate(False);
+  try
+    SynEdit1.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr(''));
+    SynEdit1.EndUpdate;
+  finally
+  end;
+end;
+
 procedure TForm1.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   EthernetServer.SendMessage(LccMessage);
+
+  SynEdit1.BeginUpdate(False);
+  try
+    SynEdit1.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr(''));
+    SynEdit1.EndUpdate;
+  finally
+  end;
 end;
 
 end.

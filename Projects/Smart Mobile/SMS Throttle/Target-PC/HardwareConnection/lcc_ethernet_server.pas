@@ -187,7 +187,7 @@ type
     { Protected declarations }
     procedure UpdateThreadEvents(EthernetThread: TLccEthernetServerThread);
     procedure UpdateThreadsEvents;
-    procedure UpdateListenerEvents(AListenerThread: TLccEthernetListener; Suspend: Boolean);
+    procedure UpdateListenerEvents(AListenerThread: TLccEthernetListener);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -536,12 +536,11 @@ begin
   begin
     FSleepCount := AValue;
     UpdateThreadsEvents;
-    UpdateListenerEvents(ListenerThread, True);
+    UpdateListenerEvents(ListenerThread);
   end;
 end;
 
-procedure TLccEthernetServer.UpdateListenerEvents(
-  AListenerThread: TLccEthernetListener; Suspend: Boolean);
+procedure TLccEthernetServer.UpdateListenerEvents( AListenerThread: TLccEthernetListener);
 begin
   if Assigned(AListenerThread) then
   begin
@@ -592,7 +591,7 @@ function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec)
 begin
   Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
   Result.Owner := Self;
-  UpdateListenerEvents(Result, True);
+  UpdateListenerEvents(Result);
   Result.Suspended := False;
   ListenerThread := Result;
 end;
@@ -659,7 +658,7 @@ begin
   begin
     FGridConnect:=AValue;
     UpdateThreadsEvents;
-    UpdateListenerEvents(ListenerThread, True);
+    UpdateListenerEvents(ListenerThread);
   end;
 
 end;
@@ -997,8 +996,8 @@ begin
         imgcr_ErrorToSend :
           begin
             if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then
-                Owner.NodeManager.SendLccMessage(WorkerMsg);
+              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then  // We decode ALL messages so only send the error if it was for our nodes
+                Owner.NodeManager.LccMessageSend(WorkerMsg);
           end;
       end
     end else
