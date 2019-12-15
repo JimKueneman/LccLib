@@ -92,8 +92,8 @@ public
   {$IFNDEF DWSCRIPT}
   // JScript does not have file access
   function LoadFromXml(CdiFilePath: String; Snip: TProtocolSimpleNodeInfo): Boolean;
-  {$ENDIF}
   function LoadSNIP(ASnip: TProtocolSimpleNodeInfo): Boolean;
+  {$ENDIF}
 end;
 
 implementation

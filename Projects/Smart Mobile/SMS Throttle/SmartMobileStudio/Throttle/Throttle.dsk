@@ -1,21 +1,17 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="25" col="12" row="33" splitview="0" designview="0" splitter="0.444444447755814" />
-      <tab filename="lcc_protocol_acdi" fullname="..\..\Target-Common\lcc_protocol_acdi.pas" topline="103" col="24" row="116" />
-      <tab filename="lcc_protocol_memory_information" fullname="..\..\Target-Common\lcc_protocol_memory_information.pas" topline="89" col="13" row="112" />
-      <tab filename="lcc_protocol_traction_simpletrainnodeinfo" fullname="..\..\Target-Common\lcc_protocol_traction_simpletrainnodeinfo.pas" topline="1" col="1" row="1" />
-      <tab filename="lcc_protocol_simplenodeinfo" fullname="..\..\Target-Common\lcc_protocol_simplenodeinfo.pas" topline="1" col="19" row="82" />
-      <activetab>lcc_protocol_simplenodeinfo</activetab>
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="16" col="48" row="33" splitview="0" designview="0" splitter="0.444144129753113" />
+      <activetab>TabSettingsForm</activetab>
       <breakpoints />
     </editor>
     <Statistics>
-      <BackgroundCompilations>4774</BackgroundCompilations>
-      <EditTime>T02:31:57.582</EditTime>
+      <BackgroundCompilations>4777</BackgroundCompilations>
+      <EditTime>T02:37:16.851</EditTime>
       <CompileTime>T00:00:00.000</CompileTime>
-      <TotalTime>1900-01-02T09:47:54.730</TotalTime>
-      <DesigningTime>T07:04:06.462</DesigningTime>
-      <RunningTime>1899-12-31T03:02:03.640</RunningTime>
+      <TotalTime>1900-01-02T10:37:15.951</TotalTime>
+      <DesigningTime>T07:04:10.879</DesigningTime>
+      <RunningTime>1899-12-31T03:02:08.095</RunningTime>
       <TotalLinesOfCode>397</TotalLinesOfCode>
     </Statistics>
   </state>

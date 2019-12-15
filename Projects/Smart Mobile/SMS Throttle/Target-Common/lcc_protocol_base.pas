@@ -32,9 +32,9 @@ private
 //JDK  FCreateTime: DWord;    Not sure what I used this for
   FErrorCode: Word;
   FSendMessageFunc: TLccSendMessageFunc;
-  FValid: Boolean;
   FWorkerMessage: TLccMessage;
 protected
+  FValid: Boolean;
   procedure SetValid(AValue: Boolean); virtual;  // Just so it can be overridden for special behavior
 //JDK  property CreateTime: DWord read FCreateTime write FCreateTime;
   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
@@ -126,7 +126,7 @@ end;
 
 destructor TStreamBasedProtocol.Destroy;
 begin
-  FreeAndNil(FStream);
+  FStream.Free;
   inherited Destroy;
 end;
 
@@ -166,7 +166,9 @@ begin
       AStream.WriteByte(0);
      {$ELSE}
       AByte := 0;
-      AStream.Write(AByte, 1);
+//JDK
+
+//      AStream.Write(AByte, 1);
      {$ENDIF}
   end;
 
@@ -181,7 +183,10 @@ begin
     while (AStream.Position < AStream.Size) and (i < ReadCount) do
     begin
       AByte := 0;
-      AStream.Read(AByte, 1);
+
+    //JDK
+
+    //  AStream.Read(AByte, 1);
       OutMessage.DataArrayIndexer[iStart + i] := AByte;
       Inc(i);
     end;
@@ -218,7 +223,10 @@ begin
     begin
       NullFound := SourceLccMessage.DataArrayIndexer[i] = Ord(#0);
       AByte := SourceLccMessage.DataArrayIndexer[i];
-      AStream.WriteBuffer(AByte, 1);
+
+  //JDK
+   //   AStream.WriteBuffer(AByte, 1);
+
       if NullFound then
         Break
     end;

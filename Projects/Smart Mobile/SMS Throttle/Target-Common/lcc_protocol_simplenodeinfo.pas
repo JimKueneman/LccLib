@@ -75,6 +75,11 @@ const
 var
   iArray, i: Integer;
 begin
+
+//JDK
+  Result := nil;
+
+  (*
   i :=  Length(Manufacturer) + Length(Model) + Length(HardwareVersion) + Length(SoftwareVersion) + Length(UserName) + Length(UserDescription);
   i := i + NULL_COUNT + VERSION_COUNT;
 
@@ -101,6 +106,7 @@ begin
   StringToNullArray(UserDescription, FPackedInfo, iArray);
 
   Result := FPackedInfo;
+  *)
 end;
 
 function TProtocolSimpleNodeInfo.GetUserDescription: String;
@@ -117,13 +123,15 @@ begin
  //JDK   Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
 end;
 
+
 function TProtocolSimpleNodeInfo.LoadFromXmlPath(CdiFilePath: String): Boolean;
-var
-  XMLDoc: LccXmlDocument;
+//JDK
+//var
+//  XMLDoc: LccXmlDocument;
 begin
   Result := False;
   Valid := False;
-  if FileExists(CdiFilePath) then
+(*  if FileExists(CdiFilePath) then
   begin
     try
       XMLDoc := XmlLoadFromFile(CdiFilePath);
@@ -133,9 +141,11 @@ begin
     except
       // Quiet fail
     end;
-  end;
+  end; *)
 end;
 
+//JDK
+(*
 function TProtocolSimpleNodeInfo.LoadFromXmlDoc(CdiXMLDoc: LccXmlDocument): Boolean;
 var
   CdiNode, IdentificationNode, ChildNode: LccXmlNode;
@@ -162,10 +172,12 @@ begin
       end;
     end;
   end;
-end;
+end;   *)
 
 function TProtocolSimpleNodeInfo.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 
+//JDK
+(*
   {$IFDEF LCC_MOBILE}
   function NextString(AStrPtr: PChar): PChar;
   {$ELSE}
@@ -178,16 +190,19 @@ function TProtocolSimpleNodeInfo.ProcessMessage(SourceLccMessage: TLccMessage): 
       Inc(Result);
     Inc(Result);
   end;
-
+  *)
+      (*
 {$IFDEF LCC_MOBILE}
 var
   StrPtr: PChar;
 {$ELSE}
 var
   StrPtr: PAnsiChar;
-{$ENDIF}
+{$ENDIF}     *)
 begin
-  Result := True;
+//JDK
+  Result := False;
+ (* Result := True;
   StrPtr := @SourceLccMessage.DataArray[0];
   FVersion := Ord(StrPtr^);
   Inc(StrPtr);
@@ -204,7 +219,7 @@ begin
   FUserName := StrPtr;
   StrPtr := NextString(StrPtr);
   FUserDescription := StrPtr;
-  Valid := True;
+  Valid := True;  *)
 end;
 
 end.

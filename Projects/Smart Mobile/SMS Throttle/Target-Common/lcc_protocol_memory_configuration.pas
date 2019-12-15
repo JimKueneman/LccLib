@@ -62,8 +62,10 @@ end;
 
 procedure TProtocolMemoryConfiguration.LoadFromFile;
 begin
+//JDK
+(*
  if FileExists(String( FilePath)) then
-   AStream.LoadFromFile(String( FilePath))
+   AStream.LoadFromFile(String( FilePath))   *)
 end;
 
 function TProtocolMemoryConfiguration.ReadAsString(Address: DWord): String;
@@ -83,7 +85,8 @@ begin
      {$IFDEF FPC}
      C := Chr(AStream.ReadByte);
      {$ELSE}
-     AStream.Read(C, 1);
+ //JDK
+  //   AStream.Read(C, 1);
      {$ENDIF}
      if C <> #0 then
        Result := Result + C
@@ -108,6 +111,7 @@ begin
    iStart := 7
  else
    iStart := 6;
+
  WriteCount := LccMessage.DataCount - iStart;
  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
  if Address + WriteCount > DWord( AStream.Size) then
@@ -119,19 +123,22 @@ begin
     AStream.WriteByte(LccMessage.DataArrayIndexer[i]);
    {$ELSE}
    AByte := LccMessage.DataArrayIndexer[i];
-   AStream.Write(AByte, 1);
+
+//JDK
+  // AStream.Write(AByte, 1);
    {$ENDIF}
  end;
  if AutoSaveOnWrite then
  begin
    Assert(FilePath = '', 'Configuration filename not set with AutoSaveOnWrite enabled');
+   (*
    if not FileExists(String( FilePath)) then
    begin
      if not DirectoryExists(ExtractFilePath(FilePath)) then
        if ForceDirectories(ExtractFileDir(FilePath)) then
          AStream.SaveToFile(String( FilePath))
    end else
-     AStream.SaveToFile(String( FilePath))
+     AStream.SaveToFile(String( FilePath))  *)
  end;
 end;
 

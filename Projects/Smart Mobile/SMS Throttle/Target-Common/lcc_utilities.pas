@@ -56,34 +56,35 @@ uses
   procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
+  {$IFNDEF DWSCRIPT}
   procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
   function StrToNodeID(NodeID: string): TNodeID;
+  {$ENDIF}
   function StrToEventID(Event: string): TEventID;
   function _Lo(Data: DWORD): Byte;
   function _Hi(Data: DWORD): Byte;
   function _Higher(Data: DWORD): Byte;
   function _Highest(Data: DWORD): Byte;
   {$IFNDEF DWSCRIPT}
-  function _Highest1(Data: QWord): Byte;
-  function _Highest2(Data: QWord): Byte;
-  {$IFDEF LCC_WINDOWS}
-  function ResolveWindowsIp(Socket: TBlockSocket): string;
-  {$ELSE}
-    {$IFDEF ULTIBO}
-      function ResolveUltiboIp: String;
-      function GetNetworkConnected:Boolean;
-      procedure WaitForNetworkConnection(PrintToConsole: Boolean);
+    function _Highest1(Data: QWord): Byte;
+    function _Highest2(Data: QWord): Byte;
+    {$IFDEF LCC_WINDOWS}
+      function ResolveWindowsIp(Socket: TBlockSocket): string;
     {$ELSE}
-      function ResolveUnixIp: String;
+      {$IFDEF ULTIBO}
+        function ResolveUltiboIp: String;
+        function GetNetworkConnected:Boolean;
+        procedure WaitForNetworkConnection(PrintToConsole: Boolean);
+      {$ELSE}
+        function ResolveUnixIp: String;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 
-  {$ENDIF}
-
-{$IFDEF DWSCRIPT}
+  {$IFDEF DWSCRIPT}
   function Lo(Data: Word): Byte;
   function Hi(Data: Word): Byte;
-{$ENDIF}
+  {$ENDIF}
 
 function GridConnectToDetailedGridConnect(MessageString: string): string;
 
@@ -92,200 +93,203 @@ implementation
 uses
   lcc_node_messages;
 
-{$IFDEF LCC_WINDOWS}
-  function ResolveWindowsIp(Socket: TBlockSocket): String;
-  var
-    IpStrings: TStringList;
-    LocalName: String;
-    i: Integer;
-    LocalSocket: TTCPBlockSocket;
-  begin
-    Result := '';
-    LocalSocket := nil;
-    if not Assigned(Socket) then
-    begin
-      LocalSocket := TTCPBlockSocket.Create;
-      Socket := LocalSocket;
-    end;
-    LocalName := Socket.LocalName;
-    IpStrings := TStringList.Create;
-    try
-       Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
-       for i := 0 to IpStrings.Count - 1 do
-         Result := IpStrings[i];
-    finally
-      IpStrings.Free;
-      if Assigned(LocalSocket) then
-        LocalSocket.Free;
-    end;
-  end;
-{$ELSE}
-  {$IFNDEF ULTIBO}
-    {$IFDEF FPC}
-    function ResolveUnixIp: String;
-    const
-      CN_GDNS_ADDR = '127.0.0.1';
-      CN_GDNS_PORT = 53;
+{$IFNDEF DWSCRIPT}
+
+  {$IFDEF LCC_WINDOWS}
+    function ResolveWindowsIp(Socket: TBlockSocket): String;
     var
-      sock: longint;
-      err: longint;
-      HostAddr: TSockAddr;
-      l: Integer;
-      UnixAddr: TInetSockAddr;
-
-    begin
-      err := 0;
-
-      sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
-      assert(sock <> -1);
-
-      UnixAddr.sin_family := AF_INET;
-      UnixAddr.sin_port := htons(CN_GDNS_PORT);
-      UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
-
-      if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
-      begin
-        try
-          l := SizeOf(HostAddr);
-          if (fpgetsockname(sock, @HostAddr, @l) = 0) then
-          begin
-            Result := NetAddrToStr(HostAddr.sin_addr);
-          end
-          else
-          begin
-            err:=socketError;
-          end;
-        finally
-          if (fpclose(sock) <> 0) then
-          begin
-            err := socketError;
-          end;
-        end;
-      end else
-      begin
-        err:=socketError;
-      end;
-
-      if (err <> 0) then
-      begin
-        // report error
-      end;
-    end;
-
-    {$ELSE}
-    type
-      TArray4Int = array[1..4] of byte;
-      PArray4Int = ^TArray4Int;
-
-    function StrToHostAddr(IP : String): in_addr ;
-
-      Var
-        Dummy: String;
-        I, j, k: Longint;
-        Temp: TArray4Int;
-   //     Temp: in_addr;
-      begin
-        Result.s_addr := 0;              //:=NoAddress;
-        For I := 1 to 4 do
-          begin
-            If I < 4 Then
-              begin
-                J := Pos('.', String( IP));
-                If J = 0 then
-                  exit;
-                Dummy := Copy(String( IP) , 1, J-1);
-                Delete(IP, 1, J);
-              end
-             else
-               Dummy:=IP;
-            k := StrToInt(string( Dummy));
-            Temp[i] := k;
-        //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
-         end;
-         Result.s_addr := ntohl(UInt32( Temp));
-     //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
-      end;
-
-      function NetAddrToStr (Entry : in_addr) : String;
-      Var
-        Dummy: String;
-        i, j: Longint;
-      begin
-        NetAddrToStr := '';
-        j := entry.s_addr;
-        For i := 1 to 4 do
-         begin
-    //       Dummy := IntToStr( PArray4Int(j)^[i]);        // Crashes Delphi
-           Dummy := IntToStr( Entry.s_addr and $000000FF);
-           Entry.s_addr  :=  Entry.s_addr  shr 8;
-           NetAddrToStr := Result + Dummy;
-           If i < 4 Then
-             NetAddrToStr := Result + '.';
-         end;
-      end;
-
-    function ResolveUnixIp: String;
-    const
-      CN_GDNS_ADDR = '127.0.0.1';
-      CN_GDNS_PORT = 53;
-    var
-      sock: longint;
-      err: longint;
-      HostAddr: SockAddr;
-      l: Cardinal;
-      UnixAddr: sockaddr_in;
+      IpStrings: TStringList;
+      LocalName: String;
       i: Integer;
-
+      LocalSocket: TTCPBlockSocket;
     begin
-      err := 0;
-
-      sock := socket(AF_INET, SOCK_DGRAM, 0);
-      assert(sock <> -1);
-
-      UnixAddr.sin_family := AF_INET;
-      UnixAddr.sin_port := htons(CN_GDNS_PORT);
-      UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
-
-      if (Connect(sock, psockaddr(@UnixAddr)^, SizeOf(UnixAddr)) = 0) then
+      Result := '';
+      LocalSocket := nil;
+      if not Assigned(Socket) then
       begin
-        try
-          l := SizeOf(HostAddr);
-          if (getsockname(sock, HostAddr, l) = 0) then
-            Result := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr)
-          else
-          begin
-            err:=errno;
+        LocalSocket := TTCPBlockSocket.Create;
+        Socket := LocalSocket;
+      end;
+      LocalName := Socket.LocalName;
+      IpStrings := TStringList.Create;
+      try
+         Socket.ResolveNameToIP(LocalName, IpStrings) ;  // '192.168.0.8';
+         for i := 0 to IpStrings.Count - 1 do
+           Result := IpStrings[i];
+      finally
+        IpStrings.Free;
+        if Assigned(LocalSocket) then
+          LocalSocket.Free;
+      end;
+    end;
+  {$ELSE}
+    {$IFNDEF ULTIBO}
+      {$IFDEF FPC}
+      function ResolveUnixIp: String;
+      const
+        CN_GDNS_ADDR = '127.0.0.1';
+        CN_GDNS_PORT = 53;
+      var
+        sock: longint;
+        err: longint;
+        HostAddr: TSockAddr;
+        l: Integer;
+        UnixAddr: TInetSockAddr;
+
+      begin
+        err := 0;
+
+        sock := fpsocket(AF_INET, SOCK_DGRAM, 0);
+        assert(sock <> -1);
+
+        UnixAddr.sin_family := AF_INET;
+        UnixAddr.sin_port := htons(CN_GDNS_PORT);
+        UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+        if (fpConnect(sock, @UnixAddr, SizeOf(UnixAddr)) = 0) then
+        begin
+          try
+            l := SizeOf(HostAddr);
+            if (fpgetsockname(sock, @HostAddr, @l) = 0) then
+            begin
+              Result := NetAddrToStr(HostAddr.sin_addr);
+            end
+            else
+            begin
+              err:=socketError;
+            end;
+          finally
+            if (fpclose(sock) <> 0) then
+            begin
+              err := socketError;
+            end;
           end;
-        finally
-          if (__close(sock) <> 0) then
-          begin
-            err := errno;
-          end;
+        end else
+        begin
+          err:=socketError;
         end;
-      end else
-      begin
-        err:=errno;
+
+        if (err <> 0) then
+        begin
+          // report error
+        end;
       end;
 
-      if (err <> 0) then
+      {$ELSE}
+      type
+        TArray4Int = array[1..4] of byte;
+        PArray4Int = ^TArray4Int;
+
+      function StrToHostAddr(IP : String): in_addr ;
+
+        Var
+          Dummy: String;
+          I, j, k: Longint;
+          Temp: TArray4Int;
+     //     Temp: in_addr;
+        begin
+          Result.s_addr := 0;              //:=NoAddress;
+          For I := 1 to 4 do
+            begin
+              If I < 4 Then
+                begin
+                  J := Pos('.', String( IP));
+                  If J = 0 then
+                    exit;
+                  Dummy := Copy(String( IP) , 1, J-1);
+                  Delete(IP, 1, J);
+                end
+               else
+                 Dummy:=IP;
+              k := StrToInt(string( Dummy));
+              Temp[i] := k;
+          //    PArray4Int(temp.s_addr)^[i] := k;      // Crashes Delphi
+           end;
+           Result.s_addr := ntohl(UInt32( Temp));
+       //    Result.s_addr := ntohl(Temp.s_addr);     // Crashes Delphi
+        end;
+
+        function NetAddrToStr (Entry : in_addr) : String;
+        Var
+          Dummy: String;
+          i, j: Longint;
+        begin
+          NetAddrToStr := '';
+          j := entry.s_addr;
+          For i := 1 to 4 do
+           begin
+      //       Dummy := IntToStr( PArray4Int(j)^[i]);        // Crashes Delphi
+             Dummy := IntToStr( Entry.s_addr and $000000FF);
+             Entry.s_addr  :=  Entry.s_addr  shr 8;
+             NetAddrToStr := Result + Dummy;
+             If i < 4 Then
+               NetAddrToStr := Result + '.';
+           end;
+        end;
+
+      function ResolveUnixIp: String;
+      const
+        CN_GDNS_ADDR = '127.0.0.1';
+        CN_GDNS_PORT = 53;
+      var
+        sock: longint;
+        err: longint;
+        HostAddr: SockAddr;
+        l: Cardinal;
+        UnixAddr: sockaddr_in;
+        i: Integer;
+
       begin
-        // report error
+        err := 0;
+
+        sock := socket(AF_INET, SOCK_DGRAM, 0);
+        assert(sock <> -1);
+
+        UnixAddr.sin_family := AF_INET;
+        UnixAddr.sin_port := htons(CN_GDNS_PORT);
+        UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
+
+        if (Connect(sock, psockaddr(@UnixAddr)^, SizeOf(UnixAddr)) = 0) then
+        begin
+          try
+            l := SizeOf(HostAddr);
+            if (getsockname(sock, HostAddr, l) = 0) then
+              Result := NetAddrToStr(psockaddr_in( @HostAddr).sin_addr)
+            else
+            begin
+              err:=errno;
+            end;
+          finally
+            if (__close(sock) <> 0) then
+            begin
+              err := errno;
+            end;
+          end;
+        end else
+        begin
+          err:=errno;
+        end;
+
+        if (err <> 0) then
+        begin
+          // report error
+        end;
       end;
-    end;
+      {$ENDIF}
+    {$ELSE} // Is ULTIBO
+      function ResolveUltiboIp: String;
+      var
+        Winsock2TCPClient:TWinsock2TCPClient;
+      begin
+       {Create TCP Client}
+       Winsock2TCPClient:=TWinsock2TCPClient.Create;
+       {Get the Address}
+       Result:=Winsock2TCPClient.LocalAddress;
+       {Destroy the Client}
+       Winsock2TCPClient.Free;
+      end;
+
     {$ENDIF}
-  {$ELSE} // Is ULTIBO
-    function ResolveUltiboIp: String;
-    var
-      Winsock2TCPClient:TWinsock2TCPClient;
-    begin
-     {Create TCP Client}
-     Winsock2TCPClient:=TWinsock2TCPClient.Create;
-     {Get the Address}
-     Result:=Winsock2TCPClient.LocalAddress;
-     {Destroy the Client}
-     Winsock2TCPClient.Free;
-    end;
-
   {$ENDIF}
 {$ENDIF}
 
@@ -407,6 +411,7 @@ begin
   end;
 end;
 
+{$IFNDEF DWSCRIPT}
 procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
 var
   TempStr: String;
@@ -424,6 +429,7 @@ begin
     ANodeID[1]  := 0;
   end;
 end;
+{$ENDIF}
 
 function StrToEventID(Event: string): TEventID;
 var
@@ -470,9 +476,13 @@ begin
     Result[7] := StrToInt('0x' + Event[15] + Event[16]);
     {$ENDIF}
   end else
-    FillChar(Result, 0, SizeOf(TEventID))
+  begin
+    for i := 0 to MAX_EVENT_LEN - 1 do
+      Result[i] := 0
+  end
 end;
 
+{$IFNDEF DWSCRIPT}
 function StrToNodeID(NodeID: string): TNodeID;
 var
   Temp: QWord;
@@ -486,6 +496,7 @@ begin
   Result[0] :=  Temp and $0000000000FFFFFF;
   Result[1] := (Temp and $FFFFFFFFFF000000) shr 24;  // allow the upper nibble to be part of it to catch incorrect node id values
 end;
+{$ENDIF}
 
 function _Lo(Data: DWORD): Byte;
 begin
@@ -507,7 +518,7 @@ begin
   Result := Byte((Data shr 24) and $000000FF);
 end;
 
-{$IFNDEF DW_SCRIPT}
+{$IFNDEF DWSCRIPT}
 function _Highest1(Data: QWord): Byte;
 begin
   Result := Byte((Data shr 32) and $00000000000000FF);
@@ -531,7 +542,7 @@ begin
 end;
 {$ENDIF}
 
-function MTI_ToString(MTI: DWord): WideString;
+function MTI_ToString(MTI: DWord): string;
 
 begin
   case MTI of
@@ -893,6 +904,7 @@ begin
   end;
 end;
 
+{$IFNDEF DWSCRIPT}
 function GridConnectToJMRI(GridStr: AnsiString): AnsiString;
 var
   NPos: integer;
@@ -920,5 +932,6 @@ begin
   for i := 0 to (40 - Length(Result)) do
     Result := Result + ' ';  // Pad them all to the same length
 end;
+{$ENDIF}
 
 end.
