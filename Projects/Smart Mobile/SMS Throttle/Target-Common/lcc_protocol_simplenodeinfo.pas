@@ -228,9 +228,6 @@ var
   StrPtr: PAnsiChar;
 {$ENDIF}
 begin
-
-  Result := False;
-  Result := True;
   StrPtr := @SourceLccMessage.DataArray[0];
   FVersion := Ord(StrPtr^);
   Inc(StrPtr);

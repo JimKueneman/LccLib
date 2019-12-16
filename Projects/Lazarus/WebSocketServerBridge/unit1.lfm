@@ -7,7 +7,6 @@ object Form1: TForm1
   ClientHeight = 427
   ClientWidth = 523
   OnCloseQuery = FormCloseQuery
-  OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object ListViewServer: TListView

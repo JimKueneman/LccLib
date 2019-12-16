@@ -22,15 +22,11 @@ type
     StatusBarServer: TStatusBar;
     StatusBarWebSocket: TStatusBar;
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
-    procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure LccEthernetServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure LccEthernetServerReceiveMessage(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
-    procedure LccWebSocketServerConnectionStateChange(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
-    procedure LccWebSocketServerReceiveMessage(Sender: TObject;
-      EthernetRec: TLccEthernetRec);
+    procedure LccEthernetServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccWebSocketServerConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure LccWebSocketServerReceiveMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
   private
 
   public
@@ -190,11 +186,6 @@ procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   LccWebSocketServer.CloseConnection(nil);
   LccEthernetServer.CloseConnection(nil);
-end;
-
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
 end;
 
 procedure TForm1.FormShow(Sender: TObject);

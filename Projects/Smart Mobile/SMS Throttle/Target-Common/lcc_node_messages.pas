@@ -381,98 +381,93 @@ end;
 
 function TLccMessage.LoadByGridConnectStr(GridConnectStr: String): Boolean;
 var
-  x, n, SemiColon, i, j: Integer;
-  ByteStr: String;
   DestHi, DestLo: Byte;
-  ZeroIndex: Boolean;
+  ZeroIndex: Boolean;   // FireMonkey uses 0 offset for strings instead of 1
+
+  HeaderStr, DataStr, ByteStr: string;
+  i, i_X, i_N, i_SemiColon, i_Data: Integer;
 begin
   Result := False;
+
+
   if GridConnectStr <> '' then
   begin
     ZeroFields;
     {$IFDEF FPC}
     ZeroIndex := False;
     {$ELSE}
-    ZeroIndex := Low(GridConnectStr) = 0;
+    ZeroIndex := Low(GridConnectStr) = 0;   // Decide if we are LCC_MOBILE or not automatically
     {$ENDIF}
     GridConnectStr := UpperCase(GridConnectStr);
-    x := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
-    if ZeroIndex then Dec(x);
-    if x > 0 then
+    i_X := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
+    i_N := Pos('N', GridConnectStr);                                              // Find were the "N" is in the string
+    i_SemiColon := Pos(';', GridConnectStr);
+    i_Data := 1;  // First index in the DataStr (if it exists)
+    // Find were the ";" is in the string
+    if ZeroIndex then
     begin
-      n := PosEx('N', GridConnectStr, x);                                       // Find where the "N" is in the string
-      if ZeroIndex then Dec(n);
-      if n > 0 then
+      Dec(i_X);
+      Dec(i_N);
+      Dec(i_SemiColon);
+      Dec(i_Data);
+    end;
+
+    HeaderStr := '';
+    DataStr := '';
+
+    for i:= i_X + 1 to i_N - 1 do
+      HeaderStr := HeaderStr + GridConnectStr[i];
+    for i := i_N + 1 to i_SemiColon - 1 do
+      DataStr := DataStr + GridConnectStr[i];
+
+    CAN.MTI := StrToInt('$' + HeaderStr);              // Convert the string MTI into a number  ;
+    CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
+    CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
+    CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
+    // Was this an OpenLCB or CAN specific message? This covers special multiFrame LccMessage and CAN layer specific messages
+    IsCAN := (CAN.MTI and $07000000 <> $01000000);
+
+    // Extract the General OpenLCB message if possible
+    if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
+    begin
+      if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
       begin
-        GridConnectStr[n] := #0;                                                // Set the "N" to a null to create a null string of the MTI
-        Inc(n);                                                                 // Move just pass where the "N" was
-        SemiColon := PosEx(';', GridConnectStr, n);                             // Look for the terminating ";"
-        if ZeroIndex then Dec(SemiColon);
-        if SemiColon > 0 then
-        begin
-          ByteStr := '';
-          j := x+1;
-          while GridConnectStr[j] <> #0 do
-          begin
-            ByteStr := ByteStr + GridConnectStr[j];
-            Inc(j);
-          end;
-          CAN.MTI := StrToInt('$' + ByteStr);              // Convert the string MTI into a number  ;
-          CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
-          CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
-          CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
-          // Was this an OpenLCB or CAN specific message? This covers special multiFrame LccMessage and CAN layer specific messages
-          IsCAN := (CAN.MTI and $07000000 <> $01000000);
-
-          // Extract the General OpenLCB message if possible
-          if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
-          begin
-            if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
-            begin
-              CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
-              MTI := 0;
-            end
-            else begin
-              CAN.DestAlias := (CAN.MTI and $00FFF000) shr 12;
-              CAN.MTI := CAN.MTI and $0F000000; // $FF000FFF;
-              MTI := MTI_DATAGRAM
-            end;
-          end else
-          begin
-            if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
-            begin
-              ByteStr := GridConnectStr[n] + GridConnectStr[n+1];
-              DestHi := StrToInt('$' + ByteStr);
-              ByteStr := GridConnectStr[n+2] + GridConnectStr[n+3];
-              DestLo := StrToInt('$' + ByteStr);
-              CAN.FramingBits := DestHi and $30;
-              CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
-              Inc(n, 4);
-            end else
-            begin
-              CAN.DestAlias := 0;
-              CAN.FramingBits := 0;
-            end;
-            MTI := Word( (CAN.MTI shr 12) and $0000FFF);
-          end;
-
-  //      FForwardingBitNotSet := GridConnect_MTI and $10000000 = $00000000;    // Check if the Forwarding Bit was set
-  //      FUnimplementedBitsSet := GridConnect_MTI and $E0000000 <> $00000000;  // Check to see the state of the unimplemented bits
-
-
-          FDataCount := 0;                                                       // Convert the CAN payload bytes into number
-          i := n;
-          while i < SemiColon do
-          begin
-            ByteStr := GridConnectStr[i] + GridConnectStr[i+1];
-            FDataArray[FDataCount] := StrToInt('$' + ByteStr);
-            Inc(i, 2);
-            Inc(FDataCount);
-          end;
-        end;
-        Result := True
+        CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
+        MTI := 0;
       end
-    end
+      else begin
+        CAN.DestAlias := (CAN.MTI and $00FFF000) shr 12;
+        CAN.MTI := CAN.MTI and $0F000000; // $FF000FFF;
+        MTI := MTI_DATAGRAM
+      end;
+    end else
+    begin
+      if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
+      begin
+        ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
+        DestHi := StrToInt('$' + ByteStr);
+        ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
+        DestLo := StrToInt('$' + ByteStr);
+        Inc(i_Data, 4);
+        CAN.FramingBits := DestHi and $30;
+        CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
+      end else
+      begin
+        CAN.DestAlias := 0;
+        CAN.FramingBits := 0;
+      end;
+      MTI := Word( (CAN.MTI shr 12) and $0000FFF);
+    end;
+
+    FDataCount := 0;                                                       // Convert the CAN payload bytes into number
+    while i_Data < i_SemiColon - i_N do
+    begin
+      ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
+      FDataArray[FDataCount] := StrToInt('$' + ByteStr);
+      Inc(i_Data, 2);
+      Inc(FDataCount);
+    end;
+    Result := True
   end;
 end;
 

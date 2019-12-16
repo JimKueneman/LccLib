@@ -407,19 +407,110 @@ end;
 
 function TLccMessage.LoadByGridConnectStr(GridConnectStr: String): Boolean;
 var
-  x, n, SemiColon, i, j: Integer;
-  ByteStr: String;
+ // x, n, SemiColon, i, j: Integer;
+ // ByteStr: String;
+
   DestHi, DestLo: Byte;
-  ZeroIndex: Boolean;
+  ZeroIndex: Boolean;   // FireMonkey uses 0 offset for strings instead of 1
+
+  HeaderStr, DataStr, ByteStr: string;
+  i, i_X, i_N, i_SemiColon, i_Data: Integer;
 begin
   Result := False;
+
+
   if GridConnectStr <> '' then
   begin
     ZeroFields;
     {$IFDEF FPC}
     ZeroIndex := False;
     {$ELSE}
-    ZeroIndex := Low(GridConnectStr) = 0;
+    ZeroIndex := Low(GridConnectStr) = 0;   // Decide if we are LCC_MOBILE or not automatically
+    {$ENDIF}
+    GridConnectStr := UpperCase(GridConnectStr);
+    i_X := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
+    i_N := Pos('N', GridConnectStr);                                              // Find were the "N" is in the string
+    i_SemiColon := Pos(';', GridConnectStr);                                      // Find were the ";" is in the string
+    if ZeroIndex then
+    begin
+      Dec(i_X);
+      Dec(i_N);
+      Dec(i_SemiColon);
+    end;
+
+    HeaderStr := '';
+    DataStr := '';
+
+    for i:= i_X + 1 to i_N - 1 do
+      HeaderStr := HeaderStr + GridConnectStr[i];
+    for i := i_N + 1 to i_SemiColon - 1 do
+      DataStr := DataStr + GridConnectStr[i];
+
+    i_Data := i_N + 1;  // First index past "N" (if it exists)
+
+    CAN.MTI := StrToInt('$' + HeaderStr);              // Convert the string MTI into a number  ;
+    CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
+    CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
+    CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
+    // Was this an OpenLCB or CAN specific message? This covers special multiFrame LccMessage and CAN layer specific messages
+    IsCAN := (CAN.MTI and $07000000 <> $01000000);
+
+    // Extract the General OpenLCB message if possible
+    if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
+    begin
+      if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
+      begin
+        CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
+        MTI := 0;
+      end
+      else begin
+        CAN.DestAlias := (CAN.MTI and $00FFF000) shr 12;
+        CAN.MTI := CAN.MTI and $0F000000; // $FF000FFF;
+        MTI := MTI_DATAGRAM
+      end;
+    end else
+    begin
+      if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
+      begin
+        ByteStr := DataStr[i_Data] + DataStr[i_Data];
+        DestHi := StrToInt('$' + ByteStr);
+        ByteStr := DataStr[i_Data] + DataStr[i_Data];
+        DestLo := StrToInt('$' + ByteStr);
+        Inc(i_Data, 4);
+        CAN.FramingBits := DestHi and $30;
+        CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
+      end else
+      begin
+        CAN.DestAlias := 0;
+        CAN.FramingBits := 0;
+      end;
+      MTI := Word( (CAN.MTI shr 12) and $0000FFF);
+    end;
+
+//      FForwardingBitNotSet := GridConnect_MTI and $10000000 = $00000000;    // Check if the Forwarding Bit was set
+//      FUnimplementedBitsSet := GridConnect_MTI and $E0000000 <> $00000000;  // Check to see the state of the unimplemented bits
+
+
+    FDataCount := 0;                                                       // Convert the CAN payload bytes into number
+    while i_Data < i_SemiColon do
+    begin
+      ByteStr := GridConnectStr[i_Data] + GridConnectStr[i_Data+1];
+      FDataArray[FDataCount] := StrToInt('$' + ByteStr);
+      Inc(i_Data, 2);
+      Inc(FDataCount);
+    end;
+    Result := True
+  end;
+
+
+   (*
+  if GridConnectStr <> '' then
+  begin
+    ZeroFields;
+    {$IFDEF FPC}
+    ZeroIndex := False;
+    {$ELSE}
+    ZeroIndex := Low(GridConnectStr) = 0;   // Decide if we are LCC_MOBILE or not automatically
     {$ENDIF}
     GridConnectStr := UpperCase(GridConnectStr);
     x := Pos('X', GridConnectStr);                                              // Find were the "X" is in the string
@@ -499,7 +590,7 @@ begin
         Result := True
       end
     end
-  end;
+  end;         *)
 end;
 
 function TLccMessage.LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
