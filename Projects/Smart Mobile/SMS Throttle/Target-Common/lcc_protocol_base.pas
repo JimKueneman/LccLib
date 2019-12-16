@@ -46,7 +46,8 @@ public
   constructor Create(ASendMessageFunc: TLccSendMessageFunc); virtual;
   destructor Destroy; override;
 
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual; abstract;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual;
+  procedure LoadFromLccMessage(SourceLccMessage: TLccMessage); virtual;
 end;
 
 { TStreamBasedProtocol }
@@ -97,6 +98,16 @@ destructor TNodeProtocolBase.Destroy;
 begin
   FWorkerMessage.Free;
   inherited Destroy;
+end;
+
+function TNodeProtocolBase.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
+begin
+
+end;
+
+procedure TNodeProtocolBase.LoadFromLccMessage(SourceLccMessage: TLccMessage);
+begin
+  // Do nothing must override to implement
 end;
 
 { TStreamBasedProtocol }

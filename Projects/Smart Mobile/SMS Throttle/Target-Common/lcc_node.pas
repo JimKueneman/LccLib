@@ -658,6 +658,7 @@ begin
     case SourceLccMessage.MTI of
       MTI_OPTIONAL_INTERACTION_REJECTED :
           begin
+            // TODO need a call back handler
           end;
       MTI_VERIFY_NODE_ID_NUMBER      :
           begin
@@ -684,7 +685,7 @@ begin
           end;
       MTI_VERIFIED_NODE_ID_NUMBER :
           begin
-
+             // TODO need a call back handler
           end;
       MTI_SIMPLE_NODE_INFO_REQUEST :
           begin
@@ -693,9 +694,8 @@ begin
             Result := True;
           end;
       MTI_SIMPLE_NODE_INFO_REPLY :
-          begin               // Called if I send a SNIP;
-            ProtocolSupportedProtocols.ProcessMessage(SourceLccMessage);
-            SendMessageFunc(WorkerMessage);
+          begin  // Called if I send a SNIP and loads the ProtocolSupportedProtocols with the data
+            // TODO need a call back handler
             Result := True;
           end;
       MTI_PROTOCOL_SUPPORT_INQUIRY :
@@ -705,9 +705,8 @@ begin
             Result := True;
           end;
       MTI_PROTOCOL_SUPPORT_REPLY :
-          begin   // Called if I send a Protocol Support
-            ProtocolSupportedProtocols.ProcessMessage(SourceLccMessage);
-            SendMessageFunc(WorkerMessage);
+          begin   // Called if I send a Protocol Support and loads the ProtocolSupportedProtocols with the data
+            // TODO need a call back handler
             Result := True;
           end;
       MTI_EVENTS_IDENTIFY :
@@ -736,21 +735,27 @@ begin
           end;
        MTI_CONSUMER_IDENTIFIED_CLEAR :
           begin
+            // TODO need a call back handler
           end;
        MTI_CONSUMER_IDENTIFIED_SET :
           begin
+           // TODO need a call back handler
           end;
        MTI_CONSUMER_IDENTIFIED_UNKNOWN :
           begin
+            // TODO need a call back handler
           end;
        MTI_PRODUCER_IDENTIFIED_CLEAR :
           begin
+            // TODO need a call back handler
           end;
        MTI_PRODUCER_IDENTIFIED_SET :
           begin
+            // TODO need a call back handler
           end;
        MTI_PRODUCER_IDENTIFIED_UNKNOWN :
           begin
+            // TODO need a call back handler
           end;
        MTI_DATAGRAM_REJECTED_REPLY :
          begin

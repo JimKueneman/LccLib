@@ -34,10 +34,12 @@ uses
 
 type
   TTabSettingsForm = class(TW3Form)
+    procedure W3ButtonConnectionClick(Sender: TObject);
     procedure W3Button1Click(Sender: TObject);
   private
     {$I 'TabSettingsForm:intf'}
     FSocket: TW3WebSocket;
+    FConnected: Boolean;
   protected
     procedure InitializeForm; override;
     procedure InitializeObject; override;
@@ -64,16 +66,18 @@ begin
   FSocket.OnOpen := procedure (Sender: TW3WebSocket)
     begin
   //    ShowMessage('Socket Open');
+      FConnected := True;
     end;
 
   FSocket.OnClosed := procedure (Sender: TW3WebSocket)
     begin
-  //    ShowMessage('Socket Closed');
+   //   ShowMessage('Socket Closed');
+      FConnected := False;
     end;
 
   FSocket.OnError := procedure (Sender: TW3WebSocket)
     begin
-  //    ShowMessage('Socket Error');
+      ShowMessage('Socket Error');
     end;
 
   FSocket.OnMessage := procedure (Sender: TW3WebSocket; Message: TWebSocketMessageData)
@@ -82,7 +86,8 @@ begin
        LccMessage := TLccMessage.Create;
        try
          LccMessage.LoadByGridConnectStr(Message.mdText);
-         W3Listbox1.AddItem(LccMessage.ConvertToGridConnectStr(';'));
+          W3Listbox1.AddItem('R:' + Message.mdText);
+         W3Listbox1.AddItem(LccMessage.ConvertToGridConnectStr(''));
   //      W3Listbox1.AddItem(LccMessage.ConvertToLccTcpString);
        finally
          LccMessage.Free;
@@ -97,22 +102,22 @@ end;
 
 
 
-procedure TTabSettingsForm.W3Button1Click(Sender: TObject);
+procedure TTabSettingsForm.W3ButtonConnectionClick(Sender: TObject);
 var
   URL: string;
 
 begin
-  if FSocket.Connected then
+  if FSocket.Connected or FConnected then
   begin
     FSocket.Disconnect(procedure (Socket: TW3WebSocket; Success: boolean)
       begin
         if Success then
         begin
- //         ShowMessage('Success');
+  //        ShowMessage('Success');
           W3ButtonConnection.Caption := 'Open';
         end else
         begin
- //         ShowMessage('Failure');
+   //       ShowMessage('Failure');
           W3ButtonConnection.Caption := 'Close'
         end;
       end
@@ -142,6 +147,10 @@ begin
         ShowMessage('Except');
       end;
   end;
+end;
+
+procedure TTabSettingsForm.W3Button1Click(Sender: TObject);
+begin
 end;
 
 initialization

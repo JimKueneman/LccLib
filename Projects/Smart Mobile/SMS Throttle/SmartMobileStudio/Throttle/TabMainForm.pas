@@ -84,6 +84,8 @@ begin
 //  FOptionsLayout.Resize(W3PanelSettings);
   W3Panel1.Width := Width;
   W3Panel1.Height := Height;
+
+
 end;
 
 

@@ -53,7 +53,7 @@ uses
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
-  procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
+  procedure StringToNullArray(AString: String; var ANullArray: TDynamicByteArray; var iIndex: Integer);
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
   {$IFNDEF DWSCRIPT}
@@ -325,7 +325,7 @@ begin
   EventID[7] := _Lo(LowBytes);
 end;
 
-procedure StringToNullArray(AString: String; var ANullArray: array of Byte; var iIndex: Integer);
+procedure StringToNullArray(AString: String; var ANullArray: TDynamicByteArray; var iIndex: Integer);
 var
   Len, i: Integer;
 begin
@@ -335,11 +335,7 @@ begin
     {$IFDEF FPC}
       for i := 1 to Len do
     {$ELSE}
-      {$IFDEF LCC_MOBILE}
-        for i := 0 to Len - 1 do
-      {$ELSE}
-        for i := 1 to Len do
-      {$ENDIF}
+      {$IFDEF LCC_MOBILE}for i := 0 to Len - 1 do{$ELSE}for i := 1 to Len do{$ENDIF}
     {$ENDIF}
     begin
       ANullArray[iIndex] := Ord( AString[i]);

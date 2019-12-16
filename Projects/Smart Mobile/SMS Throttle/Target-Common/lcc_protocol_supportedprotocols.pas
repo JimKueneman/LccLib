@@ -79,7 +79,7 @@ public
   property FirmwareUpgrade: Boolean read FFirmwareUpgrade write FFirmwareUpgrade;
   property FirmwareUpgradeActive: Boolean read FFirmwareUpgradeActive write FFirmwareUpgradeActive;
 
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+  procedure LoadFromLccMessage(SourceLccMessage: TLccMessage); override;
 end;
 
 implementation
@@ -150,9 +150,8 @@ begin
 
 end;
 
-function TProtocolSupportedProtocols.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
+procedure TProtocolSupportedProtocols.LoadFromLccMessage(SourceLccMessage: TLccMessage);
 begin
-  Result := True;
   Flags[0] := SourceLccMessage.DataArrayIndexer[5];
   Flags[1] := SourceLccMessage.DataArrayIndexer[4];
   Flags[2] := SourceLccMessage.DataArrayIndexer[3];
@@ -162,6 +161,7 @@ begin
 
   DecodeFlags;
 end;
+
 
 end.
 

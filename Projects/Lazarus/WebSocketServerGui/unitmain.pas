@@ -105,8 +105,8 @@ var
   EthernetRec: TLccEthernetRec;
 begin
   FillChar(EthernetRec, SizeOf(TLccEthernetRec), #0);
-  EthernetRec.AutoResolveIP := False;
-  EthernetRec.ListenerIP := '127.0.0.1';   // Loopback
+  EthernetRec.AutoResolveIP := True;
+ // EthernetRec.ListenerIP := '127.0.0.1';   // Loopback
   EthernetRec.ListenerPort := 12021;
   LccWebSocketServer1.OpenConnection(EthernetRec);
 end;

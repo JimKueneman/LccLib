@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-14T21:08:03.639</Modified>
+    <Modified>2019-12-15T16:50:14.129</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -38,10 +38,10 @@ geo:*</AllowIntent>
       </Compiler>
       <Codegen>
         <Obfuscation>0</Obfuscation>
-        <RangeChecking>0</RangeChecking>
-        <InstanceChecking>0</InstanceChecking>
-        <ConditionChecking>0</ConditionChecking>
-        <LoopChecking>0</LoopChecking>
+        <RangeChecking>1</RangeChecking>
+        <InstanceChecking>1</InstanceChecking>
+        <ConditionChecking>1</ConditionChecking>
+        <LoopChecking>1</LoopChecking>
         <InlineMagics>1</InlineMagics>
         <IgnorePublishedInImplementation>0</IgnorePublishedInImplementation>
         <EmitSourceLocation>0</EmitSourceLocation>
@@ -83,7 +83,9 @@ geo:*</AllowIntent>
         <CustomFile></CustomFile>
         <LoadCustomFile>0</LoadCustomFile>
         <PauseAfterExecution>0</PauseAfterExecution>
-        <ExecuteType>0</ExecuteType>
+        <ExecuteType>6</ExecuteType>
+        <ExecuteableName>chrome.exe</ExecuteableName>
+        <ExecuteableParams>%output%</ExecuteableParams>
       </Execute>
       <WebFonts>
         <usewebfonts>1</usewebfonts>
@@ -109,7 +111,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>FormThrottle</Name>
         <Created>2018-02-04T15:37:01.191Z</Created>
-        <Modified>2019-12-01T10:46:07.488</Modified>
+        <Modified>2019-12-15T15:15:24.092</Modified>
         <Filename>FormThrottle.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -120,7 +122,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabMainForm</Name>
         <Created>2019-11-25T18:45:05.525Z</Created>
-        <Modified>2019-12-01T09:35:29.905</Modified>
+        <Modified>2019-12-15T13:18:21.137</Modified>
         <Filename>TabMainForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -131,7 +133,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2019-12-14T13:33:58.697</Modified>
+        <Modified>2019-12-15T16:35:54.254</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

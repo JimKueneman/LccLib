@@ -43,14 +43,13 @@ type
   PNodeID = ^TNodeID;
   {$ENDIF}
 
-  TSimpleNodeInfoPacked = array of Byte;
+ // TSimpleNodeInfoPacked = array of Byte;
+ // TStreamArray = array of Byte;                Just use DynamicByteArray
   TFunctionStatesArray = array[0..28] of Word;
   TDynamicByteArray = array of Byte;
 
 type
   TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
-
-  TStreamArray = array of Byte;
 
   TEventID = array[0..MAX_EVENT_LEN-1] of Byte;
   {$IFNDEF DWSCRIPT}
@@ -82,6 +81,14 @@ type
     procedure NotifyLccNodeDestroy(LccNode: TObject); virtual; abstract;
   end;
 {$ENDIF}
+
+const
+  LEN_MFG_NAME         = 41;
+  LEN_MODEL_NAME       = 41;
+  LEN_HARDWARE_VERSION = 21;
+  LEN_SOFTWARE_VERSION = 21;
+  LEN_USER_NAME        = 63;
+  LEN_USER_DESCRIPTION = 64;
 
 const
   // Full CAN MTI
@@ -256,11 +263,6 @@ const
   PIP_FIRMWARE_UPGRADE_ACTIVE        = $10;
 
 
-  // Byte 3
-
-
-
-
   STR_PIP_PIP                        = 'Protocol Identification Protocol';
   STR_PIP_DATAGRAM                   = 'Datagram Protocol';
   STR_PIP_STREAM                     = 'Stream Protocol';
@@ -277,6 +279,8 @@ const
   STR_PIP_TRACTION                   = 'Traction Protocol';
   STR_PIP_FDI                        = 'Function Description Information (FDI) Protocol';
   STR_PIP_TRACTION_PROTOCOL          = 'Traction Proxy Protocol';
+  STR_PIP_FIRMWARE_UPGRADE           = 'Firmware Upgrade Protocol';
+  STR_PIP_FIRMWARE_UPGRADE_ACTIVE    = 'Firmware Upgrade Active Protocol';
 
 
   COMMON_TEMPORARY_ERROR                 = $2000;

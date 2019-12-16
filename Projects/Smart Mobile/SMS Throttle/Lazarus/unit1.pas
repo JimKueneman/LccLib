@@ -134,6 +134,8 @@ begin
     // Setup the SNIP by extracting information from the CDI
     CanNode.ProtocolConfigurationDefinitionInfo.LoadSNIP(CanNode.ProtocolSimpleNodeInfo);
 
+    CanNode.ProtocolSimpleNodeInfo.LoadFromXmlString(CDI_XML);
+
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 
     lcc_node_messages_can_assembler_disassembler.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run

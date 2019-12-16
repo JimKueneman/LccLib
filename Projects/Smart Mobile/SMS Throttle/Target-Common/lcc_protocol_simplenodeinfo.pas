@@ -2,6 +2,11 @@ unit lcc_protocol_simplenodeinfo;
 
 interface
 
+{$IFDEF DWSCRIPT}
+{$ELSE}
+   {$I lcc_compilers}
+{$ENDIF}
+
 uses
 {$IFDEF DWSCRIPT}
   System.Types,
@@ -16,6 +21,8 @@ uses
   SmartCL.Application,
   SmartCL.Components,
   SmartCL.System,
+  System.Memory.Buffer,
+  System.Memory,
 {$ELSE}
   Classes,
   SysUtils,
@@ -36,15 +43,17 @@ type
     FManufacturer: String;
     FModel: String;
     FSoftwareVersion: String;
-    FPackedInfo: TSimpleNodeInfoPacked;
+    FPackedInfo: TDynamicByteArray;
     FUserDescription: String;
     FUserName: String;
     FUserVersion: Word;
     FVersion: Word;
 
-    function GetPackedFormat: TSimpleNodeInfoPacked;
+    function GetPackedFormat: TDynamicByteArray;
     function GetUserDescription: String;
     function GetUserName: String;
+
+    function FindElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
   public
     property Version: Word read FVersion write FVersion;
     property Manufacturer: String read FManufacturer write FManufacturer;
@@ -55,58 +64,60 @@ type
     property UserName: String read GetUserName write FUserName;
     property UserDescription: String read GetUserDescription write FUserDescription;
 
-    property PackedFormat: TSimpleNodeInfoPacked read GetPackedFormat;
+    property PackedFormat: TDynamicByteArray read GetPackedFormat;
 
+    {$IFNDEF DWSCRIPT}  // No access to filesin JavaScript
     function LoadFromXmlPath(CdiFilePath: String): Boolean;
-    {$IFNDEF DWSCRIPT}
     function LoadFromXmlDoc(CdiXMLDoc: LccXmlDocument): Boolean;
+    procedure LoadFromLccMessage(SourceLccMessage: TLccMessage); override;
     {$ENDIF}
-    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+    function LoadFromXmlString(XMlString: string): Boolean;
   end;
 
 implementation
 
 { TProtocolSimpleNodeInfo }
 
-function TProtocolSimpleNodeInfo.GetPackedFormat: TSimpleNodeInfoPacked;
+function TProtocolSimpleNodeInfo.GetPackedFormat: TDynamicByteArray;
 const
   NULL_COUNT = 6;
   VERSION_COUNT = 2;
 var
   iArray, i: Integer;
+  TempArray: TDynamicByteArray;
 begin
 
-//JDK
   Result := nil;
 
-  (*
   i :=  Length(Manufacturer) + Length(Model) + Length(HardwareVersion) + Length(SoftwareVersion) + Length(UserName) + Length(UserDescription);
   i := i + NULL_COUNT + VERSION_COUNT;
 
   {$IFDEF DWSCRIPT}
   var BinaryData: TBinaryData;
   BinaryData := TBinaryData.Create(TMarshal.AllocMem(i).Segment);
-  FPackedArray := BinaryData.ToBytes;
+  FPackedInfo := BinaryData.ToBytes;
   {$ELSE}
     SetLength(FPackedInfo, i);
  {$ENDIF}
 
   iArray := 0;
+  TempArray := FPackedInfo;
 
   FPackedInfo[iArray] := Version;      // 4 Items follow
   Inc(iArray);
-  StringToNullArray(Manufacturer, FPackedInfo, iArray);
-  StringToNullArray(Model, FPackedInfo, iArray);
-  StringToNullArray(HardwareVersion, FPackedInfo, iArray);
-  StringToNullArray(SoftwareVersion, FPackedInfo, iArray);
+  StringToNullArray(Manufacturer, TempArray, iArray);
+  StringToNullArray(Model, TempArray, iArray);
+  StringToNullArray(HardwareVersion, TempArray, iArray);
+  StringToNullArray(SoftwareVersion, TempArray, iArray);
 
-  FPackedInfo[iArray] := UserVersion;  // 2 items follow
+  TempArray[iArray] := UserVersion;  // 2 items follow
   Inc(iArray);
-  StringToNullArray(UserName, FPackedInfo, iArray);
-  StringToNullArray(UserDescription, FPackedInfo, iArray);
+  StringToNullArray(UserName, TempArray, iArray);
+  StringToNullArray(UserDescription, TempArray, iArray);
+
+  FPackedInfo := TempArray;
 
   Result := FPackedInfo;
-  *)
 end;
 
 function TProtocolSimpleNodeInfo.GetUserDescription: String;
@@ -123,15 +134,37 @@ begin
  //JDK   Result := (Owner as TLccOwnedNode).Configuration.ReadAsString(1);
 end;
 
+function TProtocolSimpleNodeInfo.FindElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
+var
+  OffsetEnd: Integer;
+begin
+  Result := False;
+  TestXML := LowerCase(TestXML);
+  Element := LowerCase(Element);
+  Offset := Pos(Element, TestXML);
+  if Offset > -1 then
+  begin
+    Inc(Offset, Length(Element));
+    Element := StringReplace(Element, '<', '</', [rfReplaceAll]);
+    OffsetEnd := Pos(Element, TestXML);
+    if (OffsetEnd > -1) and (OffsetEnd > Offset) then
+    begin
+      ALength := OffsetEnd - Offset;
+      Result := True;
+    end else
+    Exit;
+  end else
+  Exit;
+end;
 
+{$IFNDEF DWSCRIPT}
 function TProtocolSimpleNodeInfo.LoadFromXmlPath(CdiFilePath: String): Boolean;
-//JDK
-//var
-//  XMLDoc: LccXmlDocument;
+var
+  XMLDoc: LccXmlDocument;
 begin
   Result := False;
   Valid := False;
-(*  if FileExists(CdiFilePath) then
+  if FileExists(CdiFilePath) then
   begin
     try
       XMLDoc := XmlLoadFromFile(CdiFilePath);
@@ -141,11 +174,10 @@ begin
     except
       // Quiet fail
     end;
-  end; *)
+  end;
 end;
 
-//JDK
-(*
+
 function TProtocolSimpleNodeInfo.LoadFromXmlDoc(CdiXMLDoc: LccXmlDocument): Boolean;
 var
   CdiNode, IdentificationNode, ChildNode: LccXmlNode;
@@ -172,12 +204,9 @@ begin
       end;
     end;
   end;
-end;   *)
+end;
 
-function TProtocolSimpleNodeInfo.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
-
-//JDK
-(*
+procedure TProtocolSimpleNodeInfo.LoadFromLccMessage(SourceLccMessage: TLccMessage);
   {$IFDEF LCC_MOBILE}
   function NextString(AStrPtr: PChar): PChar;
   {$ELSE}
@@ -190,19 +219,18 @@ function TProtocolSimpleNodeInfo.ProcessMessage(SourceLccMessage: TLccMessage): 
       Inc(Result);
     Inc(Result);
   end;
-  *)
-      (*
+
 {$IFDEF LCC_MOBILE}
 var
   StrPtr: PChar;
 {$ELSE}
 var
   StrPtr: PAnsiChar;
-{$ENDIF}     *)
+{$ENDIF}
 begin
-//JDK
+
   Result := False;
- (* Result := True;
+  Result := True;
   StrPtr := @SourceLccMessage.DataArray[0];
   FVersion := Ord(StrPtr^);
   Inc(StrPtr);
@@ -219,7 +247,57 @@ begin
   FUserName := StrPtr;
   StrPtr := NextString(StrPtr);
   FUserDescription := StrPtr;
-  Valid := True;  *)
+end;
+
+{$ENDIF}
+
+function TProtocolSimpleNodeInfo.LoadFromXmlString(XMlString: string): Boolean;
+
+var
+  TempMfg, TempModel, TempHWVersion, TempSWVersion: string;
+  AnOffset, ALength, i: Integer;
+begin
+  Result := False;
+  if FindElement(XMlString, '<manufacturer>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_MFG_NAME then
+    begin
+      SetLength(TempMfg, ALength);
+      for i := AnOffset to AnOffset + ALength - 1 do
+        TempMfg[i-AnOffset{$IFNDEF LCC_MOBILE}+1{$ENDIF}] := XMLString[i];
+    end else Exit;
+  end else Exit;
+  if FindElement(XMlString, '<model>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_MODEL_NAME then
+    begin
+      SetLength(TempModel, ALength);
+      for i := AnOffset to AnOffset + ALength - 1 do
+        TempModel[i-AnOffset{$IFNDEF LCC_MOBILE}+1{$ENDIF}] := XMLString[i];
+    end else Exit;
+  end else Exit;
+  if FindElement(XMlString, '<hardwareVersion>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_HARDWARE_VERSION then
+    begin
+      SetLength(TempHWVersion, ALength);
+      for i := AnOffset to AnOffset + ALength - 1 do
+        TempHWVersion[i-AnOffset{$IFNDEF LCC_MOBILE}+1{$ENDIF}] := XMLString[i];
+    end else Exit;
+  end else Exit;
+  if FindElement(XMlString, '<softwareVersion>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_SOFTWARE_VERSION then
+    begin
+      SetLength(TempSWVersion, ALength);
+      for i := AnOffset to AnOffset + ALength - 1 do
+        TempSWVersion[i-AnOffset{$IFNDEF LCC_MOBILE}+1{$ENDIF}] := XMLString[i];
+    end else Exit;
+  end else Exit;
+  Manufacturer := TempMfg;
+  Model := TempModel;
+  HardwareVersion := TempHWVersion;
+  SoftwareVersion := TempSWVersion;
 end;
 
 end.
