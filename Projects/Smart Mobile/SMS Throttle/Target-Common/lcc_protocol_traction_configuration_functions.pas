@@ -71,16 +71,6 @@ begin
       Inc(i, 2);
     end;
     Valid := True;
-    //JDK
-    {
-    if Assigned(OwnerManager) then
-    begin
-      SourceNode := OwnerManager.FindOwnedNodeBySourceID(LccMessage);
-      DestNode := OwnerManager.FindOwnedNodeByDestID(LccMessage);
-      if Assigned(SourceNode) and Assigned(DestNode) then
-        OwnerManager.DoFunctionConfiguration(SourceNode, DestNode);
-    end;
-    }
   end;
 end;
 

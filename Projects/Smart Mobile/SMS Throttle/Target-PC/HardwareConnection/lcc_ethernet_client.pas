@@ -194,22 +194,19 @@ type
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
-//JDK procedure Register;
+procedure Register;
 
 implementation
 
-//JDK
-(*
 procedure Register;
 begin
   {$IFNDEF FPC_CONSOLE_APP}
     {$IFDEF FPC}
-    {$I TLccEthernetClient.lrs}
+ //JDK   {$I TLccEthernetClient.lrs}
     {$ENDIF}
     RegisterComponents('LCC',[TLccEthernetClient]);
   {$ENDIF}
 end;
-*)
 
 {$IFDEF ULTIBO}
 { TUltiboTcpReadThread }

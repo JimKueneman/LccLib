@@ -38,8 +38,6 @@ type
   TOnLccNodeTractionControllerChangeNotify = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean) of object;
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
   TOnLccNodeConfigMemAddressSpace = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; AddressSpace: Byte) of object;
-//JDK  TOnLccGetRootNodeClass = procedure(Sender: TObject; var NodeClass: TLccOwnedNodeClass) of object;
-
 
   { TLccNodeManager }
 
@@ -48,7 +46,6 @@ type
     {$IFNDEF DWSCRIPT}
     FCdiParser: TLccCdiParserBase;
     FHardwareConnection: TLccHardwareConnectionManager;
-// JDK   FLccSettings: TLccSettings;
     {$ENDIF}
     FOnAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
@@ -141,7 +138,6 @@ type
     {$IFNDEF DWSCRIPT}
     property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
     property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
-  // JDK property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     {$ENDIF}
     property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
     property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;

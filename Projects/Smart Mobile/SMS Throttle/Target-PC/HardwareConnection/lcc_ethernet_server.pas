@@ -218,22 +218,19 @@ type
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
-//JDK procedure Register;
+procedure Register;
 
 implementation
 
-//JDK
-(*
 procedure Register;
 begin
   {$IFNDEF FPC_CONSOLE_APP}
   {$IFDEF FPC}
-  {$I TLccEthernetServer.lrs}
+ //JDK {$I TLccEthernetServer.lrs}
   {$ENDIF}
   RegisterComponents('LCC',[TLccEthernetServer]);
   {$ENDIF}
 end;
-*)
 
 { TLccEthernetListener }
 

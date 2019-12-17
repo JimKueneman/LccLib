@@ -173,14 +173,14 @@ begin
   begin
     AStream.Position := AStream.Size;
     for i := 0 to ((Address + ReadCount) - AStream.Size) - 1 do
+    begin
       {$IFDEF FPC}
       AStream.WriteByte(0);
-     {$ELSE}
+      {$ELSE}
       AByte := 0;
-//JDK
-
-//      AStream.Write(AByte, 1);
-     {$ENDIF}
+      AStream.Write(AByte, 1);
+      {$ENDIF}
+    end;
   end;
 
   if AStream.Size = 0 then
@@ -194,10 +194,7 @@ begin
     while (AStream.Position < AStream.Size) and (i < ReadCount) do
     begin
       AByte := 0;
-
-    //JDK
-
-    //  AStream.Read(AByte, 1);
+      AStream.Read(AByte, 1);
       OutMessage.DataArrayIndexer[iStart + i] := AByte;
       Inc(i);
     end;
@@ -234,10 +231,7 @@ begin
     begin
       NullFound := SourceLccMessage.DataArrayIndexer[i] = Ord(#0);
       AByte := SourceLccMessage.DataArrayIndexer[i];
-
-  //JDK
-   //   AStream.WriteBuffer(AByte, 1);
-
+      AStream.WriteBuffer(AByte, 1);
       if NullFound then
         Break
     end;

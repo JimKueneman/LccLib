@@ -42,16 +42,7 @@ procedure TFDI.DoLoadComplete(LccMessage: TLccMessage);
 var
   SourceNode, DestNode: TLccNode;
 begin
-  // JDK
-{
-  if Assigned(OwnerManager) then
-  begin
-    SourceNode := OwnerManager.FindOwnedNodeBySourceID(LccMessage);
-    DestNode := OwnerManager.FindOwnedNodeByDestID(LccMessage);
-    if Assigned(SourceNode) and Assigned(DestNode) then
-      OwnerManager.DoFDI(SourceNode, DestNode);
-  end;
-}
+
 end;
 
 end.

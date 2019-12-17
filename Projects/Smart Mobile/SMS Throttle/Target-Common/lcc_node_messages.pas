@@ -389,7 +389,6 @@ var
 begin
   Result := False;
 
-
   if GridConnectStr <> '' then
   begin
     ZeroFields;
