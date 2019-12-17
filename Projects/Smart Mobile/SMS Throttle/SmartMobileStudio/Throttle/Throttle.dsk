@@ -1,10 +1,13 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="73" col="63" row="90" splitview="0" designview="0" splitter="0.583783805370331" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="73" col="39" row="92" splitview="0" designview="0" splitter="0.583783805370331" />
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="42" row="43" splitview="0" designview="0" splitter="0.444144129753113" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="60" col="18" row="87" splitview="1" designview="1" splitter="0.444444444444444" />
-      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="540" col="33" row="535" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="60" col="27" row="75" splitview="1" designview="1" splitter="0.444270015698587" />
+      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="7" col="9" row="21" />
+      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="663" col="1" row="542" />
+      <tab filename="Storage" fullname="Storage.pas" topline="38" col="67" row="49" />
+      <tab filename="System.Types.Convert" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Types.Convert.pas" topline="136" col="31" row="149" />
       <activetab>lcc_node_messages</activetab>
       <breakpoints>
         <bkpt>
@@ -14,11 +17,11 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>4888</BackgroundCompilations>
-      <EditTime>T02:41:01.634</EditTime>
+      <BackgroundCompilations>4890</BackgroundCompilations>
+      <EditTime>T02:50:00.026</EditTime>
       <CompileTime>T00:00:00.000</CompileTime>
-      <TotalTime>1900-01-02T14:18:40.142</TotalTime>
-      <DesigningTime>T09:11:01.828</DesigningTime>
+      <TotalTime>1900-01-02T16:06:43.933</TotalTime>
+      <DesigningTime>T09:11:38.614</DesigningTime>
       <RunningTime>1899-12-31T03:51:55.592</RunningTime>
       <TotalLinesOfCode>410</TotalLinesOfCode>
     </Statistics>

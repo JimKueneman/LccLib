@@ -18,6 +18,7 @@ uses
   System.Memory,
   System.Memory.Buffer,
   System.Memory.Views,
+  System.Types.Convert,
   {$ELSE}
   Classes,
   SysUtils,
@@ -419,7 +420,11 @@ begin
     for i := i_N + 1 to i_SemiColon - 1 do
       DataStr := DataStr + GridConnectStr[i];
 
+    {$IFDEF DWSCRIPT}
+    CAN.MTI := TDatatype.HexStrToInt('0x' + HeaderStr);
+    {$ELSE}
     CAN.MTI := StrToInt('$' + HeaderStr);              // Convert the string MTI into a number  ;
+    {$ENDIF}
     CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
     CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
     CAN.MTI := CAN.MTI and $FFFFF000;                                     // Strip off the Source Alias
@@ -444,9 +449,17 @@ begin
       if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
       begin
         ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
+        {$IFDEF DWSCRIPT}
+        DestHi := TDatatype.HexStrToInt('0x' + ByteStr);
+        {$ELSE}
         DestHi := StrToInt('$' + ByteStr);
+        {$ENDIF}
         ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
+        {$IFDEF DWSCRIPT}
+        DestLo := TDatatype.HexStrToInt('0x' + ByteStr);
+        {$ELSE}
         DestLo := StrToInt('$' + ByteStr);
+        {$ENDIF}
         Inc(i_Data, 4);
         CAN.FramingBits := DestHi and $30;
         CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
@@ -462,7 +475,11 @@ begin
     while i_Data < i_SemiColon - i_N do
     begin
       ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
+      {$IFDEF DWSCRIPT}
+      FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);
+      {$ELSE}
       FDataArray[FDataCount] := StrToInt('$' + ByteStr);
+      {$ENDIF}
       Inc(i_Data, 2);
       Inc(FDataCount);
     end;
@@ -653,6 +670,7 @@ begin
       end;
     end;
   end;
+  Result := UpperCase(Result);
 end;
 
 function TLccMessage.ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;

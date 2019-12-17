@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-15T16:50:14.129</Modified>
+    <Modified>2019-12-16T21:02:59.956</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -38,10 +38,10 @@ geo:*</AllowIntent>
       </Compiler>
       <Codegen>
         <Obfuscation>0</Obfuscation>
-        <RangeChecking>1</RangeChecking>
-        <InstanceChecking>1</InstanceChecking>
-        <ConditionChecking>1</ConditionChecking>
-        <LoopChecking>1</LoopChecking>
+        <RangeChecking>0</RangeChecking>
+        <InstanceChecking>0</InstanceChecking>
+        <ConditionChecking>0</ConditionChecking>
+        <LoopChecking>0</LoopChecking>
         <InlineMagics>1</InlineMagics>
         <IgnorePublishedInImplementation>0</IgnorePublishedInImplementation>
         <EmitSourceLocation>0</EmitSourceLocation>

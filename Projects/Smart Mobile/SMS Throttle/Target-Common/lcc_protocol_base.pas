@@ -16,6 +16,8 @@ uses
   SmartCL.Application,
   SmartCL.Components,
   SmartCL.System,
+  System.Memory.Buffer,
+  System.Memory,
 {$ELSE}
   Classes,
   SysUtils,
@@ -58,6 +60,10 @@ private
   FNullTerminatedString: Boolean;
   FStream: TMemoryStream;
   FAddressSpace: Byte;
+  {$IFDEF DWSCRIPT}
+  FBinaryData: TBinaryData;
+  FOneByteArray: TDynamicByteArray;
+  {$ENDIF}
 protected
   procedure SetValid(AValue: Boolean); override;
   procedure DoLoadComplete(LccMessage: TLccMessage); virtual;
@@ -67,6 +73,7 @@ protected
   property NullTerminatedString: Boolean read FNullTerminatedString write FNullTerminatedString;
 public
   property AStream: TMemoryStream read FStream write FStream;
+  property OneByteArray: TDynamicByteArray read FOneByteArray;
 
   constructor Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean); reintroduce; virtual;
   destructor Destroy; override;
@@ -133,6 +140,10 @@ begin
   FStream := TMemoryStream.Create;
   FAddressSpace := AnAddressSpace;
   IsStringBasedStream := NullTerminatedString;
+  {$IFDEF DWSCRIPT}
+  FBinaryData := TBinaryData.Create(TMarshal.AllocMem(1).Segment);
+  FOneByteArray := FBinaryData.ToBytes;
+  {$ENDIF}
 end;
 
 destructor TStreamBasedProtocol.Destroy;
@@ -177,8 +188,13 @@ begin
       {$IFDEF FPC}
       AStream.WriteByte(0);
       {$ELSE}
-      AByte := 0;
-      AStream.Write(AByte, 1);
+        {$IFDEF DWSCRIPT}
+        FOneByteArray[0] := 0;
+        AStream.Write(FOneByteArray);
+        {$ELSE}
+        AByte := 0;
+        AStream.Write(AByte, 1);
+        {$ENDIF}
       {$ENDIF}
     end;
   end;
@@ -194,7 +210,12 @@ begin
     while (AStream.Position < AStream.Size) and (i < ReadCount) do
     begin
       AByte := 0;
+      {$IFDEF DWSCRIPT}
+      FOneByteArray := AStream.Read(1);
+      AByte := OneByteArray[0];
+      {$ELSE}
       AStream.Read(AByte, 1);
+      {$ENDIF}
       OutMessage.DataArrayIndexer[iStart + i] := AByte;
       Inc(i);
     end;
@@ -231,7 +252,12 @@ begin
     begin
       NullFound := SourceLccMessage.DataArrayIndexer[i] = Ord(#0);
       AByte := SourceLccMessage.DataArrayIndexer[i];
+      {$IFDEF DWSCRIPT}
+      OneByteArray[0] := AByte;
+      AStream.Write(OneByteArray);
+      {$ELSE}
       AStream.WriteBuffer(AByte, 1);
+      {$ENDIF}
       if NullFound then
         Break
     end;
