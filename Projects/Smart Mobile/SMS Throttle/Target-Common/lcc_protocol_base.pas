@@ -73,7 +73,9 @@ protected
   property NullTerminatedString: Boolean read FNullTerminatedString write FNullTerminatedString;
 public
   property AStream: TMemoryStream read FStream write FStream;
+  {$IFDEF DWSCRIPT}
   property OneByteArray: TDynamicByteArray read FOneByteArray;
+  {$ENDIF}
 
   constructor Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean); reintroduce; virtual;
   destructor Destroy; override;
