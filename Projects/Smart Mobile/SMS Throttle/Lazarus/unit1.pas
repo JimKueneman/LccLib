@@ -43,7 +43,7 @@ type
 
   public
     EthernetServer: TLccEthernetServer;
-    NodeManager: TLccCanNodeManager;
+    CanNodeManager: TLccCanNodeManager;
     procedure OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -69,7 +69,7 @@ begin
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
-    NodeManager.LogoutAll;
+    CanNodeManager.LogoutAll;
     EthernetServer.CloseConnection(nil);
     Button1.Caption := 'Connect';
   end else
@@ -84,9 +84,9 @@ var
   CanNode: TLccCanNode;
   i: Integer;
 begin
-  if NodeManager.Nodes.Count = 0 then
+  if CanNodeManager.Nodes.Count = 0 then
   begin
-    CanNode := NodeManager.AddNode;
+    CanNode := CanNodeManager.AddNode as TLccCanNode;
     CanNode.ProtocolSupportedProtocols.CDI := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
@@ -142,7 +142,7 @@ begin
     lcc_node_messages_can_assembler_disassembler.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
   end else
-    NodeManager.Clear;
+    CanNodeManager.Clear;
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
@@ -153,10 +153,10 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
-  NodeManager.Free;
+  CanNodeManager.Free;
   // There is a race of CloseSocket here... called twice in thread and in the CloseConnection call
   EthernetServer.CloseConnection(nil);
- // NodeManager.RootNode.LogOut;
+ // CanNodeManager.RootNode.LogOut;
   EthernetServer.Free;
 end;
 
@@ -164,10 +164,10 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   EthernetServer := TLccEthernetServer.Create(nil);
   EthernetServer.Gridconnect := True;
-  NodeManager := TLccCanNodeManager.Create(nil);
-  NodeManager.OnLccMessageSend := @SendMessage;
-  NodeManager.OnLccMessageReceive := @ReceiveMessage;
-  EthernetServer.NodeManager := NodeManager;
+  CanNodeManager := TLccCanNodeManager.Create(nil);
+  CanNodeManager.OnLccMessageSend := @SendMessage;
+  CanNodeManager.OnLccMessageReceive := @ReceiveMessage;
+  EthernetServer.NodeManager := CanNodeManager;
   SynEdit1.Clear;
 end;
 
@@ -197,7 +197,7 @@ end;
 
 procedure TForm1.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  EthernetServer.SendMessage(LccMessage);
+ // EthernetServer.SendMessage(LccMessage);
 
   SynEdit1.BeginUpdate(False);
   try

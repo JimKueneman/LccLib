@@ -94,7 +94,7 @@ begin
 
   {$IFDEF DWSCRIPT}
   var BinaryData: TBinaryData;
-  BinaryData := TBinaryData.Create(TMarshal.AllocMem(i).Segment);
+  BinaryData := TBinaryData.Create(i);
   FPackedInfo := BinaryData.ToBytes;
   {$ELSE}
     SetLength(FPackedInfo, i);

@@ -3,12 +3,28 @@ unit lcc_node_messages_can_assembler_disassembler;
 interface
 
 uses
+{$IFDEF DWSCRIPT}
+  System.Types,
+  System.Types.Convert,
+  System.Time,
+  System.Streams,
+  System.Reader,
+  System.Writer,
+  System.Lists,
+  System.Device.Storage,
+  SmartCL.Device.Storage,
+  SmartCL.Application,
+  SmartCL.Components,
+  SmartCL.System,
+{$ELSE}
   Classes,
   SysUtils,
   contnrs,
+  lcc_xmlutilities,
+{$ENDIF}
   lcc_node_messages,
-  lcc_defines,
-  lcc_compiler_types;
+  lcc_defines;
+ // lcc_compiler_types;
 
 // TLccMessageQueue holds TLccMessages that are being received piece-meal over
 // an interface such as CAN where it can't sent entire message arrays and decodes
@@ -86,13 +102,19 @@ constructor TLccMessageAssembler.Create;
 begin
   inherited Create;
   FInProcessMessageList := TObjectList.Create;
+  {$IFNDEF DWSCRIPT}
   Messages.OwnsObjects := False;
+  {$ENDIF}
   WorkerMessage := TLccMessage.Create;
 end;
 
 procedure TLccMessageAssembler.Remove(AMessage: TLccMessage; DoFree: Boolean);
 begin
+ {$IFDEF DWSCRIPT}
+  Messages.Remove(Messages.IndexOf(AMessage));
+  {$ELSE}
   Messages.Remove(AMessage);
+  {$ENDIF}
   if DoFree then
     AMessage.Free;
 end;
@@ -100,8 +122,8 @@ end;
 destructor TLccMessageAssembler.Destroy;
 begin
   Clear;
-  FreeAndNil(FInProcessMessageList);
-  FreeAndNil(FWorkerMessage);
+  FInProcessMessageList.Free;
+  FWorkerMessage.Free;
   inherited Destroy;
 end;
 
@@ -153,7 +175,11 @@ begin
     begin
       if AMessage.MTI = MTI_DATAGRAM then
         Dec(AllocatedDatagrams);
-      Messages.Delete(i);
+       {$IFDEF DWSCRIPT}
+        Messages.Remove(i);
+        {$ELSE}
+        Messages.Delete(i);
+        {$ENDIF}
       AMessage.Free
     end;
   end;

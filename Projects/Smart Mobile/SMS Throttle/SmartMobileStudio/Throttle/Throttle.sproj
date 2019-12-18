@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-16T21:02:59.956</Modified>
+    <Modified>2019-12-17T21:04:25.144</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -83,8 +83,7 @@ geo:*</AllowIntent>
         <CustomFile></CustomFile>
         <LoadCustomFile>0</LoadCustomFile>
         <PauseAfterExecution>0</PauseAfterExecution>
-        <ExecuteType>6</ExecuteType>
-        <ExecuteableName>chrome.exe</ExecuteableName>
+        <ExecuteType>0</ExecuteType>
         <ExecuteableParams>%output%</ExecuteableParams>
       </Execute>
       <WebFonts>
@@ -133,7 +132,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2019-12-15T16:35:54.254</Modified>
+        <Modified>2019-12-17T21:04:25.137</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

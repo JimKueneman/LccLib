@@ -84,7 +84,7 @@ begin
   begin
     {$IFDEF DWSCRIPT}
     var BinaryData: TBinaryData;
-    BinaryData := TBinaryData.Create(TMarshal.AllocMem(NewSize).Segment);
+    BinaryData := TBinaryData.Create(NewSize);
     FunctionArray := BinaryData.ToBytes;
     {$ELSE}
       SetLength(FunctionArray, NewSize);

@@ -1,7 +1,7 @@
 <SMART>
   <Form version="3" subversion="0">
     <Created>2019-11-25T18:45:18.029</Created>
-    <Modified>2019-12-15T15:23:25.726</Modified>
+    <Modified>2019-12-17T19:19:55.228</Modified>
     <object type="TW3Form">
       <Caption>Settings</Caption>
       <Name>TabSettingsForm</Name>
@@ -49,12 +49,21 @@
           <Height>32</Height>
           <Name>W3CheckBoxTcp</Name>
         </object>
+        <object type="TW3Button">
+          <Caption>Start Node</Caption>
+          <Width>128</Width>
+          <Top>136</Top>
+          <Left>184</Left>
+          <Height>32</Height>
+          <Name>W3ButtonStartNode</Name>
+          <OnClick>W3ButtonStartNodeClick</OnClick>
+        </object>
       </object>
       <object type="TW3Button">
         <Caption>Connect</Caption>
         <Width>128</Width>
-        <Top>152</Top>
-        <Left>112</Left>
+        <Top>136</Top>
+        <Left>24</Left>
         <Height>32</Height>
         <Name>W3ButtonConnection</Name>
         <OnClick>W3ButtonConnectionClick</OnClick>

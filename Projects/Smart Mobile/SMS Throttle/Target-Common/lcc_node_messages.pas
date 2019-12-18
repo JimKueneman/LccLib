@@ -685,9 +685,9 @@ begin
     {$IFDEF DWSCRIPT}
     var BinaryData: TBinaryData;
     if HasDestination then
-      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE).Segment)
+      BinaryData := TBinaryData.Create(DataCount + MAX_HEADER_ONLY_LEN + MAX_LCC_TCP_MESSAGE_PREAMBLE)
     else
-      BinaryData := TBinaryData.Create(TMarshal.AllocMem(DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE).Segment);
+      BinaryData := TBinaryData.Create(DataCount + MAX_HEADER_ONLY_LEN + MIN_LCC_TCP_MESSAGE_PREAMBLE);
     ByteArray := BinaryData.ToBytes;
     {$ELSE}
     if HasDestination then

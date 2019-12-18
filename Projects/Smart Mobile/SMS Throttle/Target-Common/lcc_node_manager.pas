@@ -117,11 +117,7 @@ type
   public
     property Nodes: TOBjectList read FNodes write FNodes;
 
-    {$IFDEF DWSCRIPT}
-    constructor Create; virtual;
-    {$ELSE}
-    constructor Create(AnOwner: TComponent); override;
-    {$ENDIF}
+    constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
 
     procedure Clear;
@@ -178,7 +174,7 @@ type
 
   TLccCanNodeManager = class(TLccNodeManager)
   public
-    function AddNode: TLccCanNode; virtual; //reintroduce;
+    function AddNode: TLccCanNode; override;
   end;
 
 implementation
@@ -410,11 +406,7 @@ begin
     OnLccNodeVerifiedNodeID(Self, SourceLccNode);
 end;
 
-{$IFDEF DWSCRIPT}
-constructor TLccNodeManager.Create;
-{$ELSE}
 constructor TLccNodeManager.Create(AnOwner: TComponent);
-{$ENDIF}
 begin
   {$IFDEF DWSCRIPT}
   inherited Create;
@@ -424,7 +416,6 @@ begin
   FNodes := TObjectList.Create;
   FNodes.OwnsObjects := False;
   {$ENDIF}
-
 end;
 
 function TLccNodeManager.AddNode: TLccNode;

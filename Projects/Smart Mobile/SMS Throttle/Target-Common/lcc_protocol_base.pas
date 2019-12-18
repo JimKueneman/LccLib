@@ -143,7 +143,7 @@ begin
   FAddressSpace := AnAddressSpace;
   IsStringBasedStream := NullTerminatedString;
   {$IFDEF DWSCRIPT}
-  FBinaryData := TBinaryData.Create(TMarshal.AllocMem(1).Segment);
+  FBinaryData := TBinaryData.Create(1);
   FOneByteArray := FBinaryData.ToBytes;
   {$ENDIF}
 end;
