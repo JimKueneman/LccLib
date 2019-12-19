@@ -99,7 +99,7 @@ begin
        try
          LccMessage.LoadByGridConnectStr(Message.mdText);
          ReceiveMessage(Self, LccMessage);
-     //    W3Listbox1.AddItem('R:' + Message.mdText);
+   //      W3Listbox1.AddItem('R:' + Message.mdText);
 
      //    W3Listbox1.AddItem(LccMessage.ConvertToGridConnectStr(''));
   //      W3Listbox1.AddItem(LccMessage.ConvertToLccTcpString);

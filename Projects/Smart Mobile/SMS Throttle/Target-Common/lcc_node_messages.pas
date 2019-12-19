@@ -60,6 +60,7 @@ private
   FDataArray: TLccByteArray;
   FDataCount: Integer;
   FDestID: TNodeID;
+  FSourceID: TNodeID;
   FMTI: Word;
   FRetryAttempts: Integer;
   FUserValid: Boolean;
@@ -72,7 +73,7 @@ private
 
   procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);
 protected
-  FSourceID: TNodeID;
+
 public
   property AbandonTimeout: Integer read FAbandonTimeout write FAbandonTimeout;
   property CAN: TLccCANMessage read FCAN write FCAN;
@@ -347,7 +348,7 @@ begin
   // Can't find an instance where more than 4 bytes are requested in the library but this will test to be sure at runtime
   Result := 0;
   Offset := EndByteIndex - StartByteIndex;
-  Assert(Offset > 3, 'ExtractDataBytesAsInt requested larger than a DWORD result');
+ // Assert(Offset > 3, 'ExtractDataBytesAsInt requested larger than a DWORD result');
   for i := StartByteIndex to EndByteIndex do
   begin
     Shift := Offset * 8;
@@ -797,10 +798,10 @@ procedure TLccMessage.ZeroFields;
 begin
   FIsCAN := False;
   FDataCount := 0;
-  CAN.FDestAlias := 0;
   FDestID := NULL_NODE_ID;
-  CAN.FSourceAlias := 0;
   FSourceID := NULL_NODE_ID;
+  CAN.FSourceAlias := 0;
+  CAN.FDestAlias := 0;
   CAN.FFramingBits := 0;
   CAN.FiTag := 0;
   FMTI := 0;

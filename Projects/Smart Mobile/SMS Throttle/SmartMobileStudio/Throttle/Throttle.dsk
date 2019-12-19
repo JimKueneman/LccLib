@@ -1,12 +1,18 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="59" col="83" row="68" splitview="0" designview="0" splitter="0.583987414836884" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="240" col="42" row="252" splitview="0" designview="0" splitter="0.583987414836884" />
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="42" row="43" splitview="0" designview="0" splitter="0.444144129753113" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="60" col="27" row="75" splitview="1" designview="1" splitter="0.444444444444444" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="67" col="27" row="75" splitview="1" designview="1" splitter="0.44435736677116" />
       <tab filename="Storage" fullname="Storage.pas" topline="24" col="44" row="34" />
       <tab filename="SmartCL.Net.websocket" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\SmartCL\SmartCL.Net.websocket.pas" topline="78" col="17" row="82" />
-      <activetab>TabSettingsForm</activetab>
+      <tab filename="lcc_node_messages_can_assembler_disassembler" fullname="..\..\Target-Common\lcc_node_messages_can_assembler_disassembler.pas" topline="271" col="1" row="1" />
+      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="341" col="4" row="351" />
+      <tab filename="lcc_node_manager" fullname="..\..\Target-Common\lcc_node_manager.pas" topline="109" col="1" row="1" />
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="234" col="24" row="256" />
+      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="1" col="28" row="476" />
+      <tab filename="lcc_protocol_memory_information" fullname="..\..\Target-Common\lcc_protocol_memory_information.pas" topline="1" col="1" row="1" />
+      <activetab>lcc_node_messages</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -15,12 +21,12 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5102</BackgroundCompilations>
-      <EditTime>T03:01:59.496</EditTime>
+      <BackgroundCompilations>5111</BackgroundCompilations>
+      <EditTime>T03:10:32.001</EditTime>
       <CompileTime>T00:00:00.000</CompileTime>
-      <TotalTime>1900-01-02T17:55:32.465</TotalTime>
-      <DesigningTime>T09:49:22.463</DesigningTime>
-      <RunningTime>1899-12-31T04:38:17.206</RunningTime>
+      <TotalTime>1900-01-02T20:19:15.185</TotalTime>
+      <DesigningTime>T09:59:12.474</DesigningTime>
+      <RunningTime>1899-12-31T04:54:59.527</RunningTime>
       <TotalLinesOfCode>512</TotalLinesOfCode>
     </Statistics>
   </state>

@@ -418,18 +418,17 @@ const
   ACDI_USER_OFFSET_NAME                     =  ACDI_USER_SIZE_VERSION;
   ACDI_USER_OFFSET_DESCRIPTION              =  ACDI_USER_OFFSET_NAME + ACDI_USER_SIZE_NAME;
 
-const
-  NULL_NODE_ID: TNodeID = (0, 0);
+var
+  NULL_NODE_ID: TNodeID;
 
-const
-  NULL_EVENT_ID : TEventID = (0, 0, 0, 0, 0, 0, 0, 0);
-  EVENT_EMERGENCY_STOP       : TEventID = ($01, $00, $00, $00, $00, $00, $FF, $FF);
-  EVENT_NEW_LOG_ENTRY        : TEventID = ($01, $00, $00, $00, $00, $00, $FF, $F8);
-  EVENT_IDENT_BUTTON_PRESSED : TEventID = ($01, $00, $00, $00, $00, $00, $FE, $00);
-  EVENT_DUPLICATE_ID_DETECTED: TEventID = ($01, $10, $00, $00, $00, $00, $02, $01);
-  EVENT_IS_TRAIN             : TEventID = ($01, $01, $00, $00, $00, $00, $03, $03);
-  EVENT_IS_PROXY             : TEventID = ($01, $01, $00, $00, $00, $00, $03, $04);
-  EVENT_DELIVERS_CLOCK       : TEventID = ($01, $01, $00, $00, $00, $00, $05, $01);
+  NULL_EVENT_ID              : TEventID;
+  EVENT_EMERGENCY_STOP       : TEventID;
+  EVENT_NEW_LOG_ENTRY        : TEventID;
+  EVENT_IDENT_BUTTON_PRESSED : TEventID;
+  EVENT_DUPLICATE_ID_DETECTED: TEventID;
+  EVENT_IS_TRAIN             : TEventID;
+ // EVENT_IS_PROXY             : TEventID;        depreciated
+  EVENT_DELIVERS_CLOCK       : TEventID;
 
   // TCP Header:
   //  |   Flags 16 Bits   |       Size 24 Bits          |             Originating/Gateway Node 48 Bits              |             Message Capture Time 48 Bits                  |
@@ -468,10 +467,71 @@ const
 
 implementation
 
+initialization
+
+  // Necessary because of bug in Smart Mobile Studio Compiler.... 12/18/2019
+  NULL_NODE_ID[0]               := 0;
+  NULL_NODE_ID[1]               := 0;
+
+
+  NULL_EVENT_ID[0]               := 0;
+  NULL_EVENT_ID[1]               := 0;
+  NULL_EVENT_ID[2]               := 0;
+  NULL_EVENT_ID[3]               := 0;
+  NULL_EVENT_ID[4]               := 0;
+  NULL_EVENT_ID[5]               := 0;
+  NULL_EVENT_ID[6]               := 0;
+
+  EVENT_EMERGENCY_STOP[0]        := $01;
+  EVENT_EMERGENCY_STOP[1]        := $00;
+  EVENT_EMERGENCY_STOP[2]        := $00;
+  EVENT_EMERGENCY_STOP[3]        := $00;
+  EVENT_EMERGENCY_STOP[4]        := $00;
+  EVENT_EMERGENCY_STOP[5]        := $FF;
+  EVENT_EMERGENCY_STOP[6]        := $FF;
+
+  EVENT_NEW_LOG_ENTRY[0]         := $01;
+  EVENT_NEW_LOG_ENTRY[1]         := $00;
+  EVENT_NEW_LOG_ENTRY[2]         := $00;
+  EVENT_NEW_LOG_ENTRY[3]         := $00;
+  EVENT_NEW_LOG_ENTRY[4]         := $00;
+  EVENT_NEW_LOG_ENTRY[5]         := $FF;
+  EVENT_NEW_LOG_ENTRY[6]         := $F8;
+
+  EVENT_IDENT_BUTTON_PRESSED[0]  := $01;
+  EVENT_IDENT_BUTTON_PRESSED[1]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[2]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[3]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[4]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[5]  := $FE;
+  EVENT_IDENT_BUTTON_PRESSED[6]  := $00;
+
+  EVENT_DUPLICATE_ID_DETECTED[0] := $01;
+  EVENT_DUPLICATE_ID_DETECTED[1] := $10;
+  EVENT_DUPLICATE_ID_DETECTED[2] := $00;
+  EVENT_DUPLICATE_ID_DETECTED[3] := $00;
+  EVENT_DUPLICATE_ID_DETECTED[4] := $00;
+  EVENT_DUPLICATE_ID_DETECTED[5] := $02;
+  EVENT_DUPLICATE_ID_DETECTED[6] := $01;
+
+  EVENT_IS_TRAIN[0]              := $01;
+  EVENT_IS_TRAIN[1]              := $01;
+  EVENT_IS_TRAIN[2]              := $00;
+  EVENT_IS_TRAIN[3]              := $00;
+  EVENT_IS_TRAIN[4]              := $00;
+  EVENT_IS_TRAIN[5]              := $03;
+  EVENT_IS_TRAIN[6]              := $03;
+
+  // EVENT_IS_PROXY Depreciated
+
+  EVENT_DELIVERS_CLOCK[0]        := $01;
+  EVENT_DELIVERS_CLOCK[1]        := $01;
+  EVENT_DELIVERS_CLOCK[2]        := $00;
+  EVENT_DELIVERS_CLOCK[3]        := $00;
+  EVENT_DELIVERS_CLOCK[4]        := $00;
+  EVENT_DELIVERS_CLOCK[5]        := $05;
+  EVENT_DELIVERS_CLOCK[6]        := $01;
+
+
 end.
 
-implementation
-
-
-
-end.

@@ -4589,8 +4589,8 @@ var TAllocation = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TAllocation.$Intf={
-   IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
-   ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
 function a$361(Self) {
    return ((!Self[0]())?true:false);
@@ -16711,14 +16711,14 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
-   ,IBinaryDataImport:[TBinaryData.FromBase64]
+   IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
    ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
-   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
+   ,IBinaryDataImport:[TBinaryData.FromBase64]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
 /// EBinaryData = class (EW3Exception)
 ///  [line: 125, column: 3, file: system.Memory.Buffer]
@@ -25152,8 +25152,8 @@ var TW3VirtualFileSystemFolder = {
    ,WriteFileObjectData$:function($){return $.ClassType.WriteFileObjectData.apply($.ClassType, arguments)}
 };
 TW3VirtualFileSystemFolder.$Intf={
-   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
+   IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
+   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
@@ -27572,7 +27572,7 @@ var TTabSettingsForm = {
          }
          TNodeProtocolBase.SetValid$(CanNode.FTProtocolMemoryConfigurationDefinitionInfo,true);
          TProtocolSimpleNodeInfo.LoadFromXmlString(CanNode.FProtocolSimpleNodeInfo,"<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>SW100<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>");
-         TLccNode.Login$(CanNode,NULL_NODE_ID);
+         TLccNode.Login$(CanNode,NULL_NODE_ID.slice(0));
          Max_Allowed_Datagrams = 1;
          TW3Button.SetCaption$6(Self.W3ButtonStartNode,"Stop Node");
       } else {
@@ -28047,7 +28047,7 @@ var TLccNode = {
    ,AutoGenerateEvents:function(Self) {
       var i$35 = 0;
       var TempEventID = {v:[0,0,0,0,0,0,0,0]};
-      TempEventID.v = NULL_EVENT_ID;
+      TempEventID.v = NULL_EVENT_ID.slice(0);
       if (Self.FProtocolEventConsumed.FAutoGenerate.FCount>0) {
          var $temp126;
          for(i$35=0,$temp126=Self.FProtocolEventConsumed.FAutoGenerate.FCount;i$35<$temp126;i$35++) {
@@ -28734,15 +28734,6 @@ var TIsNodeTestType = [ "ntt_Dest", "ntt_Source" ];
 /// TEventState enumeration
 ///  [line: 64, column: 3, file: lcc_defines]
 var TEventState = [ "evs_Unknown", "evs_Valid", "evs_InValid" ];
-var NULL_NODE_ID = [0,0],
-    NULL_EVENT_ID = [0,0,0,0,0,0,0,0],
-    EVENT_NEW_LOG_ENTRY = [1,0,0,0,0,0,255,248],
-    EVENT_IS_TRAIN = [1,1,0,0,0,0,3,3],
-    EVENT_IS_PROXY = [1,1,0,0,0,0,3,4],
-    EVENT_IDENT_BUTTON_PRESSED = [1,0,0,0,0,0,254,0],
-    EVENT_EMERGENCY_STOP = [1,0,0,0,0,0,255,255],
-    EVENT_DUPLICATE_ID_DETECTED = [1,16,0,0,0,0,2,1],
-    EVENT_DELIVERS_CLOCK = [1,1,0,0,0,0,5,1];
 /// TLccMessage = class (TObject)
 ///  [line: 55, column: 1, file: lcc_node_messages]
 var TLccMessage = {
@@ -28761,7 +28752,7 @@ var TLccMessage = {
       $.FSourceID = [0,0];
    }
    /// procedure TLccMessage.AppendDataArray(LccMessage: TLccMessage)
-   ///  [line: 192, column: 23, file: lcc_node_messages]
+   ///  [line: 193, column: 23, file: lcc_node_messages]
    ,AppendDataArray:function(Self, LccMessage$6) {
       var i$38 = 0;
       var $temp130;
@@ -28771,7 +28762,7 @@ var TLccMessage = {
       }
    }
    /// function TLccMessage.AppendDataArrayAsString(LccMessage: TLccMessage; LastNull: Byte) : Boolean
-   ///  [line: 203, column: 22, file: lcc_node_messages]
+   ///  [line: 204, column: 22, file: lcc_node_messages]
    ,AppendDataArrayAsString:function(Self, LccMessage$7, LastNull) {
       var Result = false;
       var i$39 = 0;
@@ -28790,7 +28781,7 @@ var TLccMessage = {
       return Result
    }
    /// function TLccMessage.Clone() : TLccMessage
-   ///  [line: 222, column: 22, file: lcc_node_messages]
+   ///  [line: 223, column: 22, file: lcc_node_messages]
    ,Clone$2:function(Self) {
       var Result = null;
       Result = TLccMessage.Create$190($New(TLccMessage));
@@ -28809,7 +28800,7 @@ var TLccMessage = {
       return Result
    }
    /// function TLccMessage.ConvertToGridConnectStr(Delimiter: String) : String
-   ///  [line: 530, column: 22, file: lcc_node_messages]
+   ///  [line: 531, column: 22, file: lcc_node_messages]
    ,ConvertToGridConnectStr:function(Self, Delimiter$1) {
       var Result = "";
       var i$40 = 0;
@@ -28933,7 +28924,7 @@ var TLccMessage = {
       return Result
    }
    /// procedure TLccMessage.Copy(TargetMessage: TLccMessage)
-   ///  [line: 781, column: 23, file: lcc_node_messages]
+   ///  [line: 782, column: 23, file: lcc_node_messages]
    ,Copy$1:function(Self, TargetMessage) {
       TargetMessage.FIsCAN = Self.FIsCAN;
       TargetMessage.FMTI = Self.FMTI;
@@ -28948,20 +28939,20 @@ var TLccMessage = {
       TargetMessage.FCAN.FMTI$1 = Self.FCAN.FMTI$1;
    }
    /// constructor TLccMessage.Create()
-   ///  [line: 305, column: 25, file: lcc_node_messages]
+   ///  [line: 306, column: 25, file: lcc_node_messages]
    ,Create$190:function(Self) {
       TObject.Create(Self);
       Self.FCAN = TObject.Create($New(TLccCANMessage));
       return Self
    }
    /// destructor TLccMessage.Destroy()
-   ///  [line: 311, column: 24, file: lcc_node_messages]
+   ///  [line: 312, column: 24, file: lcc_node_messages]
    ,Destroy:function(Self) {
       TObject.Free(Self.FCAN);
       TObject.Destroy(Self);
    }
    /// function TLccMessage.ExtractDataBytesAsEventID(StartIndex: Integer) : TEventID
-   ///  [line: 329, column: 22, file: lcc_node_messages]
+   ///  [line: 330, column: 22, file: lcc_node_messages]
    ,ExtractDataBytesAsEventID:function(Self, StartIndex$1) {
       var Result = [0,0,0,0,0,0,0,0];
       Result[0] = Self.FDataArray[StartIndex$1];
@@ -28975,7 +28966,7 @@ var TLccMessage = {
       return Result
    }
    /// function TLccMessage.ExtractDataBytesAsInt(StartByteIndex: Integer; EndByteIndex: Integer) : DWord
-   ///  [line: 341, column: 22, file: lcc_node_messages]
+   ///  [line: 342, column: 22, file: lcc_node_messages]
    ,ExtractDataBytesAsInt:function(Self, StartByteIndex, EndByteIndex) {
       var Result = 0;
       var i$41 = 0;
@@ -28985,7 +28976,6 @@ var TLccMessage = {
       var ShiftedByte = 0;
       Result = 0;
       Offset$37 = EndByteIndex-StartByteIndex;
-      $Assert(Offset$37>3,"ExtractDataBytesAsInt requested larger than a DWORD result","");
       var $temp138;
       for(i$41=StartByteIndex,$temp138=EndByteIndex;i$41<=$temp138;i$41++) {
          Shift$4 = Offset$37*8;
@@ -28997,7 +28987,7 @@ var TLccMessage = {
       return Result
    }
    /// function TLccMessage.ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID) : TNodeID
-   ///  [line: 362, column: 22, file: lcc_node_messages]
+   ///  [line: 363, column: 22, file: lcc_node_messages]
    ,ExtractDataBytesAsNodeID:function(Self, StartIndex$2, ANodeID$2) {
       var Result = [0,0];
       ANodeID$2.v[1] = ((Self.FDataArray[StartIndex$2]<<16)|(Self.FDataArray[StartIndex$2+1]<<8))|Self.FDataArray[StartIndex$2+2];
@@ -29006,37 +28996,37 @@ var TLccMessage = {
       return Result
    }
    /// function TLccMessage.GetDataArrayIndexer(iIndex: DWord) : Byte
-   ///  [line: 275, column: 22, file: lcc_node_messages]
+   ///  [line: 276, column: 22, file: lcc_node_messages]
    ,GetDataArrayIndexer:function(Self, iIndex) {
       return Self.FDataArray[iIndex];
    }
    /// function TLccMessage.GetHasDestination() : Boolean
-   ///  [line: 280, column: 22, file: lcc_node_messages]
+   ///  [line: 281, column: 22, file: lcc_node_messages]
    ,GetHasDestination:function(Self) {
       return (Self.FCAN.FDestAlias!=0)||(Self.FDestID[0]!=0)&&(Self.FDestID[1]!=0);
    }
    /// function TLccMessage.GetHasDestNodeID() : Boolean
-   ///  [line: 285, column: 22, file: lcc_node_messages]
+   ///  [line: 286, column: 22, file: lcc_node_messages]
    ,GetHasDestNodeID:function(Self) {
       return (Self.FDestID[0]!=0)&&(Self.FDestID[1]!=0);
    }
    /// function TLccMessage.GetHasSourceNodeID() : Boolean
-   ///  [line: 290, column: 22, file: lcc_node_messages]
+   ///  [line: 291, column: 22, file: lcc_node_messages]
    ,GetHasSourceNodeID:function(Self) {
       return (Self.FSourceID[0]!=0)&&(Self.FSourceID[1]!=0);
    }
    /// function TLccMessage.GetIsDatagram() : Boolean
-   ///  [line: 295, column: 22, file: lcc_node_messages]
+   ///  [line: 296, column: 22, file: lcc_node_messages]
    ,GetIsDatagram:function(Self) {
       return Self.FMTI==7240;
    }
    /// function TLccMessage.GetIsStream() : Boolean
-   ///  [line: 300, column: 22, file: lcc_node_messages]
+   ///  [line: 301, column: 22, file: lcc_node_messages]
    ,GetIsStream:function(Self) {
       return Self.FMTI==8072;
    }
    /// procedure TLccMessage.InsertDWordAsDataBytes(DoubleWord: DWord; StartByteIndex: Integer)
-   ///  [line: 261, column: 23, file: lcc_node_messages]
+   ///  [line: 262, column: 23, file: lcc_node_messages]
    ,InsertDWordAsDataBytes:function(Self, DoubleWord, StartByteIndex$1) {
       Self.FDataArray[StartByteIndex$1] = _Highest(DoubleWord);
       Self.FDataArray[StartByteIndex$1+1] = _Higher(DoubleWord);
@@ -29044,7 +29034,7 @@ var TLccMessage = {
       Self.FDataArray[StartByteIndex$1+3] = _Lo(DoubleWord);
    }
    /// procedure TLccMessage.InsertEventID(StartIndex: Integer; var AnEventID: TEventID)
-   ///  [line: 249, column: 23, file: lcc_node_messages]
+   ///  [line: 250, column: 23, file: lcc_node_messages]
    ,InsertEventID:function(Self, StartIndex$3, AnEventID) {
       Self.FDataArray[StartIndex$3] = AnEventID.v[0];
       Self.FDataArray[StartIndex$3+1] = AnEventID.v[1];
@@ -29056,7 +29046,7 @@ var TLccMessage = {
       Self.FDataArray[StartIndex$3+7] = AnEventID.v[7];
    }
    /// procedure TLccMessage.InsertNodeID(StartIndex: Integer; var ANodeID: TNodeID)
-   ///  [line: 239, column: 23, file: lcc_node_messages]
+   ///  [line: 240, column: 23, file: lcc_node_messages]
    ,InsertNodeID:function(Self, StartIndex$4, ANodeID$3) {
       Self.FDataArray[StartIndex$4] = _Higher(ANodeID$3.v[1]);
       Self.FDataArray[StartIndex$4+1] = _Hi(ANodeID$3.v[1]);
@@ -29066,7 +29056,7 @@ var TLccMessage = {
       Self.FDataArray[StartIndex$4+5] = _Lo(ANodeID$3.v[0]);
    }
    /// procedure TLccMessage.LoadAMD(ASourceID: TNodeID; ASourceAlias: Word)
-   ///  [line: 833, column: 23, file: lcc_node_messages]
+   ///  [line: 834, column: 23, file: lcc_node_messages]
    ,LoadAMD:function(Self, ASourceID, ASourceAlias) {
       ASourceID={v:ASourceID};
       TLccMessage.ZeroFields(Self);
@@ -29078,7 +29068,7 @@ var TLccMessage = {
       Self.FDataCount = 6;
    }
    /// procedure TLccMessage.LoadAMR(ASourceID: TNodeID; ASourceAlias: Word)
-   ///  [line: 855, column: 23, file: lcc_node_messages]
+   ///  [line: 856, column: 23, file: lcc_node_messages]
    ,LoadAMR:function(Self, ASourceID$1, ASourceAlias$1) {
       ASourceID$1={v:ASourceID$1};
       TLccMessage.ZeroFields(Self);
@@ -29090,7 +29080,7 @@ var TLccMessage = {
       Self.FDataCount = 6;
    }
    /// function TLccMessage.LoadByGridConnectStr(GridConnectStr: String) : Boolean
-   ///  [line: 383, column: 22, file: lcc_node_messages]
+   ///  [line: 384, column: 22, file: lcc_node_messages]
    ,LoadByGridConnectStr:function(Self, GridConnectStr) {
       var Result = false;
       var DestHi = 0;
@@ -29170,7 +29160,7 @@ var TLccMessage = {
       return Result
    }
    /// procedure TLccMessage.LoadCID(ASourceID: TNodeID; ASourceAlias: Word; ACID: Byte)
-   ///  [line: 811, column: 23, file: lcc_node_messages]
+   ///  [line: 812, column: 23, file: lcc_node_messages]
    ,LoadCID:function(Self, ASourceID$2, ASourceAlias$2, ACID) {
       TLccMessage.ZeroFields(Self);
       Self.FCAN.FSourceAlias = ASourceAlias$2;
@@ -29192,7 +29182,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadConsumerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState)
-   ///  [line: 981, column: 23, file: lcc_node_messages]
+   ///  [line: 982, column: 23, file: lcc_node_messages]
    ,LoadConsumerIdentified:function(Self, ASourceID$3, ASourceAlias$3, Event$8, EventState) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$3.slice(0);
@@ -29212,7 +29202,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadDatagram(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word)
-   ///  [line: 1005, column: 23, file: lcc_node_messages]
+   ///  [line: 1006, column: 23, file: lcc_node_messages]
    ,LoadDatagram:function(Self, ASourceID$4, ASourceAlias$4, ADestID, ADestAlias) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$4.slice(0);
@@ -29222,7 +29212,7 @@ var TLccMessage = {
       Self.FMTI = 7240;
    }
    /// procedure TLccMessage.LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean; TimeOutValueN: Byte)
-   ///  [line: 1480, column: 23, file: lcc_node_messages]
+   ///  [line: 1481, column: 23, file: lcc_node_messages]
    ,LoadDatagramAck:function(Self, ASourceID$5, ASourceAlias$5, ADestID$1, ADestAlias$1, Ok, ReplyPending$1, TimeOutValueN$1) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$5.slice(0);
@@ -29242,7 +29232,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word)
-   ///  [line: 1500, column: 23, file: lcc_node_messages]
+   ///  [line: 1501, column: 23, file: lcc_node_messages]
    ,LoadDatagramRejected:function(Self, ASourceID$6, ASourceAlias$6, ADestID$2, ADestAlias$2, Reason) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$6.slice(0);
@@ -29255,7 +29245,7 @@ var TLccMessage = {
       Self.FDataArray[1] = _Lo(Reason);
    }
    /// procedure TLccMessage.LoadInitializationComplete(ASourceID: TNodeID; ASourceAlias: Word)
-   ///  [line: 866, column: 23, file: lcc_node_messages]
+   ///  [line: 867, column: 23, file: lcc_node_messages]
    ,LoadInitializationComplete:function(Self, ASourceID$7, ASourceAlias$7) {
       ASourceID$7={v:ASourceID$7};
       TLccMessage.ZeroFields(Self);
@@ -29266,7 +29256,7 @@ var TLccMessage = {
       Self.FMTI = 256;
    }
    /// procedure TLccMessage.LoadOptionalInteractionRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word; AnMTI: Word)
-   ///  [line: 876, column: 23, file: lcc_node_messages]
+   ///  [line: 877, column: 23, file: lcc_node_messages]
    ,LoadOptionalInteractionRejected:function(Self, ASourceID$8, ASourceAlias$8, ADestID$3, ADestAlias$3, Reason$1, AnMTI) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$8.slice(0);
@@ -29281,7 +29271,7 @@ var TLccMessage = {
       Self.FDataArray[3] = _Lo(AnMTI);
    }
    /// procedure TLccMessage.LoadProducerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState)
-   ///  [line: 904, column: 23, file: lcc_node_messages]
+   ///  [line: 905, column: 23, file: lcc_node_messages]
    ,LoadProducerIdentified:function(Self, ASourceID$9, ASourceAlias$9, Event$9, EventState$1) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$9.slice(0);
@@ -29301,7 +29291,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: TLccSupportedProtocolArray)
-   ///  [line: 964, column: 23, file: lcc_node_messages]
+   ///  [line: 965, column: 23, file: lcc_node_messages]
    ,LoadProtocolIdentifyReply:function(Self, ASourceID$10, ASourceAlias$10, ADestID$4, ADestAlias$4, Flags$4) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID$10.slice(0);
@@ -29318,7 +29308,7 @@ var TLccMessage = {
       Self.FMTI = 1640;
    }
    /// procedure TLccMessage.LoadRID(ASourceAlias: Word)
-   ///  [line: 825, column: 23, file: lcc_node_messages]
+   ///  [line: 826, column: 23, file: lcc_node_messages]
    ,LoadRID:function(Self, ASourceAlias$11) {
       TLccMessage.ZeroFields(Self);
       Self.FCAN.FSourceAlias = ASourceAlias$11;
@@ -29326,7 +29316,7 @@ var TLccMessage = {
       Self.FCAN.FMTI$1 = 7340032|ASourceAlias$11;
    }
    /// procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray)
-   ///  [line: 1364, column: 23, file: lcc_node_messages]
+   ///  [line: 1365, column: 23, file: lcc_node_messages]
    ,LoadSimpleNodeIdentInfoReply:function(Self, ASourceID$11, ASourceAlias$12, ADestID$5, ADestAlias$5, SimplePackedArray) {
       var i$43 = 0;
       TLccMessage.ZeroFields(Self);
@@ -29342,7 +29332,7 @@ var TLccMessage = {
       Self.FMTI = 2568;
    }
    /// procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word)
-   ///  [line: 1061, column: 23, file: lcc_node_messages]
+   ///  [line: 1062, column: 23, file: lcc_node_messages]
    ,LoadVerifiedNodeID:function(Self, ASourceID$12, ASourceAlias$13) {
       ASourceID$12={v:ASourceID$12};
       TLccMessage.ZeroFields(Self);
@@ -29353,19 +29343,19 @@ var TLccMessage = {
       Self.FMTI = 368;
    }
    /// procedure TLccMessage.SetDataArrayIndexer(iIndex: DWord; const Value: Byte)
-   ///  [line: 928, column: 23, file: lcc_node_messages]
+   ///  [line: 929, column: 23, file: lcc_node_messages]
    ,SetDataArrayIndexer:function(Self, iIndex$1, Value$84) {
       Self.FDataArray[iIndex$1] = Value$84;
    }
    /// procedure TLccMessage.ZeroFields()
-   ///  [line: 796, column: 23, file: lcc_node_messages]
+   ///  [line: 797, column: 23, file: lcc_node_messages]
    ,ZeroFields:function(Self) {
       Self.FIsCAN = false;
       Self.FDataCount = 0;
-      Self.FCAN.FDestAlias = 0;
-      Self.FDestID = NULL_NODE_ID;
+      Self.FDestID = NULL_NODE_ID.slice(0);
+      Self.FSourceID = NULL_NODE_ID.slice(0);
       Self.FCAN.FSourceAlias = 0;
-      Self.FSourceID = NULL_NODE_ID;
+      Self.FCAN.FDestAlias = 0;
       Self.FCAN.FFramingBits = 0;
       Self.FCAN.FiTag = 0;
       Self.FMTI = 0;
@@ -30803,6 +30793,14 @@ var vScheduledControls = [],
 var CSSTransform$1 = "";
 var NodeInfo = {NodeID:[0,0]};
 var W3Storage = null;
+var NULL_NODE_ID = [0,0],
+   NULL_EVENT_ID = [0,0,0,0,0,0,0,0],
+   EVENT_EMERGENCY_STOP = [0,0,0,0,0,0,0,0],
+   EVENT_NEW_LOG_ENTRY = [0,0,0,0,0,0,0,0],
+   EVENT_IDENT_BUTTON_PRESSED = [0,0,0,0,0,0,0,0],
+   EVENT_DUPLICATE_ID_DETECTED = [0,0,0,0,0,0,0,0],
+   EVENT_IS_TRAIN = [0,0,0,0,0,0,0,0],
+   EVENT_DELIVERS_CLOCK = [0,0,0,0,0,0,0,0];
 var Max_Allowed_Datagrams = 0;
 var Application$2 = null,
    AllocatedDatagrams = 0;
@@ -30897,8 +30895,8 @@ var pre_StartStop = ["stop", "start"];
 var pre_RunPause = ["paused", "running"];
 SetupConversionLUT();
 SetupBase64();
-SetupMouseCursorTable();
 SetupTypeLUT();
+SetupMouseCursorTable();
 var _Selection_Mode_LUT = TVariant.CreateObject();
 _Selection_Mode_LUT["none"] = 0;
 _Selection_Mode_LUT["auto"] = 1;
@@ -30907,12 +30905,63 @@ _Selection_Mode_LUT["all"] = 3;
 _Selection_Mode_LUT["element"] = 4;
 SetupThemeLookupTables();
 InitAnimationFrameShim();
+NULL_NODE_ID[0] = 0;
+NULL_NODE_ID[1] = 0;
+NULL_EVENT_ID[0] = 0;
+NULL_EVENT_ID[1] = 0;
+NULL_EVENT_ID[2] = 0;
+NULL_EVENT_ID[3] = 0;
+NULL_EVENT_ID[4] = 0;
+NULL_EVENT_ID[5] = 0;
+NULL_EVENT_ID[6] = 0;
+EVENT_EMERGENCY_STOP[0] = 1;
+EVENT_EMERGENCY_STOP[1] = 0;
+EVENT_EMERGENCY_STOP[2] = 0;
+EVENT_EMERGENCY_STOP[3] = 0;
+EVENT_EMERGENCY_STOP[4] = 0;
+EVENT_EMERGENCY_STOP[5] = 255;
+EVENT_EMERGENCY_STOP[6] = 255;
+EVENT_NEW_LOG_ENTRY[0] = 1;
+EVENT_NEW_LOG_ENTRY[1] = 0;
+EVENT_NEW_LOG_ENTRY[2] = 0;
+EVENT_NEW_LOG_ENTRY[3] = 0;
+EVENT_NEW_LOG_ENTRY[4] = 0;
+EVENT_NEW_LOG_ENTRY[5] = 255;
+EVENT_NEW_LOG_ENTRY[6] = 248;
+EVENT_IDENT_BUTTON_PRESSED[0] = 1;
+EVENT_IDENT_BUTTON_PRESSED[1] = 0;
+EVENT_IDENT_BUTTON_PRESSED[2] = 0;
+EVENT_IDENT_BUTTON_PRESSED[3] = 0;
+EVENT_IDENT_BUTTON_PRESSED[4] = 0;
+EVENT_IDENT_BUTTON_PRESSED[5] = 254;
+EVENT_IDENT_BUTTON_PRESSED[6] = 0;
+EVENT_DUPLICATE_ID_DETECTED[0] = 1;
+EVENT_DUPLICATE_ID_DETECTED[1] = 16;
+EVENT_DUPLICATE_ID_DETECTED[2] = 0;
+EVENT_DUPLICATE_ID_DETECTED[3] = 0;
+EVENT_DUPLICATE_ID_DETECTED[4] = 0;
+EVENT_DUPLICATE_ID_DETECTED[5] = 2;
+EVENT_DUPLICATE_ID_DETECTED[6] = 1;
+EVENT_IS_TRAIN[0] = 1;
+EVENT_IS_TRAIN[1] = 1;
+EVENT_IS_TRAIN[2] = 0;
+EVENT_IS_TRAIN[3] = 0;
+EVENT_IS_TRAIN[4] = 0;
+EVENT_IS_TRAIN[5] = 3;
+EVENT_IS_TRAIN[6] = 3;
+EVENT_DELIVERS_CLOCK[0] = 1;
+EVENT_DELIVERS_CLOCK[1] = 1;
+EVENT_DELIVERS_CLOCK[2] = 0;
+EVENT_DELIVERS_CLOCK[3] = 0;
+EVENT_DELIVERS_CLOCK[4] = 0;
+EVENT_DELIVERS_CLOCK[5] = 5;
+EVENT_DELIVERS_CLOCK[6] = 1;
 var CaptureTime = 0;
 var AllocatedDatagrams = 0;
 var Max_Allowed_Datagrams = 4096;
+TApplicationFormsList.RegisterForm(Forms$2(),"TabMainForm",TTabMainForm);
 TApplicationFormsList.RegisterForm(Forms$2(),"FormThrottle",TFormThrottle);
 TApplicationFormsList.RegisterForm(Forms$2(),"TabSettingsForm",TTabSettingsForm);
-TApplicationFormsList.RegisterForm(Forms$2(),"TabMainForm",TTabMainForm);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"FormThrottle",true,true);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabMainForm",true,false);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabSettingsForm",true,false);
