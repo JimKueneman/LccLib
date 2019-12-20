@@ -27,6 +27,7 @@ uses
   System.Memory.Buffer,
   System.Memory.Allocation,
   System.Streams,
+  System.Lists,
   Storage,
   lcc_node_manager,
   lcc_node,
@@ -53,6 +54,7 @@ type
     procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
   public
     CanNodeManager: TLccCanNodeManager;
+    MessageList: TStringList;
   end;
 
 implementation
@@ -64,6 +66,7 @@ begin
   inherited;
   // this is a good place to initialize components
   CanNodeManager := TLccCanNodeManager.Create(nil);
+  MessageList := TStringList.Create;
   CanNodeManager.OnLccMessageSend := @SendMessage;
   //CanNodeManager.OnLccMessageReceive := @ReceiveMessage;  This causes recurision
 end;
@@ -77,13 +80,11 @@ begin
   FSocket := TW3WebSocket.Create;
   FSocket.OnOpen := procedure (Sender: TW3WebSocket)
     begin
-  //    ShowMessage('Socket Open');
       FConnected := True;
     end;
 
   FSocket.OnClosed := procedure (Sender: TW3WebSocket)
     begin
-   //   ShowMessage('Socket Closed');
       FConnected := False;
     end;
 
@@ -94,15 +95,10 @@ begin
 
   FSocket.OnMessage := procedure (Sender: TW3WebSocket; Message: TWebSocketMessageData)
     begin
- //      ShowMessage(Message.mdText);
        LccMessage := TLccMessage.Create;
        try
          LccMessage.LoadByGridConnectStr(Message.mdText);
          ReceiveMessage(Self, LccMessage);
-   //      W3Listbox1.AddItem('R:' + Message.mdText);
-
-     //    W3Listbox1.AddItem(LccMessage.ConvertToGridConnectStr(''));
-  //      W3Listbox1.AddItem(LccMessage.ConvertToLccTcpString);
        finally
          LccMessage.Free;
        end;
@@ -119,6 +115,8 @@ procedure TTabSettingsForm.W3ButtonStartNodeClick(Sender: TObject);
 var
   CanNode: TLccCanNode;
   i: Integer;
+  BinaryByte: TBinaryData;
+  BinaryByteArray: TDynamicByteArray;
 begin
   if CanNodeManager.Nodes.Count = 0 then
   begin
@@ -154,31 +152,14 @@ begin
     CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
 
     // Setup the CDI
-    {$IFDEF DWSCRIPT}
-      CanNode.ProtocolConfigurationDefinitionInfo.AStream.Position := 0;
-      var BinaryByte: TBinaryData;
-      var BinaryByteArray: TDynamicByteArray;
-      BinaryByte := TBinaryData.Create(1);
-      BinaryByteArray := BinaryByte.ToBytes;
-      for i := 0 to Length(CDI_XML) - 1 do
-      begin
-        BinaryByteArray[0] := Ord(CDI_XML[i]);
-        CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write(BinaryByteArray);
-      end;
-    {$ELSE}
-      CanNode.ProtocolConfigurationDefinitionInfo.AStream.Clear;
-      {$IFDEF LCC_MOBILE}     // Delphi only
-        for i := 0 to Length(CDI_XML) - 1 do
-          CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write(Ord(CDI_XML[i]), 1);
-      {$ELSE}
-        for i := 1 to Length(CDI_XML) do
-        {$IFDEF FPC}
-          CanNode.ProtocolConfigurationDefinitionInfo.AStream.WriteByte(Ord(CDI_XML[i]));
-        {$ELSE}
-          CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write( Ord(CDI_XML[i]), 1);
-        {$ENDIF}
-      {$ENDIF}
-    {$ENDIF}
+    CanNode.ProtocolConfigurationDefinitionInfo.AStream.Position := 0;
+    BinaryByte := TBinaryData.Create(1);
+    BinaryByteArray := BinaryByte.ToBytes;
+    for i := 0 to Length(CDI_XML) - 1 do
+    begin
+      BinaryByteArray[0] := Ord(CDI_XML[i+1]);
+      CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write(BinaryByteArray);
+    end;
     CanNode.ProtocolConfigurationDefinitionInfo.Valid := True;
 
     // Setup the SNIP by extracting information from the CDI
@@ -244,15 +225,31 @@ begin
 end;
 
 procedure TTabSettingsForm.SendMessage(Sender: TObject; LccMessage: TLccMessage);
+var
+  i: Integer;
 begin
-  WriteLn('SendMessage: ' + LccMessage.ConvertToGridConnectStr(''));
-  FSocket.Write(LccMessage.ConvertToGridConnectStr(''));
+  CanNodeManager.LccMessageDisassembler.OutgoingMsgToMsgList(LccMessage, MessageList);
+  for i := 0 to MessageList.Count- 1 do
+  begin
+    WriteLn('SendMessage: ' + MessageList[i]);
+    FSocket.Write(MessageList[i]);
+  end;
 end;
 
 procedure TTabSettingsForm.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
+  // If it is addressed and we don't have that node then just get out of here.
+  if LccMessage.HasDestination and not Assigned(CanNodeManager.FindOwnedNodeByDestID(LccMessage)) then
+    Exit;
+
   WriteLn('ReceiveMessage: ' + LccMessage.ConvertToGridConnectStr(''));
-  CanNodeManager.ProcessMessage(LccMessage);
+  case CanNodeManager.LccMessageAssembler.IncomingMessageGridConnect(LccMessage) of
+    imgcr_False: begin end;
+    imgcr_True: CanNodeManager.ProcessMessage(LccMessage);
+    imgcr_ErrorToSend: SendMessage(Self, LccMessage);
+    imgcr_UnknownError: begin end;
+  end;
+
 end;
 
 initialization

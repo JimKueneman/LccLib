@@ -295,6 +295,8 @@ begin
   Model := TempModel;
   HardwareVersion := TempHWVersion;
   SoftwareVersion := TempSWVersion;
+  FVersion := 1;
+  FUserVersion := 1;
 end;
 
 end.

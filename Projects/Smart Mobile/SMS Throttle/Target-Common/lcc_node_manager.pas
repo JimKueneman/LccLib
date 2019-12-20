@@ -26,6 +26,7 @@ uses
   lcc_node,
   lcc_defines,
   lcc_node_messages,
+  lcc_node_messages_can_assembler_disassembler,
   lcc_utilities;
 
 type
@@ -173,7 +174,16 @@ type
   { TLccCanNodeManager }
 
   TLccCanNodeManager = class(TLccNodeManager)
+  protected
+    FLccMessageAssembler: TLccMessageAssembler;
+    FLccMessageDisassembler: TLccMessageDisAssembler;
   public
+    property LccMessageAssembler: TLccMessageAssembler read FLccMessageAssembler;
+    property LccMessageDisassembler: TLccMessageDisAssembler read FLccMessageDisassembler;
+
+    constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
+    destructor Destroy; override;
+
     function AddNode: TLccCanNode; override;
   end;
 
@@ -186,6 +196,21 @@ begin
   Result := TLccCanNode.Create(@DoLccMessageSend);
   Nodes.Add(Result);
 end;
+
+constructor TLccCanNodeManager.Create(AnOwner: TComponent);
+begin
+  inherited Create(AnOwner);
+  FLccMessageAssembler := TLccMessageAssembler.Create;
+  FLccMessageDisassembler := TLccMessageDisAssembler.Create;
+end;
+
+destructor TLccCanNodeManager.Destroy;
+begin
+  inherited;
+  FLccMessageAssembler.Free;
+  FLccMessageDisassembler.Free;
+end;
+
 
 
 

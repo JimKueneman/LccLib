@@ -57,7 +57,8 @@ public
   procedure Remove(AMessage: TLccMessage; DoFree: Boolean);
   function FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
   procedure FlushMessagesByAlias(Alias: Word);
-  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+  function IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply; overload;
+  function IncomingMessageGridConnect(LccMessage: TLccMessage): TIncomingMessageGridConnectReply; overload;
 end;
 
 { TLccMessageDisAssembler }
@@ -186,18 +187,27 @@ begin
 end;
 
 function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+begin
+  if LccMessage.LoadByGridConnectStr(GridConnectStr) then
+    Result := IncomingMessageGridConnect(LccMessage)
+  else
+    Result := imgcr_UnknownError
+end;
+
+function TLccMessageAssembler.IncomingMessageGridConnect(LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;
 begin                                                                           // The result of LccMessage is undefined if false is returned!
   Result := imgcr_False;
-  if LccMessage.LoadByGridConnectStr(GridConnectStr) then
+  if Assigned(LccMessage) then
   begin
     if LccMessage.IsCAN then
     begin  // CAN Only frames
       case LccMessage.CAN.MTI of
         MTI_CAN_AMR :
           begin
+            // If the Alias is being reset flush all messages associated with it
             FlushMessagesByAlias(LccMessage.CAN.SourceAlias);
             Result := imgcr_True  // Pass it on
           end;
@@ -239,6 +249,7 @@ begin                                                                           
                 Add(InProcessMessage);
                 Inc(AllocatedDatagrams)
               end
+              // We wait for the final frame before we send any error messages
             end;
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME :
@@ -246,6 +257,7 @@ begin                                                                           
             InProcessMessage := FindByAliasAndMTI(LccMessage);
             if Assigned(InProcessMessage) then
               InProcessMessage.AppendDataArray(LccMessage)
+            // We wait for the final frame before we send any error messages
           end;
         MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END :
           begin
@@ -262,7 +274,7 @@ begin                                                                           
               Result := imgcr_True
             end else
             begin
-              // Out of order but let the node handle that if needed (Owned Nodes Only)
+              // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
               // Don't swap the IDs, need to find the right target node first
               LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER);
               Result := imgcr_ErrorToSend

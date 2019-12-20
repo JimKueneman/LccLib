@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-18T18:35:46.724</Modified>
+    <Modified>2019-12-19T18:49:16.076</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -136,7 +136,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2019-12-18T17:44:08.664</Modified>
+        <Modified>2019-12-19T18:49:16.068</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
