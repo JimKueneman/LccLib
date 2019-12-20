@@ -71,12 +71,10 @@ end;
 
 var
   Max_Allowed_Datagrams: Integer;
+  AllocatedDatagrams: Integer;
 
 
 implementation
-
-var
-  AllocatedDatagrams: Integer;
 
 { TLccMessageDisAssembler }
 

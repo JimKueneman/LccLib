@@ -32,11 +32,15 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    ButtonDatagramCount: TButton;
+    CheckBoxLogging: TCheckBox;
+    LabelAllcoatedDatagrams: TLabel;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure ButtonDatagramCountClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
@@ -64,8 +68,8 @@ var
 begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectionChange;
-//  EthernetRec.ListenerIP := '127.0.0.1';
-  EthernetRec.AutoResolveIP := True;
+  EthernetRec.ListenerIP := '127.0.0.1';
+//  EthernetRec.AutoResolveIP := True;
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
@@ -150,6 +154,11 @@ begin
   SynEdit1.Clear;
 end;
 
+procedure TForm1.ButtonDatagramCountClick(Sender: TObject);
+begin
+  LabelAllcoatedDatagrams.Caption := 'Allocated Datagrams = ' + IntToStr(AllocatedDatagrams);
+end;
+
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
@@ -187,11 +196,14 @@ end;
 
 procedure TForm1.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  SynEdit1.BeginUpdate(False);
-  try
-    SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
-    SynEdit1.EndUpdate;
-  finally
+  if CheckBoxLogging.Checked then
+  begin
+    SynEdit1.BeginUpdate(False);
+    try
+      SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.EndUpdate;
+    finally
+    end;
   end;
 end;
 
@@ -199,11 +211,14 @@ procedure TForm1.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   EthernetServer.SendMessage(LccMessage);
 
-  SynEdit1.BeginUpdate(False);
-  try
-    SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
-    SynEdit1.EndUpdate;
-  finally
+  if CheckBoxLogging.Checked then
+  begin
+    SynEdit1.BeginUpdate(False);
+    try
+      SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.EndUpdate;
+    finally
+    end;
   end;
 end;
 

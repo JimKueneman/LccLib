@@ -161,39 +161,6 @@ public
    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
 end;
 
-
-(*
-{ TLccOwnedNode }
-
-TLccOwnedNode = class(TLccNode)
-private
-  FInitialized: Boolean;
-
-protected
-
-public
-  property Initialized: Boolean read FInitialized;
-
-
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
-  destructor Destroy; override;
-  procedure Login(NewNodeID, RegenerateAliasSeed: Boolean);
-//JDK   procedure LoginWithLccSettings(RegenerateAliasSeed: Boolean);
-  procedure LoginWithNodeID(ANodeID: TNodeId; RegenerateAliasSeed: Boolean);
-  procedure LogOut;
-
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
-end;
-
-{ TLccDefaultRootNode }
-
-TLccDefaultRootNode = class(TLccOwnedNode)
-public
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
-end;
-TLccDefaultRootNodeClass = class of TLccDefaultRootNode;
- *)
-
 implementation
 
 const

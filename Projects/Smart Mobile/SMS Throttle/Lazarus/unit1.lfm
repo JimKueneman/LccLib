@@ -20,8 +20,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 420
+    Height = 15
+    Top = 428
     Width = 793
     Panels = <    
       item
@@ -43,8 +43,8 @@ object Form1: TForm1
   end
   inline SynEdit1: TSynEdit
     Left = 0
-    Height = 376
-    Top = 44
+    Height = 356
+    Top = 72
     Width = 793
     Align = alBottom
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -55,7 +55,7 @@ object Form1: TForm1
     ParentColor = False
     ParentFont = False
     TabOrder = 3
-    Gutter.Width = 51
+    Gutter.Width = 55
     Gutter.MouseActions = <>
     RightGutter.Width = 0
     RightGutter.MouseActions = <>
@@ -511,7 +511,7 @@ object Form1: TForm1
         MouseActions = <>
       end
       object SynGutterLineNumber1: TSynGutterLineNumber
-        Width = 11
+        Width = 15
         MouseActions = <>
         MarkupInfo.Background = clBtnFace
         MarkupInfo.Foreground = clNone
@@ -549,5 +549,31 @@ object Form1: TForm1
     Caption = 'Clear'
     OnClick = Button3Click
     TabOrder = 4
+  end
+  object CheckBoxLogging: TCheckBox
+    Left = 464
+    Height = 18
+    Top = 12
+    Width = 69
+    Caption = 'Logging'
+    TabOrder = 5
+  end
+  object ButtonDatagramCount: TButton
+    Left = 13
+    Height = 22
+    Top = 40
+    Width = 131
+    Caption = 'Datagram Count'
+    OnClick = ButtonDatagramCountClick
+    TabOrder = 6
+  end
+  object LabelAllcoatedDatagrams: TLabel
+    Left = 160
+    Height = 16
+    Top = 46
+    Width = 176
+    AutoSize = False
+    Caption = 'Allocated Datagram = 0'
+    ParentColor = False
   end
 end
