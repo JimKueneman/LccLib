@@ -21,8 +21,7 @@ uses
   lcc_defines,
   lcc_ethernet_server,
   lcc_ethernet_client,
-  lcc_protocol_memory_configurationdefinitioninfo,
-  lcc_node_messages_can_assembler_disassembler;
+  lcc_protocol_memory_configurationdefinitioninfo;
 
 type
 
@@ -40,7 +39,6 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure ButtonDatagramCountClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
@@ -143,7 +141,7 @@ begin
 
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 
-    lcc_node_messages_can_assembler_disassembler.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+    lcc_defines.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
   end else
     CanNodeManager.Clear;
@@ -152,11 +150,6 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 begin
   SynEdit1.Clear;
-end;
-
-procedure TForm1.ButtonDatagramCountClick(Sender: TObject);
-begin
-  LabelAllcoatedDatagrams.Caption := 'Allocated Datagrams = ' + IntToStr(AllocatedDatagrams);
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);

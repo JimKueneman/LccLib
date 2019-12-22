@@ -20,6 +20,7 @@ uses
   Classes,
   SysUtils,
   ExtCtrls,
+  contnrs,
 {$ENDIF}
   lcc_defines,
   lcc_node_messages,
@@ -90,7 +91,7 @@ protected
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
   procedure AutoGenerateEvents;
   procedure SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
-  procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage);
+  procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
   procedure SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
   procedure On_800msTimer(Sender: TObject);  virtual;
 public
@@ -131,18 +132,25 @@ TLccCanNode = class(TLccNode)
 private
   FAliasID: Word;
   FDuplicateAliasDetected: Boolean;
+  FInProcessMultiFrameMessage: TObjectList;
   FSeedNodeID: TNodeID;
   FPermitted: Boolean;
 
   function GetAliasIDStr: String;
 protected
   property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
+  property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
   property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
   procedure CreateNodeID(var Seed: TNodeID);
   function GetAlias: Word; override;
   function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
   procedure GenerateNewSeed(var Seed: TNodeID);
+  procedure InProcessMessageClear;
+  procedure InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
+  function InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
+  function InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
+  function InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
   procedure On_800msTimer(Sender: TObject); override;
   procedure Relogin;
@@ -171,6 +179,10 @@ const
 constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc);
 begin
   inherited Create(ASendMessageFunc);
+  FInProcessMultiFrameMessage := TObjectList.Create;
+  {$IFNDEF DWSCRIPT}
+  InProcessMultiFrameMessage.OwnsObjects := False
+  {$ENDIF};
 end;
 
 destructor TLccCanNode.Destroy;
@@ -180,12 +192,93 @@ begin
     WorkerMessage.LoadAMR(NodeID, AliasID);
     SendMessageFunc(WorkerMessage);
   end;
+  InProcessMessageClear;
+  InProcessMultiFrameMessage.Free;
   inherited Destroy;
 end;
 
 function TLccCanNode.GetAliasIDStr: String;
 begin
    Result := '0x' + IntToHex(FAliasID, 4);
+end;
+
+procedure TLccCanNode.InProcessMessageClear;
+var
+  i: Integer;
+  AMessage: TLccMessage;
+begin
+  for i := InProcessMultiFrameMessage.Count - 1 downto 0 do
+  begin
+    AMessage := TLccMessage(InProcessMultiFrameMessage[i]);
+    {$IFDEF DWSCRIPT}
+    InProcessMultiFrameMessage.Remove(i);
+    {$ELSE}
+    InProcessMultiFrameMessage.Delete(i);
+    {$ENDIF}
+    AMessage.Free
+  end;
+end;
+
+function TLccCanNode.InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
+begin
+  Result := InProcessMessageRemoveAndFree(InProcessMessageFindByAliasAndMTI(TestMessage));
+end;
+
+function TLccCanNode.InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
+var
+  i: Integer;
+  LccMessage: TLccMessage;
+begin
+  Result := nil;
+  for i := 0 to InProcessMultiFrameMessage.Count - 1 do
+  begin
+    LccMessage := TLccMessage(InProcessMultiFrameMessage[i]);
+    if (TestMessage.CAN.SourceAlias = LccMessage.CAN.SourceAlias) and (TestMessage.CAN.DestAlias = LccMessage.CAN.DestAlias) and (TestMessage.MTI = LccMessage.MTI) then
+    begin
+      Result := LccMessage;
+      Break
+    end;
+  end;
+
+end;
+
+procedure TLccCanNode.InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
+var
+  i: Integer;
+  AMessage: TLccMessage;
+begin
+  for i := InProcessMultiFrameMessage.Count - 1 downto 0  do
+  begin
+    AMessage := TLccMessage(InProcessMultiFrameMessage[i]);
+    if (AMessage.CAN.SourceAlias = TestMessage.CAN.SourceAlias) or (AMessage.CAN.DestAlias = TestMessage.CAN.SourceAlias) then
+    begin
+       {$IFDEF DWSCRIPT}
+        InProcessMultiFrameMessage.Remove(i);
+        {$ELSE}
+        InProcessMultiFrameMessage.Delete(i);
+        {$ENDIF}
+      AMessage.Free
+    end;
+  end;
+end;
+
+function TLccCanNode.InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+ {$IFDEF DWSCRIPT}
+  i := InProcessMultiFrameMessage.IndexOf(AMessage);
+  if i > =1 then
+  begin
+    InProcessMultiFrameMessage.Remove(i);
+    Result := True;
+  end;
+  {$ELSE}
+  if InProcessMultiFrameMessage.Remove(AMessage) > -1 then
+    Result := True;
+  {$ENDIF}
+  AMessage.Free;
 end;
 
 function TLccCanNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
@@ -219,7 +312,6 @@ begin
   FAliasID := GenerateID_Alias_From_Seed(Temp);
   FNodeID := ANodeID;
 
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
   SendMessageFunc(WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
@@ -243,8 +335,6 @@ procedure TLccCanNode.On_800msTimer(Sender: TObject);
 var
   Temp: TNodeID;
 begin
- // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
-
   if not Permitted then
   begin
      // Did any node object to this Alias through ProcessMessage?
@@ -279,13 +369,14 @@ end;
 function TLccCanNode.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
+  InProcessMessage: TLccMessage;
+  i: Integer;
 begin
   Result := False;
-
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
-
+  // Check for a message with the Alias equal to our own.
   if (AliasID <> 0) and (SourceLccMessage.CAN.SourceAlias = AliasID) then
   begin
+    // Check if it is a Check ID message for a node trying to use our Alias and if so tell them no.
     if ((SourceLccMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((SourceLccMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
     begin
       WorkerMessage.LoadRID(AliasID);                   // sorry charlie this is mine
@@ -294,6 +385,7 @@ begin
     end else
     if Permitted then
     begin
+      // Another node used out Alias, stop using this Alias, log out and allocate a new node and relog in
       Logout;
       Relogin;
       Result := True;   // Logout covers any LccNode logoffs, so don't call ancester Process Message
@@ -302,10 +394,159 @@ begin
 
   if not Permitted then
   begin
+    // We are still trying to allocate a new Alias, someone else is using this alias to try atain
     if SourceLccMessage.CAN.SourceAlias = AliasID then
       DuplicateAliasDetected := True;
   end else
   begin
+    // Normal message loop once successfully allocating an Alias
+
+    if SourceLccMessage.CAN.IsMultiFrame and SourceLccMessage.DestinationMatchs(AliasID, NodeID) then
+    begin
+      // This a a multi frame CAN message addressed to us that may need assembling into a fully qualified message before using
+      if SourceLccMessage.IsCAN then
+      begin
+        case SourceLccMessage.CAN.MTI of
+          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY :
+            begin
+              if InProcessMessageFindAndFreeByAliasAndMTI(SourceLccMessage) then
+              begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
+                SourceLccMessage.SwapDestAndSourceIDs;
+                SendDatagramRejectedReply(SourceLccMessage, REJECTED_OUT_OF_ORDER);
+                Exit; // Jump Out
+              end else
+              begin // Hack to allow Python Scripts to work with limited buffer size
+                if InProcessMultiFrameMessage.Count < Max_Allowed_Datagrams then
+                begin // Convert this CAN message into a fully qualified LccMessage
+                  SourceLccMessage.IsCAN := False;
+                  SourceLccMessage.CAN.MTI := 0;
+                  SourceLccMessage.MTI := MTI_DATAGRAM;
+                end else
+                begin
+                  SourceLccMessage.SwapDestAndSourceIDs;
+                  SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL);
+                  Exit; // Jump Out
+                end
+              end
+            end;
+          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_START :
+            begin
+              if InProcessMessageFindAndFreeByAliasAndMTI(SourceLccMessage) then
+              begin  // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
+                // We wait for the final frame before we send any error messages
+              end else
+              begin  // Hack to allow Python Scripts to work with limited buffer size
+                if InProcessMultiFrameMessage.Count < Max_Allowed_Datagrams then
+                begin // Create an InProcessMessage to pickup and concat later CAN datagram messages
+                  InProcessMessage := TLccMessage.Create;
+                  InProcessMessage.MTI := MTI_DATAGRAM;
+                  SourceLccMessage.CopyToTarget(InProcessMessage);
+                  InProcessMultiFrameMessage.Add(InProcessMessage);
+                  Exit;  // Jump out
+                end
+              end;
+            end;
+          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME :
+            begin // We wait for the final frame before we send any error messages
+              InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceLccMessage);
+              if Assigned(InProcessMessage) then
+                InProcessMessage.AppendDataArray(SourceLccMessage);
+              Exit;  // Jump out
+            end;
+          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END :
+            begin
+              InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceLccMessage);
+              if Assigned(InProcessMessage) then
+              begin
+                InProcessMessage.AppendDataArray(SourceLccMessage);
+                InProcessMessage.CopyToTarget(SourceLccMessage);
+                InProcessMessageRemoveAndFree(InProcessMessage);  // Don't Free it we are using it.
+                SourceLccMessage.IsCAN := False;  // Convert this CAN message into a fully qualified LccMessage
+                SourceLccMessage.CAN.MTI := 0;
+                SourceLccMessage.MTI := MTI_DATAGRAM;
+              end else
+              begin
+                // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
+                SourceLccMessage.SwapDestAndSourceIDs;
+                SendDatagramRejectedReply(SourceLccMessage, REJECTED_OUT_OF_ORDER);
+                Exit; // Jump out
+              end;
+            end;
+          MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND :
+            begin
+
+            end
+        end
+      end else   // Not IsCan
+      begin
+        if SourceLccMessage.CAN.FramingBits <> $00 then                                // Is it a Multi Frame Message?
+        begin
+          case SourceLccMessage.CAN.FramingBits of                                     // Train SNIP falls under this now
+            $10 : begin   // First Frame
+                    if not InProcessMessageFindAndFreeByAliasAndMTI(SourceLccMessage) then
+                    begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
+                      InProcessMessage := TLccMessage.Create;
+                      SourceLccMessage.CopyToTarget(InProcessMessage);
+                      InProcessMultiFrameMessage.Add(InProcessMessage);
+                    end;
+                    Exit; // Jump Out
+                  end;
+            $20 : begin   // Last Frame
+                    InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceLccMessage);
+                    if Assigned(InProcessMessage) then
+                    begin
+                      InProcessMessage.AppendDataArray(SourceLccMessage);
+                      InProcessMessage.CopyToTarget(SourceLccMessage);
+                      InProcessMessageRemoveAndFree(InProcessMessage);
+                      // Process the message
+                    end else
+                    begin
+                      // Out of order but let the node handle that if needed (Owned Nodes Only)
+                      // Don't swap the IDs, need to find the right target node first
+                      SourceLccMessage.LoadOptionalInteractionRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, SourceLccMessage.MTI);
+                      SendMessageFunc(SourceLccMessage);
+                      Exit; // Move on
+                    end;
+                  end;
+            $30 : begin   // Middle Frame
+                    InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceLccMessage);
+                    if Assigned(InProcessMessage) then
+                    begin
+                      InProcessMessage.AppendDataArray(SourceLccMessage);
+                      InProcessMessage.CopyToTarget(SourceLccMessage);
+                    end;
+                    Exit; // Move on
+                  end;
+          end;
+        end else  // Is it a SNIP... special case as the Framing Bits did not exist yet
+        if (SourceLccMessage.MTI = MTI_SIMPLE_NODE_INFO_REPLY) then
+        begin
+          InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceLccMessage);
+          if Assigned(InProcessMessage) then
+          begin
+            if InProcessMessage.AppendDataArrayAsString(SourceLccMessage, 6) then
+            begin
+              InProcessMessage.CopyToTarget(SourceLccMessage);
+              InProcessMessageRemoveAndFree(InProcessMessage);
+              // Run the message
+            end else
+              Exit; // Move on
+          end else
+          begin
+            InProcessMessage := TLccMessage.Create;
+            SourceLccMessage.CopyToTarget(InProcessMessage);
+            for i := 0 to InProcessMessage.DataCount - 1 do
+            begin
+              if InProcessMessage.DataArray[i] = Ord(#0) then
+                InProcessMessage.CAN.iTag := InProcessMessage.CAN.iTag + 1
+            end;
+            InProcessMultiFrameMessage.Add(InProcessMessage);
+            Exit; // Move on
+          end
+        end
+      end
+    end;
+
     TestNodeID[0] := 0;
     TestNodeID[1] := 0;
     if SourceLccMessage.IsCAN then
@@ -328,6 +569,8 @@ begin
             end;
             Result := True;
           end;
+        MTI_CAN_AMR : InProcessMessageFlushBySourceAlias(SourceLccMessage); // If the Alias is being reset flush all messages associated with it
+        MTI_CAN_AMD : InProcessMessageFlushBySourceAlias(SourceLccMessage); // If the Alias now coming on line, any old messages for this Alias are out dated
       end
     end;
     if not Result then
@@ -344,8 +587,6 @@ begin
   GenerateNewSeed(Temp);   // DWSCRIPT forced
   FSeedNodeID := Temp;
   FAliasID := GenerateID_Alias_From_Seed(Temp);
-
- // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
   SendMessageFunc(WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
@@ -399,7 +640,6 @@ begin
   if Permitted then
   begin
     WorkerMessage.LoadAMD(NodeID, AliasID);
- //   Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -410,7 +650,6 @@ begin
   begin
     FPermitted := False;
     WorkerMessage.LoadAMR(NodeID, AliasID);
- //   Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -559,8 +798,6 @@ var
   Temp: TEventID;
 begin
   Result := False;
-
- // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
 
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
@@ -760,7 +997,8 @@ begin
                                  case SourceLccMessage.DataArrayIndexer[6] of
                                    MSI_CDI             :
                                        begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                    SourceLccMessage.CAN.SourceAlias);
                                          ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
                                          SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                          Result := True;
@@ -771,21 +1009,24 @@ begin
                                        end;
                                    MSI_CONFIG          :
                                        begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                    SourceLccMessage.CAN.SourceAlias);
                                          ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
                                          SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                          Result := True;
                                        end;
                                    MSI_ACDI_MFG        :
                                        begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                    SourceLccMessage.CAN.SourceAlias);
                                          ACDIMfg.LoadReply(SourceLccMessage, WorkerMessage);
                                          SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                          Result := True;
                                        end;
                                    MSI_ACDI_USER       :
                                        begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                    SourceLccMessage.CAN.SourceAlias);
                                          ACDIUser.LoadReply(SourceLccMessage, WorkerMessage);
                                          SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                          Result := True;
@@ -799,14 +1040,16 @@ begin
                                  end
                                end;
                            MCP_CONFIGURATION : begin
-                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                            SourceLccMessage.CAN.SourceAlias);
                                                  ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
                                                  SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                                  Result := True;
                                                end;
                            MCP_ALL           : begin  end;
                            MCP_CDI           : begin
-                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                            SourceLccMessage.CAN.SourceAlias);
                                                  ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
                                                  SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                                  Result := True;
@@ -821,14 +1064,16 @@ begin
                          case SourceLccMessage.DataArrayIndexer[1] of
                            MCP_OP_GET_CONFIG :
                                begin
-                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                            SourceLccMessage.CAN.SourceAlias);
                                  ProtocolMemoryOptions.LoadReply(WorkerMessage);
                                  SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                  Result := True;
                                end;
                            MCP_OP_GET_ADD_SPACE_INFO :
                                begin
-                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                            SourceLccMessage.CAN.SourceAlias);
                                  ProtocolMemoryInfo.LoadReply(SourceLccMessage, WorkerMessage);
                                  SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                  Result := True;
@@ -854,7 +1099,9 @@ begin
                end
            else begin
                // Unknown Datagram Type
-               WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_DATAGRAMS_NOT_ACCEPTED);
+               WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                  SourceLccMessage.CAN.SourceAlias,
+                                                  REJECTED_DATAGRAMS_NOT_ACCEPTED);
                SendMessageFunc(WorkerMessage);
                Result := True;
              end;
@@ -863,7 +1110,9 @@ begin
     else begin
         if SourceLccMessage.HasDestination then
         begin
-          WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
+          WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                        SourceLccMessage.CAN.SourceAlias,
+                                                        REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
           SendMessageFunc(WorkerMessage);
           Result := True;
         end;
@@ -875,8 +1124,9 @@ end;
 procedure TLccNode.SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   // Only Ack if we accept the datagram
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
-  DatagramWorkerMessage.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, True, ReplyPending, TimeOutValueN);
+  DatagramWorkerMessage.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
+                                        SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
+                                        True, ReplyPending, TimeOutValueN);
   SendMessageFunc(DatagramWorkerMessage);
 end;
 
@@ -885,12 +1135,10 @@ var
   i: Integer;
   Temp: TEventID;
 begin
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   for i := 0 to ProtocolEventConsumed.Count - 1 do
   begin
     Temp := ProtocolEventConsumed.Event[i].ID;
     WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, ProtocolEventConsumed.Event[i].State);
-//    Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
     SendMessageFunc(WorkerMessage);
   end;
 end;
@@ -900,7 +1148,6 @@ var
   EventObj: TLccEvent;
   Temp: TEventID;
 begin
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   EventObj := ProtocolEventConsumed.Supports(Event);
   if Assigned(EventObj) then
   begin
@@ -910,10 +1157,11 @@ begin
   end;
 end;
 
-procedure TLccNode.SendDatagramRejectedReply(SourceLccMessage: TLccMessage);
+procedure TLccNode.SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
 begin
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
-  DatagramWorkerMessage.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL);
+  DatagramWorkerMessage.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
+                                             SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
+                                             Reason);
   SendMessageFunc(DatagramWorkerMessage);
 end;
 
@@ -926,7 +1174,7 @@ begin
       SendDatagramAckReply(SourceLccMessage, False, 0);   // We will be sending a Read Reply
       SendMessageFunc(ReplyLccMessage);
     end else
-      SendDatagramRejectedReply(SourceLccMessage)
+      SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL)
    end;
 end;
 
@@ -938,7 +1186,6 @@ end;
 
 procedure TLccNode.SendInitializeComplete;
 begin
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
   SendMessageFunc(WorkerMessage);
 end;
@@ -948,7 +1195,6 @@ var
   i: Integer;
   Temp: TEventID;
 begin
- // Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   for i := 0 to ProtocolEventsProduced.Count - 1 do
   begin
     Temp := ProtocolEventsProduced.Event[i].ID;
@@ -962,7 +1208,6 @@ var
   EventObj: TLccEvent;
   Temp: TEventID;
 begin
-//  Assert(SendMessageFunc = nil, STR_SENDMESSAGENIL);
   EventObj := ProtocolEventsProduced.Supports(Event);
   if Assigned(EventObj) then
   begin

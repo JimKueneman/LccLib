@@ -38,7 +38,7 @@ uses
   lcc_gridconnect,
   lcc_utilities,
   lcc_defines,
-  lcc_node_messages_can_assembler_disassembler,
+//  lcc_node_messages_can_assembler_disassembler,
   lcc_node_manager,
   lcc_node_messages,
   lcc_ethernet_client,
@@ -866,45 +866,23 @@ end;
 
 procedure TLccEthernetServerThread.SendMessage(AMessage: TLccMessage);
 var
-  i: Integer;
   ByteArray: TDynamicByteArray;
+  i: Integer;
 begin
   if not IsTerminated then
   begin
     if Gridconnect then
     begin
-      MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
+      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10);
       for i := 0 to MsgStringList.Count - 1 do
-      begin
         OutgoingGridConnect.Add(MsgStringList[i]);
-        {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-          PrintToSynEdit( 'S EthSrv:' + MsgStringList[i],
-                          Owner.LoggingFrame.SynEdit,
-                          Owner.LoggingFrame.ActionLogPause.Checked,
-                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-        {$ENDIF}
-      end;
-      DoSendMessage(AMessage);
     end else
     begin
       ByteArray := nil;
       if AMessage.ConvertToLccTcp(ByteArray) then
-      begin
         OutgoingCircularArray.AddChunk(ByteArray);
-        {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-          PrintTCPToSynEdit( 'EthSrv ...Sending TCP...',
-                          ByteArray,
-                          Owner.LoggingFrame.SynEdit,
-                          Owner.LoggingFrame.ActionLogPause.Checked,
-                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-        {$ENDIF}
-        DoSendMessage(AMessage);
-      end;
     end;
+    DoSendMessage(AMessage);
   end;
 end;
 
@@ -954,64 +932,26 @@ begin
   if not IsTerminated then
   begin
     // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-
     if Gridconnect then
     begin
-      {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'R EthSrv: ' + EthernetRec.MessageStr,
-                        Owner.LoggingFrame.SynEdit,
-                        Owner.LoggingFrame.ActionLogPause.Checked,
-                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-      {$ENDIF}
+      if Owner.NodeManager <> nil then
+        Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-      if Assigned(OnReceiveMessage) then
-        OnReceiveMessage(Self, FEthernetRec);
-
-      case MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) of
-        imgcr_True :
+      if Owner.Hub then
+      begin
+        L := Owner.EthernetThreads.LockList;
+        try
+          for i := 0 to L.Count - 1 do
           begin
-            if Owner.NodeManager <> nil then
-              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-
-            if Owner.Hub then
-            begin
-              L := Owner.EthernetThreads.LockList;
-              try
-                for i := 0 to L.Count - 1 do
-                begin
-                  if TLccEthernetServerThread(L[i]) <> Self then
-                    TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
-                end;
-              finally
-                Owner.EthernetThreads.UnlockList;
-              end
-            end
+            if TLccEthernetServerThread(L[i]) <> Self then
+              TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
           end;
-        imgcr_ErrorToSend :
-          begin
-            if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then  // We decode ALL messages so only send the error if it was for our nodes
-                Owner.NodeManager.LccMessageSend(WorkerMsg);
-          end;
-      end
+        finally
+          Owner.EthernetThreads.UnlockList;
+        end
+      end;
     end else
     begin   // TCP Protocol
-      {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame)  and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintTCPToSynEdit( 'EthSrv ...Receiving TCP...',
-                        EthernetRec.MessageArray,
-                        Owner.LoggingFrame.SynEdit,
-                        Owner.LoggingFrame.ActionLogPause.Checked,
-                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-      {$ENDIF}
-
-      if Assigned(OnReceiveMessage) then
-        OnReceiveMessage(Self, FEthernetRec);
-
       if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
       begin
         if (Owner.NodeManager <> nil) then
@@ -1032,6 +972,8 @@ begin
         end
       end
     end;
+    if Assigned(OnReceiveMessage) then
+      OnReceiveMessage(Self, FEthernetRec);
   end
 end;
 

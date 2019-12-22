@@ -44,7 +44,7 @@ uses
   {$ENDIF}
   lcc_gridconnect,
   lcc_defines,
-  lcc_node_messages_can_assembler_disassembler,
+//  lcc_node_messages_can_assembler_disassembler,
   lcc_node_manager,
   lcc_node_messages,
   lcc_threaded_circulararray,
@@ -776,39 +776,16 @@ begin
   begin
     if Gridconnect then
     begin
-      MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
-
+      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10);
       for i := 0 to MsgStringList.Count - 1 do
-      begin;
         OutgoingGridConnect.Add(MsgStringList[i]);
-        {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-          PrintToSynEdit( 'S: ' + MsgStringList[i],
-                          Owner.LoggingFrame.SynEdit,
-                          Owner.LoggingFrame.ActionLogPause.Checked,
-                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-        {$ENDIF}
-      end;
-      DoSendMessage(AMessage);
     end else
     begin
       ByteArray := nil;
       if AMessage.ConvertToLccTcp(ByteArray) then
-      begin
         OutgoingCircularArray.AddChunk(ByteArray);
-        {$IFDEF LOGGING}
-        if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-          PrintTCPToSynEdit( '...Sending TCP...',
-                          ByteArray,
-                          Owner.LoggingFrame.SynEdit,
-                          Owner.LoggingFrame.ActionLogPause.Checked,
-                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-        {$ENDIF}
-        DoSendMessage(AMessage);
-      end;
     end;
+    DoSendMessage(AMessage);
   end;
 end;
 
@@ -854,57 +831,22 @@ end;
 
 procedure TLccEthernetClientThread.DoReceiveMessage;
 begin
+  // Called in the content of the main thread through Syncronize
   if not IsTerminated then
   begin
-
     if Gridconnect then
     begin
-      {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintToSynEdit( 'R EthCli : ' + EthernetRec.MessageStr,
-                        Owner.LoggingFrame.SynEdit,
-                        Owner.LoggingFrame.ActionLogPause.Checked,
-                        Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                        Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-      {$ENDIF}
-      // Called in the content of the main thread through Syncronize
-      // Send all raw GridConnect Messages to the event
-      if Assigned(OnReceiveMessage) then
-        OnReceiveMessage(Self, FEthernetRec);
-
-      case MsgAssembler.IncomingMessageGridConnect(FEthernetRec.MessageStr, WorkerMsg) of
-        imgcr_True :
-          begin
-            if Owner.NodeManager <> nil then
-              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-          end;
-        imgcr_ErrorToSend :
-          begin
-            if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then  // We decode ALL messages so only send the error if it was for our nodes
-                Owner.NodeManager.LccMessageSend(WorkerMsg);
-          end;
-      end;
+      if Owner.NodeManager <> nil then
+        Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);
     end else
     begin
-      {$IFDEF LOGGING}
-      if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-        PrintTCPToSynEdit( 'EthCli ...Receiving TCP...',
-                          EthernetRec.MessageArray,
-                          Owner.LoggingFrame.SynEdit,
-                          Owner.LoggingFrame.ActionLogPause.Checked,
-                          Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                          Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-      {$ENDIF}
       // Called in the content of the main thread through Syncronize
-      // Send all raw GridConnect Messages to the event
-      if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
-
       if Owner.NodeManager <> nil then
         if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
           Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is
-    end
+    end;
+    if Assigned(OnReceiveMessage) then
+      OnReceiveMessage(Self, FEthernetRec);
   end
 end;
 

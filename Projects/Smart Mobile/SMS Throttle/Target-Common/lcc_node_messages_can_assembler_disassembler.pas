@@ -243,7 +243,7 @@ begin                                                                           
               begin
                 InProcessMessage := TLccMessage.Create;
                 InProcessMessage.MTI := MTI_DATAGRAM;
-                LccMessage.Copy(InProcessMessage);
+                LccMessage.CopyToTarget(InProcessMessage);
                 Add(InProcessMessage);
                 Inc(AllocatedDatagrams)
               end
@@ -263,7 +263,7 @@ begin                                                                           
             if Assigned(InProcessMessage) then
             begin
               InProcessMessage.AppendDataArray(LccMessage);
-              InProcessMessage.Copy(LccMessage);
+              InProcessMessage.CopyToTarget(LccMessage);
               Remove(InProcessMessage, True);
               LccMessage.IsCAN := False;
               LccMessage.MTI := MTI_DATAGRAM;
@@ -296,7 +296,7 @@ begin                                                                           
                     Remove(InProcessMessage, True)                              // Something is wrong, out of order.  Throw it away
                   else begin
                     InProcessMessage := TLccMessage.Create;
-                    LccMessage.Copy(InProcessMessage);
+                    LccMessage.CopyToTarget(InProcessMessage);
                     Add(InProcessMessage);
                   end;
                 end;
@@ -305,7 +305,7 @@ begin                                                                           
                   if Assigned(InProcessMessage) then
                   begin
                     InProcessMessage.AppendDataArray(LccMessage);
-                    InProcessMessage.Copy(LccMessage);
+                    InProcessMessage.CopyToTarget(LccMessage);
                     Remove(InProcessMessage, True);
                     Result := imgcr_True
                   end else
@@ -329,7 +329,7 @@ begin                                                                           
         if not Assigned(InProcessMessage) then
         begin
           InProcessMessage := TLccMessage.Create;
-          LccMessage.Copy(InProcessMessage);
+          LccMessage.CopyToTarget(InProcessMessage);
           for i := 0 to InProcessMessage.DataCount - 1 do
           begin
             if InProcessMessage.DataArray[i] = Ord(#0) then
@@ -340,7 +340,7 @@ begin                                                                           
         begin
           if InProcessMessage.AppendDataArrayAsString(LccMessage, 6) then
           begin
-            InProcessMessage.Copy(LccMessage);
+            InProcessMessage.CopyToTarget(LccMessage);
             Remove(InProcessMessage, True);
             Result := imgcr_True;
           end

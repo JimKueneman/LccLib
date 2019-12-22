@@ -34,6 +34,9 @@ type
   TLccSendMessageFunc = procedure(AMessage: TLccMessage) of object;
 
 type
+
+  { TLccCANMessage }
+
   TLccCANMessage = class
   private
     FDestAlias: Word;
@@ -41,11 +44,13 @@ type
     FiTag: Integer;
     FMTI: DWord;
     FSourceAlias: Word;
+    function GetIsMultiFrame: Boolean;
   public
+    property IsMultiFrame: Boolean read GetIsMultiFrame;  // If the message can come in on multiple frames if CAN (see Framing bits as well)
     property iTag: Integer read FiTag write FiTag;        // General purpose counter/integer depending on the message
-    property MTI: DWord read FMTI write FMTI;
+    property MTI: DWord read FMTI write FMTI;             // Can MTI
     property DestAlias: Word read FDestAlias write FDestAlias;
-    property FramingBits: Byte read FFramingBits write FFramingBits;            // Bottom 2 bits, upper nibble
+    property FramingBits: Byte read FFramingBits write FFramingBits; // Bottom 2 bits, upper nibble of the Destination alias
     property SourceAlias: Word read FSourceAlias write FSourceAlias;
   end;
 
@@ -106,12 +111,13 @@ public
   function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD;
   function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): TNodeID;
   function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
+  function DestinationMatchs(TestAliasID: Word; TestNodeID: TNodeID): Boolean;
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
   function LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
   function ConvertToGridConnectStr(Delimiter: String): String;
   function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
-  procedure Copy(TargetMessage: TLccMessage);
+  procedure CopyToTarget(TargetMessage: TLccMessage);
   class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
   procedure ZeroFields;
 
@@ -187,6 +193,13 @@ implementation
 
 var
   CaptureTime: Longword;
+
+{ TLccCANMessage }
+
+function TLccCANMessage.GetIsMultiFrame: Boolean;
+begin
+  Result := (MTI = MTI_DATAGRAM) or (MTI = MTI_STREAM_SEND) or (MTI = MTI_SIMPLE_NODE_INFO_REPLY) or (FramingBits <> $00)
+end;
 
 { TLccMessage }
 
@@ -779,7 +792,7 @@ begin
   end;
 end;
 
-procedure TLccMessage.Copy(TargetMessage: TLccMessage);
+procedure TLccMessage.CopyToTarget(TargetMessage: TLccMessage);
 begin
   TargetMessage.FIsCAN := FIsCAN;
   TargetMessage.FMTI := FMTI;
@@ -792,6 +805,14 @@ begin
   TargetMessage.CAN.FFramingBits := CAN.FFramingBits;
   TargetMessage.CAN.FiTag := 0;
   TargetMessage.CAN.FMTI := CAN.FMTI;
+end;
+
+function TLccMessage.DestinationMatchs(TestAliasID: Word; TestNodeID: TNodeID): Boolean;
+begin
+  if CAN.DestAlias > 0 then
+    Result := TestAliasID = CAN.DestAlias
+  else
+    Result := (TestNodeID[0] = DestID[0]) and (TestNodeID[1] = DestID[1]);
 end;
 
 procedure TLccMessage.ZeroFields;

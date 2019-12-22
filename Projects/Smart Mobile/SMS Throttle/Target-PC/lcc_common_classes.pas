@@ -17,7 +17,6 @@ uses
     System.Generics.Collections,
   {$ENDIF}
   lcc_node_messages,
-  lcc_node_messages_can_assembler_disassembler,
   lcc_threaded_circulararray,
   lcc_threaded_stringlist;
 
@@ -27,8 +26,8 @@ type
   TLccConnectionThread = class(TThread)
   private
     FGridConnect: Boolean;
-    FMsgAssembler: TLccMessageAssembler;
-    FMsgDisAssembler: TLccMessageDisAssembler;
+ //   FMsgAssembler: TLccMessageAssembler;
+ //   FMsgDisAssembler: TLccMessageDisAssembler;
     FMsgStringList: TStringList;
     FOutgoingCircularArray: TThreadedCirularArray;
     FOutgoingGridConnect: TThreadStringList;
@@ -45,8 +44,8 @@ type
     {$ENDIF}
     destructor Destroy; override;
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
-    property MsgAssembler: TLccMessageAssembler read FMsgAssembler write FMsgAssembler;
-    property MsgDisAssembler: TLccMessageDisAssembler read FMsgDisAssembler write FMsgDisAssembler;
+  //  property MsgAssembler: TLccMessageAssembler read FMsgAssembler write FMsgAssembler;
+  //  property MsgDisAssembler: TLccMessageDisAssembler read FMsgDisAssembler write FMsgDisAssembler;
     property MsgStringList: TStringList read FMsgStringList write FMsgStringList;
     property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
     property OutgoingCircularArray: TThreadedCirularArray read FOutgoingCircularArray write FOutgoingCircularArray;
@@ -76,8 +75,8 @@ constructor TLccConnectionThread.Create(CreateSuspended: Boolean);
 {$ENDIF}
 begin
   inherited Create(CreateSuspended {$IFDEF FPC}, StackSize{$ENDIF});
-  FMsgAssembler := TLccMessageAssembler.Create;
-  FMsgDisAssembler := TLccMessageDisAssembler.Create;
+ // FMsgAssembler := TLccMessageAssembler.Create;
+ // FMsgDisAssembler := TLccMessageDisAssembler.Create;
   FWorkerMsg := TLccMessage.Create;
   FMsgStringList := TStringList.Create;
   FOutgoingCircularArray := TThreadedCirularArray.Create;
@@ -87,8 +86,8 @@ end;
 
 destructor TLccConnectionThread.Destroy;
 begin
-  FreeAndNil(FMsgAssembler);
-  FreeAndNIl(FMsgDisAssembler);
+ // FreeAndNil(FMsgAssembler);
+ // FreeAndNIl(FMsgDisAssembler);
   FreeAndNil(FWorkerMsg);
   FreeAndNil(FMsgStringList);
   FreeAndNil(FOutgoingCircularArray);

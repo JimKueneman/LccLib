@@ -168,7 +168,7 @@ begin
   for i := Queue.Count - 1 downto 0 do
   begin
     LocalMessage := Queue[i] as TLccMessage;
-    if LocalMessage.AbandonTimeout < 2 then
+    if LocalMessage.AbandonTimeout < 6 then   // 800ms + 6
       LocalMessage.AbandonTimeout := LocalMessage.AbandonTimeout + 1
     else
       {$IFDEF DWSCRIPT}
