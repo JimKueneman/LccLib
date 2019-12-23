@@ -465,7 +465,7 @@ var
     MAX_TCP_MESSAGE_ONLY_LEN = MAX_LCC_TCP_FRAME_LEN - MAX_HEADER_ONLY_LEN;               // Max frame size for just the Lcc Message itself
 
 var
-  Max_Allowed_Datagrams: Integer = 1;
+  Max_Allowed_Buffers: Integer = 1;
 
 implementation
 

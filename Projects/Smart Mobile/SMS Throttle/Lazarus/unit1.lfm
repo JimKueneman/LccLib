@@ -564,6 +564,7 @@ object Form1: TForm1
     Top = 40
     Width = 131
     Caption = 'Datagram Count'
+    OnClick = ButtonDatagramCountClick
     TabOrder = 6
   end
   object LabelAllcoatedDatagrams: TLabel
@@ -572,7 +573,7 @@ object Form1: TForm1
     Top = 46
     Width = 176
     AutoSize = False
-    Caption = 'Allocated Datagram = 0'
+    Caption = 'Allocated Buffers: 0'
     ParentColor = False
   end
 end

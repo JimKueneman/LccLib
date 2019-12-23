@@ -61,7 +61,7 @@ private
   FProtocolMemoryInfo: TProtocolMemoryInfo;
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
-  FDatagramQueue: TDatagramQueue;
+  FDatagramResendQueue: TDatagramQueue;
   {$IFDEF DWSCRIPT}
     F_800msTimer: TW3Timer;
   {$ELSE}
@@ -95,7 +95,7 @@ protected
   procedure SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
   procedure On_800msTimer(Sender: TObject);  virtual;
 public
-  property DatagramQueue: TDatagramQueue read FDatagramQueue;
+  property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
   property NodeID: TNodeID read FNodeID;
   property NodeIDStr: String read GetNodeIDStr;
   property Initialized: Boolean read FInitialized;
@@ -147,6 +147,7 @@ protected
   function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
   procedure GenerateNewSeed(var Seed: TNodeID);
   procedure InProcessMessageClear;
+  procedure InProcessMessageAddMessage(NewMessage: TLccMessage);
   procedure InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
   function InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
   function InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
@@ -168,6 +169,9 @@ public
    procedure Logout; override;
    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
 end;
+
+var
+  InprocessMessageAllocated: Integer = 0;
 
 implementation
 
@@ -215,8 +219,15 @@ begin
     {$ELSE}
     InProcessMultiFrameMessage.Delete(i);
     {$ENDIF}
+    Dec(InprocessMessageAllocated);
     AMessage.Free
   end;
+end;
+
+procedure TLccCanNode.InProcessMessageAddMessage(NewMessage: TLccMessage);
+begin
+   InProcessMultiFrameMessage.Add(NewMessage);
+   Inc(InprocessMessageAllocated);
 end;
 
 function TLccCanNode.InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
@@ -250,13 +261,14 @@ begin
   for i := InProcessMultiFrameMessage.Count - 1 downto 0  do
   begin
     AMessage := TLccMessage(InProcessMultiFrameMessage[i]);
-    if (AMessage.CAN.SourceAlias = TestMessage.CAN.SourceAlias) or (AMessage.CAN.DestAlias = TestMessage.CAN.SourceAlias) then
+    if (AMessage.CAN.SourceAlias = TestMessage.CAN.SourceAlias) {or (AMessage.CAN.DestAlias = TestMessage.CAN.SourceAlias)} then
     begin
-       {$IFDEF DWSCRIPT}
-        InProcessMultiFrameMessage.Remove(i);
-        {$ELSE}
-        InProcessMultiFrameMessage.Delete(i);
-        {$ENDIF}
+      {$IFDEF DWSCRIPT}
+      InProcessMultiFrameMessage.Remove(i);
+      {$ELSE}
+      InProcessMultiFrameMessage.Delete(i);
+      {$ENDIF}
+      Dec(InprocessMessageAllocated);
       AMessage.Free
     end;
   end;
@@ -267,18 +279,22 @@ var
   i: Integer;
 begin
   Result := False;
- {$IFDEF DWSCRIPT}
-  i := InProcessMultiFrameMessage.IndexOf(AMessage);
-  if i > =1 then
+  if Assigned(AMessage) then
   begin
-    InProcessMultiFrameMessage.Remove(i);
-    Result := True;
+   {$IFDEF DWSCRIPT}
+    i := InProcessMultiFrameMessage.IndexOf(AMessage);
+    if i > =1 then
+    begin
+      InProcessMultiFrameMessage.Remove(i);
+      Result := True;
+    end;
+    {$ELSE}
+    if InProcessMultiFrameMessage.Remove(AMessage) > -1 then
+      Result := True;
+    {$ENDIF}
+    AMessage.Free;
+    Dec(InprocessMessageAllocated);
   end;
-  {$ELSE}
-  if InProcessMultiFrameMessage.Remove(AMessage) > -1 then
-    Result := True;
-  {$ENDIF}
-  AMessage.Free;
 end;
 
 function TLccCanNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
@@ -328,6 +344,7 @@ procedure TLccCanNode.Logout;
 begin
   SendAMR;
   FPermitted := False;
+  InProcessMessageClear;
   inherited Logout;
 end;
 
@@ -416,7 +433,7 @@ begin
                 Exit; // Jump Out
               end else
               begin // Hack to allow Python Scripts to work with limited buffer size
-                if InProcessMultiFrameMessage.Count < Max_Allowed_Datagrams then
+                if InProcessMultiFrameMessage.Count < Max_Allowed_Buffers then
                 begin // Convert this CAN message into a fully qualified LccMessage
                   SourceLccMessage.IsCAN := False;
                   SourceLccMessage.CAN.MTI := 0;
@@ -436,13 +453,18 @@ begin
                 // We wait for the final frame before we send any error messages
               end else
               begin  // Hack to allow Python Scripts to work with limited buffer size
-                if InProcessMultiFrameMessage.Count < Max_Allowed_Datagrams then
+                if InProcessMultiFrameMessage.Count < Max_Allowed_Buffers then
                 begin // Create an InProcessMessage to pickup and concat later CAN datagram messages
                   InProcessMessage := TLccMessage.Create;
                   InProcessMessage.MTI := MTI_DATAGRAM;
                   SourceLccMessage.CopyToTarget(InProcessMessage);
-                  InProcessMultiFrameMessage.Add(InProcessMessage);
+                  InProcessMessageAddMessage(InProcessMessage);
                   Exit;  // Jump out
+                end else
+                begin
+           //       SourceLccMessage.SwapDestAndSourceIDs;
+           //       SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL);
+                  Exit; // Jump Out
                 end
               end;
             end;
@@ -466,9 +488,17 @@ begin
                 SourceLccMessage.MTI := MTI_DATAGRAM;
               end else
               begin
+
+
+                // HOW TO FIX THIS>>>>
+                // Node sends only the End you need to send a Out of Order but Buffer Full also passes the Python scripts....
+                // Node sends start but we say buffer full how do we NOT send Out of Order if that node sends an end after a start?
+
+
                 // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
                 SourceLccMessage.SwapDestAndSourceIDs;
-                SendDatagramRejectedReply(SourceLccMessage, REJECTED_OUT_OF_ORDER);
+                SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL);
+          //      SendDatagramRejectedReply(SourceLccMessage, REJECTED_OUT_OF_ORDER);
                 Exit; // Jump out
               end;
             end;
@@ -487,7 +517,7 @@ begin
                     begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
                       InProcessMessage := TLccMessage.Create;
                       SourceLccMessage.CopyToTarget(InProcessMessage);
-                      InProcessMultiFrameMessage.Add(InProcessMessage);
+                      InProcessMessageAddMessage(InProcessMessage);
                     end;
                     Exit; // Jump Out
                   end;
@@ -540,7 +570,7 @@ begin
               if InProcessMessage.DataArray[i] = Ord(#0) then
                 InProcessMessage.CAN.iTag := InProcessMessage.CAN.iTag + 1
             end;
-            InProcessMultiFrameMessage.Add(InProcessMessage);
+            InProcessMessageAddMessage(InProcessMessage);
             Exit; // Move on
           end
         end
@@ -700,7 +730,7 @@ begin
   FACDIMfg := TACDIMfg.Create(nil, MSI_ACDI_MFG, True);
   FACDIUser := TACDIUser.Create(SendMessageFunc, MSI_ACDI_USER, True);
 
-  FDatagramQueue := TDatagramQueue.Create(SendMessageFunc);
+  FDatagramResendQueue := TDatagramQueue.Create(SendMessageFunc);
   FDatagramWorkerMessage := TLccMessage.Create;
 
   {$IFDEF DWSCRIPT}
@@ -762,7 +792,7 @@ begin
   FACDIMfg.Free;
   FACDIUser.Free;
   FMemoryConfiguration.Free;
-  FDatagramQueue.Free;
+  FDatagramResendQueue.Free;
   FDatagramWorkerMessage.Free;
   inherited;
 end;
@@ -784,12 +814,12 @@ procedure TLccNode.Logout;
 begin
  FInitialized := False;
   _800msTimer.Enabled := False;
-  DatagramQueue.Clear;
+  DatagramResendQueue.Clear;
 end;
 
 procedure TLccNode.On_800msTimer(Sender: TObject);
 begin
-  DatagramQueue.TickTimeout;
+  DatagramResendQueue.TickTimeout;
 end;
 
 function TLccNode.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
@@ -860,7 +890,7 @@ begin
             Result := True;
           end;
       MTI_SIMPLE_NODE_INFO_REPLY :
-          begin  // Called if I send a SNIP and loads the ProtocolSupportedProtocols with the data
+          begin  // Called if I send a SNIP Request and the other node replies
             // TODO need a call back handler
             Result := True;
           end;
@@ -925,11 +955,11 @@ begin
           end;
        MTI_DATAGRAM_REJECTED_REPLY :
          begin
-           DatagramQueue.Resend(SourceLccMessage);
+           DatagramResendQueue.Resend(SourceLccMessage);
          end;
        MTI_DATAGRAM_OK_REPLY :
          begin
-           DatagramQueue.Remove(SourceLccMessage);
+           DatagramResendQueue.Remove(SourceLccMessage);
          end;
        MTI_DATAGRAM :
          begin
@@ -1169,7 +1199,7 @@ procedure TLccNode.SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: 
 begin
  if ReplyLccMessage.UserValid then
   begin
-    if DatagramQueue.Add(ReplyLccMessage.Clone) then     // Waiting for an ACK
+    if DatagramResendQueue.Add(ReplyLccMessage.Clone) then     // Waiting for an ACK
     begin
       SendDatagramAckReply(SourceLccMessage, False, 0);   // We will be sending a Read Reply
       SendMessageFunc(ReplyLccMessage);

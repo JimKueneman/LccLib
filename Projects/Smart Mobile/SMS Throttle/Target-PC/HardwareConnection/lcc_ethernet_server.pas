@@ -932,6 +932,9 @@ begin
   if not IsTerminated then
   begin
     // Called in the content of the main thread through Syncronize
+    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
+      OnReceiveMessage(Self, FEthernetRec);
+
     if Gridconnect then
     begin
       if Owner.NodeManager <> nil then
@@ -972,8 +975,6 @@ begin
         end
       end
     end;
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
   end
 end;
 

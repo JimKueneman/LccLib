@@ -48,7 +48,7 @@ type
   public
     property IsMultiFrame: Boolean read GetIsMultiFrame;  // If the message can come in on multiple frames if CAN (see Framing bits as well)
     property iTag: Integer read FiTag write FiTag;        // General purpose counter/integer depending on the message
-    property MTI: DWord read FMTI write FMTI;             // Can MTI
+    property MTI: DWord read FMTI write FMTI;             // WARNING:  This MTI is shifted Left by 2 Bytes where the Source Address Was!!!!!!
     property DestAlias: Word read FDestAlias write FDestAlias;
     property FramingBits: Byte read FFramingBits write FFramingBits; // Bottom 2 bits, upper nibble of the Destination alias
     property SourceAlias: Word read FSourceAlias write FSourceAlias;
@@ -198,7 +198,8 @@ var
 
 function TLccCANMessage.GetIsMultiFrame: Boolean;
 begin
-  Result := (MTI = MTI_DATAGRAM) or (MTI = MTI_STREAM_SEND) or (MTI = MTI_SIMPLE_NODE_INFO_REPLY) or (FramingBits <> $00)
+  Result := ((MTI >= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY) and (MTI >= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY)) or
+            (MTI = MTI_STREAM_SEND) or (MTI = MTI_SIMPLE_NODE_INFO_REPLY) or (FramingBits <> $00)
 end;
 
 { TLccMessage }

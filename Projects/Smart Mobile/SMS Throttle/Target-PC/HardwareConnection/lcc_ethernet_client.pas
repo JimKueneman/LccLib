@@ -834,6 +834,9 @@ begin
   // Called in the content of the main thread through Syncronize
   if not IsTerminated then
   begin
+    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
+      OnReceiveMessage(Self, FEthernetRec);
+
     if Gridconnect then
     begin
       if Owner.NodeManager <> nil then
@@ -845,8 +848,6 @@ begin
         if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
           Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is
     end;
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, FEthernetRec);
   end
 end;
 

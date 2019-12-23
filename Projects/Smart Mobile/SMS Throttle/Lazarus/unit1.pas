@@ -39,6 +39,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure ButtonDatagramCountClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
@@ -141,7 +142,7 @@ begin
 
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 
-    lcc_defines.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+    lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
   end else
     CanNodeManager.Clear;
@@ -150,6 +151,23 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 begin
   SynEdit1.Clear;
+end;
+
+type
+  TLccCanNodeHack = class(TLccCanNode);
+
+procedure TForm1.ButtonDatagramCountClick(Sender: TObject);
+var
+  Msg: TLccMessage;
+begin
+  if CanNodeManager.Nodes.Count > 0 then
+  begin
+    if TLccCanNodeHack( CanNodeManager.Nodes[0]).InProcessMultiFrameMessage.Count > 0 then
+    begin
+      Msg := TLccMessage(TLccCanNodeHack( CanNodeManager.Nodes[0]).InProcessMultiFrameMessage[0])
+    end;
+  end;
+  LabelAllcoatedDatagrams.Caption := 'Allocated Buffers: ' + IntToStr(InprocessMessageAllocated);
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
