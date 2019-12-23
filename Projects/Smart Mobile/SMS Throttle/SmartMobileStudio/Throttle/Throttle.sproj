@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-19T18:49:16.076</Modified>
+    <Modified>2019-12-22T20:55:01.113</Modified>
     <Version>
       <Major>0</Major>
       <Minor>0</Minor>
@@ -96,6 +96,14 @@ geo:*</AllowIntent>
           <fontname>Ubuntu</fontname>
           <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
         </webfontitem>
+        <webfontitem>
+          <fontname>Ubuntu</fontname>
+          <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
+        </webfontitem>
+        <webfontitem>
+          <fontname>Ubuntu</fontname>
+          <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
+        </webfontitem>
       </WebFonts>
     </Options>
     <Files>
@@ -136,7 +144,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2019-12-19T18:49:16.068</Modified>
+        <Modified>2019-12-22T20:39:14.336</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

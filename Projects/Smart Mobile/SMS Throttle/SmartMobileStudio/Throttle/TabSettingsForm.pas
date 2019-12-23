@@ -33,7 +33,9 @@ uses
   lcc_node,
   lcc_node_messages,
   lcc_protocol_memory_configurationdefinitioninfo,
-  lcc_defines;
+  lcc_defines, SmartCL.Controls.Panel, SmartCL.Controls.EditBox,
+  SmartCL.Controls.Label, SmartCL.Controls.CheckBox, SmartCL.Controls.Button,
+  SmartCL.Controls.ListBox;
 
 type
   TTabSettingsForm = class(TW3Form)
@@ -166,7 +168,7 @@ begin
 
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 
-    lcc_defines.Max_Allowed_Datagrams := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+    lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
     W3ButtonStartNode.Caption := 'Stop Node';
   end else
@@ -227,7 +229,7 @@ procedure TTabSettingsForm.SendMessage(Sender: TObject; LccMessage: TLccMessage)
 var
   i: Integer;
 begin
-  CanNodeManager.LccMessageDisassembler.OutgoingMsgToMsgList(LccMessage, MessageList);
+  MessageList.Text := LccMessage.ConvertToGridConnectStr(#10);
   for i := 0 to MessageList.Count- 1 do
   begin
     WriteLn('SendMessage: ' + MessageList[i]);
@@ -237,18 +239,7 @@ end;
 
 procedure TTabSettingsForm.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  // If it is addressed and we don't have that node then just get out of here.
-  if LccMessage.HasDestination and not Assigned(CanNodeManager.FindOwnedNodeByDestID(LccMessage)) then
-    Exit;
-
-  WriteLn('ReceiveMessage: ' + LccMessage.ConvertToGridConnectStr(''));
-  case CanNodeManager.LccMessageAssembler.IncomingMessageGridConnect(LccMessage) of
-    imgcr_False: begin end;
-    imgcr_True: CanNodeManager.ProcessMessage(LccMessage);
-    imgcr_ErrorToSend: SendMessage(Self, LccMessage);
-    imgcr_UnknownError: begin end;
-  end;
-
+  CanNodeManager.ProcessMessage(LccMessage);
 end;
 
 initialization
