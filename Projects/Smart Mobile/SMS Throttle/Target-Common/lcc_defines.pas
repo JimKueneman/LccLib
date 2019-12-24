@@ -17,6 +17,7 @@ uses
   SmartCL.System;
 {$ELSE}
   {$IFDEF ULTIBO}fptimer,{$ENDIF}
+  {$IFDEF FPC_CONSOLE_APP}fptimer,{$ELSE}ExtCtrls,{$ENDIF}
   Classes,
   SysUtils;
 {$ENDIF}

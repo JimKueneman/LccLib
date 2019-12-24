@@ -12,6 +12,7 @@ uses
   Classes, SysUtils,
   {$IFDEF FPC}
     {$IFDEF FPC_CONSOLE_APP}
+      syncobjs,
     {$ELSE}
       Forms,
       Controls,
