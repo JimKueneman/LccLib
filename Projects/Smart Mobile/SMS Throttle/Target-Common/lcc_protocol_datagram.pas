@@ -20,7 +20,9 @@ uses
   Classes,
   SysUtils,
   contnrs,
+  {$IFNDEF ULTIBO}
   ExtCtrls,
+  {$ENDIF}
 {$ENDIF}
   lcc_defines,
   lcc_node_messages,

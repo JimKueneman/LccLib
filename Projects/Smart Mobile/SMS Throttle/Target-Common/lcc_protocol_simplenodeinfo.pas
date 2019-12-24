@@ -255,6 +255,8 @@ var
   AnOffset, ALength, i: Integer;
 begin
   Result := False;
+  AnOffset := 0;
+  ALength := 0;
   if FindElement(XMlString, '<manufacturer>', AnOffset, ALength) then
   begin
     if ALength < LEN_MFG_NAME then

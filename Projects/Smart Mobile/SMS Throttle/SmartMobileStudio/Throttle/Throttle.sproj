@@ -2,7 +2,7 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-23T12:23:34.298</Modified>
+    <Modified>2019-12-24T13:17:35.379</Modified>
     <Author>Jim Kueneman</Author>
     <Company>Mustangpeak</Company>
     <Description>Lcc Javascript Throttle</Description>

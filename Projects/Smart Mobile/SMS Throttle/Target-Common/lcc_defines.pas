@@ -16,6 +16,7 @@ uses
   SmartCL.Components,
   SmartCL.System;
 {$ELSE}
+  {$IFDEF ULTIBO}fptimer,{$ENDIF}
   Classes,
   SysUtils;
 {$ENDIF}
@@ -33,6 +34,21 @@ type
   DWord = Longword;
   TComponent = TObject;
 {$ENDIF}
+
+type
+  {$IFDEF DWSCRIPT}
+    TLccTimer = TW3Timer;
+  {$ELSE}
+    {$IFDEF ULTIBO}
+    TLccTimer = TFPTimer;
+    {$ELSE}
+      {$IFDEF FPC_CONSOLE_APP}
+        TLccTimer = TFPTimer;
+      {$ELSE}
+        TLccTimer = TTimer;
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
 
 type
   TLccByteArray = array[0..LCC_BYTE_COUNT-1] of Byte;

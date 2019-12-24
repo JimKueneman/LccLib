@@ -1,16 +1,11 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="221" col="45" row="242" splitview="0" designview="0" splitter="0.583987414836884" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="213" col="45" row="242" splitview="0" designview="0" splitter="0.583987414836884" />
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="1" col="2" row="24" splitview="0" designview="0" splitter="0.444144129753113" />
       <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="4" col="18" row="18" splitview="0" designview="0" splitter="0.444270014762878" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="273" col="18" row="286" />
-      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="412" col="2" row="422" />
-      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="8" col="23" row="20" />
-      <tab filename="lcc_protocol_acdi" fullname="..\..\Target-Common\lcc_protocol_acdi.pas" topline="87" col="6" row="97" />
-      <tab filename="lcc_protocol_memory_configuration" fullname="..\..\Target-Common\lcc_protocol_memory_configuration.pas" topline="73" col="3" row="77" />
-      <tab filename="lcc_protocol_base" fullname="..\..\Target-Common\lcc_protocol_base.pas" topline="55" col="1" row="1" />
-      <tab filename="System.Streams" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Streams.pas" topline="499" col="18" row="509" />
+      <tab filename="System.Streams" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Streams.pas" topline="482" col="18" row="509" />
+      <tab filename="lcc_protocol_memory_configuration" fullname="..\..\Target-Common\lcc_protocol_memory_configuration.pas" topline="86" col="20" row="92" />
       <activetab>lcc_protocol_memory_configuration</activetab>
       <breakpoints>
         <bkpt>
@@ -20,11 +15,11 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5349</BackgroundCompilations>
-      <EditTime>T03:25:58.474</EditTime>
+      <BackgroundCompilations>5351</BackgroundCompilations>
+      <EditTime>T03:26:00.759</EditTime>
       <CompileTime>T00:00:23.274</CompileTime>
-      <TotalTime>1900-01-05T19:02:55.781</TotalTime>
-      <DesigningTime>T09:59:32.902</DesigningTime>
+      <TotalTime>1900-01-05T19:40:21.049</TotalTime>
+      <DesigningTime>T09:59:33.126</DesigningTime>
       <RunningTime>1900-01-02T09:38:51.600</RunningTime>
       <TotalLinesOfCode>499</TotalLinesOfCode>
     </Statistics>

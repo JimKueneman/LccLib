@@ -19,7 +19,7 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
-  ExtCtrls,
+  {$IFNDEF ULTIBO}ExtCtrls,{$ENDIF}
   contnrs,
 {$ENDIF}
   lcc_defines,
@@ -62,30 +62,14 @@ private
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
   FDatagramResendQueue: TDatagramQueue;
-  {$IFDEF DWSCRIPT}
-    F_800msTimer: TW3Timer;
-  {$ELSE}
-    {$IFNDEF FPC_CONSOLE_APP}
-    F_800msTimer: TTimer;
-    {$ELSE}
-    F_800msTimer: TFPTimer;
-    {$ENDIF}
-  {$ENDIF}
+  F_800msTimer: TLccTimer;
 
   function GetNodeIDStr: String;
 protected
   FNodeID: TNodeID;
 
   property DatagramWorkerMessage: TLccMessage read FDatagramWorkerMessage write FDatagramWorkerMessage;
-  {$IFDEF DWSCRIPT}
-    property _800msTimer: TW3Timer read F_800msTimer write F_800msTimer;
-  {$ELSE}
-    {$IFNDEF FPC_CONSOLE_APP}
-    property _800msTimer: TTimer read F_800msTimer write F_800msTimer;
-    {$ELSE}
-    property _800msTimer: TFPTimer read F_800msTimer write F_800msTimer;
-    {$ENDIF}
-  {$ENDIF}
+  property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
 
   function GetAlias: Word; virtual;
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
@@ -174,9 +158,6 @@ var
   InprocessMessageAllocated: Integer = 0;
 
 implementation
-
-const
-  STR_SENDMESSAGENIL = 'SendMessage Function is nil';
 
 { TLccCanNode }
 
@@ -275,8 +256,10 @@ begin
 end;
 
 function TLccCanNode.InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
+{$IFDEF DWSCRIPT}
 var
   i: Integer;
+{$ENDIF}
 begin
   Result := False;
   if Assigned(AMessage) then
@@ -732,20 +715,14 @@ begin
   FDatagramResendQueue := TDatagramQueue.Create(SendMessageFunc);
   FDatagramWorkerMessage := TLccMessage.Create;
 
-  {$IFDEF DWSCRIPT}
-  _800msTimer := TW3Timer.Create(nil);
+  _800msTimer := TLccTimer.Create(nil);
   _800msTimer.Enabled := False;
+  {$IFDEF DWSCRIPT}
   _800msTimer.OnTime := @On_800msTimer;
   _800msTimer.Delay := 800;
   {$ELSE}
-    {$IFNDEF FPC_CONSOLE_APP}
-    _800msTimer := TTimer.Create(nil);
-    {$ELSE}
-    _800msTimer := TFPTimer.Create(nil);
-    {$ENDIF}
-    _800msTimer.Enabled := False;
-    _800msTimer.OnTimer := @On_800msTimer;
-    _800msTimer.Interval := 800;
+  _800msTimer.OnTimer := @On_800msTimer;
+  _800msTimer.Interval := 800;
   {$ENDIF}
 end;
 

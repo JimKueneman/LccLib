@@ -27,14 +27,7 @@ uses
     Windows,
     {$ELSE}
       {$IFDEF FPC}
-        {$IFNDEF FPC_CONSOLE_APP}
-        LclIntf,
-        {$ENDIF}
-        {$IFDEF ULTIBO}
-        console,
-        {$ELSE}
-        baseUnix,
-        {$ENDIF}
+        {$IFDEF ULTIBO}console,{$ELSE}baseUnix,{$ENDIF}
         sockets,
       {$ELSE}
       strutils, Posix.NetinetIn, Posix.ArpaInet, Posix.SysSocket, Posix.Errno, Posix.Unistd,
@@ -927,6 +920,37 @@ begin
   Result := Trim(Result);
   for i := 0 to (40 - Length(Result)) do
     Result := Result + ' ';  // Pad them all to the same length
+end;
+{$ENDIF}
+
+{$IFDEF ULTIBO}
+function GetNetworkConnected:Boolean;
+var
+ Address:String;
+begin
+ {}
+ Result:=False;
+
+ {Get Address}
+ Address := ResolveUltiboIp;
+
+ {Check Address}
+ if Address = '' then Exit;
+ if Address = '0.0.0.0' then Exit;
+ if Address = '255.255.255.255' then Exit;
+ if Copy(Address,1,Length('192.168.100.')) = '192.168.100.' then Exit;
+
+ Result:=True;
+end;
+
+procedure WaitForNetworkConnection(PrintToConsole: Boolean);
+begin
+ if PrintToConsole then
+   ConsoleWriteLn('Looking for the Raspberry Pi''s IP Address');
+ while GetNetworkConnected = False do
+    Sleep(1000);
+ if PrintToConsole then
+   ConsoleWriteLn('IP Address found: ' + ResolveUltiboIp);
 end;
 {$ENDIF}
 

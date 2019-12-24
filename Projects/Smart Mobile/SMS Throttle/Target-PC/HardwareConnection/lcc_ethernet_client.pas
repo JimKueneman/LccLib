@@ -595,8 +595,6 @@ var
   {$IFDEF LCC_WINDOWS}
   LocalName: string;
   IpStrings: TStringList;
-  {$ELSE}
-  Ip: String;
   {$ENDIF}
 begin
   FRunning := True;
@@ -636,6 +634,7 @@ begin
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin
       Socket.ResetLastError;
+      FillChar(Peer, Sizeof(TVarSin), #0);
       if GetPeerName(Socket.Socket, Peer) = 0 then
         Break;
       Inc(RetryCount);

@@ -20,13 +20,11 @@ uses
   Classes,
   SysUtils,
   contnrs,
-  ExtCtrls,
- // lcc_common_classes,
+  {$IFNDEF ULTIBO}ExtCtrls,{$ENDIF}
 {$ENDIF}
   lcc_node,
   lcc_defines,
-  lcc_node_messages,
-  lcc_utilities;
+  lcc_node_messages;
 
 type
 

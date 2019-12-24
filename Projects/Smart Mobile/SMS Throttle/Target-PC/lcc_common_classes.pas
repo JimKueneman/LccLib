@@ -12,7 +12,6 @@ uses
   Classes,
   SysUtils,
   {$IFDEF FPC}
-    contnrs,
   {$ELSE}
     System.Generics.Collections,
   {$ENDIF}
