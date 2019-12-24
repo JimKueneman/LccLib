@@ -1,3 +1,7 @@
+//
+// Reads the basic capabilities of the memory space read/write spaces, i.e. how many bytes can be accessed, if they need to be alligned, etc.
+//   this is mainly for microprocessor memory limitation
+//
 unit lcc_protocol_memory_options;
 
 interface
@@ -135,7 +139,6 @@ begin
           SupportACDIUserRead := OpsMask and MCO_ACDI_USER_READS <> 0;
           SupportACDIUserWrite := OpsMask and MCO_ACDI_USER_WRITES <> 0;
           Valid := True;
-     //     OwnerManager.DoConfigMemOptionsReply(OwnerManager.FindMirroredNodeBySourceID(SourceLccMessage, True), OwnerManager.FindMirroredNodeBySourceID(SourceLccMessage, True));
         end;
     end
   end;

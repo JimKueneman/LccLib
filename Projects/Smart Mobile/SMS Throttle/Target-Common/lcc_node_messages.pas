@@ -141,7 +141,7 @@ public
   procedure LoadProducerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);
   procedure LoadIdentifyEventsAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadIdentifyEvents(ASourceID: TNodeID; ASourceAlias: Word);
-  procedure LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: {$IFDEF DWSCRIPT}TEventID{$ELSE}PEventID{$ENDIF});
+  procedure LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: TEventID);
   // Traction Control
 //  procedure LoadTractionSetSpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
   procedure LoadTractionSetFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AnAddress: DWord; AValue: Word);
@@ -330,7 +330,7 @@ end;
 
 function TLccMessage.ExtractAddressSpace: Byte;
 begin
-  // Only valid if the message is a configuration memeory message!!!!!!!
+  // Only valid if the message is a configuration memory message!!!!!!!
   Result := 0;
   case DataArrayIndexer[1] and $03 of
     0 : Result := DataArrayIndexer[6];
@@ -463,17 +463,9 @@ begin
       if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
       begin
         ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-        {$IFDEF DWSCRIPT}
-        DestHi := TDatatype.HexStrToInt('0x' + ByteStr);
-        {$ELSE}
-        DestHi := StrToInt('$' + ByteStr);
-        {$ENDIF}
+        {$IFDEF DWSCRIPT}DestHi := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestHi := StrToInt('$' + ByteStr);{$ENDIF}
         ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
-        {$IFDEF DWSCRIPT}
-        DestLo := TDatatype.HexStrToInt('0x' + ByteStr);
-        {$ELSE}
-        DestLo := StrToInt('$' + ByteStr);
-        {$ENDIF}
+        {$IFDEF DWSCRIPT}DestLo := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestLo := StrToInt('$' + ByteStr);{$ENDIF}
         Inc(i_Data, 4);
         CAN.FramingBits := DestHi and $30;
         CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
@@ -489,11 +481,7 @@ begin
     while i_Data < i_SemiColon - i_N do
     begin
       ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-      {$IFDEF DWSCRIPT}
-      FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);
-      {$ELSE}
-      FDataArray[FDataCount] := StrToInt('$' + ByteStr);
-      {$ENDIF}
+      {$IFDEF DWSCRIPT}FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}FDataArray[FDataCount] := StrToInt('$' + ByteStr);{$ENDIF}
       Inc(i_Data, 2);
       Inc(FDataCount);
     end;
@@ -913,12 +901,12 @@ begin
 end;
 
 
-procedure TLccMessage.LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: {$IFDEF DWSCRIPT}TEventID{$ELSE}PEventID{$ENDIF});
+procedure TLccMessage.LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: TEventID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   CAN.SourceAlias := ASourceAlias;
-  InsertEventID(0, AnEvent{$IFNDEF DWSCRIPT}^{$ENDIF});
+  InsertEventID(0, AnEvent);
   DataCount := 8;
   MTI := MTI_PC_EVENT_REPORT;
 end;
@@ -1080,8 +1068,7 @@ begin
 end;
 
 }
-procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word
-  );
+procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;
@@ -1383,7 +1370,8 @@ begin
   MTI := MTI_SIMPLE_TRAIN_INFO_REQUEST;
 end;
 
-procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray);
+procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word;
+  ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray);
 var
   i: Integer;
 begin
@@ -1398,7 +1386,8 @@ begin
   MTI := MTI_SIMPLE_NODE_INFO_REPLY;
 end;
 
-procedure TLccMessage.LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+procedure TLccMessage.LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word;
+  ADestID: TNodeID; ADestAlias: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;
@@ -1533,7 +1522,8 @@ begin
   FDataArray[1] := _Lo(Reason);
 end;
 
-procedure TLccMessage.LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
+procedure TLccMessage.LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word;
+  ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
 begin
   ZeroFields;
   SourceID := ASourceID;
@@ -1547,7 +1537,8 @@ begin
   FMTI := MTI_DATAGRAM;
 end;
 
-procedure TLccMessage.LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+procedure TLccMessage.LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word;
+  ADestID: TNodeID; ADestAlias: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;

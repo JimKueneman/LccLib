@@ -21,7 +21,7 @@ uses
   SysUtils,
   contnrs,
   ExtCtrls,
-  lcc_common_classes,
+ // lcc_common_classes,
 {$ENDIF}
   lcc_node,
   lcc_defines,
@@ -43,10 +43,6 @@ type
 
   TLccNodeManager = class(TComponent)
   private
-    {$IFNDEF DWSCRIPT}
-    FCdiParser: TLccCdiParserBase;
-    FHardwareConnection: TLccHardwareConnectionManager;
-    {$ENDIF}
     FOnAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -122,40 +118,48 @@ type
 
     procedure Clear;
     function AddNode: TLccNode; virtual;
+    procedure LogoutAll;
+
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
-    procedure LogoutAll;
-    procedure ProcessMessage(LccMessage: TLccMessage);
 
-    procedure LccMessageReceive(LccMessage: TLccMessage);
-    procedure LccMessageSend(LccMessage: TLccMessage);
+    procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
+    procedure LccMessageSendCallback(LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
 
   published
-    {$IFNDEF DWSCRIPT}
-    property CdiParser: TLccCdiParserBase read FCdiParser write FCdiParser;
-    property HardwareConnection: TLccHardwareConnectionManager read FHardwareConnection write FHardwareConnection;
-    {$ENDIF}
-    property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
-    property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;
-    property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
-    property OnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace read FOnLccNodeConfigMemAddressSpaceInfoReply write FOnLccNodeConfigMemAddressSpaceInfoReply;
-    property OnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemOptionsReply write FOnLccNodeConfigMemOptionsReply;
-    property OnLccNodeConfigMemReadReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemReadReply write FOnLccNodeConfigMemReadReply;
-    property OnLccNodeConfigMemWriteReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemWriteReply write FOnLccNodeConfigMemWriteReply;
-    property OnLccNodeConsumerIdentified: TOnLccNodeEventIdentified read FOnLccNodeConsumerIdentified write FOnLccNodeConsumerIdentified;
+    // Node Management
     property OnLccNodeCreate: TOnLccNodeMessage read FOnLccNodeCreate write FOnLccNodeCreate;
-    property OnLccNodeDatagramReply: TOnLccNodeMessageWithDest read FOnLccNodeDatagramReply write FOnLccNodeDatagramReply;
     property OnLccNodeDestroy: TOnLccNodeMessage read FOnLccNodeDestroy write FOnLccNodeDestroy;
-    property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
-    property OnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest read FOnLccNodeFunctionConfiguration write FOnLccNodeFunctionConfiguration;
     property OnNodeIDChanged: TOnLccNodeMessage read FOnNodeIDChanged write FOnNodeIDChanged;
     property OnLccNodeInitializationComplete: TOnLccNodeMessage read FOnLccNodeInitializationComplete write FOnLccNodeInitializationComplete;
-    property OnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest read FOnLccNodeOptionalInteractionRejected write FOnLccNodeOptionalInteractionRejected;
-    property OnLccNodeProducerIdentified: TOnLccNodeEventIdentified read FOnLccNodeProducerIdentified write FOnLccNodeProducerIdentified;
+    property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
     property OnLccNodeProtocolIdentifyReply: TOnLccNodeMessageWithDest read FOnLccNodeProtocolIdentifyReply write FOnLccNodeProtocolIdentifyReply;
-    property OnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest read FOnLccNodeRemoteButtonReply write FOnLccNodeRemoteButtonReply;
+
+    // CAN Node Management
+    property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
+    property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;
+
+    // Configuration Memory Information
+    property OnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace read FOnLccNodeConfigMemAddressSpaceInfoReply write FOnLccNodeConfigMemAddressSpaceInfoReply;
+    property OnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemOptionsReply write FOnLccNodeConfigMemOptionsReply;
+
+    // Configuration Memory Access
+    property OnLccNodeCDI: TOnLccNodeMessageWithDest read FOnLccNodeCDI write FOnLccNodeCDI;
+    property OnLccNodeConfigMemReadReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemReadReply write FOnLccNodeConfigMemReadReply;
+    property OnLccNodeConfigMemWriteReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemWriteReply write FOnLccNodeConfigMemWriteReply;
+
+    // Events
+    property OnLccNodeConsumerIdentified: TOnLccNodeEventIdentified read FOnLccNodeConsumerIdentified write FOnLccNodeConsumerIdentified;
+    property OnLccNodeProducerIdentified: TOnLccNodeEventIdentified read FOnLccNodeProducerIdentified write FOnLccNodeProducerIdentified;
+
+    // SNIP
     property OnLccNodeSimpleNodeIdentReply: TOnLccNodeMessageWithDest read FOnLccNodeSimpleNodeIdentReply write FOnLccNodeSimpleNodeIdentReply;
     property OnLccNodeSimpleTrainNodeIdentReply: TOnLccNodeMessageWithDest read FOnLccNodeSimpleTrainNodeIdentReply write FOnLccNodeSimpleTrainNodeIdentReply;
+
+    // Datagrams
+    property OnLccNodeDatagramReply: TOnLccNodeMessageWithDest read FOnLccNodeDatagramReply write FOnLccNodeDatagramReply;
+
+    // Traction
     property OnLccNodeTractionControllerChangeNotify: TOnLccNodeTractionControllerChangeNotify read FOnLccNodeTractionControllerChangeNotify write FOnLccNodeTractionControllerChangeNotify;
     property OnLccNodeTractionReplyQuerySpeed: TOnLccNodeMessageWithDest read FOnLccNodeTractionReplyQuerySpeed write FOnLccNodeTractionReplyQuerySpeed;
     property OnLccNodeTractionReplyQueryFunction: TOnLccNodeMessageWithDest read FOnLccNodeTractionReplyQueryFunction write FOnLccNodeTractionReplyQueryFunction;
@@ -163,8 +167,17 @@ type
     property OnLccNodeTractionReplyControllerQuery: TOnLccNodeTractionControllerQuery read FOnLccNodeTractionReplyControllerQuery write FOnLccNodeTractionReplyControllerQuery;
     property OnLccNodeTractionReplyControllerChangeNotify: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyControllerChangeNotify write FOnLccNodeTractionReplyControllerChangeNotify;
     property OnLccNodeTractionReplyManage: TOnLccNodeMessageResultCode read FOnLccNodeTractionReplyManage write FOnLccNodeTractionReplyManage;
-    property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
 
+    // Traction DCC Functions
+    property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
+    property OnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest read FOnLccNodeFunctionConfiguration write FOnLccNodeFunctionConfiguration;
+
+
+    // Other stuff that may not be useful
+    property OnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest read FOnLccNodeOptionalInteractionRejected write FOnLccNodeOptionalInteractionRejected;
+    property OnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest read FOnLccNodeRemoteButtonReply write FOnLccNodeRemoteButtonReply;
+
+    // Message Management
     property OnLccMessageReceive: TOnMessageEvent read FOnLccMessageReceive write FOnLccMessageReceive;
     property OnLccMessageSend: TOnMessageEvent read FOnLccMessageSend write FOnLccMessageSend;
   end;
@@ -186,7 +199,7 @@ implementation
 
 function TLccCanNodeManager.AddNode: TLccCanNode;
 begin
-  Result := TLccCanNode.Create(@DoLccMessageSend);
+  Result := TLccCanNode.Create(@LccMessageSendCallback);
   Nodes.Add(Result);
 end;
 
@@ -271,13 +284,6 @@ end;
 
 procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode);
 begin
-  {$IFNDEF DWSCRIPT}
-  if not (csDestroying in ComponentState) then
-  begin
-    if Assigned(CdiParser) then
-      CdiParser.NotifyLccNodeDestroy(LccNode);
-  end;
-  {$ENDIF}
   if Assigned(OnLccNodeDestroy) then
     OnLccNodeDestroy(Self, LccNode);
 end;
@@ -302,20 +308,12 @@ end;
 
 procedure TLccNodeManager.DoLccMessageReceive(Message: TLccMessage);
 begin
-  {$IFNDEF DWSCRIPT}
-  if Assigned(HardwareConnection) then
-    HardwareConnection.SendMessage(Message);
-  {$ENDIF}
   if Assigned(OnLccMessageReceive) then
     OnLccMessageReceive(Self, Message);
 end;
 
 procedure TLccNodeManager.DoLccMessageSend(Message: TLccMessage);
 begin
-  {$IFNDEF DWSCRIPT}
-  if Assigned(HardwareConnection) then
-    HardwareConnection.SendMessage(Message);
-  {$ENDIF}
   if Assigned(OnLccMessageSend) then
     OnLccMessageSend(Self, Message);
 end;
@@ -434,8 +432,9 @@ end;
 
 function TLccNodeManager.AddNode: TLccNode;
 begin
-  Result := TLccNode.Create(@DoLccMessageSend);
+  Result := TLccNode.Create(@LccMessageSendCallback);
   Nodes.Add(Result);
+  DoCreateLccNode(Result);
 end;
 
 destructor TLccNodeManager.Destroy;
@@ -453,7 +452,10 @@ begin
   try
     LogoutAll;
     for i := 0 to FNodes.Count - 1 do
+    begin
+      DoDestroyLccNode(TLccNode( FNodes[i]));
       TObject( FNodes[i]).Free;
+    end;
   finally
     Nodes.Clear;
   end;
@@ -493,17 +495,15 @@ begin
   end;
 end;
 
-procedure TLccNodeManager.LccMessageReceive(LccMessage: TLccMessage);
-begin
-  DoLccMessageReceive(LccMessage);
-end;
-
 procedure TLccNodeManager.LogoutAll;
 var
   i: Integer;
 begin
   for i := 0 to Nodes.Count - 1 do
+  begin
+    // Maybe an OnLogout property?
     TLccNode( Nodes[i]).Logout;
+  end;
 end;
 
 procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage);
@@ -515,7 +515,7 @@ begin
   DoLccMessageReceive(LccMessage);
 end;
 
-procedure TLccNodeManager.LccMessageSend(LccMessage: TLccMessage);
+procedure TLccNodeManager.LccMessageSendCallback(LccMessage: TLccMessage);
 begin
   DoLccMessageSend(LccMessage);
 end;
@@ -523,7 +523,9 @@ end;
 
 
 initialization
-//  RegisterClass(TLccNodeManager);
+{$IFNDEF DWSCRIPT}
+   RegisterClass(TLccNodeManager);
+{$ENDIF}
 
 finalization
 

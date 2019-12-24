@@ -1,3 +1,6 @@
+//
+// Reads the information about what memory spaces are available to a datagram
+//
 unit lcc_protocol_memory_information;
 
 interface
@@ -210,7 +213,6 @@ begin
          ImpliedZeroAddress,                          // Implied Zero Address
          SourceLccMessage.ExtractDataBytesAsInt(8, 11),     // Low Memory Address
          SourceLccMessage.ExtractDataBytesAsInt(3, 6));     // High Memory Address
-//   OwnerManager.DoConfigMemAddressSpaceInfoReply(OwnerManager.FindMirroredNodeBySourceID(LccMessage, True), OwnerManager.FindMirroredNodeByDestID(LccMessage, True), Space);
  end;
  Valid := True;                                       // Had at least one....
 end;

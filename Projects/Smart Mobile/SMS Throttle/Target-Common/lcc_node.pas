@@ -463,7 +463,7 @@ begin
                 end else
                 begin
            //       SourceLccMessage.SwapDestAndSourceIDs;
-           //       SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL);
+           //       SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL);        // See below note in the END FRAME
                   Exit; // Jump Out
                 end
               end;
@@ -724,7 +724,6 @@ begin
   FProtocolMemoryOptions := TProtocolMemoryOptions.Create(ASendMessageFunc);
   FMemoryConfiguration := TProtocolMemoryConfiguration.Create(SendMessageFunc, MSI_CONFIG, False);
   FProtocolMemoryInfo := TProtocolMemoryInfo.Create(ASendMessageFunc);
- //JDK FConfigurationMem := TConfigurationMemory.Create(ASendMessageFunc);
   FProtocolEventConsumed := TProtocolEvents.Create(ASendMessageFunc);
   FProtocolEventsProduced := TProtocolEvents.Create(ASendMessageFunc);
   FACDIMfg := TACDIMfg.Create(nil, MSI_ACDI_MFG, True);
@@ -784,7 +783,6 @@ begin
   FProtocolSupportedProtocols.Free;
   FProtocolSimpleNodeInfo.Free;
   FTProtocolMemoryConfigurationDefinitionInfo.Free;
- //JDK FConfigurationMem.Free;
   FProtocolEventConsumed.Free;
   FProtocolEventsProduced.Free;
   FProtocolMemoryOptions.Free;
@@ -832,142 +830,192 @@ begin
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
 
- // if Initialized then;
+  // First look for a duplicate NodeID
+  if EqualNodeID(NodeID, SourceLccMessage.SourceID, False) then
   begin
-    // First look for a duplicate NodeID
-    if EqualNodeID(NodeID, SourceLccMessage.SourceID, False) then
-    begin
-      Logout;
+    Logout;
+    Exit;
+  end;
+
+
+  // Next look to see if it is an addressed message and if not for use just exit
+
+
+  if SourceLccMessage.HasDestination then
+  begin
+    if not IsDestinationEqual(SourceLccMessage) then
       Exit;
-    end;
+  end;
 
-
-    // Next look to see if it is an addressed message and if not for use just exit
-
-
-    if SourceLccMessage.HasDestination then
-    begin
-      if not IsDestinationEqual(SourceLccMessage) then
-        Exit;
-    end;
-
-    case SourceLccMessage.MTI of
-      MTI_OPTIONAL_INTERACTION_REJECTED :
+  case SourceLccMessage.MTI of
+    MTI_OPTIONAL_INTERACTION_REJECTED :
+        begin
+          // TODO need a call back handler
+        end;
+    MTI_VERIFY_NODE_ID_NUMBER      :
+        begin
+          if SourceLccMessage.DataCount = 6 then
           begin
-            // TODO need a call back handler
-          end;
-      MTI_VERIFY_NODE_ID_NUMBER      :
-          begin
-            if SourceLccMessage.DataCount = 6 then
-            begin
-              SourceLccMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-              if EqualNodeID(TestNodeID, NodeID, False) then
-              begin
-                WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
-                SendMessageFunc(WorkerMessage);
-              end
-            end else
+            SourceLccMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
+            if EqualNodeID(TestNodeID, NodeID, False) then
             begin
               WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
               SendMessageFunc(WorkerMessage);
-            end;
-            Result := True;
-          end;
-      MTI_VERIFY_NODE_ID_NUMBER_DEST :
+            end
+          end else
           begin
             WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
             SendMessageFunc(WorkerMessage);
-            Result := True;
           end;
-      MTI_VERIFIED_NODE_ID_NUMBER :
-          begin
-             // TODO need a call back handler
-          end;
-      MTI_SIMPLE_NODE_INFO_REQUEST :
-          begin
-            WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat);
-            SendMessageFunc(WorkerMessage);
-            Result := True;
-          end;
-      MTI_SIMPLE_NODE_INFO_REPLY :
-          begin  // Called if I send a SNIP Request and the other node replies
-            // TODO need a call back handler
-            Result := True;
-          end;
-      MTI_PROTOCOL_SUPPORT_INQUIRY :
-          begin
-            WorkerMessage.LoadProtocolIdentifyReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
-            SendMessageFunc(WorkerMessage);
-            Result := True;
-          end;
-      MTI_PROTOCOL_SUPPORT_REPLY :
-          begin   // Called if I send a Protocol Support and loads the ProtocolSupportedProtocols with the data
-            // TODO need a call back handler
-            Result := True;
-          end;
-      MTI_EVENTS_IDENTIFY :
-          begin
-            SendConsumedEvents;
-            SendProducedEvents;
-            Result := True;
-          end;
-      MTI_EVENTS_IDENTIFY_DEST :
-          begin
-            SendConsumedEvents;  // already known the destination is us
-            SendProducedEvents;
-            Result := True;
-          end;
-      MTI_PRODUCER_IDENDIFY :
-          begin
-            Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-            SendProducerIdentify(Temp);         // Compatible with Smart Pascal
-            Result := True;
-          end;
-      MTI_CONSUMER_IDENTIFY :
-          begin
-            Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-            SendConsumerIdentify(Temp);        // Compatible with Smart Pascal
-            Result := True;
-          end;
-       MTI_CONSUMER_IDENTIFIED_CLEAR :
-          begin
-            // TODO need a call back handler
-          end;
-       MTI_CONSUMER_IDENTIFIED_SET :
-          begin
+          Result := True;
+        end;
+    MTI_VERIFY_NODE_ID_NUMBER_DEST :
+        begin
+          WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
+          SendMessageFunc(WorkerMessage);
+          Result := True;
+        end;
+    MTI_VERIFIED_NODE_ID_NUMBER :
+        begin
            // TODO need a call back handler
-          end;
-       MTI_CONSUMER_IDENTIFIED_UNKNOWN :
-          begin
-            // TODO need a call back handler
-          end;
-       MTI_PRODUCER_IDENTIFIED_CLEAR :
-          begin
-            // TODO need a call back handler
-          end;
-       MTI_PRODUCER_IDENTIFIED_SET :
-          begin
-            // TODO need a call back handler
-          end;
-       MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-          begin
-            // TODO need a call back handler
-          end;
-       MTI_DATAGRAM_REJECTED_REPLY :
-         begin
-           DatagramResendQueue.Resend(SourceLccMessage);
-         end;
-       MTI_DATAGRAM_OK_REPLY :
-         begin
-           DatagramResendQueue.Remove(SourceLccMessage);
-         end;
-       MTI_DATAGRAM :
-         begin
-           case SourceLccMessage.DataArrayIndexer[0] of
-             DATAGRAM_PROTOCOL_CONFIGURATION :
-               begin
-                 case SourceLccMessage.DataArrayIndexer[1] and $F0 of
-                   MCP_WRITE :
+        end;
+    MTI_SIMPLE_NODE_INFO_REQUEST :
+        begin
+          WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat);
+          SendMessageFunc(WorkerMessage);
+          Result := True;
+        end;
+    MTI_SIMPLE_NODE_INFO_REPLY :
+        begin  // Called if I send a SNIP Request and the other node replies
+          // TODO need a call back handler
+          Result := True;
+        end;
+    MTI_PROTOCOL_SUPPORT_INQUIRY :
+        begin
+          WorkerMessage.LoadProtocolIdentifyReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
+          SendMessageFunc(WorkerMessage);
+          Result := True;
+        end;
+    MTI_PROTOCOL_SUPPORT_REPLY :
+        begin   // Called if I send a Protocol Support and loads the ProtocolSupportedProtocols with the data
+          // TODO need a call back handler
+          Result := True;
+        end;
+    MTI_EVENTS_IDENTIFY :
+        begin
+          SendConsumedEvents;
+          SendProducedEvents;
+          Result := True;
+        end;
+    MTI_EVENTS_IDENTIFY_DEST :
+        begin
+          SendConsumedEvents;  // already known the destination is us
+          SendProducedEvents;
+          Result := True;
+        end;
+    MTI_PRODUCER_IDENDIFY :
+        begin
+          Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
+          SendProducerIdentify(Temp);         // Compatible with Smart Pascal
+          Result := True;
+        end;
+    MTI_CONSUMER_IDENTIFY :
+        begin
+          Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
+          SendConsumerIdentify(Temp);        // Compatible with Smart Pascal
+          Result := True;
+        end;
+     MTI_CONSUMER_IDENTIFIED_CLEAR :
+        begin
+          // TODO need a call back handler
+        end;
+     MTI_CONSUMER_IDENTIFIED_SET :
+        begin
+         // TODO need a call back handler
+        end;
+     MTI_CONSUMER_IDENTIFIED_UNKNOWN :
+        begin
+          // TODO need a call back handler
+        end;
+     MTI_PRODUCER_IDENTIFIED_CLEAR :
+        begin
+          // TODO need a call back handler
+        end;
+     MTI_PRODUCER_IDENTIFIED_SET :
+        begin
+          // TODO need a call back handler
+        end;
+     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+        begin
+          // TODO need a call back handler
+        end;
+     MTI_DATAGRAM_REJECTED_REPLY :
+       begin
+         DatagramResendQueue.Resend(SourceLccMessage);
+       end;
+     MTI_DATAGRAM_OK_REPLY :
+       begin
+         DatagramResendQueue.Remove(SourceLccMessage);
+       end;
+     MTI_DATAGRAM :
+       begin
+         case SourceLccMessage.DataArrayIndexer[0] of
+           DATAGRAM_PROTOCOL_CONFIGURATION :
+             begin
+               case SourceLccMessage.DataArrayIndexer[1] and $F0 of
+                 MCP_WRITE :
+                   begin
+                     case SourceLccMessage.DataArrayIndexer[1] and $03 of
+                       MCP_NONE :
+                           begin
+                             case SourceLccMessage.DataArrayIndexer[6] of
+                               MSI_CDI             :
+                                   begin
+                                   end;  // Not writeable
+                               MSI_ALL             :
+                                   begin
+                                   end;  // Not writeable
+                               MSI_CONFIG          :
+                                   begin
+                                     SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
+                                     ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
+                                     Result := True;
+                                   end;
+                               MSI_ACDI_MFG        :
+                                   begin
+                                   end;  // Not writeable
+                               MSI_ACDI_USER       :
+                                   begin
+                                     SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
+                                     ACDIUser.WriteRequest(SourceLccMessage);
+                                     Result := True;
+                                   end;
+                               MSI_FDI             :
+                                   begin
+                                   end;  // Not writeable
+                               MSI_FUNCTION_CONFIG :
+                                   begin
+                                   end;
+                             end
+                           end;
+                       MCP_CONFIGURATION :
+                           begin
+                             SendDatagramAckReply(SourceLccMessage, False, 0);             // We will be sending a Write Reply
+                             ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
+                             Result := True;
+                           end;
+                       MCP_ALL           :
+                           begin
+                           end; // Not writeable
+                       MCP_CDI           :
+                           begin
+                           end; // Not writeable
+                     end;
+                   end;
+                 MCP_WRITE_STREAM :
+                     begin
+                     end;
+                 MCP_READ :
                      begin
                        case SourceLccMessage.DataArrayIndexer[1] and $03 of
                          MCP_NONE :
@@ -975,180 +1023,127 @@ begin
                                case SourceLccMessage.DataArrayIndexer[6] of
                                  MSI_CDI             :
                                      begin
-                                     end;  // Not writeable
+                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                  SourceLccMessage.CAN.SourceAlias);
+                                       ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
+                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                                       Result := True;
+                                     end;
                                  MSI_ALL             :
                                      begin
-                                     end;  // Not writeable
+                                       SendDatagramAckReply(SourceLccMessage, False, 0);   // We won't be sending a Read Reply
+                                     end;
                                  MSI_CONFIG          :
                                      begin
-                                       SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
-                                       ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
+                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                  SourceLccMessage.CAN.SourceAlias);
+                                       ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
+                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                        Result := True;
                                      end;
                                  MSI_ACDI_MFG        :
                                      begin
-                                     end;  // Not writeable
+                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                  SourceLccMessage.CAN.SourceAlias);
+                                       ACDIMfg.LoadReply(SourceLccMessage, WorkerMessage);
+                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                                       Result := True;
+                                     end;
                                  MSI_ACDI_USER       :
                                      begin
-                                       SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
-                                       ACDIUser.WriteRequest(SourceLccMessage);
+                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                  SourceLccMessage.CAN.SourceAlias);
+                                       ACDIUser.LoadReply(SourceLccMessage, WorkerMessage);
+                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                                        Result := True;
                                      end;
                                  MSI_FDI             :
-                                     begin
-                                     end;  // Not writeable
+                                      begin
+                                      end;
                                  MSI_FUNCTION_CONFIG :
-                                     begin
-                                     end;
+                                      begin
+                                      end;
                                end
                              end;
-                         MCP_CONFIGURATION :
-                             begin
-                               SendDatagramAckReply(SourceLccMessage, False, 0);             // We will be sending a Write Reply
-                               ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
-                               Result := True;
-                             end;
-                         MCP_ALL           :
-                             begin
-                             end; // Not writeable
-                         MCP_CDI           :
-                             begin
-                             end; // Not writeable
+                         MCP_CONFIGURATION : begin
+                                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                          SourceLccMessage.CAN.SourceAlias);
+                                               ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
+                                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                                               Result := True;
+                                             end;
+                         MCP_ALL           : begin  end;
+                         MCP_CDI           : begin
+                                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                                          SourceLccMessage.CAN.SourceAlias);
+                                               ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
+                                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                                               Result := True;
+                                             end;
                        end;
                      end;
-                   MCP_WRITE_STREAM :
-                       begin
-                       end;
-                   MCP_READ :
-                       begin
-                         case SourceLccMessage.DataArrayIndexer[1] and $03 of
-                           MCP_NONE :
-                               begin
-                                 case SourceLccMessage.DataArrayIndexer[6] of
-                                   MSI_CDI             :
-                                       begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                    SourceLccMessage.CAN.SourceAlias);
-                                         ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                                         SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                         Result := True;
-                                       end;
-                                   MSI_ALL             :
-                                       begin
-                                         SendDatagramAckReply(SourceLccMessage, False, 0);   // We won't be sending a Read Reply
-                                       end;
-                                   MSI_CONFIG          :
-                                       begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                    SourceLccMessage.CAN.SourceAlias);
-                                         ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
-                                         SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                         Result := True;
-                                       end;
-                                   MSI_ACDI_MFG        :
-                                       begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                    SourceLccMessage.CAN.SourceAlias);
-                                         ACDIMfg.LoadReply(SourceLccMessage, WorkerMessage);
-                                         SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                         Result := True;
-                                       end;
-                                   MSI_ACDI_USER       :
-                                       begin
-                                         WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                    SourceLccMessage.CAN.SourceAlias);
-                                         ACDIUser.LoadReply(SourceLccMessage, WorkerMessage);
-                                         SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                         Result := True;
-                                       end;
-                                   MSI_FDI             :
-                                        begin
-                                        end;
-                                   MSI_FUNCTION_CONFIG :
-                                        begin
-                                        end;
-                                 end
-                               end;
-                           MCP_CONFIGURATION : begin
-                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                            SourceLccMessage.CAN.SourceAlias);
-                                                 ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
-                                                 SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                                 Result := True;
-                                               end;
-                           MCP_ALL           : begin  end;
-                           MCP_CDI           : begin
-                                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                            SourceLccMessage.CAN.SourceAlias);
-                                                 ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                                                 SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                                 Result := True;
-                                               end;
-                         end;
-                       end;
-                   MCP_READ_STREAM :
-                       begin
-                       end;
-                   MCP_OPERATION :
-                       begin
-                         case SourceLccMessage.DataArrayIndexer[1] of
-                           MCP_OP_GET_CONFIG :
-                               begin
-                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                            SourceLccMessage.CAN.SourceAlias);
-                                 ProtocolMemoryOptions.LoadReply(WorkerMessage);
-                                 SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                 Result := True;
-                               end;
-                           MCP_OP_GET_ADD_SPACE_INFO :
-                               begin
-                                 WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                            SourceLccMessage.CAN.SourceAlias);
-                                 ProtocolMemoryInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                                 SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                 Result := True;
-                               end;
-                           MCP_OP_LOCK :
-                               begin
-                               end;
-                           MCP_OP_GET_UNIQUEID :
-                               begin
-                               end;
-                           MCP_OP_FREEZE :
-                               begin
-                               end;
-                           MCP_OP_INDICATE :
-                               begin
-                               end;
-                           MCP_OP_RESETS :
-                               begin
-                               end;
-                         end // case
-                       end
-                 end; // case
-               end
-           else begin
-               // Unknown Datagram Type
-               WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                  SourceLccMessage.CAN.SourceAlias,
-                                                  REJECTED_DATAGRAMS_NOT_ACCEPTED);
-               SendMessageFunc(WorkerMessage);
-               Result := True;
-             end;
-           end;  // case
-         end;
-    else begin
-        if SourceLccMessage.HasDestination then
-        begin
-          WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                        SourceLccMessage.CAN.SourceAlias,
-                                                        REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
-          SendMessageFunc(WorkerMessage);
-          Result := True;
-        end;
+                 MCP_READ_STREAM :
+                     begin
+                     end;
+                 MCP_OPERATION :
+                     begin
+                       case SourceLccMessage.DataArrayIndexer[1] of
+                         MCP_OP_GET_CONFIG :
+                             begin
+                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                          SourceLccMessage.CAN.SourceAlias);
+                               ProtocolMemoryOptions.LoadReply(WorkerMessage);
+                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                               Result := True;
+                             end;
+                         MCP_OP_GET_ADD_SPACE_INFO :
+                             begin
+                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                          SourceLccMessage.CAN.SourceAlias);
+                               ProtocolMemoryInfo.LoadReply(SourceLccMessage, WorkerMessage);
+                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                               Result := True;
+                             end;
+                         MCP_OP_LOCK :
+                             begin
+                             end;
+                         MCP_OP_GET_UNIQUEID :
+                             begin
+                             end;
+                         MCP_OP_FREEZE :
+                             begin
+                             end;
+                         MCP_OP_INDICATE :
+                             begin
+                             end;
+                         MCP_OP_RESETS :
+                             begin
+                             end;
+                       end // case
+                     end
+               end; // case
+             end
+         else begin
+             // Unknown Datagram Type
+             WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                SourceLccMessage.CAN.SourceAlias,
+                                                REJECTED_DATAGRAMS_NOT_ACCEPTED);
+             SendMessageFunc(WorkerMessage);
+             Result := True;
+           end;
+         end;  // case
+       end;
+  else begin
+      if SourceLccMessage.HasDestination then
+      begin
+        WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                      SourceLccMessage.CAN.SourceAlias,
+                                                      REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
+        SendMessageFunc(WorkerMessage);
+        Result := True;
       end;
-    end; // case
-  end;
+    end;
+  end; // case
 end;
 
 procedure TLccNode.SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);

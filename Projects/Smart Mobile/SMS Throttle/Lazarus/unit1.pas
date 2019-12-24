@@ -67,8 +67,8 @@ var
 begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectionChange;
-  EthernetRec.ListenerIP := '127.0.0.1';
-//  EthernetRec.AutoResolveIP := True;
+//  EthernetRec.ListenerIP := '127.0.0.1';
+  EthernetRec.AutoResolveIP := True;
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
@@ -176,7 +176,6 @@ begin
   CanNodeManager.Free;
   // There is a race of CloseSocket here... called twice in thread and in the CloseConnection call
   EthernetServer.CloseConnection(nil);
- // CanNodeManager.RootNode.LogOut;
   EthernetServer.Free;
 end;
 

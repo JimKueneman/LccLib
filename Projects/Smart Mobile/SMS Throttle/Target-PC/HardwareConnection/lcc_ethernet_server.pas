@@ -38,7 +38,6 @@ uses
   lcc_gridconnect,
   lcc_utilities,
   lcc_defines,
-//  lcc_node_messages_can_assembler_disassembler,
   lcc_node_manager,
   lcc_node_messages,
   lcc_ethernet_client,

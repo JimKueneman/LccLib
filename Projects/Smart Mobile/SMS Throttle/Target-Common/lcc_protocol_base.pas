@@ -143,6 +143,7 @@ begin
   FAddressSpace := AnAddressSpace;
   IsStringBasedStream := NullTerminatedString;
   {$IFDEF DWSCRIPT}
+  // Allocate a byte that is of TByteArray to use in stream operations in a similar manner as Lazarus in decendants
   FBinaryData := TBinaryData.Create(1);
   FOneByteArray := FBinaryData.ToBytes;
   {$ENDIF}
@@ -285,7 +286,6 @@ begin
       WorkerMessage.DataArrayIndexer[7] := 64;                     // Read until the end.....
       WorkerMessage.DataCount := 8;
       WorkerMessage.MTI := MTI_DATAGRAM;
-  //JDK    OwnerManager.DoRequestMessageSend(WorkerMessage);
     end;
   end;
 end;

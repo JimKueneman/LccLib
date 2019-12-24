@@ -1,3 +1,7 @@
+//
+// Reads the Configuration Definition Info (CDI) to a datagram
+//
+
 unit lcc_protocol_memory_configurationdefinitioninfo;
 
 interface

@@ -1,4 +1,9 @@
+//
+// Reads and Writes the Configuration Memory from/to a datagram that the Configuration Definition Info (CDI) maps out
+//
+
 unit lcc_protocol_memory_configuration;
+
 interface
 
 uses

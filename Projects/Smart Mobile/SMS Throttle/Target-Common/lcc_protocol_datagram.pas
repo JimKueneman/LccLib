@@ -26,6 +26,11 @@ uses
   lcc_node_messages,
   lcc_utilities;
 
+
+// A node may have to resend a datagram if the destination has full buffers or other
+// problems.  This queue stores the datagrams a node has sent waiting to see if it is
+// successful, if not the node finds and resends it from this list else it deletes it
+
 type
   { TDatagramQueue }
 
@@ -148,7 +153,6 @@ begin
     if LocalMessage.RetryAttempts < 5 then
     begin
       LocalMessage := Queue[iLocalMessage] as TLccMessage;
-  //    Assert(SendMessageFunc = nil, 'SendMessge function not assigned');
       SendMessageFunc(LocalMessage);
       LocalMessage.RetryAttempts := LocalMessage.RetryAttempts + 1;
     end else
@@ -168,7 +172,7 @@ begin
   for i := Queue.Count - 1 downto 0 do
   begin
     LocalMessage := Queue[i] as TLccMessage;
-    if LocalMessage.AbandonTimeout < 6 then   // 800ms + 6
+    if LocalMessage.AbandonTimeout < 6 then   // 800ms * 6
       LocalMessage.AbandonTimeout := LocalMessage.AbandonTimeout + 1
     else
       {$IFDEF DWSCRIPT}
