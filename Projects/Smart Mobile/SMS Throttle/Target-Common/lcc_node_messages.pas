@@ -18,7 +18,6 @@ uses
   System.Memory,
   System.Memory.Buffer,
   System.Memory.Views,
-  System.Types.Convert,
   {$ELSE}
   Classes,
   SysUtils,

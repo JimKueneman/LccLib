@@ -6,7 +6,12 @@
       <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="4" col="18" row="18" splitview="0" designview="0" splitter="0.444270014762878" />
       <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="273" col="18" row="286" />
       <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="412" col="2" row="422" />
-      <activetab>lcc_defines</activetab>
+      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="8" col="23" row="20" />
+      <tab filename="lcc_protocol_acdi" fullname="..\..\Target-Common\lcc_protocol_acdi.pas" topline="87" col="6" row="97" />
+      <tab filename="lcc_protocol_memory_configuration" fullname="..\..\Target-Common\lcc_protocol_memory_configuration.pas" topline="73" col="3" row="77" />
+      <tab filename="lcc_protocol_base" fullname="..\..\Target-Common\lcc_protocol_base.pas" topline="55" col="1" row="1" />
+      <tab filename="System.Streams" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Streams.pas" topline="499" col="18" row="509" />
+      <activetab>lcc_protocol_memory_configuration</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -15,10 +20,10 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5347</BackgroundCompilations>
-      <EditTime>T03:25:19.449</EditTime>
+      <BackgroundCompilations>5349</BackgroundCompilations>
+      <EditTime>T03:25:58.474</EditTime>
       <CompileTime>T00:00:23.274</CompileTime>
-      <TotalTime>1900-01-05T03:34:22.596</TotalTime>
+      <TotalTime>1900-01-05T19:02:55.781</TotalTime>
       <DesigningTime>T09:59:32.902</DesigningTime>
       <RunningTime>1900-01-02T09:38:51.600</RunningTime>
       <TotalLinesOfCode>499</TotalLinesOfCode>

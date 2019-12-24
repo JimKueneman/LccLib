@@ -2,10 +2,14 @@
   <Project version="3" subversion="0">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-22T20:55:01.113</Modified>
+    <Modified>2019-12-23T12:23:34.298</Modified>
+    <Author>Jim Kueneman</Author>
+    <Company>Mustangpeak</Company>
+    <Description>Lcc Javascript Throttle</Description>
+    <Url>www.mustangpeak.net</Url>
     <Version>
       <Major>0</Major>
-      <Minor>0</Minor>
+      <Minor>1</Minor>
       <Revision>0</Revision>
     </Version>
     <VendorSpecific>
@@ -88,18 +92,6 @@ geo:*</AllowIntent>
       </Execute>
       <WebFonts>
         <usewebfonts>1</usewebfonts>
-        <webfontitem>
-          <fontname>Ubuntu</fontname>
-          <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
-        </webfontitem>
-        <webfontitem>
-          <fontname>Ubuntu</fontname>
-          <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
-        </webfontitem>
-        <webfontitem>
-          <fontname>Ubuntu</fontname>
-          <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>
-        </webfontitem>
         <webfontitem>
           <fontname>Ubuntu</fontname>
           <fonturl>https://fonts.googleapis.com/css?family=Ubuntu</fonturl>

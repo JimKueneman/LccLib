@@ -83,10 +83,13 @@ begin
    while (i + Address < DWord( AStream.Size)) and not Done do
    begin
      {$IFDEF FPC}
-     C := Chr(AStream.ReadByte);
+       C := Chr(AStream.ReadByte);
      {$ELSE}
- //JDK
-  //   AStream.Read(C, 1);
+       {$IFDEF DWSCRIPT}
+         AStream.
+       {$ELSE}
+         AStream.Read(C, 1);
+       {$ENDIF}
      {$ENDIF}
      if C <> #0 then
        Result := Result + C

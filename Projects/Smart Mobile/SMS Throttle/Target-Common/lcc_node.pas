@@ -283,7 +283,7 @@ begin
   begin
    {$IFDEF DWSCRIPT}
     i := InProcessMultiFrameMessage.IndexOf(AMessage);
-    if i > =1 then
+    if i > -1 then
     begin
       InProcessMultiFrameMessage.Remove(i);
       Result := True;
