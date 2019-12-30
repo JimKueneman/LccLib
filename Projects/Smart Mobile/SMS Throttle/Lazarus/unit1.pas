@@ -29,15 +29,21 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
-    Button2: TButton;
+    ButtonLogin: TButton;
     Button3: TButton;
     ButtonDatagramCount: TButton;
     CheckBoxLogging: TCheckBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    LabelNodeCount: TLabel;
+    LabelNodeID: TLabel;
+    Label3: TLabel;
+    LabelAliasID: TLabel;
     LabelAllcoatedDatagrams: TLabel;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
     procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure ButtonLoginClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure ButtonDatagramCountClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -50,6 +56,11 @@ type
     procedure OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+
+    procedure NodeIDChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+    procedure NodeAliasChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+    procedure NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
+    procedure NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
   end;
 
 var
@@ -82,13 +93,14 @@ begin
   end;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TForm1.ButtonLoginClick(Sender: TObject);
 var
   CanNode: TLccCanNode;
 begin
   if CanNodeManager.Nodes.Count = 0 then
   begin
     CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
+
     CanNode.ProtocolSupportedProtocols.CDI := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
@@ -163,10 +175,50 @@ begin
   EthernetServer := TLccEthernetServer.Create(nil);
   EthernetServer.Gridconnect := True;
   CanNodeManager := TLccCanNodeManager.Create(nil);
+  // Setup callbacks
+  CanNodeManager.OnLccNodeAliasIDChanged := @NodeAliasChangeCallback;
+  CanNodeManager.OnLccNodeIDChanged := @NodeIDChangeCallback;
+  CanNodeManager.OnLccNodeDestroy := @NodeDestroyCallback;
+  CanNodeManager.OnLccNodeCreate := @NodeCreateCallback;
   CanNodeManager.OnLccMessageSend := @SendMessage;
   CanNodeManager.OnLccMessageReceive := @ReceiveMessage;
   EthernetServer.NodeManager := CanNodeManager;
   SynEdit1.Clear;
+end;
+
+procedure TForm1.NodeAliasChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  LabelAliasID.Caption := (LccSourceNode as TLccCanNode).AliasIDStr;
+end;
+
+procedure TForm1.NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
+var
+  Count: Integer;
+begin
+  Count := StrToInt(LabelNodeCount.Caption);
+  Inc( Count);
+  LabelNodeCount.Caption := IntToStr( Count);
+  ButtonLogin.Caption := 'Log Out';
+end;
+
+procedure TForm1.NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
+var
+  Count: Integer;
+begin
+  Count := StrToInt(LabelNodeCount.Caption);
+  Dec( Count);
+  LabelNodeCount.Caption := IntToStr( Count);
+  if Count = 0 then
+  begin
+    LabelNodeID.Caption := 'None';
+    LabelAliasID.Caption := 'None';
+  end;
+  ButtonLogin.Caption := 'Log In';
+end;
+
+procedure TForm1.NodeIDChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  LabelNodeID.Caption := LccSourceNode.NodeIDStr;
 end;
 
 procedure TForm1.OnEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);

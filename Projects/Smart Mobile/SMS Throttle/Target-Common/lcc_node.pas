@@ -47,10 +47,12 @@ type
 
 { TLccNode }
 
-TLccNode = class(TNodeProtocolBase)
+TLccNode = class(TObject)
 private
-  FDatagramWorkerMessage: TLccMessage;
+  FWorkerMessageDatagram: TLccMessage;
   FInitialized: Boolean;
+  FNodeManager: TObject;
+  FSendMessageFunc: TLccSendMessageFunc;
   FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data
                                                  // Address 0 = Version
                                                  // Address 1 = Manufacturer
@@ -75,18 +77,23 @@ private
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
   FDatagramResendQueue: TDatagramQueue;
+  FWorkerMessage: TLccMessage;
   F_800msTimer: TLccTimer;
 
   function GetNodeIDStr: String;
 protected
   FNodeID: TNodeID;
 
-  property DatagramWorkerMessage: TLccMessage read FDatagramWorkerMessage write FDatagramWorkerMessage;
+  property NodeManager: TObject read FNodeManager write FNodeManager;
+  property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
   property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
   property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
   property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
+  property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
+  property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
   property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
 
+  procedure CreateNodeID(var Seed: TNodeID);
   function GetAlias: Word; virtual;
   function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
@@ -113,7 +120,7 @@ public
   property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
   property ProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo read FProtocolSimpleNodeInfo write FProtocolSimpleNodeInfo;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string); reintroduce; virtual;
+  constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string); virtual;
   destructor Destroy; override;
 
   function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
@@ -144,7 +151,6 @@ protected
   property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
   property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
-  procedure CreateNodeID(var Seed: TNodeID);
   function GetAlias: Word; override;
   function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
   procedure GenerateNewSeed(var Seed: TNodeID);
@@ -164,7 +170,7 @@ public
    property AliasIDStr: String read GetAliasIDStr;
    property Permitted: Boolean read FPermitted;
 
-   constructor Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string); override;
+   constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string); override;
    destructor Destroy; override;
    function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
    procedure Login(ANodeID: TNodeID); override;
@@ -177,11 +183,18 @@ var
 
 implementation
 
+uses
+  lcc_node_manager;
+
+type
+  TLccNodeManagerHack = class(TLccNodeManager)
+  end;
+
 { TLccCanNode }
 
-constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string);
+constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string);
 begin
-  inherited Create(ASendMessageFunc, CdiXML);
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
   FInProcessMultiFrameMessage := TObjectList.Create;
   {$IFNDEF DWSCRIPT}
   InProcessMultiFrameMessage.OwnsObjects := False
@@ -191,10 +204,7 @@ end;
 destructor TLccCanNode.Destroy;
 begin
   if Permitted then
-  begin
-    WorkerMessage.LoadAMR(NodeID, AliasID);
-    SendMessageFunc(WorkerMessage);
-  end;
+    SendAMR;
   InProcessMessageClear;
   InProcessMultiFrameMessage.Free;
   inherited Destroy;
@@ -327,6 +337,7 @@ begin
   SeedNodeID := ANodeID;
   Temp := FSeedNodeID;
   FAliasID := GenerateID_Alias_From_Seed(Temp);
+  TLccNodeManagerHack( NodeManager).DoNodeIDChanged(Self);
   FNodeID := ANodeID;
 
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
@@ -377,6 +388,7 @@ begin
       SendMessageFunc(WorkerMessage);
       WorkerMessage.LoadAMD(NodeID, AliasID);
       SendMessageFunc(WorkerMessage);
+      TLccNodeManagerHack( NodeManager).DoAliasIDChanged(Self);
       inherited Login(NodeID);
     end
   end;
@@ -389,8 +401,12 @@ var
   TestNodeID: TNodeID;
   InProcessMessage: TLccMessage;
   i: Integer;
+  LocalNodeManager: TLccNodeManager;
 begin
   Result := False;
+
+  LocalNodeManager := TLccNodeManager(NodeManager);
+
   // Check for a message with the Alias equal to our own.
   if (AliasID <> 0) and (SourceLccMessage.CAN.SourceAlias = AliasID) then
   begin
@@ -635,17 +651,6 @@ begin
   Result := (Seed[0] xor Seed[1] xor (Seed[0] shr 12) xor (Seed[1] shr 12)) and $00000FFF;
 end;
 
-procedure TLccCanNode.CreateNodeID(var Seed: TNodeID);
-begin
-  Randomize;
-  Seed[1] := StrToInt('0x020112');
-  {$IFDEF DWSCRIPT}
-  Seed[0] := RandomInt($FFFFFF);
-  {$ELSE}
-  Seed[0] := Random($FFFFFF);
-  {$ENDIF}
-end;
-
 procedure TLccCanNode.GenerateNewSeed(var Seed: TNodeID);
 var
   temp1,              // Upper 24 Bits of temp 48 bit number
@@ -682,6 +687,7 @@ begin
     FPermitted := False;
     WorkerMessage.LoadAMR(NodeID, AliasID);
     SendMessageFunc(WorkerMessage);
+    TLccNodeManagerHack( NodeManager).DoCANAliasMapReset(Self);
   end;
 end;
 
@@ -770,11 +776,12 @@ begin
   Result := True;
 end;
 
-constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string);
+constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc;
+  ANodeManager: TObject; CdiXML: string);
 var
   i: Integer;
 begin
-  inherited Create(ASendMessageFunc);
+  inherited Create;
   FProtocolSupportedProtocols := TProtocolSupportedProtocols.Create(ASendMessageFunc);
   FProtocolSimpleNodeInfo := TProtocolSimpleNodeInfo.Create(ASendMessageFunc);
   FTProtocolMemoryConfigurationDefinitionInfo := TProtocolMemoryConfigurationDefinitionInfo.Create(ASendMessageFunc);
@@ -790,7 +797,10 @@ begin
   FStreamManufacturerData := TMemoryStream.Create;
 
   FDatagramResendQueue := TDatagramQueue.Create(SendMessageFunc);
-  FDatagramWorkerMessage := TLccMessage.Create;
+  FWorkerMessageDatagram := TLccMessage.Create;
+  FWorkerMessage := TLccMessage.Create;
+  FSendMessageFunc := ASendMessageFunc;
+  FNodeManager := ANodeManager;
 
   _800msTimer := TLccTimer.Create(nil);
   _800msTimer.Enabled := False;
@@ -845,8 +855,21 @@ begin
   end;
 end;
 
+procedure TLccNode.CreateNodeID(var Seed: TNodeID);
+begin
+  Randomize;
+  Seed[1] := StrToInt('0x020112');
+  {$IFDEF DWSCRIPT}
+  Seed[0] := RandomInt($FFFFFF);
+  {$ELSE}
+  Seed[0] := Random($FFFFFF);
+  {$ENDIF}
+  TLccNodeManagerHack( NodeManager).DoCreateLccNode(Self);
+end;
+
 destructor TLccNode.Destroy;
 begin
+  TLccNodeManagerHack( NodeManager).DoDestroyLccNode(Self);
   _800msTimer.Enabled := False;
   _800msTimer.Free;
   FProtocolSupportedProtocols.Free;
@@ -860,7 +883,8 @@ begin
   FACDIUser.Free;
   FMemoryConfiguration.Free;
   FDatagramResendQueue.Free;
-  FDatagramWorkerMessage.Free;
+  FWorkerMessageDatagram.Free;
+  FWorkerMessage.Free;
   FStreamCdi.Free;
   FStreamConfig.Free;
   FStreamManufacturerData.Free;
@@ -896,6 +920,10 @@ end;
 
 procedure TLccNode.Login(ANodeID: TNodeID);
 begin
+  if NullNodeID(ANodeID) then
+    CreateNodeID(ANodeID);
+  FNodeID := ANodeID;
+  TLccNodeManagerHack( NodeManager).DoNodeIDChanged(Self);
   FInitialized := True;
   SendInitializeComplete;
   AutoGenerateEvents;
@@ -920,6 +948,7 @@ var
   Temp: TEventID;
   AddressSpace, OperationType: Byte;
   DataOffset: Byte;
+  LocalNodeManager: TLccNodeManager;
 begin
 
   // By the time a messages drops into this method it is a fully qualified OpenLCB
@@ -927,6 +956,8 @@ begin
   // into a full OpenLCB message.
 
   Result := False;
+
+  LocalNodeManager := TLccNodeManager(NodeManager);
 
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
@@ -1210,10 +1241,10 @@ end;
 procedure TLccNode.SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   // Only Ack if we accept the datagram
-  DatagramWorkerMessage.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
+  WorkerMessageDatagram.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
                                         SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
                                         True, ReplyPending, TimeOutValueN);
-  SendMessageFunc(DatagramWorkerMessage);
+  SendMessageFunc(WorkerMessageDatagram);
 end;
 
 procedure TLccNode.SendConsumedEvents;
@@ -1245,10 +1276,10 @@ end;
 
 procedure TLccNode.SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
 begin
-  DatagramWorkerMessage.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
+  WorkerMessageDatagram.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
                                              SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
                                              Reason);
-  SendMessageFunc(DatagramWorkerMessage);
+  SendMessageFunc(WorkerMessageDatagram);
 end;
 
 procedure TLccNode.SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
@@ -1271,6 +1302,7 @@ procedure TLccNode.SendInitializeComplete;
 begin
   WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
   SendMessageFunc(WorkerMessage);
+  TLccNodeManagerHack( NodeManager).DoInitializationComplete(Self);
 end;
 
 procedure TLccNode.SendProducedEvents;

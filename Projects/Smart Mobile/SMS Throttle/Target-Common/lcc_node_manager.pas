@@ -41,11 +41,11 @@ type
 
   TLccNodeManager = class(TComponent)
   private
-    FOnAliasIDChanged: TOnLccNodeMessage;
+    FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
-    FOnNodeIDChanged: TOnLccNodeMessage;
+    FOnLccNodeIDChanged: TOnLccNodeMessage;
     FOnLccCANAliasMapReset: TOnLccNodeMessage;
     FOnLccNodeCDI: TOnLccNodeMessageWithDest;
     FOnLccNodeConfigMemReadReply: TOnLccNodeConfigMem;
@@ -75,21 +75,21 @@ type
 
     FNodes: TObjectList;
   protected
-    procedure DoAliasIDChanged(LccNode: TLccNode); virtual;
-    procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;
-    procedure DoCDI(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoAliasIDChanged(LccNode: TLccNode); virtual;               //*
+    procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;             //*
+    procedure DoCDIRead(SourceLccNode, DestLccNode: TLccNode); virtual;
     procedure DoConfigMemAddressSpaceInfoReply(SourceLccNode, DesTLccNode: TLccNode; AddressSpace: Byte); virtual;
     procedure DoConfigMemOptionsReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoConfigMemReadReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
-    procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;
+    procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;     //*
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoDatagramReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
-    procedure DoDestroyLccNode(LccNode: TLccNode); virtual;
+    procedure DoDestroyLccNode(LccNode: TLccNode); virtual;   //*
     procedure DoFDI(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoFunctionConfiguration(SourceLccNode, DesTLccNode: TLccNode); virtual;
-    procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;
-    procedure DoNodeIDChanged(LccNode: TLccNode); virtual;
+    procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;   //*
+    procedure DoNodeIDChanged(LccNode: TLccNode); virtual;                  //*
     procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
@@ -128,13 +128,13 @@ type
     // Node Management
     property OnLccNodeCreate: TOnLccNodeMessage read FOnLccNodeCreate write FOnLccNodeCreate;
     property OnLccNodeDestroy: TOnLccNodeMessage read FOnLccNodeDestroy write FOnLccNodeDestroy;
-    property OnNodeIDChanged: TOnLccNodeMessage read FOnNodeIDChanged write FOnNodeIDChanged;
+    property OnLccNodeIDChanged: TOnLccNodeMessage read FOnLccNodeIDChanged write FOnLccNodeIDChanged;
     property OnLccNodeInitializationComplete: TOnLccNodeMessage read FOnLccNodeInitializationComplete write FOnLccNodeInitializationComplete;
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
     property OnLccNodeProtocolIdentifyReply: TOnLccNodeMessageWithDest read FOnLccNodeProtocolIdentifyReply write FOnLccNodeProtocolIdentifyReply;
 
     // CAN Node Management
-    property OnAliasIDChanged: TOnLccNodeMessage read FOnAliasIDChanged write FOnAliasIDChanged;
+    property OnLccNodeAliasIDChanged: TOnLccNodeMessage read FOnLccNodeAliasIDChanged write FOnLccNodeAliasIDChanged;
     property OnLccCANAliasMapReset: TOnLccNodeMessage read FOnLccCANAliasMapReset write FOnLccCANAliasMapReset;
 
     // Configuration Memory Information
@@ -197,7 +197,7 @@ implementation
 
 function TLccCanNodeManager.AddNode(CdiXML: string): TLccCanNode;
 begin
-  Result := TLccCanNode.Create(@LccMessageSendCallback, CdiXML);
+  Result := TLccCanNode.Create(@LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
 end;
 
@@ -218,8 +218,8 @@ end;
 
 procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode);
 begin
-  if Assigned(OnAliasIDChanged) then
-    OnAliasIDChanged(Self, LccNode);
+  if Assigned(OnLccNodeAliasIDChanged) then
+    OnLccNodeAliasIDChanged(Self, LccNode);
 end;
 
 procedure TLccNodeManager.DoCANAliasMapReset(LccNode: TLccNode);
@@ -228,7 +228,7 @@ begin
      FOnLccCANAliasMapReset(Self, LccNode);
 end;
 
-procedure TLccNodeManager.DoCDI(SourceLccNode, DesTLccNode: TLccNode);
+procedure TLccNodeManager.DoCDIRead(SourceLccNode, DestLccNode: TLccNode);
 begin
   if Assigned(OnLccNodeCDI) then
     OnLccNodeCDI(Self, SourceLccNode, DesTLccNode)
@@ -318,8 +318,8 @@ end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
 begin
-  if Assigned(OnNodeIDChanged) then
-    OnNodeIDChanged(Self, LccNode);
+  if Assigned(OnLccNodeIDChanged) then
+    OnLccNodeIDChanged(Self, LccNode);
 end;
 
 procedure TLccNodeManager.DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode);
@@ -430,7 +430,7 @@ end;
 
 function TLccNodeManager.AddNode(CdiXML: string): TLccNode;
 begin
-  Result := TLccNode.Create(@LccMessageSendCallback, CdiXML);
+  Result := TLccNode.Create(@LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
 end;
@@ -450,10 +450,7 @@ begin
   try
     LogoutAll;
     for i := 0 to FNodes.Count - 1 do
-    begin
-      DoDestroyLccNode(TLccNode( FNodes[i]));
       TObject( FNodes[i]).Free;
-    end;
   finally
     Nodes.Clear;
   end;
