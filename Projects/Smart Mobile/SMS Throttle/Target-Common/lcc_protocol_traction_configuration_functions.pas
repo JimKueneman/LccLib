@@ -1,5 +1,6 @@
 unit lcc_protocol_traction_configuration_functions;
 
+interface
 
 uses
 {$IFDEF DWSCRIPT}
@@ -28,7 +29,7 @@ type
 
   { TFunctionConfiguration }
 
-TFunctionConfiguration = class(TNodeProtocolBase)
+TFunctionConfiguration = class(TStreamBasedProtocol)
 private
   FFunctionStatesArray: TFunctionStatesArray;
   function GetFunctionStates(iIndex: Integer): Boolean;

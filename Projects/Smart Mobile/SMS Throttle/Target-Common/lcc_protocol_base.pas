@@ -23,6 +23,7 @@ uses
   SysUtils,
 {$ENDIF}
   lcc_defines,
+  lcc_utilities,
   lcc_node_messages;
 
 type
@@ -48,41 +49,9 @@ public
   constructor Create(ASendMessageFunc: TLccSendMessageFunc); virtual;
   destructor Destroy; override;
 
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual;
-  procedure LoadFromLccMessage(SourceLccMessage: TLccMessage); virtual;
-end;
-
-{ TStreamBasedProtocol }
-
-TStreamBasedProtocol = class(TNodeProtocolBase)
-private
-  FInProcessAddress: DWord;
-  FNullTerminatedString: Boolean;
-  FStream: TMemoryStream;
-  FAddressSpace: Byte;
-  {$IFDEF DWSCRIPT}
-  FBinaryData: TBinaryData;
-  FOneByteArray: TDynamicByteArray;
-  {$ENDIF}
-protected
-  procedure SetValid(AValue: Boolean); override;
-  procedure DoLoadComplete(LccMessage: TLccMessage); virtual;
-
-  property InProcessAddress: DWord read FInProcessAddress write FInProcessAddress;
-  property AddressSpace: Byte read FAddressSpace write FAddressSpace;
-  property NullTerminatedString: Boolean read FNullTerminatedString write FNullTerminatedString;
-public
-  property AStream: TMemoryStream read FStream write FStream;
-  {$IFDEF DWSCRIPT}
-  property OneByteArray: TDynamicByteArray read FOneByteArray;
-  {$ENDIF}
-
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean); reintroduce; virtual;
-  destructor Destroy; override;
-
-  procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage); virtual;
-  procedure WriteRequest(LccMessage: TLccMessage); virtual;
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+  function ReadAsString(Address: DWord; AStream: TStream): String;
+  procedure DatagramReadRequest(LccMessage: TLccMessage; OutMessage: TLccMessage; AStream: TStream); virtual;
+  procedure DatagramWriteRequest(LccMessage: TLccMessage; AStream: TStream); virtual;
 end;
 
 implementation
@@ -93,6 +62,30 @@ procedure TNodeProtocolBase.SetValid(AValue: Boolean);
 begin
   if FValid=AValue then Exit;
   FValid:=AValue;
+end;
+
+procedure TNodeProtocolBase.DatagramWriteRequest(LccMessage: TLccMessage; AStream: TStream);
+var
+ i: Integer;
+ iStart : Integer;
+ WriteCount,Address: DWord;
+begin
+  // Assumption is this is a datagram message
+
+  // First see if the memory space to work on is in byte 6 or part of the first byte
+  // to determine where the first byte of real data is
+  if LccMessage.DataArrayIndexer[1] and $03 = 0 then
+    iStart := 7
+  else
+    iStart := 6;
+
+  WriteCount := LccMessage.DataCount - iStart;
+  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
+  if Address + WriteCount > DWord( AStream.Size) then
+    AStream.Size := Int64( Address) + Int64(WriteCount);
+  AStream.Position := Address;
+  for i := iStart to LccMessage.DataCount - 1 do
+    StreamWriteByte(AStream, LccMessage.DataArrayIndexer[i]);
 end;
 
 constructor TNodeProtocolBase.Create(ASendMessageFunc: TLccSendMessageFunc);
@@ -109,184 +102,70 @@ begin
   inherited Destroy;
 end;
 
-function TNodeProtocolBase.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
+function TNodeProtocolBase.ReadAsString(Address: DWord; AStream: TStream): String;
+var
+ i: DWord;
+ C: Char;
+ Done: Boolean;
 begin
-
+ Result := '';
+ if AStream.Size > Address then
+ begin
+   AStream.Position := Address;
+   i := 0;
+   Done := False;
+   while (i + Address < DWord( AStream.Size)) and not Done do
+   begin
+     C := Chr( StreamReadByte(AStream));
+     if C <> #0 then
+       Result := Result + C
+     else
+       Done := True;
+     Inc(i)
+   end;
+ end;
 end;
 
-procedure TNodeProtocolBase.LoadFromLccMessage(SourceLccMessage: TLccMessage);
-begin
-  // Do nothing must override to implement
-end;
-
-{ TStreamBasedProtocol }
-
-procedure TStreamBasedProtocol.SetValid(AValue: Boolean);
-begin
-  inherited SetValid(AValue);
-  if not AValue then
-  begin
-    AStream.Size := 0;
-    InProcessAddress := 0;
-  end
-end;
-
-procedure TStreamBasedProtocol.WriteRequest(LccMessage: TLccMessage);
-begin
-
-end;
-
-constructor TStreamBasedProtocol.Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
-begin
-  inherited Create(ASendMessageFunc);
-  FStream := TMemoryStream.Create;
-  FAddressSpace := AnAddressSpace;
-  IsStringBasedStream := NullTerminatedString;
-  {$IFDEF DWSCRIPT}
-  // Allocate a byte that is of TByteArray to use in stream operations in a similar manner as Lazarus in decendants
-  FBinaryData := TBinaryData.Create(1);
-  FOneByteArray := FBinaryData.ToBytes;
-  {$ENDIF}
-end;
-
-destructor TStreamBasedProtocol.Destroy;
-begin
-  FStream.Free;
-  inherited Destroy;
-end;
-
-procedure TStreamBasedProtocol.DoLoadComplete(LccMessage: TLccMessage);
-begin
-
-end;
-
-procedure TStreamBasedProtocol.LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
+procedure TNodeProtocolBase.DatagramReadRequest(LccMessage: TLccMessage; OutMessage: TLccMessage; AStream: TStream);
+//
+// Assumes the Source and Destination have already been set up
+//
 var
   i: Integer;
-  iStart, ReadCount: Integer;
-  AByte: Byte;
-  Address: DWord;
+  FirstDataByte, BytesToRead: Integer;
+  AddressStart: DWord;
 begin
   // Assumption is this is a datagram message
+
+  // Is the addressStart space in the header or is it the first byte in the data that
+  // we need to skip over?
   if LccMessage.DataArrayIndexer[1] and $03 = 0 then
-    iStart := 7
+    FirstDataByte := 7     // Skip over the addressStart space byte in the data
   else
-    iStart := 6;
-  ReadCount := LccMessage.DataArrayIndexer[iStart];
-  OutMessage.DataArrayIndexer[0] := LccMessage.DataArrayIndexer[0];
-  OutMessage.DataArrayIndexer[1] := LccMessage.DataArrayIndexer[1] or $10;   // Make it a reply
-  OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];    // Copy the address
+    FirstDataByte := 6;    // The addressStart space is encoded in the header so use all the data bytes
+  BytesToRead := LccMessage.DataArrayIndexer[FirstDataByte];                  // number of bytes to read
+  OutMessage.DataArrayIndexer[0] := LccMessage.DataArrayIndexer[0];          // Just copy the original message
+  OutMessage.DataArrayIndexer[1] := LccMessage.DataArrayIndexer[1] or $10;   // except set the reply flag
+  OutMessage.DataArrayIndexer[2] := LccMessage.DataArrayIndexer[2];          // Copy the addressStart
   OutMessage.DataArrayIndexer[3] := LccMessage.DataArrayIndexer[3];
   OutMessage.DataArrayIndexer[4] := LccMessage.DataArrayIndexer[4];
   OutMessage.DataArrayIndexer[5] := LccMessage.DataArrayIndexer[5];
-  if iStart = 7 then
+  if FirstDataByte = 7 then
     OutMessage.DataArrayIndexer[6] := LccMessage.DataArrayIndexer[6];
 
-  Address := LccMessage.ExtractDataBytesAsInt(2, 5);
-  if AStream.Size < Address + ReadCount then
-  begin
-    AStream.Position := AStream.Size;
-    for i := 0 to ((Address + ReadCount) - AStream.Size) - 1 do
-    begin
-      {$IFDEF FPC}
-      AStream.WriteByte(0);
-      {$ELSE}
-        {$IFDEF DWSCRIPT}
-        FOneByteArray[0] := 0;
-        AStream.Write(FOneByteArray);
-        {$ELSE}
-        AByte := 0;
-        AStream.Write(AByte, 1);
-        {$ENDIF}
-      {$ENDIF}
-    end;
-  end;
+  AddressStart := LccMessage.ExtractDataBytesAsInt(2, 5);     // Pull out the AddressStart
 
-  if AStream.Size = 0 then
-  begin
-    OutMessage.DataCount := iStart + 1;
-    OutMessage.DataArrayIndexer[iStart] := Ord(#0);
-  end else
-  begin
-    AStream.Position := Address;
+  if (AStream.Size = 0) or (AddressStart > AStream.Size) then   // Something is wrong.. Should I send an error?
+    OutMessage.DataCount := FirstDataByte - 1
+  else begin
+    AStream.Position := AddressStart;
     i := 0;
-    while (AStream.Position < AStream.Size) and (i < ReadCount) do
+    while (AStream.Position < AStream.Size) and (i < BytesToRead) do
     begin
-      AByte := 0;
-      {$IFDEF DWSCRIPT}
-      FOneByteArray := AStream.Read(1);
-      AByte := OneByteArray[0];
-      {$ELSE}
-      AStream.Read(AByte, 1);
-      {$ENDIF}
-      OutMessage.DataArrayIndexer[iStart + i] := AByte;
+      OutMessage.DataArrayIndexer[FirstDataByte + i] := StreamReadByte(AStream);
       Inc(i);
     end;
-    OutMessage.DataCount := iStart + i;
-
-    if NullTerminatedString then
-    begin
-      if AStream.Position = AStream.Size then
-      begin
-        OutMessage.DataArrayIndexer[OutMessage.DataCount] := Ord(#0);
-        OutMessage.DataCount := OutMessage.DataCount + 1
-      end;
-    end;
-  end;
-  OutMessage.UserValid := True;
-end;
-
-function TStreamBasedProtocol.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
-var
-  NullFound: Boolean;
-  i: Integer;
-  iStart: Integer;
-  AByte: Byte;
-begin
-  Result := True;
-  if not Valid then
-  begin
-    NullFound := False;
-    if SourceLccMessage.DataArrayIndexer[1] and $03 = 0 then
-      iStart := 7
-    else
-      iStart := 6;
-    for i := iStart to SourceLccMessage.DataCount - 1 do
-    begin
-      NullFound := SourceLccMessage.DataArrayIndexer[i] = Ord(#0);
-      AByte := SourceLccMessage.DataArrayIndexer[i];
-      {$IFDEF DWSCRIPT}
-      OneByteArray[0] := AByte;
-      AStream.Write(OneByteArray);
-      {$ELSE}
-      AStream.WriteBuffer(AByte, 1);
-      {$ENDIF}
-      if NullFound then
-        Break
-    end;
-
-    if NullFound then
-    begin
-      AStream.Position := 0;
-      FValid := True;
-      DoLoadComplete(SourceLccMessage);
-    end else
-    begin
-      WorkerMessage.IsCAN := False;
-      WorkerMessage.SourceID := SourceLccMessage.DestID;
-      WorkerMessage.CAN.SourceAlias := SourceLccMessage.CAN.DestAlias;
-      WorkerMessage.DestID := SourceLccMessage.SourceID;
-      WorkerMessage.CAN.DestAlias := SourceLccMessage.CAN.SourceAlias;
-      WorkerMessage.DataCount := 0;
-      WorkerMessage.DataArrayIndexer[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
-      WorkerMessage.DataArrayIndexer[1] := MCP_READ;
-      InProcessAddress := InProcessAddress + 64 {- iStart};
-      WorkerMessage.InsertDWordAsDataBytes(InProcessAddress, 2);
-      WorkerMessage.DataArrayIndexer[6] := AddressSpace;
-      WorkerMessage.DataArrayIndexer[7] := 64;                     // Read until the end.....
-      WorkerMessage.DataCount := 8;
-      WorkerMessage.MTI := MTI_DATAGRAM;
-    end;
+    OutMessage.DataCount := FirstDataByte + i;
   end;
 end;
 

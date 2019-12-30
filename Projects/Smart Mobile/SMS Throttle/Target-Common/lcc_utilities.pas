@@ -20,6 +20,8 @@ uses
   SmartCL.Application,
   SmartCL.Components,
   SmartCL.System,
+  System.Memory.Buffer,
+  System.Memory,
   {$ELSE}
     Classes,
     SysUtils,
@@ -79,12 +81,22 @@ uses
   function Hi(Data: Word): Byte;
   {$ENDIF}
 
+  function StreamReadByte(AStream: TStream): Byte;
+  procedure StreamWriteByte(AStream: TStream; AByte: Byte);
+
 function GridConnectToDetailedGridConnect(MessageString: string): string;
 
 implementation
 
 uses
   lcc_node_messages;
+
+{$IFDEF DWSCRIPT}
+var
+  FBinaryData: TBinaryData;
+  FOneByteArray: TDynamicByteArray;
+{$ENDIF}
+
 
 {$IFNDEF DWSCRIPT}
 
@@ -638,6 +650,31 @@ begin
   Result := Result + ']';
 end;
 
+function StreamReadByte(AStream: TStream): Byte;
+begin
+  Result := 0;
+  {$IFDEF DWSCRIPT}
+  FOneByteArray := AStream.Read(1);
+  Result := OneByteArray[0];
+  {$ELSE}
+  AStream.Read(Result, 1);
+  {$ENDIF}
+end;
+
+procedure StreamWriteByte(AStream: TStream; AByte: Byte);
+begin
+  {$IFDEF FPC}
+  AStream.WriteByte(AByte);
+  {$ELSE}
+    {$IFDEF DWSCRIPT}
+     FOneByteArray[0] := AByte;
+     AStream.Write(FOneByteArray);
+    {$ELSE}
+    AStream.Write(AByte, 1)
+    {$ENDIF}
+  {$ENDIF}
+end;
+
 function GridConnectToDetailedGridConnect(MessageString: string): string;
 var
   j, S_Len: Integer;
@@ -953,5 +990,16 @@ begin
    ConsoleWriteLn('IP Address found: ' + ResolveUltiboIp);
 end;
 {$ENDIF}
+
+initialization
+
+{$IFDEF DWSCRIPT}
+// Allocate a byte that is of TByteArray to use in stream operations in a similar manner as Lazarus in decendants
+FBinaryData := TBinaryData.Create(1);
+FOneByteArray := FBinaryData.ToBytes;
+{$ENDIF}
+
+
+finalization
 
 end.

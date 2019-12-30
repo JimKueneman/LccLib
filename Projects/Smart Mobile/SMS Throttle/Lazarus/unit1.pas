@@ -85,11 +85,10 @@ end;
 procedure TForm1.Button2Click(Sender: TObject);
 var
   CanNode: TLccCanNode;
-  i: Integer;
 begin
   if CanNodeManager.Nodes.Count = 0 then
   begin
-    CanNode := CanNodeManager.AddNode as TLccCanNode;
+    CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
     CanNode.ProtocolSupportedProtocols.CDI := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
@@ -110,7 +109,7 @@ begin
     CanNode.ProtocolMemoryOptions.WriteLenFourBytes := True;
     CanNode.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
     CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-    CanNode.ProtocolMemoryOptions.WriteStream := True;
+    CanNode.ProtocolMemoryOptions.WriteStream := False;
     CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
     CanNode.ProtocolMemoryOptions.LowSpace := MSI_CONFIG;
 
@@ -119,26 +118,6 @@ begin
 
     CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
     CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
-
-    // Setup the CDI
-    CanNode.ProtocolConfigurationDefinitionInfo.AStream.Clear;
-    {$IFDEF LCC_MOBILE}     // Delphi only
-      for i := 0 to Length(CDI_XML) - 1 do
-        CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write(Ord(CDI_XML[i]), 1);
-    {$ELSE}
-      for i := 1 to Length(CDI_XML) do
-      {$IFDEF FPC}
-        CanNode.ProtocolConfigurationDefinitionInfo.AStream.WriteByte(Ord(CDI_XML[i]));
-      {$ELSE}
-        CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write( Ord(CDI_XML[i]), 1);
-      {$ENDIF}
-    {$ENDIF}
-    CanNode.ProtocolConfigurationDefinitionInfo.Valid := True;
-
-    // Setup the SNIP by extracting information from the CDI
-    CanNode.ProtocolConfigurationDefinitionInfo.LoadSNIP(CanNode.ProtocolSimpleNodeInfo);
-
-    CanNode.ProtocolSimpleNodeInfo.LoadFromXmlString(CDI_XML);
 
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 

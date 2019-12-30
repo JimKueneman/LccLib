@@ -51,6 +51,19 @@ TLccNode = class(TNodeProtocolBase)
 private
   FDatagramWorkerMessage: TLccMessage;
   FInitialized: Boolean;
+  FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data
+                                                 // Address 0 = Version
+                                                 // Address 1 = Manufacturer
+                                                 // Address 42 = Model
+                                                 // Address 83 = Hardware Version
+                                                 // Address 104 = Software Version
+  FStreamCdi: TMemoryStream;                     // Stream containing the XML string for the CDI
+  FStreamConfig: TMemoryStream;                  // Stream cointaining the writable configuration memory where the Address = Offset in the stream
+                                                 // and the following MUST be true
+                                                 // Address 0 = User info Version number
+                                                 // Address 1 = User Defined name (ACDI/SNIP)
+                                                 // Address 64 = User defined description  (ACDI/SNIP)
+                                                 // Address 128 = Node specific persistent data
   FTProtocolMemoryConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo;
   FProtocolMemoryOptions: TProtocolMemoryOptions;
   FMemoryConfiguration: TProtocolMemoryConfiguration;
@@ -69,10 +82,15 @@ protected
   FNodeID: TNodeID;
 
   property DatagramWorkerMessage: TLccMessage read FDatagramWorkerMessage write FDatagramWorkerMessage;
+  property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
+  property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
+  property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
   property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
 
   function GetAlias: Word; virtual;
+  function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
+  function LoadStreamManufacturerData(ACdi: string): Boolean;
   procedure AutoGenerateEvents;
   procedure SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
   procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
@@ -95,13 +113,13 @@ public
   property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
   property ProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo read FProtocolSimpleNodeInfo write FProtocolSimpleNodeInfo;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
+  constructor Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string); reintroduce; virtual;
   destructor Destroy; override;
 
   function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
   procedure Login(ANodeID: TNodeID); virtual;
   procedure Logout; virtual;
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual;
   procedure SendEvents;
   procedure SendConsumedEvents;
   procedure SendConsumerIdentify(var Event: TEventID);
@@ -146,7 +164,7 @@ public
    property AliasIDStr: String read GetAliasIDStr;
    property Permitted: Boolean read FPermitted;
 
-   constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
+   constructor Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string); override;
    destructor Destroy; override;
    function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
    procedure Login(ANodeID: TNodeID); override;
@@ -161,9 +179,9 @@ implementation
 
 { TLccCanNode }
 
-constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string);
 begin
-  inherited Create(ASendMessageFunc);
+  inherited Create(ASendMessageFunc, CdiXML);
   FInProcessMultiFrameMessage := TObjectList.Create;
   {$IFNDEF DWSCRIPT}
   InProcessMultiFrameMessage.OwnsObjects := False
@@ -341,7 +359,7 @@ begin
     if DuplicateAliasDetected then
     begin
       Temp := FSeedNodeID;
-      GenerateNewSeed(Temp);     // DWSCRIPT Forced
+      GenerateNewSeed(Temp);
       FSeedNodeID := Temp;
       FAliasID := GenerateID_Alias_From_Seed(Temp);
       WorkerMessage.LoadCID(NodeID, AliasID, 0);
@@ -597,7 +615,7 @@ var
 begin
   // Typically due to an alias conflict to create a new one
   Temp := FSeedNodeID;
-  GenerateNewSeed(Temp);   // DWSCRIPT forced
+  GenerateNewSeed(Temp);
   FSeedNodeID := Temp;
   FAliasID := GenerateID_Alias_From_Seed(Temp);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
@@ -698,19 +716,78 @@ begin
   end;
 end;
 
-constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc);
+function TLccNode.LoadStreamManufacturerData(ACdi: string): Boolean;
+var
+  AnOffset, ALength, i: Integer;
+begin
+  Result := False;
+
+  StreamManufacturerData.Size := LEN_MANUFACTURER_INFO;
+  for i := 0 to StreamManufacturerData.Size - 1 do
+    StreamWriteByte(StreamManufacturerData, 0);
+
+  StreamManufacturerData.Position := ADDRESS_VERSION;
+  StreamWriteByte(StreamManufacturerData, 1);
+
+  AnOffset := 0;
+  ALength := 0;
+  if FindCdiElement(ACdi, '<manufacturer>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_MFG_NAME then
+    begin
+      StreamManufacturerData.Position := ADDRESS_MFG_NAME;
+      for i := AnOffset to AnOffset + ALength - 1 do
+        StreamWriteByte(StreamManufacturerData, Ord(ACdi[i]));
+    end else Exit;
+  end else Exit;
+  if FindCdiElement(ACdi, '<model>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_MODEL_NAME then
+    begin
+      StreamManufacturerData.Position := ADDRESS_MODEL_NAME;
+      for i := AnOffset to AnOffset + ALength - 1 do
+        StreamWriteByte(StreamManufacturerData, Ord(ACdi[i]));
+    end else Exit;
+  end else Exit;
+  if FindCdiElement(ACdi, '<hardwareVersion>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_HARDWARE_VERSION then
+    begin
+      StreamManufacturerData.Position := ADDRESS_HARDWARE_VERSION;
+      for i := AnOffset to AnOffset + ALength - 1 do
+        StreamWriteByte(StreamManufacturerData, Ord(ACdi[i]));
+    end else Exit;
+  end else Exit;
+  if FindCdiElement(ACdi, '<softwareVersion>', AnOffset, ALength) then
+  begin
+    if ALength < LEN_SOFTWARE_VERSION then
+    begin
+      StreamManufacturerData.Position := ADDRESS_SOFTWARE_VERSION;
+      for i := AnOffset to AnOffset + ALength - 1 do
+        StreamWriteByte(StreamManufacturerData, Ord(ACdi[i]));
+    end else Exit;
+  end else Exit;
+  Result := True;
+end;
+
+constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc; CdiXML: string);
+var
+  i: Integer;
 begin
   inherited Create(ASendMessageFunc);
   FProtocolSupportedProtocols := TProtocolSupportedProtocols.Create(ASendMessageFunc);
   FProtocolSimpleNodeInfo := TProtocolSimpleNodeInfo.Create(ASendMessageFunc);
-  FTProtocolMemoryConfigurationDefinitionInfo := TProtocolMemoryConfigurationDefinitionInfo.Create(ASendMessageFunc, MSI_CDI, True);
+  FTProtocolMemoryConfigurationDefinitionInfo := TProtocolMemoryConfigurationDefinitionInfo.Create(ASendMessageFunc);
   FProtocolMemoryOptions := TProtocolMemoryOptions.Create(ASendMessageFunc);
-  FMemoryConfiguration := TProtocolMemoryConfiguration.Create(SendMessageFunc, MSI_CONFIG, False);
+  FMemoryConfiguration := TProtocolMemoryConfiguration.Create(SendMessageFunc);
   FProtocolMemoryInfo := TProtocolMemoryInfo.Create(ASendMessageFunc);
   FProtocolEventConsumed := TProtocolEvents.Create(ASendMessageFunc);
   FProtocolEventsProduced := TProtocolEvents.Create(ASendMessageFunc);
-  FACDIMfg := TACDIMfg.Create(nil, MSI_ACDI_MFG, True);
-  FACDIUser := TACDIUser.Create(SendMessageFunc, MSI_ACDI_USER, True);
+  FACDIMfg := TACDIMfg.Create(ASendMessageFunc);
+  FACDIUser := TACDIUser.Create(ASendMessageFunc);
+  FStreamCdi := TMemoryStream.Create;
+  FStreamConfig := TMemoryStream.Create;
+  FStreamManufacturerData := TMemoryStream.Create;
 
   FDatagramResendQueue := TDatagramQueue.Create(SendMessageFunc);
   FDatagramWorkerMessage := TLccMessage.Create;
@@ -724,6 +801,21 @@ begin
   _800msTimer.OnTimer := @On_800msTimer;
   _800msTimer.Interval := 800;
   {$ENDIF}
+
+  // Setup the Cdi Stream
+  StreamCdi.Size := Int64( Length(CdiXML) + 1);   // Need the null
+  for i := 1 to Length(CdiXML) do
+    StreamWriteByte(StreamCdi, Ord(CdiXML[i]));
+  StreamWriteByte(StreamCdi, 0);
+
+  // Setup the Manufacturer Data from the XML to allow access for ACDI and SNIP
+  LoadStreamManufacturerData(CdiXML);
+
+  StreamConfig.Size := LEN_USER_MANUFACTURER_INFO;
+  StreamConfig.Position := 0;
+  StreamWriteByte(StreamConfig, USER_MFG_INFO_VERSION_ID);
+  while StreamConfig.Position < StreamConfig.Size do
+    StreamWriteByte(StreamConfig, 0);
 end;
 
 procedure TLccNode.AutoGenerateEvents;
@@ -769,7 +861,32 @@ begin
   FMemoryConfiguration.Free;
   FDatagramResendQueue.Free;
   FDatagramWorkerMessage.Free;
+  FStreamCdi.Free;
+  FStreamConfig.Free;
+  FStreamManufacturerData.Free;
   inherited;
+end;
+
+function TLccNode.FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
+var
+  OffsetEnd: Integer;
+begin
+  Result := False;
+  TestXML := LowerCase(TestXML);
+  Element := LowerCase(Element);
+  Offset := Pos(Element, TestXML);
+  if Offset > -1 then
+  begin
+    Inc(Offset, Length(Element));
+    Element := StringReplace(Element, '<', '</', [rfReplaceAll]);
+    OffsetEnd := Pos(Element, TestXML);
+    if (OffsetEnd > -1) and (OffsetEnd > Offset) then
+    begin
+      ALength := OffsetEnd - Offset;
+      Result := True;
+    end else
+    Exit;
+  end
 end;
 
 function TLccNode.GetAlias: Word;
@@ -801,7 +918,14 @@ function TLccNode.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
   Temp: TEventID;
+  AddressSpace, OperationType: Byte;
+  DataOffset: Byte;
 begin
+
+  // By the time a messages drops into this method it is a fully qualified OpenLCB
+  // message.  Any CAN messages that are sent as multi frames have been combined
+  // into a full OpenLCB message.
+
   Result := False;
 
   TestNodeID[0] := 0;
@@ -858,7 +982,7 @@ begin
         end;
     MTI_SIMPLE_NODE_INFO_REQUEST :
         begin
-          WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat);
+          WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerData, StreamConfig));
           SendMessageFunc(WorkerMessage);
           Result := True;
         end;
@@ -937,174 +1061,136 @@ begin
      MTI_DATAGRAM :
        begin
          case SourceLccMessage.DataArrayIndexer[0] of
-           DATAGRAM_PROTOCOL_CONFIGURATION :
+           DATAGRAM_PROTOCOL_CONFIGURATION :     {0x20}
              begin
+               // Figure out where the Memory space to work on is located, encoded in the header or in the first databyte slot.
+               DataOffset := 0;
+               case SourceLccMessage.DataArrayIndexer[1] and $03 of
+                 MCP_NONE: begin
+                             AddressSpace := SourceLccMessage.DataArrayIndexer[6];
+                             DataOffset := 1;
+                           end;
+                 MCP_CDI           : AddressSpace := MSI_CDI;
+                 MCP_ALL           : AddressSpace := MSI_ALL;
+                 MCP_CONFIGURATION : AddressSpace := MSI_CONFIG;
+               end;
+
                case SourceLccMessage.DataArrayIndexer[1] and $F0 of
                  MCP_WRITE :
                    begin
-                     case SourceLccMessage.DataArrayIndexer[1] and $03 of
-                       MCP_NONE :
-                           begin
-                             case SourceLccMessage.DataArrayIndexer[6] of
-                               MSI_CDI             :
-                                   begin
-                                   end;  // Not writeable
-                               MSI_ALL             :
-                                   begin
-                                   end;  // Not writeable
-                               MSI_CONFIG          :
-                                   begin
-                                     SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
-                                     ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
-                                     Result := True;
-                                   end;
-                               MSI_ACDI_MFG        :
-                                   begin
-                                   end;  // Not writeable
-                               MSI_ACDI_USER       :
-                                   begin
-                                     SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
-                                     ACDIUser.WriteRequest(SourceLccMessage);
-                                     Result := True;
-                                   end;
-                               MSI_FDI             :
-                                   begin
-                                   end;  // Not writeable
-                               MSI_FUNCTION_CONFIG :
-                                   begin
-                                   end;
-                             end
+                     case AddressSpace of
+                       MSI_CDI       : begin end; // Can't write to the CDI
+                       MSI_ALL       : begin end; // Can't write to the program area
+                       MSI_CONFIG    :            // Needs access to the Configuration Memory Information
+                         begin
+                           SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
+                           ProtocolMemoryConfiguration.DatagramWriteRequest(SourceLccMessage, StreamConfig);
+                           Result := True;
+                         end;
+                       MSI_ACDI_MFG  : begin end; // Can't write to the Manufacturers area
+                       MSI_ACDI_USER :            // Needs access to the Configuration Memory Information
+                         begin
+                           SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
+                           ACDIUser.DatagramWriteRequest(SourceLccMessage, StreamConfig);
+                           Result := True;
+                         end;
+                       MSI_FDI       : begin end; // Can't write to the Manufacturing area
+                       MSI_FUNCTION_CONFIG :
+                         begin
+                         end;
+                     end;
+                   end;
+                 MCP_READ :
+                   begin
+                     case AddressSpace of
+                       MSI_CDI :
+                         begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ProtocolConfigurationDefinitionInfo.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamCdi);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
+                         end;
+                       MSI_ALL       :
+                           begin  // Can't read from the program area
+                             SendDatagramAckReply(SourceLccMessage, False, 0);
                            end;
-                       MCP_CONFIGURATION :
-                           begin
-                             SendDatagramAckReply(SourceLccMessage, False, 0);             // We will be sending a Write Reply
-                             ProtocolMemoryConfiguration.WriteRequest(SourceLccMessage);
-                             Result := True;
-                           end;
-                       MCP_ALL           :
-                           begin
-                           end; // Not writeable
-                       MCP_CDI           :
-                           begin
-                           end; // Not writeable
+                       MSI_CONFIG :
+                         begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ProtocolMemoryConfiguration.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamConfig);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
+                         end;
+                       MSI_ACDI_MFG :
+                         begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ACDIMfg.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamManufacturerData);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
+                         end;
+                       MSI_ACDI_USER :
+                         begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ACDIUser.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamConfig);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
+                         end;
+                       MSI_FDI :
+                         begin
+                         end;
+                       MSI_FUNCTION_CONFIG :
+                         begin
+                         end;
                      end;
                    end;
                  MCP_WRITE_STREAM :
-                     begin
-                     end;
-                 MCP_READ :
-                     begin
-                       case SourceLccMessage.DataArrayIndexer[1] and $03 of
-                         MCP_NONE :
-                             begin
-                               case SourceLccMessage.DataArrayIndexer[6] of
-                                 MSI_CDI             :
-                                     begin
-                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                  SourceLccMessage.CAN.SourceAlias);
-                                       ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                       Result := True;
-                                     end;
-                                 MSI_ALL             :
-                                     begin
-                                       SendDatagramAckReply(SourceLccMessage, False, 0);   // We won't be sending a Read Reply
-                                     end;
-                                 MSI_CONFIG          :
-                                     begin
-                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                  SourceLccMessage.CAN.SourceAlias);
-                                       ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
-                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                       Result := True;
-                                     end;
-                                 MSI_ACDI_MFG        :
-                                     begin
-                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                  SourceLccMessage.CAN.SourceAlias);
-                                       ACDIMfg.LoadReply(SourceLccMessage, WorkerMessage);
-                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                       Result := True;
-                                     end;
-                                 MSI_ACDI_USER       :
-                                     begin
-                                       WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                  SourceLccMessage.CAN.SourceAlias);
-                                       ACDIUser.LoadReply(SourceLccMessage, WorkerMessage);
-                                       SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                       Result := True;
-                                     end;
-                                 MSI_FDI             :
-                                      begin
-                                      end;
-                                 MSI_FUNCTION_CONFIG :
-                                      begin
-                                      end;
-                               end
-                             end;
-                         MCP_CONFIGURATION : begin
-                                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                          SourceLccMessage.CAN.SourceAlias);
-                                               ProtocolMemoryConfiguration.LoadReply(SourceLccMessage, WorkerMessage);
-                                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                               Result := True;
-                                             end;
-                         MCP_ALL           : begin  end;
-                         MCP_CDI           : begin
-                                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                                          SourceLccMessage.CAN.SourceAlias);
-                                               ProtocolConfigurationDefinitionInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                                               Result := True;
-                                             end;
-                       end;
-                     end;
+                   begin
+                   end;
                  MCP_READ_STREAM :
-                     begin
-                     end;
+                   begin
+                   end;
                  MCP_OPERATION :
-                     begin
-                       case SourceLccMessage.DataArrayIndexer[1] of
-                         MCP_OP_GET_CONFIG :
-                             begin
-                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                          SourceLccMessage.CAN.SourceAlias);
-                               ProtocolMemoryOptions.LoadReply(WorkerMessage);
-                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                               Result := True;
-                             end;
-                         MCP_OP_GET_ADD_SPACE_INFO :
-                             begin
-                               WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                          SourceLccMessage.CAN.SourceAlias);
-                               ProtocolMemoryInfo.LoadReply(SourceLccMessage, WorkerMessage);
-                               SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
-                               Result := True;
-                             end;
-                         MCP_OP_LOCK :
-                             begin
-                             end;
-                         MCP_OP_GET_UNIQUEID :
-                             begin
-                             end;
-                         MCP_OP_FREEZE :
-                             begin
-                             end;
-                         MCP_OP_INDICATE :
-                             begin
-                             end;
-                         MCP_OP_RESETS :
-                             begin
-                             end;
-                       end // case
-                     end
-               end; // case
+                   begin
+                     OperationType := SourceLccMessage.DataArrayIndexer[1];
+                     case OperationType of
+                       MCP_OP_GET_CONFIG :
+                           begin
+                             WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                        SourceLccMessage.CAN.SourceAlias);
+                             ProtocolMemoryOptions.LoadReply(WorkerMessage);
+                             SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                             Result := True;
+                           end;
+                       MCP_OP_GET_ADD_SPACE_INFO :
+                           begin
+                             WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID,
+                                                        SourceLccMessage.CAN.SourceAlias);
+                             ProtocolMemoryInfo.LoadReply(SourceLccMessage, WorkerMessage);
+                             SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                             Result := True;
+                           end;
+                       MCP_OP_LOCK :
+                           begin
+                           end;
+                       MCP_OP_GET_UNIQUEID :
+                           begin
+                           end;
+                       MCP_OP_FREEZE :
+                           begin
+                           end;
+                       MCP_OP_INDICATE :
+                           begin
+                           end;
+                       MCP_OP_RESETS :
+                           begin
+                           end;
+                     end // case
+                   end;
+               end
              end
-         else begin
+         else begin {case else}
              // Unknown Datagram Type
-             WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                SourceLccMessage.CAN.SourceAlias,
-                                                REJECTED_DATAGRAMS_NOT_ACCEPTED);
+             WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_DATAGRAMS_NOT_ACCEPTED);
              SendMessageFunc(WorkerMessage);
              Result := True;
            end;
@@ -1113,9 +1199,7 @@ begin
   else begin
       if SourceLccMessage.HasDestination then
       begin
-        WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID,
-                                                      SourceLccMessage.CAN.SourceAlias,
-                                                      REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
+        WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
         SendMessageFunc(WorkerMessage);
         Result := True;
       end;
@@ -1169,15 +1253,12 @@ end;
 
 procedure TLccNode.SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
 begin
- if ReplyLccMessage.UserValid then
+  if DatagramResendQueue.Add(ReplyLccMessage.Clone) then     // Waiting for an ACK
   begin
-    if DatagramResendQueue.Add(ReplyLccMessage.Clone) then     // Waiting for an ACK
-    begin
-      SendDatagramAckReply(SourceLccMessage, False, 0);   // We will be sending a Read Reply
-      SendMessageFunc(ReplyLccMessage);
-    end else
-      SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL)
-   end;
+    SendDatagramAckReply(SourceLccMessage, False, 0);   // We will be sending a Read Reply
+    SendMessageFunc(ReplyLccMessage);
+  end else
+    SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL)
 end;
 
 procedure TLccNode.SendEvents;

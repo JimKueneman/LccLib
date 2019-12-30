@@ -78,7 +78,6 @@ public
   procedure Add(Event: TEventID; State: TEventState);
   procedure Clear;
   function Supports(Event: TEventID): TLccEvent;
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
 
   property AutoGenerate: TLccEventAutoGenerate read FAutoGenerate write FAutoGenerate;
   property Count: Integer read GetCount;
@@ -161,11 +160,6 @@ end;
 function TProtocolEvents.GetCount: Integer;
 begin
   Result := EventList.Count;
-end;
-
-function TProtocolEvents.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
-begin
-  Result := False;
 end;
 
 procedure TProtocolEvents.Add(Event: TEventID; State: TEventState);

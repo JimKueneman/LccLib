@@ -115,7 +115,7 @@ type
     destructor Destroy; override;
 
     procedure Clear;
-    function AddNode: TLccNode; virtual;
+    function AddNode(CdiXML: string): TLccNode; virtual;
     procedure LogoutAll;
 
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
@@ -188,16 +188,16 @@ type
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
 
-    function AddNode: TLccCanNode; override;
+    function AddNode(CdiXML: string): TLccCanNode; override;
   end;
 
 implementation
 
 { TLccCanNodeManager }
 
-function TLccCanNodeManager.AddNode: TLccCanNode;
+function TLccCanNodeManager.AddNode(CdiXML: string): TLccCanNode;
 begin
-  Result := TLccCanNode.Create(@LccMessageSendCallback);
+  Result := TLccCanNode.Create(@LccMessageSendCallback, CdiXML);
   Nodes.Add(Result);
 end;
 
@@ -428,9 +428,9 @@ begin
   {$ENDIF}
 end;
 
-function TLccNodeManager.AddNode: TLccNode;
+function TLccNodeManager.AddNode(CdiXML: string): TLccNode;
 begin
-  Result := TLccNode.Create(@LccMessageSendCallback);
+  Result := TLccNode.Create(@LccMessageSendCallback, CdiXML);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
 end;

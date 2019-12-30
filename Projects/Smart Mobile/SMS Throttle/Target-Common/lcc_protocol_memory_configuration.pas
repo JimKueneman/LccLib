@@ -32,21 +32,23 @@ type
 
 { TProtocolMemoryConfiguration }
 
-TProtocolMemoryConfiguration = class(TStreamBasedProtocol)
+TProtocolMemoryConfiguration = class(TNodeProtocolBase)
 private
+  (*
+  {$IFNDEF DWSCRIPT}
   FAutoSaveOnWrite: Boolean;
-  FFilePath: String;
+  FAutosaveFilePath: String;
+  {$ENDIF}   *)
 protected
 public
-  property AutoSaveOnWrite: Boolean read FAutoSaveOnWrite write FAutoSaveOnWrite;
-  property FilePath: String read FFilePath write FFilePath;
-
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean); override;
+  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
   destructor Destroy; override;
 
-  procedure WriteRequest(LccMessage: TLccMessage); override;
-  function ReadAsString(Address: DWord): String;
+  procedure DatagramWriteRequest(LccMessage: TLccMessage; AStream: TStream); override;
+
+(*  {$IFNDEF DWSCRIPT}
   procedure LoadFromFile;
+  {$ENDIF}   *)
 end;
 
 
@@ -54,100 +56,47 @@ implementation
 
 { TProtocolMemoryConfiguration }
 
-constructor TProtocolMemoryConfiguration.Create(ASendMessageFunc: TLccSendMessageFunc; AnAddressSpace: Byte; IsStringBasedStream: Boolean);
+constructor TProtocolMemoryConfiguration.Create(ASendMessageFunc: TLccSendMessageFunc );
 begin
- inherited Create(ASendMessageFunc, AnAddressSpace, IsStringBasedStream);
- AutoSaveOnWrite := False;
+ inherited Create(ASendMessageFunc );
+// AutoSaveOnWrite := False;
 end;
+
 
 destructor TProtocolMemoryConfiguration.Destroy;
 begin
  inherited Destroy;
 end;
 
+(*
+{$IFNDEF DWSCRIPT}
 procedure TProtocolMemoryConfiguration.LoadFromFile;
 begin
-//JDK
-(*
- if FileExists(String( FilePath)) then
-   AStream.LoadFromFile(String( FilePath))   *)
+ if FileExists(String( AutosaveFilePath)) then
+   AStream.LoadFromFile(String( AutosaveFilePath))
 end;
+{$ENDIF}
+*)
 
-function TProtocolMemoryConfiguration.ReadAsString(Address: DWord): String;
-var
- i: DWord;
- C: Char;
- Done: Boolean;
+procedure TProtocolMemoryConfiguration.DatagramWriteRequest(LccMessage: TLccMessage;
+  AStream: TStream);
 begin
- Result := '';
- if AStream.Size > Address then
- begin
-   AStream.Position := Address;
-   i := 0;
-   Done := False;
-   while (i + Address < DWord( AStream.Size)) and not Done do
-   begin
-     {$IFDEF FPC}
-       C := Chr(AStream.ReadByte);
-     {$ELSE}
-       {$IFDEF DWSCRIPT}
-         AStream.
-       {$ELSE}
-         AStream.Read(C, 1);
-       {$ENDIF}
-     {$ENDIF}
-     if C <> #0 then
-       Result := Result + C
-     else
-       Done := True;
-     Inc(i)
-   end;
- end;
-end;
+  inherited DatagramWriteRequest(LccMessage, AStream);
 
-procedure TProtocolMemoryConfiguration.WriteRequest(LccMessage: TLccMessage);
-var
- i: Integer;
- iStart : Integer;
- WriteCount,Address: DWord;
- {$IFNDEF FPC}
- AByte: Byte;
- {$ENDIF}
-begin
- // Assumption is this is a datagram message
- if LccMessage.DataArrayIndexer[1] and $03 = 0 then
-   iStart := 7
- else
-   iStart := 6;
-
- WriteCount := LccMessage.DataCount - iStart;
- Address := LccMessage.ExtractDataBytesAsInt(2, 5);
- if Address + WriteCount > DWord( AStream.Size) then
-   AStream.Size := Int64( Address) + Int64(WriteCount);
- AStream.Position := Address;
- for i := iStart to LccMessage.DataCount - 1 do
- begin
-   {$IFDEF FPC}
-    AStream.WriteByte(LccMessage.DataArrayIndexer[i]);
-   {$ELSE}
-   AByte := LccMessage.DataArrayIndexer[i];
-
-//JDK
-  // AStream.Write(AByte, 1);
-   {$ENDIF}
- end;
- if AutoSaveOnWrite then
- begin
-   Assert(FilePath = '', 'Configuration filename not set with AutoSaveOnWrite enabled');
-   (*
-   if not FileExists(String( FilePath)) then
-   begin
-     if not DirectoryExists(ExtractFilePath(FilePath)) then
-       if ForceDirectories(ExtractFileDir(FilePath)) then
-         AStream.SaveToFile(String( FilePath))
-   end else
-     AStream.SaveToFile(String( FilePath))  *)
- end;
+  (*
+  {$IFNDEF DWSCRIPT}
+  if AutoSaveOnWrite then
+  begin
+    Assert(AutosaveFilePath = '', 'Configuration filename not set with AutoSaveOnWrite enabled');
+    if not FileExists(String( AutosaveFilePath)) then
+    begin
+      if not DirectoryExists(ExtractFilePath(AutosaveFilePath)) then
+        if ForceDirectories(ExtractFileDir(AutosaveFilePath)) then
+          AStream.SaveToFile(String( AutosaveFilePath))
+    end else
+      AStream.SaveToFile(String( AutosaveFilePath))
+  end;
+  {$ENDIF}    *)
 end;
 
 end.

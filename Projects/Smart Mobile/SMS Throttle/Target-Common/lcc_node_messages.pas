@@ -67,7 +67,6 @@ private
   FSourceID: TNodeID;
   FMTI: Word;
   FRetryAttempts: Integer;
-  FUserValid: Boolean;
   function GetHasDestination: Boolean;
   function GetHasDestNodeID: Boolean;
   function GetHasSourceNodeID: Boolean;
@@ -94,7 +93,6 @@ public
   property MTI: Word read FMTI write FMTI;
   property RetryAttempts: Integer read FRetryAttempts write FRetryAttempts;
   property SourceID: TNodeID read FSourceID write FSourceID;
-  property UserValid: Boolean read FUserValid write FUserValid;
 
   constructor Create;
   destructor Destroy; override;
@@ -815,7 +813,6 @@ begin
   CAN.FiTag := 0;
   FMTI := 0;
   CAN.FMTI := 0;
-  FUserValid := False;
 end;
 
 procedure TLccMessage.LoadCID(ASourceID: TNodeID; ASourceAlias: Word; ACID: Byte);

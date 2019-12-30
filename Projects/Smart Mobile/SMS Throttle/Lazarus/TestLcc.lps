@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="35">
+    <Units Count="26">
       <Unit0>
         <Filename Value="TestLcc.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,8 +18,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <TopLine Value="151"/>
-        <CursorPos X="26" Y="169"/>
+        <TopLine Value="77"/>
+        <CursorPos Y="91"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -28,26 +28,27 @@
         <Filename Value="../Target-PC/lcc_node_manager_designtime.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="45" Y="57"/>
-        <UsageCount Value="83"/>
+        <UsageCount Value="60"/>
       </Unit2>
       <Unit3>
         <Filename Value="../Target-Common/lcc_node.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="156"/>
-        <CursorPos X="36" Y="168"/>
-        <UsageCount Value="104"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="802"/>
+        <CursorPos X="29" Y="811"/>
+        <FoldState Value=" T0=VJ1}"/>
+        <UsageCount Value="102"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="../Target-Common/lcc_protocol_datagram.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="57" Y="175"/>
-        <UsageCount Value="37"/>
+        <CursorPos X="9" Y="6"/>
+        <UsageCount Value="14"/>
       </Unit4>
       <Unit5>
         <Filename Value="../Target-Common/lcc_node_messages.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="144"/>
-        <CursorPos X="79" Y="144"/>
+        <CursorPos X="11" Y="6"/>
         <UsageCount Value="100"/>
       </Unit5>
       <Unit6>
@@ -55,235 +56,277 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="186"/>
         <CursorPos X="41" Y="199"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="54"/>
       </Unit6>
       <Unit7>
         <Filename Value="../Target-Common/lcc_node_messages_can_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="18" Y="8"/>
-        <UsageCount Value="35"/>
+        <UsageCount Value="12"/>
       </Unit7>
       <Unit8>
-        <Filename Value="../Target-Common/lcc_utilities.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="904"/>
-        <CursorPos X="26" Y="338"/>
-        <UsageCount Value="12"/>
+        <Filename Value="../Target-Common/lcc_defines.pas"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="91"/>
+        <CursorPos X="27" Y="102"/>
+        <UsageCount Value="67"/>
+        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="../Target-Common/lcc_defines.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="51" Y="20"/>
-        <UsageCount Value="32"/>
-      </Unit9>
-      <Unit10>
         <Filename Value="../Target-Common/lcc_protocol_supportedprotocols.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="139"/>
-        <CursorPos X="42" Y="34"/>
-        <UsageCount Value="12"/>
-      </Unit10>
-      <Unit11>
+        <CursorPos X="9" Y="6"/>
+        <UsageCount Value="23"/>
+      </Unit9>
+      <Unit10>
         <Filename Value="../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="623"/>
-        <CursorPos X="38" Y="637"/>
-        <UsageCount Value="76"/>
-      </Unit11>
-      <Unit12>
+        <TopLine Value="625"/>
+        <CursorPos X="24" Y="641"/>
+        <UsageCount Value="54"/>
+      </Unit10>
+      <Unit11>
         <Filename Value="../Target-Common/lcc_protocol_events.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="165"/>
-        <CursorPos X="3" Y="168"/>
-        <UsageCount Value="12"/>
+        <CursorPos X="9" Y="7"/>
+        <UsageCount Value="23"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="53"/>
+        <CursorPos X="22" Y="68"/>
+        <UsageCount Value="114"/>
+        <Loaded Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="254"/>
-        <CursorPos X="39" Y="262"/>
-        <UsageCount Value="13"/>
-        <Loaded Value="True"/>
-      </Unit13>
-      <Unit14>
-        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-base/src/contnrs.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="72"/>
-        <CursorPos X="14" Y="86"/>
-        <UsageCount Value="14"/>
-      </Unit14>
-      <Unit15>
         <Filename Value="../SmartMobileStudio/Throttle/TabSettingsForm.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="152"/>
         <CursorPos X="16" Y="169"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="2"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../Target-Common/lcc_protocol_memory_configuration.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="9" Y="10"/>
+        <UsageCount Value="120"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="../Target-Common/lcc_protocol_acdi.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="9" Y="6"/>
+        <UsageCount Value="95"/>
       </Unit15>
       <Unit16>
-        <Filename Value="../Target-PC/lcc_common_classes.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="15" Y="14"/>
-        <UsageCount Value="11"/>
+        <Filename Value="../Target-Common/lcc_protocol_base.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="140"/>
+        <CursorPos Y="159"/>
+        <UsageCount Value="119"/>
+        <Loaded Value="True"/>
       </Unit16>
       <Unit17>
-        <Filename Value="../Target-Common/lcc_protocol_memory_configuration.pas"/>
-        <EditorIndex Value="3"/>
-        <CursorPos X="53" Y="2"/>
-        <UsageCount Value="14"/>
-        <Loaded Value="True"/>
+        <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="9" Y="10"/>
+        <UsageCount Value="115"/>
       </Unit17>
       <Unit18>
-        <Filename Value="../Target-Common/lcc_gridconnect.pas"/>
+        <Filename Value="../Target-Common/lcc_protocol_memory_information.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="21"/>
-        <UsageCount Value="9"/>
+        <CursorPos X="9" Y="9"/>
+        <UsageCount Value="16"/>
       </Unit18>
       <Unit19>
-        <Filename Value="../Target-Common/lcc_protocol_acdi.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="37"/>
-        <CursorPos X="6" Y="51"/>
-        <UsageCount Value="13"/>
-        <Loaded Value="True"/>
+        <Filename Value="../Target-Common/lcc_protocol_memory_options.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="9" Y="10"/>
+        <UsageCount Value="16"/>
       </Unit19>
       <Unit20>
-        <Filename Value="../Target-Common/lcc_protocol_base.pas"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="238"/>
-        <CursorPos X="30" Y="239"/>
-        <UsageCount Value="13"/>
-        <Loaded Value="True"/>
+        <Filename Value="../Target-Common/lcc_protocol_traction_configuration_functions.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="20"/>
+        <CursorPos X="52" Y="32"/>
+        <UsageCount Value="1"/>
       </Unit20>
       <Unit21>
-        <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="94"/>
-        <CursorPos X="28" Y="94"/>
-        <UsageCount Value="13"/>
+        <Filename Value="../Target-Common/lcc_node_manager.pas"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="9" Y="6"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
       </Unit21>
       <Unit22>
-        <Filename Value="../Target-Common/lcc_protocol_memory_information.pas"/>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="193"/>
-        <CursorPos X="67" Y="7"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="883"/>
+        <CursorPos X="15" Y="893"/>
+        <UsageCount Value="9"/>
       </Unit22>
       <Unit23>
-        <Filename Value="../Target-Common/lcc_protocol_memory_options.pas"/>
+        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/streams.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos Y="142"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="465"/>
+        <CursorPos X="5" Y="470"/>
+        <UsageCount Value="9"/>
       </Unit23>
       <Unit24>
-        <Filename Value="../Target-Common/lcc_protocol_traction_configuation_functiondefinitioninfo.pas"/>
-        <EditorIndex Value="-1"/>
+        <Filename Value="../Target-Common/lcc_utilities.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="655"/>
+        <CursorPos Y="676"/>
         <UsageCount Value="12"/>
+        <Loaded Value="True"/>
       </Unit24>
       <Unit25>
-        <Filename Value="../Target-Common/lcc_protocol_traction_configuration_functions.pas"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="12"/>
-      </Unit25>
-      <Unit26>
-        <Filename Value="../Target-Common/lcc_protocol_traction_simpletrainnodeinfo.pas"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="12"/>
-      </Unit26>
-      <Unit27>
-        <Filename Value="../Target-Common/lcc_protocol_traction.pas"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="12"/>
-      </Unit27>
-      <Unit28>
-        <Filename Value="../Target-Common/lcc_threaded_circulararray.pas"/>
+        <Filename Value="../Target-PC/lcc_threaded_circulararray.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="11" Y="12"/>
-        <UsageCount Value="12"/>
-      </Unit28>
-      <Unit29>
-        <Filename Value="../Target-PC/HardwareConnection/lcc_comport.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="18" Y="21"/>
-        <UsageCount Value="9"/>
-      </Unit29>
-      <Unit30>
-        <Filename Value="../Target-Common/lcc_node_manager.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="15"/>
-        <CursorPos X="12" Y="23"/>
         <UsageCount Value="11"/>
-      </Unit30>
-      <Unit31>
-        <Filename Value="../Target-PC/Synapse_LCC/ssfpc.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="348"/>
-        <CursorPos X="3" Y="362"/>
-        <UsageCount Value="10"/>
-      </Unit31>
-      <Unit32>
-        <Filename Value="../Target-PC/lcc_xmlutilities.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="304"/>
-        <CursorPos X="20" Y="318"/>
-        <UsageCount Value="10"/>
-      </Unit32>
-      <Unit33>
-        <Filename Value="../Target-PC/lcc_threaded_stringlist.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="11" Y="12"/>
-        <UsageCount Value="10"/>
-      </Unit33>
-      <Unit34>
-        <Filename Value="../Target-PC/HardwareConnection/lcc_app_common_settings.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="10"/>
-        <CursorPos X="5" Y="15"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-      </Unit34>
+      </Unit25>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="8" HistoryIndex="7">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../Target-Common/lcc_protocol_acdi.pas"/>
-        <Caret Line="97" Column="6" TopLine="105"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="63" TopLine="42"/>
       </Position1>
       <Position2>
-        <Filename Value="../Target-Common/lcc_protocol_acdi.pas"/>
-        <Caret Line="51" Column="6" TopLine="37"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="62" TopLine="42"/>
       </Position2>
       <Position3>
-        <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
-        <Caret Line="94" Column="35" TopLine="80"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="63" TopLine="42"/>
       </Position3>
       <Position4>
-        <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
-        <Caret Line="111" Column="3" TopLine="107"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="62" TopLine="42"/>
       </Position4>
       <Position5>
-        <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
-        <Caret Line="94" Column="28" TopLine="80"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="63" TopLine="42"/>
       </Position5>
       <Position6>
         <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
-        <Caret Line="259" Column="16" TopLine="240"/>
+        <Caret Line="62" TopLine="42"/>
       </Position6>
       <Position7>
         <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
-        <Caret Line="262" Column="39" TopLine="254"/>
+        <Caret Line="63" TopLine="42"/>
       </Position7>
       <Position8>
-        <Filename Value="../Target-PC/HardwareConnection/lcc_app_common_settings.pas"/>
-        <Caret Line="15" Column="5" TopLine="10"/>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="62" TopLine="42"/>
       </Position8>
+      <Position9>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="63" TopLine="42"/>
+      </Position9>
+      <Position10>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="62" TopLine="42"/>
+      </Position10>
+      <Position11>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="63" TopLine="42"/>
+      </Position11>
+      <Position12>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="62" TopLine="42"/>
+      </Position12>
+      <Position13>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="64" TopLine="43"/>
+      </Position13>
+      <Position14>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="65" TopLine="45"/>
+      </Position14>
+      <Position15>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="46"/>
+      </Position15>
+      <Position16>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position16>
+      <Position17>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position17>
+      <Position18>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position18>
+      <Position19>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position19>
+      <Position20>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position20>
+      <Position21>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position21>
+      <Position22>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position22>
+      <Position23>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position23>
+      <Position24>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position24>
+      <Position25>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position25>
+      <Position26>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position26>
+      <Position27>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position27>
+      <Position28>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position28>
+      <Position29>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position29>
+      <Position30>
+        <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Caret Line="67" TopLine="47"/>
+      </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes Count="0" ActiveMode=""/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
+        <Line Value="49"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

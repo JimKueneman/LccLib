@@ -89,95 +89,13 @@ type
 
   { TProtocolMemoryConfigurationDefinitionInfo }
 
-TProtocolMemoryConfigurationDefinitionInfo = class(TStreamBasedProtocol)
-protected
-  procedure DoLoadComplete(LccMessage: TLccMessage); override;
-public
-  {$IFNDEF DWSCRIPT}
-  // JScript does not have file access
-  function LoadFromXml(CdiFilePath: String; Snip: TProtocolSimpleNodeInfo): Boolean;
-  function LoadSNIP(ASnip: TProtocolSimpleNodeInfo): Boolean;
-  {$ENDIF}
+// Everything is handled by the default base case
+TProtocolMemoryConfigurationDefinitionInfo = class(TNodeProtocolBase)
 end;
 
 implementation
 
-{TProtocolMemoryConfigurationDefinitionInfo}
 
-procedure TProtocolMemoryConfigurationDefinitionInfo.DoLoadComplete(LccMessage: TLccMessage);
-//var
- // SourceNode, DestNode: TLccNode;
-begin
-  //JDK
-{
-  if Assigned(OwnerManager) then
-  begin
-//    SourceNode := OwnerManager.FindMirroredNodeBySourceID(LccMessage, True);
-//    DestNode := OwnerManager.FindMirroredNodeByDestID(LccMessage, True);
-    if Assigned(SourceNode) and Assigned(DestNode) then
-      OwnerManager.DoCDI(SourceNode, DestNode);
-  end;
-  }
-end;
-
-{$IFNDEF DWSCRIPT}
- // JScript does not have file access
-function TProtocolMemoryConfigurationDefinitionInfo.LoadFromXml(CdiFilePath: String; Snip: TProtocolSimpleNodeInfo): Boolean;
-var
-  XmlFile: TStringList;
-  i, j: Integer;
-  {$IFNDEF FPC}
-  AByte: Byte;
-  {$ENDIF}
-begin
-  Result := False;
-  Valid := False;
-  if FileExists(String( CdiFilePath)) then
-  begin
-    XmlFile := TStringList.Create;
-    try
-      XmlFile.LoadFromFile(String( CdiFilePath));
-      XmlFile.Text := Trim(XmlFile.Text);
-      AStream.Clear;
-      for i := 0 to XmlFile.Count - 1 do
-      begin
-        if Length(XmlFile[i]) > 0 then
-        begin
-          for j := 1 to Length(XmlFile[i]) do
-          begin
-            {$IFDEF FPC}
-            AStream.WriteByte(Ord(XmlFile[i][j]));
-            {$ELSE}
-            AByte := Ord(XmlFile[i][j]);
-            AStream.Write(AByte, 1);
-            {$ENDIF}
-          end;
-        end
-      end;
-      if Snip <> nil then
-        Snip.LoadFromXmlPath(CdiFilePath);
-      Valid := True;
-      Result := True;
-    finally
-      FreeAndNil(XmlFile);
-    end;
-  end;
-end;
-
-function TProtocolMemoryConfigurationDefinitionInfo.LoadSNIP(ASnip: TProtocolSimpleNodeInfo): Boolean;
-var
-  XmlDoc: LccXmlDocument;
-begin
-  Result := False;
-  if Assigned(ASnip) then
-  begin
-    XmlDoc := XmlLoadFromStream(AStream);
-    ASnip.LoadFromXmlDoc(XmlDoc);
-    XmlDoc.Free;
-    Result := True;
-  end;
-end;
-{$ENDIF}
 
 end.
 

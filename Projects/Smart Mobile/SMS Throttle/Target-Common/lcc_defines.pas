@@ -60,8 +60,6 @@ type
   PNodeID = ^TNodeID;
   {$ENDIF}
 
- // TSimpleNodeInfoPacked = array of Byte;
- // TStreamArray = array of Byte;                Just use DynamicByteArray
   TFunctionStatesArray = array[0..28] of Word;
   TDynamicByteArray = array of Byte;
 
@@ -100,12 +98,32 @@ type
 {$ENDIF}
 
 const
+  MFG_INFO_VERSION_ID      = 1;
+  USER_MFG_INFO_VERSION_ID = 1;
+
+  LEN_MFG_VERSION      = 1;
   LEN_MFG_NAME         = 41;
   LEN_MODEL_NAME       = 41;
   LEN_HARDWARE_VERSION = 21;
   LEN_SOFTWARE_VERSION = 21;
+
+  LEN_USER_VERSION     = 1;
   LEN_USER_NAME        = 63;
   LEN_USER_DESCRIPTION = 64;
+
+
+  LEN_MANUFACTURER_INFO = LEN_MFG_VERSION + LEN_MFG_NAME + LEN_MODEL_NAME + LEN_HARDWARE_VERSION + LEN_SOFTWARE_VERSION;
+  LEN_USER_MANUFACTURER_INFO = LEN_USER_VERSION + LEN_USER_NAME + LEN_USER_DESCRIPTION;
+
+  ADDRESS_VERSION           = 0;     // Same for both fixed and user
+
+  ADDRESS_MFG_NAME          = 1;
+  ADDRESS_MODEL_NAME        = 42;
+  ADDRESS_HARDWARE_VERSION  = 83;
+  ADDRESS_SOFTWARE_VERSION  = 104;
+
+  ADDRESS_USER_NAME        = 1;
+  ADDRESS_USER_DESCRIPTION  = 64;
 
 const
   // Full CAN MTI

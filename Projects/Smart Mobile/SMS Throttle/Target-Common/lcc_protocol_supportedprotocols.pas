@@ -79,7 +79,7 @@ public
   property FirmwareUpgrade: Boolean read FFirmwareUpgrade write FFirmwareUpgrade;
   property FirmwareUpgradeActive: Boolean read FFirmwareUpgradeActive write FFirmwareUpgradeActive;
 
-  procedure LoadFromLccMessage(SourceLccMessage: TLccMessage); override;
+  procedure LoadFromLccMessage(SourceLccMessage: TLccMessage);
 end;
 
 implementation

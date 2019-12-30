@@ -67,7 +67,7 @@ type
     procedure Clear;
     function FindByAddressSpace(Space: Byte): TConfigMemAddressSpaceInfoObject;
     procedure LoadReply(LccMessage: TLccMessage; OutMessage: TLccMessage);
-    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+//    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   end;
 
 implementation
@@ -181,9 +181,9 @@ begin
    OutMessage.DataArrayIndexer[7] := $01;
    OutMessage.DataCount := 8;
  end;
- OutMessage.UserValid := True;
 end;
 
+{
 function TProtocolMemoryInfo.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
  Info: TConfigMemAddressSpaceInfoObject;
@@ -216,6 +216,6 @@ begin
  end;
  Valid := True;                                       // Had at least one....
 end;
-
+}
 end.
 

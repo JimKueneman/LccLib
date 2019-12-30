@@ -9,8 +9,7 @@ uses
   {$ELSE}
   System.SyncObjs,
   {$ENDIF}
-  SysUtils,
-  lcc_utilities;
+  SysUtils;
 
 type
 

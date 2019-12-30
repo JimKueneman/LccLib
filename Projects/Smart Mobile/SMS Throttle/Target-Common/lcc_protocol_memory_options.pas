@@ -65,7 +65,7 @@ public
   property HighSpace: Byte read FHighSpace write FHighSpace;
   property LowSpace: Byte read FLowSpace write FLowSpace;
 
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+//  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   procedure LoadReply(LccMessage: TLccMessage);
 end;
 
@@ -110,9 +110,9 @@ begin
   LccMessage.DataArrayIndexer[2] := _Hi(OpsMask);
   LccMessage.DataArrayIndexer[3] := _Lo(OpsMask);
   LccMessage.DataCount := 7;
-  LccMessage.UserValid := True;
 end;
 
+{
 function TProtocolMemoryOptions.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   OpsMask: Word;
@@ -143,6 +143,6 @@ begin
     end
   end;
 end;
-
+ }
 end.
 
