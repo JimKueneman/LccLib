@@ -32,9 +32,9 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TButton;
+    ButtonConnect: TButton;
     ButtonLogin: TButton;
-    Button3: TButton;
+    ButtonClear: TButton;
     ButtonDatagramCount: TButton;
     CheckBoxLogging: TCheckBox;
     Label1: TLabel;
@@ -46,9 +46,9 @@ type
     LabelAllcoatedDatagrams: TLabel;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
-    procedure Button1Click(Sender: TObject);
+    procedure ButtonConnectClick(Sender: TObject);
     procedure ButtonLoginClick(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure ButtonClearClick(Sender: TObject);
     procedure ButtonDatagramCountClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
@@ -76,7 +76,7 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.ButtonConnectClick(Sender: TObject);
 var
   EthernetRec: TLccEthernetRec;
 begin
@@ -87,13 +87,15 @@ begin
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
+    if CanNodeManager.Nodes.Count > 0 then
+      ButtonLoginClick(ButtonLogin);
     CanNodeManager.LogoutAll;
     EthernetServer.CloseConnection(nil);
-    Button1.Caption := 'Connect';
+    ButtonConnect.Caption := 'Connect';
   end else
   begin
     EthernetServer.OpenConnection(EthernetRec);
-    Button1.Caption := 'Disconnect';
+    ButtonConnect.Caption := 'Disconnect';
   end;
 end;
 
@@ -113,6 +115,10 @@ begin
     CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
     CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
     CanNode.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
+    CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
 
     CanNode.ProtocolMemoryOptions.WriteUnderMask := True;
     CanNode.ProtocolMemoryOptions.UnAlignedReads := True;
@@ -127,7 +133,7 @@ begin
     CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
     CanNode.ProtocolMemoryOptions.WriteStream := False;
     CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-    CanNode.ProtocolMemoryOptions.LowSpace := MSI_ACDI_USER;
+    CanNode.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 
     CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
     CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
@@ -143,7 +149,7 @@ begin
     CanNodeManager.Clear;
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TForm1.ButtonClearClick(Sender: TObject);
 begin
   SynEdit1.Clear;
 end;

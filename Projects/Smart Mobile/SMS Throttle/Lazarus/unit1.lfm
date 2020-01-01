@@ -9,13 +9,13 @@ object Form1: TForm1
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
-  object Button1: TButton
+  object ButtonConnect: TButton
     Left = 8
     Height = 22
     Top = 8
     Width = 200
     Caption = 'Connect'
-    OnClick = Button1Click
+    OnClick = ButtonConnectClick
     TabOrder = 0
   end
   object StatusBar1: TStatusBar
@@ -541,13 +541,13 @@ object Form1: TForm1
       end
     end
   end
-  object Button3: TButton
+  object ButtonClear: TButton
     Left = 696
     Height = 22
     Top = 8
     Width = 75
     Caption = 'Clear'
-    OnClick = Button3Click
+    OnClick = ButtonClearClick
     TabOrder = 4
   end
   object CheckBoxLogging: TCheckBox
