@@ -1,16 +1,18 @@
 <SMART>
-  <Form version="3" subversion="0">
+  <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:18.029</Created>
-    <Modified>2019-12-17T19:19:55.228</Modified>
+    <Modified>2019-12-31T16:05:03.024</Modified>
     <object type="TW3Form">
       <Caption>Settings</Caption>
+      <Width>408</Width>
+      <Height>472</Height>
       <Name>TabSettingsForm</Name>
       <object type="TW3Panel">
         <Width>368</Width>
-        <Height>200</Height>
+        <Height>256</Height>
         <Name>W3Panel1</Name>
         <object type="TW3EditBox">
-          <Text>10.0.3.131</Text>
+          <Text>10.0.3.154</Text>
           <Width>128</Width>
           <Top>8</Top>
           <Left>96</Left>
@@ -58,6 +60,38 @@
           <Name>W3ButtonStartNode</Name>
           <OnClick>W3ButtonStartNodeClick</OnClick>
         </object>
+        <object type="TW3Label">
+          <Caption>Node ID</Caption>
+          <Width>80</Width>
+          <Top>176</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3Label1</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>Alias</Caption>
+          <Width>72</Width>
+          <Top>208</Top>
+          <Left>16</Left>
+          <Height>32</Height>
+          <Name>W3Label2</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>None</Caption>
+          <Width>128</Width>
+          <Top>176</Top>
+          <Left>88</Left>
+          <Height>32</Height>
+          <Name>W3LabelNodeID</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>None</Caption>
+          <Width>128</Width>
+          <Top>208</Top>
+          <Left>88</Left>
+          <Height>32</Height>
+          <Name>W3LabelAlias</Name>
+        </object>
       </object>
       <object type="TW3Button">
         <Caption>Connect</Caption>
@@ -70,8 +104,8 @@
       </object>
       <object type="TW3ListBox">
         <Width>368</Width>
-        <Top>208</Top>
-        <Height>200</Height>
+        <Top>264</Top>
+        <Height>168</Height>
         <Name>W3ListBox1</Name>
       </object>
     </object>

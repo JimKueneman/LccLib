@@ -25,10 +25,10 @@ uses
   lcc_defines,
   lcc_node_messages,
   lcc_utilities,
-//  lcc_protocol_traction,
-//  lcc_protocol_traction_simpletrainnodeinfo,
-//  lcc_protocol_traction_configuruation_functiondefinitioninfo,
-//  lcc_protocol_traction_configuration_functions,
+  lcc_protocol_traction,
+  lcc_protocol_traction_simpletrainnodeinfo,
+  lcc_protocol_traction_configuation_functiondefinitioninfo,
+  lcc_protocol_traction_configuration_functions,
   lcc_protocol_memory_configuration,
   lcc_protocol_memory_configurationdefinitioninfo,
   lcc_protocol_memory_options,
@@ -53,27 +53,35 @@ private
   FInitialized: Boolean;
   FNodeManager: TObject;
   FSendMessageFunc: TLccSendMessageFunc;
-  FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data
+  FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data with Fixed Offsets for read only data
+                                                 // SNIP uses this structure to create a packed version of this information (null separated strings) +
+                                                 // the user name and user description which it pulls out of the Configuration Stream
                                                  // Address 0 = Version
                                                  // Address 1 = Manufacturer
                                                  // Address 42 = Model
                                                  // Address 83 = Hardware Version
                                                  // Address 104 = Software Version
-  FStreamCdi: TMemoryStream;                     // Stream containing the XML string for the CDI
-  FStreamConfig: TMemoryStream;                  // Stream cointaining the writable configuration memory where the Address = Offset in the stream
+  FStreamCdi: TMemoryStream;                     // Stream containing the XML string for the CDI (Configuration Definition Info)
+  FStreamConfig: TMemoryStream;                  // Stream containing the writable configuration memory where the Address = Offset in the stream
                                                  // and the following MUST be true
                                                  // Address 0 = User info Version number
                                                  // Address 1 = User Defined name (ACDI/SNIP)
                                                  // Address 64 = User defined description  (ACDI/SNIP)
                                                  // Address 128 = Node specific persistent data
+  FStreamTractionConfig: TMemoryStream;          // Stream containing the writable configuration memory for a Traction node where the Address = Offset in the stream
+  FStreamTractionFdi: TMemoryStream;             // Stream containing the XML string for the FDI (Function Definition Info)
   FTProtocolMemoryConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo;
   FProtocolMemoryOptions: TProtocolMemoryOptions;
-  FMemoryConfiguration: TProtocolMemoryConfiguration;
+  FProtocolMemoryConfiguration: TProtocolMemoryConfiguration;
   FProtocolEventConsumed: TProtocolEvents;
   FProtocolEventsProduced: TProtocolEvents;
   FProtocolSupportedProtocols: TProtocolSupportedProtocols;
   FProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo;
   FProtocolMemoryInfo: TProtocolMemoryInfo;
+  FProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo;
+  FProtocolTraction: TProtocolTraction;
+  FProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo;
+  FProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration;
   FACDIMfg: TACDIMfg;
   FACDIUser: TACDIUser;
   FDatagramResendQueue: TDatagramQueue;
@@ -89,6 +97,9 @@ protected
   property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
   property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
   property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
+  property StreamTractionFdi: TMemoryStream read FStreamTractionFdi write FStreamTractionFdi;
+  property StreamTractionConfig: TMemoryStream read FStreamTractionConfig write FStreamTractionConfig;
+
   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
   property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
   property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
@@ -97,7 +108,7 @@ protected
   function GetAlias: Word; virtual;
   function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
   function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
-  function LoadStreamManufacturerData(ACdi: string): Boolean;
+  function LoadManufacturerDataStream(ACdi: string): Boolean;
   procedure AutoGenerateEvents;
   procedure SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
   procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
@@ -111,7 +122,7 @@ public
 
   property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
   property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
-  property ProtocolMemoryConfiguration: TProtocolMemoryConfiguration read FMemoryConfiguration write FMemoryConfiguration;
+  property ProtocolMemoryConfiguration: TProtocolMemoryConfiguration read FProtocolMemoryConfiguration write FProtocolMemoryConfiguration;
   property ProtocolConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo read FTProtocolMemoryConfigurationDefinitionInfo write FTProtocolMemoryConfigurationDefinitionInfo;
   property ProtocolMemoryOptions: TProtocolMemoryOptions read FProtocolMemoryOptions write FProtocolMemoryOptions;
   property ProtocolMemoryInfo: TProtocolMemoryInfo read FProtocolMemoryInfo write FProtocolMemoryInfo;
@@ -119,6 +130,10 @@ public
   property ProtocolEventsProduced: TProtocolEvents read FProtocolEventsProduced write FProtocolEventsProduced;
   property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
   property ProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo read FProtocolSimpleNodeInfo write FProtocolSimpleNodeInfo;
+  property ProtocolTraction: TProtocolTraction read FProtocolTraction write FProtocolTraction;
+  property ProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo read FProtocolTractionFunctionDefinitionInfo write FProtocolTractionFunctionDefinitionInfo;
+  property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
+  property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
 
   constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string); virtual;
   destructor Destroy; override;
@@ -185,10 +200,6 @@ implementation
 
 uses
   lcc_node_manager;
-
-type
-  TLccNodeManagerHack = class(TLccNodeManager)
-  end;
 
 { TLccCanNode }
 
@@ -337,7 +348,7 @@ begin
   SeedNodeID := ANodeID;
   Temp := FSeedNodeID;
   FAliasID := GenerateID_Alias_From_Seed(Temp);
-  TLccNodeManagerHack( NodeManager).DoNodeIDChanged(Self);
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
   FNodeID := ANodeID;
 
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
@@ -388,7 +399,7 @@ begin
       SendMessageFunc(WorkerMessage);
       WorkerMessage.LoadAMD(NodeID, AliasID);
       SendMessageFunc(WorkerMessage);
-      TLccNodeManagerHack( NodeManager).DoAliasIDChanged(Self);
+      (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
       inherited Login(NodeID);
     end
   end;
@@ -687,7 +698,7 @@ begin
     FPermitted := False;
     WorkerMessage.LoadAMR(NodeID, AliasID);
     SendMessageFunc(WorkerMessage);
-    TLccNodeManagerHack( NodeManager).DoCANAliasMapReset(Self);
+    (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
   end;
 end;
 
@@ -722,7 +733,7 @@ begin
   end;
 end;
 
-function TLccNode.LoadStreamManufacturerData(ACdi: string): Boolean;
+function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;
 var
   AnOffset, ALength, i: Integer;
 begin
@@ -786,17 +797,25 @@ begin
   FProtocolSimpleNodeInfo := TProtocolSimpleNodeInfo.Create(ASendMessageFunc);
   FTProtocolMemoryConfigurationDefinitionInfo := TProtocolMemoryConfigurationDefinitionInfo.Create(ASendMessageFunc);
   FProtocolMemoryOptions := TProtocolMemoryOptions.Create(ASendMessageFunc);
-  FMemoryConfiguration := TProtocolMemoryConfiguration.Create(SendMessageFunc);
+  FProtocolMemoryConfiguration := TProtocolMemoryConfiguration.Create(SendMessageFunc);
   FProtocolMemoryInfo := TProtocolMemoryInfo.Create(ASendMessageFunc);
   FProtocolEventConsumed := TProtocolEvents.Create(ASendMessageFunc);
   FProtocolEventsProduced := TProtocolEvents.Create(ASendMessageFunc);
+
+  FProtocolTraction := TProtocolTraction.Create(ASendMessageFunc);
+  FProtocolTractionFunctionDefinitionInfo := TTractionFunctionDefinitionInfo.Create(ASendMessageFunc);
+  FProtocolTractionMemoryFunctionConfiguration := TTractionFunctionConfiguration.Create(ASendMessageFunc);
+  FProtocolTractionSimpleTrainNodeInfo := TTractionProtocolSimpleTrainNodeInfo.Create(ASendMessageFunc);
+
   FACDIMfg := TACDIMfg.Create(ASendMessageFunc);
   FACDIUser := TACDIUser.Create(ASendMessageFunc);
   FStreamCdi := TMemoryStream.Create;
   FStreamConfig := TMemoryStream.Create;
   FStreamManufacturerData := TMemoryStream.Create;
+  FStreamTractionConfig := TMemoryStream.Create;
+  FStreamTractionFdi := TMemoryStream.Create;
 
-  FDatagramResendQueue := TDatagramQueue.Create(SendMessageFunc);
+  FDatagramResendQueue := TDatagramQueue.Create(ASendMessageFunc);
   FWorkerMessageDatagram := TLccMessage.Create;
   FWorkerMessage := TLccMessage.Create;
   FSendMessageFunc := ASendMessageFunc;
@@ -818,14 +837,19 @@ begin
     StreamWriteByte(StreamCdi, Ord(CdiXML[i]));
   StreamWriteByte(StreamCdi, 0);
 
-  // Setup the Manufacturer Data from the XML to allow access for ACDI and SNIP
-  LoadStreamManufacturerData(CdiXML);
+  // Setup the Manufacturer Data Stream from the XML to allow access for ACDI and SNIP
+  LoadManufacturerDataStream(CdiXML);
 
+  // Setup the Configuration Memory Stream
   StreamConfig.Size := LEN_USER_MANUFACTURER_INFO;
   StreamConfig.Position := 0;
   StreamWriteByte(StreamConfig, USER_MFG_INFO_VERSION_ID);
   while StreamConfig.Position < StreamConfig.Size do
     StreamWriteByte(StreamConfig, 0);
+
+  // Setup the Fdi Stream
+
+  // Setup the Function Configuration Memory Stream
 end;
 
 procedure TLccNode.AutoGenerateEvents;
@@ -857,19 +881,18 @@ end;
 
 procedure TLccNode.CreateNodeID(var Seed: TNodeID);
 begin
-  Randomize;
   Seed[1] := StrToInt('0x020112');
   {$IFDEF DWSCRIPT}
   Seed[0] := RandomInt($FFFFFF);
   {$ELSE}
   Seed[0] := Random($FFFFFF);
   {$ENDIF}
-  TLccNodeManagerHack( NodeManager).DoCreateLccNode(Self);
+  (NodeManager as INodeManagerCallbacks).DoCreateLccNode(Self);
 end;
 
 destructor TLccNode.Destroy;
 begin
-  TLccNodeManagerHack( NodeManager).DoDestroyLccNode(Self);
+  (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
   _800msTimer.Enabled := False;
   _800msTimer.Free;
   FProtocolSupportedProtocols.Free;
@@ -879,15 +902,21 @@ begin
   FProtocolEventsProduced.Free;
   FProtocolMemoryOptions.Free;
   FProtocolMemoryInfo.Free;
+  FProtocolTraction.Free;
+  FProtocolTractionFunctionDefinitionInfo.Free;
+  FProtocolTractionMemoryFunctionConfiguration.Free;
+  FProtocolTractionSimpleTrainNodeInfo.Free;
   FACDIMfg.Free;
   FACDIUser.Free;
-  FMemoryConfiguration.Free;
+  FProtocolMemoryConfiguration.Free;
   FDatagramResendQueue.Free;
   FWorkerMessageDatagram.Free;
   FWorkerMessage.Free;
   FStreamCdi.Free;
   FStreamConfig.Free;
   FStreamManufacturerData.Free;
+  FStreamTractionConfig.Free;
+  FStreamTractionFdi.Free;
   inherited;
 end;
 
@@ -923,7 +952,7 @@ begin
   if NullNodeID(ANodeID) then
     CreateNodeID(ANodeID);
   FNodeID := ANodeID;
-  TLccNodeManagerHack( NodeManager).DoNodeIDChanged(Self);
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
   FInitialized := True;
   SendInitializeComplete;
   AutoGenerateEvents;
@@ -1081,6 +1110,22 @@ begin
         begin
           // TODO need a call back handler
         end;
+     MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST :
+        begin
+          Result := True;
+        end;
+    MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
+        begin
+          Result := True;
+        end;
+    MTI_TRACTION_REQUEST :
+        begin
+          Result := True;
+        end;
+    MTI_TRACTION_REPLY :
+        begin
+          Result := True;
+        end;
      MTI_DATAGRAM_REJECTED_REPLY :
        begin
          DatagramResendQueue.Resend(SourceLccMessage);
@@ -1125,9 +1170,12 @@ begin
                            ACDIUser.DatagramWriteRequest(SourceLccMessage, StreamConfig);
                            Result := True;
                          end;
-                       MSI_FDI       : begin end; // Can't write to the Manufacturing area
-                       MSI_FUNCTION_CONFIG :
+                       MSI_TRACTION_FDI       : begin end; // Can't write to the FDI area
+                       MSI_TRACTION_FUNCTION_CONFIG :
                          begin
+                           SendDatagramAckReply(SourceLccMessage, False, 0);     // We will be sending a Write Reply
+                           ProtocolMemoryConfiguration.DatagramWriteRequest(SourceLccMessage, StreamTractionConfig);
+                           Result := True;
                          end;
                      end;
                    end;
@@ -1166,11 +1214,19 @@ begin
                            SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
                            Result := True;
                          end;
-                       MSI_FDI :
+                       MSI_TRACTION_FDI :
                          begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ProtocolConfigurationDefinitionInfo.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamTractionFdi);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
                          end;
-                       MSI_FUNCTION_CONFIG :
+                       MSI_TRACTION_FUNCTION_CONFIG :
                          begin
+                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                           ProtocolMemoryConfiguration.DatagramReadRequest(SourceLccMessage, WorkerMessage, StreamTractionConfig);
+                           SendDatagramRequiredReply(SourceLccMessage, WorkerMessage);
+                           Result := True;
                          end;
                      end;
                    end;
@@ -1302,7 +1358,7 @@ procedure TLccNode.SendInitializeComplete;
 begin
   WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
   SendMessageFunc(WorkerMessage);
-  TLccNodeManagerHack( NodeManager).DoInitializationComplete(Self);
+  (NodeManager as INodeManagerCallbacks).DoInitializationComplete(Self);
 end;
 
 procedure TLccNode.SendProducedEvents;

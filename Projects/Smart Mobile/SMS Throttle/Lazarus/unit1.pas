@@ -21,7 +21,11 @@ uses
   lcc_defines,
   lcc_ethernet_server,
   lcc_ethernet_client,
-  lcc_protocol_memory_configurationdefinitioninfo;
+  lcc_protocol_memory_configurationdefinitioninfo,
+  lcc_protocol_traction,
+  lcc_protocol_traction_configuration_functions,
+  lcc_protocol_traction_configuation_functiondefinitioninfo,
+  lcc_protocol_traction_simpletrainnodeinfo;
 
 type
 
@@ -78,8 +82,8 @@ var
 begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectionChange;
-  EthernetRec.ListenerIP := '127.0.0.1';
-//  EthernetRec.AutoResolveIP := True;
+//  EthernetRec.ListenerIP := '127.0.0.1';
+  EthernetRec.AutoResolveIP := True;
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
@@ -123,7 +127,7 @@ begin
     CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
     CanNode.ProtocolMemoryOptions.WriteStream := False;
     CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-    CanNode.ProtocolMemoryOptions.LowSpace := MSI_CONFIG;
+    CanNode.ProtocolMemoryOptions.LowSpace := MSI_ACDI_USER;
 
     CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
     CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;

@@ -50,9 +50,9 @@ html, body, document {
 /* Define common properties for all elements that will be created at runtime */
 /* ######################################################################### */
 
-/* Apply to all elements */
+/* Apply to all elements div, input, button, span, textarea */
 
-div, input, button, span {
+* {
    /* padding: 0px;
    margin:  0px;
    border:  0px; */
@@ -257,6 +257,10 @@ div, input, button, span {
   background-color: #EFEFEF;
 }
 
+.TW3ErrorBackground {
+  background-color: #FFCCCC;
+}
+
 .TW3TransparentBackground {
   background: none;
 }
@@ -396,7 +400,8 @@ div, input, button, span {
 }
 
 .TW3ButtonBorder {
-	border-radius:  4px;
+  margin: 1px;
+  border-radius:  4px;
   border-top:     1px solid rgba(250, 250, 250, 0.7);
   border-left:    1px solid rgba(250, 250, 250, 0.7);
   border-right:   1px solid rgba(240, 240, 240, 0.5);
@@ -557,6 +562,32 @@ div, input, button, span {
 .TW3ListMenuBorder:last-child {
 	border-bottom-left-radius:  8px;
 	border-bottom-right-radius:  8px;
+}
+
+.TW3LightBorderTop {
+	border-top:     1px solid rgba(44, 44, 44, 0.3);
+}
+
+.TW3LightBorderBottom {
+	border-bottom:  1px solid rgba(44, 44, 44, 0.3);
+}
+
+.TW3LightBorderLeft {
+	border-left:    1px solid rgba(44, 44, 44, 0.3);
+}
+
+.TW3LightBorderRight {
+	border-right:   1px solid rgba(44, 44, 44, 0.3);
+}
+
+.TW3LightBorderHoriz {
+	border-top:     1px solid rgba(44, 44, 44, 0.3);
+	border-bottom:  1px solid rgba(44, 44, 44, 0.3);
+}
+
+.TW3LightBorderVert {
+	border-left:    1px solid rgba(44, 44, 44, 0.3);
+	border-right:  1px solid rgba(44, 44, 44, 0.3);
 }
 
 /* ######################################################################### */
@@ -778,12 +809,10 @@ TW3CustomScrollContainer, .TW3ScrollContainer {
 /* ######################################################################### */
 
 .TW3Button {
-      padding: 2px;
+  padding: 2px;
   cursor: default;
-    font-size: 18px;
-  font-weight: bold;
-        color: #494949;
-  text-shadow: 1px 1px 1px rgba(255, 255, 255, 1);
+  font-size: 14px;
+  color: #494949;
 }
 
 .TW3Button:active:enabled {
@@ -801,15 +830,12 @@ TW3CustomScrollContainer, .TW3ScrollContainer {
   min-height:  32px;
   margin: 5px;
   cursor: default;
-    font-size: 18px;
-  font-weight: bold;
-        color: #494949;
-  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  color: #494949;
 }
 
 .TW3DialogButton:active:enabled {
-        color: #494949;
-  text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.8);
+  color: #494949;
 }
 
 .TW3DialogButton > * {
@@ -952,7 +978,7 @@ TW3CustomScrollContainer, .TW3ScrollContainer {
   padding: 2px;
   margin-left: 2px;
   margin-right: 2px;
-  font-size: 18px;
+  font-size: 14px;
   color: #FFFFFF;
   flex: 1;
   flex-grow: 0;
@@ -1286,4 +1312,67 @@ TW3CustomScrollContainer, .TW3ScrollContainer {
 
 .TW3TabHeaderSelected {
   color: #FFFFFF;
+}
+
+.TW3ArrowUpButton, .TW3ArrowDownButton, .TW3ArrowLeftButton, .TW3ArrowRightButton {
+	padding: 3px;
+	border-radius: 0px;
+}
+
+.TW3ArrowUpImage {
+  background:	url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjMycHgiIGhlaWdodD0iMzJweCIgdmlld0JveD0iMCAwIDQ0NC44MTkgNDQ0LjgxOSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDQ0LjgxOSA0NDQuODE5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZD0iTTQzMy45NjgsMjc4LjY1N0wyNDguMzg3LDkyLjc5Yy03LjQxOS03LjA0NC0xNi4wOC0xMC41NjYtMjUuOTc3LTEwLjU2NmMtMTAuMDg4LDAtMTguNjUyLDMuNTIxLTI1LjY5NywxMC41NjYgICBMMTAuODQ4LDI3OC42NTdDMy42MTUsMjg1Ljg4NywwLDI5NC41NDksMCwzMDQuNjM3YzAsMTAuMjgsMy42MTksMTguODQzLDEwLjg0OCwyNS42OTNsMjEuNDExLDIxLjQxMyAgIGM2Ljg1NCw3LjIzLDE1LjQyLDEwLjg1MiwyNS42OTcsMTAuODUyYzEwLjI3OCwwLDE4Ljg0Mi0zLjYyMSwyNS42OTctMTAuODUyTDIyMi40MSwyMTMuMjcxTDM2MS4xNjgsMzUxLjc0ICAgYzYuODQ4LDcuMjI4LDE1LjQxMywxMC44NTIsMjUuNywxMC44NTJjMTAuMDgyLDAsMTguNzQ3LTMuNjI0LDI1Ljk3NS0xMC44NTJsMjEuNDA5LTIxLjQxMiAgIGM3LjA0My03LjA0MywxMC41NjctMTUuNjA4LDEwLjU2Ny0yNS42OTNDNDQ0LjgxOSwyOTQuNTQ1LDQ0MS4yMDUsMjg1Ljg4NCw0MzMuOTY4LDI3OC42NTd6IiBmaWxsPSIjMDAwMDAwIi8+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPC9zdmc+Cg==)
+                center no-repeat;
+  background-size: contain;
+}
+
+/* ######################################################################### */
+/* TW3StringGrid                                                             */
+/* ######################################################################### */
+
+.TW3StringGrid {
+  padding: 0px;
+}
+
+.TW3StringGridLineControl {
+  padding: 0px;
+  border-radius: 0px;
+}
+
+.TW3StringGridHeaders {
+  padding: 0px;
+  border-radius: 0px;
+}
+
+.TW3StringGridColumnHeader {
+  padding: 0px;
+  border-radius: 0px;
+  font-family:      "Ubuntu", verdana, Helvetica;
+  font-name:        "Ubuntu";
+  font-size:        14px;
+}
+
+.TW3MenuContainer {
+  border-radius: 0;
+  border:     1px solid rgba(44, 44, 44, 0.8);
+}
+
+.TW3MenuItemLabel {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #FFFFFF;
+}
+
+.TW3MenuItemLabel:active {
+  background-color: #EFEFEF;
+}
+
+.TW3MenuItemLabelSelected {
+  background-color: #EFEFEF;
+}
+
+.TW3MenuLabel {
+  white-space: nowrap;
+  font-family:      "Ubuntu", verdana, Helvetica;
+  font-name:        "Ubuntu";
+  font-size:        14px;
 }

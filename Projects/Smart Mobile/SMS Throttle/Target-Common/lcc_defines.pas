@@ -16,8 +16,15 @@ uses
   SmartCL.Components,
   SmartCL.System;
 {$ELSE}
-  {$IFDEF ULTIBO}fptimer,{$ENDIF}
-  {$IFDEF FPC_CONSOLE_APP}fptimer,{$ELSE}ExtCtrls,{$ENDIF}
+  {$IFDEF FPC_CONSOLE_APP}
+    fptimer,
+  {$ELSE}
+    {$IFDEF ULTIBO}
+      fptimer,
+    {$ELSE}
+      ExtCtrls,
+    {$ENDIF}
+  {$ENDIF}
   Classes,
   SysUtils;
 {$ENDIF}
@@ -238,10 +245,10 @@ const
   MTI_SIMPLE_NODE_INFO_REQUEST       = $0DE8;                                // Databytes = Destination Alias
   MTI_SIMPLE_NODE_INFO_REPLY         = $0A08;                                // Databytes = Destination Alias, ACDI Data
 
-  MTI_SIMPLE_TRAIN_INFO_REQUEST      = $0DA8;                                // Databytes = Destination Alias
-  MTI_SIMPLE_TRAIN_INFO_REPLY        = $09C8;                                // Databytes = Destination Alias, ACDI Data
+  MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST = $0DA8;                                // Databytes = Destination Alias
+  MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY   = $09C8;                                // Databytes = Destination Alias, ACDI Data
 
-  MTI_TRACTION_PROTOCOL              = $05EA;                                // Databyte = depends
+  MTI_TRACTION_REQUEST               = $05EA;                                // Databyte = depends
   MTI_TRACTION_REPLY                 = $05E8;                                // Databyte = depends
 
   MTI_REMOTE_BUTTON_REQUEST           = $0948;
@@ -361,8 +368,8 @@ const
   MSI_CONFIG                         = $FD;                                     // MemorySpaceIdentifier - Access basic configuration memory that feeds into the CDI
   MSI_ACDI_MFG                       = $FC;                                     // MemorySpaceIdentifier - Access the ACDI Manfacturers Info
   MSI_ACDI_USER                      = $FB;                                     // MemorySpaceIdentifier - Access the ACDI User definable Info
-  MSI_FDI                            = $FA;                                     // MemorySpaceIdentifier - Access the Traction Functions definable Info
-  MSI_FUNCTION_CONFIG                = $F9;                                     // MemorySpaceIdentifier = Access the Traction Function State Information
+  MSI_TRACTION_FDI                   = $FA;                                     // MemorySpaceIdentifier - Access the Traction Functions definable Info
+  MSI_TRACTION_FUNCTION_CONFIG       = $F9;                                     // MemorySpaceIdentifier = Access the Traction Function State Information
 
   MCO_WRITE_UNDER_MASK               = $8000;                                   // MemoryConfigurationOptions - Write under mask supported
   MCO_UNALIGNED_READS                = $4000;                                   // MemoryConfigurationOptions - Unaligned memory Reads supported

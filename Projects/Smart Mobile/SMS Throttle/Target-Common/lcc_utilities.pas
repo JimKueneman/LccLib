@@ -601,14 +601,14 @@ begin
     MTI_SIMPLE_NODE_INFO_REQUEST       : Result := 'Simple Node Info Request [SNIP]';
     MTI_SIMPLE_NODE_INFO_REPLY         : Result := 'Simple Node Info Reply [SNIP]';
 
-    MTI_SIMPLE_TRAIN_INFO_REQUEST       : Result := 'Simple Train Node Info Request [STNIP]';
-    MTI_SIMPLE_TRAIN_INFO_REPLY         : Result := 'Simple Train Node Info Reply [STNIP]';
+    MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST       : Result := 'Simple Train Node Info Request [STNIP]';
+    MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY         : Result := 'Simple Train Node Info Reply [STNIP]';
 
     MTI_DATAGRAM                       : Result := 'Datagram';
     MTI_DATAGRAM_OK_REPLY              : Result := 'Datagram Reply OK';
     MTI_DATAGRAM_REJECTED_REPLY        : Result := 'Datagram Rejected Reply';
 
-    MTI_TRACTION_PROTOCOL              : Result := 'Traction Protocol';
+    MTI_TRACTION_REQUEST               : Result := 'Traction Protocol';
     MTI_TRACTION_REPLY                 : Result := 'Traction Reply';
     MTI_STREAM_INIT_REQUEST            : Result := 'Stream Init Request';
     MTI_STREAM_INIT_REPLY              : Result := 'Stream Init Reply';
@@ -655,7 +655,7 @@ begin
   Result := 0;
   {$IFDEF DWSCRIPT}
   FOneByteArray := AStream.Read(1);
-  Result := OneByteArray[0];
+  Result := FOneByteArray[0];
   {$ELSE}
   AStream.Read(Result, 1);
   {$ENDIF}
@@ -726,7 +726,7 @@ begin
         Result := Result + RawHelperDataToStr(Message, True);
 
       // STNIP
-      if Message.MTI = MTI_SIMPLE_TRAIN_INFO_REPLY then
+      if Message.MTI = MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY then
         Result := Result + RawHelperDataToStr(Message, True);
 
       // Events

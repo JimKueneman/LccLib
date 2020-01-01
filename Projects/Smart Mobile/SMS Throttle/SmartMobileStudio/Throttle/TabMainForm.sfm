@@ -1,9 +1,11 @@
 <SMART>
-  <Form version="3" subversion="0">
+  <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:05.525</Created>
-    <Modified>2019-12-15T13:17:30.260</Modified>
+    <Modified>2019-12-31T15:46:48.959</Modified>
     <object type="TW3Form">
       <Caption>Throttle Control</Caption>
+      <Width>352</Width>
+      <Height>328</Height>
       <Name>TabMainForm</Name>
       <object type="TW3Panel">
         <Width>312</Width>

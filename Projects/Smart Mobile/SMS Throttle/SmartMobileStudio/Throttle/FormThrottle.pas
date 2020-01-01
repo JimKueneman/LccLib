@@ -18,7 +18,7 @@ uses
   SmartCL.Borders,
   SmartCL.Application,
   SmartCL.Controls,
-  Storage;
+  Storage, SmartCL.Controls.Label, SmartCL.Controls.Label, SmartCL.Controls.TabControl;
 
 type
   TFormThrottle = class(TW3Form)

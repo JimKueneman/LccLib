@@ -1,12 +1,10 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="213" col="45" row="242" splitview="0" designview="0" splitter="0.583987414836884" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="160" col="29" row="170" splitview="1" designview="1" splitter="0.583987441130298" />
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="1" col="2" row="24" splitview="0" designview="0" splitter="0.444144129753113" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="4" col="18" row="18" splitview="0" designview="0" splitter="0.444270014762878" />
-      <tab filename="System.Streams" fullname="..\..\..\..\..\..\ProgramData\The Smart Company\Smart Mobile Studio\RTL\System\System.Streams.pas" topline="482" col="18" row="509" />
-      <tab filename="lcc_protocol_memory_configuration" fullname="..\..\Target-Common\lcc_protocol_memory_configuration.pas" topline="86" col="20" row="92" />
-      <activetab>lcc_protocol_memory_configuration</activetab>
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="5" col="27" row="26" splitview="0" designview="0" splitter="0.444270014762878" />
+      <activetab>TabMainForm</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -15,13 +13,13 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5351</BackgroundCompilations>
-      <EditTime>T03:26:00.759</EditTime>
-      <CompileTime>T00:00:23.274</CompileTime>
-      <TotalTime>1900-01-05T19:40:21.049</TotalTime>
-      <DesigningTime>T09:59:33.126</DesigningTime>
-      <RunningTime>1900-01-02T09:38:51.600</RunningTime>
-      <TotalLinesOfCode>499</TotalLinesOfCode>
+      <BackgroundCompilations>5522</BackgroundCompilations>
+      <EditTime>T03:31:38.337</EditTime>
+      <CompileTime>T00:01:59.841</CompileTime>
+      <TotalTime>1900-01-07T03:27:14.153</TotalTime>
+      <DesigningTime>T10:01:02.857</DesigningTime>
+      <RunningTime>1900-01-02T15:25:16.891</RunningTime>
+      <TotalLinesOfCode>518</TotalLinesOfCode>
     </Statistics>
   </state>
 </SMART>

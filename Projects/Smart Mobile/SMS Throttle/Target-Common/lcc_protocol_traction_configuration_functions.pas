@@ -20,16 +20,16 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
-  lcc.protocol.base,
+  lcc_protocol_base,
   lcc_defines,
-  lcc_messages,
+  lcc_node_messages,
   lcc_utilities;
 
 type
 
-  { TFunctionConfiguration }
+  { TTractionFunctionConfiguration }
 
-TFunctionConfiguration = class(TStreamBasedProtocol)
+TTractionFunctionConfiguration = class(TNodeProtocolBase)
 private
   FFunctionStatesArray: TFunctionStatesArray;
   function GetFunctionStates(iIndex: Integer): Boolean;
@@ -37,15 +37,15 @@ protected
   property FunctionStatesArray: TFunctionStatesArray read FFunctionStatesArray write FFunctionStatesArray;
 public
   property FunctionStates[iIndex: Integer]: Boolean read GetFunctionStates;
-  function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+  function ProcessMessage(LccMessage: TLccMessage): Boolean;
 end;
 
 
 implementation
 
-{ TFunctionConfiguration }
+{ TTractionFunctionConfiguration }
 
-function TFunctionConfiguration.GetFunctionStates(iIndex: Integer): Boolean;
+function TTractionFunctionConfiguration.GetFunctionStates(iIndex: Integer): Boolean;
 begin
   if (iIndex > -1) and (iIndex < 30) then
     Result := FFunctionStatesArray[iIndex] = 1
@@ -53,9 +53,9 @@ begin
     Result := False;
 end;
 
-function TFunctionConfiguration.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TTractionFunctionConfiguration.ProcessMessage(LccMessage: TLccMessage): Boolean;
 var
-  SourceNode, DestNode: TLccNode;
+ // SourceNode, DestNode: TLccNode;
   FunctionAddress: DWord;
   i: Integer;
 begin

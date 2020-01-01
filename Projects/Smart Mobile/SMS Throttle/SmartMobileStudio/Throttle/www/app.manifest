@@ -1,8 +1,9 @@
 CACHE MANIFEST
 # Offline cache version 0.0.1
-# id:90478
+# id:3686
 
 CACHE:
 index.html
 res/app.css
+lib/mutation.observer.shim.js
 lib/polyfill.custom.events.js

@@ -1,5 +1,13 @@
 unit lcc_protocol_acdi;
 
+//
+// In order to use ACDI 4 things must occur:
+// 1) the <ADCI> tag must be in the CDI file
+// 2) the Memory Options protocol must have flags set: SupportACDIMfgRead, SupportACDIUserRead, SupportACDIUserWrite
+// 3) the Memory Options protocol must show that which ACDI memory spaces are valid spaces
+// 4) Protocol Identification Protocol (PIP) must return supports ACDI
+//
+
 interface
 
 uses

@@ -20,30 +20,21 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
+  lcc_protocol_base,
   lcc_defines,
-  lcc_messages,
+  lcc_node_messages,
   lcc_utilities;
 
 type
 
-{ TFDI }
+{ TTractionFunctionDefinitionInfo }
 
-TFDI = class(TStreamBasedProtocol)
+TTractionFunctionDefinitionInfo = class(TNodeProtocolBase)
 protected
-  procedure DoLoadComplete(LccMessage: TLccMessage); override;
 end;
 
 implementation
 
-
-{ TFDI }
-
-procedure TFDI.DoLoadComplete(LccMessage: TLccMessage);
-var
-  SourceNode, DestNode: TLccNode;
-begin
-
-end;
 
 end.
 

@@ -20,16 +20,16 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
-  lcc.protocol.base,
+  lcc_protocol_base,
   lcc_defines,
-  lcc_messages,
+  lcc_node_messages,
   lcc_utilities;
 
 type
 
-  { TTraction }
+  { TProtocolTraction }
 
-  TTraction = class(TNodeProtocolBase)
+  TProtocolTraction = class(TNodeProtocolBase)
   private
     FLegacySpeedSteps: Byte;
     FLegacyTechnology: Byte;
@@ -56,26 +56,26 @@ type
     //JDK       property ScratchNode: TLccNode read FScratchNode write FScratchNode;
 
     function IsLinked: Boolean;
-    function ProcessMessage(LccMessage: TLccMessage): Boolean; override;
+    function ProcessMessage(LccMessage: TLccMessage): Boolean;
   end;
 
 implementation
 
-{ TTraction }
+{ TProtocolTraction }
 
-procedure TTraction.SetFunctions(Index: DWord; AValue: Word);
+procedure TProtocolTraction.SetFunctions(Index: DWord; AValue: Word);
 begin
   GrowArray(Index + 1);
   FunctionArray[Index] := AValue
 end;
 
-function TTraction.GetFunctions(Index: DWord): Word;
+function TProtocolTraction.GetFunctions(Index: DWord): Word;
 begin
   GrowArray(Index + 1);
   Result := FunctionArray[Index];
 end;
 
-procedure TTraction.GrowArray(NewSize: DWord);
+procedure TProtocolTraction.GrowArray(NewSize: DWord);
 var
   OldSize, i: DWord;
 begin
@@ -83,9 +83,9 @@ begin
   if NewSize > OldSize then
   begin
     {$IFDEF DWSCRIPT}
-    var BinaryData: TBinaryData;
-    BinaryData := TBinaryData.Create(NewSize);
-    FunctionArray := BinaryData.ToBytes;
+ //   var BinaryData: TBinaryData;
+ //   BinaryData := TBinaryData.Create(NewSize);
+ //   FunctionArray := BinaryData.ToBytes;
     {$ELSE}
       SetLength(FunctionArray, NewSize);
     {$ENDIF}
@@ -98,12 +98,12 @@ begin
   end;
 end;
 
-function TTraction.IsLinked: Boolean;
+function TProtocolTraction.IsLinked: Boolean;
 begin
   //JDK    Result := Assigned(LinkedNode)
 end;
 
-function TTraction.ProcessMessage(LccMessage: TLccMessage): Boolean;
+function TProtocolTraction.ProcessMessage(LccMessage: TLccMessage): Boolean;
 begin
   Result := True;
   case LccMessage.DataArrayIndexer[0] of

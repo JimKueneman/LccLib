@@ -1,8 +1,8 @@
 <SMART>
-  <Project version="3" subversion="0">
+  <Project version="3" subversion="9">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2019-12-24T13:17:35.379</Modified>
+    <Modified>2019-12-31T19:06:55.889</Modified>
     <Author>Jim Kueneman</Author>
     <Company>Mustangpeak</Company>
     <Description>Lcc Javascript Throttle</Description>
@@ -114,7 +114,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>FormThrottle</Name>
         <Created>2018-02-04T15:37:01.191Z</Created>
-        <Modified>2019-12-15T15:15:24.092</Modified>
+        <Modified>2019-12-31T15:46:55.343</Modified>
         <Filename>FormThrottle.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -125,7 +125,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabMainForm</Name>
         <Created>2019-11-25T18:45:05.525Z</Created>
-        <Modified>2019-12-15T13:18:21.137</Modified>
+        <Modified>2019-12-31T19:06:55.887</Modified>
         <Filename>TabMainForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -136,7 +136,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2019-12-22T20:39:14.336</Modified>
+        <Modified>2019-12-31T16:24:06.811</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

@@ -51,6 +51,11 @@ type
     procedure InitializeObject; override;
     procedure Resize; override;
 
+    procedure CallbackNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure CallbackNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure CallbackNodeDestroy(Sender: TObject; LccSourceNode: TLccNode);
+    procedure CallbackNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
+
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
   public
@@ -69,6 +74,10 @@ begin
   CanNodeManager := TLccCanNodeManager.Create(nil);
   MessageList := TStringList.Create;
   CanNodeManager.OnLccMessageSend := @SendMessage;
+  CanNodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
+  CanNodeManager.OnLccNodeIDChanged := @CallbackNodeIDChange;
+  CanNodeManager.OnLccNodeDestroy := @CallbackNodeDestroy;
+  CanNodeManager.OnLccNodeCreate := @CallbackNodeCreate;
   //CanNodeManager.OnLccMessageReceive := @ReceiveMessage;  This causes recurision
 end;
 
@@ -121,7 +130,7 @@ var
 begin
   if CanNodeManager.Nodes.Count = 0 then
   begin
-    CanNode := CanNodeManager.AddNode as TLccCanNode;
+    CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
     CanNode.ProtocolSupportedProtocols.CDI := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
@@ -152,20 +161,6 @@ begin
     CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
     CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
 
-    // Setup the CDI
-    CanNode.ProtocolConfigurationDefinitionInfo.AStream.Position := 0;
-    BinaryByte := TBinaryData.Create(1);
-    BinaryByteArray := BinaryByte.ToBytes;
-    for i := 0 to Length(CDI_XML) - 1 do
-    begin
-      BinaryByteArray[0] := Ord(CDI_XML[i+1]);
-      CanNode.ProtocolConfigurationDefinitionInfo.AStream.Write(BinaryByteArray);
-    end;
-    CanNode.ProtocolConfigurationDefinitionInfo.Valid := True;
-
-    // Setup the SNIP by extracting information from the CDI
-    CanNode.ProtocolSimpleNodeInfo.LoadFromXmlString(CDI_XML);
-
     CanNode.Login(NULL_NODE_ID); // Create our own ID
 
     lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
@@ -185,6 +180,7 @@ var
 begin
   if FSocket.Connected or FConnected then
   begin
+    W3ButtonStartNodeClick(W3ButtonStartNode);
     FSocket.Disconnect(procedure (Socket: TW3WebSocket; Success: boolean)
       begin
         if Success then
@@ -200,9 +196,7 @@ begin
     )
   end else
   begin
-
     URL := 'ws://' + W3EditBoxIpAddress.Text + ':' + W3EditBoxIpPort.Text;
- //   URL := "wss://echo.websocket.org";
     try
       if W3CheckBoxTcp.Checked then
         FSocket.BinaryMessageDataType := wdtArrayBuffer;
@@ -240,6 +234,27 @@ end;
 procedure TTabSettingsForm.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   CanNodeManager.ProcessMessage(LccMessage);
+end;
+
+procedure TTabSettingsForm.CallbackNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  W3LabelNodeID.Caption := LccSourceNode.NodeIDStr
+end;
+
+procedure TTabSettingsForm.CallbackNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  W3LabelAlias.Caption := (LccSourceNode as TLccCanNode).AliasIDStr
+end;
+
+procedure TTabSettingsForm.CallbackNodeDestroy(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  W3LabelNodeID.Caption := 'None';
+  W3LabelAlias.Caption := 'None';
+end;
+
+procedure TTabSettingsForm.CallbackNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
+begin
+
 end;
 
 initialization

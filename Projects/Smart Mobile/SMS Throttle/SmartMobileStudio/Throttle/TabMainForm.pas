@@ -22,7 +22,11 @@ uses
   SmartCL.Application,
   SmartCL.Controls,
   SmartCL.Layout,
-  Storage;
+  Storage,
+  SmartCL.Controls.Button,
+  SmartCL.Controls.EditBox,
+  SmartCL.Controls.Label,
+  SmartCL.Controls.Panel;
 
 type
   TTabMainForm = class(TW3Form)

@@ -27,6 +27,40 @@ uses
   lcc_node_messages;
 
 type
+  INodeManagerCallbacks = interface
+    ['{C6920bCA-08BC-4D45-B27C-174640FA3106}']
+    procedure DoAliasIDChanged(LccNode: TLccNode);               //*
+    procedure DoCANAliasMapReset(LccNode: TLccNode);             //*
+    procedure DoCDIRead(SourceLccNode, DestLccNode: TLccNode);
+    procedure DoConfigMemAddressSpaceInfoReply(SourceLccNode, DesTLccNode: TLccNode; AddressSpace: Byte);
+    procedure DoConfigMemOptionsReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoConfigMemReadReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoCreateLccNode(SourceLccNode: TLccNode);     //*
+    procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
+    procedure DoDatagramReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoDestroyLccNode(LccNode: TLccNode);   //*
+    procedure DoFDI(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoFunctionConfiguration(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoInitializationComplete(SourceLccNode: TLccNode);   //*
+    procedure DoNodeIDChanged(LccNode: TLccNode);                  //*
+    procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
+    procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoSimpleNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoSimpleTrainNodeIdentReply(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoTractionControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; NewRequestingNode: TNodeID; NewRequestingNodeAlias: Word; var Allow: Boolean);
+    procedure DoTractionReplyQuerySpeed(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoTractionReplyQueryFunction(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoTractionReplyControllerAssign(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte);
+    procedure DoTractionReplyControllerQuery(SourceLccNode, DesTLccNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word);
+    procedure DoTractionReplyControllerChangeNotify(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte);
+    procedure DoTractionReplyManage(SourceLccNode, DesTLccNode: TLccNode; ResultCode: Byte);
+    procedure DoVerifiedNodeID(SourceLccNode: TLccNode);
+  end;
+
+type
 
   TOnLccNodeMessage = procedure(Sender: TObject; LccSourceNode: TLccNode) of object;
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
@@ -39,7 +73,7 @@ type
 
   { TLccNodeManager }
 
-  TLccNodeManager = class(TComponent)
+  TLccNodeManager = class(TComponent, INodeManagerCallbacks)
   private
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;

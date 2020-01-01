@@ -1091,7 +1091,7 @@ begin
   FDataArray[3] := _Lo( AnAddress);
   FDataArray[4] := _Hi( AValue);
   FDataArray[5] := _Lo (AValue);
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionEStop(ASourceID: TNodeID;
@@ -1104,7 +1104,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 1;
   FDataArray[0] := TRACTION_E_STOP;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionQuerySpeed(ASourceID: TNodeID;
@@ -1117,7 +1117,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 1;
   FDataArray[0] := TRACTION_QUERY_SPEED;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionQueryFunction(ASourceID: TNodeID;
@@ -1130,7 +1130,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 1;
   FDataArray[0] := TRACTION_QUERY_FUNCTION;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionControllerAssign(ASourceID: TNodeID;
@@ -1159,7 +1159,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionControllerRelease(ASourceID: TNodeID;
@@ -1188,7 +1188,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionControllerQuery(ASourceID: TNodeID;
@@ -1202,7 +1202,7 @@ begin
   DataCount := 2;
   FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
   FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionControllerChangeNotify(ASourceID: TNodeID;
@@ -1231,7 +1231,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionControllerChangeNotifyReply(
@@ -1279,7 +1279,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionConsistDetach(ASourceID: TNodeID;
@@ -1308,7 +1308,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionConsistQuery(ASourceID: TNodeID;
@@ -1337,7 +1337,7 @@ begin
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionManage(ASourceID: TNodeID;
@@ -1354,7 +1354,7 @@ begin
     FDataArray[1] := TRACTION_MANAGE_RESERVE
   else
     FDataArray[1] := TRACTION_MANAGE_RELEASE;
-  MTI := MTI_TRACTION_PROTOCOL;
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -1364,7 +1364,7 @@ begin
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  MTI := MTI_SIMPLE_TRAIN_INFO_REQUEST;
+  MTI := MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST;
 end;
 
 procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word;
@@ -1410,7 +1410,7 @@ begin
   FDataArray[3] := 0;
   FDataArray[4] := 0;
   FDataArray[5] := 0;
-  FDataArray[6] := MSI_FDI;
+  FDataArray[6] := MSI_TRACTION_FDI;
   FDataArray[7] := 64;                     // Read until the end.....
   MTI := MTI_DATAGRAM;
 end;
@@ -1430,7 +1430,7 @@ begin
   FDataArray[3] := _Higher(FunctionAddress);  // F0..F28
   FDataArray[4] := _Hi(FunctionAddress);
   FDataArray[5] := _Lo(FunctionAddress);
-  FDataArray[6] := MSI_FUNCTION_CONFIG;
+  FDataArray[6] := MSI_TRACTION_FUNCTION_CONFIG;
   FDataArray[7] := Count*2;
   MTI := MTI_DATAGRAM;
 end;
@@ -1453,7 +1453,7 @@ begin
   FDataArray[3] := _Higher(FunctionAddress);  // F0..F28
   FDataArray[4] := _Hi(FunctionAddress);
   FDataArray[5] := _Lo(FunctionAddress);
-  FDataArray[6] := MSI_FUNCTION_CONFIG;
+  FDataArray[6] := MSI_TRACTION_FUNCTION_CONFIG;
   DataCount := 7;
   for i := 0 to Count - 1 do
   begin

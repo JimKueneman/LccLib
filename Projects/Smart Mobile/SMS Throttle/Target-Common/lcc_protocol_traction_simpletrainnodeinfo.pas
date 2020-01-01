@@ -20,15 +20,16 @@ uses
   Classes,
   SysUtils,
 {$ENDIF}
+  lcc_protocol_base,
   lcc_defines,
-  lcc_messages,
+  lcc_node_messages,
   lcc_utilities;
 
 type
 
-  { TSimpleTrainNodeInfo }
+  { TTractionProtocolSimpleTrainNodeInfo }
 
-  TSimpleTrainNodeInfo = class(TNodeProtocolBase)
+  TTractionProtocolSimpleTrainNodeInfo = class(TNodeProtocolBase)
   private
     FManufacturer: string;
     FOwner: string;
@@ -46,14 +47,15 @@ type
     property Manufacturer: string read FManufacturer;
     property Owner: string read FOwner;
 
-    function ProcessMessage(LccMessage: TLccMessage; Traction: TTraction): Boolean; reintroduce; virtual;
+ //   function ProcessMessage(LccMessage: TLccMessage; Traction: TTraction): Boolean; reintroduce; virtual;
   end;
 
 implementation
 
-{ TSimpleTrainNodeInfo }
+{ TTractionProtocolSimpleTrainNodeInfo }
 
-function TSimpleTrainNodeInfo.ProcessMessage(LccMessage: TLccMessage;
+{
+function TTractionProtocolSimpleTrainNodeInfo.ProcessMessage(LccMessage: TLccMessage;
   Traction: TTraction): Boolean;
 
     function NextString(AStrPtr: PChar): PChar;
@@ -102,6 +104,6 @@ begin
   end;
   Valid := True;
 end;
-
+     }
 end.
 
