@@ -33,12 +33,12 @@ type
 
 TProtocolSupportedProtocols = class(TNodeProtocolBase)
 private
-  FACDI: Boolean;
-  FCDI: Boolean;
+  FAbbreviatedConfigurationDefinitionInfo: Boolean;
+  FConfigurationDefinitionInfo: Boolean;
   FDatagram: Boolean;
   FDisplay: Boolean;
   FEventExchange: Boolean;
-  FFDI: Boolean;
+  FTractionFunctionDefinitionInfo: Boolean;
   FIdentification: Boolean;
   FMemConfig: Boolean;
   FRemoteButton: Boolean;
@@ -47,8 +47,8 @@ private
   FStream: Boolean;
   FTeach_Learn: Boolean;
   FTractionControl: Boolean;
-  FSimpleTrainNodeInfo: Boolean;
-  FFunctionConfiguration: Boolean;
+  FTractionSimpleTrainNodeInfo: Boolean;
+  FTractionFunctionConfiguration: Boolean;
   FFirmwareUpgradeActive: Boolean;
   FFirmwareUpgrade: Boolean;
 
@@ -61,8 +61,6 @@ public
   function EncodeFlags: TLccSupportedProtocolArray;
 
   property Datagram: Boolean read FDatagram write FDatagram;
-  property FDI: Boolean read FFDI write FFDI;
-  property FunctionConfiguration: Boolean read FFunctionConfiguration write FFunctionConfiguration;
   property Stream: Boolean read FStream write FStream;
   property MemConfig: Boolean read FMemConfig write FMemConfig;
   property Reservation: Boolean read FReservation write FReservation;
@@ -70,12 +68,14 @@ public
   property Identification: Boolean read FIdentification write FIdentification;
   property Teach_Learn: Boolean read FTeach_Learn write FTeach_Learn;
   property RemoteButton: Boolean read FRemoteButton write FRemoteButton;
-  property ACDI: Boolean read FACDI write FACDI;
+  property AbbreviatedConfigurationDefinitionInfo: Boolean read FAbbreviatedConfigurationDefinitionInfo write FAbbreviatedConfigurationDefinitionInfo;
   property Display: Boolean read FDisplay write FDisplay;
   property SimpleNodeInfo: Boolean read FSimpleNodeInfo write FSimpleNodeInfo;
-  property CDI: Boolean read FCDI write FCDI;
+  property ConfigurationDefinitionInfo: Boolean read FConfigurationDefinitionInfo write FConfigurationDefinitionInfo;
   property TractionControl: Boolean read FTractionControl write FTractionControl;
-  property SimpleTrainNodeInfo: Boolean read FSimpleTrainNodeInfo write FSimpleTrainNodeInfo;
+  property TractionSimpleTrainNodeInfo: Boolean read FTractionSimpleTrainNodeInfo write FTractionSimpleTrainNodeInfo;
+  property TractionFunctionDefinitionInfo: Boolean read FTractionFunctionDefinitionInfo write FTractionFunctionDefinitionInfo;
+  property TractionFunctionConfiguration: Boolean read FTractionFunctionConfiguration write FTractionFunctionConfiguration;
   property FirmwareUpgrade: Boolean read FFirmwareUpgrade write FFirmwareUpgrade;
   property FirmwareUpgradeActive: Boolean read FFirmwareUpgradeActive write FFirmwareUpgradeActive;
 
@@ -100,16 +100,16 @@ begin
     FTeach_Learn := Flags[5] and PIP_TEACH_LEARN <> 0;
 
     FRemoteButton := Flags[4] and PIP_REMOTE_BUTTON <> 0;
-    FACDI := Flags[4] and PIP_ABBREVIATED_CDI <> 0;
+    FAbbreviatedConfigurationDefinitionInfo := Flags[4] and PIP_ABBREVIATED_CDI <> 0;
     FDisplay := Flags[4] and PIP_DISPLAY <> 0;
     FSimpleNodeInfo := Flags[4] and PIP_SIMPLE_NODE_INFO <> 0;
-    FCDI := Flags[4] and PIP_CDI <> 0;
+    FConfigurationDefinitionInfo := Flags[4] and PIP_CDI <> 0;
     FTractionControl := Flags[4] and PIP_TRACTION <> 0;
-    FFDI := Flags[4] and PIP_FDI <> 0;
+    FTractionFunctionDefinitionInfo := Flags[4] and PIP_FDI <> 0;
     // Dcc_Command_Station Flags[4]
 
-    FSimpleTrainNodeInfo := Flags[3] and PIP_SIMPLE_TRAIN_NODE_INFO <> 0;
-    FFunctionConfiguration := Flags[3] and PIP_FUNCTION_CONFIGURATION <> 0;
+    FTractionSimpleTrainNodeInfo := Flags[3] and PIP_SIMPLE_TRAIN_NODE_INFO <> 0;
+    FTractionFunctionConfiguration := Flags[3] and PIP_FUNCTION_CONFIGURATION <> 0;
     FFirmwareUpgrade := Flags[3] and PIP_FIRMWARE_UPGRADE <> 0;
     FirmwareUpgradeActive := Flags[3] and PIP_FIRMWARE_UPGRADE_ACTIVE <> 0;
 
@@ -134,16 +134,16 @@ begin
   if Teach_Learn then Result[5] := Result[5] or PIP_TEACH_LEARN;
 
   if RemoteButton then Result[4] := Result[4] or PIP_REMOTE_BUTTON;
-  if ACDI then Result[4] := Result[4] or PIP_ABBREVIATED_CDI;
+  if AbbreviatedConfigurationDefinitionInfo then Result[4] := Result[4] or PIP_ABBREVIATED_CDI;
   if Display then Result[4] := Result[4] or PIP_DISPLAY;
   if SimpleNodeInfo then Result[4] := Result[4] or PIP_SIMPLE_NODE_INFO;
-  if CDI then Result[4] := Result[4] or PIP_CDI;
+  if ConfigurationDefinitionInfo then Result[4] := Result[4] or PIP_CDI;
   if TractionControl then Result[4] := Result[4] or PIP_TRACTION;
-  if FDI then Result[4] := Result[4] or PIP_FDI;
+  if TractionFunctionDefinitionInfo then Result[4] := Result[4] or PIP_FDI;
 // if DccCommand Station then Result[4] := .... depreciated
 
-  if SimpleTrainNodeInfo then Result[3] := Result[3] or PIP_SIMPLE_TRAIN_NODE_INFO;
-  if FunctionConfiguration then Result[3] := Result[3] or PIP_FUNCTION_CONFIGURATION;
+  if TractionSimpleTrainNodeInfo then Result[3] := Result[3] or PIP_SIMPLE_TRAIN_NODE_INFO;
+  if TractionFunctionConfiguration then Result[3] := Result[3] or PIP_FUNCTION_CONFIGURATION;
   if FirmwareUpgrade then Result[3] := Result[3] or PIP_FIRMWARE_UPGRADE;
   if FirmwareUpgradeActive then Result[3] := Result[3] or PIP_FIRMWARE_UPGRADE_ACTIVE
 

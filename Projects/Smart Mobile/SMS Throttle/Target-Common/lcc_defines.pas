@@ -293,10 +293,10 @@ const
   PIP_ABBREVIATED_CDI                = $40;
   PIP_DISPLAY                        = $20;
   PIP_SIMPLE_NODE_INFO               = $10;
-  PIP_CDI                            = $80;
-  PIP_TRACTION                       = $40;
-  PIP_FDI                            = $20;
-// PIP_DCC_COMMAND_STATION            = $10; depreciated
+  PIP_CDI                            = $08;
+  PIP_TRACTION                       = $04;
+  PIP_FDI                            = $02;
+// PIP_DCC_COMMAND_STATION            = $01; depreciated
 
   // Byte 3
   PIP_SIMPLE_TRAIN_NODE_INFO         = $80;
@@ -320,7 +320,6 @@ const
   STR_PIP_CDI                        = 'Configuration Description Information (CDI) Protocol';
   STR_PIP_TRACTION                   = 'Traction Protocol';
   STR_PIP_FDI                        = 'Function Description Information (FDI) Protocol';
-  STR_PIP_TRACTION_PROTOCOL          = 'Traction Proxy Protocol';
   STR_PIP_FIRMWARE_UPGRADE           = 'Firmware Upgrade Protocol';
   STR_PIP_FIRMWARE_UPGRADE_ACTIVE    = 'Firmware Upgrade Active Protocol';
 
@@ -404,10 +403,10 @@ const
   TRACTION_CONTROLLER_CONFIG_REPLY_OK = $00;
   TRACTION_CONTROLLER_CONFIG_REPLY_FAIL = $FF;
 
-  TRACTION_CONSIST                    = $30;
-  TRACTION_CONSIST_ATTACH             = $01;
-  TRACTION_CONSIST_DETACH             = $02;
-  TRACTION_CONSIST_QUERY              = $03;
+  TRACTION_LISTENER                   = $30;
+  TRACTION_LISTENER_ATTACH            = $01;
+  TRACTION_LISTENER_DETACH            = $02;
+  TRACTION_LISTENER_QUERY             = $03;
 
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;

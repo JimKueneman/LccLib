@@ -1265,8 +1265,8 @@ begin
   if AnAlias <> 0 then
   begin
     DataCount := 11;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_ATTACH;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_ATTACH;
     FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
     InsertNodeID(3, ANodeID);
     FDataArray[9] := Hi( AnAlias);
@@ -1274,8 +1274,8 @@ begin
   end else
   begin
     DataCount := 9;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_ATTACH;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_ATTACH;
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
@@ -1294,8 +1294,8 @@ begin
   if AnAlias <> 0 then
   begin
     DataCount := 11;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_DETACH;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_DETACH;
     FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
     InsertNodeID(3, ANodeID);
     FDataArray[9] := Hi( AnAlias);
@@ -1303,8 +1303,8 @@ begin
   end else
   begin
     DataCount := 9;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_DETACH;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_DETACH;
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
@@ -1323,8 +1323,8 @@ begin
   if AnAlias <> 0 then
   begin
     DataCount := 11;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_QUERY;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
     FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
     InsertNodeID(3, ANodeID);
     FDataArray[9] := Hi( AnAlias);
@@ -1332,8 +1332,8 @@ begin
   end else
   begin
     DataCount := 9;
-    FDataArray[0] := TRACTION_CONSIST;
-    FDataArray[1] := TRACTION_CONSIST_QUERY;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;

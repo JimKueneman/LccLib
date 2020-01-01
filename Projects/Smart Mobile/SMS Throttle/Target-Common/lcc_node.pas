@@ -975,7 +975,7 @@ function TLccNode.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
   Temp: TEventID;
-  AddressSpace, OperationType: Byte;
+  AddressSpace, OperationType, TractionCode: Byte;
   DataOffset: Byte;
   LocalNodeManager: TLccNodeManager;
 begin
@@ -1120,6 +1120,34 @@ begin
         end;
     MTI_TRACTION_REQUEST :
         begin
+          TractionCode := SourceLccMessage.DataArrayIndexer[2];
+          case TractionCode of
+            TRACTION_SPEED_DIR :
+               begin
+                 ProtocolTraction.SetSpeedDir(SourceLccMessage);
+               end;
+             TRACTION_FUNCTION :
+               begin
+               end;
+             TRACTION_E_STOP :
+               begin
+               end;
+             TRACTION_QUERY_SPEED :
+               begin
+               end;
+             TRACTION_QUERY_FUNCTION :
+               begin
+               end;
+             TRACTION_CONTROLLER_CONFIG :
+               begin
+               end;
+             TRACTION_LISTENER :
+               begin
+               end;
+             TRACTION_MANAGE :
+               begin
+               end;
+          end;
           Result := True;
         end;
     MTI_TRACTION_REPLY :

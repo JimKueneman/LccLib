@@ -23,127 +23,40 @@ uses
   lcc_protocol_base,
   lcc_defines,
   lcc_node_messages,
-  lcc_utilities;
+  lcc_utilities,
+  lcc_math_float16;
 
 type
 
   { TProtocolTraction }
 
   TProtocolTraction = class(TNodeProtocolBase)
-  private
-    FLegacySpeedSteps: Byte;
-    FLegacyTechnology: Byte;
-    FLegacyTrainID: Word;
-  //JDK      FLinkedNode: TLccNode;                 // depends on the Node: Throttle Node = Linked Train Node, Train Node = Linked Throttle Node
-  //JDK       FScratchNode: TLccNode;
-  //JDK    FSpeed: THalfFloat;
-  // JDK    FSpeedActual: THalfFloat;
-  // JDK    FSpeedCommanded: THalfFloat;
-    procedure SetFunctions(Index: DWord; AValue: Word);
-    function GetFunctions(Index: DWord): Word;
-  protected
-    FunctionArray: array of Word;
-    procedure GrowArray(NewSize: DWord);
   public
-  //JDK    property Speed: THalfFloat read FSpeed;
-  //JDK    property SpeedActual: THalfFloat read FSpeedActual;
-  //JDK    property SpeedCommanded: THalfFloat read FSpeedCommanded;
-    property Functions[Index: DWord]: Word read GetFunctions;
-  //JDK      property LinkedNode: TLccNode read FLinkedNode write FLinkedNode;
-    property LegacyTechnology: Byte read FLegacyTechnology write FLegacyTechnology;
-    property LegacyTrainID: Word read FLegacyTrainID write FLegacyTrainID;
-    property LegacySpeedSteps: Byte read FLegacySpeedSteps write FLegacySpeedSteps;
-    //JDK       property ScratchNode: TLccNode read FScratchNode write FScratchNode;
+    procedure SetSpeedDir(ALccMessage: TLccMessage);
+    procedure SetFunction(ALccMessage: TLccMessage);
 
-    function IsLinked: Boolean;
-    function ProcessMessage(LccMessage: TLccMessage): Boolean;
   end;
 
 implementation
 
 { TProtocolTraction }
 
-procedure TProtocolTraction.SetFunctions(Index: DWord; AValue: Word);
-begin
-  GrowArray(Index + 1);
-  FunctionArray[Index] := AValue
-end;
-
-function TProtocolTraction.GetFunctions(Index: DWord): Word;
-begin
-  GrowArray(Index + 1);
-  Result := FunctionArray[Index];
-end;
-
-procedure TProtocolTraction.GrowArray(NewSize: DWord);
+procedure TProtocolTraction.SetSpeedDir(ALccMessage: TLccMessage);
 var
-  OldSize, i: DWord;
+  Speed: Single;
 begin
-  OldSize := Length(FunctionArray);
-  if NewSize > OldSize then
-  begin
-    {$IFDEF DWSCRIPT}
- //   var BinaryData: TBinaryData;
- //   BinaryData := TBinaryData.Create(NewSize);
- //   FunctionArray := BinaryData.ToBytes;
-    {$ELSE}
-      SetLength(FunctionArray, NewSize);
-    {$ENDIF}
-    i := OldSize;
-    while i < NewSize do
-    begin
-      FunctionArray[i] := 0;
-      Inc(i)
-    end
-  end;
+  Speed := HalfToFloat( ALccMessage.ExtractDataBytesAsInt(1, 2));
 end;
 
-function TProtocolTraction.IsLinked: Boolean;
+procedure TProtocolTraction.SetFunction(ALccMessage: TLccMessage);
+var
+  FunctionAddress: DWORD;
+  FunctionValue: WORD;
 begin
-  //JDK    Result := Assigned(LinkedNode)
+  FunctionAddress := ALccMessage.ExtractDataBytesAsInt(1, 3);
+  FunctionValue := ALccMessage.ExtractDataBytesAsInt(4, 5);
 end;
 
-function TProtocolTraction.ProcessMessage(LccMessage: TLccMessage): Boolean;
-begin
-  Result := True;
-  case LccMessage.DataArrayIndexer[0] of
-    TRACTION_QUERY_SPEED :
-        begin
- //JDK         FSpeed := LccMessage.ExtractDataBytesAsInt(1, 2);
-// JDK          FSpeedCommanded := LccMessage.ExtractDataBytesAsInt(4, 5);
- //JDK         FSpeedActual := LccMessage.ExtractDataBytesAsInt(6, 7); ;
-        end;
-    TRACTION_QUERY_FUNCTION :
-        begin
-          SetFunctions(LccMessage.ExtractDataBytesAsInt(1, 3), LccMessage.ExtractDataBytesAsInt(4,5))
-        end;
-    TRACTION_CONTROLLER_CONFIG :
-        begin
-          case LccMessage.DataArrayIndexer[1] of
-            TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                begin
-
-                end;
-            TRACTION_CONTROLLER_CONFIG_QUERY :
-                begin
-
-                end;
-            TRACTION_CONTROLLER_CONFIG_NOTIFY :
-                begin
-
-                end;
-          end;
-        end;
-    TRACTION_CONSIST :
-        begin
-
-        end;
-    TRACTION_MANAGE :
-        begin
-
-        end;
-  end;
-end;
 
 end.
 

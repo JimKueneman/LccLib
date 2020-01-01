@@ -20,8 +20,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 420
+    Height = 15
+    Top = 428
     Width = 793
     Panels = <    
       item
@@ -43,7 +43,7 @@ object Form1: TForm1
   end
   inline SynEdit1: TSynEdit
     Left = 0
-    Height = 348
+    Height = 356
     Top = 72
     Width = 793
     Align = alBottom
@@ -55,7 +55,7 @@ object Form1: TForm1
     ParentColor = False
     ParentFont = False
     TabOrder = 3
-    Gutter.Width = 51
+    Gutter.Width = 55
     Gutter.MouseActions = <>
     RightGutter.Width = 0
     RightGutter.MouseActions = <>
@@ -511,7 +511,7 @@ object Form1: TForm1
         MouseActions = <>
       end
       object SynGutterLineNumber1: TSynGutterLineNumber
-        Width = 11
+        Width = 15
         MouseActions = <>
         MarkupInfo.Background = clBtnFace
         MarkupInfo.Foreground = clNone
@@ -541,20 +541,19 @@ object Form1: TForm1
       end
     end
   end
-  object ButtonClear: TButton
+  object Button3: TButton
     Left = 696
     Height = 22
     Top = 8
     Width = 75
     Caption = 'Clear'
-    OnClick = ButtonClearClick
     TabOrder = 4
   end
   object CheckBoxLogging: TCheckBox
     Left = 464
-    Height = 19
+    Height = 18
     Top = 12
-    Width = 64
+    Width = 69
     Caption = 'Logging'
     TabOrder = 5
   end
@@ -578,49 +577,49 @@ object Form1: TForm1
   end
   object Label1: TLabel
     Left = 352
-    Height = 15
+    Height = 16
     Top = 46
-    Width = 40
+    Width = 46
     Caption = 'NodeID'
     ParentColor = False
   end
   object LabelNodeID: TLabel
     Left = 416
-    Height = 15
+    Height = 16
     Top = 46
-    Width = 29
+    Width = 33
     Caption = 'None'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 600
-    Height = 15
+    Height = 16
     Top = 46
-    Width = 39
+    Width = 48
     Caption = 'Alias ID'
     ParentColor = False
   end
   object LabelAliasID: TLabel
     Left = 661
-    Height = 15
+    Height = 16
     Top = 46
-    Width = 29
+    Width = 33
     Caption = 'None'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 552
-    Height = 15
+    Height = 16
     Top = 14
-    Width = 65
+    Width = 75
     Caption = 'Node Count'
     ParentColor = False
   end
   object LabelNodeCount: TLabel
     Left = 640
-    Height = 15
+    Height = 16
     Top = 14
-    Width = 6
+    Width = 8
     Caption = '0'
     ParentColor = False
   end

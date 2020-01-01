@@ -107,10 +107,15 @@ begin
   begin
     CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
 
-    CanNode.ProtocolSupportedProtocols.CDI := True;
+    CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
     CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
+    CanNode.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
+    CanNode.ProtocolSupportedProtocols.TractionControl := True;
+    CanNode.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
+    CanNode.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
+    CanNode.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
 
     CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
     CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
