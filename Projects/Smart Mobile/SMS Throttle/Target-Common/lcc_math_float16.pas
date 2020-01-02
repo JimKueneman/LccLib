@@ -16,14 +16,20 @@ uses
     SmartCL.Device.Storage,
     SmartCL.Application,
     SmartCL.Components,
-    SmartCL.System;
+    SmartCL.System,
+    System.Memory.Buffer,
+    System.Memory;
   {$ELSE}
     Classes,
     SysUtils;
   {$ENDIF}
 
 type
+  {$IFDEF DWSCRIPT}
+  THalfFloat = WORD;
+  {$ELSE}
   THalfFloat = type Word;
+  {$ENDIF}
 
 const
   HalfMin:     Single = 5.96046448e-08; // Smallest positive half
@@ -43,7 +49,11 @@ implementation
 function HalfToFloat(Half: THalfFloat): Single;
 var
   Dst, Sign, Mantissa: LongWord;
+  {$IFDEF DWSCRIPT}
+  Exp: Integer;
+  {$ELSE}
   Exp: LongInt;
+  {$ENDIF}
 begin
   // Extract sign, exponent, and mantissa from half number
   Sign := Half shr 15;
@@ -90,19 +100,39 @@ begin
     Dst := (Sign shl 31) or $7F800000 or (Mantissa shl 13);
   end;
 
+  {$IFDEF DWSCRIPT}
+  var Bytes: TByteArray;
+  Bytes := TDataType.Int32ToBytes(Dst);
+  Result := TDataType.BytesToFloat32(Bytes);
+  {$ELSE}
   // Reinterpret LongWord as Single
   Result := PSingle(@Dst)^;
+  {$ENDIF}
 end;
 
 function FloatToHalf(Float: Single): THalfFloat;
 var
   Src: LongWord;
+  {$IFDEF DWSCRIPT}
+  Sign, Exp, Mantissa: Integer;
+  {$ELSE}
   Sign, Exp, Mantissa: LongInt;
+  {$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+  var Bytes: TByteArray;
+  Bytes := TDataType.Float32ToBytes(Float);
+  Src := LongWord( TDataType.BytesToInt32(Bytes));
+  {$ELSE}
   Src := PLongWord(@Float)^;
+  {$ENDIF}
   // Extract sign, exponent, and mantissa from Single number
   Sign := Src shr 31;
+  {$IFDEF DWSCRIPT}
+  Exp := Integer((Src and $7F800000) shr 23) - 127 + 15;
+  {$ELSE}
   Exp := LongInt((Src and $7F800000) shr 23) - 127 + 15;
+  {$ENDIF}
   Mantissa := Src and $007FFFFF;
 
   if (Exp > 0) and (Exp < 30) then

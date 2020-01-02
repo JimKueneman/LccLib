@@ -18,7 +18,9 @@ uses
   SmartCL.Borders,
   SmartCL.Application,
   SmartCL.Controls,
-  Storage, SmartCL.Controls.Label, SmartCL.Controls.Label, SmartCL.Controls.TabControl;
+  Storage,
+  SmartCL.Controls.Label,
+  SmartCL.Controls.TabControl;
 
 type
   TFormThrottle = class(TW3Form)
@@ -54,7 +56,7 @@ begin
   W3TabControl1.Width := ClientWidth;
   W3TabControl1.Height := ClientHeight;
 
-   W3Label1.Caption := IntToStr(ClientWidth);
+  // W3Label1.Caption := IntToStr(ClientWidth);
 end;
  
 initialization

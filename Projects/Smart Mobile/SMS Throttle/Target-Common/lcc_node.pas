@@ -214,10 +214,10 @@ end;
 
 destructor TLccCanNode.Destroy;
 begin
-  if Permitted then
-    SendAMR;
   InProcessMessageClear;
   InProcessMultiFrameMessage.Free;
+  FAliasID := 0;
+  (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
   inherited Destroy;
 end;
 
@@ -892,6 +892,9 @@ end;
 
 destructor TLccNode.Destroy;
 begin
+  FNodeID[0] := 0;
+  FNodeID[1] := 0;
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
   (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
   _800msTimer.Enabled := False;
   _800msTimer.Free;

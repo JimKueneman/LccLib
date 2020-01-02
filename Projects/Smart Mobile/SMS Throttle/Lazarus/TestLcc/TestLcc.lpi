@@ -54,7 +54,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\Target-Common;..\Target-PC;..\Target-PC\HardwareConnection;..\Target-PC\Synapse_LCC"/>
+      <OtherUnitFiles Value="..\..\Target-Common;..\..\Target-PC;..\..\Target-PC\HardwareConnection;..\..\Target-PC\Synapse_LCC"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Conditionals Value="if TargetOS = 'darwin' then

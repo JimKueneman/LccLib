@@ -1,7 +1,7 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2018-02-04T15:37:01.191</Created>
-    <Modified>2019-12-31T15:46:49.138</Modified>
+    <Modified>2020-01-01T11:10:50.564</Modified>
     <object type="TW3Form">
       <Caption>W3Form</Caption>
       <Width>648</Width>
@@ -15,23 +15,8 @@ form:TTabSettingsForm
         <Top>48</Top>
         <Left>8</Left>
         <Height>384</Height>
+        <Align>6</Align>
         <Name>W3TabControl1</Name>
-      </object>
-      <object type="TW3Label">
-        <Caption>W3Label</Caption>
-        <Width>128</Width>
-        <Top>8</Top>
-        <Left>48</Left>
-        <Height>32</Height>
-        <Name>W3Label1</Name>
-        <object type="TW3Label">
-          <Caption>W3Label</Caption>
-          <Width>128</Width>
-          <Top>24</Top>
-          <Left>40</Left>
-          <Height>32</Height>
-          <Name>W3Label2</Name>
-        </object>
       </object>
     </object>
   </Form>

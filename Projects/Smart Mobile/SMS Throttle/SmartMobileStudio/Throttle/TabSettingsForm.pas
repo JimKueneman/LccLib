@@ -22,6 +22,12 @@ uses
   SmartCL.Application,
   SmartCL.Controls,
   SmartCL.Net.WebSocket,
+  SmartCL.Controls.Panel,
+  SmartCL.Controls.EditBox,
+  SmartCL.Controls.Label,
+  SmartCL.Controls.CheckBox,
+  SmartCL.Controls.Button,
+  SmartCL.Controls.ListBox,
   System.Memory,
   System.Memory.Views,
   System.Memory.Buffer,
@@ -33,12 +39,14 @@ uses
   lcc_node,
   lcc_node_messages,
   lcc_protocol_memory_configurationdefinitioninfo,
-  lcc_defines, SmartCL.Controls.Panel, SmartCL.Controls.EditBox,
-  SmartCL.Controls.Label, SmartCL.Controls.CheckBox, SmartCL.Controls.Button,
-  SmartCL.Controls.ListBox;
+  lcc_defines,
+  lcc_math_float16,
+  LccNode;
 
 type
   TTabSettingsForm = class(TW3Form)
+    procedure W3ButtonClearMessagesClick(Sender: TObject);
+    procedure W3Button1Click(Sender: TObject);
     procedure W3ButtonStartNodeClick(Sender: TObject);
     procedure W3ButtonConnectionClick(Sender: TObject);
   private
@@ -108,6 +116,9 @@ begin
        LccMessage := TLccMessage.Create;
        try
          LccMessage.LoadByGridConnectStr(Message.mdText);
+         if W3CheckBoxLogging.Checked then
+           W3ListBoxLog.Add('R: ' + Trim(Message.mdText));
+         WriteLn('R: ' + Message.mdText);
          ReceiveMessage(Self, LccMessage);
        finally
          LccMessage.Free;
@@ -124,14 +135,12 @@ end;
 procedure TTabSettingsForm.W3ButtonStartNodeClick(Sender: TObject);
 var
   CanNode: TLccCanNode;
-  i: Integer;
-  BinaryByte: TBinaryData;
   BinaryByteArray: TDynamicByteArray;
 begin
   if CanNodeManager.Nodes.Count = 0 then
   begin
     CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
-    CanNode.ProtocolSupportedProtocols.CDI := True;
+    CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
     CanNode.ProtocolSupportedProtocols.EventExchange := True;
     CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
@@ -171,6 +180,25 @@ begin
     W3ButtonStartNode.Caption := 'Start Node';
     CanNodeManager.Clear;
   end;
+end;
+
+procedure TTabSettingsForm.W3ButtonClearMessagesClick(Sender: TObject);
+begin
+  W3ListBoxLog.Clear;
+end;
+
+procedure TTabSettingsForm.W3Button1Click(Sender: TObject);
+var
+  s: single;
+  Float16: THalfFloat;
+begin
+  s := SizeOf(s);
+  s := s + 3;
+  s := StrToFloat(W3EditBox1.Text);
+  Float16 := FloatToHalf(s);
+  W3Label3.Caption := '0x' + IntToHex(Float16, 8);
+  s := HalfToFloat(Float16);
+  W3Label4.Caption := FloatToStr(s);
 end;
 
 procedure TTabSettingsForm.W3ButtonConnectionClick(Sender: TObject);
@@ -226,7 +254,9 @@ begin
   MessageList.Text := LccMessage.ConvertToGridConnectStr(#10);
   for i := 0 to MessageList.Count- 1 do
   begin
-    WriteLn('SendMessage: ' + MessageList[i]);
+    if W3CheckBoxLogging.Checked then
+      W3ListBoxLog.Add('S: ' + Trim(MessageList[i]));
+    WriteLn('S: ' + MessageList[i]);
     FSocket.Write(MessageList[i]);
   end;
 end;

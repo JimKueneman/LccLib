@@ -1,15 +1,17 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:18.029</Created>
-    <Modified>2019-12-31T16:05:03.024</Modified>
+    <Modified>2020-01-01T11:24:36.899</Modified>
     <object type="TW3Form">
       <Caption>Settings</Caption>
       <Width>408</Width>
       <Height>472</Height>
+      <Anchors>15</Anchors>
       <Name>TabSettingsForm</Name>
       <object type="TW3Panel">
         <Width>368</Width>
         <Height>256</Height>
+        <Align>2</Align>
         <Name>W3Panel1</Name>
         <object type="TW3EditBox">
           <Text>10.0.3.154</Text>
@@ -92,6 +94,56 @@
           <Height>32</Height>
           <Name>W3LabelAlias</Name>
         </object>
+        <object type="TW3EditBox">
+          <Text>W3EditBox</Text>
+          <Width>104</Width>
+          <Top>8</Top>
+          <Left>248</Left>
+          <Height>32</Height>
+          <Name>W3EditBox1</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>convert</Caption>
+          <Width>96</Width>
+          <Top>40</Top>
+          <Left>256</Left>
+          <Height>32</Height>
+          <Name>W3Button1</Name>
+          <OnClick>W3Button1Click</OnClick>
+        </object>
+        <object type="TW3Label">
+          <Caption>W3Label</Caption>
+          <Width>128</Width>
+          <Top>72</Top>
+          <Left>240</Left>
+          <Height>32</Height>
+          <Name>W3Label3</Name>
+        </object>
+        <object type="TW3Label">
+          <Caption>W3Label</Caption>
+          <Width>128</Width>
+          <Top>104</Top>
+          <Left>240</Left>
+          <Height>32</Height>
+          <Name>W3Label4</Name>
+        </object>
+        <object type="TW3CheckBox">
+          <Caption>Log Messages</Caption>
+          <Width>142</Width>
+          <Top>184</Top>
+          <Left>224</Left>
+          <Height>20</Height>
+          <Name>W3CheckBoxLogging</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>Clear Messages</Caption>
+          <Width>136</Width>
+          <Top>216</Top>
+          <Left>232</Left>
+          <Height>24</Height>
+          <Name>W3ButtonClearMessages</Name>
+          <OnClick>W3ButtonClearMessagesClick</OnClick>
+        </object>
       </object>
       <object type="TW3Button">
         <Caption>Connect</Caption>
@@ -103,10 +155,13 @@
         <OnClick>W3ButtonConnectionClick</OnClick>
       </object>
       <object type="TW3ListBox">
-        <Width>368</Width>
-        <Top>264</Top>
-        <Height>168</Height>
-        <Name>W3ListBox1</Name>
+        <ItemHeight>16</ItemHeight>
+        <Width>278</Width>
+        <Top>336</Top>
+        <Left>72</Left>
+        <Height>94</Height>
+        <Align>6</Align>
+        <Name>W3ListBoxLog</Name>
       </object>
     </object>
   </Form>

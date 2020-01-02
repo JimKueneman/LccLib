@@ -25,20 +25,26 @@ uses
   lcc_protocol_traction,
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
-  lcc_protocol_traction_simpletrainnodeinfo;
+  lcc_protocol_traction_simpletrainnodeinfo,
+  lcc_math_float16;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TButton;
+    ButtonClear: TButton;
     ButtonConnect: TButton;
     ButtonLogin: TButton;
-    ButtonClear: TButton;
     ButtonDatagramCount: TButton;
+    CheckBoxLocalIP: TCheckBox;
     CheckBoxLogging: TCheckBox;
+    Edit1: TEdit;
     Label1: TLabel;
     Label2: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
     LabelNodeCount: TLabel;
     LabelNodeID: TLabel;
     Label3: TLabel;
@@ -46,6 +52,8 @@ type
     LabelAllcoatedDatagrams: TLabel;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure ButtonConnectClick(Sender: TObject);
     procedure ButtonLoginClick(Sender: TObject);
     procedure ButtonClearClick(Sender: TObject);
@@ -82,8 +90,6 @@ var
 begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetServer.OnConnectionStateChange := @OnEthernetConnectionChange;
-//  EthernetRec.ListenerIP := '127.0.0.1';
-  EthernetRec.AutoResolveIP := True;
   EthernetRec.ListenerPort := 12021;
   if EthernetServer.Connected then
   begin
@@ -92,11 +98,38 @@ begin
     CanNodeManager.LogoutAll;
     EthernetServer.CloseConnection(nil);
     ButtonConnect.Caption := 'Connect';
+    CheckBoxLocalIP.Enabled := True;
   end else
   begin
+    if CheckBoxLocalIP.Checked then
+    begin
+      EthernetRec.ListenerIP := '127.0.0.1';
+      EthernetRec.AutoResolveIP := False;
+    end else
+    begin
+      EthernetRec.AutoResolveIP := True;
+    end;
     EthernetServer.OpenConnection(EthernetRec);
     ButtonConnect.Caption := 'Disconnect';
+    CheckBoxLocalIP.Enabled := False;
   end;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  s: single;
+  Float16: THalfFloat;
+begin
+  s := StrToFloat(Edit1.Text);
+  Float16 := FloatToHalf(s);
+  Label4.Caption := '0x' + IntToHex(Float16, 8);
+  s := HalfToFloat(Float16);
+  Label5.Caption := FloatToStr(s);
 end;
 
 procedure TForm1.ButtonLoginClick(Sender: TObject);

@@ -23,6 +23,7 @@ uses
   SysUtils,
   strutils,
   {$ENDIF}
+  lcc_math_float16,
   lcc_defines,
   lcc_utilities;
 
@@ -141,7 +142,7 @@ public
   procedure LoadIdentifyEvents(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadPCER(ASourceID: TNodeID; ASourceAlias: Word; AnEvent: TEventID);
   // Traction Control
-//  procedure LoadTractionSetSpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
+  procedure LoadTractionSetSpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: single);
   procedure LoadTractionSetFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AnAddress: DWord; AValue: Word);
   procedure LoadTractionEStop(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionQuerySpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -155,6 +156,9 @@ public
   procedure LoadTractionConsistDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
+
+  // Traction Search
+  procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
   // Remote Button
 
   // Traction Identification (STNIP)
@@ -1048,10 +1052,12 @@ begin
   MTI := MTI_EVENTS_IDENTIFY;
 end;
 
-{
 procedure TLccMessage.LoadTractionSetSpeed(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: THalfFloat);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ASpeed: single);
+var
+  HalfFloatSpeed: THalfFloat;
 begin
+  HalfFloatSpeed := FloatToHalf(ASpeed);
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
@@ -1059,12 +1065,11 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 3;
   FDataArray[0] := TRACTION_SPEED_DIR;
-  FDataArray[1] := Hi( ASpeed);
-  FDataArray[2] := Lo( ASpeed);
-  MTI := MTI_TRACTION_PROTOCOL;
+  FDataArray[1] := Hi( HalfFloatSpeed);
+  FDataArray[2] := Lo( HalfFloatSpeed);
+  MTI := MTI_TRACTION_REQUEST;
 end;
 
-}
 procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
