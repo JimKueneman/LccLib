@@ -1,19 +1,19 @@
 object Form1: TForm1
-  Left = 438
-  Height = 543
-  Top = 119
-  Width = 1023
+  Left = 230
+  Height = 692
+  Top = 112
+  Width = 1145
   Caption = 'Form1'
-  ClientHeight = 543
-  ClientWidth = 1023
+  ClientHeight = 692
+  ClientWidth = 1145
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 520
-    Width = 1023
+    Height = 15
+    Top = 677
+    Width = 1145
     Panels = <    
       item
         Width = 250
@@ -24,22 +24,22 @@ object Form1: TForm1
     SimplePanel = False
   end
   object PanelTrainNode: TPanel
-    Left = 676
-    Height = 520
+    Left = 722
+    Height = 677
     Top = 0
-    Width = 347
+    Width = 423
     Align = alClient
-    ClientHeight = 520
-    ClientWidth = 347
+    ClientHeight = 677
+    ClientWidth = 423
     TabOrder = 1
     object PanelTrainHeader: TPanel
       Left = 1
       Height = 103
       Top = 24
-      Width = 345
+      Width = 421
       Align = alTop
       ClientHeight = 103
-      ClientWidth = 345
+      ClientWidth = 421
       TabOrder = 0
       object ButtonTrainConnectAndLogin: TButton
         Left = 9
@@ -52,33 +52,35 @@ object Form1: TForm1
       end
       object CheckBoxTrainLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
+        Checked = True
+        State = cbChecked
         TabOrder = 1
       end
       object LabelTrainNodeID: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelTrainAliasID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelTrainIPAddress: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 133
+        Width = 160
         Caption = 'IP Address: Disconnected'
         ParentColor = False
       end
@@ -87,7 +89,7 @@ object Form1: TForm1
       Left = 1
       Height = 23
       Top = 1
-      Width = 345
+      Width = 421
       Align = alTop
       Caption = 'OpenLCC Train'
       Color = 12615680
@@ -99,170 +101,359 @@ object Form1: TForm1
     end
     object PanelTrainBackground: TPanel
       Left = 1
-      Height = 392
+      Height = 549
       Top = 127
-      Width = 345
+      Width = 421
       Align = alClient
-      ClientHeight = 392
-      ClientWidth = 345
+      ClientHeight = 549
+      ClientWidth = 421
       TabOrder = 2
-      object ColorButtonTrainF0: TColorButton
-        Left = 272
-        Height = 25
-        Top = 32
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F0'
-      end
-      object ColorButtonTrainF1: TColorButton
-        Left = 272
-        Height = 25
-        Top = 56
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F1'
-      end
-      object ColorButtonTrainF2: TColorButton
-        Left = 272
-        Height = 25
-        Top = 80
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F2'
-      end
-      object ColorButtonTrainF3: TColorButton
-        Left = 272
-        Height = 25
-        Top = 104
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F3'
-      end
-      object ColorButtonTrainF4: TColorButton
-        Left = 272
-        Height = 25
-        Top = 128
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F4'
-      end
-      object ColorButtonTrainF5: TColorButton
-        Left = 272
-        Height = 25
-        Top = 152
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F5'
-      end
-      object ColorButtonTrainF6: TColorButton
-        Left = 272
-        Height = 25
-        Top = 176
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F6'
-      end
-      object ColorButtonTrainF7: TColorButton
-        Left = 272
-        Height = 25
-        Top = 200
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F7'
-      end
-      object ColorButtonTrainF8: TColorButton
-        Left = 272
-        Height = 25
-        Top = 224
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F8'
-      end
-      object ColorButtonTrainF9: TColorButton
-        Left = 272
-        Height = 25
-        Top = 248
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F9'
-      end
-      object ColorButtonTrainF10: TColorButton
-        Left = 273
-        Height = 25
+      object PanelTrainFunctions: TPanel
+        Left = 9
+        Height = 128
         Top = 272
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F10'
+        Width = 398
+        ClientHeight = 128
+        ClientWidth = 398
+        TabOrder = 0
+        object ColorButtonTrainF0: TColorButton
+          Left = 0
+          Height = 25
+          Top = 24
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F0'
+        end
+        object ColorButtonTrainF1: TColorButton
+          Left = 62
+          Height = 25
+          Top = 24
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F1'
+        end
+        object ColorButtonTrainF2: TColorButton
+          Left = 126
+          Height = 25
+          Top = 24
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F2'
+        end
+        object ColorButtonTrainF3: TColorButton
+          Left = 190
+          Height = 25
+          Top = 24
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F3'
+        end
+        object ColorButtonTrainF4: TColorButton
+          Left = 254
+          Height = 25
+          Top = 24
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F4'
+        end
+        object ColorButtonTrainF5: TColorButton
+          Left = 0
+          Height = 25
+          Top = 56
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F5'
+        end
+        object ColorButtonTrainF6: TColorButton
+          Left = 62
+          Height = 25
+          Top = 56
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F6'
+        end
+        object ColorButtonTrainF7: TColorButton
+          Left = 126
+          Height = 25
+          Top = 56
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F7'
+        end
+        object ColorButtonTrainF8: TColorButton
+          Left = 190
+          Height = 25
+          Top = 56
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F8'
+        end
+        object ColorButtonTrainF9: TColorButton
+          Left = 254
+          Height = 25
+          Top = 56
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F9'
+        end
+        object ColorButtonTrainF10: TColorButton
+          Left = 1
+          Height = 25
+          Top = 88
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F10'
+        end
+        object ColorButtonTrainF11: TColorButton
+          Left = 70
+          Height = 25
+          Top = 88
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F11'
+        end
+        object ColorButtonTrainF12: TColorButton
+          Left = 134
+          Height = 25
+          Top = 88
+          Width = 60
+          BorderWidth = 2
+          ButtonColorSize = 16
+          ButtonColor = clBlack
+          Caption = 'F12'
+        end
+        object Label2: TLabel
+          Left = 1
+          Height = 16
+          Top = 1
+          Width = 396
+          Align = alTop
+          Caption = 'Function State'
+          ParentColor = False
+        end
       end
-      object ColorButtonTrainF11: TColorButton
-        Left = 272
-        Height = 25
-        Top = 296
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F11'
+      object PanelTrainTechnology: TPanel
+        Left = 3
+        Height = 178
+        Top = 0
+        Width = 408
+        Anchors = [akTop, akLeft, akRight]
+        ClientHeight = 178
+        ClientWidth = 408
+        TabOrder = 1
+        object PageControlTrainTechnology: TPageControl
+          Left = 1
+          Height = 160
+          Top = 17
+          Width = 406
+          ActivePage = TabSheetTrainTechDCC
+          Align = alClient
+          Anchors = [akTop, akLeft, akRight]
+          TabIndex = 0
+          TabOrder = 0
+          object TabSheetTrainTechDCC: TTabSheet
+            Caption = 'DCC'
+            ClientHeight = 121
+            ClientWidth = 400
+            object RadioGroupTrainTechnologySpeedStep: TRadioGroup
+              Left = 0
+              Height = 44
+              Top = 0
+              Width = 384
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'Speed Steps'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 4
+              ClientHeight = 22
+              ClientWidth = 376
+              Columns = 4
+              ItemIndex = 0
+              Items.Strings = (
+                'Any'
+                '14 Step'
+                '28 Step'
+                '128 Step'
+              )
+              TabOrder = 0
+            end
+            object RadioGroupTrainTechnologyAddress: TRadioGroup
+              Left = 0
+              Height = 41
+              Top = 48
+              Width = 391
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'DCC Address Type'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 2
+              ClientHeight = 19
+              ClientWidth = 383
+              Columns = 2
+              ItemIndex = 0
+              Items.Strings = (
+                'Default Address'
+                'Long Address Only'
+              )
+              TabOrder = 1
+            end
+          end
+          object TabSheetTrainTechnologyMarklin: TTabSheet
+            Caption = 'Marklin-Motorola'
+            ClientHeight = 121
+            ClientWidth = 400
+            object RadioGroupTrainTechnologyMarklin: TRadioGroup
+              Left = 8
+              Height = 112
+              Top = 8
+              Width = 383
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'Marklin-Motorola Version'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 90
+              ClientWidth = 375
+              ItemIndex = 0
+              Items.Strings = (
+                'Any/Default Version'
+                'MM – Protocol version I (14 speed steps + F0) '
+                'MM – Protocol version II (Directional + F0-F4) '
+                'MM – Protocol version II with F5-F8 support '
+              )
+              TabOrder = 0
+            end
+          end
+          object TabSheetTrainTechnologyOther: TTabSheet
+            Caption = 'Other'
+            ClientHeight = 121
+            ClientWidth = 400
+            object RadioGroupTrainTechnologyOther: TRadioGroup
+              Left = 8
+              Height = 89
+              Top = 8
+              Width = 361
+              AutoFill = True
+              Caption = 'RadioGroupThrottleTechOther'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 67
+              ClientWidth = 353
+              ItemIndex = 0
+              Items.Strings = (
+                'Any / Default track protocol '
+                'Native OpenLCB Train Node '
+                'MFX® / M4® track protocol '
+              )
+              TabOrder = 0
+            end
+          end
+        end
+        object LabelTrainTechnologyTitle: TLabel
+          Left = 1
+          Height = 16
+          Top = 1
+          Width = 406
+          Align = alTop
+          Caption = 'Train Technology Available'
+          ParentColor = False
+        end
       end
-      object ColorButtonTrainF12: TColorButton
-        Left = 272
-        Height = 25
-        Top = 320
-        Width = 60
-        BorderWidth = 2
-        ButtonColorSize = 16
-        ButtonColor = clBlack
-        Caption = 'F12'
+      object LabeledEditTrainAddress: TLabeledEdit
+        Left = 3
+        Height = 22
+        Top = 200
+        Width = 141
+        EditLabel.Height = 16
+        EditLabel.Width = 141
+        EditLabel.Caption = 'Train Address'
+        EditLabel.ParentColor = False
+        TabOrder = 2
+        Text = '455'
       end
-      object Label1: TLabel
-        Left = 16
-        Height = 15
-        Top = 32
-        Width = 45
-        Caption = 'Address:'
-        ParentColor = False
+      object CheckBoxTrainAddressAllocated: TCheckBox
+        Left = 160
+        Height = 18
+        Top = 200
+        Width = 156
+        Caption = 'Address Pre-Allocated'
+        TabOrder = 3
+      end
+      object LabeledEditTrainName: TLabeledEdit
+        Left = 3
+        Height = 22
+        Top = 248
+        Width = 365
+        EditLabel.Height = 16
+        EditLabel.Width = 365
+        EditLabel.Caption = 'Train Name (metaddata)'
+        EditLabel.ParentColor = False
+        TabOrder = 4
+        Text = 'RGS K-27'
       end
     end
   end
   object PanelThrottleNode: TPanel
     Left = 327
-    Height = 520
+    Height = 677
     Top = 0
-    Width = 344
+    Width = 390
     Align = alLeft
-    ClientHeight = 520
-    ClientWidth = 344
+    ClientHeight = 677
+    ClientWidth = 390
     TabOrder = 2
     object PanelThrottleHeader: TPanel
       Left = 1
       Height = 103
       Top = 24
-      Width = 342
+      Width = 388
       Align = alTop
       ClientHeight = 103
-      ClientWidth = 342
+      ClientWidth = 388
       TabOrder = 0
       object ButtonThrottleConnectAndLogin: TButton
         Left = 9
@@ -275,33 +466,35 @@ object Form1: TForm1
       end
       object CheckBoxThrottleLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
+        Checked = True
+        State = cbChecked
         TabOrder = 1
       end
       object LabelThrottleNodeID: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelThrottleAliasID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelThrottleIPAddress: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 133
+        Width = 160
         Caption = 'IP Address: Disconnected'
         ParentColor = False
       end
@@ -310,7 +503,7 @@ object Form1: TForm1
       Left = 1
       Height = 23
       Top = 1
-      Width = 342
+      Width = 388
       Align = alTop
       Caption = 'OpenLCB Throttle'
       Color = 12615680
@@ -322,46 +515,46 @@ object Form1: TForm1
     end
     object PanelThrottleBackground: TPanel
       Left = 1
-      Height = 392
+      Height = 549
       Top = 127
-      Width = 342
+      Width = 388
       Align = alClient
-      ClientHeight = 392
-      ClientWidth = 342
+      ClientHeight = 549
+      ClientWidth = 388
       TabOrder = 2
       object LabeledEditThrottleAddress: TLabeledEdit
-        Left = 17
-        Height = 23
+        Left = 7
+        Height = 22
         Top = 24
-        Width = 153
-        EditLabel.Height = 15
-        EditLabel.Width = 153
-        EditLabel.Caption = 'Locomotive Address'
+        Width = 376
+        EditLabel.Height = 16
+        EditLabel.Width = 376
+        EditLabel.Caption = 'Search String (6 bytes, number only, F separator/padding)'
         EditLabel.ParentColor = False
         TabOrder = 0
         Text = 'Not Assigned'
       end
       object ButtonThrottleAssignAddress: TButton
-        Left = 184
+        Left = 9
         Height = 23
-        Top = 24
-        Width = 120
-        Caption = 'Search and Assign'
+        Top = 48
+        Width = 88
+        Caption = 'Start Search'
         TabOrder = 1
       end
       object PanelThrottleControls: TPanel
         Left = 1
-        Height = 279
-        Top = 112
-        Width = 340
+        Height = 172
+        Top = 376
+        Width = 386
         Align = alBottom
         Anchors = [akTop, akLeft, akRight, akBottom]
-        ClientHeight = 279
-        ClientWidth = 340
+        ClientHeight = 172
+        ClientWidth = 386
         TabOrder = 2
         object TrackBarThrottleSpeed: TTrackBar
-          Left = 280
-          Height = 245
+          Left = 326
+          Height = 138
           Top = 17
           Width = 43
           Orientation = trVertical
@@ -390,7 +583,7 @@ object Form1: TForm1
         object ButtonThrottleF0: TButton
           Left = 104
           Height = 23
-          Top = 56
+          Top = 48
           Width = 75
           Caption = 'F0'
           TabOrder = 3
@@ -398,7 +591,7 @@ object Form1: TForm1
         object ButtonThrottleF1: TButton
           Left = 24
           Height = 23
-          Top = 88
+          Top = 72
           Width = 75
           Caption = 'F1'
           TabOrder = 4
@@ -406,7 +599,7 @@ object Form1: TForm1
         object ButtonThrottleF2: TButton
           Left = 104
           Height = 23
-          Top = 88
+          Top = 72
           Width = 75
           Caption = 'F2'
           TabOrder = 5
@@ -414,7 +607,7 @@ object Form1: TForm1
         object ButtonThrottleF3: TButton
           Left = 184
           Height = 23
-          Top = 88
+          Top = 72
           Width = 75
           Caption = 'F3'
           TabOrder = 6
@@ -422,7 +615,7 @@ object Form1: TForm1
         object ButtonThrottleF4: TButton
           Left = 24
           Height = 23
-          Top = 120
+          Top = 96
           Width = 75
           Caption = 'F4'
           TabOrder = 7
@@ -430,7 +623,7 @@ object Form1: TForm1
         object ButtonThrottleF5: TButton
           Left = 104
           Height = 23
-          Top = 120
+          Top = 96
           Width = 75
           Caption = 'F5'
           TabOrder = 8
@@ -438,7 +631,7 @@ object Form1: TForm1
         object ButtonThrottleF6: TButton
           Left = 184
           Height = 23
-          Top = 120
+          Top = 96
           Width = 75
           Caption = 'F6'
           TabOrder = 9
@@ -446,7 +639,7 @@ object Form1: TForm1
         object ButtonThrottleF11: TButton
           Left = 104
           Height = 23
-          Top = 184
+          Top = 144
           Width = 75
           Caption = 'F11'
           TabOrder = 10
@@ -454,7 +647,7 @@ object Form1: TForm1
         object ButtonThrottleF12: TButton
           Left = 184
           Height = 23
-          Top = 184
+          Top = 144
           Width = 75
           Caption = 'F12'
           TabOrder = 11
@@ -462,7 +655,7 @@ object Form1: TForm1
         object ButtonThrottleF10: TButton
           Left = 24
           Height = 23
-          Top = 184
+          Top = 144
           Width = 75
           Caption = 'F10'
           TabOrder = 12
@@ -470,7 +663,7 @@ object Form1: TForm1
         object ButtonThrottleF7: TButton
           Left = 24
           Height = 23
-          Top = 152
+          Top = 120
           Width = 75
           Caption = 'F7'
           TabOrder = 13
@@ -478,7 +671,7 @@ object Form1: TForm1
         object ButtonThrottleF8: TButton
           Left = 104
           Height = 23
-          Top = 152
+          Top = 120
           Width = 75
           Caption = 'F8'
           TabOrder = 14
@@ -486,54 +679,239 @@ object Form1: TForm1
         object ButtonThrottleF9: TButton
           Left = 184
           Height = 23
-          Top = 152
+          Top = 120
           Width = 75
           Caption = 'F9'
           TabOrder = 15
         end
       end
-      object RadioGroup1: TRadioGroup
-        Left = 16
-        Height = 44
-        Top = 56
-        Width = 208
+      object PanelThrottleTechnology: TPanel
+        Left = 3
+        Height = 178
+        Top = 80
+        Width = 385
+        ClientHeight = 178
+        ClientWidth = 385
+        TabOrder = 3
+        object PageControlThrottleTechnology: TPageControl
+          Left = 1
+          Height = 160
+          Top = 17
+          Width = 383
+          ActivePage = TabSheetThrottleTechnologyMarklin
+          Align = alClient
+          Anchors = [akTop, akLeft, akRight]
+          TabIndex = 1
+          TabOrder = 0
+          object TabSheetThrottleTechnologyDCC: TTabSheet
+            Caption = 'DCC'
+            ClientHeight = 121
+            ClientWidth = 377
+            object RadioGroupThrottleTechnologySpeedSteps: TRadioGroup
+              Left = 0
+              Height = 44
+              Top = 0
+              Width = 361
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'Speed Steps'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 4
+              ClientHeight = 22
+              ClientWidth = 353
+              Columns = 4
+              ItemIndex = 0
+              Items.Strings = (
+                'Any'
+                '14 Step'
+                '28 Step'
+                '128 Step'
+              )
+              TabOrder = 0
+            end
+            object RadioGroupThrottleTechnologyAddress: TRadioGroup
+              Left = 0
+              Height = 41
+              Top = 48
+              Width = 368
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'DCC Address Type'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 2
+              ClientHeight = 19
+              ClientWidth = 360
+              Columns = 2
+              ItemIndex = 0
+              Items.Strings = (
+                'Default Address'
+                'Long Address Only'
+              )
+              TabOrder = 1
+            end
+          end
+          object TabSheetThrottleTechnologyMarklin: TTabSheet
+            Caption = 'Marklin-Motorola'
+            ClientHeight = 121
+            ClientWidth = 377
+            object RadioGroupThrottleTechnologyMarklin: TRadioGroup
+              Left = 8
+              Height = 112
+              Top = 8
+              Width = 360
+              Anchors = [akTop, akLeft, akRight]
+              AutoFill = True
+              Caption = 'Marklin-Motorola Version'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 90
+              ClientWidth = 352
+              ItemIndex = 0
+              Items.Strings = (
+                'Any/Default Version'
+                'MM – Protocol version I (14 speed steps + F0) '
+                'MM – Protocol version II (Directional + F0-F4) '
+                'MM – Protocol version II with F5-F8 support '
+              )
+              TabOrder = 0
+            end
+          end
+          object TabSheetThrottleTechnologyOther: TTabSheet
+            Caption = 'Other'
+            ClientHeight = 121
+            ClientWidth = 377
+            object RadioGroupThrottleTechnologyOther: TRadioGroup
+              Left = 8
+              Height = 89
+              Top = 8
+              Width = 361
+              AutoFill = True
+              Caption = 'RadioGroupThrottleTechnologyOther'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 67
+              ClientWidth = 353
+              ItemIndex = 0
+              Items.Strings = (
+                'Any / Default track protocol '
+                'Native OpenLCB Train Node '
+                'MFX® / M4® track protocol '
+              )
+              TabOrder = 0
+            end
+          end
+        end
+        object LabelThrottleTechnologyTitle: TLabel
+          Left = 1
+          Height = 16
+          Top = 1
+          Width = 383
+          Align = alTop
+          Caption = 'Train Technology Requested'
+          ParentColor = False
+        end
+      end
+      object RadioGroupThrottleSearchAllocation: TRadioGroup
+        Left = 3
+        Height = 38
+        Top = 256
+        Width = 380
         AutoFill = True
-        Caption = 'Speed Steps'
+        Caption = 'Search Allocation Option'
         ChildSizing.LeftRightSpacing = 6
         ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
         ChildSizing.EnlargeVertical = crsHomogenousChildResize
         ChildSizing.ShrinkHorizontal = crsScaleChilds
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 3
-        ClientHeight = 24
-        ClientWidth = 204
-        Columns = 3
-        ItemIndex = 1
+        ChildSizing.ControlsPerLine = 2
+        ClientHeight = 16
+        ClientWidth = 372
+        Columns = 2
+        ItemIndex = 0
         Items.Strings = (
-          '14 Step'
-          '28 Step'
-          '128 Step'
+          'Force Allocation'
+          'Existing Trains Only'
         )
-        TabOrder = 3
-      end
-      object CheckBoxThrottleLongAddress: TCheckBox
-        Left = 240
-        Height = 19
-        Top = 72
-        Width = 92
-        Caption = 'Long Address'
         TabOrder = 4
+      end
+      object RadioGroupThrottleSearchMatch: TRadioGroup
+        Left = 3
+        Height = 38
+        Top = 296
+        Width = 380
+        AutoFill = True
+        Caption = 'Search Matching Option'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 2
+        ClientHeight = 16
+        ClientWidth = 372
+        Columns = 2
+        ItemIndex = 0
+        Items.Strings = (
+          'Exact Only'
+          'All (partial)'
+        )
+        TabOrder = 5
+      end
+      object RadioGroupThrottleSearchMatchTarget: TRadioGroup
+        Left = 0
+        Height = 38
+        Top = 336
+        Width = 380
+        AutoFill = True
+        Caption = 'Search Match Source'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 2
+        ClientHeight = 16
+        ClientWidth = 372
+        Columns = 2
+        ItemIndex = 0
+        Items.Strings = (
+          'Address Only'
+          'Any (Address or Name)'
+        )
+        TabOrder = 6
       end
     end
   end
   object PanelHubNode: TPanel
     Left = 0
-    Height = 520
+    Height = 677
     Top = 0
     Width = 322
     Align = alLeft
-    ClientHeight = 520
+    ClientHeight = 677
     ClientWidth = 322
     TabOrder = 3
     object PanelThrottleHeader1: TPanel
@@ -556,49 +934,51 @@ object Form1: TForm1
       end
       object CheckBoxHubLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
+        Checked = True
+        State = cbChecked
         TabOrder = 1
       end
       object LabelHubNodeID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelHubAliasID: TLabel
         Left = 18
-        Height = 15
+        Height = 16
         Top = 88
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelHubIPAddress: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 107
+        Width = 128
         Caption = 'Server Disconnected'
         ParentColor = False
       end
       object LabelHubClientsConnected: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 100
+        Width = 119
         Caption = 'Clients Connected:'
         ParentColor = False
       end
       object LabelHubClientsConnectedValue: TLabel
-        Left = 126
-        Height = 15
-        Top = 56
-        Width = 6
+        Left = 152
+        Height = 16
+        Top = 64
+        Width = 8
         Caption = '0'
         ParentColor = False
       end
@@ -619,7 +999,7 @@ object Form1: TForm1
     end
     inline SynEdit1: TSynEdit
       Left = 1
-      Height = 349
+      Height = 506
       Top = 136
       Width = 320
       Align = alClient
@@ -1116,7 +1496,7 @@ object Form1: TForm1
     object PanelHubTools: TPanel
       Left = 1
       Height = 34
-      Top = 485
+      Top = 642
       Width = 320
       Align = alBottom
       ClientHeight = 34
@@ -1133,9 +1513,9 @@ object Form1: TForm1
       end
       object CheckBoxHubToolsEnableLog: TCheckBox
         Left = 96
-        Height = 19
+        Height = 18
         Top = 11
-        Width = 78
+        Width = 87
         Caption = 'Enable Log'
         TabOrder = 1
       end
@@ -1143,13 +1523,13 @@ object Form1: TForm1
   end
   object Splitter1: TSplitter
     Left = 322
-    Height = 520
+    Height = 677
     Top = 0
     Width = 5
   end
   object Splitter2: TSplitter
-    Left = 671
-    Height = 520
+    Left = 717
+    Height = 677
     Top = 0
     Width = 5
   end

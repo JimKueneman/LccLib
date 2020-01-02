@@ -158,7 +158,7 @@ public
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
 
   // Traction Search
-  procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+ // procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
   // Remote Button
 
   // Traction Identification (STNIP)

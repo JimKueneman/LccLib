@@ -51,7 +51,7 @@ type
     ButtonHubConnectAndLogin: TButton;
     ButtonTrainConnectAndLogin: TButton;
     ButtonThrottleConnectAndLogin: TButton;
-    CheckBoxThrottleLongAddress: TCheckBox;
+    CheckBoxTrainAddressAllocated: TCheckBox;
     CheckBoxHubToolsEnableLog: TCheckBox;
     CheckBoxHubLocalIP: TCheckBox;
     CheckBoxTrainLocalIP: TCheckBox;
@@ -69,7 +69,11 @@ type
     ColorButtonTrainF7: TColorButton;
     ColorButtonTrainF8: TColorButton;
     ColorButtonTrainF9: TColorButton;
-    Label1: TLabel;
+    Label2: TLabel;
+    LabeledEditTrainName: TLabeledEdit;
+    LabeledEditTrainAddress: TLabeledEdit;
+    LabelThrottleTechnologyTitle: TLabel;
+    LabelTrainTechnologyTitle: TLabel;
     LabeledEditThrottleAddress: TLabeledEdit;
     LabelHubClientsConnectedValue: TLabel;
     LabelHubClientsConnected: TLabel;
@@ -82,6 +86,11 @@ type
     LabelTrainNodeID: TLabel;
     LabelTrainAliasID: TLabel;
     LabelThrottleNodeID: TLabel;
+    PageControlThrottleTechnology: TPageControl;
+    PageControlTrainTechnology: TPageControl;
+    PanelThrottleTechnology: TPanel;
+    PanelTrainTechnology: TPanel;
+    PanelTrainFunctions: TPanel;
     PanelThrottleControls: TPanel;
     PanelThrottleBackground: TPanel;
     PanelTrainBackground: TPanel;
@@ -95,11 +104,27 @@ type
     PanelTrainNode: TPanel;
     PanelTrainHeader: TPanel;
     PanelThrottleNode: TPanel;
-    RadioGroup1: TRadioGroup;
+    RadioGroupThrottleSearchAllocation: TRadioGroup;
+    RadioGroupThrottleSearchMatch: TRadioGroup;
+    RadioGroupThrottleSearchMatchTarget: TRadioGroup;
+    RadioGroupThrottleTechnologySpeedSteps: TRadioGroup;
+    RadioGroupTrainTechnologySpeedStep: TRadioGroup;
+    RadioGroupThrottleTechnologyMarklin: TRadioGroup;
+    RadioGroupTrainTechnologyMarklin: TRadioGroup;
+    RadioGroupThrottleTechnologyAddress: TRadioGroup;
+    RadioGroupTrainTechnologyAddress: TRadioGroup;
+    RadioGroupThrottleTechnologyOther: TRadioGroup;
+    RadioGroupTrainTechnologyOther: TRadioGroup;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     StatusBar1: TStatusBar;
     SynEdit1: TSynEdit;
+    TabSheetThrottleTechnologyOther: TTabSheet;
+    TabSheetTrainTechnologyOther: TTabSheet;
+    TabSheetThrottleTechnologyDCC: TTabSheet;
+    TabSheetTrainTechDCC: TTabSheet;
+    TabSheetThrottleTechnologyMarklin: TTabSheet;
+    TabSheetTrainTechnologyMarklin: TTabSheet;
     ToggleBoxThrottleForward: TToggleBox;
     ToggleBoxThrottleReverse: TToggleBox;
     TrackBarThrottleSpeed: TTrackBar;
@@ -246,14 +271,26 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
+  TrainNodeManager.Clear;
   TrainEthernetClient.CloseConnection(nil);
+  while TrainEthernetClient.Connected do
+    Sleep(500);
+  TrainEthernetClient.Free;
+  TrainNodeManager.Free;
+
+  ThrottleNodeManager.Clear;
   ThrottleEthernetClient.CloseConnection(nil);
+  while ThrottleEthernetClient.Connected do
+    Sleep(500);
+  ThrottleEthernetClient.Free;
+  ThrottleNodeManager.Free;
 
-
-  HubNodeManager.Free;
-  // There is a race of CloseSocket here... called twice in thread and in the CloseConnection call
+  HubNodeManager.Clear;
   HubEthernetServer.CloseConnection(nil);
+  while HubEthernetServer.Connected do
+    Sleep(500);
   HubEthernetServer.Free;
+  HubNodeManager.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
