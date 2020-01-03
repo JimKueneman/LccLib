@@ -46,7 +46,7 @@ type
     ButtonThrottleF11: TButton;
     ButtonThrottleF12: TButton;
     ButtonThrottleF10: TButton;
-    ButtonThrottleAssignAddress: TButton;
+    ButtonThrottleStartSearch: TButton;
     ButtonHubToolsClear: TButton;
     ButtonHubConnectAndLogin: TButton;
     ButtonTrainConnectAndLogin: TButton;
@@ -69,7 +69,11 @@ type
     ColorButtonTrainF7: TColorButton;
     ColorButtonTrainF8: TColorButton;
     ColorButtonTrainF9: TColorButton;
+    Label1: TLabel;
     Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
     LabeledEditTrainName: TLabeledEdit;
     LabeledEditTrainAddress: TLabeledEdit;
     LabelThrottleTechnologyTitle: TLabel;
@@ -131,6 +135,7 @@ type
     procedure ButtonHubConnectAndLoginClick(Sender: TObject);
     procedure ButtonHubToolsClearClick(Sender: TObject);
     procedure ButtonThrottleConnectAndLoginClick(Sender: TObject);
+    procedure ButtonThrottleStartSearchClick(Sender: TObject);
     procedure ButtonTrainConnectAndLoginClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
@@ -238,6 +243,11 @@ begin
     ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
     CheckBoxThrottleLocalIP.Enabled := False;
   end;
+end;
+
+procedure TForm1.ButtonThrottleStartSearchClick(Sender: TObject);
+begin
+  beep
 end;
 
 procedure TForm1.ButtonTrainConnectAndLoginClick(Sender: TObject);

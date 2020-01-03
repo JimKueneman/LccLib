@@ -578,6 +578,7 @@ end;
 function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
+  Result.FreeOnTerminate := False;
   Result.Owner := Self;
   UpdateListenerEvents(Result, True);
   Result.Suspended := False;
