@@ -194,12 +194,14 @@ var
 begin
   FillChar(EthernetRec, SizeOf(TLccEthernetRec), 0);
   EthernetRec.AutoResolveIP := True;
+//  EthernetRec.ListenerIP := '127.0.0.1';
   EthernetRec.ListenerPort := 12021;
   LccEthernetServer.Gridconnect := True;
   LccEthernetServer.OpenConnection(EthernetRec);
 
   FillChar(EthernetRec, SizeOf(TLccEthernetRec), 0);
   EthernetRec.AutoResolveIP := True;
+//  EthernetRec.ListenerIP := '127.0.0.1';
   EthernetRec.ListenerPort := 12022;
   LccWebSocketServer.Gridconnect := True;
   LccWebSocketServer.OpenConnection(EthernetRec);

@@ -46,7 +46,7 @@ type
     ButtonThrottleF11: TButton;
     ButtonThrottleF12: TButton;
     ButtonThrottleF10: TButton;
-    ButtonThrottleStartSearch: TButton;
+    ButtonThrottleAssignAddress: TButton;
     ButtonHubToolsClear: TButton;
     ButtonHubConnectAndLogin: TButton;
     ButtonTrainConnectAndLogin: TButton;
@@ -69,11 +69,7 @@ type
     ColorButtonTrainF7: TColorButton;
     ColorButtonTrainF8: TColorButton;
     ColorButtonTrainF9: TColorButton;
-    Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
     LabeledEditTrainName: TLabeledEdit;
     LabeledEditTrainAddress: TLabeledEdit;
     LabelThrottleTechnologyTitle: TLabel;
@@ -134,8 +130,8 @@ type
     TrackBarThrottleSpeed: TTrackBar;
     procedure ButtonHubConnectAndLoginClick(Sender: TObject);
     procedure ButtonHubToolsClearClick(Sender: TObject);
+    procedure ButtonThrottleAssignAddressClick(Sender: TObject);
     procedure ButtonThrottleConnectAndLoginClick(Sender: TObject);
-    procedure ButtonThrottleStartSearchClick(Sender: TObject);
     procedure ButtonTrainConnectAndLoginClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
@@ -217,6 +213,99 @@ begin
   SynEdit1.Clear;
 end;
 
+procedure TForm1.ButtonThrottleAssignAddressClick(Sender: TObject);
+var
+  TrackProtocol: Word;  // 5 bits
+  Search: DWORD;
+  i, iFiller: Integer;
+  SearchString: string;
+begin
+  TrackProtocol := 0;
+  case PageControlThrottleTechnology.ActivePageIndex of
+    0  : begin
+           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC;
+           case RadioGroupTrainTechnologyAddress.ItemIndex of
+             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG;
+           end;
+           case RadioGroupThrottleTechnologySpeedSteps.ItemIndex of
+             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+             3 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+           end;
+         end;
+    1  : begin
+           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ALL or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN;
+           case RadioGroupThrottleTechnologyMarklin.ItemIndex of
+             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_ANY;
+             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1;
+             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2;
+             4 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8;
+           end;
+         end;
+    2  : begin
+           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ALL or TRACTION_SEARCH_TRACK_PROTOCOL_NON_MARKLIN;
+           case RadioGroupThrottleTechnologyOther.ItemIndex of
+             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_ALL;
+             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB;
+             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MFX_M4;
+           end;
+         end;
+  end;
+  case RadioGroupThrottleSearchMatch.ItemIndex of
+    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TYPE_ALL_MATCH;
+  end;
+  case RadioGroupThrottleSearchAllocation.ItemIndex of
+    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_ALLOCATE_FORCE;
+    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_ALLOCATE_EXISTING_ONLY;
+  end;
+  case RadioGroupThrottleSearchMatchTarget.ItemIndex of
+    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TARGET_ANY_MATCH;
+  end;
+
+  SearchString := LabeledEditThrottleAddress.Text;
+  if Length(SearchString) > 6 then
+  begin
+    ShowMessage('Search String too long');
+    Exit;
+  end;
+
+  Search := 0;
+  for i := 1 to Length(SearchString) do
+  begin
+    case LabeledEditThrottleAddress.Text[i] of
+      '0' : begin Search := Search or $00 end;
+      '1' : begin Search := Search or $01 end;
+      '2' : begin Search := Search or $02 end;
+      '3' : begin Search := Search or $03 end;
+      '4' : begin Search := Search or $04 end;
+      '5' : begin Search := Search or $05 end;
+      '6' : begin Search := Search or $06 end;
+      '7' : begin Search := Search or $07 end;
+      '8' : begin Search := Search or $08 end;
+      '9' : begin Search := Search or $09 end;
+      'F' : begin Search := Search or $0F end;
+      else
+        ShowMessage('Invalid character in search string, only 0-9 or F are valid');
+        Exit;
+    end;
+    Search := Search shl 4;
+  end;
+
+  iFiller := (6 - Length(SearchString));
+
+  for i := 0 to iFiller - 1 do
+  begin
+    Search := Search or $0F;
+    Search := Search shl 4;
+  end;
+
+  Search := Search or TrackProtocol;  // Above the shl 4 was done on the last byte so it is shifted over ready for the Track Protocol Flags
+end;
+
 procedure TForm1.ButtonThrottleConnectAndLoginClick(Sender: TObject);
 var
   EthernetRec: TLccEthernetRec;
@@ -243,11 +332,6 @@ begin
     ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
     CheckBoxThrottleLocalIP.Enabled := False;
   end;
-end;
-
-procedure TForm1.ButtonThrottleStartSearchClick(Sender: TObject);
-begin
-  beep
 end;
 
 procedure TForm1.ButtonTrainConnectAndLoginClick(Sender: TObject);
