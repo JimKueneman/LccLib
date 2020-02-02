@@ -108,6 +108,7 @@ type
     FOnLccMessageSend: TOnMessageEvent;
 
     FNodes: TObjectList;
+    function GetNode(Index: Integer): TLccNode;
   protected
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;               //*
     procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;             //*
@@ -144,6 +145,7 @@ type
 
   public
     property Nodes: TOBjectList read FNodes write FNodes;
+    property Node[Index: Integer]: TLccNode read GetNode;
 
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
@@ -218,7 +220,11 @@ type
   { TLccCanNodeManager }
 
   TLccCanNodeManager = class(TLccNodeManager)
+  private
+    function GetCanNode(Index: Integer): TLccCanNode;
   public
+    property CanNode[Index: Integer]: TLccCanNode read GetCanNode;
+
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
 
@@ -245,8 +251,13 @@ begin
   inherited;
 end;
 
-
-
+function TLccCanNodeManager.GetCanNode(Index: Integer): TLccCanNode;
+begin
+  if Index < Nodes.Count then
+    Result := Nodes[Index] as TLccCanNode
+  else
+    Result := nil;
+end;
 
 { TLccNodeManager }
 
@@ -522,6 +533,14 @@ begin
     end;
     Inc(i)
   end;
+end;
+
+function TLccNodeManager.GetNode(Index: Integer): TLccNode;
+begin
+  if Index < Nodes.Count then
+    Result := Nodes[Index] as TLccNode
+  else
+    Result := nil;
 end;
 
 procedure TLccNodeManager.LogoutAll;

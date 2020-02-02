@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 315
+  Left = 176
   Height = 705
-  Top = 114
+  Top = 100
   Width = 1145
   Caption = 'Form1'
   ClientHeight = 705
@@ -11,8 +11,8 @@ object Form1: TForm1
   LCLVersion = '2.0.6.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 682
+    Height = 15
+    Top = 690
     Width = 1145
     Panels = <    
       item
@@ -25,11 +25,11 @@ object Form1: TForm1
   end
   object PanelTrainNode: TPanel
     Left = 722
-    Height = 682
+    Height = 690
     Top = 0
     Width = 423
     Align = alClient
-    ClientHeight = 682
+    ClientHeight = 690
     ClientWidth = 423
     TabOrder = 1
     object PanelTrainHeader: TPanel
@@ -52,9 +52,9 @@ object Form1: TForm1
       end
       object CheckBoxTrainLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
         Checked = True
         State = cbChecked
@@ -62,25 +62,25 @@ object Form1: TForm1
       end
       object LabelTrainNodeID: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelTrainAliasID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelTrainIPAddress: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 133
+        Width = 160
         Caption = 'IP Address: Disconnected'
         ParentColor = False
       end
@@ -101,11 +101,11 @@ object Form1: TForm1
     end
     object PanelTrainBackground: TPanel
       Left = 1
-      Height = 554
+      Height = 562
       Top = 127
       Width = 421
       Align = alClient
-      ClientHeight = 554
+      ClientHeight = 562
       ClientWidth = 421
       TabOrder = 2
       object PanelTrainFunctions: TPanel
@@ -248,7 +248,7 @@ object Form1: TForm1
         end
         object Label2: TLabel
           Left = 1
-          Height = 15
+          Height = 16
           Top = 1
           Width = 396
           Align = alTop
@@ -267,8 +267,8 @@ object Form1: TForm1
         TabOrder = 1
         object PageControlTrainTechnology: TPageControl
           Left = 1
-          Height = 161
-          Top = 16
+          Height = 160
+          Top = 17
           Width = 406
           ActivePage = TabSheetTrainTechDCC
           Align = alClient
@@ -277,13 +277,13 @@ object Form1: TForm1
           TabOrder = 0
           object TabSheetTrainTechDCC: TTabSheet
             Caption = 'DCC'
-            ClientHeight = 133
-            ClientWidth = 398
+            ClientHeight = 121
+            ClientWidth = 400
             object RadioGroupTrainTechnologySpeedStep: TRadioGroup
               Left = 0
               Height = 44
               Top = 0
-              Width = 382
+              Width = 384
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
               Caption = 'Speed Steps'
@@ -294,8 +294,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 4
-              ClientHeight = 24
-              ClientWidth = 378
+              ClientHeight = 22
+              ClientWidth = 376
               Columns = 4
               ItemIndex = 0
               Items.Strings = (
@@ -310,7 +310,7 @@ object Form1: TForm1
               Left = 0
               Height = 41
               Top = 48
-              Width = 389
+              Width = 391
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
               Caption = 'DCC Address Type'
@@ -321,8 +321,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 2
-              ClientHeight = 21
-              ClientWidth = 385
+              ClientHeight = 19
+              ClientWidth = 383
               Columns = 2
               ItemIndex = 0
               Items.Strings = (
@@ -351,8 +351,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 92
-              ClientWidth = 379
+              ClientHeight = 90
+              ClientWidth = 375
               ItemIndex = 0
               Items.Strings = (
                 'Any/Default Version'
@@ -381,8 +381,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 69
-              ClientWidth = 357
+              ClientHeight = 67
+              ClientWidth = 353
               ItemIndex = 0
               Items.Strings = (
                 'Any / Default track protocol '
@@ -395,7 +395,7 @@ object Form1: TForm1
         end
         object LabelTrainTechnologyTitle: TLabel
           Left = 1
-          Height = 15
+          Height = 16
           Top = 1
           Width = 406
           Align = alTop
@@ -405,10 +405,10 @@ object Form1: TForm1
       end
       object LabeledEditTrainAddress: TLabeledEdit
         Left = 3
-        Height = 23
+        Height = 22
         Top = 200
         Width = 141
-        EditLabel.Height = 15
+        EditLabel.Height = 16
         EditLabel.Width = 141
         EditLabel.Caption = 'Train Address'
         EditLabel.ParentColor = False
@@ -417,18 +417,18 @@ object Form1: TForm1
       end
       object CheckBoxTrainAddressAllocated: TCheckBox
         Left = 160
-        Height = 19
+        Height = 18
         Top = 200
-        Width = 137
+        Width = 156
         Caption = 'Address Pre-Allocated'
         TabOrder = 3
       end
       object LabeledEditTrainName: TLabeledEdit
         Left = 3
-        Height = 23
+        Height = 22
         Top = 248
         Width = 365
-        EditLabel.Height = 15
+        EditLabel.Height = 16
         EditLabel.Width = 365
         EditLabel.Caption = 'Train Name (metaddata)'
         EditLabel.ParentColor = False
@@ -439,11 +439,11 @@ object Form1: TForm1
   end
   object PanelThrottleNode: TPanel
     Left = 327
-    Height = 682
+    Height = 690
     Top = 0
     Width = 390
     Align = alLeft
-    ClientHeight = 682
+    ClientHeight = 690
     ClientWidth = 390
     TabOrder = 2
     object PanelThrottleHeader: TPanel
@@ -466,9 +466,9 @@ object Form1: TForm1
       end
       object CheckBoxThrottleLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
         Checked = True
         State = cbChecked
@@ -476,25 +476,25 @@ object Form1: TForm1
       end
       object LabelThrottleNodeID: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelThrottleAliasID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelThrottleIPAddress: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 133
+        Width = 160
         Caption = 'IP Address: Disconnected'
         ParentColor = False
       end
@@ -515,21 +515,21 @@ object Form1: TForm1
     end
     object PanelThrottleBackground: TPanel
       Left = 1
-      Height = 554
+      Height = 562
       Top = 127
       Width = 388
       Align = alClient
-      ClientHeight = 554
+      ClientHeight = 562
       ClientWidth = 388
       TabOrder = 2
       object LabeledEditThrottleAddress: TLabeledEdit
         Left = 7
-        Height = 23
+        Height = 22
         Top = 24
         Width = 376
-        EditLabel.Height = 15
+        EditLabel.Height = 16
         EditLabel.Width = 376
-        EditLabel.Caption = 'Search String (6 bytes, number only, F separator/padding)'
+        EditLabel.Caption = 'Search String (6 bytes, "0..9" with "F" separator/padding)'
         EditLabel.ParentColor = False
         TabOrder = 0
       end
@@ -544,17 +544,17 @@ object Form1: TForm1
       end
       object PanelThrottleControls: TPanel
         Left = 1
-        Height = 177
+        Height = 185
         Top = 376
         Width = 386
         Align = alBottom
         Anchors = [akTop, akLeft, akRight, akBottom]
-        ClientHeight = 177
+        ClientHeight = 185
         ClientWidth = 386
         TabOrder = 2
         object TrackBarThrottleSpeed: TTrackBar
           Left = 326
-          Height = 143
+          Height = 151
           Top = 17
           Width = 43
           Orientation = trVertical
@@ -695,25 +695,26 @@ object Form1: TForm1
         TabOrder = 3
         object PageControlThrottleTechnology: TPageControl
           Left = 1
-          Height = 161
-          Top = 16
+          Height = 160
+          Top = 17
           Width = 383
-          ActivePage = TabSheetThrottleTechnologyOther
+          ActivePage = TabSheetThrottleTechnologyDCC
           Align = alClient
           Anchors = [akTop, akLeft, akRight]
-          TabIndex = 2
+          TabIndex = 0
           TabOrder = 0
           object TabSheetThrottleTechnologyDCC: TTabSheet
             Caption = 'DCC'
-            ClientHeight = 133
-            ClientWidth = 375
+            ClientHeight = 121
+            ClientWidth = 377
             object RadioGroupThrottleTechnologySpeedSteps: TRadioGroup
               Left = 0
-              Height = 44
+              Height = 40
               Top = 0
-              Width = 359
+              Width = 361
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
+              AutoSize = True
               Caption = 'Speed Steps'
               ChildSizing.LeftRightSpacing = 6
               ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
@@ -722,8 +723,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 4
-              ClientHeight = 24
-              ClientWidth = 355
+              ClientHeight = 18
+              ClientWidth = 353
               Columns = 4
               ItemIndex = 0
               Items.Strings = (
@@ -736,11 +737,12 @@ object Form1: TForm1
             end
             object RadioGroupThrottleTechnologyAddress: TRadioGroup
               Left = 0
-              Height = 41
-              Top = 48
-              Width = 366
+              Height = 40
+              Top = 40
+              Width = 368
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
+              AutoSize = True
               Caption = 'DCC Address Type'
               ChildSizing.LeftRightSpacing = 6
               ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
@@ -749,8 +751,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 2
-              ClientHeight = 21
-              ClientWidth = 362
+              ClientHeight = 18
+              ClientWidth = 360
               Columns = 2
               ItemIndex = 0
               Items.Strings = (
@@ -779,8 +781,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 92
-              ClientWidth = 354
+              ClientHeight = 90
+              ClientWidth = 350
               ItemIndex = 0
               Items.Strings = (
                 'Any/Default Version'
@@ -793,8 +795,8 @@ object Form1: TForm1
           end
           object TabSheetThrottleTechnologyOther: TTabSheet
             Caption = 'Other'
-            ClientHeight = 133
-            ClientWidth = 375
+            ClientHeight = 121
+            ClientWidth = 377
             object RadioGroupThrottleTechnologyOther: TRadioGroup
               Left = 8
               Height = 89
@@ -809,8 +811,8 @@ object Form1: TForm1
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 69
-              ClientWidth = 357
+              ClientHeight = 67
+              ClientWidth = 353
               ItemIndex = 0
               Items.Strings = (
                 'Any / Default track protocol '
@@ -823,7 +825,7 @@ object Form1: TForm1
         end
         object LabelThrottleTechnologyTitle: TLabel
           Left = 1
-          Height = 15
+          Height = 16
           Top = 1
           Width = 383
           Align = alTop
@@ -845,8 +847,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 18
-        ClientWidth = 376
+        ClientHeight = 16
+        ClientWidth = 372
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -869,8 +871,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 18
-        ClientWidth = 376
+        ClientHeight = 16
+        ClientWidth = 372
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -893,8 +895,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 18
-        ClientWidth = 376
+        ClientHeight = 16
+        ClientWidth = 372
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -907,11 +909,11 @@ object Form1: TForm1
   end
   object PanelHubNode: TPanel
     Left = 0
-    Height = 682
+    Height = 690
     Top = 0
     Width = 322
     Align = alLeft
-    ClientHeight = 682
+    ClientHeight = 690
     ClientWidth = 322
     TabOrder = 3
     object PanelThrottleHeader1: TPanel
@@ -934,9 +936,9 @@ object Form1: TForm1
       end
       object CheckBoxHubLocalIP: TCheckBox
         Left = 176
-        Height = 19
+        Height = 18
         Top = 12
-        Width = 61
+        Width = 68
         Caption = 'Local IP'
         Checked = True
         State = cbChecked
@@ -944,41 +946,41 @@ object Form1: TForm1
       end
       object LabelHubNodeID: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 72
-        Width = 75
+        Width = 88
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelHubAliasID: TLabel
         Left = 18
-        Height = 15
+        Height = 16
         Top = 88
-        Width = 71
+        Width = 85
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelHubIPAddress: TLabel
         Left = 16
-        Height = 15
+        Height = 16
         Top = 40
-        Width = 107
+        Width = 128
         Caption = 'Server Disconnected'
         ParentColor = False
       end
       object LabelHubClientsConnected: TLabel
         Left = 17
-        Height = 15
+        Height = 16
         Top = 56
-        Width = 100
+        Width = 119
         Caption = 'Clients Connected:'
         ParentColor = False
       end
       object LabelHubClientsConnectedValue: TLabel
         Left = 152
-        Height = 15
+        Height = 16
         Top = 64
-        Width = 6
+        Width = 8
         Caption = '0'
         ParentColor = False
       end
@@ -999,7 +1001,7 @@ object Form1: TForm1
     end
     inline SynEdit1: TSynEdit
       Left = 1
-      Height = 511
+      Height = 519
       Top = 136
       Width = 320
       Align = alClient
@@ -1496,7 +1498,7 @@ object Form1: TForm1
     object PanelHubTools: TPanel
       Left = 1
       Height = 34
-      Top = 647
+      Top = 655
       Width = 320
       Align = alBottom
       ClientHeight = 34
@@ -1513,9 +1515,9 @@ object Form1: TForm1
       end
       object CheckBoxHubToolsEnableLog: TCheckBox
         Left = 96
-        Height = 19
+        Height = 18
         Top = 11
-        Width = 78
+        Width = 87
         Caption = 'Enable Log'
         TabOrder = 1
       end
@@ -1523,13 +1525,13 @@ object Form1: TForm1
   end
   object Splitter1: TSplitter
     Left = 322
-    Height = 682
+    Height = 690
     Top = 0
     Width = 5
   end
   object Splitter2: TSplitter
     Left = 717
-    Height = 682
+    Height = 690
     Top = 0
     Width = 5
   end

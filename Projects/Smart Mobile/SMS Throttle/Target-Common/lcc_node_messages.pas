@@ -33,6 +33,8 @@ type
 
   TLccSendMessageFunc = procedure(AMessage: TLccMessage) of object;
 
+  TSearchEncodeStringError = (sese_ok, sese_TooLong, sese_InvalidCharacters);
+
 type
 
   { TLccCANMessage }
@@ -113,7 +115,7 @@ public
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
   function LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
-  function ConvertToGridConnectStr(Delimiter: String): String;
+  function ConvertToGridConnectStr(Delimiter: String; Details: Boolean): String;
   function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
   procedure CopyToTarget(TargetMessage: TLccMessage);
   class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
@@ -158,7 +160,9 @@ public
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
 
   // Traction Search
- // procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
+  procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; SearchData: DWORD);
+
   // Remote Button
 
   // Traction Identification (STNIP)
@@ -531,7 +535,7 @@ begin
   end;
 end;
 
-function TLccMessage.ConvertToGridConnectStr(Delimiter: String): String;
+function TLccMessage.ConvertToGridConnectStr(Delimiter: String; Details: Boolean): String;
 var
   i, iFrameCount, Offset: Integer;
   LocalMTI: DWord;
@@ -954,6 +958,59 @@ begin
   CAN.DestAlias := TempAlias;
 end;
 
+class function TLccMessage.TractionSearchEncodeSearchString(
+  SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD
+  ): TSearchEncodeStringError;
+//
+// TrackProtocolFlags are a combonation of TRACTION_SEARCH_TRACK_PROTOCOL_xxx flags
+//
+var
+  i, iFiller: Integer;
+begin
+  Result := sese_ok;
+  if Length(SearchString) > 6 then
+  begin
+    Result := sese_TooLong;
+    Exit;
+  end;
+
+  SearchData := 0;
+  for i := 1 to Length(SearchString) do
+  begin
+    case SearchString[i] of
+      '0' : begin SearchData := SearchData or $00 end;
+      '1' : begin SearchData := SearchData or $01 end;
+      '2' : begin SearchData := SearchData or $02 end;
+      '3' : begin SearchData := SearchData or $03 end;
+      '4' : begin SearchData := SearchData or $04 end;
+      '5' : begin SearchData := SearchData or $05 end;
+      '6' : begin SearchData := SearchData or $06 end;
+      '7' : begin SearchData := SearchData or $07 end;
+      '8' : begin SearchData := SearchData or $08 end;
+      '9' : begin SearchData := SearchData or $09 end;
+      'F' : begin SearchData := SearchData or $0F end;
+      else
+        SearchData := 0;
+        Result := sese_InvalidCharacters;
+        Exit;
+    end;
+    SearchData := SearchData shl 4;
+  end;
+
+  iFiller := (6 - Length(SearchString));
+
+  for i := 0 to iFiller - 1 do
+  begin
+    SearchData := SearchData or $0F;
+    SearchData := SearchData shl 4;
+  end;
+
+  SearchData := SearchData shl 4;
+
+   // Above the shl 4 was done on the last byte so it is shifted over ready for the Track Protocol Flags
+  SearchData := SearchData or DWORD( TrackProtocolFlags);
+end;
+
 procedure TLccMessage.LoadVerifyNodeID(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
@@ -1123,6 +1180,25 @@ begin
   DataCount := 1;
   FDataArray[0] := TRACTION_QUERY_SPEED;
   MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionSearch(ASourceID: TNodeID;
+  ASourceAlias: Word; SearchData: DWORD);
+var
+  i: Integer;
+begin
+  for i := 0 to LCC_BYTE_COUNT - 1 do
+    FDataArray[i] := 0;
+  ZeroFields;
+  SourceID := ASourceID;
+  CAN.SourceAlias := ASourceAlias;
+  FDataArray[0] := $09;
+  FDataArray[1] := $00;
+  FDataArray[2] := $99;
+  FDataArray[3] := $FF;
+  InsertDWordAsDataBytes(SearchData, 4);
+  DataCount := 8;
+  MTI := MTI_PRODUCER_IDENDIFY;
 end;
 
 procedure TLccMessage.LoadTractionQueryFunction(ASourceID: TNodeID;

@@ -8,13 +8,14 @@ object Form1: TForm1
   ClientWidth = 1013
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.0.6.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 48
     Top = 0
     Width = 1013
     ButtonHeight = 44
+    ButtonWidth = 23
     Caption = 'ToolBar1'
     Images = ImageList1
     ShowCaptions = True
@@ -28,22 +29,21 @@ object Form1: TForm1
       Left = 72
       Height = 44
       Top = 2
-      Width = 10
       Caption = 'ToolButton2'
       Style = tbsSeparator
     end
     object ToolButton3: TToolButton
-      Left = 186
+      Left = 184
       Top = 2
       Action = ActionComPort
     end
     object ToolButton4: TToolButton
-      Left = 248
+      Left = 246
       Top = 2
       Action = ActionLogin
     end
     object ToolButton5: TToolButton
-      Left = 82
+      Left = 80
       Top = 2
       Action = ActionEthernetServer
     end
@@ -66,12 +66,12 @@ object Form1: TForm1
       Top = 375
     end
     inherited CheckBoxDetailedLogging: TCheckBox
-      Left = 14
+      Left = 19
       Top = 379
       OnChange = nil
     end
     inherited CheckBoxJMRIFormat: TCheckBox
-      Left = 190
+      Left = 189
       Top = 379
     end
     inherited SynEdit: TSynEdit
@@ -155,7 +155,7 @@ object Form1: TForm1
         Left = 8
         Height = 18
         Top = 8
-        Width = 120
+        Width = 118
         Action = ActionShowRootNode
         TabOrder = 1
       end
@@ -163,7 +163,7 @@ object Form1: TForm1
         Left = 152
         Height = 18
         Top = 8
-        Width = 134
+        Width = 132
         Action = ActionShowLocalNodes
         TabOrder = 2
       end
@@ -181,7 +181,7 @@ object Form1: TForm1
         Left = 8
         Height = 18
         Top = 8
-        Width = 157
+        Width = 152
         Action = ActionConnectNetworkTree
         TabOrder = 0
       end
@@ -192,7 +192,6 @@ object Form1: TForm1
       Top = 32
       Width = 305
       Align = alClient
-      DefaultItemHeight = 18
       TabOrder = 2
       Connected = False
       NodeManager = LccNodeManager1

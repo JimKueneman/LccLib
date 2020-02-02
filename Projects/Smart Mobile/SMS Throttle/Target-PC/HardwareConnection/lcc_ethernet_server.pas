@@ -872,7 +872,7 @@ begin
   begin
     if Gridconnect then
     begin
-      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10);
+      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
       for i := 0 to MsgStringList.Count - 1 do
         OutgoingGridConnect.Add(MsgStringList[i]);
     end else

@@ -930,6 +930,11 @@ begin
   end;
 end;
 
+function GridConnectToDetailedGridConnect(AMessage: TLccMessage): string;
+begin
+
+end;
+
 {$IFNDEF DWSCRIPT}
 function GridConnectToJMRI(GridStr: AnsiString): AnsiString;
 var

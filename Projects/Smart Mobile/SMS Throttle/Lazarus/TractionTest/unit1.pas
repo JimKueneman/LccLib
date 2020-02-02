@@ -136,6 +136,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
   private
+    FWorkerMsg: TLccMessage;
   protected
   public
     HubEthernetServer: TLccEthernetServer;
@@ -144,6 +145,9 @@ type
     TrainNodeManager: TLccCanNodeManager;
     ThrottleEthernetClient: TLccEthernetClient;
     ThrottleNodeManager: TLccCanNodeManager;
+
+    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
+
 
     // Hub
     procedure OnHubEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -168,7 +172,6 @@ type
     procedure OnThrottleNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure ThrottleSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure ThrottleReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
-
   end;
 
 var
@@ -215,95 +218,68 @@ end;
 
 procedure TForm1.ButtonThrottleAssignAddressClick(Sender: TObject);
 var
-  TrackProtocol: Word;  // 5 bits
-  Search: DWORD;
-  i, iFiller: Integer;
-  SearchString: string;
+  TrackProtocolFlags: Word;  // 5 bits
+  SearchData: DWORD;
 begin
-  TrackProtocol := 0;
+  TrackProtocolFlags := 0;
   case PageControlThrottleTechnology.ActivePageIndex of
     0  : begin
-           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC;
-           case RadioGroupTrainTechnologyAddress.ItemIndex of
-             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
-             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG;
+           TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+           case RadioGroupThrottleTechnologyAddress.ItemIndex of
+             0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+             1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG;
            end;
            case RadioGroupThrottleTechnologySpeedSteps.ItemIndex of
-             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
-             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
-             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
-             3 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+             0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+             1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+             2 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+             3 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
            end;
          end;
     1  : begin
-           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ALL or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN;
+           TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ANY or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN;
            case RadioGroupThrottleTechnologyMarklin.ItemIndex of
-             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_ANY;
-             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1;
-             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2;
-             4 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8;
+             0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_ANY;
+             1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1;
+             2 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2;
+             3 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8;
            end;
          end;
     2  : begin
-           TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ALL or TRACTION_SEARCH_TRACK_PROTOCOL_NON_MARKLIN;
+           TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_ANY or TRACTION_SEARCH_TRACK_PROTOCOL_NON_MARKLIN;
            case RadioGroupThrottleTechnologyOther.ItemIndex of
-             0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_ALL;
-             1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB;
-             2 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TRACK_PROTOCOL_MFX_M4;
+             0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_ALL;
+             1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB;
+             2 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_MFX_M4;
            end;
          end;
   end;
   case RadioGroupThrottleSearchMatch.ItemIndex of
-    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TYPE_EXACT_MATCH;
-    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TYPE_ALL_MATCH;
+    0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+    1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TYPE_ALL_MATCH;
   end;
   case RadioGroupThrottleSearchAllocation.ItemIndex of
-    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_ALLOCATE_FORCE;
-    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_ALLOCATE_EXISTING_ONLY;
+    0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_ALLOCATE_FORCE;
+    1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_ALLOCATE_EXISTING_ONLY;
   end;
   case RadioGroupThrottleSearchMatchTarget.ItemIndex of
-    0 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
-    1 : TrackProtocol := TrackProtocol or TRACTION_SEARCH_TARGET_ANY_MATCH;
+    0 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+    1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TARGET_ANY_MATCH;
   end;
 
-  SearchString := LabeledEditThrottleAddress.Text;
-  if Length(SearchString) > 6 then
-  begin
-    ShowMessage('Search String too long');
-    Exit;
+  SearchData := 0;
+  case WorkerMsg .TractionSearchEncodeSearchString(LabeledEditThrottleAddress.Text, TrackProtocolFlags, SearchData) of
+    sese_ok :
+      begin
+        if Assigned (ThrottleNodeManager.Node[0]) then
+        begin
+          WorkerMsg.LoadTractionSearch(ThrottleNodeManager.Node[0].NodeID, ThrottleNodeManager.CanNode[0].AliasID, SearchData);
+          ThrottleNodeManager.LccMessageSendCallback(WorkerMsg);
+        end;
+      end;
+    sese_TooLong           : ShowMessage('Search String too long, only 6 characters are available');
+    sese_InvalidCharacters : ShowMessage('Invalid character in search string, only 0-9 or F are valid');
   end;
-
-  Search := 0;
-  for i := 1 to Length(SearchString) do
-  begin
-    case LabeledEditThrottleAddress.Text[i] of
-      '0' : begin Search := Search or $00 end;
-      '1' : begin Search := Search or $01 end;
-      '2' : begin Search := Search or $02 end;
-      '3' : begin Search := Search or $03 end;
-      '4' : begin Search := Search or $04 end;
-      '5' : begin Search := Search or $05 end;
-      '6' : begin Search := Search or $06 end;
-      '7' : begin Search := Search or $07 end;
-      '8' : begin Search := Search or $08 end;
-      '9' : begin Search := Search or $09 end;
-      'F' : begin Search := Search or $0F end;
-      else
-        ShowMessage('Invalid character in search string, only 0-9 or F are valid');
-        Exit;
-    end;
-    Search := Search shl 4;
-  end;
-
-  iFiller := (6 - Length(SearchString));
-
-  for i := 0 to iFiller - 1 do
-  begin
-    Search := Search or $0F;
-    Search := Search shl 4;
-  end;
-
-  Search := Search or TrackProtocol;  // Above the shl 4 was done on the last byte so it is shifted over ready for the Track Protocol Flags
 end;
 
 procedure TForm1.ButtonThrottleConnectAndLoginClick(Sender: TObject);
@@ -385,10 +361,13 @@ begin
     Sleep(500);
   HubEthernetServer.Free;
   HubNodeManager.Free;
+  WorkerMsg.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  FWorkerMsg := TLccMessage.Create;
+
   // Hub node
   HubNodeManager := TLccCanNodeManager.Create(nil);
   HubNodeManager.OnLccNodeAliasIDChanged := @OnHubNodeAliasChange;
@@ -693,7 +672,7 @@ begin
   begin
     SynEdit1.BeginUpdate(False);
     try
-      SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr(#13, True));
       SynEdit1.EndUpdate;
     finally
     end;
@@ -708,7 +687,7 @@ begin
   begin
     SynEdit1.BeginUpdate(False);
     try
-      SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr(#13, True));
       SynEdit1.EndUpdate;
     finally
     end;
