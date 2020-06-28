@@ -859,7 +859,7 @@ begin
 
   // Setup the Cdi Stream
   StreamCdi.Size := Int64( Length(CdiXML) + 1);   // Need the null
-  for i := 1 to Length(CdiXML) do
+  for i := Low(CdiXML) to Length(CdiXML) do       // ios/android compatible
     StreamWriteByte(StreamCdi, Ord(CdiXML[i]));
   StreamWriteByte(StreamCdi, 0);
 
@@ -966,6 +966,9 @@ begin
     begin
       ALength := OffsetEnd - Offset;
       Result := True;
+      OffsetEnd := Low(TestXML);  // The "Low" would not work in the following if statement directly in Delphi
+      if OffsetEnd = 0 then   // Mobile
+        Dec(Offset, 1);
     end else
     Exit;
   end

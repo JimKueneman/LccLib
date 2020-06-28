@@ -3,7 +3,7 @@ program OpenLCBThrottle;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  TabbedTemplate in 'TabbedTemplate.pas' {OpenLcbThrottleForm};
+  OpenLcbThrottleUnit in 'OpenLcbThrottleUnit.pas' {OpenLcbThrottleForm};
 
 {$R *.res}
 

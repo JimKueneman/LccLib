@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<ActiveMobileDevice>
-		<POSx iOSSimulator="iPhone5" iOSDevice64="" iOSDevice32=""/>
+		<POSx iOSSimulator="_iossimulator_CDC0E966-0485-4967-AE4F-2F589BA5F507" iOSDevice64="" iOSDevice32="_iosdevice_b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd"/>
 	</ActiveMobileDevice>
 	<Transactions>
     <Transaction>2020/06/26 19:49:06.000.023,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\TabbedApplication.dproj=\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\OpenLCBThrottle.dproj</Transaction>
+    <Transaction>2020/06/28 13:50:17.000.381,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\TabbedTemplate.fmx=\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\OpenLcbThrottleUnit.fmx</Transaction>
+    <Transaction>2020/06/28 13:50:17.000.381,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\TabbedTemplate.pas=\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\OpenLcbThrottleUnit.pas</Transaction>
   </Transactions>
 	<BT_BuildType>Debug</BT_BuildType>
 </BorlandProject>

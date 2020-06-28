@@ -1001,7 +1001,7 @@ var TW3DOMEventAPI = {
    ,Destroy:TObject.Destroy
 };
 /// TW3CustomDeviceCapabilities = class (TObject)
-///  [line: 408, column: 3, file: System.Types]
+///  [line: 407, column: 3, file: System.Types]
 var TW3CustomDeviceCapabilities = {
    $ClassName:"TW3CustomDeviceCapabilities",$Parent:TObject
    ,$Init:function ($) {
@@ -1376,7 +1376,7 @@ var JMouseWheelDeltaMode = [ "Pixel", "Line", "Page" ];
 ///  [line: 155, column: 3, file: W3C.DOM]
 var JMouseButton = [ "Left", "Middle", "Right" ];
 /// function TW3VariantHelper.DataType() : TW3VariantDataType
-///  [line: 1838, column: 27, file: System.Types]
+///  [line: 1832, column: 27, file: System.Types]
 function TW3VariantHelper$DataType(Self$12) {
    var Result = 1;
    var LType = "";
@@ -1424,7 +1424,7 @@ function TW3VariantHelper$DataType(Self$12) {
    return Result
 }
 /// function TW3VariantHelper.IsObject() : Boolean
-///  [line: 1885, column: 27, file: System.Types]
+///  [line: 1879, column: 27, file: System.Types]
 function TW3VariantHelper$IsObject(Self$13) {
    var Result = false;
    Result = ((Self$13) !== undefined)
@@ -1434,7 +1434,7 @@ function TW3VariantHelper$IsObject(Self$13) {
    return Result
 }
 /// function TW3VariantHelper.Isstring() : Boolean
-///  [line: 1922, column: 27, file: System.Types]
+///  [line: 1916, column: 27, file: System.Types]
 function TW3VariantHelper$Isstring(Self$14) {
    var Result = false;
    Result = (Self$14 !== undefined)
@@ -1443,14 +1443,14 @@ function TW3VariantHelper$Isstring(Self$14) {
    return Result
 }
 /// function TW3VariantHelper.Valid() : Boolean
-///  [line: 1796, column: 27, file: System.Types]
+///  [line: 1790, column: 27, file: System.Types]
 function TW3VariantHelper$Valid$4(Self$15) {
    var Result = false;
    Result = !( (Self$15 == undefined) || (Self$15 == null) );
    return Result
 }
 /// TW3VariantDataType enumeration
-///  [line: 561, column: 3, file: System.Types]
+///  [line: 560, column: 3, file: System.Types]
 var TW3VariantDataType = { 1:"vdUnknown", 2:"vdBoolean", 3:"vdinteger", 4:"vdfloat", 5:"vdstring", 6:"vdSymbol", 7:"vdFunction", 8:"vdObject", 9:"vdArray", 10:"vdVariant" };
 /// TW3OwnedObject = class (TObject)
 ///  [line: 356, column: 3, file: System.Types]
@@ -1461,34 +1461,29 @@ var TW3OwnedObject = {
       $.FOwner = null;
    }
    /// function TW3OwnedObject.AcceptOwner(const CandidateObject: TObject) : Boolean
-   ///  [line: 1184, column: 25, file: System.Types]
+   ///  [line: 1183, column: 25, file: System.Types]
    ,AcceptOwner:function(Self, CandidateObject) {
       return true;
    }
    /// constructor TW3OwnedObject.Create(const AOwner: TObject)
-   ///  [line: 1173, column: 28, file: System.Types]
+   ///  [line: 1172, column: 28, file: System.Types]
    ,Create$11:function(Self, AOwner) {
       TObject.Create(Self);
       TW3OwnedObject.SetOwner(Self,AOwner);
       return Self
    }
    /// function TW3OwnedObject.GetOwner() : TObject
-   ///  [line: 1179, column: 26, file: System.Types]
+   ///  [line: 1178, column: 26, file: System.Types]
    ,GetOwner:function(Self) {
       return Self.FOwner;
    }
    /// procedure TW3OwnedObject.InitAsync(const OnReady: TProcedureRef)
-   ///  [line: 1194, column: 26, file: System.Types]
+   ///  [line: 1188, column: 26, file: System.Types]
    ,InitAsync:function(Self, OnReady$3) {
       OnReady$3();
    }
-   /// function TW3OwnedObject.IsObjectReady() : Boolean
-   ///  [line: 1189, column: 25, file: System.Types]
-   ,IsObjectReady:function(Self) {
-      return true;
-   }
    /// procedure TW3OwnedObject.SetOwner(const NewOwner: TObject)
-   ///  [line: 1199, column: 26, file: System.Types]
+   ///  [line: 1193, column: 26, file: System.Types]
    ,SetOwner:function(Self, NewOwner) {
       if (NewOwner !== Self.FOwner) {
          if (TW3OwnedObject.AcceptOwner$(Self,NewOwner)) {
@@ -1502,7 +1497,6 @@ var TW3OwnedObject = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync$:function($){return $.ClassType.InitAsync.apply($.ClassType, arguments)}
-   ,IsObjectReady$:function($){return $.ClassType.IsObjectReady($)}
 };
 TW3OwnedObject.$Intf={
    IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -1515,7 +1509,7 @@ var TW3Identifiers = {
       TObject.$Init($);
    }
    /// function TW3Identifiers.GenerateUniqueComponentName() : String
-   ///  [line: 1730, column: 31, file: System.Types]
+   ///  [line: 1724, column: 31, file: System.Types]
    ,GenerateUniqueComponentName$1:function(Self) {
       var Result = "";
       ++__UNIQUE;
@@ -1523,7 +1517,7 @@ var TW3Identifiers = {
       return Result
    }
    /// function TW3Identifiers.GenerateUniqueAnimationName() : String
-   ///  [line: 1718, column: 31, file: System.Types]
+   ///  [line: 1712, column: 31, file: System.Types]
    ,GenerateUniqueAnimationName:function(Self) {
       var Result = "";
       ++__UNIQUE;
@@ -1531,7 +1525,7 @@ var TW3Identifiers = {
       return Result
    }
    /// function TW3Identifiers.GenerateUniqueObjectId() : String
-   ///  [line: 1724, column: 31, file: System.Types]
+   ///  [line: 1718, column: 31, file: System.Types]
    ,GenerateUniqueObjectId:function(Self) {
       var Result = "";
       ++__UNIQUE;
@@ -1544,14 +1538,14 @@ var TW3Identifiers = {
 ///  [line: 78, column: 3, file: System.Types]
 var TW3FilePermissionMask = { 0:"fpNone", 111:"fpExecute", 222:"fpWrite", 333:"fpWriteExecute", 444:"fpRead", 555:"fpReadExecute", 666:"fpDefault", 777:"fpReadWriteExecute", 740:"fpRWEGroupReadOnly" };
 /// TVariant = class (TObject)
-///  [line: 511, column: 3, file: System.Types]
+///  [line: 510, column: 3, file: System.Types]
 var TVariant = {
    $ClassName:"TVariant",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
    }
    /// function TVariant.AsBool(const aValue: Variant) : Boolean
-   ///  [line: 2244, column: 25, file: System.Types]
+   ///  [line: 2238, column: 25, file: System.Types]
    ,AsBool:function(aValue) {
       var Result = false;
       if (aValue != undefined && aValue != null) {
@@ -1560,7 +1554,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.AsFloat(const aValue: Variant) : Float
-   ///  [line: 2227, column: 25, file: System.Types]
+   ///  [line: 2221, column: 25, file: System.Types]
    ,AsFloat:function(aValue) {
       var Result = 0;
       if (aValue != undefined && aValue != null) {
@@ -1569,7 +1563,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.AsInteger(const aValue: Variant) : Integer
-   ///  [line: 2213, column: 25, file: System.Types]
+   ///  [line: 2207, column: 25, file: System.Types]
    ,AsInteger:function(aValue) {
       var Result = 0;
       if (aValue != undefined && aValue != null) {
@@ -1578,7 +1572,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.AsObject(const aValue: Variant) : TObject
-   ///  [line: 2234, column: 25, file: System.Types]
+   ///  [line: 2228, column: 25, file: System.Types]
    ,AsObject:function(aValue) {
       var Result = null;
       if (aValue != undefined && aValue != null) {
@@ -1587,7 +1581,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.AsString(const aValue: Variant) : String
-   ///  [line: 2220, column: 25, file: System.Types]
+   ///  [line: 2214, column: 25, file: System.Types]
    ,AsString:function(aValue) {
       var Result = "";
       if (aValue != undefined && aValue != null) {
@@ -1596,14 +1590,14 @@ var TVariant = {
       return Result
    }
    /// function TVariant.CreateObject() : Variant
-   ///  [line: 2251, column: 25, file: System.Types]
+   ///  [line: 2245, column: 25, file: System.Types]
    ,CreateObject:function() {
       var Result = undefined;
       Result = new Object();
       return Result
    }
    /// procedure TVariant.ForEachProperty(const Data: Variant; const CallBack: TW3ObjectKeyCallback)
-   ///  [line: 2334, column: 26, file: System.Types]
+   ///  [line: 2328, column: 26, file: System.Types]
    ,ForEachProperty:function(Data$8, CallBack) {
       var Keys$2 = [],
          a$394 = 0,
@@ -1622,7 +1616,7 @@ var TVariant = {
       }
    }
    /// function TVariant.GetKeys(const aValue: Variant) : TStrArray
-   ///  [line: 2304, column: 25, file: System.Types]
+   ///  [line: 2298, column: 25, file: System.Types]
    ,GetKeys:function(aValue) {
       var Result = [];
       if (Object.keys) {
@@ -1633,7 +1627,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.IsInteger(const aValue: Variant) : Boolean
-   ///  [line: 2285, column: 25, file: System.Types]
+   ///  [line: 2279, column: 25, file: System.Types]
    ,IsInteger:function(aValue) {
       var Result = false;
       if (aValue == null) return false;
@@ -1642,17 +1636,17 @@ var TVariant = {
       return Result
    }
    /// function TVariant.IsNumber(const aValue: Variant) : Boolean
-   ///  [line: 2280, column: 25, file: System.Types]
+   ///  [line: 2274, column: 25, file: System.Types]
    ,IsNumber:function(aValue) {
       return typeof(aValue) == __TYPE_MAP.Number$1;
    }
    /// function TVariant.IsString(const aValue: Variant) : Boolean
-   ///  [line: 2275, column: 25, file: System.Types]
+   ///  [line: 2269, column: 25, file: System.Types]
    ,IsString:function(aValue) {
       return typeof(aValue) == __TYPE_MAP.String$1;
    }
    /// function TVariant.Properties(const Data: Variant) : TStrArray
-   ///  [line: 2349, column: 25, file: System.Types]
+   ///  [line: 2343, column: 25, file: System.Types]
    ,Properties:function(Data$8) {
       var Result = [];
       if (Data$8) {
@@ -1673,7 +1667,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.PropertyDelete(const Data: Variant; const Id: String) : Variant
-   ///  [line: 2406, column: 25, file: System.Types]
+   ///  [line: 2400, column: 25, file: System.Types]
    ,PropertyDelete:function(Data$8, Id$2) {
       var Result = undefined;
       if (Data$8) {
@@ -1685,7 +1679,7 @@ var TVariant = {
       return Result
    }
    /// function TVariant.ValidRef(const aValue: Variant) : Boolean
-   ///  [line: 2208, column: 25, file: System.Types]
+   ///  [line: 2202, column: 25, file: System.Types]
    ,ValidRef:function(aValue) {
       return aValue != undefined && aValue != null;
    }
@@ -1695,7 +1689,7 @@ var TVariant = {
 ///  [line: 199, column: 3, file: System.Types]
 var TTextFormation = { 256:"tfHex", 257:"tfOrdinal", 258:"tfFloat", 259:"tfQuote" };
 /// function TStringHelper.ContainsHex() : Boolean
-///  [line: 1663, column: 24, file: System.Types]
+///  [line: 1657, column: 24, file: System.Types]
 function TStringHelper$ContainsHex(Self$16) {
    var Result = false;
    var x$35 = 0,
@@ -1730,7 +1724,7 @@ function TStringHelper$ContainsHex(Self$16) {
    return Result
 }
 /// function TStringHelper.ContainsOrdinal() : Boolean
-///  [line: 1647, column: 24, file: System.Types]
+///  [line: 1641, column: 24, file: System.Types]
 function TStringHelper$ContainsOrdinal(Self$17) {
    var Result = false;
    var LLen$1 = 0,
@@ -1751,7 +1745,7 @@ function TStringHelper$ContainsOrdinal(Self$17) {
    return Result
 }
 /// function TStringHelper.ContainsFloat() : Boolean
-///  [line: 1592, column: 24, file: System.Types]
+///  [line: 1586, column: 24, file: System.Types]
 function TStringHelper$ContainsFloat(Self$18) {
    var Result = false;
    var x$37 = 0,
@@ -1793,7 +1787,7 @@ function TStringHelper$ContainsFloat(Self$18) {
    return Result
 }
 /// function TStringHelper.ContainsQuote() : Boolean
-///  [line: 1511, column: 24, file: System.Types]
+///  [line: 1505, column: 24, file: System.Types]
 function TStringHelper$ContainsQuote(Self$19) {
    var Result = false;
    var LLen$3 = 0,
@@ -1848,7 +1842,7 @@ function TStringHelper$ContainsQuote(Self$19) {
    return Result
 }
 /// procedure TStringArrayHelper.Pack()
-///  [line: 1480, column: 30, file: System.Types]
+///  [line: 1474, column: 30, file: System.Types]
 function TStringArrayHelper$Pack$1(Self$20) {
    var x$38 = 0,
       temp = "";
@@ -1867,7 +1861,7 @@ function TStringArrayHelper$Pack$1(Self$20) {
    }
 }
 /// TString = class (TObject)
-///  [line: 607, column: 3, file: System.Types]
+///  [line: 606, column: 3, file: System.Types]
 var TString = {
    $ClassName:"TString",$Parent:TObject
    ,$Init:function ($) {
@@ -1918,7 +1912,7 @@ var TString = {
       return Result
    }
    /// function TString.CharCodeFor(const Character: Char) : Integer
-   ///  [line: 1232, column: 24, file: System.Types]
+   ///  [line: 1226, column: 24, file: System.Types]
    ,CharCodeFor:function(Self, Character) {
       var Result = 0;
       Result = (Character).charCodeAt(0);
@@ -1930,7 +1924,7 @@ var TString = {
       return TBase64EncDec.Base64ToString(TBase64EncDec,TextToDecode);
    }
    /// function TString.DecodeURI(const Text: String) : String
-   ///  [line: 1415, column: 24, file: System.Types]
+   ///  [line: 1409, column: 24, file: System.Types]
    ,DecodeURI:function(Self, Text$10) {
       var Result = "";
       Result = (Text$10).replace(new RegExp('\\+','g'),' ');
@@ -1938,7 +1932,7 @@ var TString = {
       return Result
    }
    /// function TString.DecodeUTF8(const BytesToDecode: TByteArray) : String
-   ///  [line: 1307, column: 24, file: System.Types]
+   ///  [line: 1301, column: 24, file: System.Types]
    ,DecodeUTF8:function(Self, BytesToDecode) {
       var Result = "";
       var i$5 = 0,
@@ -1971,7 +1965,7 @@ var TString = {
       return TBase64EncDec.StringToBase64(TBase64EncDec,TextToEncode);
    }
    /// function TString.EncodeTags(const Text: String) : String
-   ///  [line: 1333, column: 24, file: System.Types]
+   ///  [line: 1327, column: 24, file: System.Types]
    ,EncodeTags:function(Self, Text$10) {
       var Result = "";
       var LastAdded = 0,
@@ -2048,7 +2042,7 @@ var TString = {
       return Result
    }
    /// function TString.EncodeUTF8(TextToEncode: String) : TByteArray
-   ///  [line: 1281, column: 24, file: System.Types]
+   ///  [line: 1275, column: 24, file: System.Types]
    ,EncodeUTF8:function(Self, TextToEncode) {
       var Result = [];
       var n = 0,
@@ -2073,14 +2067,14 @@ var TString = {
       return Result
    }
    /// function TString.Explode(const Value: String; const Delimiter: String) : TStrArray
-   ///  [line: 1216, column: 24, file: System.Types]
+   ///  [line: 1210, column: 24, file: System.Types]
    ,Explode:function(Self, Value$3, Delimiter) {
       var Result = [];
       Result = (Value$3).split(Delimiter);
       return Result
    }
    /// function TString.FromCharCode(const CharCode: Byte) : Char
-   ///  [line: 1255, column: 24, file: System.Types]
+   ///  [line: 1249, column: 24, file: System.Types]
    ,FromCharCode:function(Self, CharCode$1) {
       var Result = "";
       Result = String.fromCharCode(CharCode$1);
@@ -2089,14 +2083,14 @@ var TString = {
    ,Destroy:TObject.Destroy
 };
 /// TInteger = class (TObject)
-///  [line: 460, column: 3, file: System.Types]
+///  [line: 459, column: 3, file: System.Types]
 var TInteger = {
    $ClassName:"TInteger",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
    }
    /// function TInteger.Diff(const Primary: Integer; const Secondary: Integer) : Integer
-   ///  [line: 2097, column: 25, file: System.Types]
+   ///  [line: 2091, column: 25, file: System.Types]
    ,Diff:function(Primary, Secondary) {
       var Result = 0;
       if (Primary != Secondary) {
@@ -2114,12 +2108,12 @@ var TInteger = {
       return Result
    }
    /// function TInteger.EnsureRange(const aValue: Integer; const aMin: Integer; const aMax: Integer) : Integer
-   ///  [line: 2051, column: 25, file: System.Types]
+   ///  [line: 2045, column: 25, file: System.Types]
    ,EnsureRange:function(aValue, aMin, aMax) {
       return ClampInt(aValue,aMin,aMax);
    }
    /// function TInteger.FromPxStr(const aValue: String) : Integer
-   ///  [line: 1986, column: 25, file: System.Types]
+   ///  [line: 1980, column: 25, file: System.Types]
    ,FromPxStr:function(aValue) {
       var Result = 0;
       var LText = "";
@@ -2132,7 +2126,7 @@ var TInteger = {
       return Result
    }
    /// function TInteger.PercentOfValue(const Value: Integer; const Total: Integer) : Integer
-   ///  [line: 2122, column: 25, file: System.Types]
+   ///  [line: 2116, column: 25, file: System.Types]
    ,PercentOfValue:function(Value$3, Total$2) {
       var Result = 0;
       if (Value$3 <= Total$2) {
@@ -2143,7 +2137,7 @@ var TInteger = {
       return Result
    }
    /// procedure TInteger.SetBit(index: Integer; aValue: Boolean; var buffer: Integer)
-   ///  [line: 1966, column: 26, file: System.Types]
+   ///  [line: 1960, column: 26, file: System.Types]
    ,SetBit:function(index$1, aValue, buffer$1) {
       if (index$1 >= 0 && index$1 <= 31) {
          if (aValue) {
@@ -2156,7 +2150,7 @@ var TInteger = {
       }
    }
    /// function TInteger.SubtractSmallest(const First: Integer; const Second: Integer) : Integer
-   ///  [line: 2023, column: 25, file: System.Types]
+   ///  [line: 2017, column: 25, file: System.Types]
    ,SubtractSmallest:function(First, Second) {
       var Result = 0;
       if (First < Second) {
@@ -2167,7 +2161,7 @@ var TInteger = {
       return Result
    }
    /// function TInteger.ToNearest(const Value: Integer; const Factor: Integer) : Integer
-   ///  [line: 2082, column: 25, file: System.Types]
+   ///  [line: 2076, column: 25, file: System.Types]
    ,ToNearest:function(Value$3, Factor) {
       var Result = 0;
       var FTemp = 0;
@@ -2179,17 +2173,17 @@ var TInteger = {
       return Result
    }
    /// function TInteger.ToPsStr(const Percent: Integer) : String
-   ///  [line: 1996, column: 25, file: System.Types]
+   ///  [line: 1990, column: 25, file: System.Types]
    ,ToPsStr:function(Percent) {
       return Percent.toString() + "%";
    }
    /// function TInteger.ToPxStr(const aValue: Integer) : String
-   ///  [line: 2001, column: 25, file: System.Types]
+   ///  [line: 1995, column: 25, file: System.Types]
    ,ToPxStr:function(aValue) {
       return aValue.toString() + "px";
    }
    /// function TInteger.WrapRange(const aValue: Integer; const aLowRange: Integer; const aHighRange: Integer) : Integer
-   ///  [line: 2065, column: 25, file: System.Types]
+   ///  [line: 2059, column: 25, file: System.Types]
    ,WrapRange:function(aValue, aLowRange, aHighRange) {
       var Result = 0;
       if (aValue > aHighRange) {
@@ -2210,7 +2204,7 @@ var TInteger = {
    ,Destroy:TObject.Destroy
 };
 /// function THandleHelper.Valid() : Boolean
-///  [line: 1746, column: 24, file: System.Types]
+///  [line: 1740, column: 24, file: System.Types]
 function THandleHelper$Valid$5(Self$21) {
    var Result = false;
    Result = !( (Self$21 == undefined) || (Self$21 == null) );
@@ -2226,7 +2220,7 @@ var TEnumState = { 1:"esContinue", 0:"esAbort" };
 ///  [line: 108, column: 3, file: System.Types]
 var TEnumResult = { 160:"erContinue", 16:"erBreak" };
 /// TDataTypeMap = record
-///  [line: 501, column: 3, file: System.Types]
+///  [line: 500, column: 3, file: System.Types]
 function Copy$TDataTypeMap(s,d) {
    d.Boolean=s.Boolean;
    d.Number$1=s.Number$1;
@@ -2247,24 +2241,24 @@ function Clone$TDataTypeMap($) {
    }
 }
 /// TBoolean = class (TObject)
-///  [line: 449, column: 3, file: System.Types]
+///  [line: 448, column: 3, file: System.Types]
 var TBoolean = {
    $ClassName:"TBoolean",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
    }
    /// function TBoolean.TrueFalse(const Value: Boolean) : String
-   ///  [line: 846, column: 25, file: System.Types]
+   ///  [line: 845, column: 25, file: System.Types]
    ,TrueFalse:function(Value$3) {
       return (BoolToStr(Value$3)).toLocaleLowerCase();
    }
    /// function TBoolean.OnOff(const Value: Boolean) : String
-   ///  [line: 861, column: 25, file: System.Types]
+   ///  [line: 860, column: 25, file: System.Types]
    ,OnOff:function(Value$3) {
       return pre_OnOff[Value$3?1:0];
    }
    /// function TBoolean.Binary(const Value: Boolean) : Integer
-   ///  [line: 851, column: 25, file: System.Types]
+   ///  [line: 850, column: 25, file: System.Types]
    ,Binary:function(Value$3) {
       return pre_binary[Value$3?1:0];
    }
@@ -2313,13 +2307,13 @@ var EW3Exception = {
       Exception.$Init($);
    }
    /// constructor EW3Exception.CreateFmt(aText: String; const aValues: array of const)
-   ///  [line: 1778, column: 26, file: System.Types]
+   ///  [line: 1772, column: 26, file: System.Types]
    ,CreateFmt:function(Self, aText, aValues) {
       Exception.Create(Self,Format(aText,aValues.slice(0)));
       return Self
    }
    /// constructor EW3Exception.Create(const MethodName: String; const Instance: TObject; const ErrorText: String)
-   ///  [line: 1783, column: 26, file: System.Types]
+   ///  [line: 1777, column: 26, file: System.Types]
    ,Create$18:function(Self, MethodName, Instance$3, ErrorText) {
       var LCallerName = "";
       LCallerName = (Instance$3)?TObject.ClassName(Instance$3.ClassType):"Anonymous";
@@ -2403,7 +2397,6 @@ var TW3OwnedErrorObject = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3OwnedErrorObject.$Intf={
    IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -2459,7 +2452,6 @@ var TW3OwnedLockedErrorObject = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedErrorObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3OwnedLockedErrorObject.$Intf={
    IW3LockObject:[TW3OwnedLockedErrorObject.DisableAlteration$2,TW3OwnedLockedErrorObject.EnableAlteration$2,TW3OwnedLockedErrorObject.GetLockState$2]
@@ -2512,7 +2504,6 @@ var TW3CustomComponent = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
 };
@@ -2531,7 +2522,6 @@ var TW3Component = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3CustomComponent.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject:TW3CustomComponent.FinalizeObject
    ,InitializeObject:TW3CustomComponent.InitializeObject
 };
@@ -2599,7 +2589,6 @@ var TW3Timer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject:TW3CustomComponent.FinalizeObject
    ,InitializeObject:TW3CustomComponent.InitializeObject
 };
@@ -2803,7 +2792,7 @@ var TW3Dispatch = {
       return Result
    }
    /// procedure TW3Dispatch.WaitFor(const Controls: array of TW3MovableControl; const DelayMs: Integer; const CB: TStdCallback)
-   ///  [line: 1576, column: 29, file: SmartCL.Components]
+   ///  [line: 1575, column: 29, file: SmartCL.Components]
    ,WaitFor$1:function(Self, Controls, DelayMs, CB) {
       var LReady = 0,
          a$395 = 0,
@@ -2873,7 +2862,7 @@ var TW3Dispatch = {
       }
    }
    /// procedure TW3Dispatch.WaitFor(const Controls: array of TW3MovableControl; const CB: TProcedureRef)
-   ///  [line: 1514, column: 29, file: SmartCL.Components]
+   ///  [line: 1513, column: 29, file: SmartCL.Components]
    ,WaitFor:function(Self, Controls, CB) {
       var LReady = 0,
          a$396 = 0,
@@ -3026,8 +3015,8 @@ var TW3ErrorObject = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3ErrorObject.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// EW3ErrorObject = class (EW3Exception)
 ///  [line: 21, column: 3, file: System.Objects]
@@ -4409,7 +4398,6 @@ var TAllocationOptions = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TAllocationOptions.$Intf={
    IW3OwnedObjectAccess:[TAllocationOptions.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -4651,8 +4639,8 @@ var TAllocation = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TAllocation.$Intf={
-   IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
-   ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
 function a$398(Self) {
    var Result = false;
@@ -5112,7 +5100,7 @@ var TW3TagObj = {
       return Result
    }
    /// procedure TW3TagObj.AddToComponentState(const Flags: TComponentState)
-   ///  [line: 2679, column: 21, file: SmartCL.Components]
+   ///  [line: 2678, column: 21, file: SmartCL.Components]
    ,AddToComponentState:function(Self, Flags$1) {
       if ($SetIn(Flags$1,0,0,11)) {
          $SetInc(Self.FComponentState,0,0,11);
@@ -5146,12 +5134,12 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.AfterUpdate()
-   ///  [line: 2726, column: 21, file: SmartCL.Components]
+   ///  [line: 2725, column: 21, file: SmartCL.Components]
    ,AfterUpdate:function(Self) {
       /* null */
    }
    /// function TW3TagObj.AllocateZIndex() : Integer
-   ///  [line: 2746, column: 21, file: SmartCL.Components]
+   ///  [line: 2745, column: 21, file: SmartCL.Components]
    ,AllocateZIndex:function(Self) {
       var Result = 0;
       ++Self.FZIndexCounter;
@@ -5159,13 +5147,13 @@ var TW3TagObj = {
       return Result
    }
    /// procedure TW3TagObj.BeginUpdate()
-   ///  [line: 2707, column: 21, file: SmartCL.Components]
+   ///  [line: 2706, column: 21, file: SmartCL.Components]
    ,BeginUpdate:function(Self) {
       ++Self.FUpdating;
       $SetInc(Self.FComponentState,3,0,11);
    }
    /// constructor TW3TagObj.Create(const AOwner: TObject)
-   ///  [line: 2348, column: 23, file: SmartCL.Components]
+   ///  [line: 2347, column: 23, file: SmartCL.Components]
    ,Create$11:function(Self, AOwner) {
       var AssignId = false;
       TW3CustomComponent.CreateEx(Self,AOwner);
@@ -5202,14 +5190,14 @@ var TW3TagObj = {
       return Self
    }
    /// function TW3TagObj.CreationFlags() : TW3CreationFlags
-   ///  [line: 2654, column: 20, file: SmartCL.Components]
+   ///  [line: 2653, column: 20, file: SmartCL.Components]
    ,CreationFlags:function(Self) {
       var Result = [0];
       Result = [62];
       return Result
    }
    /// destructor TW3TagObj.Destroy()
-   ///  [line: 2419, column: 22, file: SmartCL.Components]
+   ///  [line: 2418, column: 22, file: SmartCL.Components]
    ,Destroy:function(Self) {
       $SetInc(Self.FComponentState,10,0,11);
       if (Self.FHandle$4) {
@@ -5235,7 +5223,7 @@ var TW3TagObj = {
       TW3CustomComponent.Destroy(Self);
    }
    /// procedure TW3TagObj.EndUpdate()
-   ///  [line: 2713, column: 21, file: SmartCL.Components]
+   ///  [line: 2712, column: 21, file: SmartCL.Components]
    ,EndUpdate:function(Self) {
       if (Self.FUpdating > 0) {
          --Self.FUpdating;
@@ -5246,7 +5234,7 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.FreeAfter(Delay: Integer)
-   ///  [line: 2463, column: 21, file: SmartCL.Components]
+   ///  [line: 2462, column: 21, file: SmartCL.Components]
    ,FreeAfter:function(Self, Delay$2) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          TW3Dispatch.Execute(TW3Dispatch,function () {
@@ -5257,7 +5245,7 @@ var TW3TagObj = {
       }
    }
    /// function TW3TagObj.GetAttributes() : TW3ElementAttributes
-   ///  [line: 2836, column: 20, file: SmartCL.Components]
+   ///  [line: 2835, column: 20, file: SmartCL.Components]
    ,GetAttributes:function(Self) {
       var Result = null;
       if (Self.FAttributes === null) {
@@ -5267,12 +5255,12 @@ var TW3TagObj = {
       return Result
    }
    /// function TW3TagObj.GetCursor() : TCursor
-   ///  [line: 2644, column: 20, file: SmartCL.Components]
+   ///  [line: 2643, column: 20, file: SmartCL.Components]
    ,GetCursor:function(Self) {
       return TW3MouseCursor.GetCursorFromElement(TW3MouseCursor,Self.FHandle$4);
    }
    /// function TW3TagObj.GetDisplayModeText() : String
-   ///  [line: 2491, column: 20, file: SmartCL.Components]
+   ///  [line: 2490, column: 20, file: SmartCL.Components]
    ,GetDisplayModeText:function(Self) {
       var Result = "";
       switch (Self.FDisplayMode) {
@@ -5314,7 +5302,7 @@ var TW3TagObj = {
       return Result
    }
    /// function TW3TagObj.GetZIndex() : Integer
-   ///  [line: 2731, column: 21, file: SmartCL.Components]
+   ///  [line: 2730, column: 21, file: SmartCL.Components]
    ,GetZIndex:function(Self) {
       var Result = 0;
       if (Self.FHandle$4) {
@@ -5325,23 +5313,23 @@ var TW3TagObj = {
       return Result
    }
    /// procedure TW3TagObj.HandleControlBlured()
-   ///  [line: 2794, column: 21, file: SmartCL.Components]
+   ///  [line: 2793, column: 21, file: SmartCL.Components]
    ,HandleControlBlured:function(Self) {
       /* null */
    }
    /// procedure TW3TagObj.HandleControlFocused()
-   ///  [line: 2789, column: 21, file: SmartCL.Components]
+   ///  [line: 2788, column: 21, file: SmartCL.Components]
    ,HandleControlFocused:function(Self) {
       TW3ControlTracker.SetFocusedControl(TW3ControlTracker,Self);
    }
    /// procedure TW3TagObj.HookEvents()
-   ///  [line: 2799, column: 21, file: SmartCL.Components]
+   ///  [line: 2798, column: 21, file: SmartCL.Components]
    ,HookEvents:function(Self) {
       Self.FHandle$4.addEventListener("focus",$Event0(Self,TW3TagObj.HandleControlFocused));
       Self.FHandle$4.addEventListener("blur",$Event0(Self,TW3TagObj.HandleControlBlured));
    }
    /// procedure TW3TagObj.InsertInto(const OwnerHandle: THandle)
-   ///  [line: 2843, column: 21, file: SmartCL.Components]
+   ///  [line: 2842, column: 21, file: SmartCL.Components]
    ,InsertInto:function(Self, OwnerHandle) {
       if (THandleHelper$Valid$5(OwnerHandle)) {
          if (TControlHandleHelper$Valid$3(Self.FHandle$4)) {
@@ -5368,19 +5356,19 @@ var TW3TagObj = {
       }
    }
    /// function TW3TagObj.MakeElementTagId() : String
-   ///  [line: 2776, column: 20, file: SmartCL.Components]
+   ///  [line: 2775, column: 20, file: SmartCL.Components]
    ,MakeElementTagId:function(Self) {
       return TW3Identifiers.GenerateUniqueComponentName$1(TW3Identifiers);
    }
    /// function TW3TagObj.MakeElementTagObj() : TControlHandle
-   ///  [line: 2781, column: 20, file: SmartCL.Components]
+   ///  [line: 2780, column: 20, file: SmartCL.Components]
    ,MakeElementTagObj:function(Self) {
       var Result = undefined;
       Result = document.createElement("div");
       return Result
    }
    /// procedure TW3TagObj.RemoveFrom()
-   ///  [line: 2880, column: 21, file: SmartCL.Components]
+   ///  [line: 2879, column: 21, file: SmartCL.Components]
    ,RemoveFrom:function(Self) {
       if (TControlHandleHelper$Valid$3(Self.FOwner$1)) {
          if (TControlHandleHelper$Valid$3(Self.FHandle$4)) {
@@ -5398,7 +5386,7 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.RemoveFromComponentState(const Flags: TComponentState)
-   ///  [line: 2693, column: 21, file: SmartCL.Components]
+   ///  [line: 2692, column: 21, file: SmartCL.Components]
    ,RemoveFromComponentState:function(Self, Flags$1) {
       if ($SetIn(Flags$1,0,0,11)) {
          $SetExc(Self.FComponentState,0,0,11);
@@ -5432,12 +5420,12 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.SetCursor(const Value: TCursor)
-   ///  [line: 2649, column: 21, file: SmartCL.Components]
+   ///  [line: 2648, column: 21, file: SmartCL.Components]
    ,SetCursor:function(Self, Value$3) {
       TW3MouseCursor.SetCursorForElement(TW3MouseCursor,Self.FHandle$4,Value$3);
    }
    /// procedure TW3TagObj.SetDisplayMode(const NewMode: TW3TagDisplayMode)
-   ///  [line: 2513, column: 21, file: SmartCL.Components]
+   ///  [line: 2512, column: 21, file: SmartCL.Components]
    ,SetDisplayMode:function(Self, NewMode) {
       if (NewMode != Self.FDisplayMode) {
          if (!($SetIn(Self.FComponentState,10,0,11))) {
@@ -5452,7 +5440,7 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.SetInitialTransformationStyles()
-   ///  [line: 2540, column: 21, file: SmartCL.Components]
+   ///  [line: 2539, column: 21, file: SmartCL.Components]
    ,SetInitialTransformationStyles:function(Self) {
       if (Self.FHandle$4) {
          Self.FHandle$4.style["will-change"] = "transform";
@@ -5464,7 +5452,7 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.SetPositionMode(const NewMode: TW3TagPositionMode)
-   ///  [line: 2475, column: 21, file: SmartCL.Components]
+   ///  [line: 2474, column: 21, file: SmartCL.Components]
    ,SetPositionMode:function(Self, NewMode) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (NewMode != Self.FPositionMode) {
@@ -5482,14 +5470,14 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.SetZIndex(const NewZIndex: Integer)
-   ///  [line: 2739, column: 21, file: SmartCL.Components]
+   ///  [line: 2738, column: 21, file: SmartCL.Components]
    ,SetZIndex:function(Self, NewZIndex) {
       if (Self.FHandle$4) {
          Self.FHandle$4.style.zIndex = NewZIndex;
       }
    }
    /// function TW3TagObj.Showing() : Boolean
-   ///  [line: 2665, column: 20, file: SmartCL.Components]
+   ///  [line: 2664, column: 20, file: SmartCL.Components]
    ,Showing:function(Self) {
       var Result = false;
       if (Self.FHandle$4) {
@@ -5502,7 +5490,7 @@ var TW3TagObj = {
       return Result
    }
    /// procedure TW3TagObj.StyleTagObject()
-   ///  [line: 2753, column: 21, file: SmartCL.Components]
+   ///  [line: 2752, column: 21, file: SmartCL.Components]
    ,StyleTagObject:function(Self) {
       (Self.FHandle$4).style.visibility = 'hidden';
     (Self.FHandle$4).style.display = 'none';
@@ -5520,13 +5508,13 @@ var TW3TagObj = {
       }
    }
    /// procedure TW3TagObj.UnHookEvents()
-   ///  [line: 2807, column: 21, file: SmartCL.Components]
+   ///  [line: 2806, column: 21, file: SmartCL.Components]
    ,UnHookEvents:function(Self) {
       Self.FHandle$4.style["pointer-events"] = "none";
       Self.FHandle$4.disabled = true;
    }
    /// procedure TW3TagObj.WillChange(const Value: String)
-   ///  [line: 2553, column: 21, file: SmartCL.Components]
+   ///  [line: 2552, column: 21, file: SmartCL.Components]
    ,WillChange:function(Self, Value$3) {
       if (Self.FHandle$4) {
          Self.FHandle$4.style["will-change"] = Value$3;
@@ -5537,7 +5525,6 @@ var TW3TagObj = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject:TW3CustomComponent.FinalizeObject
    ,InitializeObject:TW3CustomComponent.InitializeObject
    ,AfterUpdate$:function($){return $.ClassType.AfterUpdate($)}
@@ -5572,7 +5559,7 @@ var TW3TagContainer = {
       return Result
    }
    /// procedure TW3TagContainer.BringToFront()
-   ///  [line: 3070, column: 27, file: SmartCL.Components]
+   ///  [line: 3069, column: 27, file: SmartCL.Components]
    ,BringToFront:function(Self) {
       var LStack = {olTags:[],olZIndex:[]};
       if ($SetIn(Self.FComponentState,4,0,11)) {
@@ -5582,21 +5569,21 @@ var TW3TagContainer = {
       }
    }
    /// procedure TW3TagContainer.CBNoBehavior(eventObj: JEvent)
-   ///  [line: 3106, column: 27, file: SmartCL.Components]
+   ///  [line: 3105, column: 27, file: SmartCL.Components]
    ,CBNoBehavior$1:function(Self, eventObj) {
       if (eventObj !== null) {
          eventObj.stopPropagation();
       }
    }
    /// procedure TW3TagContainer.ChildAdded(const NewChild: TW3TagContainer)
-   ///  [line: 3327, column: 27, file: SmartCL.Components]
+   ///  [line: 3326, column: 27, file: SmartCL.Components]
    ,ChildAdded:function(Self, NewChild) {
       if (Self.OnChildAdded) {
          Self.OnChildAdded(Self,NewChild);
       }
    }
    /// function TW3TagContainer.ChildByHandle(const ControlHandle: TControlHandle) : TW3TagContainer
-   ///  [line: 3173, column: 26, file: SmartCL.Components]
+   ///  [line: 3172, column: 26, file: SmartCL.Components]
    ,ChildByHandle:function(Self, ControlHandle) {
       var Result = null;
       var a$399 = 0,
@@ -5614,7 +5601,7 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.ChildByName(ComponentName: String) : TW3TagContainer
-   ///  [line: 3160, column: 26, file: SmartCL.Components]
+   ///  [line: 3159, column: 26, file: SmartCL.Components]
    ,ChildByName:function(Self, ComponentName) {
       var Result = null;
       var a$401 = 0,
@@ -5633,14 +5620,14 @@ var TW3TagContainer = {
       return Result
    }
    /// procedure TW3TagContainer.ChildRemoved(const OldChild: TW3TagContainer)
-   ///  [line: 3333, column: 27, file: SmartCL.Components]
+   ///  [line: 3332, column: 27, file: SmartCL.Components]
    ,ChildRemoved:function(Self, OldChild) {
       if (Self.OnChildRemoved) {
          Self.OnChildRemoved(Self,OldChild);
       }
    }
    /// constructor TW3TagContainer.Create(AOwner: TW3TagContainer)
-   ///  [line: 2908, column: 29, file: SmartCL.Components]
+   ///  [line: 2907, column: 29, file: SmartCL.Components]
    ,Create$81:function(Self, AOwner) {
       TW3TagObj.Create$11(Self,AOwner);
       if (TW3TagContainer.a$53(Self) !== null) {
@@ -5649,12 +5636,12 @@ var TW3TagContainer = {
       return Self
    }
    /// function TW3TagContainer.FilterZOrderListItem(const Item: TObject) : TW3ZOrderFilterResult
-   ///  [line: 2972, column: 26, file: SmartCL.Components]
+   ///  [line: 2971, column: 26, file: SmartCL.Components]
    ,FilterZOrderListItem:function(Self, Item$3) {
       return (Item$3 !== null)?0:1;
    }
    /// procedure TW3TagContainer.FinalizeObject()
-   ///  [line: 3259, column: 27, file: SmartCL.Components]
+   ///  [line: 3258, column: 27, file: SmartCL.Components]
    ,FinalizeObject:function(Self) {
       TW3TagContainer.FreeChildren(Self);
       if (TW3TagContainer.a$53(Self) !== null) {
@@ -5663,7 +5650,7 @@ var TW3TagContainer = {
       TW3CustomComponent.FinalizeObject(Self);
    }
    /// procedure TW3TagContainer.ForEach(const Process: TW3TagContainerChildEnumProc)
-   ///  [line: 3228, column: 27, file: SmartCL.Components]
+   ///  [line: 3227, column: 27, file: SmartCL.Components]
    ,ForEach$1:function(Self, Process) {
       var a$403 = 0,
          LChild = null;
@@ -5680,7 +5667,7 @@ var TW3TagContainer = {
       }
    }
    /// procedure TW3TagContainer.FreeChildren()
-   ///  [line: 3300, column: 27, file: SmartCL.Components]
+   ///  [line: 3299, column: 27, file: SmartCL.Components]
    ,FreeChildren:function(Self) {
       var LOldCount = 0;
       try {
@@ -5696,12 +5683,12 @@ var TW3TagContainer = {
       }
    }
    /// function TW3TagContainer.GetChildCount() : Integer
-   ///  [line: 3271, column: 26, file: SmartCL.Components]
+   ///  [line: 3270, column: 26, file: SmartCL.Components]
    ,GetChildCount:function(Self) {
       return Self.FChildren.length;
    }
    /// function TW3TagContainer.GetChildHasFocus(var Child: TW3TagContainer) : Boolean
-   ///  [line: 3140, column: 26, file: SmartCL.Components]
+   ///  [line: 3139, column: 26, file: SmartCL.Components]
    ,GetChildHasFocus:function(Self, Child$1) {
       var Result = false;
       var a$405 = 0,
@@ -5726,22 +5713,22 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.GetChildObject(const Index: Integer) : TW3TagContainer
-   ///  [line: 3285, column: 26, file: SmartCL.Components]
+   ///  [line: 3284, column: 26, file: SmartCL.Components]
    ,GetChildObject:function(Self, Index$6) {
       return Self.FChildren[Index$6];
    }
    /// function TW3TagContainer.GetChildren() : TW3TagContainerArray
-   ///  [line: 2966, column: 26, file: SmartCL.Components]
+   ///  [line: 2965, column: 26, file: SmartCL.Components]
    ,GetChildren:function(Self) {
       return Self.FChildren;
    }
    /// function TW3TagContainer.GetComponentName() : String
-   ///  [line: 3290, column: 26, file: SmartCL.Components]
+   ///  [line: 3289, column: 26, file: SmartCL.Components]
    ,GetComponentName:function(Self) {
       return Self.Name;
    }
    /// function TW3TagContainer.GetHasFocus() : Boolean
-   ///  [line: 3112, column: 26, file: SmartCL.Components]
+   ///  [line: 3111, column: 26, file: SmartCL.Components]
    ,GetHasFocus:function(Self) {
       var Result = false;
       var LFocusedElement;
@@ -5756,7 +5743,7 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.GetMaxZIndex() : Integer
-   ///  [line: 3091, column: 26, file: SmartCL.Components]
+   ///  [line: 3090, column: 26, file: SmartCL.Components]
    ,GetMaxZIndex:function(Self) {
       var Result = 0;
       var a$407 = 0,
@@ -5773,7 +5760,7 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.GetZOrderList(const Sort: Boolean; const Filter: TW3ZOrderFilterFunction) : TW3StackingOrderList
-   ///  [line: 2978, column: 26, file: SmartCL.Components]
+   ///  [line: 2977, column: 26, file: SmartCL.Components]
    ,GetZOrderList:function(Self, Sort$7, Filter$1) {
       var Result = {olTags:[],olZIndex:[]};
       var LFilter = null,
@@ -5804,7 +5791,7 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.IndexOfChild(const Child: TW3CustomControl) : Integer
-   ///  [line: 3011, column: 26, file: SmartCL.Components]
+   ///  [line: 3010, column: 26, file: SmartCL.Components]
    ,IndexOfChild:function(Self, Child$1) {
       var Result = 0;
       var LCount$1 = 0,
@@ -5823,7 +5810,7 @@ var TW3TagContainer = {
       return Result
    }
    /// function TW3TagContainer.QueryChildrenReady() : Boolean
-   ///  [line: 2925, column: 26, file: SmartCL.Components]
+   ///  [line: 2924, column: 26, file: SmartCL.Components]
    ,QueryChildrenReady:function(Self) {
       var Result = false;
       var LCount$1 = 0,
@@ -5856,7 +5843,7 @@ var TW3TagContainer = {
       return Result
    }
    /// procedure TW3TagContainer.RegisterChild(const Child: TW3TagContainer)
-   ///  [line: 3339, column: 27, file: SmartCL.Components]
+   ///  [line: 3338, column: 27, file: SmartCL.Components]
    ,RegisterChild:function(Self, Child$1) {
       if (Child$1 !== null && Child$1 !== Self && Self.FChildren.indexOf(Child$1) < 0) {
          if (TW3TagObj.a$51(Child$1)) {
@@ -5876,7 +5863,7 @@ var TW3TagContainer = {
       }
    }
    /// procedure TW3TagContainer.SendToBack()
-   ///  [line: 3057, column: 27, file: SmartCL.Components]
+   ///  [line: 3056, column: 27, file: SmartCL.Components]
    ,SendToBack:function(Self) {
       var LStack = {olTags:[],olZIndex:[]};
       if (TW3TagContainer.a$53(Self) !== null) {
@@ -5886,17 +5873,17 @@ var TW3TagContainer = {
       }
    }
    /// procedure TW3TagContainer.SetComponentName(const NewComponentName: String)
-   ///  [line: 3295, column: 27, file: SmartCL.Components]
+   ///  [line: 3294, column: 27, file: SmartCL.Components]
    ,SetComponentName:function(Self, NewComponentName) {
       Self.Name = NewComponentName;
    }
    /// procedure TW3TagContainer.SetParent(const Value: TW3TagContainer)
-   ///  [line: 3400, column: 27, file: SmartCL.Components]
+   ///  [line: 3399, column: 27, file: SmartCL.Components]
    ,SetParent:function(Self, Value$3) {
       TW3TagContainer.RegisterChild$(Value$3,Self);
    }
    /// function TW3TagContainer.Showing() : Boolean
-   ///  [line: 3100, column: 26, file: SmartCL.Components]
+   ///  [line: 3099, column: 26, file: SmartCL.Components]
    ,Showing:function(Self) {
       var Result = false;
       if (TW3TagObj.Showing(Self)) {
@@ -5905,7 +5892,7 @@ var TW3TagContainer = {
       return Result
    }
    /// procedure TW3TagContainer.UnRegisterChild(const Child: TW3TagContainer)
-   ///  [line: 3367, column: 27, file: SmartCL.Components]
+   ///  [line: 3366, column: 27, file: SmartCL.Components]
    ,UnRegisterChild:function(Self, Child$1) {
       var LIndex = 0;
       if (Child$1 !== null && Child$1 !== Self) {
@@ -5933,7 +5920,6 @@ var TW3TagContainer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject:TW3CustomComponent.InitializeObject
    ,AfterUpdate:TW3TagObj.AfterUpdate
@@ -5968,7 +5954,7 @@ var TW3MovableControl = {
       $.FTransparent = $.FUseAlpha = false;
    }
    /// function TW3MovableControl.AdjustClientRect(const Rect: TRect) : TRect
-   ///  [line: 3919, column: 28, file: SmartCL.Components]
+   ///  [line: 3902, column: 28, file: SmartCL.Components]
    ,AdjustClientRect:function(Self, Rect$1) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       if (Self.FPositionMode == 24) {
@@ -5982,7 +5968,7 @@ var TW3MovableControl = {
       return Result
    }
    /// procedure TW3MovableControl.AfterUpdate()
-   ///  [line: 4035, column: 29, file: SmartCL.Components]
+   ///  [line: 4018, column: 29, file: SmartCL.Components]
    ,AfterUpdate:function(Self) {
       if ($SetIn(Self.FComponentState,5,0,11)) {
          if ($SetIn(Self.FComponentState,4,0,11)) {
@@ -6011,7 +5997,7 @@ var TW3MovableControl = {
       TW3TagObj.RemoveFromComponentState(Self,[96]);
    }
    /// procedure TW3MovableControl.AlignChildren()
-   ///  [line: 4086, column: 29, file: SmartCL.Components]
+   ///  [line: 4069, column: 29, file: SmartCL.Components]
    ,AlignChildren:function(Self) {
       var AChildren = [],
          CRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
@@ -6099,7 +6085,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.AnchorChildren()
-   ///  [line: 4154, column: 29, file: SmartCL.Components]
+   ///  [line: 4137, column: 29, file: SmartCL.Components]
    ,AnchorChildren:function(Self) {
       var PRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       PRect = TW3MovableControl.ClientRect$(Self);
@@ -6147,7 +6133,7 @@ var TW3MovableControl = {
       });
    }
    /// function TW3MovableControl.ClientHeight() : Integer
-   ///  [line: 3905, column: 28, file: SmartCL.Components]
+   ///  [line: 3888, column: 28, file: SmartCL.Components]
    ,ClientHeight:function(Self) {
       var Result = 0;
       var CSHandle;
@@ -6163,14 +6149,14 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.ClientRect() : TRect
-   ///  [line: 3929, column: 28, file: SmartCL.Components]
+   ///  [line: 3912, column: 28, file: SmartCL.Components]
    ,ClientRect:function(Self) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       Result = Create$102(0,0,TW3MovableControl.ClientWidth(Self),TW3MovableControl.ClientHeight(Self));
       return Result
    }
    /// function TW3MovableControl.ClientWidth() : Integer
-   ///  [line: 3891, column: 28, file: SmartCL.Components]
+   ///  [line: 3874, column: 28, file: SmartCL.Components]
    ,ClientWidth:function(Self) {
       var Result = 0;
       var CSHandle;
@@ -6186,7 +6172,7 @@ var TW3MovableControl = {
       return Result
    }
    /// procedure TW3MovableControl.FinalizeObject()
-   ///  [line: 3983, column: 29, file: SmartCL.Components]
+   ///  [line: 3966, column: 29, file: SmartCL.Components]
    ,FinalizeObject:function(Self) {
       if (Self.FBackground) {
          TObject.Free(Self.FBackground);
@@ -6626,7 +6612,7 @@ var TW3MovableControl = {
       }
    }
    /// function TW3MovableControl.GetBackGround() : TW3ControlBackground
-   ///  [line: 4203, column: 28, file: SmartCL.Components]
+   ///  [line: 4186, column: 28, file: SmartCL.Components]
    ,GetBackGround:function(Self) {
       var Result = null;
       if (Self.FBackground === null) {
@@ -6636,7 +6622,7 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.GetBorder() : TW3Borders
-   ///  [line: 4028, column: 28, file: SmartCL.Components]
+   ///  [line: 4011, column: 28, file: SmartCL.Components]
    ,GetBorder:function(Self) {
       var Result = null;
       if (Self.FBorders === null) {
@@ -6646,7 +6632,7 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.GetBoundsRect() : TRect
-   ///  [line: 4256, column: 28, file: SmartCL.Components]
+   ///  [line: 4239, column: 28, file: SmartCL.Components]
    ,GetBoundsRect:function(Self) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       var CSHandle,
@@ -6674,7 +6660,7 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.GetConstraints() : TW3Constraints
-   ///  [line: 4006, column: 28, file: SmartCL.Components]
+   ///  [line: 3989, column: 28, file: SmartCL.Components]
    ,GetConstraints:function(Self) {
       var Result = null;
       if (Self.FConstraints === null) {
@@ -6684,7 +6670,7 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.GetFont() : TW3CustomFont
-   ///  [line: 3696, column: 28, file: SmartCL.Components]
+   ///  [line: 3679, column: 28, file: SmartCL.Components]
    ,GetFont:function(Self) {
       var Result = null;
       if (Self.FFont === null) {
@@ -6694,50 +6680,50 @@ var TW3MovableControl = {
       return Result
    }
    /// function TW3MovableControl.GetHeight() : Integer
-   ///  [line: 4407, column: 28, file: SmartCL.Components]
+   ///  [line: 4390, column: 28, file: SmartCL.Components]
    ,GetHeight:function(Self) {
       var Result = 0;
       Result = TRect$Height$5(TW3MovableControl.GetBoundsRect(Self));
       return Result
    }
    /// function TW3MovableControl.GetIsVisible() : Boolean
-   ///  [line: 4215, column: 28, file: SmartCL.Components]
+   ///  [line: 4198, column: 28, file: SmartCL.Components]
    ,GetIsVisible:function(Self) {
       return Self.FHandle$4 && Self.FHandle$4.offsetWidth > 0 && Self.FHandle$4.offsetHeight > 0;
    }
    /// function TW3MovableControl.GetLeft() : Integer
-   ///  [line: 4282, column: 28, file: SmartCL.Components]
+   ///  [line: 4265, column: 28, file: SmartCL.Components]
    ,GetLeft:function(Self) {
       var Result = 0;
       Result = TW3MovableControl.GetBoundsRect(Self).Left$3;
       return Result
    }
    /// function TW3MovableControl.GetStyleClass() : String
-   ///  [line: 3717, column: 28, file: SmartCL.Components]
+   ///  [line: 3700, column: 28, file: SmartCL.Components]
    ,GetStyleClass:function(Self) {
       return w3_getAttribAsStr(Self.FHandle$4,"class");
    }
    /// function TW3MovableControl.GetTop() : Integer
-   ///  [line: 4318, column: 28, file: SmartCL.Components]
+   ///  [line: 4301, column: 28, file: SmartCL.Components]
    ,GetTop:function(Self) {
       var Result = 0;
       Result = TW3MovableControl.GetBoundsRect(Self).Top$3;
       return Result
    }
    /// function TW3MovableControl.GetVisible() : Boolean
-   ///  [line: 4210, column: 28, file: SmartCL.Components]
+   ///  [line: 4193, column: 28, file: SmartCL.Components]
    ,GetVisible:function(Self) {
       return Self.FHandle$4 && Self.FHandle$4.style["visibility"] == "visible";
    }
    /// function TW3MovableControl.GetWidth() : Integer
-   ///  [line: 4353, column: 28, file: SmartCL.Components]
+   ///  [line: 4336, column: 28, file: SmartCL.Components]
    ,GetWidth:function(Self) {
       var Result = 0;
       Result = TRect$Width$6(TW3MovableControl.GetBoundsRect(Self));
       return Result
    }
    /// procedure TW3MovableControl.InitAsync(const OnReady: TProcedureRef)
-   ///  [line: 3635, column: 29, file: SmartCL.Components]
+   ///  [line: 3634, column: 29, file: SmartCL.Components]
    ,InitAsync:function(Self, OnReady$3) {
       TW3ControlTracker.RegisterUnderConstruction(TW3ControlTracker,Self);
       TW3MovableControl.ReadyExecute(Self,function () {
@@ -6749,7 +6735,7 @@ var TW3MovableControl = {
       });
    }
    /// procedure TW3MovableControl.InitializeObject()
-   ///  [line: 3604, column: 29, file: SmartCL.Components]
+   ///  [line: 3603, column: 29, file: SmartCL.Components]
    ,InitializeObject:function(Self) {
       TW3CustomComponent.InitializeObject(Self);
       Self.FAlpha = 100;
@@ -6768,7 +6754,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.Invalidate()
-   ///  [line: 4460, column: 29, file: SmartCL.Components]
+   ///  [line: 4443, column: 29, file: SmartCL.Components]
    ,Invalidate:function(Self) {
       if ((!($SetIn(Self.FComponentState,8,0,11))) && (!($SetIn(Self.FComponentState,10,0,11)))) {
          if (TW3MovableControl.GetVisible(Self)) {
@@ -6780,7 +6766,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.InvalidateAlign()
-   ///  [line: 4474, column: 29, file: SmartCL.Components]
+   ///  [line: 4457, column: 29, file: SmartCL.Components]
    ,InvalidateAlign:function(Self) {
       if ((!($SetIn(Self.FComponentState,9,0,11))) && (!($SetIn(Self.FComponentState,10,0,11)))) {
          if (TW3MovableControl.GetVisible(Self)) {
@@ -6791,41 +6777,20 @@ var TW3MovableControl = {
          }
       }
    }
-   /// function TW3MovableControl.IsObjectReady() : Boolean
-   ///  [line: 3652, column: 28, file: SmartCL.Components]
-   ,IsObjectReady:function(Self) {
-      var Result = false;
-      var disp = "",
-         vis = "",
-         CSHandle;
-      if ($SetIn(Self.FComponentState,4,0,11) && Self.FHandle$4) {
-         disp = w3_GetStyleAsStr(Self.FHandle$4,"display");
-         vis = w3_GetStyleAsStr(Self.FHandle$4,"visibility");
-         if (disp != "" && vis != "") {
-            CSHandle = TW3CustomBrowserAPI.GetComputedStylesFor(TW3CustomBrowserAPI,Self.FHandle$4);
-            if (CSHandle) {
-               Result = true;
-               return Result;
-            }
-         }
-      }
-      Result = false;
-      return Result
-   }
    /// function TW3MovableControl.MeasureTextFixed(const TextContent: String) : TW3TextMetric
-   ///  [line: 4959, column: 28, file: SmartCL.Components]
+   ///  [line: 4941, column: 28, file: SmartCL.Components]
    ,MeasureTextFixed:function(Self, TextContent) {
       var Result = {tmWidth:0,tmHeight:0};
       Result = TW3FontDetector.MeasureText$5(W3FontDetector(),TW3FontDetector.GetFontInfo$2(W3FontDetector(),Self.FHandle$4),TW3MovableControl.ClientWidth(Self),TextContent);
       return Result
    }
    /// procedure TW3MovableControl.Moved()
-   ///  [line: 4531, column: 29, file: SmartCL.Components]
+   ///  [line: 4514, column: 29, file: SmartCL.Components]
    ,Moved:function(Self) {
       /* null */
    }
    /// procedure TW3MovableControl.MoveTo(const NewLeft: Integer; const NewTop: Integer)
-   ///  [line: 4615, column: 29, file: SmartCL.Components]
+   ///  [line: 4597, column: 29, file: SmartCL.Components]
    ,MoveTo:function(Self, NewLeft, NewTop) {
       var LLeft = 0,
          LTop = 0,
@@ -6867,7 +6832,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.ObjectReady()
-   ///  [line: 3813, column: 29, file: SmartCL.Components]
+   ///  [line: 3796, column: 29, file: SmartCL.Components]
    ,ObjectReady:function(Self) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (Self.FHandle$4) {
@@ -6882,18 +6847,28 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.ReadyExecute(const OnReady: TProcedureRef)
-   ///  [line: 3677, column: 29, file: SmartCL.Components]
+   ///  [line: 3651, column: 29, file: SmartCL.Components]
    ,ReadyExecute:function(Self, OnReady$3) {
-      if (TW3OwnedObject.IsObjectReady$(Self)) {
-         OnReady$3();
-      } else {
-         TW3Dispatch.SetTimeOut(TW3Dispatch,function () {
-            TW3MovableControl.ReadyExecute(Self,OnReady$3);
-         },30);
+      var disp = "",
+         vis = "",
+         CSHandle;
+      if ($SetIn(Self.FComponentState,4,0,11) && Self.FHandle$4) {
+         disp = w3_GetStyleAsStr(Self.FHandle$4,"display");
+         vis = w3_GetStyleAsStr(Self.FHandle$4,"visibility");
+         if (disp != "" && vis != "") {
+            CSHandle = TW3CustomBrowserAPI.GetComputedStylesFor(TW3CustomBrowserAPI,Self.FHandle$4);
+            if (CSHandle) {
+               OnReady$3();
+               return;
+            }
+         }
       }
+      TW3Dispatch.SetTimeOut(TW3Dispatch,function () {
+         TW3MovableControl.ReadyExecute(Self,OnReady$3);
+      },30);
    }
    /// procedure TW3MovableControl.ReadySync()
-   ///  [line: 3755, column: 29, file: SmartCL.Components]
+   ///  [line: 3738, column: 29, file: SmartCL.Components]
    ,ReadySync$1:function(Self) {
       function ReSync() {
          ++Self.FSyncCount;
@@ -6942,7 +6917,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.RecalculateAnchorGaps()
-   ///  [line: 4190, column: 29, file: SmartCL.Components]
+   ///  [line: 4173, column: 29, file: SmartCL.Components]
    ,RecalculateAnchorGaps:function(Self) {
       var PRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          MyRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
@@ -6960,7 +6935,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.Resize()
-   ///  [line: 4535, column: 29, file: SmartCL.Components]
+   ///  [line: 4518, column: 29, file: SmartCL.Components]
    ,Resize:function(Self) {
       var wd = 0,
          xwidth = 0,
@@ -6981,7 +6956,7 @@ var TW3MovableControl = {
       TW3MovableControl.AnchorChildren(Self);
    }
    /// procedure TW3MovableControl.ResizeWhenReady()
-   ///  [line: 4562, column: 29, file: SmartCL.Components]
+   ///  [line: 4545, column: 29, file: SmartCL.Components]
    ,ResizeWhenReady:function(Self) {
       if (Self.FHandle$4 && (!($SetIn(Self.FComponentState,1,0,11)))) {
          if ($SetIn(Self.FComponentState,7,0,11)) {
@@ -7018,12 +6993,10 @@ var TW3MovableControl = {
             }
          }
       }
-      if (!($SetIn(Self.FComponentState,1,0,11))) {
-         TW3TagObj.RemoveFromComponentState(Self,[256]);
-      }
+      TW3TagObj.RemoveFromComponentState(Self,[256]);
    }
    /// function TW3MovableControl.ScreenRect() : TRect
-   ///  [line: 3934, column: 28, file: SmartCL.Components]
+   ///  [line: 3917, column: 28, file: SmartCL.Components]
    ,ScreenRect:function(Self) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       var dx$3 = 0,
@@ -7059,7 +7032,7 @@ var TW3MovableControl = {
       return Result
    }
    /// procedure TW3MovableControl.SetAlign(const Value: TW3Align)
-   ///  [line: 4488, column: 29, file: SmartCL.Components]
+   ///  [line: 4471, column: 29, file: SmartCL.Components]
    ,SetAlign:function(Self, Value$3) {
       var FOldAlign = 0;
       if (Self.FAlign != Value$3) {
@@ -7084,7 +7057,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetAlpha(const NewAlphaValue: Integer)
-   ///  [line: 4880, column: 29, file: SmartCL.Components]
+   ///  [line: 4862, column: 29, file: SmartCL.Components]
    ,SetAlpha:function(Self, NewAlphaValue) {
       Self.FAlpha = TInteger.EnsureRange(NewAlphaValue,0,100);
       if (Self.FUseAlpha) {
@@ -7092,7 +7065,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetAnchorGapBottom(const Value: Integer)
-   ///  [line: 4523, column: 29, file: SmartCL.Components]
+   ///  [line: 4506, column: 29, file: SmartCL.Components]
    ,SetAnchorGapBottom:function(Self, Value$3) {
       Self.FAnchorGapBottom = Value$3;
       if (!($SetIn(Self.FComponentState,1,0,11))) {
@@ -7102,7 +7075,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetAnchorGapRight(const Value: Integer)
-   ///  [line: 4515, column: 29, file: SmartCL.Components]
+   ///  [line: 4498, column: 29, file: SmartCL.Components]
    ,SetAnchorGapRight:function(Self, Value$3) {
       Self.FAnchorGapRight = Value$3;
       if (!($SetIn(Self.FComponentState,1,0,11))) {
@@ -7112,7 +7085,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetAnchors(const Value: TW3Anchors)
-   ///  [line: 4507, column: 29, file: SmartCL.Components]
+   ///  [line: 4490, column: 29, file: SmartCL.Components]
    ,SetAnchors:function(Self, Value$3) {
       if (Value$3-Self.FAnchors != 0) {
          Self.FAnchors = Value$3.slice(0);
@@ -7120,7 +7093,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetBounds(const NewLeft: Integer; const NewTop: Integer; const NewWidth: Integer; const NewHeight: Integer; UseAlign: TW3Align; UseAnchors: TW3Anchors)
-   ///  [line: 4672, column: 29, file: SmartCL.Components]
+   ///  [line: 4654, column: 29, file: SmartCL.Components]
    ,SetBounds$2:function(Self, NewLeft, NewTop, NewWidth, NewHeight, UseAlign, UseAnchors) {
       var LHeight = 0,
          LWidth = 0,
@@ -7223,12 +7196,12 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetBounds(const NewBounds: TRect)
-   ///  [line: 4783, column: 29, file: SmartCL.Components]
+   ///  [line: 4765, column: 29, file: SmartCL.Components]
    ,SetBounds$1:function(Self, NewBounds) {
       TW3MovableControl.SetBounds$(Self,NewBounds.Left$3,NewBounds.Top$3,TRect$Width$6(NewBounds),TRect$Height$5(NewBounds));
    }
    /// procedure TW3MovableControl.SetBounds(const NewLeft: Integer; const NewTop: Integer; const NewWidth: Integer; const NewHeight: Integer)
-   ///  [line: 4663, column: 29, file: SmartCL.Components]
+   ///  [line: 4645, column: 29, file: SmartCL.Components]
    ,SetBounds:function(Self, NewLeft, NewTop, NewWidth, NewHeight) {
       Self.FControlLeft = NewLeft;
       Self.FControlTop = NewTop;
@@ -7237,7 +7210,7 @@ var TW3MovableControl = {
       TW3MovableControl.SetBounds$2(Self,NewLeft,NewTop,NewWidth,NewHeight,Self.FAlign,Self.FAnchors.slice(0));
    }
    /// procedure TW3MovableControl.SetColor(const NewColor: TColor)
-   ///  [line: 4912, column: 29, file: SmartCL.Components]
+   ///  [line: 4894, column: 29, file: SmartCL.Components]
    ,SetColor:function(Self, NewColor) {
       var LAlpha = 0,
          LHandle,
@@ -7261,7 +7234,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetHeight(const NewHeight: Integer)
-   ///  [line: 4412, column: 29, file: SmartCL.Components]
+   ///  [line: 4395, column: 29, file: SmartCL.Components]
    ,SetHeight:function(Self, NewHeight) {
       var LHeight = 0;
       Self.FControlHeight = NewHeight;
@@ -7300,7 +7273,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetLeft(const NewLeft: Integer)
-   ///  [line: 4287, column: 29, file: SmartCL.Components]
+   ///  [line: 4270, column: 29, file: SmartCL.Components]
    ,SetLeft:function(Self, NewLeft) {
       var LLeft = 0,
          CSHandle;
@@ -7330,7 +7303,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetSize(const NewWidth: Integer; const NewHeight: Integer)
-   ///  [line: 4788, column: 29, file: SmartCL.Components]
+   ///  [line: 4770, column: 29, file: SmartCL.Components]
    ,SetSize$2:function(Self, NewWidth, NewHeight) {
       var LHeight = 0,
          LWidth = 0,
@@ -7401,12 +7374,12 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetStyleClass(const NewStyleClass: String)
-   ///  [line: 3722, column: 29, file: SmartCL.Components]
+   ///  [line: 3705, column: 29, file: SmartCL.Components]
    ,SetStyleClass:function(Self, NewStyleClass) {
       w3_setAttrib(Self.FHandle$4,"class",NewStyleClass);
    }
    /// procedure TW3MovableControl.SetTop(const NewTop: Integer)
-   ///  [line: 4323, column: 29, file: SmartCL.Components]
+   ///  [line: 4306, column: 29, file: SmartCL.Components]
    ,SetTop:function(Self, NewTop) {
       var LTop = 0,
          CSHandle;
@@ -7436,7 +7409,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetTransparent(const Transparency: Boolean)
-   ///  [line: 4890, column: 29, file: SmartCL.Components]
+   ///  [line: 4872, column: 29, file: SmartCL.Components]
    ,SetTransparent:function(Self, Transparency) {
       var LWebColor = "";
       if (Transparency != Self.FTransparent) {
@@ -7453,7 +7426,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetUseAlpha(const NewUseAlpha: Boolean)
-   ///  [line: 4871, column: 29, file: SmartCL.Components]
+   ///  [line: 4853, column: 29, file: SmartCL.Components]
    ,SetUseAlpha:function(Self, NewUseAlpha) {
       if (Self.FUseAlpha != NewUseAlpha) {
          Self.FUseAlpha = NewUseAlpha;
@@ -7461,7 +7434,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetVisible(const NewVisibility: Boolean)
-   ///  [line: 4225, column: 29, file: SmartCL.Components]
+   ///  [line: 4208, column: 29, file: SmartCL.Components]
    ,SetVisible:function(Self, NewVisibility) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (NewVisibility) {
@@ -7485,7 +7458,7 @@ var TW3MovableControl = {
       }
    }
    /// procedure TW3MovableControl.SetWidth(const NewWidth: Integer)
-   ///  [line: 4358, column: 29, file: SmartCL.Components]
+   ///  [line: 4341, column: 29, file: SmartCL.Components]
    ,SetWidth:function(Self, NewWidth) {
       var LWidth = 0;
       Self.FControlWidth = NewWidth;
@@ -7524,7 +7497,7 @@ var TW3MovableControl = {
       }
    }
    /// function TW3MovableControl.Showing() : Boolean
-   ///  [line: 3741, column: 28, file: SmartCL.Components]
+   ///  [line: 3724, column: 28, file: SmartCL.Components]
    ,Showing:function(Self) {
       var Result = false;
       if (TW3TagContainer.Showing(Self)) {
@@ -7537,7 +7510,7 @@ var TW3MovableControl = {
       return Result
    }
    /// procedure TW3MovableControl.StyleTagObject()
-   ///  [line: 3705, column: 29, file: SmartCL.Components]
+   ///  [line: 3688, column: 29, file: SmartCL.Components]
    ,StyleTagObject:function(Self) {
       TW3TagObj.StyleTagObject(Self);
       if ($SetIn(TW3TagObj.CreationFlags$(Self),7,0,8)) {
@@ -7547,12 +7520,12 @@ var TW3MovableControl = {
       TW3MovableControl.SetVisible(Self,true);
    }
    /// procedure TW3MovableControl._SetOnMoved(const EventHandler: TMovedEvent)
-   ///  [line: 3736, column: 29, file: SmartCL.Components]
+   ///  [line: 3719, column: 29, file: SmartCL.Components]
    ,_SetOnMoved:function(Self, EventHandler) {
       Self.FOnMoved = EventHandler;
    }
    /// procedure TW3MovableControl._SetOnResized(const EventHandler: TReSizeEvent)
-   ///  [line: 3731, column: 29, file: SmartCL.Components]
+   ///  [line: 3714, column: 29, file: SmartCL.Components]
    ,_SetOnResized:function(Self, EventHandler) {
       Self.FOnResize = EventHandler;
    }
@@ -7560,7 +7533,6 @@ var TW3MovableControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync$:function($){return $.ClassType.InitAsync.apply($.ClassType, arguments)}
-   ,IsObjectReady$:function($){return $.ClassType.IsObjectReady($)}
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate$:function($){return $.ClassType.AfterUpdate($)}
@@ -7598,7 +7570,7 @@ TW3MovableControl.$Intf={
    ,IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
 }
 /// TW3CustomControl = class (TW3MovableControl)
-///  [line: 1070, column: 3, file: SmartCL.Components]
+///  [line: 1069, column: 3, file: SmartCL.Components]
 var TW3CustomControl = {
    $ClassName:"TW3CustomControl",$Parent:TW3MovableControl
    ,$Init:function ($) {
@@ -7611,42 +7583,42 @@ var TW3CustomControl = {
       $.FMouseTouchEventsCount = 0;
    }
    /// anonymous TSourceMethodSymbol
-   ///  [line: 1282, column: 40, file: SmartCL.Components]
+   ///  [line: 1281, column: 40, file: SmartCL.Components]
    ,a$62:function(Self) {
       var Result = null;
       Result = $As(TW3MovableControl.GetFont(Self),TW3ControlFont);
       return Result
    }
    /// procedure TW3CustomControl.CBAnimationBegins(const EventObj: Variant)
-   ///  [line: 6017, column: 28, file: SmartCL.Components]
+   ///  [line: 5999, column: 28, file: SmartCL.Components]
    ,CBAnimationBegins:function(Self, EventObj) {
       if (Self.FOnAnimationBegins) {
          Self.FOnAnimationBegins(Self);
       }
    }
    /// procedure TW3CustomControl.CBAnimationEnds(const EventObj: Variant)
-   ///  [line: 6069, column: 28, file: SmartCL.Components]
+   ///  [line: 6051, column: 28, file: SmartCL.Components]
    ,CBAnimationEnds:function(Self, EventObj) {
       if (Self.FOnAnimationEnds) {
          Self.FOnAnimationEnds(Self);
       }
    }
    /// procedure TW3CustomControl.CBChanged(eventObj: JEvent)
-   ///  [line: 6084, column: 28, file: SmartCL.Components]
+   ///  [line: 6066, column: 28, file: SmartCL.Components]
    ,CBChanged:function(Self, eventObj) {
       if (Self.FOnChanged) {
          Self.FOnChanged(Self);
       }
    }
    /// procedure TW3CustomControl.CBClick(eventObj: JEvent)
-   ///  [line: 5891, column: 28, file: SmartCL.Components]
+   ///  [line: 5873, column: 28, file: SmartCL.Components]
    ,CBClick:function(Self, eventObj) {
       if (Self.FOnClick) {
          Self.FOnClick(Self);
       }
    }
    /// function TW3CustomControl.CBContextPopup(Event: JMouseEvent) : Boolean
-   ///  [line: 6099, column: 27, file: SmartCL.Components]
+   ///  [line: 6081, column: 27, file: SmartCL.Components]
    ,CBContextPopup:function(Self, Event$3) {
       var Result = false;
       var Lsr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
@@ -7673,21 +7645,21 @@ var TW3CustomControl = {
       return Result
    }
    /// procedure TW3CustomControl.CBDblClick(eventObj: JEvent)
-   ///  [line: 5909, column: 28, file: SmartCL.Components]
+   ///  [line: 5891, column: 28, file: SmartCL.Components]
    ,CBDblClick:function(Self, eventObj) {
       if (Self.FOnDblClick) {
          Self.FOnDblClick(Self);
       }
    }
    /// procedure TW3CustomControl.CBFocused()
-   ///  [line: 5512, column: 28, file: SmartCL.Components]
+   ///  [line: 5494, column: 28, file: SmartCL.Components]
    ,CBFocused:function(Self) {
       if (Self.FOnGotFocus) {
          Self.FOnGotFocus(Self);
       }
    }
    /// procedure TW3CustomControl.CBInput(eventObj: JInputEvent)
-   ///  [line: 5990, column: 28, file: SmartCL.Components]
+   ///  [line: 5972, column: 28, file: SmartCL.Components]
    ,CBInput:function(Self, eventObj) {
       var LChar = "";
       try {
@@ -7705,14 +7677,14 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CBKeyDown(eventObj: JKeyboardEvent)
-   ///  [line: 5924, column: 28, file: SmartCL.Components]
+   ///  [line: 5906, column: 28, file: SmartCL.Components]
    ,CBKeyDown:function(Self, eventObj) {
       if (Self.FOnKeyDown) {
          Self.FOnKeyDown(Self,eventObj.keyCode);
       }
    }
    /// procedure TW3CustomControl.CBKeyPress(eventObj: JKeyboardEvent)
-   ///  [line: 5957, column: 28, file: SmartCL.Components]
+   ///  [line: 5939, column: 28, file: SmartCL.Components]
    ,CBKeyPress:function(Self, eventObj) {
       var LChar = "",
          LChar$1 = "";
@@ -7737,21 +7709,21 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CBKeyUp(eventObj: JKeyboardEvent)
-   ///  [line: 5939, column: 28, file: SmartCL.Components]
+   ///  [line: 5921, column: 28, file: SmartCL.Components]
    ,CBKeyUp:function(Self, eventObj) {
       if (Self.FOnKeyUp) {
          Self.FOnKeyUp(Self,eventObj.keyCode);
       }
    }
    /// procedure TW3CustomControl.CBLostFocus()
-   ///  [line: 5518, column: 28, file: SmartCL.Components]
+   ///  [line: 5500, column: 28, file: SmartCL.Components]
    ,CBLostFocus:function(Self) {
       if (Self.FOnLostFocus) {
          Self.FOnLostFocus(Self);
       }
    }
    /// procedure TW3CustomControl.CBMouseDown(eventObj: JMouseEvent)
-   ///  [line: 5704, column: 28, file: SmartCL.Components]
+   ///  [line: 5686, column: 28, file: SmartCL.Components]
    ,CBMouseDown:function(Self, eventObj) {
       var sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          shiftState = null,
@@ -7770,7 +7742,7 @@ var TW3CustomControl = {
       TW3CustomControl.MouseDown(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseEnter(eventObj: JMouseEvent)
-   ///  [line: 5802, column: 28, file: SmartCL.Components]
+   ///  [line: 5784, column: 28, file: SmartCL.Components]
    ,CBMouseEnter:function(Self, eventObj) {
       var sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          shiftState = null;
@@ -7780,7 +7752,7 @@ var TW3CustomControl = {
       TW3CustomControl.MouseEnter(Self,shiftState,eventObj.clientX-sr.Left$3,eventObj.clientY-sr.Top$3);
    }
    /// procedure TW3CustomControl.CBMouseExit(eventObj: JMouseEvent)
-   ///  [line: 5824, column: 28, file: SmartCL.Components]
+   ///  [line: 5806, column: 28, file: SmartCL.Components]
    ,CBMouseExit:function(Self, eventObj) {
       var sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          shiftState = null;
@@ -7790,7 +7762,7 @@ var TW3CustomControl = {
       TW3CustomControl.MouseExit(Self,shiftState,eventObj.clientX-sr.Left$3,eventObj.clientY-sr.Top$3);
    }
    /// procedure TW3CustomControl.CBMouseMove(eventObj: JMouseEvent)
-   ///  [line: 5762, column: 28, file: SmartCL.Components]
+   ///  [line: 5744, column: 28, file: SmartCL.Components]
    ,CBMouseMove:function(Self, eventObj) {
       var sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          shiftState = null,
@@ -7808,7 +7780,7 @@ var TW3CustomControl = {
       TW3CustomControl.MouseMove(Self,shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseUp(eventObj: JMouseEvent)
-   ///  [line: 5728, column: 28, file: SmartCL.Components]
+   ///  [line: 5710, column: 28, file: SmartCL.Components]
    ,CBMouseUp:function(Self, eventObj) {
       var sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          shiftState = null,
@@ -7827,7 +7799,7 @@ var TW3CustomControl = {
       TW3CustomControl.MouseUp(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseWheel(eventObj: JMouseWheelEvent)
-   ///  [line: 5843, column: 28, file: SmartCL.Components]
+   ///  [line: 5825, column: 28, file: SmartCL.Components]
    ,CBMouseWheel:function(Self, eventObj) {
       var wheelDelta$1 = 0,
          sr = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
@@ -7854,21 +7826,21 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CBScroll(EventObj: JEvent)
-   ///  [line: 6023, column: 28, file: SmartCL.Components]
+   ///  [line: 6005, column: 28, file: SmartCL.Components]
    ,CBScroll:function(Self, EventObj) {
       if (Self.FOnScroll) {
          Self.FOnScroll(Self);
       }
    }
    /// procedure TW3CustomControl.CBSelectionStarts(EventObj: JEvent)
-   ///  [line: 6029, column: 28, file: SmartCL.Components]
+   ///  [line: 6011, column: 28, file: SmartCL.Components]
    ,CBSelectionStarts:function(Self, EventObj) {
       if (Self.FOnSelectionStarts) {
          Self.FOnSelectionStarts(Self);
       }
    }
    /// procedure TW3CustomControl.CMGestureChange()
-   ///  [line: 5413, column: 28, file: SmartCL.Components]
+   ///  [line: 5395, column: 28, file: SmartCL.Components]
    ,CMGestureChange:function(Self) {
       if (Self.FOnGestureChange) {
          if (!Self.FGestureData) {
@@ -7879,7 +7851,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CMGestureEnd()
-   ///  [line: 5439, column: 28, file: SmartCL.Components]
+   ///  [line: 5421, column: 28, file: SmartCL.Components]
    ,CMGestureEnd:function(Self) {
       if (Self.FOnGestureEnd) {
          if (!Self.FGestureData) {
@@ -7890,7 +7862,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CMGestureStart()
-   ///  [line: 5387, column: 28, file: SmartCL.Components]
+   ///  [line: 5369, column: 28, file: SmartCL.Components]
    ,CMGestureStart:function(Self) {
       if (Self.FOnGestureStart) {
          if (!Self.FGestureData) {
@@ -7901,7 +7873,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CMTouchBegins(eventObj: JTouchEvent)
-   ///  [line: 5308, column: 28, file: SmartCL.Components]
+   ///  [line: 5290, column: 28, file: SmartCL.Components]
    ,CMTouchBegins:function(Self, eventObj) {
       if (Self.FOnTouchBegins) {
          if (!Self.FTouchData) {
@@ -7912,7 +7884,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CMTouchEnds(eventObj: JTouchEvent)
-   ///  [line: 5361, column: 28, file: SmartCL.Components]
+   ///  [line: 5343, column: 28, file: SmartCL.Components]
    ,CMTouchEnds:function(Self, eventObj) {
       if (Self.FOnTouchEnds) {
          if (!Self.FTouchData) {
@@ -7923,7 +7895,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.CMTouchMove(eventObj: JTouchEvent)
-   ///  [line: 5337, column: 28, file: SmartCL.Components]
+   ///  [line: 5319, column: 28, file: SmartCL.Components]
    ,CMTouchMove:function(Self, eventObj) {
       if (Self.FOnTouchMoves) {
          if (Self.FTouchData === null) {
@@ -7934,14 +7906,14 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.ContextPopup(const MousePos: TPoint; var Handled: TContectPopupResult)
-   ///  [line: 6113, column: 28, file: SmartCL.Components]
+   ///  [line: 6095, column: 28, file: SmartCL.Components]
    ,ContextPopup:function(Self, MousePos, Handled) {
       if (Self.FOnContextPopup) {
          Self.FOnContextPopup(Self,MousePos,Handled);
       }
    }
    /// procedure TW3CustomControl.Dispatch(Kind: TW3EventManagerTypes; eventObj: JEvent)
-   ///  [line: 5273, column: 28, file: SmartCL.Components]
+   ///  [line: 5255, column: 28, file: SmartCL.Components]
    ,Dispatch:function(Self, Kind, eventObj) {
       if (Self.FHandle$4) {
          try {
@@ -7986,7 +7958,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.FinalizeObject()
-   ///  [line: 5089, column: 28, file: SmartCL.Components]
+   ///  [line: 5071, column: 28, file: SmartCL.Components]
    ,FinalizeObject:function(Self) {
       TObject.Free(Self.FTagStyle);
       TObject.Free(Self.FScrollInfo);
@@ -7995,12 +7967,12 @@ var TW3CustomControl = {
       TW3MovableControl.FinalizeObject(Self);
    }
    /// function TW3CustomControl.GetBorderRadius() : Integer
-   ///  [line: 6149, column: 27, file: SmartCL.Components]
+   ///  [line: 6131, column: 27, file: SmartCL.Components]
    ,GetBorderRadius:function(Self) {
       return w3_GetStyleAsInt(Self.FHandle$4,"bordertopleftRadius");
    }
    /// function TW3CustomControl.GetChildrenSortedByYPos() : TW3TagContainerArray
-   ///  [line: 5558, column: 27, file: SmartCL.Components]
+   ///  [line: 5540, column: 27, file: SmartCL.Components]
    ,GetChildrenSortedByYPos:function(Self) {
       var Result = [];
       var mCount = 0,
@@ -8038,7 +8010,7 @@ var TW3CustomControl = {
       return Result
    }
    /// function TW3CustomControl.GetEnabled() : Boolean
-   ///  [line: 5480, column: 27, file: SmartCL.Components]
+   ///  [line: 5462, column: 27, file: SmartCL.Components]
    ,GetEnabled$1:function(Self) {
       var Result = false;
       if (Self.FHandle$4) {
@@ -8047,7 +8019,7 @@ var TW3CustomControl = {
       return Result
    }
    /// function TW3CustomControl.GetNativeScrolling() : Boolean
-   ///  [line: 5249, column: 27, file: SmartCL.Components]
+   ///  [line: 5231, column: 27, file: SmartCL.Components]
    ,GetNativeScrolling:function(Self) {
       var Result = false;
       var oflow;
@@ -8060,7 +8032,7 @@ var TW3CustomControl = {
       return Result
    }
    /// function TW3CustomControl.GetScrollInfo() : TW3ScrollInfo
-   ///  [line: 5461, column: 27, file: SmartCL.Components]
+   ///  [line: 5443, column: 27, file: SmartCL.Components]
    ,GetScrollInfo:function(Self) {
       var Result = null;
       if (Self.FScrollInfo === null) {
@@ -8070,7 +8042,7 @@ var TW3CustomControl = {
       return Result
    }
    /// function TW3CustomControl.GetTagStyle() : TW3TagStyle
-   ///  [line: 5098, column: 27, file: SmartCL.Components]
+   ///  [line: 5080, column: 27, file: SmartCL.Components]
    ,GetTagStyle:function(Self) {
       var Result = null;
       if (Self.FTagStyle === null) {
@@ -8080,12 +8052,12 @@ var TW3CustomControl = {
       return Result
    }
    /// function TW3CustomControl.GetTransparentEvents() : Boolean
-   ///  [line: 5241, column: 27, file: SmartCL.Components]
+   ///  [line: 5223, column: 27, file: SmartCL.Components]
    ,GetTransparentEvents:function(Self) {
       return (Self.FMouseTouchEventsCount > 0)?false:Self.FTransparentEvents;
    }
    /// function TW3CustomControl.GetZoom() : Float
-   ///  [line: 5468, column: 27, file: SmartCL.Components]
+   ///  [line: 5450, column: 27, file: SmartCL.Components]
    ,GetZoom:function(Self) {
       var Result = 0;
       if (Self.FHandle$4) {
@@ -8094,14 +8066,14 @@ var TW3CustomControl = {
       return Result
    }
    /// procedure TW3CustomControl.HookEvents()
-   ///  [line: 5179, column: 28, file: SmartCL.Components]
+   ///  [line: 5161, column: 28, file: SmartCL.Components]
    ,HookEvents:function(Self) {
       TW3TagObj.HookEvents(Self);
       Self.FHandle$4.onfocus = $Event0(Self,TW3CustomControl.CBFocused);
       Self.FHandle$4.onblur = $Event0(Self,TW3CustomControl.CBLostFocus);
    }
    /// procedure TW3CustomControl.InitializeObject()
-   ///  [line: 5075, column: 28, file: SmartCL.Components]
+   ///  [line: 5057, column: 28, file: SmartCL.Components]
    ,InitializeObject:function(Self) {
       TW3MovableControl.InitializeObject(Self);
       if (function(v$){return ((v$=="DIV")||(v$=="IMG"))}(Self.FHandle$4.nodeName)) {
@@ -8116,7 +8088,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.LayoutChildren()
-   ///  [line: 6120, column: 28, file: SmartCL.Components]
+   ///  [line: 6102, column: 28, file: SmartCL.Components]
    ,LayoutChildren:function(Self) {
       if (TW3TagObj.Showing$(Self)) {
          TW3TagContainer.ForEach$1(Self,function (Child$1) {
@@ -8134,54 +8106,54 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.MouseDown(Button: TMouseButton; ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 5722, column: 28, file: SmartCL.Components]
+   ///  [line: 5704, column: 28, file: SmartCL.Components]
    ,MouseDown:function(Self, Button$1, ShiftState, X$2, Y$2) {
       if (Self.FOnMouseDown) {
          Self.FOnMouseDown(Self,Button$1,ShiftState,X$2,Y$2);
       }
    }
    /// procedure TW3CustomControl.MouseEnter(ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 5810, column: 28, file: SmartCL.Components]
+   ///  [line: 5792, column: 28, file: SmartCL.Components]
    ,MouseEnter:function(Self, ShiftState, X$2, Y$2) {
       if (Self.FOnMouseEnter) {
          Self.FOnMouseEnter(Self,ShiftState,X$2,Y$2);
       }
    }
    /// procedure TW3CustomControl.MouseExit(ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 5832, column: 28, file: SmartCL.Components]
+   ///  [line: 5814, column: 28, file: SmartCL.Components]
    ,MouseExit:function(Self, ShiftState, X$2, Y$2) {
       if (Self.FOnMouseExit) {
          Self.FOnMouseExit(Self,ShiftState,X$2,Y$2);
       }
    }
    /// procedure TW3CustomControl.MouseMove(ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 5788, column: 28, file: SmartCL.Components]
+   ///  [line: 5770, column: 28, file: SmartCL.Components]
    ,MouseMove:function(Self, ShiftState, X$2, Y$2) {
       if (Self.FOnMouseMove) {
          Self.FOnMouseMove(Self,ShiftState,X$2,Y$2);
       }
    }
    /// procedure TW3CustomControl.MouseUp(Button: TMouseButton; shiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 5755, column: 28, file: SmartCL.Components]
+   ///  [line: 5737, column: 28, file: SmartCL.Components]
    ,MouseUp:function(Self, Button$1, shiftState, X$2, Y$2) {
       if (Self.FOnMouseUp) {
          Self.FOnMouseUp(Self,Button$1,shiftState,X$2,Y$2);
       }
    }
    /// procedure TW3CustomControl.MouseWheel(Shift: TShiftState; wheelDelta: Integer; const MousePos: TPoint; var Handled: Boolean)
-   ///  [line: 5872, column: 28, file: SmartCL.Components]
+   ///  [line: 5854, column: 28, file: SmartCL.Components]
    ,MouseWheel:function(Self, Shift, wheelDelta$1, MousePos, Handled) {
       if (Self.FOnMouseWheel) {
          Self.FOnMouseWheel(Self,Shift,wheelDelta$1,MousePos,Handled);
       }
    }
    /// procedure TW3CustomControl.ReleaseCapture()
-   ///  [line: 6184, column: 28, file: SmartCL.Components]
+   ///  [line: 6166, column: 28, file: SmartCL.Components]
    ,ReleaseCapture:function(Self) {
       TW3EventManager.ReleaseCapture$1(EventManager,Self);
    }
    /// procedure TW3CustomControl.SetAngle(const NewAngle: Float)
-   ///  [line: 5593, column: 28, file: SmartCL.Components]
+   ///  [line: 5575, column: 28, file: SmartCL.Components]
    ,SetAngle:function(Self, NewAngle) {
       if (NewAngle != Self.FAngle) {
          Self.FAngle = NewAngle;
@@ -8206,7 +8178,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.SetBorderRadius(aNewRadius: Integer)
-   ///  [line: 6160, column: 28, file: SmartCL.Components]
+   ///  [line: 6142, column: 28, file: SmartCL.Components]
    ,SetBorderRadius:function(Self, aNewRadius) {
       if ($SetIn(Self.FComponentState,0,0,11)) {
          Self.FHandle$4.style["borderRadius"] = TInteger.ToPxStr(aNewRadius);
@@ -8231,12 +8203,12 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.SetCapture()
-   ///  [line: 6179, column: 28, file: SmartCL.Components]
+   ///  [line: 6161, column: 28, file: SmartCL.Components]
    ,SetCapture:function(Self) {
       TW3EventManager.SetCapture$1(EventManager,Self);
    }
    /// procedure TW3CustomControl.SetEnabled(const EnabledValue: Boolean)
-   ///  [line: 5486, column: 28, file: SmartCL.Components]
+   ///  [line: 5468, column: 28, file: SmartCL.Components]
    ,SetEnabled$1:function(Self, EnabledValue) {
       if (EnabledValue) {
          if (w3_HasAttrib(Self.FHandle$4,"disabled")) {
@@ -8255,7 +8227,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.SetFocus()
-   ///  [line: 5633, column: 28, file: SmartCL.Components]
+   ///  [line: 5615, column: 28, file: SmartCL.Components]
    ,SetFocus:function(Self) {
       var eventType = undefined;
       if (!($SetIn(Self.FComponentState,10,0,11))) {
@@ -8285,7 +8257,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.SetNativeScrolling(const Value: Boolean)
-   ///  [line: 5258, column: 28, file: SmartCL.Components]
+   ///  [line: 5240, column: 28, file: SmartCL.Components]
    ,SetNativeScrolling:function(Self, Value$3) {
       if (Self.FHandle$4) {
          if (Value$3) {
@@ -8302,7 +8274,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.SetZoom(const ZoomValue: Float)
-   ///  [line: 5474, column: 28, file: SmartCL.Components]
+   ///  [line: 5456, column: 28, file: SmartCL.Components]
    ,SetZoom:function(Self, ZoomValue) {
       if (Self.FHandle$4) {
          Self.FHandle$4.style.zoom = ZoomValue;
@@ -8323,7 +8295,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl.UnHookEvents()
-   ///  [line: 5186, column: 28, file: SmartCL.Components]
+   ///  [line: 5168, column: 28, file: SmartCL.Components]
    ,UnHookEvents:function(Self) {
       Self.FHandle$4.onfocus = null;
       Self.FHandle$4.onblur = null;
@@ -8332,7 +8304,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl._SetAllMovement(const aValue: TMovementEvent)
-   ///  [line: 5227, column: 28, file: SmartCL.Components]
+   ///  [line: 5209, column: 28, file: SmartCL.Components]
    ,_SetAllMovement:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnAllMovement) {
@@ -8344,7 +8316,7 @@ var TW3CustomControl = {
       Self.FOnAllMovement = aValue;
    }
    /// procedure TW3CustomControl._setAnimationBegins(const aValue: TAnimationBeginsEvent)
-   ///  [line: 6008, column: 28, file: SmartCL.Components]
+   ///  [line: 5990, column: 28, file: SmartCL.Components]
    ,_setAnimationBegins:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4[TW3CustomBrowserAPI.Prefix(BrowserAPI(),"AnimationStart")] = $Event1(Self,TW3CustomControl.CBAnimationBegins);
@@ -8354,7 +8326,7 @@ var TW3CustomControl = {
       Self.FOnAnimationBegins = aValue;
    }
    /// procedure TW3CustomControl._setAnimationEnds(const aValue: TAnimationEndsEvent)
-   ///  [line: 6060, column: 28, file: SmartCL.Components]
+   ///  [line: 6042, column: 28, file: SmartCL.Components]
    ,_setAnimationEnds:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4[TW3CustomBrowserAPI.Prefix(BrowserAPI(),"AnimationEnd")] = $Event1(Self,TW3CustomControl.CBAnimationEnds);
@@ -8364,7 +8336,7 @@ var TW3CustomControl = {
       Self.FOnAnimationEnds = aValue;
    }
    /// procedure TW3CustomControl._SetBeginMovement(const aValue: TNotifyEvent)
-   ///  [line: 5195, column: 28, file: SmartCL.Components]
+   ///  [line: 5177, column: 28, file: SmartCL.Components]
    ,_SetBeginMovement:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnBeginMovement) {
@@ -8376,7 +8348,7 @@ var TW3CustomControl = {
       Self.FOnBeginMovement = aValue;
    }
    /// procedure TW3CustomControl._setChanged(const aValue: TChangedEvent)
-   ///  [line: 6075, column: 28, file: SmartCL.Components]
+   ///  [line: 6057, column: 28, file: SmartCL.Components]
    ,_setChanged:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["onchange"] = $Event1(Self,TW3CustomControl.CBChanged);
@@ -8386,7 +8358,7 @@ var TW3CustomControl = {
       Self.FOnChanged = aValue;
    }
    /// procedure TW3CustomControl._setContextPopup(const aValue: TContextPopupEvent)
-   ///  [line: 6090, column: 28, file: SmartCL.Components]
+   ///  [line: 6072, column: 28, file: SmartCL.Components]
    ,_setContextPopup:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["oncontextmenu"] = $Event1(Self,TW3CustomControl.CBContextPopup);
@@ -8396,7 +8368,7 @@ var TW3CustomControl = {
       Self.FOnContextPopup = aValue;
    }
    /// procedure TW3CustomControl._SetEndMovement(const aValue: TNotifyEvent)
-   ///  [line: 5203, column: 28, file: SmartCL.Components]
+   ///  [line: 5185, column: 28, file: SmartCL.Components]
    ,_SetEndMovement:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnEndMovement) {
@@ -8408,7 +8380,7 @@ var TW3CustomControl = {
       Self.FOnEndMovement = aValue;
    }
    /// procedure TW3CustomControl._setGestureChange(aValue: TGestureChangeEvent)
-   ///  [line: 5398, column: 28, file: SmartCL.Components]
+   ///  [line: 5380, column: 28, file: SmartCL.Components]
    ,_setGestureChange:function(Self, aValue) {
       if (Self.FOnGestureChange) {
          w3_RemoveEvent(Self.FHandle$4,"gesturechange",$Event0(Self,TW3CustomControl.CMGestureChange),true);
@@ -8420,7 +8392,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl._setGestureEnd(aValue: TGestureEndEvent)
-   ///  [line: 5424, column: 28, file: SmartCL.Components]
+   ///  [line: 5406, column: 28, file: SmartCL.Components]
    ,_setGestureEnd:function(Self, aValue) {
       if (Self.FOnGestureEnd) {
          w3_RemoveEvent(Self.FHandle$4,"gestureend",$Event0(Self,TW3CustomControl.CMGestureEnd),true);
@@ -8432,7 +8404,7 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl._setGestureStart(aValue: TGestureStartEvent)
-   ///  [line: 5372, column: 28, file: SmartCL.Components]
+   ///  [line: 5354, column: 28, file: SmartCL.Components]
    ,_setGestureStart:function(Self, aValue) {
       if (Self.FOnGestureStart) {
          w3_RemoveEvent(Self.FHandle$4,"gesturestart",$Event0(Self,TW3CustomControl.CMGestureStart),true);
@@ -8444,12 +8416,12 @@ var TW3CustomControl = {
       }
    }
    /// procedure TW3CustomControl._setGotFocus(const aValue: TGotFocusEvent)
-   ///  [line: 5680, column: 28, file: SmartCL.Components]
+   ///  [line: 5662, column: 28, file: SmartCL.Components]
    ,_setGotFocus:function(Self, aValue) {
       Self.FOnGotFocus = aValue;
    }
    /// procedure TW3CustomControl._SetHorizontalMovement(const aValue: TMovementEvent)
-   ///  [line: 5211, column: 28, file: SmartCL.Components]
+   ///  [line: 5193, column: 28, file: SmartCL.Components]
    ,_SetHorizontalMovement:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnHorizontalMovement) {
@@ -8461,7 +8433,7 @@ var TW3CustomControl = {
       Self.FOnHorizontalMovement = aValue;
    }
    /// procedure TW3CustomControl._setInput(const aValue: TNotifyEvent)
-   ///  [line: 5981, column: 28, file: SmartCL.Components]
+   ///  [line: 5963, column: 28, file: SmartCL.Components]
    ,_setInput:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["oninput"] = $Event1(Self,TW3CustomControl.CBInput);
@@ -8471,7 +8443,7 @@ var TW3CustomControl = {
       Self.FOnInput = aValue;
    }
    /// procedure TW3CustomControl._setKeyDown(const aValue: TKeyDownEvent)
-   ///  [line: 5915, column: 28, file: SmartCL.Components]
+   ///  [line: 5897, column: 28, file: SmartCL.Components]
    ,_setKeyDown:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["onkeydown"] = $Event1(Self,TW3CustomControl.CBKeyDown);
@@ -8481,7 +8453,7 @@ var TW3CustomControl = {
       Self.FOnKeyDown = aValue;
    }
    /// procedure TW3CustomControl._setKeyPress(const aValue: TKeyPressEvent)
-   ///  [line: 5945, column: 28, file: SmartCL.Components]
+   ///  [line: 5927, column: 28, file: SmartCL.Components]
    ,_setKeyPress:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["onkeypress"] = $Event1(Self,TW3CustomControl.CBKeyPress);
@@ -8497,7 +8469,7 @@ var TW3CustomControl = {
       Self.FOnKeyPress = aValue;
    }
    /// procedure TW3CustomControl._setKeyUp(const aValue: TKeyUpEvent)
-   ///  [line: 5930, column: 28, file: SmartCL.Components]
+   ///  [line: 5912, column: 28, file: SmartCL.Components]
    ,_setKeyUp:function(Self, aValue) {
       if (aValue) {
          Self.FHandle$4["onkeyup"] = $Event1(Self,TW3CustomControl.CBKeyUp$);
@@ -8507,12 +8479,12 @@ var TW3CustomControl = {
       Self.FOnKeyUp = aValue;
    }
    /// procedure TW3CustomControl._setLostFocus(const aValue: TLostFocusEvent)
-   ///  [line: 5689, column: 28, file: SmartCL.Components]
+   ///  [line: 5671, column: 28, file: SmartCL.Components]
    ,_setLostFocus:function(Self, aValue) {
       Self.FOnLostFocus = aValue;
    }
    /// procedure TW3CustomControl._setMouseClick(const aValue: TMouseClickEvent)
-   ///  [line: 5879, column: 28, file: SmartCL.Components]
+   ///  [line: 5861, column: 28, file: SmartCL.Components]
    ,_setMouseClick:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnClick) {
@@ -8524,7 +8496,7 @@ var TW3CustomControl = {
       Self.FOnClick = aValue;
    }
    /// procedure TW3CustomControl._setMouseDblClick(const aValue: TMouseDblClickEvent)
-   ///  [line: 5897, column: 28, file: SmartCL.Components]
+   ///  [line: 5879, column: 28, file: SmartCL.Components]
    ,_setMouseDblClick:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnDblClick) {
@@ -8536,7 +8508,7 @@ var TW3CustomControl = {
       Self.FOnDblClick = aValue;
    }
    /// procedure TW3CustomControl._setMouseDown(const aValue: TMouseDownEvent)
-   ///  [line: 5695, column: 28, file: SmartCL.Components]
+   ///  [line: 5677, column: 28, file: SmartCL.Components]
    ,_setMouseDown:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnMouseDown) {
@@ -8548,7 +8520,7 @@ var TW3CustomControl = {
       Self.FOnMouseDown = aValue;
    }
    /// procedure TW3CustomControl._setMouseEnter(const aValue: TMouseEnterEvent)
-   ///  [line: 5794, column: 28, file: SmartCL.Components]
+   ///  [line: 5776, column: 28, file: SmartCL.Components]
    ,_setMouseEnter:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnMouseEnter) {
@@ -8560,7 +8532,7 @@ var TW3CustomControl = {
       Self.FOnMouseEnter = aValue;
    }
    /// procedure TW3CustomControl._setMouseExit(const aValue: TMouseExitEvent)
-   ///  [line: 5816, column: 28, file: SmartCL.Components]
+   ///  [line: 5798, column: 28, file: SmartCL.Components]
    ,_setMouseExit:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnMouseExit) {
@@ -8572,7 +8544,7 @@ var TW3CustomControl = {
       Self.FOnMouseExit = aValue;
    }
    /// procedure TW3CustomControl._setMouseMove(const aValue: TMouseMoveEvent)
-   ///  [line: 5779, column: 28, file: SmartCL.Components]
+   ///  [line: 5761, column: 28, file: SmartCL.Components]
    ,_setMouseMove:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnMouseMove) {
@@ -8584,7 +8556,7 @@ var TW3CustomControl = {
       Self.FOnMouseMove = aValue;
    }
    /// procedure TW3CustomControl._setMouseUp(const aValue: TMouseUpEvent)
-   ///  [line: 5746, column: 28, file: SmartCL.Components]
+   ///  [line: 5728, column: 28, file: SmartCL.Components]
    ,_setMouseUp:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnMouseUp) {
@@ -8596,30 +8568,30 @@ var TW3CustomControl = {
       Self.FOnMouseUp = aValue;
    }
    /// procedure TW3CustomControl._setMouseWheel(const aValue: TMouseWheelEvent)
-   ///  [line: 5838, column: 28, file: SmartCL.Components]
+   ///  [line: 5820, column: 28, file: SmartCL.Components]
    ,_setMouseWheel:function(Self, aValue) {
       Self.FOnMouseWheel = aValue;
    }
    /// procedure TW3CustomControl._setScroll(const Handler: TNotifyEvent)
-   ///  [line: 6053, column: 28, file: SmartCL.Components]
+   ///  [line: 6035, column: 28, file: SmartCL.Components]
    ,_setScroll:function(Self, Handler) {
       Self.FHandle$4["onscroll"] = $Event1(Self,TW3CustomControl.CBScroll);
       Self.FOnScroll = Handler;
    }
    /// procedure TW3CustomControl._setSelectionEnds(const Handler: TSelectionEndsEvent)
-   ///  [line: 6047, column: 28, file: SmartCL.Components]
+   ///  [line: 6029, column: 28, file: SmartCL.Components]
    ,_setSelectionEnds:function(Self, Handler) {
       Self.FHandle$4["onselect"] = $Event1(Self,TW3CustomControl.CBSelectionStarts);
       Self.FOnSelectionStarts = Handler;
    }
    /// procedure TW3CustomControl._setSelectionStarts(const Handler: TSelectionStartsEvent)
-   ///  [line: 6041, column: 28, file: SmartCL.Components]
+   ///  [line: 6023, column: 28, file: SmartCL.Components]
    ,_setSelectionStarts:function(Self, Handler) {
       Self.FHandle$4["onselectstart"] = $Event1(Self,TW3CustomControl.CBSelectionStarts);
       Self.FOnSelectionStarts = Handler;
    }
    /// procedure TW3CustomControl._setTouchBegins(const aValue: TTouchBeginEvent)
-   ///  [line: 5296, column: 28, file: SmartCL.Components]
+   ///  [line: 5278, column: 28, file: SmartCL.Components]
    ,_setTouchBegins:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnTouchBegins) {
@@ -8631,7 +8603,7 @@ var TW3CustomControl = {
       Self.FOnTouchBegins = aValue;
    }
    /// procedure TW3CustomControl._setTouchEnds(const aValue: TTouchEndEvent)
-   ///  [line: 5349, column: 28, file: SmartCL.Components]
+   ///  [line: 5331, column: 28, file: SmartCL.Components]
    ,_setTouchEnds:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnTouchEnds) {
@@ -8643,7 +8615,7 @@ var TW3CustomControl = {
       Self.FOnTouchEnds = aValue;
    }
    /// procedure TW3CustomControl._setTouchMoves(const aValue: TTouchMoveEvent)
-   ///  [line: 5325, column: 28, file: SmartCL.Components]
+   ///  [line: 5307, column: 28, file: SmartCL.Components]
    ,_setTouchMoves:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnTouchMoves) {
@@ -8655,7 +8627,7 @@ var TW3CustomControl = {
       Self.FOnTouchMoves = aValue;
    }
    /// procedure TW3CustomControl._SetVerticalMovement(const aValue: TMovementEvent)
-   ///  [line: 5219, column: 28, file: SmartCL.Components]
+   ///  [line: 5201, column: 28, file: SmartCL.Components]
    ,_SetVerticalMovement:function(Self, aValue) {
       if (aValue) {
          if (!Self.FOnVerticalMovement) {
@@ -8670,7 +8642,6 @@ var TW3CustomControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -8804,7 +8775,6 @@ var TW3DisplayView = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -8960,7 +8930,6 @@ var TW3Display = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -9031,7 +9000,6 @@ var TW3BlockBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -10198,7 +10166,6 @@ var TW3TagStyle = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3TagStyle.$Intf={
    IW3OwnedObjectAccess:[TW3TagStyle.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -10946,7 +10913,6 @@ var TW3TextShadow = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3TextShadow.$Intf={
    IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -10971,7 +10937,7 @@ function Clone$TW3StackingOrderList($) {
    }
 }
 /// procedure TW3StackingOrderList.MoveToFirst(var Self: TW3StackingOrderList; const Handle: THandle)
-///  [line: 1877, column: 32, file: SmartCL.Components]
+///  [line: 1876, column: 32, file: SmartCL.Components]
 function TW3StackingOrderList$MoveToFirst(Self$31, Handle$17) {
    var i$5 = 0;
    i$5 = Self$31.olTags.indexOf(Handle$17);
@@ -10982,7 +10948,7 @@ function TW3StackingOrderList$MoveToFirst(Self$31, Handle$17) {
    }
 }
 /// procedure TW3StackingOrderList.MoveToLast(var Self: TW3StackingOrderList; const Handle: THandle)
-///  [line: 1886, column: 32, file: SmartCL.Components]
+///  [line: 1885, column: 32, file: SmartCL.Components]
 function TW3StackingOrderList$MoveToLast(Self$32, Handle$18) {
    var i$6 = 0;
    i$6 = Self$32.olTags.indexOf(Handle$18);
@@ -10993,7 +10959,7 @@ function TW3StackingOrderList$MoveToLast(Self$32, Handle$18) {
    }
 }
 /// procedure TW3StackingOrderList.Remap(var Self: TW3StackingOrderList)
-///  [line: 1895, column: 32, file: SmartCL.Components]
+///  [line: 1894, column: 32, file: SmartCL.Components]
 function TW3StackingOrderList$Remap(Self$33) {
    var x$39 = 0;
    if (Self$33.olZIndex.length > 0) {
@@ -11004,7 +10970,7 @@ function TW3StackingOrderList$Remap(Self$33) {
    }
 }
 /// procedure TW3StackingOrderList.Sort(var Self: TW3StackingOrderList; const HighestFirst: Boolean)
-///  [line: 1907, column: 32, file: SmartCL.Components]
+///  [line: 1906, column: 32, file: SmartCL.Components]
 function TW3StackingOrderList$Sort$1(Self$34, HighestFirst) {
    var mCount = 0,
       mAltered = false,
@@ -11051,14 +11017,14 @@ var TW3ScrollInfo = {
       $.FHandle$9 = undefined;
    }
    /// constructor TW3ScrollInfo.Create(const AOwner: TW3TagObj)
-   ///  [line: 3520, column: 27, file: SmartCL.Components]
+   ///  [line: 3519, column: 27, file: SmartCL.Components]
    ,Create$122:function(Self, AOwner) {
       TW3OwnedObject.Create$11(Self,AOwner);
       Self.FHandle$9 = AOwner.FHandle$4;
       return Self
    }
    /// function TW3ScrollInfo.GetScrollHeight() : Integer
-   ///  [line: 3563, column: 24, file: SmartCL.Components]
+   ///  [line: 3562, column: 24, file: SmartCL.Components]
    ,GetScrollHeight:function(Self) {
       var Result = 0;
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
@@ -11069,7 +11035,7 @@ var TW3ScrollInfo = {
       return Result
    }
    /// function TW3ScrollInfo.GetScrollLeft() : Integer
-   ///  [line: 3572, column: 24, file: SmartCL.Components]
+   ///  [line: 3571, column: 24, file: SmartCL.Components]
    ,GetScrollLeft:function(Self) {
       var Result = 0;
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
@@ -11080,7 +11046,7 @@ var TW3ScrollInfo = {
       return Result
    }
    /// function TW3ScrollInfo.GetScrollTop() : Integer
-   ///  [line: 3581, column: 24, file: SmartCL.Components]
+   ///  [line: 3580, column: 24, file: SmartCL.Components]
    ,GetScrollTop:function(Self) {
       var Result = 0;
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
@@ -11091,7 +11057,7 @@ var TW3ScrollInfo = {
       return Result
    }
    /// function TW3ScrollInfo.GetScrollWidth() : Integer
-   ///  [line: 3554, column: 24, file: SmartCL.Components]
+   ///  [line: 3553, column: 24, file: SmartCL.Components]
    ,GetScrollWidth:function(Self) {
       var Result = 0;
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
@@ -11102,7 +11068,7 @@ var TW3ScrollInfo = {
       return Result
    }
    /// procedure TW3ScrollInfo.ScrollTo(const NewLeft: Integer; const NewTop: Integer)
-   ///  [line: 3590, column: 25, file: SmartCL.Components]
+   ///  [line: 3589, column: 25, file: SmartCL.Components]
    ,ScrollTo:function(Self, NewLeft, NewTop) {
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
          Self.FHandle$9.scrollLeft = NewLeft;
@@ -11112,7 +11078,7 @@ var TW3ScrollInfo = {
       }
    }
    /// procedure TW3ScrollInfo.ScrollX(const NewLeft: Integer)
-   ///  [line: 3536, column: 25, file: SmartCL.Components]
+   ///  [line: 3535, column: 25, file: SmartCL.Components]
    ,ScrollX:function(Self, NewLeft) {
       if (TControlHandleHelper$Valid$3(Self.FHandle$9)) {
          Self.FHandle$9.scrollLeft = NewLeft;
@@ -11124,13 +11090,12 @@ var TW3ScrollInfo = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3ScrollInfo.$Intf={
    IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
 }
 /// TW3GraphicControl = class (TW3CustomControl)
-///  [line: 1333, column: 3, file: SmartCL.Components]
+///  [line: 1332, column: 3, file: SmartCL.Components]
 var TW3GraphicControl = {
    $ClassName:"TW3GraphicControl",$Parent:TW3CustomControl
    ,$Init:function ($) {
@@ -11138,42 +11103,42 @@ var TW3GraphicControl = {
       $.FCanvas = $.FContext$2 = $.FOnPaint = null;
    }
    /// procedure TW3GraphicControl.FinalizeObject()
-   ///  [line: 4990, column: 29, file: SmartCL.Components]
+   ///  [line: 4972, column: 29, file: SmartCL.Components]
    ,FinalizeObject:function(Self) {
       TObject.Free(Self.FCanvas);
       TObject.Free(Self.FContext$2);
       TW3CustomControl.FinalizeObject(Self);
    }
    /// procedure TW3GraphicControl.InitializeObject()
-   ///  [line: 4983, column: 29, file: SmartCL.Components]
+   ///  [line: 4965, column: 29, file: SmartCL.Components]
    ,InitializeObject:function(Self) {
       TW3CustomControl.InitializeObject(Self);
       Self.FContext$2 = TW3ControlGraphicContext.Create$95($New(TW3ControlGraphicContext),Self.FHandle$4);
       Self.FCanvas = TW3Canvas.Create$98($New(TW3Canvas),Self.FContext$2);
    }
    /// procedure TW3GraphicControl.Invalidate()
-   ///  [line: 5048, column: 29, file: SmartCL.Components]
+   ///  [line: 5030, column: 29, file: SmartCL.Components]
    ,Invalidate:function(Self) {
       if (Self.FHandle$4) {
          TW3GraphicControl.Refresh(Self);
       }
    }
    /// function TW3GraphicControl.MakeElementTagObj() : THandle
-   ///  [line: 5027, column: 28, file: SmartCL.Components]
+   ///  [line: 5009, column: 28, file: SmartCL.Components]
    ,MakeElementTagObj:function(Self) {
       var Result = undefined;
       Result = document.createElement("canvas");
       return Result
    }
    /// procedure TW3GraphicControl.Paint()
-   ///  [line: 5034, column: 29, file: SmartCL.Components]
+   ///  [line: 5016, column: 29, file: SmartCL.Components]
    ,Paint:function(Self) {
       if (Self.FOnPaint) {
          Self.FOnPaint(Self,Self.FCanvas);
       }
    }
    /// procedure TW3GraphicControl.Refresh()
-   ///  [line: 5055, column: 29, file: SmartCL.Components]
+   ///  [line: 5037, column: 29, file: SmartCL.Components]
    ,Refresh:function(Self) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (!(TW3TagObj.a$52(Self))) {
@@ -11184,14 +11149,14 @@ var TW3GraphicControl = {
       }
    }
    /// procedure TW3GraphicControl.Resize()
-   ///  [line: 5040, column: 29, file: SmartCL.Components]
+   ///  [line: 5022, column: 29, file: SmartCL.Components]
    ,Resize:function(Self) {
       TW3MovableControl.Resize(Self);
       w3_setAttrib(Self.FHandle$4,"width",w3_GetStyle(Self.FHandle$4,"width"));
       w3_setAttrib(Self.FHandle$4,"height",w3_GetStyle(Self.FHandle$4,"height"));
    }
    /// procedure TW3GraphicControl.SetHeight(const NewHeight: Integer)
-   ///  [line: 5016, column: 29, file: SmartCL.Components]
+   ///  [line: 4998, column: 29, file: SmartCL.Components]
    ,SetHeight:function(Self, NewHeight) {
       TW3MovableControl.SetHeight(Self,NewHeight);
       if (Self.FHandle$4) {
@@ -11203,7 +11168,7 @@ var TW3GraphicControl = {
       }
    }
    /// procedure TW3GraphicControl.SetWidth(const NewWidth: Integer)
-   ///  [line: 5005, column: 29, file: SmartCL.Components]
+   ///  [line: 4987, column: 29, file: SmartCL.Components]
    ,SetWidth:function(Self, NewWidth) {
       TW3MovableControl.SetWidth(Self,NewWidth);
       if (Self.FHandle$4) {
@@ -11218,7 +11183,6 @@ var TW3GraphicControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -11262,14 +11226,14 @@ TW3GraphicControl.$Intf={
    ,IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
 }
 /// TW3ControlTracker = class (TObject)
-///  [line: 1397, column: 3, file: SmartCL.Components]
+///  [line: 1396, column: 3, file: SmartCL.Components]
 var TW3ControlTracker = {
    $ClassName:"TW3ControlTracker",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
    }
    /// procedure TW3ControlTracker.ConstructionReadyExecute(const Instance: TW3TagContainer; const OnReady: TProcedureRef)
-   ///  [line: 1831, column: 35, file: SmartCL.Components]
+   ///  [line: 1830, column: 35, file: SmartCL.Components]
    ,ConstructionReadyExecute:function(Self, Instance$3, OnReady$3) {
       if (!TW3ControlTracker.GetConstructionCount(Self,Instance$3)) {
          OnReady$3();
@@ -11280,7 +11244,7 @@ var TW3ControlTracker = {
       }
    }
    /// function TW3ControlTracker.GetConstructionCount(const Instance: TW3TagContainer) : Integer
-   ///  [line: 1823, column: 34, file: SmartCL.Components]
+   ///  [line: 1822, column: 34, file: SmartCL.Components]
    ,GetConstructionCount:function(Self, Instance$3) {
       var Result = 0;
       var Id$2 = "";
@@ -11293,7 +11257,7 @@ var TW3ControlTracker = {
       return Result
    }
    /// function TW3ControlTracker.GetControlByHandle(const ThisHandle: THandle) : TW3TagObj
-   ///  [line: 1724, column: 34, file: SmartCL.Components]
+   ///  [line: 1723, column: 34, file: SmartCL.Components]
    ,GetControlByHandle:function(Self, ThisHandle) {
       var Result = null;
       var LGenKey;
@@ -11314,7 +11278,7 @@ var TW3ControlTracker = {
       return Result
    }
    /// function TW3ControlTracker.GetDOMFocus() : THandle
-   ///  [line: 1740, column: 34, file: SmartCL.Components]
+   ///  [line: 1739, column: 34, file: SmartCL.Components]
    ,GetDOMFocus:function(Self) {
       var Result = undefined;
       var focused = document.activeElement;
@@ -11326,7 +11290,7 @@ var TW3ControlTracker = {
       return Result
    }
    /// procedure TW3ControlTracker.RegisterControl(const Instance: TW3TagObj)
-   ///  [line: 1665, column: 35, file: SmartCL.Components]
+   ///  [line: 1664, column: 35, file: SmartCL.Components]
    ,RegisterControl:function(Self, Instance$3) {
       var LId = "",
          LGenKey = "";
@@ -11347,7 +11311,7 @@ var TW3ControlTracker = {
       }
    }
    /// procedure TW3ControlTracker.RegisterObjectReady(const Instance: TW3TagContainer)
-   ///  [line: 1804, column: 35, file: SmartCL.Components]
+   ///  [line: 1803, column: 35, file: SmartCL.Components]
    ,RegisterObjectReady:function(Self, Instance$3) {
       var CtrlInstance = null,
          Id$2 = "",
@@ -11372,7 +11336,7 @@ var TW3ControlTracker = {
       }
    }
    /// procedure TW3ControlTracker.RegisterUnderConstruction(const Instance: TW3TagContainer)
-   ///  [line: 1783, column: 35, file: SmartCL.Components]
+   ///  [line: 1782, column: 35, file: SmartCL.Components]
    ,RegisterUnderConstruction:function(Self, Instance$3) {
       var Handled = [],
          AddFlag = false,
@@ -11402,12 +11366,12 @@ var TW3ControlTracker = {
       }
    }
    /// procedure TW3ControlTracker.SetFocusedControl(const NewItem: TW3TagObj)
-   ///  [line: 1762, column: 35, file: SmartCL.Components]
+   ///  [line: 1761, column: 35, file: SmartCL.Components]
    ,SetFocusedControl:function(Self, NewItem) {
       FFocused = NewItem;
    }
    /// procedure TW3ControlTracker.UnRegisterControl(const Instance: TW3TagObj)
-   ///  [line: 1692, column: 35, file: SmartCL.Components]
+   ///  [line: 1691, column: 35, file: SmartCL.Components]
    ,UnRegisterControl:function(Self, Instance$3) {
       var LId = "",
          LGenKey;
@@ -11671,7 +11635,7 @@ var TW3ControlFont = {
       $.FOwner$3 = null;
    }
    /// constructor TW3ControlFont.Create(const AOwner: TW3MovableControl)
-   ///  [line: 3492, column: 28, file: SmartCL.Components]
+   ///  [line: 3491, column: 28, file: SmartCL.Components]
    ,Create$123:function(Self, AOwner) {
       TW3DOMFont.Create$121(Self,AOwner.FHandle$4);
       if (AOwner) {
@@ -11682,12 +11646,12 @@ var TW3ControlFont = {
       return Self
    }
    /// function TW3ControlFont.GetHandle() : THandle
-   ///  [line: 3502, column: 25, file: SmartCL.Components]
+   ///  [line: 3501, column: 25, file: SmartCL.Components]
    ,GetHandle$4:function(Self) {
       return Self.FOwner$3.FHandle$4;
    }
    /// procedure TW3ControlFont.SetAuto(const NewValue: Boolean)
-   ///  [line: 3507, column: 26, file: SmartCL.Components]
+   ///  [line: 3506, column: 26, file: SmartCL.Components]
    ,SetAuto:function(Self, NewValue) {
       if (NewValue != Self.FAuto) {
          Self.FAuto = NewValue;
@@ -11720,12 +11684,12 @@ var TW3ControlBackgroundSize = {
       $.FMode = 3;
    }
    /// function TW3ControlBackgroundSize.AcceptOwner(const CandidateObject: TObject) : Boolean
-   ///  [line: 6193, column: 35, file: SmartCL.Components]
+   ///  [line: 6175, column: 35, file: SmartCL.Components]
    ,AcceptOwner:function(Self, CandidateObject) {
       return (CandidateObject!==null) && $Is(CandidateObject,TW3ControlBackground);
    }
    /// procedure TW3ControlBackgroundSize.Apply()
-   ///  [line: 6247, column: 36, file: SmartCL.Components]
+   ///  [line: 6229, column: 36, file: SmartCL.Components]
    ,Apply:function(Self) {
       var LHandle;
       LHandle = TW3ControlBackgroundSize.GetOwnerHandle(Self);
@@ -11754,12 +11718,12 @@ var TW3ControlBackgroundSize = {
       }
    }
    /// function TW3ControlBackgroundSize.GetOwner() : TW3ControlBackground
-   ///  [line: 6198, column: 35, file: SmartCL.Components]
+   ///  [line: 6180, column: 35, file: SmartCL.Components]
    ,GetOwner$2:function(Self) {
       return $As(TW3OwnedObject.GetOwner(Self),TW3ControlBackground);
    }
    /// function TW3ControlBackgroundSize.GetOwnerHandle() : TControlHandle
-   ///  [line: 6203, column: 35, file: SmartCL.Components]
+   ///  [line: 6185, column: 35, file: SmartCL.Components]
    ,GetOwnerHandle:function(Self) {
       var Result = undefined;
       var LBack = null,
@@ -11782,7 +11746,7 @@ var TW3ControlBackgroundSize = {
       return Result
    }
    /// procedure TW3ControlBackgroundSize.SetHeight(NewHeight: Integer)
-   ///  [line: 6281, column: 36, file: SmartCL.Components]
+   ///  [line: 6263, column: 36, file: SmartCL.Components]
    ,SetHeight$2:function(Self, NewHeight) {
       if (NewHeight != Self.FHeight$1) {
          switch (Self.FMode) {
@@ -11796,7 +11760,7 @@ var TW3ControlBackgroundSize = {
       }
    }
    /// procedure TW3ControlBackgroundSize.SetMode(const NewMode: TW3ControlBackgroundSizeMode)
-   ///  [line: 6238, column: 36, file: SmartCL.Components]
+   ///  [line: 6220, column: 36, file: SmartCL.Components]
    ,SetMode:function(Self, NewMode) {
       if (NewMode != Self.FMode) {
          Self.FMode = NewMode;
@@ -11804,7 +11768,7 @@ var TW3ControlBackgroundSize = {
       }
    }
    /// procedure TW3ControlBackgroundSize.SetWidth(NewWidth: Integer)
-   ///  [line: 6269, column: 36, file: SmartCL.Components]
+   ///  [line: 6251, column: 36, file: SmartCL.Components]
    ,SetWidth$2:function(Self, NewWidth) {
       if (NewWidth != Self.FWidth$1) {
          switch (Self.FMode) {
@@ -11821,7 +11785,6 @@ var TW3ControlBackgroundSize = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3ControlBackgroundSize.$Intf={
    IW3OwnedObjectAccess:[TW3ControlBackgroundSize.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -11835,25 +11798,25 @@ var TW3ControlBackground = {
       $.FSize$2 = null;
    }
    /// function TW3ControlBackground.AcceptOwner(const CandidateObject: TObject) : Boolean
-   ///  [line: 2230, column: 31, file: SmartCL.Components]
+   ///  [line: 2229, column: 31, file: SmartCL.Components]
    ,AcceptOwner:function(Self, CandidateObject) {
       return CandidateObject !== null && $Is(CandidateObject,TW3MovableControl);
    }
    /// constructor TW3ControlBackground.Create(const AOwner: TObject)
-   ///  [line: 2140, column: 34, file: SmartCL.Components]
+   ///  [line: 2139, column: 34, file: SmartCL.Components]
    ,Create$11:function(Self, AOwner) {
       TW3OwnedObject.Create$11(Self,AOwner);
       Self.FSize$2 = TW3OwnedObject.Create$11$($New(TW3ControlBackgroundSize),Self);
       return Self
    }
    /// destructor TW3ControlBackground.Destroy()
-   ///  [line: 2146, column: 33, file: SmartCL.Components]
+   ///  [line: 2145, column: 33, file: SmartCL.Components]
    ,Destroy:function(Self) {
       TObject.Free(Self.FSize$2);
       TObject.Destroy(Self);
    }
    /// procedure TW3ControlBackground.FromColor(const aValue: TColor)
-   ///  [line: 2247, column: 32, file: SmartCL.Components]
+   ///  [line: 2246, column: 32, file: SmartCL.Components]
    ,FromColor:function(Self, aValue) {
       var LHandle;
       LHandle = TW3ControlBackground.GetOwnerHandle$1(Self);
@@ -11864,12 +11827,12 @@ var TW3ControlBackground = {
       }
    }
    /// function TW3ControlBackground.GetOwner() : TW3MovableControl
-   ///  [line: 2219, column: 31, file: SmartCL.Components]
+   ///  [line: 2218, column: 31, file: SmartCL.Components]
    ,GetOwner$3:function(Self) {
       return $As(TW3OwnedObject.GetOwner(Self),TW3MovableControl);
    }
    /// function TW3ControlBackground.GetOwnerHandle() : TControlHandle
-   ///  [line: 2224, column: 31, file: SmartCL.Components]
+   ///  [line: 2223, column: 31, file: SmartCL.Components]
    ,GetOwnerHandle$1:function(Self) {
       var Result = undefined;
       if (TW3ControlBackground.GetOwner$3(Self)) {
@@ -11881,7 +11844,6 @@ var TW3ControlBackground = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3ControlBackground.$Intf={
    IW3OwnedObjectAccess:[TW3ControlBackground.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -11901,19 +11863,19 @@ var TW3Constraints = {
       $.FMaxHeight = $.FMaxWidth = $.FMinHeight = $.FMinWidth = 0;
    }
    /// function TW3Constraints.AcceptOwner(const CandidateObject: TObject) : Boolean
-   ///  [line: 2064, column: 25, file: SmartCL.Components]
+   ///  [line: 2063, column: 25, file: SmartCL.Components]
    ,AcceptOwner:function(Self, CandidateObject) {
       return (CandidateObject!==null) && $Is(CandidateObject,TW3TagObj);
    }
    /// constructor TW3Constraints.Create(const AOwner: TW3MovableControl)
-   ///  [line: 2005, column: 28, file: SmartCL.Components]
+   ///  [line: 2004, column: 28, file: SmartCL.Components]
    ,Create$125:function(Self, AOwner) {
       TW3OwnedObject.Create$11(Self,AOwner);
       Self.FHandle$10 = AOwner.FHandle$4;
       return Self
    }
    /// function TW3Constraints.GetMaxHeight() : Integer
-   ///  [line: 2093, column: 26, file: SmartCL.Components]
+   ///  [line: 2092, column: 26, file: SmartCL.Components]
    ,GetMaxHeight:function(Self) {
       var Result = 0;
       if (Self.FEnabled) {
@@ -11924,7 +11886,7 @@ var TW3Constraints = {
       return Result
    }
    /// function TW3Constraints.GetMaxWidth() : Integer
-   ///  [line: 2077, column: 26, file: SmartCL.Components]
+   ///  [line: 2076, column: 26, file: SmartCL.Components]
    ,GetMaxWidth:function(Self) {
       var Result = 0;
       if (Self.FEnabled) {
@@ -11935,7 +11897,7 @@ var TW3Constraints = {
       return Result
    }
    /// function TW3Constraints.GetMinHeight() : Integer
-   ///  [line: 2085, column: 25, file: SmartCL.Components]
+   ///  [line: 2084, column: 25, file: SmartCL.Components]
    ,GetMinHeight:function(Self) {
       var Result = 0;
       if (Self.FEnabled) {
@@ -11946,7 +11908,7 @@ var TW3Constraints = {
       return Result
    }
    /// function TW3Constraints.GetMinWidth() : Integer
-   ///  [line: 2069, column: 25, file: SmartCL.Components]
+   ///  [line: 2068, column: 25, file: SmartCL.Components]
    ,GetMinWidth:function(Self) {
       var Result = 0;
       if (Self.FEnabled) {
@@ -11957,7 +11919,7 @@ var TW3Constraints = {
       return Result
    }
    /// procedure TW3Constraints.Reset()
-   ///  [line: 2011, column: 26, file: SmartCL.Components]
+   ///  [line: 2010, column: 26, file: SmartCL.Components]
    ,Reset$6:function(Self) {
       if (Self.FHandle$10) {
          Self.FHandle$10.style["min-width"] = "initial";
@@ -11967,7 +11929,7 @@ var TW3Constraints = {
       }
    }
    /// procedure TW3Constraints.SetEnabled(const NewValue: Boolean)
-   ///  [line: 2023, column: 26, file: SmartCL.Components]
+   ///  [line: 2022, column: 26, file: SmartCL.Components]
    ,SetEnabled$2:function(Self, NewValue) {
       var temp$1 = 0;
       if (NewValue != Self.FEnabled) {
@@ -12006,7 +11968,7 @@ var TW3Constraints = {
       }
    }
    /// procedure TW3Constraints.SetMaxHeight(const NewMaxHeight: Integer)
-   ///  [line: 2109, column: 26, file: SmartCL.Components]
+   ///  [line: 2108, column: 26, file: SmartCL.Components]
    ,SetMaxHeight:function(Self, NewMaxHeight) {
       if (Self.FEnabled) {
          Self.FHandle$10.style["max-height"] = TInteger.ToPxStr(NewMaxHeight);
@@ -12015,7 +11977,7 @@ var TW3Constraints = {
       }
    }
    /// procedure TW3Constraints.SetMaxWidth(const NewMaxWidth: Integer)
-   ///  [line: 2125, column: 26, file: SmartCL.Components]
+   ///  [line: 2124, column: 26, file: SmartCL.Components]
    ,SetMaxWidth:function(Self, NewMaxWidth) {
       if (Self.FEnabled) {
          Self.FHandle$10.style["max-width"] = TInteger.ToPxStr(NewMaxWidth);
@@ -12024,7 +11986,7 @@ var TW3Constraints = {
       }
    }
    /// procedure TW3Constraints.SetMinHeight(aValue: Integer)
-   ///  [line: 2101, column: 26, file: SmartCL.Components]
+   ///  [line: 2100, column: 26, file: SmartCL.Components]
    ,SetMinHeight:function(Self, aValue) {
       if (Self.FEnabled) {
          Self.FHandle$10.style["min-height"] = TInteger.ToPxStr(aValue);
@@ -12033,7 +11995,7 @@ var TW3Constraints = {
       }
    }
    /// procedure TW3Constraints.SetMinWidth(aValue: Integer)
-   ///  [line: 2117, column: 26, file: SmartCL.Components]
+   ///  [line: 2116, column: 26, file: SmartCL.Components]
    ,SetMinWidth:function(Self, aValue) {
       if (Self.FEnabled) {
          Self.FHandle$10.style["min-width"] = TInteger.ToPxStr(aValue);
@@ -12045,7 +12007,6 @@ var TW3Constraints = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3Constraints.$Intf={
    IW3OwnedObjectAccess:[TW3Constraints.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -12075,7 +12036,7 @@ var TShiftState = {
       $.FMouseButtons = 0;
    }
    /// function TShiftState.CheckShiftStateEnum(value: TShiftStateEnum) : Boolean
-   ///  [line: 1951, column: 22, file: SmartCL.Components]
+   ///  [line: 1950, column: 22, file: SmartCL.Components]
    ,CheckShiftStateEnum:function(Self, value$16) {
       var Result = false;
       if (Self.FEvent$1 === null) {
@@ -12108,7 +12069,7 @@ var TShiftState = {
       return Result
    }
    /// function TShiftState.Current() : TShiftState
-   ///  [line: 1979, column: 28, file: SmartCL.Components]
+   ///  [line: 1978, column: 28, file: SmartCL.Components]
    ,Current:function() {
       var Result = null;
       if (vCurrent === null) {
@@ -12118,13 +12079,13 @@ var TShiftState = {
       return Result
    }
    /// procedure TShiftState.SetKeyStateEvent(evt: JKeyStateEvent)
-   ///  [line: 1967, column: 23, file: SmartCL.Components]
+   ///  [line: 1966, column: 23, file: SmartCL.Components]
    ,SetKeyStateEvent:function(Self, evt) {
       Self.FEvent$1 = evt;
       Self.FMouseEvent = null;
    }
    /// procedure TShiftState.SetMouseEvent(evt: JMouseEvent)
-   ///  [line: 1973, column: 23, file: SmartCL.Components]
+   ///  [line: 1972, column: 23, file: SmartCL.Components]
    ,SetMouseEvent:function(Self, evt) {
       Self.FEvent$1 = evt;
       Self.FMouseEvent = evt;
@@ -12148,7 +12109,6 @@ var TCustomAppContainer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject:TW3TagContainer.FinalizeObject
    ,InitializeObject:TW3CustomComponent.InitializeObject
    ,AfterUpdate:TW3TagObj.AfterUpdate
@@ -12177,17 +12137,17 @@ var TDocumentBody = {
       TCustomAppContainer.$Init($);
    }
    /// function TDocumentBody.makeElementTagId() : String
-   ///  [line: 3414, column: 24, file: SmartCL.Components]
+   ///  [line: 3413, column: 24, file: SmartCL.Components]
    ,MakeElementTagId:function(Self) {
       return "";
    }
    /// function TDocumentBody.makeElementTagObj() : THandle
-   ///  [line: 3431, column: 24, file: SmartCL.Components]
+   ///  [line: 3430, column: 24, file: SmartCL.Components]
    ,MakeElementTagObj:function(Self) {
       return document.body;
    }
    /// procedure TDocumentBody.StyleTagObject()
-   ///  [line: 3409, column: 25, file: SmartCL.Components]
+   ///  [line: 3408, column: 25, file: SmartCL.Components]
    ,StyleTagObject:function(Self) {
       /* null */
    }
@@ -12195,7 +12155,6 @@ var TDocumentBody = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject:TW3TagContainer.FinalizeObject
    ,InitializeObject:TW3CustomComponent.InitializeObject
    ,AfterUpdate:TW3TagObj.AfterUpdate
@@ -13489,7 +13448,6 @@ var TW3Borders = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3Borders.$Intf={
    IW3OwnedObjectAccess:[TW3Borders.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -13526,7 +13484,6 @@ var TW3BorderRadius = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11$:function($){return $.ClassType.Create$11.apply($.ClassType, arguments)}
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3BorderRadius.$Intf={
    IW3OwnedObjectAccess:[TW3BorderRadius.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -13553,7 +13510,6 @@ var TW3BorderEdgeRadius = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    // IGNORED: TW3BorderEdgeRadius.GetLeft
    // IGNORED: TW3BorderEdgeRadius.GetRight
    // IGNORED: TW3BorderEdgeRadius.SetLeft
@@ -13578,7 +13534,6 @@ var TW3BorderEdgeTopRadius = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    // IGNORED: TW3BorderEdgeTopRadius.GetLeft
    // IGNORED: TW3BorderEdgeTopRadius.GetRight
    // IGNORED: TW3BorderEdgeTopRadius.SetLeft
@@ -13606,7 +13561,6 @@ var TW3BorderEdgeBottomRadius = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    // IGNORED: TW3BorderEdgeBottomRadius.GetLeft
    // IGNORED: TW3BorderEdgeBottomRadius.GetRight
    // IGNORED: TW3BorderEdgeBottomRadius.SetLeft
@@ -14641,7 +14595,6 @@ var TW3FlexControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -14758,7 +14711,6 @@ var TW3DialogControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -14818,7 +14770,6 @@ var TW3DialogSeparator = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -14960,7 +14911,6 @@ var TW3DialogManager = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
 };
 TW3DialogManager.$Intf={
    IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
@@ -15052,7 +15002,6 @@ var TW3HeaderControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15111,7 +15060,6 @@ var TW3DialogHeader = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3HeaderControl.FinalizeObject
    ,InitializeObject:TW3HeaderControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15292,7 +15240,6 @@ var TW3GlyphContainer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15345,7 +15292,6 @@ var TW3DialogGlyph = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3GlyphContainer.FinalizeObject
    ,InitializeObject:TW3GlyphContainer.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15445,7 +15391,6 @@ var TW3DialogCommonButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15580,7 +15525,6 @@ var TW3FlexContainer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15804,7 +15748,6 @@ var TW3DialogButtonPanel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -15908,7 +15851,6 @@ var TW3DialogButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3DialogCommonButton.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -16074,7 +16016,6 @@ var TW3Dialog = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -16292,7 +16233,6 @@ var TW3SystemEventHandler = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3OwnedObject.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,DoAttach$:function($){return $.ClassType.DoAttach($)}
    ,DoDetach$:function($){return $.ClassType.DoDetach($)}
    // IGNORED: TW3SystemEventHandler.DoHandleEvent
@@ -16678,7 +16618,6 @@ var TW3Image = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -17349,14 +17288,14 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
+   IBinaryDataImport:[TBinaryData.FromBase64]
    ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
-   ,IBinaryDataImport:[TBinaryData.FromBase64]
-   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
+   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
+   ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
 /// EBinaryData = class (EW3Exception)
 ///  [line: 125, column: 3, file: System.Memory.Buffer]
@@ -17689,7 +17628,6 @@ var TW3Label = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -17799,7 +17737,6 @@ var TW3ToolbarElement = {
    ,AcceptOwner$:function($){return $.ClassType.AcceptOwner.apply($.ClassType, arguments)}
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -17859,7 +17796,6 @@ var TW3ToolbarSeparator = {
    ,AcceptOwner:TW3ToolbarElement.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3ToolbarElement.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18093,7 +18029,6 @@ var TW3ToolbarButton = {
    ,AcceptOwner:TW3ToolbarElement.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18412,7 +18347,6 @@ var TW3Toolbar = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18500,7 +18434,6 @@ var TW3HeaderTitle = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18591,7 +18524,6 @@ var TW3ToolButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18680,7 +18612,6 @@ var TW3HeaderButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -18837,7 +18768,6 @@ var TW3Button = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19055,7 +18985,6 @@ var TW3CustomForm = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync$:function($){return $.ClassType.InitAsync.apply($.ClassType, arguments)}
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19109,7 +19038,6 @@ var TW3Form = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3CustomForm.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomForm.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19197,7 +19125,6 @@ var TFormThrottle = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3CustomForm.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19564,7 +19491,6 @@ var TW3CustomPanel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19624,7 +19550,6 @@ var TW3Panel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -19677,7 +19602,6 @@ var TW3PaintBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3GraphicControl.FinalizeObject
    ,InitializeObject:TW3GraphicControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -20120,7 +20044,6 @@ var TW3ListBoxLabel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -20226,7 +20149,7 @@ var TW3CustomScrollControl = {
       $.FScrollBars = 0;
    }
    /// function TW3CustomScrollControl.AdjustClientRect(const Rect: TRect) : TRect
-   ///  [line: 1002, column: 33, file: SmartCL.Scroll]
+   ///  [line: 994, column: 33, file: SmartCL.Scroll]
    ,AdjustClientRect:function(Self, Rect$1) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       Result.Top$3 = Rect$1.Top$3;
@@ -20244,7 +20167,7 @@ var TW3CustomScrollControl = {
       return Result
    }
    /// procedure TW3CustomScrollControl.FinalizeObject()
-   ///  [line: 966, column: 34, file: SmartCL.Scroll]
+   ///  [line: 958, column: 34, file: SmartCL.Scroll]
    ,FinalizeObject:function(Self) {
       if (Self.FHorizScrollBar !== null) {
          TObject.Free(Self.FHorizScrollBar);
@@ -20261,55 +20184,50 @@ var TW3CustomScrollControl = {
       TW3CustomControl.FinalizeObject(Self);
    }
    /// function TW3CustomScrollControl.GetBarSize() : Integer
-   ///  [line: 987, column: 34, file: SmartCL.Scroll]
+   ///  [line: 979, column: 34, file: SmartCL.Scroll]
    ,GetBarSize:function(Self) {
       return Self.FBarSize;
    }
    /// function TW3CustomScrollControl.GetContentHeight() : Integer
-   ///  [line: 1229, column: 33, file: SmartCL.Scroll]
+   ///  [line: 1221, column: 33, file: SmartCL.Scroll]
    ,GetContentHeight:function(Self) {
       return 0;
    }
    /// function TW3CustomScrollControl.GetContentWidth() : Integer
-   ///  [line: 1224, column: 33, file: SmartCL.Scroll]
+   ///  [line: 1216, column: 33, file: SmartCL.Scroll]
    ,GetContentWidth:function(Self) {
       return 0;
    }
    /// function TW3CustomScrollControl.GetHorizontalScrollPosition() : Integer
-   ///  [line: 1234, column: 33, file: SmartCL.Scroll]
+   ///  [line: 1226, column: 33, file: SmartCL.Scroll]
    ,GetHorizontalScrollPosition:function(Self) {
       return 0;
    }
    /// function TW3CustomScrollControl.GetScrollContainerClass() : TW3ScrollContainerClass
-   ///  [line: 982, column: 33, file: SmartCL.Scroll]
+   ///  [line: 974, column: 33, file: SmartCL.Scroll]
    ,GetScrollContainerClass:function(Self) {
       return TW3ScrollContainer;
    }
    /// function TW3CustomScrollControl.GetVerticalScrollPosition() : Integer
-   ///  [line: 1239, column: 33, file: SmartCL.Scroll]
+   ///  [line: 1231, column: 33, file: SmartCL.Scroll]
    ,GetVerticalScrollPosition:function(Self) {
       return 0;
    }
    /// procedure TW3CustomScrollControl.HandleScrollBar(Sender: TObject)
-   ///  [line: 1128, column: 34, file: SmartCL.Scroll]
+   ///  [line: 1120, column: 34, file: SmartCL.Scroll]
    ,HandleScrollBar:function(Self, Sender) {
       /* null */
    }
    /// procedure TW3CustomScrollControl.InitializeObject()
-   ///  [line: 957, column: 34, file: SmartCL.Scroll]
+   ///  [line: 949, column: 34, file: SmartCL.Scroll]
    ,InitializeObject:function(Self) {
       TW3CustomControl.InitializeObject(Self);
       Self.FBarSize = 20;
       Self.FScrollBars = 0;
       Self.FContainer = TW3TagContainer.Create$81$($NewDyn(TW3CustomScrollControl.GetScrollContainerClass(Self),""),Self);
    }
-   /// function TW3CustomScrollControl.IsObjectReady() : Boolean
-   ///  [line: 951, column: 33, file: SmartCL.Scroll]
-   ,IsObjectReady:function(Self) {
-      return TW3MovableControl.IsObjectReady(Self) && Self.FContainer !== null && TW3OwnedObject.IsObjectReady$(Self.FContainer);
-   }
    /// procedure TW3CustomScrollControl.Resize()
-   ///  [line: 1016, column: 34, file: SmartCL.Scroll]
+   ///  [line: 1008, column: 34, file: SmartCL.Scroll]
    ,Resize:function(Self) {
       var CRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       TW3MovableControl.Resize(Self);
@@ -20323,7 +20241,7 @@ var TW3CustomScrollControl = {
       }
    }
    /// procedure TW3CustomScrollControl.ResizeScrollBars(const Rect: TRect)
-   ///  [line: 1032, column: 34, file: SmartCL.Scroll]
+   ///  [line: 1024, column: 34, file: SmartCL.Scroll]
    ,ResizeScrollBars:function(Self, Rect$1) {
       if (Self.FVertScrollBar !== null) {
          TW3MovableControl.SetBounds$(Self.FVertScrollBar,Rect$1.Right$1,Rect$1.Top$3,Self.FBarSize,TRect$Height$5(Rect$1));
@@ -20339,7 +20257,7 @@ var TW3CustomScrollControl = {
       }
    }
    /// procedure TW3CustomScrollControl.SetBarSize(const NewSize: Integer)
-   ///  [line: 992, column: 34, file: SmartCL.Scroll]
+   ///  [line: 984, column: 34, file: SmartCL.Scroll]
    ,SetBarSize:function(Self, NewSize) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          Self.FBarSize = NewSize;
@@ -20349,7 +20267,7 @@ var TW3CustomScrollControl = {
       }
    }
    /// procedure TW3CustomScrollControl.SetScrollBars(const Value: TW3ScrollBarType)
-   ///  [line: 1047, column: 34, file: SmartCL.Scroll]
+   ///  [line: 1039, column: 34, file: SmartCL.Scroll]
    ,SetScrollBars:function(Self, Value$3) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (Value$3 != Self.FScrollBars) {
@@ -20405,7 +20323,7 @@ var TW3CustomScrollControl = {
       }
    }
    /// procedure TW3CustomScrollControl.UpdateIndicators(Sender: TObject)
-   ///  [line: 1133, column: 34, file: SmartCL.Scroll]
+   ///  [line: 1125, column: 34, file: SmartCL.Scroll]
    ,UpdateIndicators:function(Self, Sender) {
       var ContainerHeight = 0,
          ContainerWidth = 0,
@@ -20470,7 +20388,6 @@ var TW3CustomScrollControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady$:function($){return $.ClassType.IsObjectReady($)}
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -20512,7 +20429,6 @@ var TW3CustomScrollControl = {
    ,GetVerticalScrollPosition$:function($){return $.ClassType.GetVerticalScrollPosition($)}
    ,HandleScrollBar$:function($){return $.ClassType.HandleScrollBar.apply($.ClassType, arguments)}
    ,ResizeScrollBars$:function($){return $.ClassType.ResizeScrollBars.apply($.ClassType, arguments)}
-   ,SetScrollBars$:function($){return $.ClassType.SetScrollBars.apply($.ClassType, arguments)}
 };
 TW3CustomScrollControl.$Intf={
    IW3ComponentState:[TW3TagObj.AddToComponentState,TW3TagObj.RemoveFromComponentState]
@@ -20520,7 +20436,7 @@ TW3CustomScrollControl.$Intf={
    ,IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
 }
 /// TW3ScrollControl = class (TW3CustomScrollControl)
-///  [line: 271, column: 3, file: SmartCL.Scroll]
+///  [line: 270, column: 3, file: SmartCL.Scroll]
 var TW3ScrollControl = {
    $ClassName:"TW3ScrollControl",$Parent:TW3CustomScrollControl
    ,$Init:function ($) {
@@ -20528,7 +20444,7 @@ var TW3ScrollControl = {
       $.FContent$1 = $.FObserver = $.FScrollController = null;
    }
    /// procedure TW3ScrollControl.FinalizeObject()
-   ///  [line: 1266, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1252, column: 28, file: SmartCL.Scroll]
    ,FinalizeObject:function(Self) {
       TW3ScrollControl.SetAutoUpdate(Self,false);
       TObject.Free(Self.FScrollController);
@@ -20536,37 +20452,37 @@ var TW3ScrollControl = {
       TW3CustomScrollControl.FinalizeObject(Self);
    }
    /// function TW3ScrollControl.GetAutoUpdate() : Boolean
-   ///  [line: 1314, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1300, column: 27, file: SmartCL.Scroll]
    ,GetAutoUpdate:function(Self) {
       return Self.FObserver !== null;
    }
    /// function TW3ScrollControl.GetContentHeight() : Integer
-   ///  [line: 1354, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1340, column: 27, file: SmartCL.Scroll]
    ,GetContentHeight:function(Self) {
       return TW3MovableControl.GetHeight$(Self.FContent$1);
    }
    /// function TW3ScrollControl.GetContentWidth() : Integer
-   ///  [line: 1349, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1335, column: 27, file: SmartCL.Scroll]
    ,GetContentWidth:function(Self) {
       return TW3MovableControl.GetWidth$(Self.FContent$1);
    }
    /// function TW3ScrollControl.GetHorizontalScrollPosition() : Integer
-   ///  [line: 1359, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1345, column: 27, file: SmartCL.Scroll]
    ,GetHorizontalScrollPosition:function(Self) {
       return Math.abs(Self.FScrollController.FContentLeft);
    }
    /// function TW3ScrollControl.GetScrollContentClass() : TW3ScrollContentClass
-   ///  [line: 1274, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1260, column: 27, file: SmartCL.Scroll]
    ,GetScrollContentClass:function(Self) {
       return TW3ScrollContent;
    }
    /// function TW3ScrollControl.GetVerticalScrollPosition() : Integer
-   ///  [line: 1364, column: 27, file: SmartCL.Scroll]
+   ///  [line: 1350, column: 27, file: SmartCL.Scroll]
    ,GetVerticalScrollPosition:function(Self) {
       return Math.abs(Self.FScrollController.FContentTop);
    }
    /// procedure TW3ScrollControl.HandleScrollBar(Sender: TObject)
-   ///  [line: 1279, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1265, column: 28, file: SmartCL.Scroll]
    ,HandleScrollBar:function(Self, Sender) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (Sender === Self.FVertScrollBar) {
@@ -20577,7 +20493,7 @@ var TW3ScrollControl = {
       }
    }
    /// procedure TW3ScrollControl.InitializeObject()
-   ///  [line: 1252, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1238, column: 28, file: SmartCL.Scroll]
    ,InitializeObject:function(Self) {
       TW3CustomScrollControl.InitializeObject(Self);
       Self.FContent$1 = TW3TagContainer.Create$81$($NewDyn(TW3ScrollControl.GetScrollContentClass(Self),""),Self.FContainer);
@@ -20591,13 +20507,8 @@ var TW3ScrollControl = {
       };
       Self.FScrollController.LockMovementDirection = true;
    }
-   /// function TW3ScrollControl.IsObjectReady() : Boolean
-   ///  [line: 1246, column: 27, file: SmartCL.Scroll]
-   ,IsObjectReady:function(Self) {
-      return TW3CustomScrollControl.IsObjectReady(Self) && Self.FContent$1 !== null && TW3OwnedObject.IsObjectReady$(Self.FContent$1);
-   }
    /// procedure TW3ScrollControl.Resize()
-   ///  [line: 1295, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1281, column: 28, file: SmartCL.Scroll]
    ,Resize:function(Self) {
       var CRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       TW3CustomScrollControl.Resize(Self);
@@ -20619,7 +20530,7 @@ var TW3ScrollControl = {
       TW3CustomScrollControl.UpdateIndicators(Self,null);
    }
    /// procedure TW3ScrollControl.SetAutoUpdate(Value: Boolean)
-   ///  [line: 1319, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1305, column: 28, file: SmartCL.Scroll]
    ,SetAutoUpdate:function(Self, Value$3) {
       if (Value$3) {
          if (Self.FObserver !== null) {
@@ -20641,7 +20552,7 @@ var TW3ScrollControl = {
       }
    }
    /// procedure TW3ScrollControl.UpdateContent()
-   ///  [line: 1339, column: 28, file: SmartCL.Scroll]
+   ///  [line: 1325, column: 28, file: SmartCL.Scroll]
    ,UpdateContent:function(Self) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          TW3ScrollContent.UpdateSize(Self.FContent$1);
@@ -20654,7 +20565,6 @@ var TW3ScrollControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady$:function($){return $.ClassType.IsObjectReady($)}
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -20696,7 +20606,6 @@ var TW3ScrollControl = {
    ,GetVerticalScrollPosition$:function($){return $.ClassType.GetVerticalScrollPosition($)}
    ,HandleScrollBar$:function($){return $.ClassType.HandleScrollBar.apply($.ClassType, arguments)}
    ,ResizeScrollBars:TW3CustomScrollControl.ResizeScrollBars
-   ,SetScrollBars:TW3CustomScrollControl.SetScrollBars
 };
 TW3ScrollControl.$Intf={
    IW3ComponentState:[TW3TagObj.AddToComponentState,TW3TagObj.RemoveFromComponentState]
@@ -20911,7 +20820,7 @@ var TW3ListBox = {
       TW3ScrollController.SetDirection$1(Self.FScrollController,0);
       TW3ScrollController.SetUseTransform(Self.FScrollController,true);
       Self.FScrollController.FAllowPullDown = true;
-      TW3CustomScrollControl.SetScrollBars$(Self,1);
+      TW3CustomScrollControl.SetScrollBars(Self,1);
       TW3CustomControl._setMouseClick(Self.FContent$1,function (_implicit_Sender) {
          TW3ListBox.SetSelectedIndex$3(Self,-1);
       });
@@ -21199,7 +21108,6 @@ var TW3ListBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3ScrollControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate$:function($){return $.ClassType.AfterUpdate($)}
@@ -21241,7 +21149,6 @@ var TW3ListBox = {
    ,GetVerticalScrollPosition:TW3ScrollControl.GetVerticalScrollPosition
    ,HandleScrollBar:TW3ScrollControl.HandleScrollBar
    ,ResizeScrollBars:TW3CustomScrollControl.ResizeScrollBars
-   ,SetScrollBars:TW3CustomScrollControl.SetScrollBars
 };
 TW3ListBox.$Intf={
    IW3ComponentState:[TW3TagObj.AddToComponentState,TW3TagObj.RemoveFromComponentState]
@@ -21268,7 +21175,7 @@ var TW3ScrollController = {
       $.FVelocityY = 0;
    }
    /// procedure TW3ScrollController.Attach()
-   ///  [line: 528, column: 31, file: SmartCL.Scroll]
+   ///  [line: 526, column: 31, file: SmartCL.Scroll]
    ,Attach$1:function(Self) {
       TW3Dispatch.SetTimeOut(TW3Dispatch,function () {
          if (Self.FOnAttached) {
@@ -21277,7 +21184,7 @@ var TW3ScrollController = {
       },100);
    }
    /// procedure TW3ScrollController.AutoScroll()
-   ///  [line: 787, column: 31, file: SmartCL.Scroll]
+   ///  [line: 785, column: 31, file: SmartCL.Scroll]
    ,AutoScroll:function(Self) {
       var t = 0,
          dt = 0,
@@ -21349,7 +21256,7 @@ var TW3ScrollController = {
       }
    }
    /// function TW3ScrollController.CheckTargetX(const x: Integer) : Integer
-   ///  [line: 728, column: 30, file: SmartCL.Scroll]
+   ///  [line: 726, column: 30, file: SmartCL.Scroll]
    ,CheckTargetX:function(Self, x$42) {
       var Result = 0;
       if (x$42 < Self.FMinValueX) {
@@ -21360,7 +21267,7 @@ var TW3ScrollController = {
       return Result
    }
    /// function TW3ScrollController.CheckTargetY(const y: Integer) : Integer
-   ///  [line: 736, column: 30, file: SmartCL.Scroll]
+   ///  [line: 734, column: 30, file: SmartCL.Scroll]
    ,CheckTargetY:function(Self, y$32) {
       var Result = 0;
       if (y$32 < Self.FMinValueY) {
@@ -21371,7 +21278,7 @@ var TW3ScrollController = {
       return Result
    }
    /// constructor TW3ScrollController.Create(const Owner: TW3CustomControl)
-   ///  [line: 509, column: 33, file: SmartCL.Scroll]
+   ///  [line: 507, column: 33, file: SmartCL.Scroll]
    ,Create$175:function(Self, Owner$10) {
       TObject.Create(Self);
       CSSTransform$1 = TW3CustomBrowserAPI.Prefix(BrowserAPI(),"Transform");
@@ -21387,7 +21294,7 @@ var TW3ScrollController = {
       return Self
    }
    /// procedure TW3ScrollController.HandleMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; const MousePos: TPoint; var Handled: Boolean)
-   ///  [line: 606, column: 31, file: SmartCL.Scroll]
+   ///  [line: 604, column: 31, file: SmartCL.Scroll]
    ,HandleMouseWheel:function(Self, Sender, Shift, WheelDelta, MousePos, Handled) {
       var dy$3 = 0;
       if ((1<<Self.FDirection$1&5)!=0) {
@@ -21402,7 +21309,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.HandleMove(Sender: TObject; dx: Integer; dy: Integer)
-   ///  [line: 639, column: 31, file: SmartCL.Scroll]
+   ///  [line: 637, column: 31, file: SmartCL.Scroll]
    ,HandleMove:function(Self, Sender, dx$3, dy$3) {
       var CRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          t = 0,
@@ -21450,7 +21357,7 @@ var TW3ScrollController = {
       TW3ScrollController.MoveContentTo(Self,TW3ScrollController.CheckTargetX(Self,Self.Fx),TW3ScrollController.CheckTargetY(Self,Self.Fy)+Self.FExtraY);
    }
    /// procedure TW3ScrollController.HandleMoveEnd(Sender: TObject)
-   ///  [line: 688, column: 31, file: SmartCL.Scroll]
+   ///  [line: 686, column: 31, file: SmartCL.Scroll]
    ,HandleMoveEnd$1:function(Self, Sender) {
       if (!(Self.Enabled)) {
          return;
@@ -21482,7 +21389,7 @@ var TW3ScrollController = {
       Self.FExtraY = 0;
    }
    /// procedure TW3ScrollController.HandleMoveStart(Sender: TObject)
-   ///  [line: 620, column: 31, file: SmartCL.Scroll]
+   ///  [line: 618, column: 31, file: SmartCL.Scroll]
    ,HandleMoveStart:function(Self, Sender) {
       if (!(Self.Enabled)) {
          return;
@@ -21501,7 +21408,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.MomentumScrollTo(const TargetX: Integer; const TargetY: Integer)
-   ///  [line: 923, column: 31, file: SmartCL.Scroll]
+   ///  [line: 921, column: 31, file: SmartCL.Scroll]
    ,MomentumScrollTo:function(Self, TargetX, TargetY) {
       Self.FTargetX = TW3ScrollController.CheckTargetX(Self,TargetX);
       Self.FTargetY = TW3ScrollController.CheckTargetY(Self,TargetY);
@@ -21521,7 +21428,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.MoveContentTo(const TargetX: Integer; const TargetY: Integer)
-   ///  [line: 867, column: 31, file: SmartCL.Scroll]
+   ///  [line: 865, column: 31, file: SmartCL.Scroll]
    ,MoveContentTo:function(Self, TargetX, TargetY) {
       var Temp$1 = "";
       Self.FContentLeft = TargetX;
@@ -21546,7 +21453,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.Refresh()
-   ///  [line: 744, column: 31, file: SmartCL.Scroll]
+   ///  [line: 742, column: 31, file: SmartCL.Scroll]
    ,Refresh$1:function(Self) {
       var Temp$1 = "";
       if (Self.FScrollControl !== null) {
@@ -21581,7 +21488,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.ScrollTo(const TargetX: Integer; const TargetY: Integer)
-   ///  [line: 894, column: 31, file: SmartCL.Scroll]
+   ///  [line: 892, column: 31, file: SmartCL.Scroll]
    ,ScrollTo$1:function(Self, TargetX, TargetY) {
       var Temp$1 = "";
       Self.FContentLeft = TargetX;
@@ -21606,13 +21513,13 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.SetContent(const Value: TW3ScrollContent)
-   ///  [line: 540, column: 31, file: SmartCL.Scroll]
+   ///  [line: 538, column: 31, file: SmartCL.Scroll]
    ,SetContent:function(Self, Value$3) {
       Self.FContent$2 = Value$3;
       TW3ScrollController.SetUseTransform(Self,Self.FUseTransform);
    }
    /// procedure TW3ScrollController.SetDirection(const Value: TMovementDirection)
-   ///  [line: 546, column: 31, file: SmartCL.Scroll]
+   ///  [line: 544, column: 31, file: SmartCL.Scroll]
    ,SetDirection$1:function(Self, Value$3) {
       Self.FDirection$1 = Value$3;
       if ((1<<Value$3&7)!=0) {
@@ -21640,7 +21547,7 @@ var TW3ScrollController = {
       TW3CustomControl._setMouseWheel(Self.FScrollControl,$Event(Self,TW3ScrollController.HandleMouseWheel));
    }
    /// procedure TW3ScrollController.SetMinValueX(const Value: Integer)
-   ///  [line: 578, column: 31, file: SmartCL.Scroll]
+   ///  [line: 576, column: 31, file: SmartCL.Scroll]
    ,SetMinValueX:function(Self, Value$3) {
       if (Value$3 < 0) {
          Self.FMinValueX = Value$3;
@@ -21649,7 +21556,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.SetScrollSpeed(const Value: TW3ScrollSpeed)
-   ///  [line: 588, column: 31, file: SmartCL.Scroll]
+   ///  [line: 586, column: 31, file: SmartCL.Scroll]
    ,SetScrollSpeed:function(Self, Value$3) {
       if (Value$3 != Self.FScrollSpeed) {
          Self.FScrollSpeed = Value$3;
@@ -21657,7 +21564,7 @@ var TW3ScrollController = {
       }
    }
    /// procedure TW3ScrollController.SetUseTransform(const Value: Boolean)
-   ///  [line: 597, column: 31, file: SmartCL.Scroll]
+   ///  [line: 595, column: 31, file: SmartCL.Scroll]
    ,SetUseTransform:function(Self, Value$3) {
       Self.FUseTransform = Value$3;
       if (Self.FContent$2 !== null) {
@@ -21678,23 +21585,23 @@ var TW3CustomScrollContentIndicator = {
       TW3CustomControl.$Init($);
    }
    /// procedure TW3CustomScrollContentIndicator.StyleTagObject()
-   ///  [line: 371, column: 43, file: SmartCL.Scroll]
+   ///  [line: 369, column: 43, file: SmartCL.Scroll]
    ,StyleTagObject:function(Self) {
       TW3MovableControl.StyleTagObject(Self);
       TW3CustomControl.SetBackgroundType(Self,11);
    }
    /// procedure TW3CustomScrollContentIndicator.UpdateIndicator(const ContentSize: Integer; const VisibleSize: Integer; const ContentPos: Integer)
-   ///  [line: 399, column: 43, file: SmartCL.Scroll]
+   ///  [line: 397, column: 43, file: SmartCL.Scroll]
    ,UpdateIndicator:function(Self, ContentSize, VisibleSize, ContentPos) {
       TW3CustomScrollContentIndicator.Show$(Self);
    }
    /// procedure TW3CustomScrollContentIndicator.Show()
-   ///  [line: 394, column: 43, file: SmartCL.Scroll]
+   ///  [line: 392, column: 43, file: SmartCL.Scroll]
    ,Show:function(Self) {
       TW3MovableControl.SetAlpha(Self,100);
    }
    /// procedure TW3CustomScrollContentIndicator.Hide()
-   ///  [line: 389, column: 43, file: SmartCL.Scroll]
+   ///  [line: 387, column: 43, file: SmartCL.Scroll]
    ,Hide:function(Self) {
       TW3MovableControl.SetAlpha(Self,0);
    }
@@ -21702,7 +21609,6 @@ var TW3CustomScrollContentIndicator = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -21758,7 +21664,7 @@ var TW3ScrollContentIndicator = {
       $.FHideFrom = 0;
    }
    /// function TW3ScrollContentIndicator.FadeHandler(Sender: TW3CustomRepeater) : TW3RepeatResult
-   ///  [line: 442, column: 36, file: SmartCL.Scroll]
+   ///  [line: 440, column: 36, file: SmartCL.Scroll]
    ,FadeHandler:function(Self, Sender) {
       var Result = 241;
       var ms = 0,
@@ -21777,21 +21683,21 @@ var TW3ScrollContentIndicator = {
       return Result
    }
    /// procedure TW3ScrollContentIndicator.FinalizeObject()
-   ///  [line: 424, column: 37, file: SmartCL.Scroll]
+   ///  [line: 422, column: 37, file: SmartCL.Scroll]
    ,FinalizeObject:function(Self) {
       TObject.Free(Self.FFader);
       Self.FFader = null;
       TW3CustomControl.FinalizeObject(Self);
    }
    /// procedure TW3ScrollContentIndicator.Hide()
-   ///  [line: 436, column: 37, file: SmartCL.Scroll]
+   ///  [line: 434, column: 37, file: SmartCL.Scroll]
    ,Hide:function(Self) {
       if (!(Self.FFader.FActive)) {
          TW3CustomRepeater.SetActive(Self.FFader,true);
       }
    }
    /// procedure TW3ScrollContentIndicator.InitializeObject()
-   ///  [line: 409, column: 37, file: SmartCL.Scroll]
+   ///  [line: 407, column: 37, file: SmartCL.Scroll]
    ,InitializeObject:function(Self) {
       TW3CustomControl.InitializeObject(Self);
       Self.FDirection$2 = 0;
@@ -21804,12 +21710,12 @@ var TW3ScrollContentIndicator = {
       TW3TagObj.WillChange(Self,"left, top");
    }
    /// procedure TW3ScrollContentIndicator.Show()
-   ///  [line: 431, column: 37, file: SmartCL.Scroll]
+   ///  [line: 429, column: 37, file: SmartCL.Scroll]
    ,Show:function(Self) {
       TW3MovableControl.SetAlpha(Self,100);
    }
    /// procedure TW3ScrollContentIndicator.UpdateIndicator(const ContentSize: Integer; const VisibleSize: Integer; const ContentPos: Integer)
-   ///  [line: 461, column: 37, file: SmartCL.Scroll]
+   ///  [line: 459, column: 37, file: SmartCL.Scroll]
    ,UpdateIndicator:function(Self, ContentSize, VisibleSize, ContentPos) {
       var LPos = 0,
          dy$3 = 0,
@@ -21851,7 +21757,6 @@ var TW3ScrollContentIndicator = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -21904,7 +21809,7 @@ var TW3ScrollContent = {
       TW3CustomControl.$Init($);
    }
    /// function TW3ScrollContent.GetScrollParent() : TW3CustomControl
-   ///  [line: 307, column: 27, file: SmartCL.Scroll]
+   ///  [line: 305, column: 27, file: SmartCL.Scroll]
    ,GetScrollParent:function(Self) {
       var Result = null;
       if ($SetIn(Self.FComponentState,10,0,11)) {
@@ -21915,7 +21820,7 @@ var TW3ScrollContent = {
       return Result
    }
    /// procedure TW3ScrollContent.UpdateSize()
-   ///  [line: 317, column: 28, file: SmartCL.Scroll]
+   ///  [line: 315, column: 28, file: SmartCL.Scroll]
    ,UpdateSize:function(Self) {
       var wd = 0,
          hd = 0,
@@ -21962,7 +21867,6 @@ var TW3ScrollContent = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22015,7 +21919,6 @@ var TW3ScrollContainer = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22402,7 +22305,6 @@ var TW3CustomScrollBar = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22564,7 +22466,6 @@ var TW3VerticalScrollbar = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomScrollBar.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22633,7 +22534,6 @@ var TW3ScrollbarLowerButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22691,7 +22591,6 @@ var TW3ScrollbarTopButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22757,7 +22656,6 @@ var TW3ScrollbarHigherButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22810,7 +22708,6 @@ var TW3ScrollbarRightButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22863,7 +22760,6 @@ var TW3ScrollbarLeftButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22934,7 +22830,6 @@ var TW3ScrollbarHandle = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -22987,7 +22882,6 @@ var TW3ScrollbarBottomButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -23146,7 +23040,6 @@ var TW3HorizontalScrollbar = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomScrollBar.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -23350,7 +23243,6 @@ var TW3CheckBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -23735,7 +23627,6 @@ var TW3EditBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -23850,7 +23741,6 @@ var TW3ListMenuItem = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -23926,7 +23816,6 @@ var TW3ListMenuItemText = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject:TW3ListMenuItem.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24011,7 +23900,6 @@ var TW3ListMenuItemGlyph = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24191,7 +24079,6 @@ var TW3ListMenu = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24392,7 +24279,6 @@ var TW3ToggleSwitch = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24464,7 +24350,6 @@ var TW3ToggleLabel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24521,7 +24406,6 @@ var TW3ToggleOnLabel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24585,7 +24469,6 @@ var TW3ToggleOffLabel = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24675,7 +24558,6 @@ var TW3ToggleKnob = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24869,7 +24751,6 @@ var TW3TabHeaders = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3ScrollControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -24911,7 +24792,6 @@ var TW3TabHeaders = {
    ,GetVerticalScrollPosition:TW3ScrollControl.GetVerticalScrollPosition
    ,HandleScrollBar:TW3ScrollControl.HandleScrollBar
    ,ResizeScrollBars:TW3CustomScrollControl.ResizeScrollBars
-   ,SetScrollBars:TW3CustomScrollControl.SetScrollBars
 };
 TW3TabHeaders.$Intf={
    IW3ComponentState:[TW3TagObj.AddToComponentState,TW3TagObj.RemoveFromComponentState]
@@ -24964,7 +24844,6 @@ var TW3TabHeader = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25021,7 +24900,6 @@ var TW3TabControlBottom = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25537,7 +25415,6 @@ var TW3TabControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25648,7 +25525,6 @@ var TW3Tab = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25732,7 +25608,6 @@ var TW3CustomArrowButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject:TW3Button.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25786,7 +25661,6 @@ var TW3ArrowUpImage = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25845,7 +25719,6 @@ var TW3ArrowUpButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomArrowButton.FinalizeObject
    ,InitializeObject:TW3Button.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25905,7 +25778,6 @@ var TW3ArrowDownButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomArrowButton.FinalizeObject
    ,InitializeObject:TW3Button.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -25965,7 +25837,7 @@ var TW3StringGridColumn = {
    }
    // IGNORED: TW3StringGridColumn.CheckValue
    /// function TW3StringGridColumn.CompareSortData(Item1: Integer; Item2: Integer) : Integer
-   ///  [line: 943, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 935, column: 30, file: SmartCL.Controls.StringGrid]
    ,CompareSortData:function(Self, Item1, Item2) {
       var Result = 0;
       var Data1,
@@ -25980,7 +25852,7 @@ var TW3StringGridColumn = {
       return Result
    }
    /// constructor TW3StringGridColumn.Create()
-   ///  [line: 928, column: 33, file: SmartCL.Controls.StringGrid]
+   ///  [line: 920, column: 33, file: SmartCL.Controls.StringGrid]
    ,Create$178:function(Self) {
       Self.FBaseClass = "TW3Label";
       Self.AlignText = 0;
@@ -25991,17 +25863,17 @@ var TW3StringGridColumn = {
       return Self
    }
    /// function TW3StringGridColumn.GenerateHtml(GridLine: TW3RenderedGridLine; ColumnIndex: Integer; CurrentLeft: Integer) : String
-   ///  [line: 952, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 944, column: 30, file: SmartCL.Controls.StringGrid]
    ,GenerateHtml:function(Self, GridLine, ColumnIndex$1, CurrentLeft) {
       return "<div><\/div>";
    }
    /// function TW3StringGridColumn.GetClasses() : String
-   ///  [line: 957, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 949, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetClasses:function(Self) {
       return Self.FBaseClass + " " + TW3Theme.GetClassNameForBorderType(Self.BorderType) + " " + TW3Theme.GetClassNameForBackgroundType(Self.BackgroundType);
    }
    /// function TW3StringGridColumn.GetInnerClasses() : String
-   ///  [line: 963, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 955, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetInnerClasses:function(Self) {
       var Result = "";
       Result = "lbxcontent lbxdisableBreak";
@@ -26030,7 +25902,7 @@ var TW3StringGridColumn = {
       return Result
    }
    /// procedure TW3StringGridColumn.SetCaption(const Value: String)
-   ///  [line: 983, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 975, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetCaption$8:function(Self, Value$3) {
       if (Self.FCaption$5 != Value$3) {
          Self.FCaption$5 = Value$3;
@@ -26038,12 +25910,12 @@ var TW3StringGridColumn = {
       }
    }
    /// procedure TW3StringGridColumn.SetColumnEvents(Sender: TW3CustomStringGrid; GridLine: TW3RenderedGridLine; ColumnIndex: Integer)
-   ///  [line: 978, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 970, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetColumnEvents:function(Self, Sender, GridLine, ColumnIndex$1) {
       /* null */
    }
    /// procedure TW3StringGridColumn.SetWidth(const Value: Integer)
-   ///  [line: 991, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 983, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetWidth$7:function(Self, Value$3) {
       if (Self.FWidth$2 != Value$3) {
          Self.FWidth$2 = Value$3;
@@ -26067,7 +25939,7 @@ var TW3StringGridTextColumn = {
       TW3StringGridColumn.$Init($);
    }
    /// function TW3StringGridTextColumn.GenerateHtml(GridLine: TW3RenderedGridLine; ColumnIndex: Integer; CurrentLeft: Integer) : String
-   ///  [line: 1002, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 994, column: 34, file: SmartCL.Controls.StringGrid]
    ,GenerateHtml:function(Self, GridLine, ColumnIndex$1, CurrentLeft) {
       var Result = "";
       var ItemId = "";
@@ -26095,7 +25967,7 @@ var TW3StringGridSortOptions = {
       $.SortedGridLines = [];
    }
    /// function TW3StringGridSortOptions.CompareSortData(Item1: Integer; Item2: Integer) : Integer
-   ///  [line: 1209, column: 35, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1201, column: 35, file: SmartCL.Controls.StringGrid]
    ,CompareSortData$1:function(Self, Item1, Item2) {
       var Result = 0;
       var c$1 = 0;
@@ -26113,21 +25985,21 @@ var TW3StringGridSortOptions = {
       return Result
    }
    /// constructor TW3StringGridSortOptions.Create(Owner: TW3CustomStringGrid)
-   ///  [line: 1175, column: 38, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1167, column: 38, file: SmartCL.Controls.StringGrid]
    ,Create$179:function(Self, Owner$10) {
       TObject.Create(Self);
       Self.Grid$1 = Owner$10;
       return Self
    }
    /// procedure TW3StringGridSortOptions.SetSortColumn(Col: TW3StringGridColumn; SortOrder: TW3SortOrder = 0)
-   ///  [line: 1202, column: 36, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1194, column: 36, file: SmartCL.Controls.StringGrid]
    ,SetSortColumn$1:function(Self, Col, SortOrder$1) {
       Self.FSortColumns.length=0;
       Self.FSortColumns.push(Col);
       Col.SortOrder = SortOrder$1;
    }
    /// procedure TW3StringGridSortOptions.Sort()
-   ///  [line: 1219, column: 36, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1211, column: 36, file: SmartCL.Controls.StringGrid]
    ,Sort$5:function(Self) {
       var CFunc = null,
          i$7 = 0,
@@ -26146,7 +26018,7 @@ var TW3StringGridSortOptions = {
       ;
    }
    /// procedure TW3StringGridSortOptions.ToggleSortColumn(Index: Integer)
-   ///  [line: 1230, column: 36, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1222, column: 36, file: SmartCL.Controls.StringGrid]
    ,ToggleSortColumn:function(Self, Index$6) {
       var Col = null;
       Col = TW3CustomStringGrid.GetColumn(Self.Grid$1,Index$6);
@@ -26170,14 +26042,14 @@ var TW3StringGridLineControl = {
       TW3CustomControl.$Init($);
    }
    /// procedure TW3StringGridLineControl.InitializeObject()
-   ///  [line: 912, column: 36, file: SmartCL.Controls.StringGrid]
+   ///  [line: 904, column: 36, file: SmartCL.Controls.StringGrid]
    ,InitializeObject:function(Self) {
       TW3CustomControl.InitializeObject(Self);
       TW3TagObj.WillChange(Self,"top");
       Self.TouchPreventDefault = false;
    }
    /// procedure TW3StringGridLineControl.StyleTagObject()
-   ///  [line: 920, column: 36, file: SmartCL.Controls.StringGrid]
+   ///  [line: 912, column: 36, file: SmartCL.Controls.StringGrid]
    ,StyleTagObject:function(Self) {
       TW3MovableControl.StyleTagObject(Self);
       TW3CustomControl.SetBorderType(Self,15);
@@ -26186,7 +26058,6 @@ var TW3StringGridLineControl = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -26239,7 +26110,7 @@ var TW3StringGridHeaders = {
       $.FHeaders$1 = [];
    }
    /// procedure TW3StringGridHeaders.HandleHeaderClick(Sender: TObject)
-   ///  [line: 1249, column: 32, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1241, column: 32, file: SmartCL.Controls.StringGrid]
    ,HandleHeaderClick:function(Self, Sender) {
       var Col = 0;
       Col = $As(Sender,TW3StringGridColumnHeader).ColumnIndex;
@@ -26249,13 +26120,13 @@ var TW3StringGridHeaders = {
       }
    }
    /// procedure TW3StringGridHeaders.Resize()
-   ///  [line: 1302, column: 32, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1294, column: 32, file: SmartCL.Controls.StringGrid]
    ,Resize:function(Self) {
       TW3MovableControl.Resize(Self);
       TW3StringGridHeaders.UpdateHeaders$1(Self);
    }
    /// procedure TW3StringGridHeaders.UpdateHeaders()
-   ///  [line: 1258, column: 32, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1250, column: 32, file: SmartCL.Controls.StringGrid]
    ,UpdateHeaders$1:function(Self) {
       var Col = null,
          ColHeader = null,
@@ -26313,7 +26184,6 @@ var TW3StringGridHeaders = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject:TW3CustomControl.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -26363,12 +26233,12 @@ var TW3StringGridEditColumn = {
       TW3StringGridColumn.$Init($);
    }
    /// function TW3StringGridEditColumn.GetClasses() : String
-   ///  [line: 1073, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1065, column: 34, file: SmartCL.Controls.StringGrid]
    ,GetClasses:function(Self) {
       return TW3StringGridColumn.GetClasses(Self) + " TW3TransparentBackground";
    }
    /// constructor TW3StringGridEditColumn.Create()
-   ///  [line: 1057, column: 37, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1049, column: 37, file: SmartCL.Controls.StringGrid]
    ,Create$178:function(Self) {
       Self.FBaseClass = "TW3EditBox";
       Self.AlignText = 0;
@@ -26378,7 +26248,7 @@ var TW3StringGridEditColumn = {
       return Self
    }
    /// function TW3StringGridEditColumn.GenerateHtml(GridLine: TW3RenderedGridLine; ColumnIndex: Integer; CurrentLeft: Integer) : String
-   ///  [line: 1066, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1058, column: 34, file: SmartCL.Controls.StringGrid]
    ,GenerateHtml:function(Self, GridLine, ColumnIndex$1, CurrentLeft) {
       var Result = "";
       var ItemId = "";
@@ -26388,7 +26258,7 @@ var TW3StringGridEditColumn = {
       return Result
    }
    /// procedure TW3StringGridEditColumn.SetColumnEvents(Sender: TW3CustomStringGrid; GridLine: TW3RenderedGridLine; ColumnIndex: Integer)
-   ///  [line: 1078, column: 35, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1070, column: 35, file: SmartCL.Controls.StringGrid]
    ,SetColumnEvents:function(Self, Sender, GridLine, ColumnIndex$1) {
       var cHandle = undefined;
       try {
@@ -26420,7 +26290,7 @@ var TW3StringGridColumnHeader = {
       $.ColumnIndex = 0;
    }
    /// procedure TW3StringGridColumnHeader.StyleTagObject()
-   ///  [line: 1240, column: 37, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1232, column: 37, file: SmartCL.Controls.StringGrid]
    ,StyleTagObject:function(Self) {
       TW3MovableControl.StyleTagObject(Self);
       TW3CustomControl.SetBorderType(Self,3);
@@ -26430,7 +26300,6 @@ var TW3StringGridColumnHeader = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3Label.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -26484,7 +26353,7 @@ var TW3StringGridCheckmarkColumn = {
       TW3StringGridEditColumn.$Init($);
    }
    /// constructor TW3StringGridCheckmarkColumn.Create()
-   ///  [line: 1133, column: 42, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1125, column: 42, file: SmartCL.Controls.StringGrid]
    ,Create$178:function(Self) {
       Self.FBaseClass = "TW3CheckMark";
       Self.AlignText = 1;
@@ -26494,7 +26363,7 @@ var TW3StringGridCheckmarkColumn = {
       return Self
    }
    /// function TW3StringGridCheckmarkColumn.GenerateHtml(GridLine: TW3RenderedGridLine; ColumnIndex: Integer; CurrentLeft: Integer) : String
-   ///  [line: 1142, column: 39, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1134, column: 39, file: SmartCL.Controls.StringGrid]
    ,GenerateHtml:function(Self, GridLine, ColumnIndex$1, CurrentLeft) {
       var Result = "";
       var ItemId = "";
@@ -26513,7 +26382,7 @@ var TW3StringGridCheckmarkColumn = {
       return Result
    }
    /// procedure TW3StringGridCheckmarkColumn.SetColumnEvents(Sender: TW3CustomStringGrid; GridLine: TW3RenderedGridLine; ColumnIndex: Integer)
-   ///  [line: 1156, column: 40, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1148, column: 40, file: SmartCL.Controls.StringGrid]
    ,SetColumnEvents:function(Self, Sender, GridLine, ColumnIndex$1) {
       var cHandle = undefined;
       try {
@@ -26555,7 +26424,7 @@ var TW3CustomStringGrid = {
       $.FVisibleLines = [];
    }
    /// function TW3CustomStringGrid.AdjustClientRect(const Rect: TRect) : TRect
-   ///  [line: 819, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 815, column: 30, file: SmartCL.Controls.StringGrid]
    ,AdjustClientRect:function(Self, Rect$1) {
       var Result = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0};
       Result = TW3CustomScrollControl.AdjustClientRect(Self,Rect$1);
@@ -26563,7 +26432,7 @@ var TW3CustomStringGrid = {
       return Result
    }
    /// procedure TW3CustomStringGrid.DrawGridLine(Sender: TObject; Value: Integer)
-   ///  [line: 709, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 705, column: 31, file: SmartCL.Controls.StringGrid]
    ,DrawGridLine:function(Self, Sender, Value$3) {
       var GridLine = {Index$3:0,DataIndex:0,FixedCols:null,ScrollableCols:null,ItemIds:[],PreventHide:false},
          ht = "",
@@ -26627,7 +26496,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.DrawGridLineTheme(const GridLine: TW3RenderedGridLine)
-   ///  [line: 770, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 766, column: 31, file: SmartCL.Controls.StringGrid]
    ,DrawGridLineTheme:function(Self, GridLine) {
       var BackgroundTheme = { v : 0 },
          BorderTheme = { v : 0 };
@@ -26650,7 +26519,7 @@ var TW3CustomStringGrid = {
       TW3CustomControl.SetBorderType(GridLine.ScrollableCols,BorderTheme.v);
    }
    /// function TW3CustomStringGrid.EventToColumnRow(const eventObj: JEvent; var Index: Integer; var Col: Integer) : Boolean
-   ///  [line: 493, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 489, column: 30, file: SmartCL.Controls.StringGrid]
    ,EventToColumnRow:function(Self, eventObj, Index$6, Col) {
       var Result = false;
       var cHandle = undefined,
@@ -26687,27 +26556,27 @@ var TW3CustomStringGrid = {
       return Self.FColumns[Col];
    }
    /// function TW3CustomStringGrid.GetContentHeight() : Integer
-   ///  [line: 830, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 826, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetContentHeight:function(Self) {
       return TW3MovableControl.GetHeight$(Self.FFixedContent);
    }
    /// function TW3CustomStringGrid.GetContentWidth() : Integer
-   ///  [line: 825, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 821, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetContentWidth:function(Self) {
       return Self.FScrollableWidth+Self.FFixedWidth;
    }
    /// function TW3CustomStringGrid.GetHorizontalScrollPosition() : Integer
-   ///  [line: 835, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 831, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetHorizontalScrollPosition:function(Self) {
       return Math.abs(Self.FScrollableScrollController.FContentLeft);
    }
    /// function TW3CustomStringGrid.GetSelected(const Idx: Integer) : Boolean
-   ///  [line: 858, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 854, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetSelected:function(Self, Idx) {
       return Self.FSelectedRows.indexOf(Idx) >= 0;
    }
    /// function TW3CustomStringGrid.GetSelectedIndex() : Integer
-   ///  [line: 845, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 841, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetSelectedIndex:function(Self) {
       var Result = 0;
       if (Self.FSelectedRows.length > 0) {
@@ -26718,12 +26587,12 @@ var TW3CustomStringGrid = {
       return Result
    }
    /// function TW3CustomStringGrid.GetVerticalScrollPosition() : Integer
-   ///  [line: 840, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 836, column: 30, file: SmartCL.Controls.StringGrid]
    ,GetVerticalScrollPosition:function(Self) {
       return Math.abs(Self.FFixedScrollController.FContentTop);
    }
    /// procedure TW3CustomStringGrid.HandleClick(Sender: TObject)
-   ///  [line: 444, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 440, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleClick:function(Self, Sender) {
       var dHandle = undefined,
          idStr = "",
@@ -26764,7 +26633,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.HandleColBlur(eventObj: JEvent)
-   ///  [line: 523, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 519, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleColBlur:function(Self, eventObj) {
       var i$7 = { v : 0 },
          Col = { v : 0 };
@@ -26773,7 +26642,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.HandleColFocus(eventObj: JEvent)
-   ///  [line: 516, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 512, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleColFocus:function(Self, eventObj) {
       var i$7 = { v : 0 },
          Col = { v : 0 };
@@ -26782,7 +26651,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.HandleDataChanged(eventObj: JInputEvent)
-   ///  [line: 530, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 526, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleDataChanged:function(Self, eventObj) {
       var cHandle = undefined,
          eId = "",
@@ -26821,13 +26690,13 @@ var TW3CustomStringGrid = {
       eventObj.preventDefault();
    }
    /// procedure TW3CustomStringGrid.HandleHorizontalScroll(Sender: TObject)
-   ///  [line: 576, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 572, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleHorizontalScroll:function(Self, Sender) {
       TW3ScrollInfo.ScrollX(TW3CustomControl.GetScrollInfo(Self.FScrollableHeader),-Self.FScrollableScrollController.FContentLeft);
       TW3CustomScrollControl.UpdateIndicators(Self,null);
    }
    /// procedure TW3CustomStringGrid.HandleScrollBar(Sender: TObject)
-   ///  [line: 560, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 556, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleScrollBar:function(Self, Sender) {
       if (!($SetIn(Self.FComponentState,10,0,11))) {
          if (Sender === Self.FVertScrollBar) {
@@ -26838,7 +26707,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.HandleVerticalScroll(Sender: TObject)
-   ///  [line: 611, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 607, column: 31, file: SmartCL.Controls.StringGrid]
    ,HandleVerticalScroll:function(Self, Sender) {
       TW3CustomStringGrid.TriggerRendering(Self);
       if (Self.FScrollableContent !== null) {
@@ -26849,7 +26718,7 @@ var TW3CustomStringGrid = {
       TW3CustomScrollControl.UpdateIndicators(Self,null);
    }
    /// function TW3CustomStringGrid.HideGridLine(Sender: TObject; Value: Integer) : Boolean
-   ///  [line: 792, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 788, column: 30, file: SmartCL.Controls.StringGrid]
    ,HideGridLine:function(Self, Sender, Value$3) {
       var Result = false;
       var i$7 = 0;
@@ -26871,7 +26740,7 @@ var TW3CustomStringGrid = {
       return Result
    }
    /// function TW3CustomStringGrid.IndexToDataIndex(const Value: Integer) : Integer
-   ///  [line: 477, column: 30, file: SmartCL.Controls.StringGrid]
+   ///  [line: 473, column: 30, file: SmartCL.Controls.StringGrid]
    ,IndexToDataIndex:function(Self, Value$3) {
       var Result = 0;
       if (Self.FSortOptions.SortedGridLines.length > Value$3) {
@@ -26882,7 +26751,7 @@ var TW3CustomStringGrid = {
       return Result
    }
    /// procedure TW3CustomStringGrid.InitializeObject()
-   ///  [line: 392, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 388, column: 31, file: SmartCL.Controls.StringGrid]
    ,InitializeObject:function(Self) {
       TW3CustomScrollControl.InitializeObject(Self);
       Self.FHeaderHeight$1 = 30;
@@ -26914,10 +26783,10 @@ var TW3CustomStringGrid = {
       Self.FScrollableHeader = TW3TagContainer.Create$81$($New(TW3StringGridHeaders),Self);
       Self.FScrollableHeader.Scrollable = true;
       Self.FScrollableHeader.Grid = Self;
-      TW3CustomScrollControl.SetScrollBars$(Self,2);
+      TW3CustomScrollControl.SetScrollBars(Self,2);
    }
    /// procedure TW3CustomStringGrid.InvalidateGrid()
-   ///  [line: 584, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 580, column: 31, file: SmartCL.Controls.StringGrid]
    ,InvalidateGrid:function(Self) {
       TW3DynamicListRenderer.InvalidateAll(Self.FListRenderer);
       Self.FCurrentSize.Right$1 = -1;
@@ -26925,7 +26794,7 @@ var TW3CustomStringGrid = {
       TW3CustomStringGrid.TriggerRendering(Self);
    }
    /// procedure TW3CustomStringGrid.PaintGrid()
-   ///  [line: 592, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 588, column: 31, file: SmartCL.Controls.StringGrid]
    ,PaintGrid:function(Self) {
       Self.FTriggered = false;
       TW3DynamicListRenderer.Stop$1(Self.FListRenderer);
@@ -26936,7 +26805,7 @@ var TW3CustomStringGrid = {
       TW3DynamicListRenderer.Run(Self.FListRenderer);
    }
    /// procedure TW3CustomStringGrid.Resize()
-   ///  [line: 619, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 615, column: 31, file: SmartCL.Controls.StringGrid]
    ,Resize:function(Self) {
       var fw = 0,
          sw = 0,
@@ -26986,7 +26855,7 @@ var TW3CustomStringGrid = {
       Copy$TRect(CRect,Self.FCurrentSize);
    }
    /// procedure TW3CustomStringGrid.ResizeScrollBars(const Rect: TRect)
-   ///  [line: 655, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 651, column: 31, file: SmartCL.Controls.StringGrid]
    ,ResizeScrollBars:function(Self, Rect$1) {
       if (Self.FVertScrollBar !== null) {
          TW3MovableControl.SetBounds$(Self.FVertScrollBar,Rect$1.Right$1,0,Self.FBarSize,Rect$1.Bottom$1);
@@ -27014,7 +26883,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.SetFixedColumns(const Value: Integer)
-   ///  [line: 671, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 667, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetFixedColumns:function(Self, Value$3) {
       if (Value$3 != Self.FFixedColumns) {
          Self.FFixedColumns = Value$3;
@@ -27023,7 +26892,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.SetHeaderHeight(const Value: Integer)
-   ///  [line: 680, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 676, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetHeaderHeight$1:function(Self, Value$3) {
       if (Self.FHeaderHeight$1 != Value$3) {
          Self.FHeaderHeight$1 = Value$3;
@@ -27032,7 +26901,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.SetLineHeight(const Value: Integer)
-   ///  [line: 689, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 685, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetLineHeight:function(Self, Value$3) {
       if (Self.FLineHeight != Value$3) {
          Self.FLineHeight = Value$3;
@@ -27051,16 +26920,13 @@ var TW3CustomStringGrid = {
                   ;
                }
             }
-            Self.FRowCount = Value$3;
-            TW3CustomStringGrid.Sort$6(Self);
-         } else {
-            Self.FRowCount = Value$3;
-            TW3CustomStringGrid.InvalidateGrid(Self);
          }
+         Self.FRowCount = Value$3;
+         TW3CustomStringGrid.InvalidateGrid(Self);
       }
    }
    /// procedure TW3CustomStringGrid.SetSelected(const Idx: Integer; const Value: Boolean)
-   ///  [line: 863, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 859, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetSelected$1:function(Self, Idx, Value$3) {
       var i$7 = 0;
       i$7 = Self.FSelectedRows.indexOf(Idx);
@@ -27085,20 +26951,20 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.SetSelectedIndex(const Value: Integer)
-   ///  [line: 851, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 847, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetSelectedIndex$1:function(Self, Value$3) {
       while (Self.FSelectedRows.length > 0) {
          TW3CustomStringGrid.SetSelected$1(Self,Self.FSelectedRows[0],false)      }
       TW3CustomStringGrid.SetSelected$1(Self,Value$3,true);
    }
    /// procedure TW3CustomStringGrid.Sort()
-   ///  [line: 697, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 693, column: 31, file: SmartCL.Controls.StringGrid]
    ,Sort$6:function(Self) {
       TW3StringGridSortOptions.Sort$5(Self.FSortOptions);
       TW3CustomStringGrid.InvalidateGrid(Self);
    }
    /// procedure TW3CustomStringGrid.StopRendering(Sender: TObject)
-   ///  [line: 806, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 802, column: 31, file: SmartCL.Controls.StringGrid]
    ,StopRendering:function(Self, Sender) {
       var i$7 = 0,
          Line = {Index$3:0,DataIndex:0,FixedCols:null,ScrollableCols:null,ItemIds:[],PreventHide:false};
@@ -27117,14 +26983,14 @@ var TW3CustomStringGrid = {
       Self.FStashedLines.length=0;
    }
    /// procedure TW3CustomStringGrid.StyleTagObject()
-   ///  [line: 435, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 431, column: 31, file: SmartCL.Controls.StringGrid]
    ,StyleTagObject:function(Self) {
       TW3MovableControl.StyleTagObject(Self);
       TW3CustomControl.SetBorderType(Self,8);
       TW3CustomControl.SetBackgroundType(Self,4);
    }
    /// procedure TW3CustomStringGrid.TriggerRendering()
-   ///  [line: 603, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 599, column: 31, file: SmartCL.Controls.StringGrid]
    ,TriggerRendering:function(Self) {
       if (!(Self.FTriggered)) {
          Self.FTriggered = true;
@@ -27132,7 +26998,7 @@ var TW3CustomStringGrid = {
       }
    }
    /// procedure TW3CustomStringGrid.UpdateHeaders()
-   ///  [line: 703, column: 31, file: SmartCL.Controls.StringGrid]
+   ///  [line: 699, column: 31, file: SmartCL.Controls.StringGrid]
    ,UpdateHeaders$2:function(Self) {
       TW3MovableControl.Invalidate$(Self.FFixedHeader);
       TW3MovableControl.Invalidate$(Self.FScrollableHeader);
@@ -27141,7 +27007,6 @@ var TW3CustomStringGrid = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3CustomScrollControl.IsObjectReady
    ,FinalizeObject:TW3CustomScrollControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -27183,7 +27048,6 @@ var TW3CustomStringGrid = {
    ,GetVerticalScrollPosition$:function($){return $.ClassType.GetVerticalScrollPosition($)}
    ,HandleScrollBar$:function($){return $.ClassType.HandleScrollBar.apply($.ClassType, arguments)}
    ,ResizeScrollBars$:function($){return $.ClassType.ResizeScrollBars.apply($.ClassType, arguments)}
-   ,SetScrollBars:TW3CustomScrollControl.SetScrollBars
    ,GetCells$:function($){return $.ClassType.GetCells.apply($.ClassType, arguments)}
    ,SetCells$:function($){return $.ClassType.SetCells.apply($.ClassType, arguments)}
    ,SetRowCount$:function($){return $.ClassType.SetRowCount.apply($.ClassType, arguments)}
@@ -27232,13 +27096,13 @@ var TW3DynamicListRenderer = {
       $.FWorkList = [];
    }
    /// destructor TW3DynamicListRenderer.Destroy()
-   ///  [line: 1310, column: 35, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1302, column: 35, file: SmartCL.Controls.StringGrid]
    ,Destroy:function(Self) {
       TW3DynamicListRenderer.Stop$1(Self);
       TObject.Destroy(Self);
    }
    /// procedure TW3DynamicListRenderer.Invalidate(Value: Integer)
-   ///  [line: 1376, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1371, column: 34, file: SmartCL.Controls.StringGrid]
    ,Invalidate$3:function(Self, Value$3) {
       var i$7 = 0;
       i$7 = Self.FVisibleItems.indexOf(Value$3);
@@ -27251,7 +27115,7 @@ var TW3DynamicListRenderer = {
       }
    }
    /// procedure TW3DynamicListRenderer.InvalidateAll()
-   ///  [line: 1385, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1380, column: 34, file: SmartCL.Controls.StringGrid]
    ,InvalidateAll:function(Self) {
       var i$7 = 0;
       if (!Self.FVisibleItems.length) {
@@ -27266,7 +27130,7 @@ var TW3DynamicListRenderer = {
       Self.FVisibleItems.length=0;
    }
    /// procedure TW3DynamicListRenderer.PaintItems()
-   ///  [line: 1347, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1342, column: 34, file: SmartCL.Controls.StringGrid]
    ,PaintItems:function(Self) {
       var PaintStarted = 0,
          Item$3 = 0;
@@ -27297,7 +27161,7 @@ var TW3DynamicListRenderer = {
       }
    }
    /// procedure TW3DynamicListRenderer.Run()
-   ///  [line: 1316, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1308, column: 34, file: SmartCL.Controls.StringGrid]
    ,Run:function(Self) {
       var i$7 = 0,
          j$2 = 0,
@@ -27330,11 +27194,13 @@ var TW3DynamicListRenderer = {
             ;
          }
       }
-      Self.FActive$3 = true;
-      TW3DynamicListRenderer.PaintItems(Self);
+      if (Self.FWorkList.length > 0) {
+         Self.FActive$3 = true;
+         TW3DynamicListRenderer.PaintItems(Self);
+      }
    }
    /// procedure TW3DynamicListRenderer.SetCount(const Value: Integer)
-   ///  [line: 1401, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1396, column: 34, file: SmartCL.Controls.StringGrid]
    ,SetCount:function(Self, Value$3) {
       while (Self.FCount > Value$3) {
          --Self.FCount;
@@ -27343,7 +27209,7 @@ var TW3DynamicListRenderer = {
       Self.FCount = Value$3;
    }
    /// procedure TW3DynamicListRenderer.Stop()
-   ///  [line: 1368, column: 34, file: SmartCL.Controls.StringGrid]
+   ///  [line: 1363, column: 34, file: SmartCL.Controls.StringGrid]
    ,Stop$1:function(Self) {
       if (Self.FActive$3) {
          Self.FActive$3 = false;
@@ -27406,7 +27272,6 @@ var TW3RadioButton = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject:TW3CheckBox.InitializeObject
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -27490,7 +27355,6 @@ var TW3GroupBox = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3MovableControl.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3Label.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -27606,7 +27470,6 @@ var TW3StorageDevice = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3CustomComponent.Create$11
    ,InitAsync:TW3OwnedObject.InitAsync
-   ,IsObjectReady:TW3OwnedObject.IsObjectReady
    ,FinalizeObject$:function($){return $.ClassType.FinalizeObject($)}
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    // IGNORED: TW3StorageDevice.CdUp
@@ -28045,8 +27908,8 @@ var TW3VirtualFsParser = {
    ,Create$71:TW3ErrorObject.Create$71
 };
 TW3VirtualFsParser.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemObject = class (TW3ErrorObject)
 ///  [line: 100, column: 3, file: System.FileSystem.Virtual]
@@ -28176,8 +28039,8 @@ var TW3VirtualFileSystemObject = {
 };
 TW3VirtualFileSystemObject.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemObject.WriteFileObjectData,TW3VirtualFileSystemObject.ReadFileObjectData]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFolder = class (TW3VirtualFileSystemObject)
 ///  [line: 142, column: 3, file: System.FileSystem.Virtual]
@@ -28376,10 +28239,10 @@ var TW3VirtualFileSystemFolder = {
    ,WriteFileObjectData$:function($){return $.ClassType.WriteFileObjectData.apply($.ClassType, arguments)}
 };
 TW3VirtualFileSystemFolder.$Intf={
-   IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
+   ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFile = class (TW3VirtualFileSystemObject)
 ///  [line: 175, column: 3, file: System.FileSystem.Virtual]
@@ -28448,8 +28311,8 @@ var TW3VirtualFileSystemFile = {
 };
 TW3VirtualFileSystemFile.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFile.WriteFileObjectData,TW3VirtualFileSystemFile.ReadFileObjectData]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystem = class (TW3VirtualFileSystemFolder)
 ///  [line: 211, column: 3, file: System.FileSystem.Virtual]
@@ -28836,8 +28699,8 @@ TW3VirtualFileSystem.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TBTreeNode = class (JObject)
 ///  [line: 24, column: 3, file: System.BTree]
@@ -29108,8 +28971,8 @@ var TW3DirectoryParser = {
 };
 TW3DirectoryParser.$Intf={
    IW3DirectoryParser:[TW3DirectoryParser.GetPathSeparator,TW3DirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3DirectoryParser.IsValidPath,TW3DirectoryParser.HasValidPathChars,TW3DirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3DirectoryParser.GetFileNameWithoutExtension,TW3DirectoryParser.GetPathName,TW3DirectoryParser.GetDevice,TW3DirectoryParser.GetFileName,TW3DirectoryParser.GetExtension,TW3DirectoryParser.GetDirectoryName,TW3DirectoryParser.IncludeTrailingPathDelimiter,TW3DirectoryParser.IncludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeTrailingPathDelimiter,TW3DirectoryParser.ChangeFileExt]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3UnixDirectoryParser = class (TW3DirectoryParser)
 ///  [line: 81, column: 3, file: System.IOUtils]
@@ -29485,8 +29348,8 @@ var TW3UnixDirectoryParser = {
 };
 TW3UnixDirectoryParser.$Intf={
    IW3DirectoryParser:[TW3UnixDirectoryParser.GetPathSeparator,TW3UnixDirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3UnixDirectoryParser.IsValidPath,TW3UnixDirectoryParser.HasValidPathChars,TW3UnixDirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3UnixDirectoryParser.GetFileNameWithoutExtension,TW3UnixDirectoryParser.GetPathName,TW3UnixDirectoryParser.GetDevice,TW3UnixDirectoryParser.GetFileName,TW3UnixDirectoryParser.GetExtension,TW3UnixDirectoryParser.GetDirectoryName,TW3UnixDirectoryParser.IncludeTrailingPathDelimiter,TW3UnixDirectoryParser.IncludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeTrailingPathDelimiter,TW3UnixDirectoryParser.ChangeFileExt]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TPath = class (TObject)
 ///  [line: 107, column: 3, file: System.IOUtils]
@@ -29717,7 +29580,6 @@ var TTabMainForm = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3CustomForm.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -30899,7 +30761,6 @@ var TTabSettingsForm = {
    ,AcceptOwner:TW3OwnedObject.AcceptOwner
    ,Create$11:TW3TagObj.Create$11
    ,InitAsync:TW3CustomForm.InitAsync
-   ,IsObjectReady:TW3MovableControl.IsObjectReady
    ,FinalizeObject:TW3CustomControl.FinalizeObject
    ,InitializeObject$:function($){return $.ClassType.InitializeObject($)}
    ,AfterUpdate:TW3MovableControl.AfterUpdate
@@ -31200,8 +31061,8 @@ var TW3WebSocket = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3WebSocket.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TLccNodeManager = class (TObject)
 ///  [line: 90, column: 3, file: lcc_node_manager]
