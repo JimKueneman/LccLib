@@ -8,25 +8,24 @@
       <Unit0>
         <Filename Value="project_lcc_node.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="19"/>
+        <TopLine Value="18"/>
         <CursorPos X="12" Y="31"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\Target-Common\lcc_defines.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="14"/>
-        <CursorPos X="8" Y="18"/>
+        <CursorPos X="71" Y="30"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="7"/>
-        <CursorPos X="28" Y="22"/>
+        <TopLine Value="27"/>
+        <CursorPos X="13" Y="39"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -139,7 +138,7 @@
         <Loaded Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="\\vmware-host\Shared Folders\Documents\LccLib\Library\LCC\lcc_utilities.pas"/>
+        <Filename Value="..\..\..\..\Library\LCC\lcc_utilities.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="140"/>
         <CursorPos X="16" Y="159"/>
@@ -160,7 +159,7 @@
         <UsageCount Value="10"/>
       </Unit22>
     </Units>
-    <JumpHistory Count="18" HistoryIndex="17">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="..\Target-Common\lcc_utilities.pas"/>
         <Caret Column="19"/>
@@ -233,6 +232,26 @@
         <Filename Value="..\Target-Common\lcc_defines.pas"/>
         <Caret Line="25" Column="12" TopLine="10"/>
       </Position18>
+      <Position19>
+        <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <Caret Line="22" Column="28" TopLine="7"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <Caret Line="31" Column="23" TopLine="22"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <Caret Line="29" Column="11" TopLine="17"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <Caret Line="42" Column="50" TopLine="24"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\Target-Common\lcc_node.pas"/>
+        <Caret Line="37" Column="12" TopLine="25"/>
+      </Position23>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

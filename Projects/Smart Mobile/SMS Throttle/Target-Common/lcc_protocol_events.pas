@@ -1,5 +1,9 @@
 unit lcc_protocol_events;
 
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 
 interface
 
@@ -20,7 +24,11 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
+  {$IFDEF DELPHI}
+  System.Generics.Collections,
+  {$ELSE}
   contnrs,
+  {$ENDIF}
 {$ENDIF}
   lcc_protocol_base,
   lcc_defines,
@@ -65,12 +73,20 @@ end;
 TProtocolEvents = class(TNodeProtocolBase)
 private
   FAutoGenerate: TLccEventAutoGenerate;
+  {$IFDEF DELPHI}
+  FEventList: TObjectList<TLccEvent>;
+  {$ELSE}
   FEventList: TObjectList;
+  {$ENDIF}
   function GetCount: Integer;
   function GetEvent(Index: Integer): TLccEvent;
   function GetEventIDAsStr(Index: Integer): String;
 protected
+  {$IFDEF DELPHI}
+  property EventList: TObjectList<TLccEvent> read FEventList write FEventList;
+  {$ELSE}
   property EventList: TObjectList read FEventList write FEventList;
+  {$ENDIF}
 public
   constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
   destructor Destroy; override;
@@ -134,7 +150,11 @@ end;
 constructor TProtocolEvents.Create(ASendMessageFunc: TLccSendMessageFunc);
 begin
   inherited Create(ASendMessageFunc);
+  {$IFDEF DELPHI}
+  FEventList := TObjectList<TLccEvent>.Create;
+  {$ELSE}
   FEventList := TObjectList.Create;
+  {$ENDIF}
   FAutoGenerate := TLccEventAutoGenerate.Create;
   {$IFNDEF DWSCRIPT}EventList.OwnsObjects := False;{$ENDIF}
 end;

@@ -47,12 +47,8 @@ type
   { TTcpReadThread }
 
   TTcpReadThread = class(TThread)
-  private
-    FStringList: TThreadStringList;
   protected
     procedure Execute; override;
-  public
-    property StringList: TThreadStringList read FStringList write FStringList;
   end;
 
 var
@@ -65,6 +61,8 @@ var
   Xon: Boolean;
   TcpReadThread: TTcpReadThread;
   AStringList: TThreadStringList;
+  Verbose: Boolean;
+  Key: Char;
 
 
 
@@ -103,7 +101,7 @@ end;
 
 procedure WaitForLccConnection(Socket: TWinsock2TCPClient);
 begin
- Socket.RemoteAddress := '10.0.3.178';
+ Socket.RemoteAddress := '10.0.3.131';
  Socket.RemotePort := 12021;
  ConsoleWriteLn('Looking for the Lcc Server at ' + Socket.RemoteAddress + ':' + IntToStr(Socket.RemotePort));
  while not Socket.Connect do
@@ -149,6 +147,8 @@ begin
                        Socket.WriteData(@DelimiterChar, 1);
                        Sleep(1);
                      end;
+                     if Verbose then
+                       ConsoleWriteLn('S: ' + MessageStr);
                    end;
         Ord('R') : XOn := GridConnectStrPtr^[2] <> Ord('0');
         end;
@@ -212,7 +212,7 @@ begin
 
             GPIOOutputSet(GPIO_PIN_18,GPIO_LEVEL_LOW);
 
-            // Transfer the packet
+            // Transfer the packet, anything in the uController is sent back while this is sent so then we move that to the Socket
             if SPIDeviceWriteRead(SpiDevice, SPI_CS_0, @TxBuffer, @RxBuffer, BYTES_PER_SPI_PACKET, SPI_TRANSFER_NONE, ReadCount) = ERROR_SUCCESS then
               ExtractSpiRxBufferAndSendToSocket(RxBuffer, BYTES_PER_SPI_PACKET, Socket);
           end;
@@ -233,6 +233,7 @@ var
   IsClosed: Boolean;
   i: Integer;
   GridConnectStrPtr: PGridConnectString;
+  List: TStringList;
 begin
   while not Terminated do
   begin
@@ -250,8 +251,17 @@ begin
         begin
           if GridConnectHelper.GridConnect_DecodeMachine(RxBuff[i], GridConnectStrPtr) then
           begin
-             if Assigned(StringList) then
-               StringList.Add(GridConnectBufferToString(GridConnectStrPtr^));
+             if Assigned(AStringList) then
+             begin
+               List := AStringList.LockList;
+               try
+                 List.Add(GridConnectBufferToString(GridConnectStrPtr^));
+               finally
+                 AStringList.UnlockList;
+               end;
+             end;
+             if Verbose then
+               ConsoleWriteLn('R: ' + GridConnectBufferToString(GridConnectStrPtr^));
           end;
         end
       end;
@@ -261,6 +271,7 @@ end;
 
 begin
   { Add your program code here }
+  Verbose := False;
   SpiDevice := nil;
   FillChar(WriteBuff, SizeOf(WriteBuff), #0);
   FillChar(ReadBuff, SizeOf(WriteBuff), #0);
@@ -284,6 +295,7 @@ begin
 
   ConsoleWindowCreate(ConsoleDeviceGetDefault, CONSOLE_POSITION_FULL, True);
   ConsoleWriteLn('Welcome to the Mustangpeak CAN to Ethernet Bridge');
+  ConsoleWriteLn('Press "V" or "v" to toggle verbose logging');
   ConsoleWriteLn('Console Created');
   SetOnMsg(@FtpMsg);
   WaitForNetworkConnection;
@@ -291,20 +303,26 @@ begin
   WaitForSpiConnection;
 
   TcpReadThread := TTcpReadThread.Create(True);
-  TcpReadThread.StringList := AStringList;
   TcpReadThread.Start;
 
   while True do
   begin
     ReadCount := 0;
 
+    // Look at the Socket incoming buffer and send move them to the SPI, any SPI returning will be moved to the Socket Send buffer
     ExtractSocketBuffer(WriteBuff, ReadBuff, TcpClient);
+    // Now do a write of all nulls to force a read from the SPI and move anything returned to the Socket Send buffer
     FillChar(WriteBuff, SizeOf(WriteBuff), #0);
     if SPIDeviceWriteRead(SpiDevice, SPI_CS_0, @WriteBuff, @ReadBuff, BYTES_PER_SPI_PACKET, SPI_TRANSFER_NONE, ReadCount) = ERROR_SUCCESS then
       ExtractSpiRxBufferAndSendToSocket(ReadBuff, BYTES_PER_SPI_PACKET, TcpClient);
+    if ConsoleKeypressed then
+    begin
+      Key := ConsoleReadKey;
+      if (Key = 'v') or (Key = 'V') then
+        Verbose := not Verbose;
+    end;
   end;
 
-  TcpReadThread.StringList := nil;
   TcpReadThread.Terminate;
   while not TcpReadThread.Finished do
     Sleep(1000);

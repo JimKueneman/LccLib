@@ -2,6 +2,10 @@ unit lcc_node;
 
 interface
 
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 uses
 {$IFDEF DWSCRIPT}
   System.Types,
@@ -19,8 +23,21 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
-  {$IFNDEF ULTIBO}ExtCtrls,{$ENDIF}
-  contnrs,
+  {$IFNDEF ULTIBO}
+    {$IFDEF FPC}
+      ExtCtrls,
+    {$ELSE}
+      System.Types,
+      FMX.Types,
+    {$ENDIF}
+  {$ENDIF}
+  {$IFNDEF DWSCRIPT}
+    {$IFDEF FPC}
+      contnrs,
+    {$ELSE}
+      System.Generics.Collections,
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
   lcc_defines,
   lcc_node_messages,
@@ -51,7 +68,7 @@ TLccNode = class(TObject)
 private
   FWorkerMessageDatagram: TLccMessage;
   FInitialized: Boolean;
-  FNodeManager: TObject;
+  FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
   FSendMessageFunc: TLccSendMessageFunc;
   FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data with Fixed Offsets for read only data
                                                  // SNIP uses this structure to create a packed version of this information (null separated strings) +
@@ -92,7 +109,7 @@ private
 protected
   FNodeID: TNodeID;
 
-  property NodeManager: TObject read FNodeManager write FNodeManager;
+  property NodeManager:{$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF} read FNodeManager write FNodeManager;
   property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
   property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
   property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
@@ -135,7 +152,7 @@ public
   property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
   property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string); virtual;
+  constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
   destructor Destroy; override;
 
   function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
@@ -156,14 +173,22 @@ TLccCanNode = class(TLccNode)
 private
   FAliasID: Word;
   FDuplicateAliasDetected: Boolean;
+  {$IFDEF DELPHI}
+  FInProcessMultiFrameMessage: TObjectList<TLccMessage>;
+  {$ELSE}
   FInProcessMultiFrameMessage: TObjectList;
+  {$ENDIF}
   FSeedNodeID: TNodeID;
   FPermitted: Boolean;
 
   function GetAliasIDStr: String;
 protected
   property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
+  {$IFDEF DELPHI}
+  property InProcessMultiFrameMessage: TObjectList<TLccMessage> read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
+  {$ELSE}
   property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
+  {$ENDIF}
   property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
   function GetAlias: Word; override;
@@ -185,7 +210,7 @@ public
    property AliasIDStr: String read GetAliasIDStr;
    property Permitted: Boolean read FPermitted;
 
-   constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string); override;
+   constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); reintroduce;
    destructor Destroy; override;
    function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
    procedure Login(ANodeID: TNodeID); override;
@@ -203,10 +228,14 @@ uses
 
 { TLccCanNode }
 
-constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: TObject; CdiXML: string);
+constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
+  {$IFDEF DELPHI}
+  FInProcessMultiFrameMessage := TObjectList<TLccMessage>.Create;
+  {$ELSE}
   FInProcessMultiFrameMessage := TObjectList.Create;
+  {$ENDIF}
   {$IFNDEF DWSCRIPT}
   InProcessMultiFrameMessage.OwnsObjects := False
   {$ENDIF};
@@ -412,11 +441,8 @@ var
   TestNodeID: TNodeID;
   InProcessMessage: TLccMessage;
   i: Integer;
-  LocalNodeManager: TLccNodeManager;
 begin
   Result := False;
-
-  LocalNodeManager := TLccNodeManager(NodeManager);
 
   // Check for a message with the Alias equal to our own.
   if (AliasID <> 0) and (SourceLccMessage.CAN.SourceAlias = AliasID) then
@@ -788,7 +814,7 @@ begin
 end;
 
 constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc;
-  ANodeManager: TObject; CdiXML: string);
+  ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 var
   i: Integer;
 begin
@@ -827,7 +853,7 @@ begin
   _800msTimer.OnTime := @On_800msTimer;
   _800msTimer.Delay := 800;
   {$ELSE}
-  _800msTimer.OnTimer := @On_800msTimer;
+  _800msTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}On_800msTimer;
   _800msTimer.Interval := 800;
   {$ENDIF}
 
@@ -979,8 +1005,6 @@ var
   TestNodeID: TNodeID;
   Temp: TEventID;
   AddressSpace, OperationType, TractionCode: Byte;
-  DataOffset: Byte;
-  LocalNodeManager: TLccNodeManager;
 begin
 
   // By the time a messages drops into this method it is a fully qualified OpenLCB
@@ -988,8 +1012,6 @@ begin
   // into a full OpenLCB message.
 
   Result := False;
-
-  LocalNodeManager := TLccNodeManager(NodeManager);
 
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
@@ -1170,13 +1192,11 @@ begin
          case SourceLccMessage.DataArrayIndexer[0] of
            DATAGRAM_PROTOCOL_CONFIGURATION :     {0x20}
              begin
+               AddressSpace := 0;
+
                // Figure out where the Memory space to work on is located, encoded in the header or in the first databyte slot.
-               DataOffset := 0;
                case SourceLccMessage.DataArrayIndexer[1] and $03 of
-                 MCP_NONE: begin
-                             AddressSpace := SourceLccMessage.DataArrayIndexer[6];
-                             DataOffset := 1;
-                           end;
+                 MCP_NONE          : AddressSpace := SourceLccMessage.DataArrayIndexer[6];
                  MCP_CDI           : AddressSpace := MSI_CDI;
                  MCP_ALL           : AddressSpace := MSI_ALL;
                  MCP_CONFIGURATION : AddressSpace := MSI_CONFIG;

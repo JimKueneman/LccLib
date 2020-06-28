@@ -53,7 +53,7 @@ procedure XmlNodeSetTextContent(XmlNode: LccXmlNode; Text: string);
 function XmlNextSiblingNode(XmlNode: LccXmlNode): LccXmlNode;
 
 // Attribute functions
-function XmlAttributeCreateAndSet(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string): Boolean;
+procedure XmlAttributeCreateAndSet(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string);
 procedure XmlAttributeForce(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string);
 function XmlAttributeRead(TargetNode: LccXmlNode; Attribute: string): string;
 function XmlAttributeExists(TargetNode: LccXmlNode; Attribute: string): Boolean;
@@ -63,8 +63,10 @@ procedure XmlAttributeRemove(TargetNode: LccXmlNode; Attribute: string);
 implementation
 
 procedure XmlAttributeForce(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string);
+{$IFDEF FPC}
 var
   AttributeNode: LccXmlNode;
+{$ENDIF}
 begin
   {$IFDEF FPC}
   if Assigned( TargetNode.Attributes) then
@@ -98,7 +100,6 @@ end;
 
 function XmlAttributeExists(TargetNode: LccXmlNode; Attribute: string): Boolean;
 begin
-  Result := False;
   {$IFDEF FPC}
   if Assigned( TargetNode.Attributes) then
     Result := Assigned(TargetNode.Attributes.GetNamedItem(Attribute));
@@ -333,9 +334,11 @@ begin
   Result := XmlNode.NextSibling;
 end;
 
-function XmlAttributeCreateAndSet(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string): Boolean;
+procedure XmlAttributeCreateAndSet(XmlDoc: LccXmlDocument; TargetNode: LccXmlNode; Attribute, Content: string);
+{$IFDEF FPC}
 var
   AttributeNode: LccXmlAttribute;
+{$ENDIF}
 begin
   {$IFDEF FPC}
   AttributeNode := XmlDoc.CreateAttribute(Attribute);

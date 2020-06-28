@@ -289,7 +289,7 @@ begin
   begin
     SynEdit1.BeginUpdate(False);
     try
-      SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.Lines.Add('R: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13, True)));
       SynEdit1.EndUpdate;
     finally
     end;
@@ -304,7 +304,7 @@ begin
   begin
     SynEdit1.BeginUpdate(False);
     try
-      SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13)));
+      SynEdit1.Lines.Add('S: ' + GridConnectToDetailedGridConnect(LccMessage.ConvertToGridConnectStr(#13, True)));
       SynEdit1.EndUpdate;
     finally
     end;

@@ -9,12 +9,12 @@ uses
   {$ELSE}
   System.SyncObjs,
   {$ENDIF}
-  SysUtils;
+  SysUtils,
+  lcc_defines;
 
 type
 
   TCircularArray = array[0..512] of Byte;
-  TDynamicByteArray = array of Byte;
 
   { TThreadedCirularArray }
 

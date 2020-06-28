@@ -35,8 +35,6 @@ type
 
   TSearchEncodeStringError = (sese_ok, sese_TooLong, sese_InvalidCharacters);
 
-type
-
   { TLccCANMessage }
 
   TLccCANMessage = class
@@ -406,7 +404,7 @@ var
   ZeroIndex: Boolean;   // FireMonkey uses 0 offset for strings instead of 1
 
   HeaderStr, DataStr, ByteStr: string;
-  i, i_X, i_N, i_SemiColon, i_Data: Integer;
+  i, i_X, i_N, i_SemiColon, i_Data, len_Data, i_Data_Count: Integer;
 begin
   Result := False;
 
@@ -423,7 +421,7 @@ begin
     i_N := Pos('N', GridConnectStr);                                              // Find were the "N" is in the string
     i_SemiColon := Pos(';', GridConnectStr);
     i_Data := 1;  // First index in the DataStr (if it exists)
-    // Find were the ";" is in the string
+    // Find where the ";" is in the string
     if ZeroIndex then
     begin
       Dec(i_X);
@@ -439,11 +437,12 @@ begin
       HeaderStr := HeaderStr + GridConnectStr[i];
     for i := i_N + 1 to i_SemiColon - 1 do
       DataStr := DataStr + GridConnectStr[i];
+    Len_Data := Length(DataStr);
 
     {$IFDEF DWSCRIPT}
     CAN.MTI := TDatatype.HexStrToInt('0x' + HeaderStr);
     {$ELSE}
-    CAN.MTI := StrToInt('$' + HeaderStr);              // Convert the string MTI into a number  ;
+    CAN.MTI := StrToInt( FormatStrToInt(HeaderStr));              // Convert the string MTI into a number  ;
     {$ENDIF}
     CAN.SourceAlias := Word( CAN.MTI and $00000FFF);                      // Grab the Source Alias before it is stripped off
     CAN.MTI := CAN.MTI and not $10000000;                                 // Strip off the reserved bits
@@ -469,10 +468,11 @@ begin
       if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
       begin
         ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-        {$IFDEF DWSCRIPT}DestHi := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestHi := StrToInt('$' + ByteStr);{$ENDIF}
+        {$IFDEF DWSCRIPT}DestHi := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestHi := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
         ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
-        {$IFDEF DWSCRIPT}DestLo := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestLo := StrToInt('$' + ByteStr);{$ENDIF}
-        Inc(i_Data, 4);
+        {$IFDEF DWSCRIPT}DestLo := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestLo := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
+        Inc(i_Data, 4);            // First 4 in the Data where the MTI, move to the real payload (if it exisits)
+        Dec(Len_Data, 4);
         CAN.FramingBits := DestHi and $30;
         CAN.DestAlias := Word(( DestHi shl 8) and $0FFF) or DestLo;
       end else
@@ -483,11 +483,14 @@ begin
       MTI := Word( (CAN.MTI shr 12) and $0000FFF);
     end;
 
-    FDataCount := 0;                                                       // Convert the CAN payload bytes into number
-    while i_Data < i_SemiColon - i_N do
+    FDataCount := 0;
+    i_Data_Count :=  len_Data - i_Data;
+    Inc(i_Data_Count);
+    Dec(i_Data_Count);
+    while i_Data < i_Data_Count do
     begin
       ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-      {$IFDEF DWSCRIPT}FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}FDataArray[FDataCount] := StrToInt('$' + ByteStr);{$ENDIF}
+      {$IFDEF DWSCRIPT}FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}FDataArray[FDataCount] := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
       Inc(i_Data, 2);
       Inc(FDataCount);
     end;
@@ -1856,9 +1859,5 @@ initialization
   CaptureTime := 0;
 
 finalization
-
-end.
-
-
 
 end.

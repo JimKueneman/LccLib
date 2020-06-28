@@ -149,7 +149,6 @@ begin
     Inc(i);
   end;
   Result[i] :=  Ord(#0);  // null terminate string
-  Inc(i);
 end;
 
 end.

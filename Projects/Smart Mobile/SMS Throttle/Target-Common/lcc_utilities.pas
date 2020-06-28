@@ -44,6 +44,7 @@ uses
   {$ENDIF}
   lcc_defines;
 
+  function FormatStrToInt(AStr: string): string;
   function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
@@ -85,6 +86,7 @@ uses
   procedure StreamWriteByte(AStream: TStream; AByte: Byte);
 
 function GridConnectToDetailedGridConnect(MessageString: string): string;
+
 
 implementation
 
@@ -250,6 +252,8 @@ var
         sock := socket(AF_INET, SOCK_DGRAM, 0);
         assert(sock <> -1);
 
+        FillChar(UnixAddr, SizeOf(UnixAddr), #0);
+
         UnixAddr.sin_family := AF_INET;
         UnixAddr.sin_port := htons(CN_GDNS_PORT);
         UnixAddr.sin_addr := StrToHostAddr(CN_GDNS_ADDR);
@@ -297,6 +301,17 @@ var
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
+
+function FormatStrToInt(AStr: string): string;
+begin
+//  {$IFDEF IOS32}
+  Result := '0x' + AStr;
+
+ // {$ELSE}
+ // Result := '$' + AStr;
+ // {$ENDIF}
+
+end;
 
 function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
 begin
@@ -678,8 +693,8 @@ end;
 function GridConnectToDetailedGridConnect(MessageString: string): string;
 var
   j, S_Len: Integer;
-  f: single;
-  Half: Word;
+//  f: single;
+//  Half: Word;
   Message: TLccMessage;
 
 //  MultiFrame: TMultiFrameBuffer;
@@ -711,7 +726,7 @@ begin
         case Message.MTI of
           MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((Message.DataArray[2] shl 8) or Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(Message.DataArray[6]);
           MTI_STREAM_INIT_REPLY              : Result := Result + ' Negotiated Bufer Size: ' + IntToStr((Message.DataArray[2] shl 8) or Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(Message.DataArray[6]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[7]);
-          MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND     : begin end;
+          MTI_STREAM_SEND                    : begin end;
           MTI_STREAM_PROCEED                 : Result := Result + ' Source Stream ID: ' + IntToStr(Message.DataArray[2]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2);
           MTI_STREAM_COMPLETE                : Result := Result + ' Source Stream ID: ' + IntToStr(Message.DataArray[2]) + ' Destination Stream ID: ' + IntToStr(Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2);
         end
@@ -930,39 +945,37 @@ begin
   end;
 end;
 
-function GridConnectToDetailedGridConnect(AMessage: TLccMessage): string;
-begin
-
-end;
-
 {$IFNDEF DWSCRIPT}
-function GridConnectToJMRI(GridStr: AnsiString): AnsiString;
-var
-  NPos: integer;
-  Header: PChar;
-  i: Integer;
-begin
-  Result := GridStr;
-  NPos := Pos('N', GridStr);
-  GridStr[NPos] := #0;
-  Header := @GridStr[3];
-  Result := '[' + Header + ']';
-  Header := @GridStr[NPos] + 1;
-  if Header^ <> ';' then
-    Result := Result + ' ';
-  while Header^ <> ';' do
+  {$IFNDEF LCC_MOBILE}
+  function GridConnectToJMRI(GridStr: AnsiString): AnsiString;
+  var
+    NPos: integer;
+    Header: PAnsiChar;
+    i: Integer;
   begin
-    Result := Result + Header^;
+    Result := GridStr;
+    NPos := Pos('N', string( GridStr));
+    GridStr[NPos] := #0;
+    Header := @GridStr[3];
+    Result := '[' + Header + ']';
+    Header := @GridStr[NPos];
     Inc(Header);
-    if Header^ = ';' then
-      Break;
-    Result := Result + Header^ + ' ';
-    Inc(Header);
+    if Header^ <> ';' then
+      Result := Result + ' ';
+    while Header^ <> ';' do
+    begin
+      Result := Result + Header^;
+      Inc(Header);
+      if Header^ = ';' then
+        Break;
+      Result := Result + Header^ + ' ';
+      Inc(Header);
+    end;
+    Result := AnsiString( Trim(string( Result)));
+    for i := 0 to (40 - Length(Result)) do
+      Result := Result + ' ';  // Pad them all to the same length
   end;
-  Result := Trim(Result);
-  for i := 0 to (40 - Length(Result)) do
-    Result := Result + ' ';  // Pad them all to the same length
-end;
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF ULTIBO}

@@ -10,6 +10,10 @@ unit lcc_ethernet_client;
   {$ENDIF}
 {$ENDIF}
 
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 
 // TEMP
 {$UNDEF LOGGING}
@@ -18,9 +22,11 @@ unit lcc_ethernet_client;
   {$DEFINE DEBUG}
 {$ENDIF}
 
-interface
+{$IFNDEF DWSCRIPT}
+{$I ..\lcc_compilers.inc}
+{$ENDIF}
 
-{$I lcc_compilers.inc}
+interface
 
 uses
   Classes, SysUtils,
@@ -68,7 +74,7 @@ type
     HeartbeatRate: Integer;
     ConnectionState: TConnectionState; // Current State of the connection
     MessageStr: String;                // Contains the string for the resuting message from the thread
-    MessageArray: TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
+    MessageArray: lcc_defines.TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
     ErrorCode: Integer;
     LccMessage: TLccMessage;
     SuppressNotification: Boolean;    // True to stop any Syncronoize() call being called
@@ -134,7 +140,7 @@ type
       property Owner: TLccEthernetClient read FOwner write FOwner;
       property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
     public
-      constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; const AnEthernetRec: TLccEthernetRec); reintroduce;
+      constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; AnEthernetRec: TLccEthernetRec); reintroduce;
       destructor Destroy; override;
   end;
 
@@ -173,7 +179,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
+    function OpenConnection(AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
     function OpenConnectionWithLccSettings: TLccEthernetClientThread;
     procedure CloseConnection( EthernetThread: TLccEthernetClientThread);
     procedure SendMessage(AMessage: TLccMessage); override;
@@ -257,7 +263,11 @@ end;
 
 procedure TLccEthernetThreadList.CloseEthernetPorts;
 var
+ // {$IFDEF DELPHI}
+ //mm List: TList<TLccEthernetClientThread>;
+ // {$ELSE}
   List: TList;
+ // {$ENDIF}
   Len: Integer;
   Thread: TLccEthernetClientThread;
 begin
@@ -341,7 +351,11 @@ end;
 
 function TLccEthernetClient.GetConnected: Boolean;
 var
+ // {$IFDEF DELPHI}
+ // List: TList<TLccEthernetClientThread>;
+ // {$ELSE}
   List: TList;
+ // {$ENDIF}
 begin
   List := EthernetThreads.LockList;
   Result := List.Count > 0;
@@ -358,7 +372,11 @@ end;
 procedure TLccEthernetClient.UpdateThreadsEvents;
 var
   i: Integer;
+ // {$IFDEF DELPHI}
+ // L: TList<TLccEthernetClientThread>;
+ // {$ELSE}
   L: TList;
+ // {$ENDIF}
 begin
   L := EthernetThreads.LockList;
   try
@@ -381,7 +399,7 @@ begin
   inherited Destroy;
 end;
 
-function TLccEthernetClient.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
+function TLccEthernetClient.OpenConnection(AnEthernetRec: TLccEthernetRec): TLccEthernetClientThread;
 begin
   Result := TLccEthernetClientThread.Create(True, Self, AnEthernetRec);
   Result.OnConnectionStateChange := OnConnectionStateChange;
@@ -419,14 +437,18 @@ end;
 procedure TLccEthernetClient.SendMessage(AMessage: TLccMessage);
 var
   i: Integer;
-  L: TList;
+ // {$IFDEF DELPHI}
+ // List: TList<TLccEthernetClientThread>;
+ // {$ELSE}
+  List: TList;
+//  {$ENDIF}
   EthernetThread: TLccEthernetClientThread;
 begin
-  L := EthernetThreads.LockList;
+  List := EthernetThreads.LockList;
   try
-    for i := 0 to L.Count - 1 do
+    for i := 0 to List.Count - 1 do
     begin
-      EthernetThread := TLccEthernetClientThread( L[i]);
+      EthernetThread := TLccEthernetClientThread( List[i]);
       if not EthernetThread.IsTerminated then
         EthernetThread.SendMessage(AMessage);
     end;
@@ -438,16 +460,20 @@ end;
 procedure TLccEthernetClient.SendMessageRawGridConnect(GridConnectStr: String);
 var
   i: Integer;
-  L: TList;
+//  {$IFDEF DELPHI}
+//  List: TList<TLccEthernetClientThread>;
+ // {$ELSE}
+  List: TList;
+//  {$ENDIF}
   EthernetThread: TLccEthernetClientThread;
   StringList: TStringList;
   TempText: string;
 begin
-  L := EthernetThreads.LockList;
+  List := EthernetThreads.LockList;
   try  // TODO
-    for i := 0 to L.Count - 1 do
+    for i := 0 to List.Count - 1 do
     begin
-      EthernetThread := TLccEthernetClientThread( L[i]);
+      EthernetThread := TLccEthernetClientThread( List[i]);
       StringList := EthernetThread.OutgoingGridConnect.LockList;
       try
         TempText := StringList.DelimitedText;
@@ -592,10 +618,6 @@ var
   DynamicByteArray: TDynamicByteArray;
   RcvByte: Byte;
   LocalSleepCount: Integer;
-  {$IFDEF LCC_WINDOWS}
-  LocalName: string;
-  IpStrings: TStringList;
-  {$ENDIF}
 begin
   FRunning := True;
 
@@ -628,7 +650,6 @@ begin
       FEthernetRec.ClientIP := ResolveUnixIp;
       {$ENDIF}
     end;
-
 
     Socket.Connect(String( EthernetRec.ListenerIP), String( IntToStr(EthernetRec.ListenerPort)));
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
@@ -787,7 +808,7 @@ begin
   end;
 end;
 
-constructor TLccEthernetClientThread.Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; const AnEthernetRec: TLccEthernetRec);
+constructor TLccEthernetClientThread.Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; AnEthernetRec: TLccEthernetRec);
 begin
   inherited Create(CreateSuspended);
   FOwner := AnOwner;

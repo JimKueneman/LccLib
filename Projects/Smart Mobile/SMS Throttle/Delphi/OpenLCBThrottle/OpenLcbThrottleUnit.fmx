@@ -1,0 +1,703 @@
+object OpenLcbThrottleForm: TOpenLcbThrottleForm
+  Left = 0
+  Top = 0
+  Caption = 'TabbedForm'
+  ClientHeight = 567
+  ClientWidth = 908
+  FormFactor.Width = 1440
+  FormFactor.Height = 900
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnShow = FormShow
+  DesignerMasterStyle = 0
+  object HeaderToolBar: TToolBar
+    Anchors = []
+    Size.Width = 908.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object ToolBarLabel: TLabel
+      Align = Contents
+      Size.Width = 908.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toollabel'
+      TextSettings.HorzAlign = Center
+      Text = 'No Train Selected'
+    end
+    object SpeedButtonMore: TSpeedButton
+      Align = Left
+      Size.Width = 48.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'detailstoolbutton'
+      Text = 'More...'
+    end
+    object SpeedButtonConnect: TSpeedButton
+      Align = Right
+      Position.X = 828.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toolbuttonmiddle'
+      Text = 'Connect'
+    end
+  end
+  object TabControlMain: TTabControl
+    Align = Client
+    FullSize = True
+    Size.Width = 908.000000000000000000
+    Size.Height = 519.000000000000000000
+    Size.PlatformDefault = False
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
+    TabOrder = 1
+    TabPosition = Bottom
+    Sizes = (
+      908s
+      470s
+      908s
+      470s
+      908s
+      470s)
+    object TabItemTrains: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 302.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemtoprated'
+      TabOrder = 0
+      Text = 'Trains'
+      ExplicitSize.cx = 50.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object Rectangle1: TRectangle
+        Align = Client
+        Fill.Kind = Gradient
+        Fill.Gradient.Points = <
+          item
+            Color = xFF565656
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = xFF959595
+            Offset = 0.434782594442367600
+          end
+          item
+            Color = xFFF6F6F6
+            Offset = 1.000000000000000000
+          end
+          item
+            Color = claWhite
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.StartPosition.X = 0.500000000000000000
+        Fill.Gradient.StartPosition.Y = 1.000000000000000000
+        Fill.Gradient.StopPosition.X = 0.499999970197677600
+        Fill.Gradient.StopPosition.Y = 0.000000000000000000
+        Size.Width = 908.000000000000000000
+        Size.Height = 470.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        object LayoutMainTrain: TLayout
+          Align = Client
+          Margins.Left = 137.000000000000000000
+          Size.Width = 771.000000000000000000
+          Size.Height = 470.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object GridLayoutFunctions: TGridLayout
+            Align = Client
+            ItemHeight = 72.000000000000000000
+            ItemWidth = 72.000000000000000000
+            Padding.Left = 4.000000000000000000
+            Padding.Top = 4.000000000000000000
+            Padding.Right = 4.000000000000000000
+            Padding.Bottom = 4.000000000000000000
+            Orientation = Horizontal
+            Size.Width = 685.000000000000000000
+            Size.Height = 420.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            OnResize = GridLayoutFunctionsResize
+            object CornerButtonF0: TCornerButton
+              Position.X = 4.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'F0'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF1: TCornerButton
+              Position.X = 76.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              Text = 'F1'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF2: TCornerButton
+              Position.X = 148.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              Text = 'F2'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF3: TCornerButton
+              Position.X = 220.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              Text = 'F3'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF4: TCornerButton
+              Position.X = 292.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 4
+              Text = 'F4'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF5: TCornerButton
+              Position.X = 364.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 5
+              Text = 'F5'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF6: TCornerButton
+              Position.X = 436.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 6
+              Text = 'F6'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF7: TCornerButton
+              Position.X = 508.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 7
+              Text = 'F7'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF8: TCornerButton
+              Position.X = 580.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 8
+              Text = 'F8'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButtonF9: TCornerButton
+              Position.X = 4.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 9
+              Text = 'F9'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButton10: TCornerButton
+              Position.X = 76.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 10
+              Text = 'F10'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+            object CornerButton11: TCornerButton
+              Position.X = 148.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 11
+              Text = 'F11'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+            end
+          end
+          object LayoutThrottle: TLayout
+            Align = MostRight
+            Position.X = 685.000000000000000000
+            Size.Width = 86.000000000000000000
+            Size.Height = 470.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object TextSpeed: TText
+              Align = Top
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Position.X = 4.000000000000000000
+              Position.Y = 37.000000000000000000
+              Size.Width = 78.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              Text = '0'
+              TextSettings.Font.Size = 36.000000000000000000
+            end
+            object Text4: TText
+              Align = MostTop
+              Size.Width = 86.000000000000000000
+              Size.Height = 33.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Speed'
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+            end
+            object ScrollBarThrottle: TScrollBar
+              Align = Client
+              SmallChange = 0.000000000000000000
+              Orientation = Vertical
+              Margins.Left = 8.000000000000000000
+              Margins.Top = 8.000000000000000000
+              Margins.Right = 8.000000000000000000
+              Margins.Bottom = 8.000000000000000000
+              RotationAngle = 180.000000000000000000
+              Size.Width = 70.000000000000000000
+              Size.Height = 363.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              OnChange = ScrollBarThrottleChange
+            end
+          end
+          object LayoutDirection: TLayout
+            Align = Bottom
+            Position.Y = 420.000000000000000000
+            Size.Width = 685.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            object CornerButtonForward: TCornerButton
+              Align = Right
+              Margins.Left = 2.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Position.X = 547.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 66.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'Forward'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonForwardClick
+            end
+            object CornerButtonReverse: TCornerButton
+              Align = Right
+              Margins.Left = 2.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Position.X = 617.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 66.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              Text = 'Reverse'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonReverseClick
+            end
+            object TextDirection: TText
+              Align = Client
+              Margins.Right = 2.000000000000000000
+              Size.Width = 543.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Forward'
+              TextSettings.Font.Size = 18.000000000000000000
+            end
+          end
+        end
+        object MultiViewTrains: TMultiView
+          TargetControl = LayoutMainTrain
+          MasterButton = SpeedButtonMore
+          NavigationPaneOptions.CollapsedWidth = 137.000000000000000000
+          OnStartShowing = MultiViewTrainsStartShowing
+          Size.Width = 250.000000000000000000
+          Size.Height = 470.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object Rectangle2: TRectangle
+            Align = Client
+            Fill.Color = claBlack
+            Size.Width = 137.000000000000000000
+            Size.Height = 470.000000000000000000
+            Size.PlatformDefault = False
+            object LayoutTrainsMultiViewToolbar: TLayout
+              Align = Top
+              Size.Width = 137.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object SpeedButton1: TSpeedButton
+                Align = Left
+                Size.Width = 48.000000000000000000
+                Size.Height = 50.000000000000000000
+                Size.PlatformDefault = False
+                StyleLookup = 'additembutton'
+                Text = 'SpeedButtonAddTrain'
+              end
+              object SpeedButtonTrainSearch: TSpeedButton
+                Align = Right
+                Position.X = 89.000000000000000000
+                Size.Width = 48.000000000000000000
+                Size.Height = 50.000000000000000000
+                Size.PlatformDefault = False
+                StyleLookup = 'searchtoolbutton'
+                Text = 'SpeedButtonEditTrains'
+                OnClick = SpeedButtonTrainSearchClick
+              end
+            end
+            object ListView1: TListView
+              ItemAppearanceClassName = 'TImageListItemBottomDetailAppearance'
+              ItemEditAppearanceClassName = 'TImageListItemBottomDetailShowCheckAppearance'
+              HeaderAppearanceClassName = 'TListHeaderObjects'
+              FooterAppearanceClassName = 'TListHeaderObjects'
+              Transparent = True
+              Align = Client
+              Size.Width = 137.000000000000000000
+              Size.Height = 386.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              object ColorKeyAlphaEffect1: TColorKeyAlphaEffect
+                ColorKey = claNull
+                Tolerance = 0.300000011920929000
+              end
+            end
+            object LayoutTrainsMultiViewSearch: TLayout
+              Align = Top
+              ClipChildren = True
+              Position.Y = 50.000000000000000000
+              Size.Width = 137.000000000000000000
+              Size.Height = 34.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              object EditTrainSearch: TEdit
+                Touch.InteractiveGestures = [LongTap, DoubleTap]
+                Align = Top
+                TabOrder = 0
+                MaxLength = 256
+                Position.X = 1.000000000000000000
+                Position.Y = 1.000000000000000000
+                Margins.Left = 1.000000000000000000
+                Margins.Top = 1.000000000000000000
+                Margins.Right = 1.000000000000000000
+                Margins.Bottom = 1.000000000000000000
+                Size.Width = 135.000000000000000000
+                Size.Height = 32.000000000000000000
+                Size.PlatformDefault = False
+              end
+              object FloatAnimationTrainSearch: TFloatAnimation
+                Duration = 0.200000002980232200
+                PropertyName = 'Height'
+                StartValue = 0.000000000000000000
+                StopValue = 34.000000000000000000
+              end
+            end
+          end
+        end
+      end
+    end
+    object TabItemOpenLCB: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 302.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemcontacts'
+      TabOrder = 0
+      Text = 'OpenLCB'
+      ExplicitSize.cx = 50.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object MemoOpenLCB: TMemo
+        Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+        DataDetectorTypes = []
+        Align = Client
+        Margins.Left = 4.000000000000000000
+        Margins.Top = 4.000000000000000000
+        Margins.Right = 4.000000000000000000
+        Margins.Bottom = 4.000000000000000000
+        Size.Width = 900.000000000000000000
+        Size.Height = 418.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Viewport.Width = 896.000000000000000000
+        Viewport.Height = 414.000000000000000000
+      end
+      object GridLayout1: TGridLayout
+        Align = Bottom
+        ItemHeight = 44.000000000000000000
+        ItemWidth = 120.000000000000000000
+        Orientation = Horizontal
+        Position.Y = 426.000000000000000000
+        Size.Width = 908.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Text3: TText
+          Align = Left
+          Size.Width = 120.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Log Messages'
+        end
+        object SwitchOpenLCBLog: TSwitch
+          Align = Left
+          IsChecked = False
+          Margins.Left = 4.000000000000000000
+          Margins.Top = 8.000000000000000000
+          Margins.Right = 44.000000000000000000
+          Margins.Bottom = 8.000000000000000000
+          Position.X = 124.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 72.000000000000000000
+          Size.Height = 28.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+        end
+        object SpeedButtonOpenLCBClear: TSpeedButton
+          Align = Right
+          Position.X = 240.000000000000000000
+          Size.Width = 120.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Clear'
+        end
+      end
+    end
+    object TabItemSettings: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 302.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemmostrecent'
+      TabOrder = 0
+      Text = 'Settings'
+      ExplicitSize.cx = 50.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object ListBox1: TListBox
+        Align = Client
+        Size.Width = 908.000000000000000000
+        Size.Height = 470.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        DisableFocusEffect = True
+        DefaultItemStyles.ItemStyle = ''
+        DefaultItemStyles.GroupHeaderStyle = ''
+        DefaultItemStyles.GroupFooterStyle = ''
+        Viewport.Width = 904.000000000000000000
+        Viewport.Height = 466.000000000000000000
+        object ListBoxGroupHeaderSettingsNetwork: TListBoxGroupHeader
+          Size.Width = 904.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          Text = 'Network'
+        end
+        object ListBoxSettingsItemServer: TListBoxItem
+          Selectable = False
+          Position.Y = 30.000000000000000000
+          Size.Width = 904.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object Text1: TText
+            Align = Left
+            Margins.Left = 16.000000000000000000
+            Position.X = 16.000000000000000000
+            Size.Width = 81.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Server IP:'
+            TextSettings.HorzAlign = Leading
+          end
+          object EditServerIP: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Client
+            TabOrder = 1
+            Margins.Left = 4.000000000000000000
+            Margins.Top = 4.000000000000000000
+            Margins.Right = 4.000000000000000000
+            Margins.Bottom = 4.000000000000000000
+            Size.Width = 799.000000000000000000
+            Size.Height = 36.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object ListBoxItemSettingServerPort: TListBoxItem
+          Selectable = False
+          Position.Y = 74.000000000000000000
+          Size.Width = 904.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object TextSettingsServerPort: TText
+            Align = Left
+            Margins.Left = 16.000000000000000000
+            Position.X = 16.000000000000000000
+            Size.Width = 81.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Server Port:'
+            TextSettings.HorzAlign = Leading
+          end
+          object EditSettingsServerPort: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Client
+            TabOrder = 1
+            Text = '12021'
+            Margins.Left = 4.000000000000000000
+            Margins.Top = 4.000000000000000000
+            Margins.Right = 4.000000000000000000
+            Margins.Bottom = 4.000000000000000000
+            Size.Width = 799.000000000000000000
+            Size.Height = 36.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object ListBoxGroupHeaderSettingsOLCB: TListBoxGroupHeader
+          Position.Y = 118.000000000000000000
+          Size.Width = 904.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          Text = 'OpenLCB'
+        end
+        object ListBoxItemSettingsOLCBMonitorDepth: TListBoxItem
+          Selectable = False
+          Position.Y = 148.000000000000000000
+          Size.Width = 904.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 4
+          object Text2: TText
+            Align = Left
+            Margins.Left = 16.000000000000000000
+            Position.X = 16.000000000000000000
+            Size.Width = 161.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Window Buffer Depth'
+            TextSettings.HorzAlign = Leading
+          end
+          object EditSettingsBufferDepth: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Client
+            TabOrder = 1
+            Text = '100'
+            Margins.Left = 4.000000000000000000
+            Margins.Top = 4.000000000000000000
+            Margins.Right = 4.000000000000000000
+            Margins.Bottom = 4.000000000000000000
+            Size.Width = 719.000000000000000000
+            Size.Height = 36.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object ListBoxItemDataFormat: TListBoxItem
+          Selectable = False
+          Position.Y = 192.000000000000000000
+          Size.Width = 904.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 5
+          object TextSettingsOCLBDataFormat: TText
+            Align = Left
+            Size.Width = 177.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Data Format GridConnect'
+          end
+          object SwitchSettingsDataFormatGridConnect: TSwitch
+            Align = Left
+            IsChecked = True
+            Position.X = 177.000000000000000000
+            Size.Width = 72.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+          end
+        end
+      end
+    end
+  end
+  object GestureManager1: TGestureManager
+    Sensitivity = 80.000000000000000000
+    Left = 264
+    Top = 424
+    GestureData = <
+      item
+        Control = Owner
+        Collection = <
+          item
+            GestureID = sgiLeft
+          end
+          item
+            GestureID = sgiRight
+          end>
+      end>
+  end
+end

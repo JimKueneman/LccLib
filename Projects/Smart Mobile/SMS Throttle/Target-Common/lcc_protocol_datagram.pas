@@ -1,5 +1,10 @@
 unit lcc_protocol_datagram;
 
+
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 interface
 
 uses
@@ -19,9 +24,17 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
+  {$IFDEF DELPHI}
+  System.Generics.Collections,
+  {$ELSE}
   contnrs,
+  {$ENDIF}
   {$IFNDEF ULTIBO}
-  ExtCtrls,
+    {$IFDEF FPC}
+      ExtCtrls,
+    {$ELSE}
+      FMX.Types,
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
   lcc_defines,
@@ -38,10 +51,18 @@ type
 
 TDatagramQueue = class
 private
+  {$IFDEF DELPHI}
+  FQueue: TObjectList<TLccMessage>;
+  {$ELSE}
   FQueue: TObjectList;
+  {$ENDIF}
   FSendMessageFunc: TLccSendMessageFunc;
 protected
+  {$IFDEF DELPHI}
+  property Queue: TObjectList<TLccMessage> read FQueue write FQueue;
+  {$ELSE}
   property Queue: TObjectList read FQueue write FQueue;
+  {$ENDIF}
 
   function FindBySourceNode(LccMessage: TLccMessage): Integer;
 public
@@ -86,7 +107,11 @@ constructor TDatagramQueue.Create(ASendMessageFunc: TLccSendMessageFunc);
 begin
   inherited Create;
   FSendMessageFunc := ASendMessageFunc;
+  {$IFDEF DELPHI}
+  Queue := TObjectList<TLccMessage>.Create;
+  {$ELSE}
   Queue := TObjectList.Create;
+  {$ENDIF}
   {$IFNDEF DWSCRIPT}
   Queue.OwnsObjects := True;
   {$ENDIF}

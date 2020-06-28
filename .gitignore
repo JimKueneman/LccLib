@@ -50,3 +50,8 @@ Projects/Smart Mobile/SMS Throttle/Target-Common/lcc_utilities.pas.bak
 Projects/Smart Mobile/SMS Throttle/Lazarus/TractionTest/Compiled_Binaries
 Projects/Smart Mobile/SMS Throttle/Lazarus/TractionTest/lib
 Projects/Smart Mobile/SMS Throttle/Lazarus/TractionTest/backup
+Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/Win32
+Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/OSX32
+Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/OSX64
+Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/iOSDevice32
+Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/iOSSimulator

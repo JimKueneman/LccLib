@@ -28,10 +28,9 @@
         <ComponentName Value="FormTemplate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="531"/>
-        <CursorPos X="106" Y="556"/>
+        <TopLine Value="3"/>
+        <CursorPos X="29" Y="10"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -104,7 +103,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="1409"/>
         <CursorPos X="53" Y="805"/>
-        <UsageCount Value="41"/>
+        <UsageCount Value="42"/>
         <Loaded Value="True"/>
       </Unit11>
       <Unit12>
@@ -162,10 +161,9 @@
       </Unit19>
       <Unit20>
         <Filename Value="../../../Library/LCC/lcc_ethernetclient.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="155"/>
-        <CursorPos X="31" Y="179"/>
-        <UsageCount Value="38"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit20>
       <Unit21>
@@ -328,11 +326,11 @@
         <Filename Value="../../../Library/LCC/lcc_sdn_utilities.pas"/>
         <EditorIndex Value="4"/>
         <TopLine Value="173"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit42>
     </Units>
-    <JumpHistory Count="25" HistoryIndex="24">
+    <JumpHistory Count="26" HistoryIndex="25">
       <Position1>
         <Filename Value="project_template.lpr"/>
         <Caret Line="14" Column="36"/>
@@ -433,6 +431,10 @@
         <Filename Value="form_template.pas"/>
         <Caret Line="555" Column="106" TopLine="530"/>
       </Position25>
+      <Position26>
+        <Filename Value="form_template.pas"/>
+        <Caret Line="10" Column="29" TopLine="3"/>
+      </Position26>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

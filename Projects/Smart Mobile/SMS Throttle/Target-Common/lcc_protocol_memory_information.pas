@@ -1,6 +1,11 @@
 //
 // Reads the information about what memory spaces are available to a datagram
 //
+
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 unit lcc_protocol_memory_information;
 
 interface
@@ -22,7 +27,11 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
+  {$IFDEF DELPHI}
+  System.Generics.Collections,
+  {$ELSE}
   contnrs,
+  {$ENDIF}
 {$ENDIF}
   lcc_protocol_base,
   lcc_defines,
@@ -52,11 +61,20 @@ type
 
   TProtocolMemoryInfo = class(TNodeProtocolBase)
   private
+    {$IFDEF DELPHI}
+    FList: TObjectList<TConfigMemAddressSpaceInfoObject>;
+    {$ELSE}
     FList: TObjectList;
+    {$ENDIF}
     function GetAddressSpace(Index: Integer): TConfigMemAddressSpaceInfoObject;
     function GetCount: Integer;
   protected
-    property List: TObjectList read FList write FList;
+    {$IFDEF DELPHI}
+     property List: TObjectList<TConfigMemAddressSpaceInfoObject> read FList write FList;
+    {$ELSE}
+     property List: TObjectList read FList write FList;
+    {$ENDIF}
+
   public
     property AddressSpace[Index: Integer]: TConfigMemAddressSpaceInfoObject read GetAddressSpace; default;
     property Count: Integer read GetCount;
@@ -103,7 +121,11 @@ end;
 constructor TProtocolMemoryInfo.Create(ASendMessageFunc: TLccSendMessageFunc);
 begin
  inherited Create(ASendMessageFunc);
+ {$IFDEF DELPHI}
+ List := TObjectList<TConfigMemAddressSpaceInfoObject>.Create;
+ {$ELSE}
  List := TObjectList.Create;
+ {$ENDIF}
  {$IFNDEF DWSCRIPT}
  List.OwnsObjects := False;
  {$ENDIF}

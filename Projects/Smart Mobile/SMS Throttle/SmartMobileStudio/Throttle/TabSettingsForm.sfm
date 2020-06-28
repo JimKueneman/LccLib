@@ -1,16 +1,16 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:18.029</Created>
-    <Modified>2020-01-01T11:24:36.899</Modified>
+    <Modified>2020-02-02T08:23:42.561</Modified>
     <object type="TW3Form">
       <Caption>Settings</Caption>
       <Width>408</Width>
-      <Height>472</Height>
+      <Height>640</Height>
       <Anchors>15</Anchors>
       <Name>TabSettingsForm</Name>
       <object type="TW3Panel">
-        <Width>368</Width>
-        <Height>256</Height>
+        <Width>425</Width>
+        <Height>296</Height>
         <Align>2</Align>
         <Name>W3Panel1</Name>
         <object type="TW3EditBox">
@@ -130,19 +130,27 @@
         <object type="TW3CheckBox">
           <Caption>Log Messages</Caption>
           <Width>142</Width>
-          <Top>184</Top>
-          <Left>224</Left>
-          <Height>20</Height>
+          <Top>256</Top>
+          <Left>8</Left>
+          <Height>32</Height>
           <Name>W3CheckBoxLogging</Name>
         </object>
         <object type="TW3Button">
-          <Caption>Clear Messages</Caption>
-          <Width>136</Width>
-          <Top>216</Top>
-          <Left>232</Left>
+          <Caption>Clear Log</Caption>
+          <Width>104</Width>
+          <Top>264</Top>
+          <Left>312</Left>
           <Height>24</Height>
           <Name>W3ButtonClearMessages</Name>
           <OnClick>W3ButtonClearMessagesClick</OnClick>
+        </object>
+        <object type="TW3CheckBox">
+          <Caption>Detailed Logging</Caption>
+          <Width>168</Width>
+          <Top>256</Top>
+          <Left>136</Left>
+          <Height>32</Height>
+          <Name>W3CheckBoxDetailedLog</Name>
         </object>
       </object>
       <object type="TW3Button">
@@ -156,10 +164,9 @@
       </object>
       <object type="TW3ListBox">
         <ItemHeight>16</ItemHeight>
-        <Width>278</Width>
-        <Top>336</Top>
-        <Left>72</Left>
-        <Height>94</Height>
+        <Width>425</Width>
+        <Top>264</Top>
+        <Height>503</Height>
         <Align>6</Align>
         <Name>W3ListBoxLog</Name>
       </object>

@@ -64,6 +64,15 @@
   {$WARN SUSPICIOUS_TYPECAST OFF}
 {$ENDIF}
 
+{$IFNDEF FPC}
+  {$IFDEF IOS}
+    {$DEFINE LCC_MOBILE}
+  {$ENDIF}
+  {$IFDEF ANDROID}
+    {$DEFINE LCC_MOBILE}
+  {$ENDIF}
+{$ENDIF}
+
 unit synacode;
 
 interface
@@ -71,8 +80,15 @@ interface
 uses
   SysUtils;
 
+
+{$IFDEF LCC_MOBILE}
 type
- TSpecials = set of Char;
+  AnsiChar = Char;
+{$ENDIF}
+
+type
+  TSpecials = set of AnsiChar;
+
 
 const
 

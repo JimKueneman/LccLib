@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2020/06/24 19:18:14.000.703,=C:\Users\Jim-Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2020/06/24 19:20:23.000.201,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\LccTest\LccTest.fmx=C:\Users\Jim-Win10\Documents\Embarcadero\Studio\Projects\Unit1.fmx</Transaction>
+    <Transaction>2020/06/24 19:20:23.000.201,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\LccTest\LccTest.pas=C:\Users\Jim-Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2020/06/24 19:26:30.000.114,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\LccTest\Project1.dproj=C:\Users\Jim-Win10\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+  </Transactions>
+	<ActiveMobileDevice>
+		<POSx iOSSimulator="_iossimulator_CDC0E966-0485-4967-AE4F-2F589BA5F507" iOSDevice64="_iosdevice_68fe9d9fe2cb9bb5d24f8ed780aa3cb2a0feb9e8" iOSDevice32="_iosdevice_68fe9d9fe2cb9bb5d24f8ed780aa3cb2a0feb9e8"/>
+	</ActiveMobileDevice>
+</BorlandProject>

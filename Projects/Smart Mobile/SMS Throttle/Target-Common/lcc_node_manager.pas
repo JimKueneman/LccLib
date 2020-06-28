@@ -1,5 +1,9 @@
 unit lcc_node_manager;
 
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 interface
 
 uses
@@ -19,8 +23,18 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
+  {$IFDEF DELPHI}
+  System.Generics.Collections,
+  {$ELSE}
   contnrs,
-  {$IFNDEF ULTIBO}ExtCtrls,{$ENDIF}
+  {$ENDIF}
+  {$IFNDEF ULTIBO}
+    {$IFDEF FPC}
+      ExtCtrls,
+    {$ELSE}
+      FMX.Types,
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
   lcc_node,
   lcc_defines,
@@ -107,7 +121,11 @@ type
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnLccMessageSend: TOnMessageEvent;
 
+    {$IFDEF DELPHI}
+    FNodes: TObjectList<TLccNode>;
+    {$ELSE}
     FNodes: TObjectList;
+    {$ENDIF}
     function GetNode(Index: Integer): TLccNode;
   protected
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;               //*
@@ -144,7 +162,11 @@ type
     procedure DoLccMessageReceive(Message: TLccMessage); virtual;
 
   public
+    {$IFDEF DELPHI}
+    property Nodes: TOBjectList<TLccNode> read FNodes write FNodes;
+    {$ELSE}
     property Nodes: TOBjectList read FNodes write FNodes;
+    {$ENDIF}
     property Node[Index: Integer]: TLccNode read GetNode;
 
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
@@ -228,7 +250,7 @@ type
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
 
-    function AddNode(CdiXML: string): TLccCanNode; override;
+    function AddNode(CdiXML: string): TLccCanNode; reintroduce;
   end;
 
 implementation
@@ -237,7 +259,7 @@ implementation
 
 function TLccCanNodeManager.AddNode(CdiXML: string): TLccCanNode;
 begin
-  Result := TLccCanNode.Create(@LccMessageSendCallback, Self, CdiXML);
+  Result := TLccCanNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
 end;
 
@@ -468,14 +490,18 @@ begin
   FNodes := TObjectList.Create;
   {$ELSE}
   inherited Create(AnOwner);
+  {$IFDEF DELPHI}
+  FNodes := TObjectList<TLccNode>.Create;
+  {$ELSE}
   FNodes := TObjectList.Create;
+  {$ENDIF}
   FNodes.OwnsObjects := False;
   {$ENDIF}
 end;
 
 function TLccNodeManager.AddNode(CdiXML: string): TLccNode;
 begin
-  Result := TLccNode.Create(@LccMessageSendCallback, Self, CdiXML);
+  Result := TLccNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
 end;

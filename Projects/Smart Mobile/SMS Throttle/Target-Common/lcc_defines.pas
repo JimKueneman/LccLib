@@ -1,5 +1,9 @@
 unit lcc_defines;
 
+{$IFNDEF DWSCRIPT}
+  {$I lcc_compilers.inc}
+{$ENDIF}
+
 interface
 
 uses
@@ -22,7 +26,11 @@ uses
     {$IFDEF ULTIBO}
       fptimer,
     {$ELSE}
-      ExtCtrls,
+      {$IFDEF FPC}
+        ExtCtrls,
+      {$ELSE}
+        FMX.Types,
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   Classes,
@@ -41,6 +49,19 @@ const
 type
   DWord = Longword;
   TComponent = TObject;
+{$ELSE}
+
+  {$IFNDEF FPC}    // Must be Delphi
+  type
+    DWord = Cardinal;
+    QWord = UInt64;
+    {$IFDEF LCC_MOBILE}
+      AnsiChar = Char;
+      AnsiString = string;
+      PAnsiString = ^string;
+      PAnsiChar = ^Char;
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 type
@@ -51,9 +72,9 @@ type
     TLccTimer = TFPTimer;
     {$ELSE}
       {$IFDEF FPC_CONSOLE_APP}
-        TLccTimer = TFPTimer;
-      {$ELSE}
-        TLccTimer = TTimer;
+       TLccTimer = TFPTimer;
+       {$ELSE}
+       TLccTimer = TTimer;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}

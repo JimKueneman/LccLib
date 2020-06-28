@@ -1,12 +1,18 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="92" col="57" row="120" splitview="1" designview="1" splitter="0.583987441130298" />
-      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="35" col="5" row="59" splitview="1" designview="1" splitter="0.444270015698587" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="20" col="42" row="18" splitview="1" designview="1" splitter="0.444270015698587" />
-      <tab filename="LccNode" fullname="LccNode.pas" topline="33" col="19" row="62" />
-      <tab filename="SmartCL.Controls.Listbox" fullname="..\..\..\Temp\RTL\SmartCL\Controls\SmartCL.Controls.Listbox.pas" topline="101" col="15" row="82" />
-      <activetab>TabSettingsForm</activetab>
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="197" col="49" row="212" splitview="1" designview="1" splitter="0.584378013500482" />
+      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="1" col="1" row="41" splitview="1" designview="1" splitter="0.444551591128255" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="20" col="22" row="37" splitview="1" designview="1" splitter="0.444551591128255" />
+      <tab filename="lcc_utilities" fullname="..\..\Target-Common\lcc_utilities.pas" topline="166" col="37" row="46" />
+      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="11" col="25" row="25" />
+      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="57" col="25" row="74" />
+      <tab filename="LccNode" fullname="LccNode.pas" topline="16" col="1" row="1" />
+      <tab filename="Storage" fullname="Storage.pas" topline="1" col="1" row="1" />
+      <tab filename="Unit1" fullname="Unit1.pas" topline="1" col="1" row="1" />
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="1" col="9" row="7" />
+      <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="1" row="1" />
+      <activetab>Throttle</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -15,12 +21,12 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5798</BackgroundCompilations>
-      <EditTime>T03:49:36.963</EditTime>
-      <CompileTime>T00:03:56.505</CompileTime>
-      <TotalTime>1900-01-07T06:03:04.696</TotalTime>
-      <DesigningTime>T10:47:53.933</DesigningTime>
-      <RunningTime>1900-01-02T15:37:59.962</RunningTime>
+      <BackgroundCompilations>5898</BackgroundCompilations>
+      <EditTime>T03:52:00.160</EditTime>
+      <CompileTime>T00:05:26.938</CompileTime>
+      <TotalTime>1900-01-24T02:41:32.413</TotalTime>
+      <DesigningTime>T10:48:07.911</DesigningTime>
+      <RunningTime>1900-01-03T13:39:32.947</RunningTime>
       <TotalLinesOfCode>615</TotalLinesOfCode>
     </Statistics>
   </state>

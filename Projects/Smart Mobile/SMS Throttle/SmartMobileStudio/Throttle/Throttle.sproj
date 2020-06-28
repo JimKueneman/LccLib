@@ -2,7 +2,7 @@
   <Project version="3" subversion="9">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2020-01-01T11:24:55.493</Modified>
+    <Modified>2020-02-05T17:58:18.337</Modified>
     <Author>Jim Kueneman</Author>
     <Company>Mustangpeak</Company>
     <Description>Lcc Javascript Throttle</Description>
@@ -38,7 +38,7 @@ geo:*</AllowIntent>
         <Assertions>1</Assertions>
         <Optimize>1</Optimize>
         <HintsLevel>1</HintsLevel>
-        <ProjectSearchPath>&quot;C:\Users\Jim-Win10\Desktop\SMS Throttle\Target-Common&quot;</ProjectSearchPath>
+        <ProjectSearchPath>&quot;\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Target-Common&quot;</ProjectSearchPath>
       </Compiler>
       <Codegen>
         <Obfuscation>0</Obfuscation>
@@ -136,7 +136,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2020-01-01T11:23:36.060</Modified>
+        <Modified>2020-02-03T18:52:01.797</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

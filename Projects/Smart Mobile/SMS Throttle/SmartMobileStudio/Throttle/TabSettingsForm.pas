@@ -251,7 +251,7 @@ procedure TTabSettingsForm.SendMessage(Sender: TObject; LccMessage: TLccMessage)
 var
   i: Integer;
 begin
-  MessageList.Text := LccMessage.ConvertToGridConnectStr(#10);
+  MessageList.Text := LccMessage.ConvertToGridConnectStr(#10, W3CheckBoxDetailedLog.Checked);
   for i := 0 to MessageList.Count- 1 do
   begin
     if W3CheckBoxLogging.Checked then
