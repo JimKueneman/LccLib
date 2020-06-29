@@ -43,7 +43,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
     Size.Height = 519.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 1
+    TabIndex = 2
     TabOrder = 1
     TabPosition = Bottom
     Sizes = (
@@ -453,7 +453,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       CustomIcon = <
         item
         end>
-      IsSelected = True
+      IsSelected = False
       Size.Width = 302.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -530,7 +530,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       CustomIcon = <
         item
         end>
-      IsSelected = False
+      IsSelected = True
       Size.Width = 302.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False

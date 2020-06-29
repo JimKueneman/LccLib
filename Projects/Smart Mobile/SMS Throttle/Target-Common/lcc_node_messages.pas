@@ -484,9 +484,7 @@ begin
     end;
 
     FDataCount := 0;
-    i_Data_Count :=  len_Data - i_Data;
-    Inc(i_Data_Count);
-    Dec(i_Data_Count);
+    i_Data_Count :=  len_Data + i_Data;  // Adjust for mobile
     while i_Data < i_Data_Count do
     begin
       ByteStr := DataStr[i_Data] + DataStr[i_Data+1];

@@ -7,15 +7,15 @@
         <DeviceId Condition="'$(Platform)'=='Android'"/>
         <DeviceId Condition="'$(Platform)'=='Android64'"/>
         <DeviceId Condition="'$(Platform)'=='iOSDevice32'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
-        <DeviceId Condition="'$(Platform)'=='iOSDevice64'"/>
+        <DeviceId Condition="'$(Platform)'=='iOSDevice64'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
         <DeviceId Condition="'$(Platform)'=='iOSSimulator'">CDC0E966-0485-4967-AE4F-2F589BA5F507</DeviceId>
     </PropertyGroup>
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'">
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2688x1242.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
-            <RemoteName>Default-Landscape-1242w-2688h@3x.png</RemoteName>
-            <DeployClass>iPhone_Launch2688x1242</DeployClass>
-            <Operation>1</Operation>
+            <RemoteName>FM_ApplicationIcon_167x167.png</RemoteName>
+            <DeployClass>iPad_AppIcon167</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -444,6 +444,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2688x1242.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
+            <RemoteName>Default-Landscape-1242w-2688h@3x.png</RemoteName>
+            <DeployClass>iPhone_Launch2688x1242</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageLandscape_1024x768.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
             <RemoteName>Default-Landscape~ipad.png</RemoteName>
@@ -458,15 +467,6 @@
             <RemoteName>Default-Landscape-2048w-2732h@2x~ipad.png</RemoteName>
             <DeployClass>iPad_Launch2732x2048</DeployClass>
             <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
-            <RemoteName>FM_ApplicationIcon_167x167.png</RemoteName>
-            <DeployClass>iPad_AppIcon167</DeployClass>
-            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>

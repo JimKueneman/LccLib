@@ -816,7 +816,7 @@ end;
 constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc;
   ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 var
-  i: Integer;
+  i, Counter: Integer;
 begin
   inherited Create;
   FProtocolSupportedProtocols := TProtocolSupportedProtocols.Create(ASendMessageFunc);
@@ -859,8 +859,12 @@ begin
 
   // Setup the Cdi Stream
   StreamCdi.Size := Int64( Length(CdiXML) + 1);   // Need the null
-  for i := Low(CdiXML) to Length(CdiXML) do       // ios/android compatible
+  i := Low(CdiXML);
+  for Counter := 0 to Length(CdiXML) - 1 do       // ios/android compatible
+  begin
     StreamWriteByte(StreamCdi, Ord(CdiXML[i]));
+    Inc(i);
+  end;
   StreamWriteByte(StreamCdi, 0);
 
   // Setup the Manufacturer Data Stream from the XML to allow access for ACDI and SNIP
