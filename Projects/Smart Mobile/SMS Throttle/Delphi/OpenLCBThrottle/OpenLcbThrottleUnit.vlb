@@ -143,7 +143,7 @@ ExplicitSubNodes=Value
 Coordinates=30,770,133,36
 
 []
-Coordinates=793,135,136,58
+Coordinates=1149,155,171,36
 
 [CornerButtonForward]
 Coordinates=382,87,138,36
@@ -190,27 +190,6 @@ Coordinates=926,309,180,36
 
 [RectangleTabOpenLcbBkGnd]
 Coordinates=926,364,185,36
-
-[Text5]
-Coordinates=794,309,47,58
-
-[TextStatusOpenLcbNode]
-Coordinates=1149,1,158,58
-
-[ListBoxGroupHeaderStatus]
-Coordinates=1149,155,171,36
-
-[ListBoxItemStatusNodes]
-Coordinates=1149,210,155,36
-
-[Text6]
-Coordinates=794,515,47,58
-
-[TextStatusIPAddress]
-Coordinates=1149,78,135,58
-
-[ListBoxItemStatusIP]
-Coordinates=1006,87,131,36
 
 [EditSettingsServerIP]
 Coordinates=547,10,87,58

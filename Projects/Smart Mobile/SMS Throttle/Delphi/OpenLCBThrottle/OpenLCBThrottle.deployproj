@@ -948,6 +948,15 @@
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='OSX32'">
+        <DeployFile Include="OSX32\Debug\OpenLCBThrottle.rsm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>OpenLCBThrottle.app\Contents\MacOS\</RemoteDir>
+            <RemoteName>OpenLCBThrottle.rsm</RemoteName>
+            <DeployClass>DebugSymbols</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\delphi_PROJECTICNS.icns" Condition="'$(Config)'=='Debug'">
             <RemoteDir>OpenLCBThrottle.app\Contents\Resources\</RemoteDir>
             <RemoteName>OpenLCBThrottle.icns</RemoteName>
@@ -1555,15 +1564,6 @@
             <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
             <RemoteName>Info.plist</RemoteName>
             <DeployClass>ProjectiOSInfoPList</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="iOSSimulator\Debug\OpenLCBThrottle.rsm" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
-            <RemoteName>OpenLCBThrottle.rsm</RemoteName>
-            <DeployClass>DebugSymbols</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>

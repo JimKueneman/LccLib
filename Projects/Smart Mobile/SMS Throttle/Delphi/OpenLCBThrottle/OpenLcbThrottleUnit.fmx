@@ -11,17 +11,17 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  DesignerMasterStyle = 0
+  DesignerMasterStyle = 2
   object HeaderToolBar: TToolBar
     Anchors = []
     Size.Width = 908.000000000000000000
-    Size.Height = 48.000000000000000000
+    Size.Height = 44.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object ToolBarLabel: TLabel
       Align = Contents
       Size.Width = 908.000000000000000000
-      Size.Height = 48.000000000000000000
+      Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
       StyleLookup = 'toollabel'
       TextSettings.HorzAlign = Center
@@ -29,8 +29,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
     end
     object SpeedButtonMore: TSpeedButton
       Align = Left
-      Size.Width = 48.000000000000000000
-      Size.Height = 48.000000000000000000
+      Size.Width = 44.000000000000000000
+      Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
       StyleLookup = 'detailstoolbutton'
       Text = 'More...'
@@ -40,28 +40,30 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
     Align = Client
     FullSize = True
     Size.Width = 908.000000000000000000
-    Size.Height = 519.000000000000000000
+    Size.Height = 523.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 1
     TabPosition = Bottom
     Sizes = (
       908s
-      470s
+      474s
       908s
-      470s
+      474s
       908s
-      470s)
+      474s
+      908s
+      474s)
     object TabItemTrains: TTabItem
       CustomIcon = <
         item
         end>
-      IsSelected = False
-      Size.Width = 302.000000000000000000
+      IsSelected = True
+      Size.Width = 227.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = 'tabitemtoprated'
+      StyleLookup = 'tabitemmostviewed'
       TabOrder = 0
       Text = 'Trains'
       ExplicitSize.cx = 50.000000000000000000
@@ -91,14 +93,14 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         Fill.Gradient.StopPosition.X = 0.499999970197677600
         Fill.Gradient.StopPosition.Y = 0.000000000000000000
         Size.Width = 908.000000000000000000
-        Size.Height = 470.000000000000000000
+        Size.Height = 474.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
         object LayoutMainTrain: TLayout
           Align = Client
           Margins.Left = 137.000000000000000000
           Size.Width = 771.000000000000000000
-          Size.Height = 470.000000000000000000
+          Size.Height = 474.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           object GridLayoutFunctions: TGridLayout
@@ -111,7 +113,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Padding.Bottom = 4.000000000000000000
             Orientation = Horizontal
             Size.Width = 685.000000000000000000
-            Size.Height = 420.000000000000000000
+            Size.Height = 424.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             OnResize = GridLayoutFunctionsResize
@@ -264,7 +266,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Align = MostRight
             Position.X = 685.000000000000000000
             Size.Width = 86.000000000000000000
-            Size.Height = 470.000000000000000000
+            Size.Height = 474.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
             object TextSpeed: TText
@@ -299,7 +301,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Margins.Bottom = 8.000000000000000000
               RotationAngle = 180.000000000000000000
               Size.Width = 70.000000000000000000
-              Size.Height = 363.000000000000000000
+              Size.Height = 367.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 2
               OnChange = ScrollBarThrottleChange
@@ -307,7 +309,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           end
           object LayoutDirection: TLayout
             Align = Bottom
-            Position.Y = 420.000000000000000000
+            Position.Y = 424.000000000000000000
             Size.Width = 685.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
@@ -372,7 +374,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Align = Client
             Fill.Color = claBlack
             Size.Width = 137.000000000000000000
-            Size.Height = 470.000000000000000000
+            Size.Height = 474.000000000000000000
             Size.PlatformDefault = False
             object LayoutTrainsMultiViewToolbar: TLayout
               Align = Top
@@ -382,17 +384,19 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               TabOrder = 0
               object SpeedButton1: TSpeedButton
                 Align = Left
-                Size.Width = 48.000000000000000000
-                Size.Height = 50.000000000000000000
+                Position.Y = 12.000000000000000000
+                Size.Width = 26.000000000000000000
+                Size.Height = 26.000000000000000000
                 Size.PlatformDefault = False
                 StyleLookup = 'additembutton'
                 Text = 'SpeedButtonAddTrain'
               end
               object SpeedButtonTrainSearch: TSpeedButton
                 Align = Right
-                Position.X = 89.000000000000000000
-                Size.Width = 48.000000000000000000
-                Size.Height = 50.000000000000000000
+                Position.X = 93.000000000000000000
+                Position.Y = 3.000000000000000000
+                Size.Width = 44.000000000000000000
+                Size.Height = 44.000000000000000000
                 Size.PlatformDefault = False
                 StyleLookup = 'searchtoolbutton'
                 Text = 'SpeedButtonEditTrains'
@@ -407,7 +411,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Transparent = True
               Align = Client
               Size.Width = 137.000000000000000000
-              Size.Height = 386.000000000000000000
+              Size.Height = 390.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
               object ColorKeyAlphaEffect1: TColorKeyAlphaEffect
@@ -435,7 +439,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 Margins.Right = 1.000000000000000000
                 Margins.Bottom = 1.000000000000000000
                 Size.Width = 135.000000000000000000
-                Size.Height = 32.000000000000000000
+                Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
               end
               object FloatAnimationTrainSearch: TFloatAnimation
@@ -454,7 +458,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         item
         end>
       IsSelected = False
-      Size.Width = 302.000000000000000000
+      Size.Width = 227.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
       StyleLookup = 'tabitemcontacts'
@@ -465,14 +469,14 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       object RectangleTabOpenLcbBkGnd: TRectangle
         Align = Client
         Size.Width = 908.000000000000000000
-        Size.Height = 470.000000000000000000
+        Size.Height = 474.000000000000000000
         Size.PlatformDefault = False
         object GridLayout1: TGridLayout
           Align = Bottom
           ItemHeight = 44.000000000000000000
           ItemWidth = 120.000000000000000000
           Orientation = Horizontal
-          Position.Y = 426.000000000000000000
+          Position.Y = 430.000000000000000000
           Size.Width = 908.000000000000000000
           Size.Height = 44.000000000000000000
           Size.PlatformDefault = False
@@ -493,8 +497,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Margins.Bottom = 8.000000000000000000
             Position.X = 124.000000000000000000
             Position.Y = 8.000000000000000000
-            Size.Width = 72.000000000000000000
-            Size.Height = 28.000000000000000000
+            Size.Width = 55.000000000000000000
+            Size.Height = 35.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
             OnSwitch = SwitchOpenLCBLogSwitch
@@ -518,11 +522,164 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           Margins.Right = 4.000000000000000000
           Margins.Bottom = 4.000000000000000000
           Size.Width = 900.000000000000000000
-          Size.Height = 418.000000000000000000
+          Size.Height = 422.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
-          Viewport.Width = 896.000000000000000000
+          Viewport.Width = 892.000000000000000000
           Viewport.Height = 414.000000000000000000
+        end
+      end
+    end
+    object TabItemNode: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 227.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'tabitemdownloads'
+      TabOrder = 0
+      Text = 'Node'
+      object RectangleTabNodeBkGnd: TRectangle
+        Align = Client
+        Size.Width = 908.000000000000000000
+        Size.Height = 474.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object ListBox2: TListBox
+        Align = Client
+        Size.Width = 908.000000000000000000
+        Size.Height = 474.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        DisableFocusEffect = True
+        DefaultItemStyles.ItemStyle = ''
+        DefaultItemStyles.GroupHeaderStyle = ''
+        DefaultItemStyles.GroupFooterStyle = ''
+        Viewport.Width = 908.000000000000000000
+        Viewport.Height = 474.000000000000000000
+        object ListBoxGroupHeader3: TListBoxGroupHeader
+          Size.Width = 908.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'Node Info'
+        end
+        object ListBoxItem7: TListBoxItem
+          Selectable = False
+          Margins.Left = 16.000000000000000000
+          Position.X = 16.000000000000000000
+          Position.Y = 22.000000000000000000
+          Size.Width = 892.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object Text11: TText
+            Align = Left
+            Size.Width = 145.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'IP Address'
+            TextSettings.HorzAlign = Leading
+          end
+          object TextNetworkStatus: TText
+            Align = Left
+            Position.X = 145.000000000000000000
+            Size.Width = 176.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Not Connected'
+            TextSettings.HorzAlign = Leading
+          end
+        end
+        object ListBoxItem8: TListBoxItem
+          Selectable = False
+          Margins.Left = 16.000000000000000000
+          Position.X = 16.000000000000000000
+          Position.Y = 66.000000000000000000
+          Size.Width = 892.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          object ButtonNetworkConnect: TButton
+            Align = Left
+            Size.Width = 80.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Text = 'Connect'
+            OnClick = Button1Click
+          end
+          object ButtonNetworkDisconnect: TButton
+            Align = Left
+            Enabled = False
+            Position.X = 80.000000000000000000
+            Size.Width = 80.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            Text = 'Disconnect'
+            OnClick = Button2Click
+          end
+        end
+        object ListBoxItem9: TListBoxItem
+          Selectable = False
+          Margins.Left = 16.000000000000000000
+          Position.X = 16.000000000000000000
+          Position.Y = 110.000000000000000000
+          Size.Width = 892.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object Text13: TText
+            Align = Left
+            Size.Width = 145.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'OpenLCB Node Info'
+            TextSettings.HorzAlign = Leading
+          end
+          object TextNodeStatus: TText
+            Align = Left
+            Position.X = 145.000000000000000000
+            Size.Width = 176.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Not Connected'
+            TextSettings.HorzAlign = Leading
+          end
+        end
+        object ListBoxItem10: TListBoxItem
+          Selectable = False
+          Margins.Left = 16.000000000000000000
+          Position.X = 16.000000000000000000
+          Position.Y = 154.000000000000000000
+          Size.Width = 892.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 4
+          object ButtonNodeCreate: TButton
+            Align = Left
+            Enabled = False
+            Size.Width = 80.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Text = 'Connect'
+            OnClick = Button3Click
+          end
+          object ButtonNodeDestroy: TButton
+            Align = Left
+            Enabled = False
+            Position.X = 80.000000000000000000
+            Size.Width = 80.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            Text = 'Disconnect'
+            OnClick = Button4Click
+          end
         end
       end
     end
@@ -530,11 +687,11 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       CustomIcon = <
         item
         end>
-      IsSelected = True
-      Size.Width = 302.000000000000000000
+      IsSelected = False
+      Size.Width = 227.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
-      StyleLookup = 'tabitemmostrecent'
+      StyleLookup = 'tabitembookmarks'
       TabOrder = 0
       Text = 'Settings'
       ExplicitSize.cx = 50.000000000000000000
@@ -542,31 +699,31 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       object RectangleTabSettingsBkGnd: TRectangle
         Align = Client
         Size.Width = 908.000000000000000000
-        Size.Height = 470.000000000000000000
+        Size.Height = 474.000000000000000000
         Size.PlatformDefault = False
         object ListBox1: TListBox
           Align = Client
           Size.Width = 908.000000000000000000
-          Size.Height = 470.000000000000000000
+          Size.Height = 474.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           DisableFocusEffect = True
           DefaultItemStyles.ItemStyle = ''
           DefaultItemStyles.GroupHeaderStyle = ''
           DefaultItemStyles.GroupFooterStyle = ''
-          Viewport.Width = 904.000000000000000000
-          Viewport.Height = 466.000000000000000000
+          Viewport.Width = 908.000000000000000000
+          Viewport.Height = 474.000000000000000000
           object ListBoxGroupHeaderSettingsNetwork: TListBoxGroupHeader
-            Size.Width = 904.000000000000000000
-            Size.Height = 30.000000000000000000
+            Size.Width = 908.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 2
             Text = 'Network'
           end
           object ListBoxSettingsItemServer: TListBoxItem
             Selectable = False
-            Position.Y = 30.000000000000000000
-            Size.Width = 904.000000000000000000
+            Position.Y = 22.000000000000000000
+            Size.Width = 908.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
@@ -588,8 +745,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Margins.Top = 4.000000000000000000
               Margins.Right = 4.000000000000000000
               Margins.Bottom = 4.000000000000000000
-              Size.Width = 799.000000000000000000
-              Size.Height = 36.000000000000000000
+              Size.Width = 803.000000000000000000
+              Size.Height = 30.000000000000000000
               Size.PlatformDefault = False
               OnKeyDown = EditSettingsServerIPKeyDown
               OnExit = EditSettingsServerIPExit
@@ -597,8 +754,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           end
           object ListBoxItemSettingServerPort: TListBoxItem
             Selectable = False
-            Position.Y = 74.000000000000000000
-            Size.Width = 904.000000000000000000
+            Position.Y = 66.000000000000000000
+            Size.Width = 908.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
@@ -621,25 +778,25 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Margins.Top = 4.000000000000000000
               Margins.Right = 4.000000000000000000
               Margins.Bottom = 4.000000000000000000
-              Size.Width = 799.000000000000000000
-              Size.Height = 36.000000000000000000
+              Size.Width = 803.000000000000000000
+              Size.Height = 30.000000000000000000
               Size.PlatformDefault = False
               OnKeyDown = EditSettingsServerPortKeyDown
               OnExit = EditSettingsServerPortExit
             end
           end
           object ListBoxGroupHeaderSettingsOLCB: TListBoxGroupHeader
-            Position.Y = 118.000000000000000000
-            Size.Width = 904.000000000000000000
-            Size.Height = 30.000000000000000000
+            Position.Y = 110.000000000000000000
+            Size.Width = 908.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 3
             Text = 'OpenLCB'
           end
           object ListBoxItemSettingsOLCBMonitorDepth: TListBoxItem
             Selectable = False
-            Position.Y = 148.000000000000000000
-            Size.Width = 904.000000000000000000
+            Position.Y = 132.000000000000000000
+            Size.Width = 908.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 4
@@ -662,8 +819,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Margins.Top = 4.000000000000000000
               Margins.Right = 4.000000000000000000
               Margins.Bottom = 4.000000000000000000
-              Size.Width = 719.000000000000000000
-              Size.Height = 36.000000000000000000
+              Size.Width = 723.000000000000000000
+              Size.Height = 30.000000000000000000
               Size.PlatformDefault = False
               OnKeyDown = EditSettingsBufferDepthKeyDown
               OnExit = EditSettingsBufferDepthExit
@@ -671,8 +828,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           end
           object ListBoxItemDataFormat: TListBoxItem
             Selectable = False
-            Position.Y = 192.000000000000000000
-            Size.Width = 904.000000000000000000
+            Position.Y = 176.000000000000000000
+            Size.Width = 908.000000000000000000
             Size.Height = 44.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 5
@@ -687,133 +844,11 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Align = Left
               IsChecked = True
               Position.X = 177.000000000000000000
-              Size.Width = 72.000000000000000000
-              Size.Height = 44.000000000000000000
+              Position.Y = 4.000000000000000000
+              Size.Width = 55.000000000000000000
+              Size.Height = 35.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
-            end
-          end
-          object ListBoxGroupHeaderStatus: TListBoxGroupHeader
-            Position.Y = 236.000000000000000000
-            Size.Width = 904.000000000000000000
-            Size.Height = 44.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 6
-            Text = 'Status'
-          end
-          object ListBoxItemStatusIP: TListBoxItem
-            Selectable = False
-            Margins.Left = 16.000000000000000000
-            Position.X = 16.000000000000000000
-            Position.Y = 280.000000000000000000
-            Size.Width = 888.000000000000000000
-            Size.Height = 44.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 7
-            object Text5: TText
-              Align = Left
-              Size.Width = 145.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'IP Address'
-              TextSettings.HorzAlign = Leading
-            end
-            object TextStatusIPAddress: TText
-              Align = Left
-              Position.X = 145.000000000000000000
-              Size.Width = 176.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Not Connected'
-              TextSettings.HorzAlign = Leading
-            end
-          end
-          object ListBoxItem1: TListBoxItem
-            Selectable = False
-            Margins.Left = 16.000000000000000000
-            Position.X = 16.000000000000000000
-            Position.Y = 324.000000000000000000
-            Size.Width = 888.000000000000000000
-            Size.Height = 44.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 9
-            object Button1: TButton
-              Align = Left
-              Size.Width = 80.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 0
-              Text = 'Connect'
-              OnClick = Button1Click
-            end
-            object Button2: TButton
-              Align = Left
-              Enabled = False
-              Position.X = 80.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 1
-              Text = 'Disconnect'
-              OnClick = Button2Click
-            end
-          end
-          object ListBoxItemStatusNodes: TListBoxItem
-            Selectable = False
-            Margins.Left = 16.000000000000000000
-            Position.X = 16.000000000000000000
-            Position.Y = 368.000000000000000000
-            Size.Width = 888.000000000000000000
-            Size.Height = 44.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 8
-            object Text6: TText
-              Align = Left
-              Size.Width = 145.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'OpenLCB Node Info'
-              TextSettings.HorzAlign = Leading
-            end
-            object TextStatusOpenLcbNode: TText
-              Align = Left
-              Position.X = 145.000000000000000000
-              Size.Width = 176.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Not Connected'
-              TextSettings.HorzAlign = Leading
-            end
-          end
-          object ListBoxItem2: TListBoxItem
-            Selectable = False
-            Margins.Left = 16.000000000000000000
-            Position.X = 16.000000000000000000
-            Position.Y = 412.000000000000000000
-            Size.Width = 888.000000000000000000
-            Size.Height = 44.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 10
-            object Button3: TButton
-              Align = Left
-              Enabled = False
-              Size.Width = 80.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 0
-              Text = 'Connect'
-              OnClick = Button3Click
-            end
-            object Button4: TButton
-              Align = Left
-              Enabled = False
-              Position.X = 80.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 44.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 1
-              Text = 'Disconnect'
-              OnClick = Button4Click
             end
           end
         end

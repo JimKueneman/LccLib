@@ -6,7 +6,7 @@
         <MainSource>OpenLCBThrottle.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">iOSSimulator</Platform>
+        <Platform Condition="'$(Platform)'==''">OSX32</Platform>
         <TargetedPlatforms>37983</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -1210,12 +1210,6 @@
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_828x1792.png" Configuration="Debug" Class="iPhone_Launch828">
                     <Platform Name="iOSDevice64">
                         <RemoteName>Default-828w-1792h@2x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="iOSSimulator\Debug\OpenLCBThrottle.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="iOSSimulator">
-                        <RemoteName>OpenLCBThrottle.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

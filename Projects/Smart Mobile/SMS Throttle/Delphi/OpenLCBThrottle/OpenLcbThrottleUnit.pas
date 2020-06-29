@@ -108,19 +108,22 @@ type
     FloatAnimationTrainSearch: TFloatAnimation;
     RectangleTabSettingsBkGnd: TRectangle;
     RectangleTabOpenLcbBkGnd: TRectangle;
-    ListBoxGroupHeaderStatus: TListBoxGroupHeader;
-    ListBoxItemStatusIP: TListBoxItem;
-    ListBoxItemStatusNodes: TListBoxItem;
-    Text5: TText;
-    TextStatusIPAddress: TText;
-    Text6: TText;
-    TextStatusOpenLcbNode: TText;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    ListBoxItem1: TListBoxItem;
-    ListBoxItem2: TListBoxItem;
+    TabItemNode: TTabItem;
+    RectangleTabNodeBkGnd: TRectangle;
+    ListBox2: TListBox;
+    ListBoxGroupHeader3: TListBoxGroupHeader;
+    ListBoxItem7: TListBoxItem;
+    Text11: TText;
+    TextNetworkStatus: TText;
+    ListBoxItem8: TListBoxItem;
+    ButtonNetworkConnect: TButton;
+    ButtonNetworkDisconnect: TButton;
+    ListBoxItem9: TListBoxItem;
+    Text13: TText;
+    TextNodeStatus: TText;
+    ListBoxItem10: TListBoxItem;
+    ButtonNodeCreate: TButton;
+    ButtonNodeDestroy: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ScrollBarThrottleChange(Sender: TObject);
@@ -459,16 +462,16 @@ end;
 
 procedure TOpenLcbThrottleForm.NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  TextStatusOpenLcbNode.Text := 'Creating Node';
-  Button3.Enabled := False;
-  Button4.Enabled := False;
+  TextNodeStatus.Text := 'Creating Node';
+  ButtonNodeCreate.Enabled := False;
+  ButtonNodeDestroy.Enabled := False;
 end;
 
 procedure TOpenLcbThrottleForm.NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  TextStatusOpenLcbNode.Text := 'Not Connected';
-  Button3.Enabled := EthernetClient.Connected;
-  Button4.Enabled := False;
+  TextNodeStatus.Text := 'Not Connected';
+  ButtonNodeCreate.Enabled := EthernetClient.Connected;
+  ButtonNodeDestroy.Enabled := False;
   NodeID := '';
   NodeAlias := '';
 end;
@@ -481,9 +484,9 @@ end;
 procedure TOpenLcbThrottleForm.NodeInitializationCompleteCallback(
   Sender: TObject; LccSourceNode: TLccNode);
 begin
-  Button3.Enabled := False;
-  Button4.Enabled := True;
-  TextStatusOpenLcbNode.Text := 'ID: ' + NodeID + ' Alias: ' + NodeAlias;
+  ButtonNodeCreate.Enabled := False;
+  ButtonNodeDestroy.Enabled := True;
+  TextNodeStatus.Text := 'ID: ' + NodeID + ' Alias: ' + NodeAlias;
 end;
 
 procedure TOpenLcbThrottleForm.NodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -524,22 +527,22 @@ end;
 procedure TOpenLcbThrottleForm.OnConnectionStateChangeClient(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
    case EthernetRec.ConnectionState of
-      ccsClientConnecting    :  TextStatusIPAddress.Text := 'Connecting';
+      ccsClientConnecting    :  TextNetworkStatus.Text := 'Connecting';
       ccsClientConnected     :  begin
-                                  TextStatusIPAddress.Text := EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-                                  Button2.Enabled := True;
-                                  Button1.Enabled := False;
-                                  Button3.Enabled := True;
+                                  TextNetworkStatus.Text := EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+                                  ButtonNetworkDisconnect.Enabled := True;
+                                  ButtonNetworkConnect.Enabled := False;
+                                  ButtonNodeCreate.Enabled := True;
                                 end;
       ccsClientDisconnecting :  begin
-                                  TextStatusIPAddress.Text := 'Disconnecting';
+                                  TextNetworkStatus.Text := 'Disconnecting';
                                 end;
       ccsClientDisconnected  :  begin
-                                  TextStatusIPAddress.Text := 'Not Connected';
-                                  Button1.Enabled := True;
-                                  Button2.Enabled := False;
-                                  Button3.Enabled := False;
-                                  Button4.Enabled := False;
+                                  TextNetworkStatus.Text := 'Not Connected';
+                                  ButtonNetworkConnect.Enabled := True;
+                                  ButtonNetworkDisconnect.Enabled := False;
+                                  ButtonNodeCreate.Enabled := False;
+                                  ButtonNodeDestroy.Enabled := False;
                                   CanNodeManager.Clear;
                                 end;
    end;
