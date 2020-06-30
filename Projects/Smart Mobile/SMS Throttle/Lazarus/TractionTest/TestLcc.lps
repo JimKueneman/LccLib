@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="19">
+    <Units Count="20">
       <Unit0>
         <Filename Value="TestLcc.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -19,10 +19,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
-        <CursorPos X="33" Y="18"/>
+        <TopLine Value="568"/>
+        <CursorPos X="11" Y="577"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../Target-Common/lcc_node.pas"/>
@@ -87,7 +87,7 @@
       </Unit10>
       <Unit11>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="579"/>
         <CursorPos X="29" Y="587"/>
         <UsageCount Value="353"/>
@@ -95,7 +95,7 @@
       </Unit11>
       <Unit12>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="765"/>
         <CursorPos X="72" Y="777"/>
         <UsageCount Value="352"/>
@@ -103,7 +103,7 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../Target-Common/lcc_defines.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="416"/>
         <CursorPos X="22" Y="431"/>
         <UsageCount Value="326"/>
@@ -111,7 +111,7 @@
       </Unit13>
       <Unit14>
         <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="80"/>
         <CursorPos X="14" Y="224"/>
         <UsageCount Value="279"/>
@@ -119,7 +119,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="/Developer/lazarus/lcl/include/control.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="3557"/>
         <CursorPos Y="3568"/>
         <UsageCount Value="276"/>
@@ -127,14 +127,14 @@
       </Unit15>
       <Unit16>
         <Filename Value="/Developer/lazarus/lcl/include/graphiccontrol.inc"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <CursorPos Y="22"/>
         <UsageCount Value="276"/>
         <Loaded Value="True"/>
       </Unit16>
       <Unit17>
         <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="721"/>
         <CursorPos X="74" Y="833"/>
         <UsageCount Value="275"/>
@@ -142,129 +142,145 @@
       </Unit17>
       <Unit18>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="862"/>
         <CursorPos X="72" Y="875"/>
         <UsageCount Value="275"/>
         <Loaded Value="True"/>
       </Unit18>
+      <Unit19>
+        <Filename Value="../../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="23"/>
+        <CursorPos Y="32"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit19>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="87" Column="76" TopLine="74"/>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="121" Column="18" TopLine="105"/>
       </Position1>
       <Position2>
-        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="696" Column="28" TopLine="678"/>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="775" Column="3" TopLine="767"/>
       </Position2>
       <Position3>
         <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="88" Column="73" TopLine="74"/>
+        <Caret Line="87" Column="29" TopLine="77"/>
       </Position3>
       <Position4>
-        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="936" Column="3" TopLine="934"/>
+        <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
+        <Caret Line="257" Column="14" TopLine="243"/>
       </Position4>
       <Position5>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="977" TopLine="959"/>
+        <Caret Line="207" Column="28" TopLine="194"/>
       </Position5>
       <Position6>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="121" Column="18" TopLine="105"/>
+        <Caret Line="66" Column="12" TopLine="59"/>
       </Position6>
       <Position7>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="775" Column="3" TopLine="767"/>
+        <Caret Line="118" Column="32" TopLine="102"/>
       </Position7>
       <Position8>
-        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="87" Column="29" TopLine="77"/>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="539" Column="47" TopLine="528"/>
       </Position8>
       <Position9>
-        <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
-        <Caret Line="257" Column="14" TopLine="243"/>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="119" Column="12" TopLine="107"/>
       </Position9>
       <Position10>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="207" Column="28" TopLine="194"/>
+        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
+        <Caret Line="692" Column="33" TopLine="687"/>
       </Position10>
       <Position11>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="66" Column="12" TopLine="59"/>
+        <Caret Line="116" Column="12" TopLine="106"/>
       </Position11>
       <Position12>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="118" Column="32" TopLine="102"/>
+        <Caret Line="409" Column="51" TopLine="406"/>
       </Position12>
       <Position13>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="539" Column="47" TopLine="528"/>
+        <Caret Line="118" Column="12" TopLine="105"/>
       </Position13>
       <Position14>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="119" Column="12" TopLine="107"/>
+        <Caret Line="671" Column="38" TopLine="662"/>
       </Position14>
       <Position15>
-        <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <Caret Line="692" Column="33" TopLine="687"/>
-      </Position15>
-      <Position16>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="116" Column="12" TopLine="106"/>
-      </Position16>
-      <Position17>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="409" Column="51" TopLine="406"/>
-      </Position17>
-      <Position18>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="118" Column="12" TopLine="105"/>
-      </Position18>
-      <Position19>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="671" Column="38" TopLine="662"/>
-      </Position19>
-      <Position20>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
         <Caret Line="118" Column="71" TopLine="107"/>
-      </Position20>
-      <Position21>
+      </Position15>
+      <Position16>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
         <Caret Line="777" Column="72" TopLine="765"/>
-      </Position21>
-      <Position22>
+      </Position16>
+      <Position17>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
         <Caret Line="875" Column="72" TopLine="862"/>
-      </Position22>
-      <Position23>
+      </Position17>
+      <Position18>
         <Filename Value="unit1.pas"/>
         <Caret Line="692" Column="31" TopLine="673"/>
+      </Position18>
+      <Position19>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="682" Column="74" TopLine="661"/>
+      </Position19>
+      <Position20>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="690" Column="52" TopLine="673"/>
+      </Position20>
+      <Position21>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="119" TopLine="107"/>
+      </Position21>
+      <Position22>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="257" Column="42" TopLine="247"/>
+      </Position22>
+      <Position23>
+        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
+        <Caret Line="118" Column="56" TopLine="101"/>
       </Position23>
       <Position24>
         <Filename Value="unit1.pas"/>
-        <Caret Line="682" Column="74" TopLine="661"/>
+        <Caret Line="434" Column="47" TopLine="415"/>
       </Position24>
       <Position25>
         <Filename Value="unit1.pas"/>
-        <Caret Line="690" Column="52" TopLine="673"/>
+        <Caret Line="426" Column="30" TopLine="453"/>
       </Position25>
       <Position26>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="119" TopLine="107"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="137" Column="20" TopLine="122"/>
       </Position26>
       <Position27>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="257" Column="42" TopLine="247"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="375" Column="42" TopLine="366"/>
       </Position27>
       <Position28>
-        <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <Caret Line="118" Column="56" TopLine="101"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="157" Column="15" TopLine="157"/>
       </Position28>
+      <Position29>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="684" Column="3" TopLine="673"/>
+      </Position29>
+      <Position30>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="165" Column="15" TopLine="146"/>
+      </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

@@ -1012,6 +1012,7 @@ var
   TestNodeID: TNodeID;
   Temp: TEventID;
   AddressSpace, OperationType, TractionCode: Byte;
+  DoDefault: Boolean;
 begin
 
   // By the time a messages drops into this method it is a fully qualified OpenLCB
@@ -1045,6 +1046,9 @@ begin
         begin
           // TODO need a call back handler
         end;
+
+    // *************************************************************************
+    // *************************************************************************
     MTI_VERIFY_NODE_ID_NUMBER      :
         begin
           if SourceLccMessage.DataCount = 6 then
@@ -1072,6 +1076,9 @@ begin
         begin
            // TODO need a call back handler
         end;
+
+    // *************************************************************************
+    // *************************************************************************
     MTI_SIMPLE_NODE_INFO_REQUEST :
         begin
           WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerData, StreamConfig));
@@ -1083,6 +1090,9 @@ begin
           // TODO need a call back handler
           Result := True;
         end;
+
+    // *************************************************************************
+    // *************************************************************************
     MTI_PROTOCOL_SUPPORT_INQUIRY :
         begin
           WorkerMessage.LoadProtocolIdentifyReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
@@ -1094,6 +1104,11 @@ begin
           // TODO need a call back handler
           Result := True;
         end;
+
+    // *************************************************************************
+    // Producer/Consumer tell me what events do you care about (for routers, getting mass
+    // results for the state of the layout
+    // *************************************************************************
     MTI_EVENTS_IDENTIFY :
         begin
           SendConsumedEvents;
@@ -1106,18 +1121,49 @@ begin
           SendProducedEvents;
           Result := True;
         end;
+
+    // *************************************************************************
+    // General Producer/Consumer Queries
+    // *************************************************************************
     MTI_PRODUCER_IDENDIFY :
         begin
-          Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          SendProducerIdentify(Temp);         // Compatible with Smart Pascal
+          // First see if we have any built in producers we can to reply automatically
+          // Note that the expectation is the app is maintaining the state of the event
+          // objects in parallel through the TProtocolEventsProduced object (Clear/Set/Unkown)
+
+          // Let the application have a crack
+          DoDefault := True;
+           (NodeManager as INodeManagerCallbacks).DoProducerIdentify(Self, SourceLccMessage, DoDefault);
+          if DoDefault then
+          begin
+            Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
+            SendProducerIdentify(Temp);         // Compatible with Smart Pascal
+          end;
           Result := True;
         end;
     MTI_CONSUMER_IDENTIFY :
         begin
-          Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          SendConsumerIdentify(Temp);        // Compatible with Smart Pascal
+          // First see if we have any preregistred consumers that we use that
+          // we can to reply automatically, we are not the producers so we
+          // don't need to keep the state upto date
+
+          // Let the application have a crack
+          DoDefault := True;
+           (NodeManager as INodeManagerCallbacks).DoProducerIdentify(Self, SourceLccMessage, DoDefault);
+          if DoDefault then
+          begin
+            Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
+            SendConsumerIdentify(Temp);        // Compatible with Smart Pascal
+          end;
           Result := True;
         end;
+
+    // *************************************************************************
+     // This block of messages is if we sent at "Producer" or "Consumer" Identify
+     // and these are the results coming back... I am not sure what "Consumer" Identify
+     // needs different states as the replying node is not in control of the state only
+     // the "Producer" is in control
+     // *************************************************************************
      MTI_CONSUMER_IDENTIFIED_CLEAR :
         begin
           // TODO need a call back handler
@@ -1142,6 +1188,10 @@ begin
         begin
           // TODO need a call back handler
         end;
+
+     // *************************************************************************
+     // Traction Messages
+     // *************************************************************************
      MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST :
         begin
           Result := True;
@@ -1186,6 +1236,10 @@ begin
         begin
           Result := True;
         end;
+
+    // *************************************************************************
+    // Datagram Messages
+    // *************************************************************************
      MTI_DATAGRAM_REJECTED_REPLY :
        begin
          DatagramResendQueue.Resend(SourceLccMessage);

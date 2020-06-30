@@ -51,6 +51,7 @@ type
     procedure DoConfigMemReadReply(SourceLccNode, DesTLccNode: TLccNode);
     procedure DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode);
     procedure DoCreateLccNode(SourceLccNode: TLccNode);     //*
+    procedure DoConsumerIdentify(SourceLccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
     procedure DoDatagramReply(SourceLccNode, DesTLccNode: TLccNode);
     procedure DoDestroyLccNode(LccNode: TLccNode);   //*
@@ -59,6 +60,7 @@ type
     procedure DoInitializationComplete(SourceLccNode: TLccNode);   //*
     procedure DoNodeIDChanged(LccNode: TLccNode);                  //*
     procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode);
+    procedure DoProducerIdentify(SourceLccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState);
     procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode);
     procedure DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode);
@@ -78,6 +80,7 @@ type
 
   TOnLccNodeMessage = procedure(Sender: TObject; LccSourceNode: TLccNode) of object;
   TOnLccNodeMessageWithDest = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode) of object;
+  TOnLccNodeEventIdentify = procedure(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean) of object;
   TOnLccNodeEventIdentified = procedure(Sender: TObject; LccSourceNode: TLccNode; var Event: TEventID; State: TEventState) of object;
   TOnLccNodeMessageResultCode = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ResultCode: Byte) of object;
   TOnLccNodeTractionControllerQuery = procedure(Sender: TObject; LccSourceNode, LccDestNode: TLccNode; ActiveControllerNodeID: TNodeID; ActiveControllerAlias: Word) of object;
@@ -93,6 +96,7 @@ type
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
     FOnLccNodeConfigMemOptionsReply: TOnLccNodeConfigMem;
+    FOnLccNodeConsumerIdentify: TOnLccNodeEventIdentify;
     FOnLccNodeIDChanged: TOnLccNodeMessage;
     FOnLccCANAliasMapReset: TOnLccNodeMessage;
     FOnLccNodeCDI: TOnLccNodeMessageWithDest;
@@ -107,6 +111,7 @@ type
     FOnLccNodeInitializationComplete: TOnLccNodeMessage;
     FOnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest;
     FOnLccNodeProducerIdentified: TOnLccNodeEventIdentified;
+    FOnLccNodeProducerIdentify: TOnLccNodeEventIdentify;
     FOnLccNodeProtocolIdentifyReply: TOnLccNodeMessageWithDest;
     FOnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest;
     FOnLccNodeSimpleNodeIdentReply: TOnLccNodeMessageWithDest;
@@ -136,6 +141,7 @@ type
     procedure DoConfigMemReadReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoConfigMemWriteReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoCreateLccNode(SourceLccNode: TLccNode); virtual;     //*
+    procedure DoConsumerIdentify(SourceLccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoConsumerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoDatagramReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoDestroyLccNode(LccNode: TLccNode); virtual;   //*
@@ -144,6 +150,7 @@ type
     procedure DoInitializationComplete(SourceLccNode: TLccNode); virtual;   //*
     procedure DoNodeIDChanged(LccNode: TLccNode); virtual;                  //*
     procedure DoOptionalInteractionRejected(SourceLccNode, DesTLccNode: TLccNode); virtual;
+    procedure DoProducerIdentify(SourceLccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoProducerIdentified(SourceLccNode: TLccNode; var Event: TEventID; State: TEventState); virtual;
     procedure DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
     procedure DoRemoteButtonReply(SourceLccNode, DesTLccNode: TLccNode); virtual;
@@ -205,7 +212,9 @@ type
     property OnLccNodeConfigMemWriteReply: TOnLccNodeConfigMem read FOnLccNodeConfigMemWriteReply write FOnLccNodeConfigMemWriteReply;
 
     // Events
+    property OnLccNodeConsumerIdentify: TOnLccNodeEventIdentify read FOnLccNodeConsumerIdentify write FOnLccNodeConsumerIdentify;
     property OnLccNodeConsumerIdentified: TOnLccNodeEventIdentified read FOnLccNodeConsumerIdentified write FOnLccNodeConsumerIdentified;
+    property OnLccNodeProducerIdentify: TOnLccNodeEventIdentify read FOnLccNodeProducerIdentify write FOnLccNodeProducerIdentify;
     property OnLccNodeProducerIdentified: TOnLccNodeEventIdentified read FOnLccNodeProducerIdentified write FOnLccNodeProducerIdentified;
 
     // SNIP
@@ -340,6 +349,13 @@ begin
     OnLccNodeConsumerIdentified(Self, SourceLccNode, Event, State);
 end;
 
+procedure TLccNodeManager.DoConsumerIdentify(SourceLccNode: TLccNode;
+  LccMessage: TLccMessage; var DoDefault: Boolean);
+begin
+  if Assigned(OnLccNodeConsumerIdentify) then
+    OnLccNodeConsumerIdentify(Self, SourceLccNode, LccMessage, DoDefault);
+end;
+
 procedure TLccNodeManager.DoDatagramReply(SourceLccNode,
   DesTLccNode: TLccNode);
 begin
@@ -399,6 +415,12 @@ procedure TLccNodeManager.DoProducerIdentified(SourceLccNode: TLccNode; var Even
 begin
   if Assigned(OnLccNodeProducerIdentified) then
     OnLccNodeProducerIdentified(Self, SourceLccNode, Event, State);
+end;
+
+procedure TLccNodeManager.DoProducerIdentify(SourceLccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
+begin
+  if Assigned(OnLccNodeProducerIdentify) then
+    OnLccNodeProducerIdentify(Self, SourceLccNode, LccMessage, DoDefault);
 end;
 
 procedure TLccNodeManager.DoProtocolIdentifyReply(SourceLccNode, DesTLccNode: TLccNode);

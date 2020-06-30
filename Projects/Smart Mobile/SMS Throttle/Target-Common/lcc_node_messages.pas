@@ -159,7 +159,21 @@ public
 
   // Traction Search
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
+  function TractionSearchDecodeSearchString: string;
   procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; SearchData: DWORD);
+  function TractionSearchIsEvent: Boolean;
+  function TractionSearchIsForceAllocate: Boolean;
+  function TractionSearchIsExactMatchOnly: Boolean;
+  function TractionSearchIsAddressMatchOnly: Boolean;
+  function TractionSearchIsProtocolAny: Boolean;
+  function TractionSearchIsProtocolNativeOpenLcb: Boolean;
+  function TractionSearchIsProtocolMFX_M4: Boolean;
+  function TractionSearchIsProtocolMarklin(var ProtocolVersion: TLccMarklinProtocolVersion): Boolean;
+  function TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep): Boolean;
+class  function TractionSearchSetNativeOpenLcb(ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class  function TractionSearchSetMFX_M4(ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class  function TractionSearchSetMarklin(ProtocolVersion: TLccMarklinProtocolVersion; ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class  function TractionSearchSetNMRA(ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
 
   // Remote Button
 
@@ -959,6 +973,46 @@ begin
   CAN.DestAlias := TempAlias;
 end;
 
+function TLccMessage.TractionSearchDecodeSearchString: string;
+var
+  Nibble, Snippit: Byte;
+  i: Integer;
+begin
+  Result := '';
+  for i := 4 to 6 do
+  begin
+    Nibble := DataArray[i];
+    Snippit := Nibble shr 4;
+    case Snippit of
+       $0F : begin end;
+       $00 : Result := Result + '0';
+       $01 : Result := Result + '1';
+       $02 : Result := Result + '2';
+       $03 : Result := Result + '3';
+       $04 : Result := Result + '4';
+       $05 : Result := Result + '5';
+       $06 : Result := Result + '6';
+       $07 : Result := Result + '7';
+       $08 : Result := Result + '8';
+       $09 : Result := Result + '9';
+    end;
+    Snippit := Nibble and $0F;
+    case Snippit of
+       $0F : begin end;
+       $00 : Result := Result + '0';
+       $01 : Result := Result + '1';
+       $02 : Result := Result + '2';
+       $03 : Result := Result + '3';
+       $04 : Result := Result + '4';
+       $05 : Result := Result + '5';
+       $06 : Result := Result + '6';
+       $07 : Result := Result + '7';
+       $08 : Result := Result + '8';
+       $09 : Result := Result + '9';
+    end;
+  end;
+end;
+
 class function TLccMessage.TractionSearchEncodeSearchString(
   SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD
   ): TSearchEncodeStringError;
@@ -1010,6 +1064,123 @@ begin
 
    // Above the shl 4 was done on the last byte so it is shifted over ready for the Track Protocol Flags
   SearchData := SearchData or DWORD( TrackProtocolFlags);
+end;
+
+function TLccMessage.TractionSearchIsAddressMatchOnly: Boolean;
+begin
+  Result := DataArray[7] and TRACTION_SEARCH_TARGET_ADDRESS_MATCH = TRACTION_SEARCH_TARGET_ADDRESS_MATCH
+end;
+
+function TLccMessage.TractionSearchIsEvent: Boolean;
+begin
+  Result := (DataArray[0] = $09) and (DataArray[1] = $00) and (DataArray[2] = $99) and (DataArray[3] = $FF);
+end;
+
+function TLccMessage.TractionSearchIsExactMatchOnly: Boolean;
+begin
+  Result := DataArray[7] and TRACTION_SEARCH_TYPE_EXACT_MATCH = TRACTION_SEARCH_TYPE_EXACT_MATCH;
+end;
+
+function TLccMessage.TractionSearchIsForceAllocate: Boolean;
+begin
+  Result := DataArray[7] and TRACTION_SEARCH_ALLOCATE_FORCE = TRACTION_SEARCH_ALLOCATE_FORCE;
+end;
+
+function TLccMessage.TractionSearchIsProtocolAny: Boolean;
+begin
+  Result := (DataArray[7] and $01FF) = 0;
+end;
+
+function TLccMessage.TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep): Boolean;
+begin
+  Result := (DataArray[7] and TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_MASK) = TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+  if Result then
+  begin
+    case DataArray[7] and TRACTION_SEARCH_PROTCOL_DETAILS_MASK of
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_ANY          : SpeedStep := ldssDefault;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1    : SpeedStep := ldss14;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2    : SpeedStep := ldss28;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8 : SpeedStep := ldss128;
+    end;
+    ForceLongAddress := (DataArray[7] and TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG) = TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG ;
+  end;
+end;
+
+function TLccMessage.TractionSearchIsProtocolMarklin(var ProtocolVersion: TLccMarklinProtocolVersion): Boolean;
+begin
+  Result := (DataArray[7] and (TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_MASK or $04)) = TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN;
+  if Result then
+  begin
+    case DataArray[7] and TRACTION_SEARCH_PROTCOL_DETAILS_MASK of
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_ANY          : ProtocolVersion := lmpvDefault;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1    : ProtocolVersion := lmvpVer1;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2    : ProtocolVersion := lmvpVer2;
+      TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8 : ProtocolVersion := lmvpVer2ExtFunction;
+    end;
+  end;
+end;
+
+function TLccMessage.TractionSearchIsProtocolMFX_M4: Boolean;
+begin
+  Result := (DataArray[7] and TRACTION_SEARCH_TRACK_PROTOCOL_MFX_M4) = TRACTION_SEARCH_TRACK_PROTOCOL_MFX_M4;
+end;
+
+function TLccMessage.TractionSearchIsProtocolNativeOpenLcb: Boolean;
+begin
+  Result := (DataArray[7] and TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB) = TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB;
+end;
+
+class function TLccMessage.TractionSearchSetMarklin(
+  ProtocolVersion: TLccMarklinProtocolVersion; ForceAllocate, ExactMatchOnly,
+  MachAddressOnly: Boolean): Byte;
+begin
+  Result := $00;
+  if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
+  if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+  Result := Result or $03;   // Odd ball bit for Marklin
+  case ProtocolVersion of
+    lmpvDefault         : begin end;  // done
+    lmvpVer1            : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_1;
+    lmvpVer2            : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2;
+    lmvpVer2ExtFunction : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_MARKLIN_VERSION_2_F8;
+  end;
+end;
+
+class function TLccMessage.TractionSearchSetMFX_M4(
+  ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+begin
+  Result := $00;
+  if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
+  if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+end;
+
+class function TLccMessage.TractionSearchSetNativeOpenLcb(
+  ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+begin
+  Result := $00;
+  if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
+  if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+end;
+
+class function TLccMessage.TractionSearchSetNMRA(
+  ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate,
+  ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+begin
+  Result := $00;
+  if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
+  if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
+  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+  Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+  if ForceLongAddress then Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG;
+  case SpeedStep of
+    ldssDefault : begin end;
+    ldss14      : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+    ldss28      : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+    ldss128     : Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+  end;
 end;
 
 procedure TLccMessage.LoadVerifyNodeID(ASourceID: TNodeID; ASourceAlias: Word);
