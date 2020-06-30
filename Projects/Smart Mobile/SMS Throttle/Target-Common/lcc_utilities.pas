@@ -65,7 +65,8 @@ uses
     function _Highest1(Data: QWord): Byte;
     function _Highest2(Data: QWord): Byte;
     {$IFDEF LCC_WINDOWS}
-      function ResolveWindowsIp(Socket: TBlockSocket): string;
+      function ResolveWindowsIp(Socket: TBlockSocket): string; overload;
+      function ResolveWindowsIp: string; overload;
     {$ELSE}
       {$IFDEF ULTIBO}
         function ResolveUltiboIp: String;
@@ -103,6 +104,26 @@ var
 {$IFNDEF DWSCRIPT}
 
   {$IFDEF LCC_WINDOWS}
+    function ResolveWindowsIp: string;
+    var
+      Socket: TTCPBlockSocket;
+    begin
+      Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+      Socket.Family := SF_IP4;                  // IP4
+      Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
+      Socket.HeartbeatRate := 0;
+      Socket.SetTimeout(0);
+      if Socket.LastError <> 0 then
+        Result := 'Unknown'
+      else
+        Result := ResolveWindowsIp(Socket);
+      try
+      finally
+        Socket.Free;
+      end;
+    end;
+
+
     function ResolveWindowsIp(Socket: TBlockSocket): String;
     var
       IpStrings: TStringList;

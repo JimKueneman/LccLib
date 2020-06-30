@@ -1,5 +1,7 @@
 unit OpenLcbThrottleUnit;
 
+{$i lcc_compilers.inc}
+
 interface
 
 uses
@@ -23,7 +25,9 @@ uses
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
-  lcc_math_float16;
+  lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
+  System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
+  Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope;
 
 
 type
@@ -52,7 +56,7 @@ type
     TabItemOpenLCB: TTabItem;
     TabItemSettings: TTabItem;
     GestureManager1: TGestureManager;
-    ListBox1: TListBox;
+    ListBoxSettings: TListBox;
     ListBoxSettingsItemServer: TListBoxItem;
     Text1: TText;
     EditSettingsServerIP: TEdit;
@@ -69,15 +73,11 @@ type
     SwitchSettingsDataFormatGridConnect: TSwitch;
     SpeedButtonOpenLCBClear: TSpeedButton;
     SwitchOpenLCBLog: TSwitch;
-    Text3: TText;
+    TextOpenLcbLogMessages: TText;
     MemoOpenLCB: TMemo;
-    MultiViewTrains: TMultiView;
-    ListView1: TListView;
-    ColorKeyAlphaEffect1: TColorKeyAlphaEffect;
-    GridLayout1: TGridLayout;
     SpeedButtonMore: TSpeedButton;
     LayoutMainTrain: TLayout;
-    GridLayoutFunctions: TGridLayout;
+    GridLayoutFunctionControls: TGridLayout;
     CornerButtonF0: TCornerButton;
     CornerButtonF1: TCornerButton;
     CornerButtonF2: TCornerButton;
@@ -90,40 +90,73 @@ type
     CornerButtonF9: TCornerButton;
     CornerButton10: TCornerButton;
     CornerButton11: TCornerButton;
-    LayoutThrottle: TLayout;
+    LayoutThrottleControls: TLayout;
     TextSpeed: TText;
     Text4: TText;
     ScrollBarThrottle: TScrollBar;
     CornerButtonForward: TCornerButton;
     TextDirection: TText;
     CornerButtonReverse: TCornerButton;
-    LayoutDirection: TLayout;
-    RectangleTabTrainBkGnd: TRectangle;
-    LayoutTrainsMultiViewToolbar: TLayout;
-    SpeedButton1: TSpeedButton;
-    Rectangle2: TRectangle;
-    SpeedButtonTrainSearch: TSpeedButton;
-    LayoutTrainsMultiViewSearch: TLayout;
-    EditTrainSearch: TEdit;
-    FloatAnimationTrainSearch: TFloatAnimation;
+    LayoutDirectionControls: TLayout;
     RectangleTabSettingsBkGnd: TRectangle;
     RectangleTabOpenLcbBkGnd: TRectangle;
     TabItemNode: TTabItem;
     RectangleTabNodeBkGnd: TRectangle;
-    ListBox2: TListBox;
-    ListBoxGroupHeader3: TListBoxGroupHeader;
+    ListBoxNode: TListBox;
+    ListBoxGroupHeaderEthernet: TListBoxGroupHeader;
     ListBoxItem7: TListBoxItem;
-    Text11: TText;
+    TextNodeAddress: TText;
     TextNetworkStatus: TText;
     ListBoxItem8: TListBoxItem;
     ButtonNetworkConnect: TButton;
     ButtonNetworkDisconnect: TButton;
     ListBoxItem9: TListBoxItem;
-    Text13: TText;
-    TextNodeStatus: TText;
+    TextNodeInfo: TText;
+    TextNodeID: TText;
     ListBoxItem10: TListBoxItem;
     ButtonNodeCreate: TButton;
     ButtonNodeDestroy: TButton;
+    ListBoxGroupHeaderStatus: TListBoxGroupHeader;
+    LayoutOpenLcbTools: TLayout;
+    ListBoxGroupHeaderOpenLcbNode: TListBoxGroupHeader;
+    ListBoxItem1: TListBoxItem;
+    Text3: TText;
+    TextNodeAlias: TText;
+    ListBoxItem2: TListBoxItem;
+    Text5: TText;
+    TextMyIpAddress: TText;
+    LayoutForm: TLayout;
+    MultiViewTrains: TMultiView;
+    Rectangle2: TRectangle;
+    LayoutTrainsMultiViewToolbar: TLayout;
+    SpeedButtonAddTrain: TSpeedButton;
+    SpeedButtonTrainSearch: TSpeedButton;
+    ListViewTrains: TListView;
+    ColorKeyAlphaEffect1: TColorKeyAlphaEffect;
+    LayoutTrainsMultiViewSearch: TLayout;
+    EditTrainSearch: TEdit;
+    FloatAnimationTrainSearch: TFloatAnimation;
+    LayoutTrainsAdd: TLayout;
+    FloatAnimationAddTrain: TFloatAnimation;
+    ListBoxAddTrain: TListBox;
+    ListBoxItemTrainName: TListBoxItem;
+    ListBoxItemAddTrainNameEdit: TListBoxItem;
+    ListBoxItemAddTrainRoadNumber: TListBoxItem;
+    ListBoxItemAddTrainRoadNumberEdit: TListBoxItem;
+    ListBoxItemAddTrainDecoderAddress: TListBoxItem;
+    ListBoxItemAddTrainDecoderAddressEdit: TListBoxItem;
+    EditAddTrainName: TEdit;
+    EditAddTrainRoadNumber: TEdit;
+    EditAddTrainDecoderAddress: TEdit;
+    ListBoxItemEnter: TListBoxItem;
+    ButtonAddTrainAdd: TButton;
+    ClientDataSetTrains: TClientDataSet;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    ClientDataSetTrainsName: TStringField;
+    ClientDataSetTrainsRoadNumber: TStringField;
+    ClientDataSetTrainsDecoderAddress: TIntegerField;
     procedure FormCreate(Sender: TObject);
     procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ScrollBarThrottleChange(Sender: TObject);
@@ -132,7 +165,7 @@ type
     procedure CornerButtonReverseClick(Sender: TObject);
     procedure SpeedButtonTrainSearchClick(Sender: TObject);
     procedure MultiViewTrainsStartShowing(Sender: TObject);
-    procedure GridLayoutFunctionsResize(Sender: TObject);
+    procedure GridLayoutFunctionControlsResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure EditSettingsServerPortKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -141,12 +174,15 @@ type
     procedure EditSettingsServerIPExit(Sender: TObject);
     procedure EditSettingsServerPortExit(Sender: TObject);
     procedure EditSettingsBufferDepthExit(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
+    procedure ButtonNetworkConnectClick(Sender: TObject);
+    procedure ButtonNetworkDisconnectClick(Sender: TObject);
+    procedure ButtonNodeCreateClick(Sender: TObject);
+    procedure ButtonNodeDestroyClick(Sender: TObject);
     procedure SwitchOpenLCBLogSwitch(Sender: TObject);
     procedure SpeedButtonOpenLCBClearClick(Sender: TObject);
+    procedure TabItemNodeClick(Sender: TObject);
+    procedure SpeedButtonAddTrainClick(Sender: TObject);
+    procedure ButtonAddTrainAddClick(Sender: TObject);
   private
     FCanNodeManager: TLccCanNodeManager;
     FEthernetServer: TLccEthernetServer;
@@ -198,7 +234,35 @@ begin
   FGridConnect := True;
 end;
 
-procedure TOpenLcbThrottleForm.Button1Click(Sender: TObject);
+procedure TOpenLcbThrottleForm.ButtonAddTrainAddClick(Sender: TObject);
+//var
+ // Stream: TMemoryStream;
+begin
+ // ClientDataSetTrains.Open;
+  ClientDataSetTrains.DisableControls;
+  try
+  //  Stream := TMemoryStream.Create;
+  //  ImageTrain.Bitmap.SaveToStream(Stream);
+
+  //  Stream.Position := 0;
+    ClientDataSetTrains.Append;
+    ClientDataSetTrains.FieldByName('Name').AsString := EditAddTrainName.Text;
+    ClientDataSetTrains.FieldByName('RoadNumber').AsString := EditAddTrainRoadNumber.Text;
+    ClientDataSettrains.FieldByName('DecoderAddress').AsInteger := StrToInt(EditAddTrainDecoderAddress.Text);
+ //  (ClientDataSetTrains.FieldByName('TrainImage') as TBlobField).LoadFromStream(Stream);
+    ClientDataSetTrains.Post;
+
+  finally
+    ClientDataSetTrains.MergeChangeLog;
+    ClientDataSetTrains.First;
+  //  FreeAndNil(Stream);
+  //  ClientDataSetTrains.Close;
+    ClientDataSetTrains.EnableControls;
+  end;
+
+end;
+
+procedure TOpenLcbThrottleForm.ButtonNetworkConnectClick(Sender: TObject);
 var
   EthernetRec: TLccEthernetRec;
 begin
@@ -213,7 +277,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.Button2Click(Sender: TObject);
+procedure TOpenLcbThrottleForm.ButtonNetworkDisconnectClick(Sender: TObject);
 begin
   if EthernetClient.Connected then
   begin
@@ -221,7 +285,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.Button3Click(Sender: TObject);
+procedure TOpenLcbThrottleForm.ButtonNodeCreateClick(Sender: TObject);
 var
   CanNode: TLccCanNode;
 begin
@@ -274,7 +338,7 @@ begin
   end
 end;
 
-procedure TOpenLcbThrottleForm.Button4Click(Sender: TObject);
+procedure TOpenLcbThrottleForm.ButtonNodeDestroyClick(Sender: TObject);
 begin
   CanNodeManager.Clear;
 end;
@@ -422,9 +486,15 @@ begin
   EditSettingsServerIP.Text := OpenLcbSettings.IpServerAddress;
   EditSettingsServerPort.Text := IntToStr(OpenLcbSettings.Port);
   EditSettingsBufferDepth.Text := IntToStr(OpenLcbSettings.MaxLoggingLines);
+
+  LayoutTrainsAdd.Height := 0;
+  LayoutTrainsMultiViewSearch.Height := 0;
+
+  ClientDataSetTrains.CreateDataSet;
+  ClientDataSetTrains.Open;
 end;
 
-procedure TOpenLcbThrottleForm.GridLayoutFunctionsResize(Sender: TObject);
+procedure TOpenLcbThrottleForm.GridLayoutFunctionControlsResize(Sender: TObject);
 {
   procedure CalculateLayout(Columns, GridClientW, GridClientH: single);
   var
@@ -462,14 +532,16 @@ end;
 
 procedure TOpenLcbThrottleForm.NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  TextNodeStatus.Text := 'Creating Node';
+  TextNodeID.Text := 'Creating Node';
+  TextNodeAlias.Text := '';
   ButtonNodeCreate.Enabled := False;
   ButtonNodeDestroy.Enabled := False;
 end;
 
 procedure TOpenLcbThrottleForm.NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  TextNodeStatus.Text := 'Not Connected';
+  TextNodeID.Text := 'Not Connected';
+  TextNodeAlias.Text := '';
   ButtonNodeCreate.Enabled := EthernetClient.Connected;
   ButtonNodeDestroy.Enabled := False;
   NodeID := '';
@@ -486,7 +558,8 @@ procedure TOpenLcbThrottleForm.NodeInitializationCompleteCallback(
 begin
   ButtonNodeCreate.Enabled := False;
   ButtonNodeDestroy.Enabled := True;
-  TextNodeStatus.Text := 'ID: ' + NodeID + ' Alias: ' + NodeAlias;
+  TextNodeID.Text := '0x' + NodeID;
+  TextNodeAlias.Text := NodeAlias;
 end;
 
 procedure TOpenLcbThrottleForm.NodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -498,6 +571,7 @@ begin
       while MemoOpenLCB.Lines.Count >= OpenLcbSettings.MaxLoggingLines do
         MemoOpenLCB.Lines.Delete(0);
       MemoOpenLCB.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr('', False));
+      MemoOpenLCB.SelStart := Length(MemoOpenLCB.Lines.Text) - 1;
     finally
       MemoOpenLCB.EndUpdate
     end;
@@ -518,6 +592,7 @@ begin
       while MemoOpenLCB.Lines.Count >= OpenLcbSettings.MaxLoggingLines do
         MemoOpenLCB.Lines.Delete(0);
       MemoOpenLCB.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr('', False));
+      MemoOpenLCB.SelStart := Length(MemoOpenLCB.Lines.Text) - 1;
     finally
       MemoOpenLCB.EndUpdate
     end;
@@ -567,6 +642,12 @@ begin
   TextSpeed.Text := IntToStr( Round(ScrollBarThrottle.Value));
 end;
 
+procedure TOpenLcbThrottleForm.SpeedButtonAddTrainClick(Sender: TObject);
+begin
+  FloatAnimationAddTrain.Inverse := not FloatAnimationAddTrain.Inverse;
+  FloatAnimationAddTrain.Start
+end;
+
 procedure TOpenLcbThrottleForm.SpeedButtonOpenLCBClearClick(Sender: TObject);
 begin
   MemoOpenLCB.BeginUpdate;
@@ -586,6 +667,15 @@ end;
 procedure TOpenLcbThrottleForm.SwitchOpenLCBLogSwitch(Sender: TObject);
 begin
   OpenLcbSettings.Log := SwitchSettingsDataFormatGridConnect.IsChecked;
+end;
+
+procedure TOpenLcbThrottleForm.TabItemNodeClick(Sender: TObject);
+begin
+  {$IFDEF LCC_WINDOWS}
+    TextMyIpAddress.Text := ResolveWindowsIp;
+  {$ELSE}
+    TextMyIpAddress.Text := ResolveUnixIp;
+  {$ENDIF}
 end;
 
 end.
