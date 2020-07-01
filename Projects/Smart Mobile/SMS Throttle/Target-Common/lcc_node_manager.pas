@@ -168,6 +168,8 @@ type
     procedure DoLccMessageSend(Message: TLccMessage); virtual;
     procedure DoLccMessageReceive(Message: TLccMessage); virtual;
 
+    procedure LccMessageSendCallback(LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
+
   public
     {$IFDEF DELPHI}
     property Nodes: TOBjectList<TLccNode> read FNodes write FNodes;
@@ -187,7 +189,7 @@ type
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
-    procedure LccMessageSendCallback(LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
+    procedure SendMessage(LccMessage: TLccMessage);
 
   published
     // Node Management
@@ -606,9 +608,14 @@ procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage);
 var
   i: Integer;
 begin
+  DoLccMessageReceive(LccMessage);
   for i := 0 to Nodes.Count - 1 do
     TLccNode( Nodes[i]).ProcessMessage(LccMessage);
-  DoLccMessageReceive(LccMessage);
+end;
+
+procedure TLccNodeManager.SendMessage(LccMessage: TLccMessage);
+begin
+  DoLccMessageSend(LccMessage);
 end;
 
 procedure TLccNodeManager.LccMessageSendCallback(LccMessage: TLccMessage);
