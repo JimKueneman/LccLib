@@ -29,6 +29,10 @@ uses
   lcc_math_float16;
 
 type
+  TTrainTarget = record
+    NodeID: TNodeID;
+    NodeAlias: Word;
+  end;
 
   { TFormTrainController }
 
@@ -84,11 +88,12 @@ type
   private
     FWorkerMsg: TLccMessage;
   protected
-    procedure OnLccNodeProducerIdentifiedCallback(Sender: TObject; LccSourceNode: TLccNode; var Event: TEventID; State: TEventState);
+    procedure OnLccNodeProducerIdentifiedCallback(Sender: TObject;  LccSourceNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState);
 
   public
     ThrottleEthernetClient: TLccEthernetClient;
     ThrottleNodeManager: TLccCanNodeManager;
+    TargetTrain: TTrainTarget;
 
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
 
@@ -238,12 +243,27 @@ begin
 end;
 
 procedure TFormTrainController.OnLccNodeProducerIdentifiedCallback(
-  Sender: TObject; LccSourceNode: TLccNode; var Event: TEventID;
+  Sender: TObject; LccSourceNode: TLccNode;  LccMessage: TLccMessage; var Event: TEventID;
   State: TEventState);
+var
+  CanNode: TLccCANNode;
 begin
-  if (Event[0] = $09) and (Event[0] = $00) and (Event[0] = 99) and (Event[0] = $FF) then
+  // Look for the Search Protocol in the EventID, we have a train node
+  if (Event[0] = $09) and (Event[1] = $00) and (Event[2] = $99) and (Event[3] = $FF) then
   begin
-
+    if LccMessage.HasSourceNodeID then
+    begin  // Native TCP :)
+      TargetTrain.NodeID := LccMessage.SourceID;
+      TargetTrain.NodeAlias := 0;
+      WorkerMsg.LoadTractionManage(ThrottleNodeManager.Node[0].NodeID, 0, TargetTrain.NodeID, 0, True);
+    end else
+    begin // Grid Connect :(
+      TargetTrain.NodeID := NULL_NODE_ID;
+      TargetTrain.NodeAlias := LccMessage.CAN.SourceAlias;
+      CanNode := ThrottleNodeManager.Node[0] as TLccCanNode;;
+      WorkerMsg.LoadTractionManage(NULL_NODE_ID, CanNode.AliasID, NULL_NODE_ID, TargetTrain.NodeAlias, True);
+    end;
+    ThrottleNodeManager.SendMessage(WorkerMsg);
   end;
 end;
 

@@ -1167,32 +1167,32 @@ begin
      MTI_CONSUMER_IDENTIFIED_CLEAR :
         begin
           Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, Temp, evs_InValid);
+          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, SourceLccMessage, Temp, evs_InValid);
         end;
      MTI_CONSUMER_IDENTIFIED_SET :
         begin
          Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, Temp, evs_Valid);
+          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, SourceLccMessage, Temp, evs_Valid);
         end;
      MTI_CONSUMER_IDENTIFIED_UNKNOWN :
         begin
           Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, Temp, evs_Unknown);
+          (NodeManager as INodeManagerCallbacks).DoConsumerIdentified(Self, SourceLccMessage, Temp, evs_Unknown);
         end;
      MTI_PRODUCER_IDENTIFIED_CLEAR :
         begin
           Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, Temp, evs_inValid);
+          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceLccMessage, Temp, evs_inValid);
         end;
      MTI_PRODUCER_IDENTIFIED_SET :
         begin
           Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, Temp, evs_Valid);
+          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceLccMessage, Temp, evs_Valid);
         end;
      MTI_PRODUCER_IDENTIFIED_UNKNOWN :
         begin
           Temp := SourceLccMessage.ExtractDataBytesAsEventID(0);
-          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, Temp, evs_Unknown);
+          (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceLccMessage, Temp, evs_Unknown);
         end;
 
      // *************************************************************************
