@@ -274,7 +274,7 @@ begin
         if Assigned (ThrottleNodeManager.Node[0]) then
         begin
           WorkerMsg.LoadTractionSearch(ThrottleNodeManager.Node[0].NodeID, ThrottleNodeManager.CanNode[0].AliasID, SearchData);
-          ThrottleNodeManager.LccMessageSendCallback(WorkerMsg);
+          ThrottleNodeManager.SendMessage(WorkerMsg);
         end;
       end;
     sese_TooLong           : ShowMessage('Search String too long, only 6 characters are available');
