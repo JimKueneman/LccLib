@@ -92,12 +92,13 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FCommandStationNode: TLccCanNode;
-    FLocalLccMessage: TLccMessage;
+    FWorkerMsg: TLccMessage;
     FNodeManager: TLccCanNodeManager;
     FLccServer: TLccEthernetServer;
     FTrainDatabase: TLccTrainDatabase;
   protected
-    property LocalLccMessage: TLccMessage read FLocalLccMessage write FLocalLccMessage;
+    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
+
 
     procedure CreateCommandStationNode;
     function CreateTrainNode(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrain;
@@ -113,6 +114,7 @@ type
     procedure OnNodeSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeIdentifyProducers(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
+    procedure OnTractionManage(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
     property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
@@ -235,19 +237,20 @@ begin
   NodeManager.OnLccMessageReceive := @OnNodeReceiveMessage;
   NodeManager.OnLccMessageSend := @OnNodeSendMessage;
   NodeManager.OnLccNodeProducerIdentify := @OnNodeIdentifyProducers;
+  NodeManager.OnLccNodeTractionManage := @OnTractionManage;
 
   LccServer.NodeManager := NodeManager;
 
   FTrainDatabase := TLccTrainDatabase.Create;
 
-  FLocalLccMessage := TLccMessage.Create;
+  FWorkerMsg := TLccMessage.Create;
 
 end;
 
 procedure TFormTrainCommander.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FTrainDatabase);
-  FreeAndNil(FLocalLccMessage);
+  FreeAndNil(FWorkerMsg);
 end;
 
 procedure TFormTrainCommander.OnCommandStationClientDisconnect(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -338,6 +341,16 @@ begin
   end;
 end;
 
+procedure TFormTrainCommander.OnTractionManage(Sender: TObject;
+  LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
+begin
+  if not IsReply then
+  begin
+    WorkerMsg.LoadTractionManageReply(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.DestAlias, True);
+    NodeManager.SendMessage(WorkerMsg);
+  end;
+end;
+
 function TFormTrainCommander.CreateTrainNode(ARoadName, ARoadNumber: string;
   ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep
   ): TLccTrain;
@@ -398,7 +411,7 @@ var
   NMRA_SpeedStep: TLccDccSpeedStep;
   NMRA_ForceLongAddress: Boolean;
   SearchStr: string;
-  SearchDccAddress: Word;
+  SearchDccAddress: LongInt;
   ForceLongAddress: Boolean;
   Train: TLccTrain;
   SpeedStep: TLccDccSpeedStep;
@@ -415,34 +428,39 @@ begin
 
       SearchStr := LccMessage.TractionSearchDecodeSearchString;
 
-      SearchDccAddress := StrToInt(SearchStr);            // Only numbers allowed so has to work
-      ForceLongAddress := False;                          // Setup up what we call defaults
-      SpeedStep := ldss14;                                // Setup up what we call defaults
-
-      if LccMessage.TractionSearchIsProtocolAny then
+      if TryStrToInt(SearchStr, SearchDccAddress) then                       // Gaurd against an empty string
       begin
+        ForceLongAddress := False;                          // Setup up what we call defaults
+        SpeedStep := ldss14;                                // Setup up what we call defaults
 
-      end else
-      if LccMessage.TractionSearchIsProtocolDCC(NMRA_ForceLongAddress, NMRA_SpeedStep) then
-      begin
-        // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
-        LccMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
-        // Look for an existing Train
-        Train := TrainDatabase.FindByDccAddress(SearchDccAddress, ForceLongAddress, ListIndex);
-
-        if (Train = nil) and LccMessage.TractionSearchIsForceAllocate then
-          Train := CreateTrainNode('New Train', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
-
-        if (Train <> nil) then
+        if LccMessage.TractionSearchIsProtocolAny then
         begin
-          AnEvent := LccMessage.ExtractDataBytesAsEventID(0);
-          if Train.LccNode is TLccCanNode then
-            LocalLccMessage.LoadProducerIdentified(Train.LccNode.NodeID, (Train.LccNode as TLccCanNode).AliasID, AnEvent, evs_Valid )
-          else
-            LocalLccMessage.LoadProducerIdentified(Train.LccNode.NodeID, 0, AnEvent, evs_Valid );
 
-          NodeManager.SendMessage(LocalLccMessage);
+        end else
+        if LccMessage.TractionSearchIsProtocolDCC(NMRA_ForceLongAddress, NMRA_SpeedStep) then
+        begin
+          // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
+          LccMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
+          // Look for an existing Train
+          Train := TrainDatabase.FindByDccAddress(SearchDccAddress, ForceLongAddress, ListIndex);
+
+          if (Train = nil) and LccMessage.TractionSearchIsForceAllocate then
+            Train := CreateTrainNode('New Train', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
+
+          NEED TO WAIT FOR THE NODE TO LOG INTO THE NETWORK BEFORE TELLING THE THROTTLE THE TRAIN IS READY!!!!!
+
+          if (Train <> nil) then
+          begin
+            AnEvent := LccMessage.ExtractDataBytesAsEventID(0);
+            if Train.LccNode is TLccCanNode then
+              WorkerMsg.LoadProducerIdentified(Train.LccNode.NodeID, (Train.LccNode as TLccCanNode).AliasID, AnEvent, evs_Valid )
+            else
+              WorkerMsg.LoadProducerIdentified(Train.LccNode.NodeID, 0, AnEvent, evs_Valid );
+
+            NodeManager.SendMessage(WorkerMsg);
+          end;
         end;
+
       end;
     end;
   end;

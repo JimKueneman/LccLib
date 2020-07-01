@@ -1,7 +1,7 @@
 object FormTrainController: TFormTrainController
-  Left = 483
+  Left = 776
   Height = 705
-  Top = 100
+  Top = 102
   Width = 436
   Caption = 'Train Controller'
   ClientHeight = 705

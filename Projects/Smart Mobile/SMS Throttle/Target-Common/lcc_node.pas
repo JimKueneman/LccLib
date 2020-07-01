@@ -409,6 +409,7 @@ begin
      // Did any node object to this Alias through ProcessMessage?
     if DuplicateAliasDetected then
     begin
+      DuplicateAliasDetected := False;  // Reset
       Temp := FSeedNodeID;
       GenerateNewSeed(Temp);
       FSeedNodeID := Temp;
@@ -1208,38 +1209,69 @@ begin
         end;
     MTI_TRACTION_REQUEST :
         begin
-          TractionCode := SourceLccMessage.DataArrayIndexer[2];
+          TractionCode := SourceLccMessage.DataArrayIndexer[0];
           case TractionCode of
             TRACTION_SPEED_DIR :
                begin
-                 ProtocolTraction.SetSpeedDir(SourceLccMessage);
+                // ProtocolTraction.SetSpeedDir(SourceLccMessage);
+                 (NodeManager as INodeManagerCallbacks).DoTractionSpeedSet(Self, SourceLccMessage, False);
                end;
              TRACTION_FUNCTION :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionFunctionSet(Self, SourceLccMessage, False);
                end;
              TRACTION_E_STOP :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionEmergencyStop(Self, SourceLccMessage, False);
                end;
              TRACTION_QUERY_SPEED :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, SourceLccMessage, False);
                end;
              TRACTION_QUERY_FUNCTION :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionQueryFunction(Self, SourceLccMessage, False);
                end;
              TRACTION_CONTROLLER_CONFIG :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionControllerConfig(Self, SourceLccMessage, False);
                end;
              TRACTION_LISTENER :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionListenerConfig(Self, SourceLccMessage, False);
                end;
              TRACTION_MANAGE :
                begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionManage(Self, SourceLccMessage, False);
                end;
           end;
           Result := True;
         end;
     MTI_TRACTION_REPLY :
         begin
+          TractionCode := SourceLccMessage.DataArrayIndexer[0];
+          case TractionCode of
+            TRACTION_QUERY_SPEED :
+               begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, SourceLccMessage, True);
+               end;
+             TRACTION_QUERY_FUNCTION :
+               begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionQueryFunction(Self, SourceLccMessage, True);
+               end;
+             TRACTION_CONTROLLER_CONFIG :
+               begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionControllerConfig(Self, SourceLccMessage, True);
+               end;
+             TRACTION_LISTENER :
+               begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionListenerConfig(Self, SourceLccMessage, True);
+               end;
+             TRACTION_MANAGE :
+               begin
+                 (NodeManager as INodeManagerCallbacks).DoTractionManage(Self, SourceLccMessage, True);
+               end;
+          end;
           Result := True;
         end;
 

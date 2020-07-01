@@ -269,8 +269,8 @@ const
   MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST = $0DA8;                                // Databytes = Destination Alias
   MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY   = $09C8;                                // Databytes = Destination Alias, ACDI Data
 
-  MTI_TRACTION_REQUEST               = $05EA;                                // Databyte = depends
-  MTI_TRACTION_REPLY                 = $05E8;                                // Databyte = depends
+  MTI_TRACTION_REQUEST               = $05E8;                                // Databyte = depends
+  MTI_TRACTION_REPLY                 = $01E8;                                // Databyte = depends
 
   MTI_REMOTE_BUTTON_REQUEST           = $0948;
   MTI_REMOTE_BUTTON_REPLY            = $0949;
@@ -432,6 +432,7 @@ const
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;
   TRACTION_MANAGE_RELEASE             = $02;
+  TRACTION_RESERVE_REPLY              = $01;
 
   TRACTION_MANAGE_RESERVE_REPLY_OK   = $00;    // Failed is not 0
   TRACTION_MANAGE_RESERVE_REPLY_FAIL = $FF;    // Failed

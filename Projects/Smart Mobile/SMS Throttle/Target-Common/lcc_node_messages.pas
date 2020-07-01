@@ -156,6 +156,7 @@ public
   procedure LoadTractionConsistDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
+  procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
   // Traction Search
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
@@ -1608,6 +1609,24 @@ begin
   else
     FDataArray[1] := TRACTION_MANAGE_RELEASE;
   MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionManageReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 3;
+  FDataArray[0] := TRACTION_MANAGE;
+  FDataArray[1] := TRACTION_RESERVE_REPLY;
+  if Accepted then
+    FDataArray[2] := S_OK
+  else
+    FDataArray[2] := S_FALSE;
+  MTI := MTI_TRACTION_REPLY;
 end;
 
 procedure TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
