@@ -10,6 +10,7 @@ uses
   lcc_node_manager, lcc_ethernet_client, lcc_utilities, lcc_node_messages,
   TrainDatabaseUnit;
 
+
 const
 
  CDI_XML: string = (
@@ -70,11 +71,18 @@ type
   { TFormTrainCommander }
 
   TFormTrainCommander = class(TForm)
+    Button1: TButton;
+    ButtonTrainsClear: TButton;
     ButtonClear: TButton;
     ButtonManualConnect: TButton;
+    CheckBoxLogMessages: TCheckBox;
     CheckBoxLoopBackIP: TCheckBox;
     CheckBoxAutoConnect: TCheckBox;
     ImageListMain: TImageList;
+    LabelNodeID: TLabel;
+    LabelAliasID: TLabel;
+    LabelAliasIDCaption: TLabel;
+    LabelNodeIDCaption: TLabel;
     ListViewTrains: TListView;
     ListviewConnections: TListView;
     MemoLog: TMemo;
@@ -85,27 +93,32 @@ type
     SplitterTrains: TSplitter;
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
+    TimerIncomingMessagePump: TTimer;
     procedure ButtonClearClick(Sender: TObject);
     procedure ButtonManualConnectClick(Sender: TObject);
+    procedure ButtonTrainsClearClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure TimerIncomingMessagePumpTimer(Sender: TObject);
   private
     FCommandStationNode: TLccCanNode;
+    FInitializationWait: Boolean;
+    FInitializationWaitNode: TLccNode;
     FWorkerMsg: TLccMessage;
     FNodeManager: TLccCanNodeManager;
     FLccServer: TLccEthernetServer;
     FTrainDatabase: TLccTrainDatabase;
   protected
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
-
+    property InitializationWait: Boolean read FInitializationWait write FInitializationWait;
+    property InitializationWaitNode: TLccNode read FInitializationWaitNode write FInitializationWaitNode;
 
     procedure CreateCommandStationNode;
-    function CreateTrainNode(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrain;
+    function CreateTrainNode: TLccCanNode;
     procedure DestroyCommandStationNode;
     function ConnectServer: Boolean;
     procedure DisconnectServer;
-
 
     procedure OnCommandStationConnectionState(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure OnCommandStationClientDisconnect(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -113,8 +126,14 @@ type
 
     procedure OnNodeSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+
+    procedure OnLccNodeAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnLccNodeIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+
     procedure OnNodeIdentifyProducers(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure OnTractionManage(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
+    procedure OnNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
+
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
     property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
@@ -130,6 +149,7 @@ implementation
 {$R *.lfm}
 
 { TFormTrainCommander }
+
 
 procedure TFormTrainCommander.ButtonClearClick(Sender: TObject);
 begin
@@ -147,6 +167,11 @@ begin
     DisconnectServer
   else
     ConnectServer;
+end;
+
+procedure TFormTrainCommander.ButtonTrainsClearClick(Sender: TObject);
+begin
+  ListViewTrains.Clear;
 end;
 
 function TFormTrainCommander.ConnectServer: Boolean;
@@ -234,17 +259,19 @@ begin
   LccServer.Hub := True;
 
   NodeManager := TLccCanNodeManager.Create(self);
+  NodeManager.OnLccNodeAliasIDChanged := @OnLccNodeAliasIDChanged;
+  NodeManager.OnLccNodeIDChanged := @OnLccNodeIDChanged;
   NodeManager.OnLccMessageReceive := @OnNodeReceiveMessage;
   NodeManager.OnLccMessageSend := @OnNodeSendMessage;
   NodeManager.OnLccNodeProducerIdentify := @OnNodeIdentifyProducers;
   NodeManager.OnLccNodeTractionManage := @OnTractionManage;
+  NodeManager.OnLccNodeInitializationComplete := @OnNodeInitializationComplete;
 
   LccServer.NodeManager := NodeManager;
 
   FTrainDatabase := TLccTrainDatabase.Create;
 
   FWorkerMsg := TLccMessage.Create;
-
 end;
 
 procedure TFormTrainCommander.FormDestroy(Sender: TObject);
@@ -318,26 +345,45 @@ begin
   StatusBarMain.Panels[1].Text := EthernetRec.MessageStr;
 end;
 
+procedure TFormTrainCommander.OnLccNodeAliasIDChanged(Sender: TObject;
+  LccSourceNode: TLccNode);
+begin
+  LabelAliasID.Caption := ( LccSourceNode as TLccCanNode).AliasIDStr;
+end;
+
+procedure TFormTrainCommander.OnLccNodeIDChanged(Sender: TObject;
+  LccSourceNode: TLccNode);
+begin
+  LabelNodeID.Caption := LccSourceNode.NodeIDStr;
+end;
+
 procedure TFormTrainCommander.OnNodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  MemoLog.Lines.BeginUpdate;
-  try
-    MemoLog.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr('', False));
-    MemoLog.SelStart := Length(MemoLog.Lines.Text);
-  finally
-    MemoLog.Lines.EndUpdate;
+  if CheckBoxLogMessages.Checked then
+  begin
+    MemoLog.Lines.BeginUpdate;
+    try
+      MemoLog.Lines.Add('R: ' + LccMessage.ConvertToGridConnectStr('', False));
+      MemoLog.SelStart := Length(MemoLog.Lines.Text);
+    finally
+      MemoLog.Lines.EndUpdate;
+    end;
   end;
 end;
 
 procedure TFormTrainCommander.OnNodeSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   LccServer.SendMessage(LccMessage);
-  MemoLog.Lines.BeginUpdate;
-  try
-    MemoLog.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr('', False));
-    MemoLog.SelStart := Length(MemoLog.Lines.Text);
-  finally
-    MemoLog.Lines.EndUpdate;
+
+  if CheckBoxLogMessages.Checked then
+  begin
+    MemoLog.Lines.BeginUpdate;
+    try
+      MemoLog.Lines.Add('S: ' + LccMessage.ConvertToGridConnectStr('', False));
+      MemoLog.SelStart := Length(MemoLog.Lines.Text);
+    finally
+      MemoLog.Lines.EndUpdate;
+    end;
   end;
 end;
 
@@ -351,63 +397,81 @@ begin
   end;
 end;
 
-function TFormTrainCommander.CreateTrainNode(ARoadName, ARoadNumber: string;
-  ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep
-  ): TLccTrain;
+procedure TFormTrainCommander.TimerIncomingMessagePumpTimer(Sender: TObject);
 var
-  CanNode: TLccCanNode;
+  List: TStringList;
+  i: Integer;
+  GridConnectStr: string;
+  LocalMsg: TLccMessage;
 begin
-  CanNode := NodeManager.AddNode(CDI_XML_TRAIN_NODE) as TLccCanNode;
+  LocalMsg := nil;
+  List := LccServer.IncomingGridConnect.LockList;
+  try
+    if List.Count > 0 then
+      LocalMsg := TLccMessage.Create;
 
-  CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
-  CanNode.ProtocolSupportedProtocols.Datagram := True;
-  CanNode.ProtocolSupportedProtocols.EventExchange := True;
-  CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
-  CanNode.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
-  CanNode.ProtocolSupportedProtocols.TractionControl := True;
-  CanNode.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
-  CanNode.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
-  CanNode.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+    for i := 0 to List.Count - 1 do
+    begin
+      GridConnectStr := List[i];
+      LocalMsg.LoadByGridConnectStr(GridConnectStr);
+      NodeManager.ProcessMessage(LocalMsg);
+    end;
+  finally
+    List.Clear;
+    LccServer.IncomingGridConnect.UnlockList;
+    FreeAndNil(LocalMsg);
+  end;
+end;
 
-  CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
-  CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
+function TFormTrainCommander.CreateTrainNode: TLccCanNode;
+begin
+  Result := NodeManager.AddNode(CDI_XML_TRAIN_NODE);
 
-  CanNode.ProtocolMemoryOptions.WriteUnderMask := True;
-  CanNode.ProtocolMemoryOptions.UnAlignedReads := True;
-  CanNode.ProtocolMemoryOptions.UnAlignedWrites := True;
-  CanNode.ProtocolMemoryOptions.SupportACDIMfgRead := True;
-  CanNode.ProtocolMemoryOptions.SupportACDIUserRead := True;
-  CanNode.ProtocolMemoryOptions.SupportACDIUserWrite := True;
-  CanNode.ProtocolMemoryOptions.WriteLenOneByte := True;
-  CanNode.ProtocolMemoryOptions.WriteLenTwoBytes := True;
-  CanNode.ProtocolMemoryOptions.WriteLenFourBytes := True;
-  CanNode.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
-  CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-  CanNode.ProtocolMemoryOptions.WriteStream := False;
-  CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-  CanNode.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+  Result.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  Result.ProtocolSupportedProtocols.Datagram := True;
+  Result.ProtocolSupportedProtocols.EventExchange := True;
+  Result.ProtocolSupportedProtocols.SimpleNodeInfo := True;
+  Result.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
+  Result.ProtocolSupportedProtocols.TractionControl := True;
+  Result.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
+  Result.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
+  Result.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
 
-//    CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
-//    CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
+  Result.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
+  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
 
-//   CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
-//   CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
+  Result.ProtocolMemoryOptions.WriteUnderMask := True;
+  Result.ProtocolMemoryOptions.UnAlignedReads := True;
+  Result.ProtocolMemoryOptions.UnAlignedWrites := True;
+  Result.ProtocolMemoryOptions.SupportACDIMfgRead := True;
+  Result.ProtocolMemoryOptions.SupportACDIUserRead := True;
+  Result.ProtocolMemoryOptions.SupportACDIUserWrite := True;
+  Result.ProtocolMemoryOptions.WriteLenOneByte := True;
+  Result.ProtocolMemoryOptions.WriteLenTwoBytes := True;
+  Result.ProtocolMemoryOptions.WriteLenFourBytes := True;
+  Result.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
+  Result.ProtocolMemoryOptions.WriteArbitraryBytes := True;
+  Result.ProtocolMemoryOptions.WriteStream := False;
+  Result.ProtocolMemoryOptions.HighSpace := MSI_CDI;
+  Result.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 
-  CanNode.Login(NULL_NODE_ID);
+//    Result.ProtocolEventConsumed.AutoGenerate.Count := 5;
+//    Result.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
 
-  Result := TrainDatabase.AddTrain(ARoadName, ARoadNumber, ADccAddress, ALongAddress, ASpeedStep, CanNode);
+//   Result.ProtocolEventsProduced.AutoGenerate.Count := 5;
+//   Result.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
 
+  Result.Login(NULL_NODE_ID);
 end;
 
 procedure TFormTrainCommander.OnNodeIdentifyProducers(Sender: TObject;
   LccSourceNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
 var
-  MarlkinProtocol: TLccMarklinProtocolVersion;
   NMRA_SpeedStep: TLccDccSpeedStep;
   NMRA_ForceLongAddress: Boolean;
   SearchStr: string;
@@ -417,7 +481,12 @@ var
   SpeedStep: TLccDccSpeedStep;
   ListIndex: Integer;
   AnEvent: TEventID;
+  CanNode: TLccCanNode;
 begin
+  // Don't allow reentrant calls
+  if InitializationWait then Exit;
+
+
   // Only the CommandStation replies to this Event
   if LccSourceNode = CommandStationNode then
   begin
@@ -430,6 +499,7 @@ begin
 
       if TryStrToInt(SearchStr, SearchDccAddress) then                       // Gaurd against an empty string
       begin
+        SearchDccAddress := StrToInt(SearchStr);
         ForceLongAddress := False;                          // Setup up what we call defaults
         SpeedStep := ldss14;                                // Setup up what we call defaults
 
@@ -442,12 +512,23 @@ begin
           // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
           LccMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
           // Look for an existing Train
+          ListIndex := -1;
           Train := TrainDatabase.FindByDccAddress(SearchDccAddress, ForceLongAddress, ListIndex);
-
           if (Train = nil) and LccMessage.TractionSearchIsForceAllocate then
-            Train := CreateTrainNode('New Train', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
+          begin
+            try
+              CanNode := CreateTrainNode;
+              Train := TrainDatabase.AddTrain('New Train', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep, CanNode);
+              ListViewTrains.AddItem(CanNode.NodeIDStr + ' : ' + CanNode.AliasIDStr, nil);
 
-          NEED TO WAIT FOR THE NODE TO LOG INTO THE NETWORK BEFORE TELLING THE THROTTLE THE TRAIN IS READY!!!!!
+            finally
+            end;
+
+            InitializationWait := True;
+            InitializationWaitNode := Train.LccNode;
+            while InitializationWait do
+              Application.ProcessMessages;
+          end;
 
           if (Train <> nil) then
           begin
@@ -463,6 +544,15 @@ begin
 
       end;
     end;
+  end;
+end;
+
+procedure TFormTrainCommander.OnNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  if LccSourceNode = InitializationWaitNode then
+  begin
+    InitializationWait := False;
+    InitializationWaitNode := nil;
   end;
 end;
 

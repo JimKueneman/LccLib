@@ -613,7 +613,7 @@ var
 begin
   DoLccMessageReceive(LccMessage);
   for i := 0 to Nodes.Count - 1 do
-    TLccNode( Nodes[i]).ProcessMessage(LccMessage);
+    ( Nodes[i] as TLccNode).ProcessMessage(LccMessage);
 end;
 
 procedure TLccNodeManager.SendMessage(LccMessage: TLccMessage);

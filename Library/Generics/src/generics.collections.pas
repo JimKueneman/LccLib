@@ -48,9 +48,6 @@ uses
 {.$define ENABLE_METHODS_WITH_TEnumerableWithPointers}
 
 type
-  {$IFDEF ULTIBO}
-  EArgumentNilException = class(EArgumentException);
-  {$ENDIF}
   EAVLTree = class(Exception);
   EIndexedAVLTree = class(EAVLTree);
 
@@ -682,7 +679,10 @@ type
     procedure ValueNotify(constref AValue: TValue; ACollectionNotification: TCollectionNotification); inline;
     procedure NodeNotify(ANode: PNode; ACollectionNotification: TCollectionNotification; ADispose: boolean); inline;
     procedure SetValue(var AValue: TValue; constref ANewValue: TValue);
+    function GetItem(const AKey: TKey): TValue;
+    procedure SetItem(const AKey: TKey; const AValue: TValue);
 
+    property Items[Index: TKey]: TValue read GetItem write SetItem;
     // for reporting
     procedure WriteStr(AStream: TStream; const AText: string);
   public type
@@ -745,14 +745,17 @@ type
 
     destructor Destroy; override;
     function AddNode(ANode: PNode): boolean; overload; inline;
+    function AddNodeArray(const AArray: TArray<PNode>): boolean; overload; inline;
     function Add(constref APair: TTreePair): PNode; overload; inline;
     function Add(constref AKey: TKey; constref AValue: TValue): PNode; overload; inline;
     function Remove(constref AKey: TKey; ADisposeNode: boolean = true): boolean;
     function ExtractPair(constref AKey: TKey; ADisposeNode: boolean = true): TTreePair; overload;
     function ExtractPair(constref ANode: PNode; ADispose: boolean = true): TTreePair; overload;
-    function ExtractNode(constref AKey: TKey; ADisposeNode: boolean): PNode; overload;
-    function ExtractNode(ANode: PNode; ADispose: boolean): PNode; overload;
+    function Extract(constref AKey: TKey; ADisposeNode: boolean): PNode;
+    function ExtractNode(ANode: PNode; ADispose: boolean): PNode;
+    function ExtractNodeArray(const AArray: TArray<PNode>; ADispose: boolean): TArray<PNode>; overload;
     procedure Delete(ANode: PNode; ADispose: boolean = true); inline;
+    procedure DeleteArray(const AArray: TArray<PNode>; ADispose: boolean = true); inline;
 
     function GetEnumerator: TPairEnumerator;
     property Nodes: TNodeCollection read GetNodeCollection;
@@ -785,6 +788,8 @@ type
   end;
 
   TAVLTreeMap<TKey, TValue> = class(TCustomAVLTreeMap<TKey, TValue, TEmptyRecord>)
+  public
+    property Items; default;
   end;
 
   TIndexedAVLTreeMap<TKey, TValue> = class(TCustomAVLTreeMap<TKey, TValue, SizeInt>)
@@ -811,6 +816,7 @@ type
   protected
     property OnKeyNotify;
     property OnValueNotify;
+    property Items;
   public type
     TItemEnumerator = TKeyEnumerator;
   public
@@ -931,6 +937,7 @@ type
     function Add(constref AValue: T): Boolean; override;
     function Remove(constref AValue: T): Boolean; override;
     function Extract(constref AValue: T): T; override;
+    function PeekPtr(constref AValue: T): PT;
     procedure Clear; override;
     function Contains(constref AValue: T): Boolean; override;
 
@@ -3322,6 +3329,21 @@ begin
   Result := TValueCollection(FValues);
 end;
 
+function TCustomAVLTreeMap<TREE_CONSTRAINTS>.GetItem(const AKey: TKey): TValue;
+var
+  LNode: PNode;
+begin
+  LNode := Find(AKey);
+  if not Assigned(LNode) then
+    raise EAVLTree.CreateRes(@SDictionaryKeyDoesNotExist);
+  result := LNode.Value;
+end;
+
+procedure TCustomAVLTreeMap<TREE_CONSTRAINTS>.SetItem(const AKey: TKey; const AValue: TValue);
+begin
+  Find(AKey).Value := AValue;
+end;
+
 constructor TCustomAVLTreeMap<TREE_CONSTRAINTS>.Create;
 begin
   FComparer := TComparer<TKey>.Default;
@@ -3386,6 +3408,15 @@ begin
   Result := ANode=InternalAdd(ANode, false);
 end;
 
+function TCustomAVLTreeMap<TREE_CONSTRAINTS>.AddNodeArray(const AArray: TArray<PNode>): boolean;
+var
+  LNode: PNode;
+begin
+  result := true;
+  for LNode in AArray do
+    result := result and AddNode(LNode);
+end;
+
 function TCustomAVLTreeMap<TREE_CONSTRAINTS>.Add(constref APair: TTreePair): PNode;
 begin
   Result := NewNode;
@@ -3433,7 +3464,7 @@ begin
   Result.Value := DoRemove(ANode, cnExtracted, ADispose);
 end;
 
-function TCustomAVLTreeMap<TREE_CONSTRAINTS>.ExtractNode(constref AKey: TKey; ADisposeNode: boolean): PNode;
+function TCustomAVLTreeMap<TREE_CONSTRAINTS>.Extract(constref AKey: TKey; ADisposeNode: boolean): PNode;
 begin
   Result:=Find(AKey);
   if Result<>nil then
@@ -3453,9 +3484,29 @@ begin
     Result := ANode;
 end;
 
+function TCustomAVLTreeMap<TREE_CONSTRAINTS>.ExtractNodeArray(const AArray: TArray<PNode>; ADispose: boolean): TArray<PNode>;
+var
+  LNode: PNode;
+begin
+  for LNode in AArray do
+    ExtractNode(LNode, ADispose);
+  if ADispose then
+    Result := nil
+  else
+    Result := AArray;
+end;
+
 procedure TCustomAVLTreeMap<TREE_CONSTRAINTS>.Delete(ANode: PNode; ADispose: boolean);
 begin
   DoRemove(ANode, cnRemoved, ADispose);
+end;
+
+procedure TCustomAVLTreeMap<TREE_CONSTRAINTS>.DeleteArray(const AArray: TArray<PNode>; ADispose: boolean);
+var
+  LNode: PNode;
+begin
+  for LNode in AArray do
+    Delete(LNode, ADispose);
 end;
 
 procedure TCustomAVLTreeMap<TREE_CONSTRAINTS>.Clear(ADisposeNodes: Boolean);
@@ -4091,6 +4142,17 @@ begin
     Result := AValue;
   end else
     Result := Default(T);
+end;
+
+function TSortedHashSet<T>.PeekPtr(constref AValue: T): PT;
+var
+  LIndex: SizeInt;
+begin
+  LIndex := FInternalDictionary.FindBucketIndex(@AValue);
+  if LIndex >= 0 then
+    result := FInternalDictionary.FItems[LIndex].Pair.Key
+  else
+    result := nil;
 end;
 
 procedure TSortedHashSet<T>.Clear;

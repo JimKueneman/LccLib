@@ -35,13 +35,14 @@ uses
   blcksock,
   synsock,
   {$ENDIF}
+  lcc_threaded_circulararray,
+  lcc_threaded_stringlist,
   lcc_gridconnect,
   lcc_utilities,
   lcc_defines,
   lcc_node_manager,
   lcc_node_messages,
   lcc_ethernet_client,
-  lcc_threaded_circulararray,
   lcc_ethernet_tcp,
   lcc_app_common_settings,
   lcc_common_classes;
@@ -168,6 +169,8 @@ type
     FEthernetThreads: TLccEthernetThreadList;
     FGridConnect: Boolean;
     FHub: Boolean;
+    FIncomingCircularArray: TThreadedCirularArray;
+    FIncomingGridConnect: TThreadStringList;
     FLccSettings: TLccSettings;
     FListenerThread: TLccEthernetListener;
     {$IFDEF LOGGING}FLoggingFrame: TFrameLccLogging;{$ENDIF}
@@ -202,6 +205,8 @@ type
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
+    property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
+    property IncomingCircularArray: TThreadedCirularArray read FIncomingCircularArray;
 
   published
     { Published declarations }
@@ -574,12 +579,16 @@ constructor TLccEthernetServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FEthernetThreads := TLccEthernetThreadList.Create;
+  FIncomingGridConnect := TThreadStringList.Create;
+  FIncomingCircularArray := TThreadedCirularArray.Create;
   FHub := False;
 end;
 
 destructor TLccEthernetServer.Destroy;
 begin
   FreeAndNil( FEthernetThreads);
+  FreeAndNil(FIncomingCircularArray);
+  FreeAndNil(FIncomingGridConnect);
   inherited Destroy;
 end;
 
@@ -697,7 +706,7 @@ var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
-  TxList: TStringList;
+  TxList, RxList: TStringList;
   DynamicByteArray: TDynamicByteArray;
   LocalSleepCount: Integer;
 begin
@@ -779,6 +788,12 @@ begin
                     begin
                       FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                       FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
+           {           RxList := Owner.IncomingGridConnect.LockList;
+                      try
+                        RxList.Add(FEthernetRec.MessageStr);
+                      finally
+                        Owner.IncomingGridConnect.UnlockList;
+                      end;   }
                       Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
                     end;
                   end;
@@ -827,7 +842,17 @@ begin
                   begin
                     DynamicByteArray := nil;
                     if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
-                      Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+                    begin
+                      DynamicByteArray := nil;
+                      Owner.IncomingCircularArray.LockArray;
+                      try
+                        Owner.IncomingCircularArray.AddChunk(FEthernetRec.MessageArray);
+                      finally
+                        Owner.IncomingCircularArray.UnLockArray;
+                      end;
+
+                 //     Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+                    end;
                   end;
                 WSAETIMEDOUT :
                   begin

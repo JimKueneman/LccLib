@@ -1540,6 +1540,9 @@ end;
 
 
 initialization
+  {$IFNDEF DWSCRIPT}
+  Randomize;
+  {$ENDIF}
 
 finalization
 

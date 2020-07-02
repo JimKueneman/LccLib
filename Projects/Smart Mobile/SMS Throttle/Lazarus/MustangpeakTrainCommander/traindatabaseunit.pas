@@ -48,14 +48,16 @@ type
     function GetTrain(Index: Integer): TLccTrain;
     procedure SetTrain(Index: Integer; AValue: TLccTrain);
   protected
-    property TrainList: TObjectList read FTrainList write FTrainList;
+ //   property TrainList: TObjectList read FTrainList write FTrainList;
   public
+    property TrainList: TObjectList read FTrainList write FTrainList;
+
     constructor Create;
     destructor Destroy; override;
 
     function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep; ALccNode: TLccNode): TLccTrain;
     procedure DeleteByDccAddress(ADccAddress: Word; ALongAddress: Boolean);
-    function FindByDccAddress(ADccAddress: Word; ALongAddress: Boolean; var ListIndex: Integer): TLccTrain;
+    function FindByDccAddress(ADccAddress: Integer; ALongAddress: Boolean; var ListIndex: Integer): TLccTrain;
 
     property Train[Index: Integer]: TLccTrain read GetTrain write SetTrain;
   end;
@@ -111,11 +113,12 @@ begin
   inherited Destroy;
 end;
 
-function TLccTrainDatabase.FindByDccAddress(ADccAddress: Word;
+function TLccTrainDatabase.FindByDccAddress(ADccAddress: Integer;
   ALongAddress: Boolean; var ListIndex: Integer): TLccTrain;
 var
   i: Integer;
 begin
+  ListIndex := -1;
   Result := nil;
   for i := 0 to TrainList.Count - 1 do
    begin

@@ -77,6 +77,11 @@ if TargetOS = 'linux' then
         <Description Value="Compiler Options for Platforms"/>
       </Item1>
     </BuildMacros>
+    <Parsing>
+      <SyntaxOptions>
+        <IncludeAssertionCode Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
     <CodeGeneration>
       <Checks>
         <IOChecks Value="True"/>
@@ -84,7 +89,6 @@ if TargetOS = 'linux' then
         <OverflowChecks Value="True"/>
         <StackChecks Value="True"/>
       </Checks>
-      <VerifyObjMethodCallValidity Value="True"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>
