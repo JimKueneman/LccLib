@@ -7,7 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, memdslaz, TrainCommanderUnit, TrainDatabaseUnit, lcc_tasks, lcc_node_train
+  Forms, memdslaz, TrainCommanderUnit, TrainDatabaseUnit, lcc_tasks,
+  lcc_node_train, lcc_node_controller, lcc_node_commandstation
   { you can add units after this };
 
 {$R *.res}

@@ -21,7 +21,6 @@ uses
   {$ELSE}
   Classes,
   SysUtils,
-  strutils,
   {$ENDIF}
   lcc_math_float16,
   lcc_defines,
@@ -150,7 +149,7 @@ public
   procedure LoadTractionQueryFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionQueryFunctionReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word; Value: Word);
   procedure LoadTractionControllerAssign(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
-  procedure LoadTractionControllerAssignReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word; AResult: Byte);
+  procedure LoadTractionControllerAssignReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AResult: Byte);
   procedure LoadTractionControllerRelease(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionControllerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID; AControllerAlias: Word);
@@ -163,7 +162,8 @@ public
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
   function TractionExtractSpeed: THalfFloat;
-  function TractionExtractFunction: LongWord;
+  function TractionExtractFunctionAddress: LongWord;
+  function TractionExtractFunctionValue: Word;
 
   // Traction Search
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
@@ -984,7 +984,7 @@ begin
   CAN.DestAlias := TempAlias;
 end;
 
-function TLccMessage.TractionExtractFunction: LongWord;
+function TLccMessage.TractionExtractFunctionAddress: LongWord;
 begin
   Result := 0;
   Result := DataArray[1];
@@ -992,6 +992,14 @@ begin
   Result := Result or DataArray[2];
   Result := Result shl 8;
   Result := Result or DataArray[3];
+end;
+
+function TLccMessage.TractionExtractFunctionValue: Word;
+begin
+  Result := 0;
+  Result := DataArray[4];
+  Result := Result shl 8;
+  Result := Result or DataArray[5];
 end;
 
 function TLccMessage.TractionExtractSpeed: THalfFloat;
@@ -1488,8 +1496,7 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionControllerAssignReply(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
-  AnAlias: Word; AResult: Byte);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AResult: Byte);
 begin
   ZeroFields;
   SourceID := ASourceID;

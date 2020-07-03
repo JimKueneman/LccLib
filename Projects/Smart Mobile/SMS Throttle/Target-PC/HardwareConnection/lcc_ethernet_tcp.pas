@@ -13,8 +13,7 @@ interface
   {$IFNDEF FPC}
   Types,
   {$ENDIF}
-  lcc_defines,
-  lcc_threaded_circulararray;
+  lcc_defines;
 
  const
   STATE_FLAGS_BYTE_1 = 0;

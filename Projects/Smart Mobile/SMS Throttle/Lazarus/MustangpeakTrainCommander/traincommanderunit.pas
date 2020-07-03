@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, lcc_ethernet_server, lcc_math_float16, lcc_defines, lcc_node,
-  lcc_node_manager, lcc_ethernet_client, lcc_utilities, lcc_node_messages,
-  lcc_tasks, TrainDatabaseUnit;
+  StdCtrls, lcc_ethernet_server, lcc_defines, lcc_node,
+  lcc_node_manager, lcc_ethernet_client, lcc_node_messages,
+  TrainDatabaseUnit;
 
 
 const
@@ -426,126 +426,13 @@ end;
 
 function TFormTrainCommander.CreateTrainNode: TLccCanNode;
 begin
-  Result := NodeManager.AddNode(CDI_XML_TRAIN_NODE);
-
-  Result.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.Datagram := True;
-  Result.ProtocolSupportedProtocols.EventExchange := True;
-  Result.ProtocolSupportedProtocols.SimpleNodeInfo := True;
-  Result.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.TractionControl := True;
-  Result.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
-  Result.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
-
-  Result.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
-
-  Result.ProtocolMemoryOptions.WriteUnderMask := True;
-  Result.ProtocolMemoryOptions.UnAlignedReads := True;
-  Result.ProtocolMemoryOptions.UnAlignedWrites := True;
-  Result.ProtocolMemoryOptions.SupportACDIMfgRead := True;
-  Result.ProtocolMemoryOptions.SupportACDIUserRead := True;
-  Result.ProtocolMemoryOptions.SupportACDIUserWrite := True;
-  Result.ProtocolMemoryOptions.WriteLenOneByte := True;
-  Result.ProtocolMemoryOptions.WriteLenTwoBytes := True;
-  Result.ProtocolMemoryOptions.WriteLenFourBytes := True;
-  Result.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
-  Result.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-  Result.ProtocolMemoryOptions.WriteStream := False;
-  Result.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-  Result.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
-
-//    Result.ProtocolEventConsumed.AutoGenerate.Count := 5;
-//    Result.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
-
-//   Result.ProtocolEventsProduced.AutoGenerate.Count := 5;
-//   Result.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
-
-  Result.Login(NULL_NODE_ID);
+  Result := nil;
 end;
 
 procedure TFormTrainCommander.OnNodeIdentifyProducers(Sender: TObject;
   LccSourceNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
-var
-  NMRA_SpeedStep: TLccDccSpeedStep;
-  NMRA_ForceLongAddress: Boolean;
-  SearchStr: string;
-  SearchDccAddress: LongInt;
-  ForceLongAddress: Boolean;
-  Train: TLccTrain;
-  SpeedStep: TLccDccSpeedStep;
-  ListIndex: Integer;
-  AnEvent: TEventID;
-  CanNode: TLccCanNode;
 begin
-  // Don't allow reentrant calls
-  if InitializationWait then Exit;
 
-
-  // Only the CommandStation replies to this Event
-  if LccSourceNode = CommandStationNode then
-  begin
-    if LccMessage.TractionSearchIsEvent then
-    begin
-      NMRA_ForceLongAddress := False;
-      NMRA_SpeedStep := ldssDefault;
-
-      SearchStr := LccMessage.TractionSearchDecodeSearchString;
-
-      if TryStrToInt(SearchStr, SearchDccAddress) then                       // Gaurd against an empty string
-      begin
-        SearchDccAddress := StrToInt(SearchStr);
-        ForceLongAddress := False;                          // Setup up what we call defaults
-        SpeedStep := ldss14;                                // Setup up what we call defaults
-
-        if LccMessage.TractionSearchIsProtocolAny then
-        begin
-
-        end else
-        if LccMessage.TractionSearchIsProtocolDCC(NMRA_ForceLongAddress, NMRA_SpeedStep) then
-        begin
-          // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
-          LccMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
-          // Look for an existing Train
-          ListIndex := -1;
-          Train := TrainDatabase.FindByDccAddress(SearchDccAddress, ForceLongAddress, ListIndex);
-          if (Train = nil) and LccMessage.TractionSearchIsForceAllocate then
-          begin
-            try
-              CanNode := CreateTrainNode;
-              Train := TrainDatabase.AddTrain('New Train', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep, CanNode);
-              ListViewTrains.AddItem(CanNode.NodeIDStr + ' : ' + CanNode.AliasIDStr, nil);
-
-            finally
-            end;
-
-            InitializationWait := True;
-            InitializationWaitNode := Train.LccNode;
-            while InitializationWait do
-              Application.ProcessMessages;
-          end;
-
-          if (Train <> nil) then
-          begin
-            AnEvent := LccMessage.ExtractDataBytesAsEventID(0);
-            if Train.LccNode is TLccCanNode then
-              WorkerMsg.LoadProducerIdentified(Train.LccNode.NodeID, (Train.LccNode as TLccCanNode).AliasID, AnEvent, evs_Valid )
-            else
-              WorkerMsg.LoadProducerIdentified(Train.LccNode.NodeID, 0, AnEvent, evs_Valid );
-
-            NodeManager.SendMessage(WorkerMsg);
-          end;
-        end;
-
-      end;
-    end;
-  end;
 end;
 
 procedure TFormTrainCommander.OnNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);

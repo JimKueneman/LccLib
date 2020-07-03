@@ -7,8 +7,7 @@ uses
   lcc_node,
   lcc_node_manager,
   lcc_node_messages,
-  lcc_defines,
-  lcc_math_float16;
+  lcc_defines;
 
 type
 

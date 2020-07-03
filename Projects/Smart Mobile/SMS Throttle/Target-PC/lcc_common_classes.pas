@@ -63,7 +63,7 @@ type
     property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
     property IncomingCircularArray: TThreadedCirularArray read FIncomingCircularArray;
 
-    constructor Create(AOwner: TComponent); virtual;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;

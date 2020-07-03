@@ -83,8 +83,6 @@ end;
 function TLccTrainDatabase.AddTrain(ARoadName, ARoadNumber: string;
   ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep;
   ALccNode: TLccNode): TLccTrain;
-var
-  ATrain: TLccTrain;
 begin
   Result := TLccTrain.Create;
   Result.DccAddress := ADccAddress;

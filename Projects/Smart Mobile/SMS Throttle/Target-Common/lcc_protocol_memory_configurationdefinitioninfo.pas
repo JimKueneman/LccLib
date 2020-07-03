@@ -23,10 +23,8 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
-  lcc_xmlutilities,
 {$ENDIF}
   lcc_protocol_base,
-  lcc_protocol_simplenodeinfo,
   lcc_node_messages;
 
 const

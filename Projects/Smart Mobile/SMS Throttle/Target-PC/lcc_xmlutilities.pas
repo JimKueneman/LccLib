@@ -341,7 +341,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF FPC}
-  AttributeNode := XmlDoc.CreateAttribute(Attribute);
+  AttributeNode := WideString(XmlDoc.CreateAttribute(Attribute));
   XmlNodeSetTextContent(AttributeNode, Content);
   TargetNode.Attributes.SetNamedItem(AttributeNode);
   {$ELSE}

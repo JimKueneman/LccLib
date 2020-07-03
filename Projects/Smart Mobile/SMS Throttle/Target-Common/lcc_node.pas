@@ -191,6 +191,7 @@ protected
   {$ENDIF}
   property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
+  procedure Creating; virtual;
   function GetAlias: Word; override;
   function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
   procedure GenerateNewSeed(var Seed: TNodeID);
@@ -239,6 +240,12 @@ begin
   {$IFNDEF DWSCRIPT}
   InProcessMultiFrameMessage.OwnsObjects := False
   {$ENDIF};
+  Creating;
+end;
+
+procedure TLccCanNode.Creating;
+begin
+
 end;
 
 destructor TLccCanNode.Destroy;
