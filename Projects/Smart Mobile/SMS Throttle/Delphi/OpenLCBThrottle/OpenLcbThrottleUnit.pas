@@ -25,7 +25,7 @@ uses
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
-  lcc_node, lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
+  lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
   System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
   Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope;
 

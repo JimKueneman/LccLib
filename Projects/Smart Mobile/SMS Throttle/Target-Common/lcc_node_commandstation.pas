@@ -119,7 +119,11 @@ type
 
   TLccCommandStationNode = class(TLccCanNode)
   private
+    {$IFDEF DELPHI}
+    FTrains: TObjectList<TLccCanNode>;
+    {$ELSE}
     FTrains: TObjectList;
+    {$ENDIF}
     FWaitingRoom: TLccWaitingRoom;
     function GetTrain(Index: Integer): TLccTrainCanNode;
     procedure SetTrain(Index: Integer; AValue: TLccTrainCanNode);
@@ -127,7 +131,11 @@ type
     property WaitingRoom: TLccWaitingRoom read FWaitingRoom write FWaitingRoom;
     procedure Creating; override;
   public
+    {$IFDEF DELPHI}
+    property Trains: TObjectList<TLccCanNode> read FTrains write FTrains;
+    {$ELSE}
     property Trains: TObjectList read FTrains write FTrains;
+    {$ENDIF}
     property Train[Index: Integer]: TLccTrainCanNode read GetTrain write SetTrain;
 
     destructor Destroy; override;
@@ -174,7 +182,7 @@ begin
     for i := 0 to Patients.Count - 1 do
     begin
       APatient :=  Patients[i];
-      FreeAndNil(APatient);
+      APatient.Free;
     end
   finally
      Patients.Clear;
@@ -184,7 +192,11 @@ end;
 destructor TLccWaitingRoom.Destroy;
 begin
   ClearPatients;
+  {$IFDEF DWSCRIPT}
+  FPatients.Free;
+  {$ELSE}
   FreeAndNil(FPatients);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -192,6 +204,7 @@ function TLccWaitingRoom.FindPatient(NodeID: TNodeID; AliasID: Word): TLccWaitin
 var
   i: Integer;
 begin
+  Result := nil;
   for i := 0 to Patients.Count - 1 do
   begin
     if EqualNode(NodeID, AliasID, LccWaitingPatients[i].NodeWaitingToInitialize.NodeID, LccWaitingPatients[i].NodeWaitingToInitialize.AliasID) then
@@ -210,10 +223,16 @@ end;
 procedure TLccWaitingRoom.ReleasePatient(PatientNode: TLccCanNode);
 var
   Patient: TLccWaitingPatient;
+  i: Integer;
 begin
-  Patient := Patients.Extract(PatientNode) as TLccWaitingPatient;
-  if Assigned(Patient) then
-    Patient.Free
+  for i := 0 to Patients.Count - 1 do
+  begin
+     if (Patients[i] as TLccWaitingPatient).NodeWaitingToInitialize = PatientNode then
+     begin
+       Patient := Patients[i] as TLccWaitingPatient;
+       Patient.Free;
+     end;
+  end;
 end;
 
 procedure TLccWaitingRoom.SetLccWaitingPatients(Index: Integer;
@@ -297,16 +316,31 @@ end;
 procedure TLccCommandStationNode.Creating;
 begin
   inherited Creating;
-  FTrains := TObjectList.Create(False);
+  {$IFDEF DELPHI}
+  FTrains := TObjectList<TLccCanNode>.Create;
+  {$ELSE}
+  FTrains := TObjectList.Create;
+  {$ENDIF}
+  {$IFNDEF DWSCRIPT}
+  FTrains.OwnsObjects := False
+  {$ENDIF};
   FWaitingRoom := TLccWaitingRoom.Create;
 end;
 
 destructor TLccCommandStationNode.Destroy;
 begin
   ClearTrains;
-  FreeAndNil(FTrains);
+  {$IFDEF DWSCRIPT}
+  FTrains.Free;
+  {$ELSE}
+   FreeAndNil(FTrains);
+  {$ENDIF}
   WaitingRoom.ClearPatients;
+  {$IFDEF DWSCRIPT}
+  FWaitingRoom.Free;
+  {$ELSE}
   FreeAndNil(FWaitingRoom);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -350,7 +384,11 @@ var
   NMRA_SpeedStep: TLccDccSpeedStep;
   NMRA_ForceLongAddress: Boolean;
   SearchStr: string;
+  {$IFDEF DWSCRIPT}
+  SearchDccAddress: Integer;
+  {$ELSE}
   SearchDccAddress: LongInt;
+  {$ENDIF}
   ForceLongAddress: Boolean;
   SpeedStep: TLccDccSpeedStep;
   AnEvent: TEventID;
@@ -367,7 +405,8 @@ begin
           ATrain := FindTrainByLccID(SourceLccMessage);
           if APatient.NodeWaitingToInitialize = ATrain then
           begin
-            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, APatient.FWaitingEvent, evs_Valid);
+            AnEvent := APatient.FWaitingEvent;
+            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, AnEvent, evs_Valid);
             SendMessageFunc(WorkerMessage);
             WaitingRoom.ReleasePatient(APatient.NodeWaitingToInitialize);
           end

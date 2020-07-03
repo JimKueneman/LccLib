@@ -264,9 +264,14 @@ begin
                     // Start a timer to clear the Reserve Node if it never Releases
                     if not Assigned(FReserveWatchDogTimer) then
                     begin
-                      ReserveWatchDogTimer := TTimer.Create(nil);
-                      ReserveWatchDogTimer.Interval := 5000;  // 5 seconds allowed to complete
-                      ReserveWatchDogTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}OnReserveWatchDogTimer;
+                      ReserveWatchDogTimer := TLccTimer.Create(nil);
+                      {$IFDEF DWSCRIPT}
+                      ReserveWatchDogTimer.Delay := 5000;
+                      ReserveWatchDogTimer.OnTime := @OnReserveWatchDogTimer;
+                      {$ELSE}
+                       ReserveWatchDogTimer.Interval := 5000;  // 5 seconds allowed to complete
+                       ReserveWatchDogTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}OnReserveWatchDogTimer;
+                      {$ENDIF}
                     end;
                     ReserveWatchDogTimer.Enabled := True;
                   end;

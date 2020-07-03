@@ -3042,8 +3042,8 @@ var TW3ErrorObject = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3ErrorObject.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// EW3ErrorObject = class (EW3Exception)
 ///  [line: 21, column: 3, file: System.Objects]
@@ -3404,6 +3404,9 @@ var EStreamNotImplemented = {
 /// TValuePrefixType enumeration
 ///  [line: 52, column: 3, file: System.Types.Convert]
 var TValuePrefixType = [ "vpNone", "vpHexPascal", "vpHexC", "vpBinPascal", "vpBinC", "vpString" ];
+function TryStrToInt(Data$8, Value$3) {
+   return TDatatype.ExamineInteger(Data$8,Value$3);
+};
 function TryStrToBool(Data$8, Value$3) {
    return TDatatype.ExamineBoolean(Data$8,Value$3);
 };
@@ -3868,13 +3871,13 @@ var TDatatype = {
       var Result = 0;
       var x$39 = 0,
          a$397 = 0,
-         Name$12 = "";
+         Name$13 = "";
       TypeName = Trim$_String_((TypeName).toLocaleLowerCase());
       if (TypeName.length > 0) {
          x$39 = 0;
          for(a$397=0;a$397<=10;a$397++) {
-            Name$12 = _NAMES[a$397];
-            if ((Name$12).toLocaleLowerCase() == TypeName) {
+            Name$13 = _NAMES[a$397];
+            if ((Name$13).toLocaleLowerCase() == TypeName) {
                Result = x$39;
                break;
             }
@@ -10447,9 +10450,9 @@ var TJSONObject = {
          if (TW3VariantHelper$IsObject(Instance$3)) {
             if (Clone$3) {
                Self.FInstance = TVariant.CreateObject();
-               TVariant.ForEachProperty(Instance$3,function (Name$12, Data$8) {
+               TVariant.ForEachProperty(Instance$3,function (Name$13, Data$8) {
                   var Result = 1;
-                  TJSONObject.AddOrSet(Self,Name$12,Data$8);
+                  TJSONObject.AddOrSet(Self,Name$13,Data$8);
                   Result = 1;
                   return Result
                });
@@ -17315,11 +17318,11 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataImport:[TBinaryData.FromBase64]
+   IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
    ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
-   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
+   ,IBinaryDataImport:[TBinaryData.FromBase64]
    ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
@@ -19480,10 +19483,10 @@ var THttpHeaders = {
    }
    /// function THttpHeaders.IndexOf(Name: String) : Integer
    ///  [line: 351, column: 23, file: SmartCL.Net.Http]
-   ,IndexOf$5:function(Self, Name$12) {
+   ,IndexOf$5:function(Self, Name$13) {
       var Result = 0;
       var ucName = "";
-      ucName = (Name$12).toLocaleUpperCase();
+      ucName = (Name$13).toLocaleUpperCase();
       var $temp73;
       for(Result=0,$temp73=THttpHeaders.Count$13(Self);Result<$temp73;Result++) {
          if ((THttpHeaders.a$330(Self,Result)).toLocaleUpperCase() == ucName) {
@@ -27935,8 +27938,8 @@ var TW3VirtualFsParser = {
    ,Create$71:TW3ErrorObject.Create$71
 };
 TW3VirtualFsParser.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemObject = class (TW3ErrorObject)
 ///  [line: 100, column: 3, file: System.FileSystem.Virtual]
@@ -28066,8 +28069,8 @@ var TW3VirtualFileSystemObject = {
 };
 TW3VirtualFileSystemObject.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemObject.WriteFileObjectData,TW3VirtualFileSystemObject.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFolder = class (TW3VirtualFileSystemObject)
 ///  [line: 142, column: 3, file: System.FileSystem.Virtual]
@@ -28268,8 +28271,8 @@ var TW3VirtualFileSystemFolder = {
 TW3VirtualFileSystemFolder.$Intf={
    IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
    ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFile = class (TW3VirtualFileSystemObject)
 ///  [line: 175, column: 3, file: System.FileSystem.Virtual]
@@ -28338,8 +28341,8 @@ var TW3VirtualFileSystemFile = {
 };
 TW3VirtualFileSystemFile.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFile.WriteFileObjectData,TW3VirtualFileSystemFile.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystem = class (TW3VirtualFileSystemFolder)
 ///  [line: 211, column: 3, file: System.FileSystem.Virtual]
@@ -28723,11 +28726,11 @@ var TW3VirtualFileSystem = {
    ,WriteFileObjectData:TW3VirtualFileSystemFolder.WriteFileObjectData
 };
 TW3VirtualFileSystem.$Intf={
-   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
+   IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
+   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TBTreeNode = class (JObject)
 ///  [line: 24, column: 3, file: System.BTree]
@@ -28998,8 +29001,8 @@ var TW3DirectoryParser = {
 };
 TW3DirectoryParser.$Intf={
    IW3DirectoryParser:[TW3DirectoryParser.GetPathSeparator,TW3DirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3DirectoryParser.IsValidPath,TW3DirectoryParser.HasValidPathChars,TW3DirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3DirectoryParser.GetFileNameWithoutExtension,TW3DirectoryParser.GetPathName,TW3DirectoryParser.GetDevice,TW3DirectoryParser.GetFileName,TW3DirectoryParser.GetExtension,TW3DirectoryParser.GetDirectoryName,TW3DirectoryParser.IncludeTrailingPathDelimiter,TW3DirectoryParser.IncludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeTrailingPathDelimiter,TW3DirectoryParser.ChangeFileExt]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3UnixDirectoryParser = class (TW3DirectoryParser)
 ///  [line: 81, column: 3, file: System.IOUtils]
@@ -29375,8 +29378,8 @@ var TW3UnixDirectoryParser = {
 };
 TW3UnixDirectoryParser.$Intf={
    IW3DirectoryParser:[TW3UnixDirectoryParser.GetPathSeparator,TW3UnixDirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3UnixDirectoryParser.IsValidPath,TW3UnixDirectoryParser.HasValidPathChars,TW3UnixDirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3UnixDirectoryParser.GetFileNameWithoutExtension,TW3UnixDirectoryParser.GetPathName,TW3UnixDirectoryParser.GetDevice,TW3UnixDirectoryParser.GetFileName,TW3UnixDirectoryParser.GetExtension,TW3UnixDirectoryParser.GetDirectoryName,TW3UnixDirectoryParser.IncludeTrailingPathDelimiter,TW3UnixDirectoryParser.IncludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeTrailingPathDelimiter,TW3UnixDirectoryParser.ChangeFileExt]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TPath = class (TObject)
 ///  [line: 107, column: 3, file: System.IOUtils]
@@ -29814,7 +29817,7 @@ var TLayoutImpl = {
       $.FClientArea = {Bottom$8:undefined,Height$13:undefined,Left$12:undefined,Right$9:undefined,Top$12:undefined,Width$15:undefined};
       $.FConfig$1 = null;
       $.FControls = [];
-      $.FName$6 = "";
+      $.FName$7 = "";
    }
    /// procedure TLayoutImpl.AlignControl(control: TObject)
    ///  [line: 612, column: 23, file: SmartCL.Layout]
@@ -29868,12 +29871,12 @@ var TLayoutImpl = {
    // IGNORED: TLayoutImpl.Config
    /// constructor TLayoutImpl.Create(align: TAlign; config: TLayoutConfig; controls: TObjectArr)
    ///  [line: 603, column: 25, file: SmartCL.Layout]
-   ,Create$207:function(Self, align$18, config, controls$1) {
+   ,Create$208:function(Self, align$18, config, controls$1) {
       Self.FAlign$1 = align$18;
       Self.FConfig$1 = TLayoutConfigImpl.CreateFrom($New(TLayoutConfigImpl),$As(config,TLayoutConfigImpl));
       Self.FControls = controls$1;
       ++LayoutCount;
-      Self.FName$6 = ("Layout "+LayoutCount.toString()+" ("+AlignToString(align$18).toString()+")");
+      Self.FName$7 = ("Layout "+LayoutCount.toString()+" ("+AlignToString(align$18).toString()+")");
       return Self
    }
    /// procedure TLayoutImpl.InternalResize(container: TObject)
@@ -30244,7 +30247,7 @@ var TLayoutArea = {
    }
    /// constructor TLayoutArea.Create(rect: TRect)
    ///  [line: 228, column: 25, file: SmartCL.Layout]
-   ,Create$208:function(Self, rect$4) {
+   ,Create$209:function(Self, rect$4) {
       TObject.Create(Self);
       Copy$TRect(rect$4,Self.FRect);
       return Self
@@ -30257,7 +30260,7 @@ var TAlign = [ "Left", "Top", "Right", "Bottom", "Client", "Center" ];
 function NameOf(control$3) {
    var Result = "";
    if ($Is(control$3,TLayoutImpl)) {
-      Result = $As(control$3,TLayoutImpl).FName$6;
+      Result = $As(control$3,TLayoutImpl).FName$7;
    } else {
       Result = TW3TagContainer.GetComponentName($As(control$3,TW3CustomControl));
    }
@@ -31088,11 +31091,11 @@ var TW3WebSocket = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3WebSocket.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TLccNodeManager = class (TObject)
-///  [line: 93, column: 3, file: lcc_node_manager]
+///  [line: 96, column: 3, file: lcc_node_manager]
 var TLccNodeManager = {
    $ClassName:"TLccNodeManager",$Parent:TObject
    ,$Init:function ($) {
@@ -31100,7 +31103,7 @@ var TLccNodeManager = {
       $.FNodes = $.FOnLccCANAliasMapReset = $.FOnLccMessageReceive = $.FOnLccMessageSend = $.FOnLccNodeAliasIDChanged = $.FOnLccNodeCDI = $.FOnLccNodeConfigMemAddressSpaceInfoReply = $.FOnLccNodeConfigMemOptionsReply = $.FOnLccNodeConfigMemReadReply = $.FOnLccNodeConfigMemWriteReply = $.FOnLccNodeConsumerIdentified = $.FOnLccNodeConsumerIdentify = $.FOnLccNodeCreate = $.FOnLccNodeDatagramReply = $.FOnLccNodeDestroy = $.FOnLccNodeFDI = $.FOnLccNodeFunctionConfiguration = $.FOnLccNodeIDChanged = $.FOnLccNodeInitializationComplete = $.FOnLccNodeOptionalInteractionRejected = $.FOnLccNodeProducerIdentified = $.FOnLccNodeProducerIdentify = $.FOnLccNodeProtocolIdentifyReply = $.FOnLccNodeRemoteButtonReply = $.FOnLccNodeSimpleNodeIdentReply = $.FOnLccNodeSimpleTrainNodeIdentReply = $.FOnLccNodeTractionControllerConfig = $.FOnLccNodeTractionEmergencyStop = $.FOnLccNodeTractionFunctionSet = $.FOnLccNodeTractionListenerConfig = $.FOnLccNodeTractionManage = $.FOnLccNodeTractionQueryFunction = $.FOnLccNodeTractionQuerySpeed = $.FOnLccNodeTractionSpeedSet = $.FOnLccNodeVerifiedNodeID = null;
    }
    /// procedure TLccNodeManager.Clear()
-   ///  [line: 544, column: 27, file: lcc_node_manager]
+   ///  [line: 547, column: 27, file: lcc_node_manager]
    ,Clear$30:function(Self) {
       var i$7 = 0;
       try {
@@ -31114,14 +31117,14 @@ var TLccNodeManager = {
       }
    }
    /// constructor TLccNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 513, column: 29, file: lcc_node_manager]
+   ///  [line: 516, column: 29, file: lcc_node_manager]
    ,Create$198:function(Self, AnOwner) {
       TObject.Create(Self);
       Self.FNodes = TObjectList.Create$127($New(TObjectList));
       return Self
    }
    /// destructor TLccNodeManager.Destroy()
-   ///  [line: 536, column: 28, file: lcc_node_manager]
+   ///  [line: 539, column: 28, file: lcc_node_manager]
    ,Destroy:function(Self) {
       TLccNodeManager.LogoutAll(Self);
       TLccNodeManager.Clear$30(Self);
@@ -31129,242 +31132,242 @@ var TLccNodeManager = {
       TObject.Destroy(Self);
    }
    /// procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode)
-   ///  [line: 300, column: 27, file: lcc_node_manager]
+   ///  [line: 303, column: 27, file: lcc_node_manager]
    ,DoAliasIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeAliasIDChanged) {
          Self.FOnLccNodeAliasIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCANAliasMapReset(LccNode: TLccNode)
-   ///  [line: 306, column: 27, file: lcc_node_manager]
+   ///  [line: 309, column: 27, file: lcc_node_manager]
    ,DoCANAliasMapReset:function(Self, LccNode) {
       if (Self.FOnLccCANAliasMapReset) {
          Self.FOnLccCANAliasMapReset(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCDIRead(LccNode: TLccNode)
-   ///  [line: 312, column: 27, file: lcc_node_manager]
+   ///  [line: 315, column: 27, file: lcc_node_manager]
    ,DoCDIRead:function(Self, LccNode) {
       if (Self.FOnLccNodeCDI) {
          Self.FOnLccNodeCDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemAddressSpaceInfoReply(LccNode: TLccNode; AddressSpace: Byte)
-   ///  [line: 318, column: 27, file: lcc_node_manager]
+   ///  [line: 321, column: 27, file: lcc_node_manager]
    ,DoConfigMemAddressSpaceInfoReply:function(Self, LccNode, AddressSpace$2) {
       if (Self.FOnLccNodeConfigMemAddressSpaceInfoReply) {
          Self.FOnLccNodeConfigMemAddressSpaceInfoReply(Self,LccNode,AddressSpace$2);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemOptionsReply(LccNode: TLccNode)
-   ///  [line: 325, column: 27, file: lcc_node_manager]
+   ///  [line: 328, column: 27, file: lcc_node_manager]
    ,DoConfigMemOptionsReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemOptionsReply) {
          Self.FOnLccNodeConfigMemOptionsReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemReadReply(LccNode: TLccNode)
-   ///  [line: 331, column: 27, file: lcc_node_manager]
+   ///  [line: 334, column: 27, file: lcc_node_manager]
    ,DoConfigMemReadReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemReadReply) {
          Self.FOnLccNodeConfigMemReadReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemWriteReply(LccNode: TLccNode)
-   ///  [line: 337, column: 27, file: lcc_node_manager]
+   ///  [line: 340, column: 27, file: lcc_node_manager]
    ,DoConfigMemWriteReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemWriteReply) {
          Self.FOnLccNodeConfigMemWriteReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 349, column: 27, file: lcc_node_manager]
+   ///  [line: 352, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeConsumerIdentified) {
          Self.FOnLccNodeConsumerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 356, column: 27, file: lcc_node_manager]
+   ///  [line: 359, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeConsumerIdentify) {
          Self.FOnLccNodeConsumerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoCreateLccNode(LccNode: TLccNode)
-   ///  [line: 343, column: 27, file: lcc_node_manager]
+   ///  [line: 346, column: 27, file: lcc_node_manager]
    ,DoCreateLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeCreate) {
          Self.FOnLccNodeCreate(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDatagramReply(LccNode: TLccNode)
-   ///  [line: 363, column: 27, file: lcc_node_manager]
+   ///  [line: 366, column: 27, file: lcc_node_manager]
    ,DoDatagramReply:function(Self, LccNode) {
       if (Self.FOnLccNodeDatagramReply) {
          Self.FOnLccNodeDatagramReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode)
-   ///  [line: 369, column: 27, file: lcc_node_manager]
+   ///  [line: 372, column: 27, file: lcc_node_manager]
    ,DoDestroyLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeDestroy) {
          Self.FOnLccNodeDestroy(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFDI(LccNode: TLccNode)
-   ///  [line: 375, column: 27, file: lcc_node_manager]
+   ///  [line: 378, column: 27, file: lcc_node_manager]
    ,DoFDI:function(Self, LccNode) {
       if (Self.FOnLccNodeFDI) {
          Self.FOnLccNodeFDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFunctionConfiguration(LccNode: TLccNode)
-   ///  [line: 381, column: 27, file: lcc_node_manager]
+   ///  [line: 384, column: 27, file: lcc_node_manager]
    ,DoFunctionConfiguration:function(Self, LccNode) {
       if (Self.FOnLccNodeFunctionConfiguration) {
          Self.FOnLccNodeFunctionConfiguration(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoInitializationComplete(LccNode: TLccNode)
-   ///  [line: 387, column: 27, file: lcc_node_manager]
+   ///  [line: 390, column: 27, file: lcc_node_manager]
    ,DoInitializationComplete:function(Self, LccNode) {
       if (Self.FOnLccNodeInitializationComplete) {
          Self.FOnLccNodeInitializationComplete(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageReceive(Message: TLccMessage)
-   ///  [line: 393, column: 27, file: lcc_node_manager]
+   ///  [line: 396, column: 27, file: lcc_node_manager]
    ,DoLccMessageReceive:function(Self, Message$2) {
       if (Self.FOnLccMessageReceive) {
          Self.FOnLccMessageReceive(Self,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageSend(Message: TLccMessage)
-   ///  [line: 399, column: 27, file: lcc_node_manager]
+   ///  [line: 402, column: 27, file: lcc_node_manager]
    ,DoLccMessageSend:function(Self, Message$2) {
       if (Self.FOnLccMessageSend) {
          Self.FOnLccMessageSend(Self,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode)
-   ///  [line: 405, column: 27, file: lcc_node_manager]
+   ///  [line: 408, column: 27, file: lcc_node_manager]
    ,DoNodeIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeIDChanged) {
          Self.FOnLccNodeIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoOptionalInteractionRejected(LccNode: TLccNode)
-   ///  [line: 411, column: 27, file: lcc_node_manager]
+   ///  [line: 414, column: 27, file: lcc_node_manager]
    ,DoOptionalInteractionRejected:function(Self, LccNode) {
       if (Self.FOnLccNodeOptionalInteractionRejected) {
          Self.FOnLccNodeOptionalInteractionRejected(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 417, column: 27, file: lcc_node_manager]
+   ///  [line: 420, column: 27, file: lcc_node_manager]
    ,DoProducerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeProducerIdentified) {
          Self.FOnLccNodeProducerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 424, column: 27, file: lcc_node_manager]
+   ///  [line: 427, column: 27, file: lcc_node_manager]
    ,DoProducerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeProducerIdentify) {
          Self.FOnLccNodeProducerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoProtocolIdentifyReply(LccNode: TLccNode)
-   ///  [line: 431, column: 27, file: lcc_node_manager]
+   ///  [line: 434, column: 27, file: lcc_node_manager]
    ,DoProtocolIdentifyReply:function(Self, LccNode) {
       if (Self.FOnLccNodeProtocolIdentifyReply) {
          Self.FOnLccNodeProtocolIdentifyReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoRemoteButtonReply(LccNode: TLccNode)
-   ///  [line: 437, column: 27, file: lcc_node_manager]
+   ///  [line: 440, column: 27, file: lcc_node_manager]
    ,DoRemoteButtonReply:function(Self, LccNode) {
       if (Self.FOnLccNodeRemoteButtonReply) {
          Self.FOnLccNodeRemoteButtonReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 443, column: 27, file: lcc_node_manager]
+   ///  [line: 446, column: 27, file: lcc_node_manager]
    ,DoSimpleNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleNodeIdentReply) {
          Self.FOnLccNodeSimpleNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleTrainNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 449, column: 27, file: lcc_node_manager]
+   ///  [line: 452, column: 27, file: lcc_node_manager]
    ,DoSimpleTrainNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleTrainNodeIdentReply) {
          Self.FOnLccNodeSimpleTrainNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 475, column: 27, file: lcc_node_manager]
+   ///  [line: 478, column: 27, file: lcc_node_manager]
    ,DoTractionControllerConfig:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionControllerConfig) {
          Self.FOnLccNodeTractionControllerConfig(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionEmergencyStop(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 482, column: 27, file: lcc_node_manager]
+   ///  [line: 485, column: 27, file: lcc_node_manager]
    ,DoTractionEmergencyStop:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionFunctionSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 488, column: 27, file: lcc_node_manager]
+   ///  [line: 491, column: 27, file: lcc_node_manager]
    ,DoTractionFunctionSet:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionListenerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 494, column: 27, file: lcc_node_manager]
+   ///  [line: 497, column: 27, file: lcc_node_manager]
    ,DoTractionListenerConfig:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 500, column: 27, file: lcc_node_manager]
+   ///  [line: 503, column: 27, file: lcc_node_manager]
    ,DoTractionManage:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionManage) {
          Self.FOnLccNodeTractionManage(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 468, column: 27, file: lcc_node_manager]
+   ///  [line: 471, column: 27, file: lcc_node_manager]
    ,DoTractionQueryFunction:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQueryFunction) {
          Self.FOnLccNodeTractionQueryFunction(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 455, column: 27, file: lcc_node_manager]
+   ///  [line: 458, column: 27, file: lcc_node_manager]
    ,DoTractionQuerySpeed:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQuerySpeed) {
          Self.FOnLccNodeTractionQuerySpeed(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionSpeedSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 462, column: 27, file: lcc_node_manager]
+   ///  [line: 465, column: 27, file: lcc_node_manager]
    ,DoTractionSpeedSet:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoVerifiedNodeID(LccNode: TLccNode)
-   ///  [line: 507, column: 27, file: lcc_node_manager]
+   ///  [line: 510, column: 27, file: lcc_node_manager]
    ,DoVerifiedNodeID:function(Self, LccNode) {
       if (Self.FOnLccNodeVerifiedNodeID) {
          Self.FOnLccNodeVerifiedNodeID(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.LccMessageSendCallback(LccMessage: TLccMessage)
-   ///  [line: 624, column: 27, file: lcc_node_manager]
+   ///  [line: 627, column: 27, file: lcc_node_manager]
    ,LccMessageSendCallback:function(Self, LccMessage) {
       TLccNodeManager.DoLccMessageSend(Self,LccMessage);
    }
    /// procedure TLccNodeManager.LogoutAll()
-   ///  [line: 599, column: 27, file: lcc_node_manager]
+   ///  [line: 602, column: 27, file: lcc_node_manager]
    ,LogoutAll:function(Self) {
       var i$7 = 0;
       var $temp143;
@@ -31373,7 +31376,7 @@ var TLccNodeManager = {
       }
    }
    /// procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage)
-   ///  [line: 610, column: 27, file: lcc_node_manager]
+   ///  [line: 613, column: 27, file: lcc_node_manager]
    ,ProcessMessage:function(Self, LccMessage) {
       var i$7 = 0;
       TLccNodeManager.DoLccMessageReceive(Self,LccMessage);
@@ -31388,25 +31391,25 @@ TLccNodeManager.$Intf={
    INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
 }
 /// TLccCanNodeManager = class (TLccNodeManager)
-///  [line: 258, column: 3, file: lcc_node_manager]
+///  [line: 261, column: 3, file: lcc_node_manager]
 var TLccCanNodeManager = {
    $ClassName:"TLccCanNodeManager",$Parent:TLccNodeManager
    ,$Init:function ($) {
       TLccNodeManager.$Init($);
    }
    /// constructor TLccCanNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 280, column: 32, file: lcc_node_manager]
+   ///  [line: 283, column: 32, file: lcc_node_manager]
    ,Create$199:function(Self, AnOwner) {
       TLccNodeManager.Create$198(Self,AnOwner);
       return Self
    }
    /// destructor TLccCanNodeManager.Destroy()
-   ///  [line: 285, column: 31, file: lcc_node_manager]
+   ///  [line: 288, column: 31, file: lcc_node_manager]
    ,Destroy:function(Self) {
       TLccNodeManager.Destroy(Self);
    }
    /// function TLccCanNodeManager.AddNode(CdiXML: String) : TLccCanNode
-   ///  [line: 274, column: 29, file: lcc_node_manager]
+   ///  [line: 277, column: 29, file: lcc_node_manager]
    ,AddNode$1:function(Self, CdiXML) {
       var Result = null;
       Result = TLccCanNode.Create$201($New(TLccCanNode),$Event1(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML);
@@ -32135,7 +32138,7 @@ var TLccCanNode = {
    ,Create$201:function(Self, ASendMessageFunc, ANodeManager, CdiXML) {
       TLccNode.Create$200(Self,ASendMessageFunc,ANodeManager,CdiXML);
       Self.FInProcessMultiFrameMessage = TObjectList.Create$127($New(TObjectList));
-      TLccCanNode.Creating(Self);
+      TLccCanNode.Creating$(Self);
       return Self
    }
    /// procedure TLccCanNode.Creating()
@@ -32541,6 +32544,7 @@ break;
    ,Logout$:function($){return $.ClassType.Logout($)}
    ,On_800msTimer$:function($){return $.ClassType.On_800msTimer.apply($.ClassType, arguments)}
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
+   ,Creating$:function($){return $.ClassType.Creating($)}
 };
 /// TLccMarklinProtocolVersion enumeration
 ///  [line: 457, column: 3, file: lcc_defines]
@@ -32857,6 +32861,14 @@ var TLccMessage = {
    ,GetIsStream:function(Self) {
       return Self.FMTI == 8072;
    }
+   /// procedure TLccMessage.InsertDWordAsDataBytes(DoubleWord: DWord; StartByteIndex: Integer)
+   ///  [line: 301, column: 23, file: lcc_node_messages]
+   ,InsertDWordAsDataBytes:function(Self, DoubleWord, StartByteIndex) {
+      Self.FDataArray[StartByteIndex] = _Highest(DoubleWord);
+      Self.FDataArray[StartByteIndex+1] = _Higher(DoubleWord);
+      Self.FDataArray[StartByteIndex+2] = _Hi(DoubleWord);
+      Self.FDataArray[StartByteIndex+3] = _Lo(DoubleWord);
+   }
    /// procedure TLccMessage.InsertEventID(StartIndex: Integer; var AnEventID: TEventID)
    ///  [line: 289, column: 23, file: lcc_node_messages]
    ,InsertEventID:function(Self, StartIndex$1, AnEventID) {
@@ -33161,6 +33173,144 @@ var TLccMessage = {
       Self.FDataCount = SimplePackedArray.length;
       Self.FMTI = 2568;
    }
+   /// procedure TLccMessage.LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word)
+   ///  [line: 1694, column: 23, file: lcc_node_messages]
+   ,LoadTractionConsistQuery:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, ANodeID, AnAlias) {
+      ANodeID = { v : ANodeID };
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      if (AnAlias) {
+         Self.FDataCount = 11;
+         Self.FDataArray[0] = 48;
+         Self.FDataArray[1] = 3;
+         Self.FDataArray[2] = 1;
+         TLccMessage.InsertNodeID(Self,3,ANodeID);
+         Self.FDataArray[9] = Hi(AnAlias);
+         Self.FDataArray[10] = Lo(AnAlias);
+      } else {
+         Self.FDataCount = 9;
+         Self.FDataArray[0] = 48;
+         Self.FDataArray[1] = 3;
+         Self.FDataArray[2] = 0;
+         TLccMessage.InsertNodeID(Self,3,ANodeID);
+      }
+      Self.FMTI = 1512;
+   }
+   /// procedure TLccMessage.LoadTractionControllerAssignReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AResult: Byte)
+   ///  [line: 1498, column: 23, file: lcc_node_messages]
+   ,LoadTractionControllerAssignReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, AResult) {
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      Self.FDataCount = 11;
+      Self.FDataArray[0] = 32;
+      Self.FDataArray[1] = 1;
+      Self.FDataArray[2] = AResult;
+      Self.FMTI = 488;
+   }
+   /// procedure TLccMessage.LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word)
+   ///  [line: 1589, column: 23, file: lcc_node_messages]
+   ,LoadTractionControllerChangingNotify:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, ANodeID, AnAlias) {
+      ANodeID = { v : ANodeID };
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      if (AnAlias) {
+         Self.FDataCount = 11;
+         Self.FDataArray[0] = 32;
+         Self.FDataArray[1] = 4;
+         Self.FDataArray[2] = 1;
+         TLccMessage.InsertNodeID(Self,3,ANodeID);
+         Self.FDataArray[9] = Hi(AnAlias);
+         Self.FDataArray[10] = Lo(AnAlias);
+      } else {
+         Self.FDataCount = 9;
+         Self.FDataArray[0] = 32;
+         Self.FDataArray[1] = 4;
+         Self.FDataArray[2] = 0;
+         TLccMessage.InsertNodeID(Self,3,ANodeID);
+      }
+      Self.FMTI = 1512;
+   }
+   /// procedure TLccMessage.LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean)
+   ///  [line: 1740, column: 23, file: lcc_node_messages]
+   ,LoadTractionManageReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Accepted) {
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      Self.FDataCount = 3;
+      Self.FDataArray[0] = 64;
+      Self.FDataArray[1] = 1;
+      if (Accepted) {
+         Self.FDataArray[2] = 0;
+      } else {
+         Self.FDataArray[2] = 1;
+      }
+      Self.FMTI = 488;
+   }
+   /// procedure TLccMessage.LoadTractionQueryFunctionReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word; Value: Word)
+   ///  [line: 1449, column: 23, file: lcc_node_messages]
+   ,LoadTractionQueryFunctionReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Address, Value$3) {
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      Self.FDataCount = 6;
+      Self.FDataArray[0] = 17;
+      Self.FDataArray[1] = Address<<16;
+      Self.FDataArray[2] = Address<<8;
+      Self.FDataArray[3] = Address;
+      Self.FDataArray[4] = Value$3<<8;
+      Self.FDataArray[5] = Value$3;
+      Self.FMTI = 488;
+   }
+   /// procedure TLccMessage.LoadTractionQuerySpeedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SetSpeed: THalfFloat; Status: Byte; CommandedSpeed: THalfFloat; ActualSpeed: THalfFloat)
+   ///  [line: 1396, column: 23, file: lcc_node_messages]
+   ,LoadTractionQuerySpeedReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, SetSpeed$1, Status$1, CommandedSpeed, ActualSpeed) {
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      Self.FDataCount = 8;
+      Self.FDataArray[0] = 16;
+      Self.FDataArray[1] = Hi(SetSpeed$1);
+      Self.FDataArray[2] = Lo(SetSpeed$1);
+      Self.FDataArray[3] = Status$1;
+      Self.FDataArray[4] = Hi(CommandedSpeed);
+      Self.FDataArray[5] = Lo(CommandedSpeed);
+      Self.FDataArray[5] = Hi(ActualSpeed);
+      Self.FDataArray[7] = Lo(ActualSpeed);
+      Self.FMTI = 488;
+   }
+   /// procedure TLccMessage.LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; SearchData: DWord)
+   ///  [line: 1417, column: 23, file: lcc_node_messages]
+   ,LoadTractionSearch:function(Self, ASourceID, ASourceAlias, SearchData) {
+      var i$7 = 0;
+      for(i$7=0;i$7<=1023;i$7++) {
+         Self.FDataArray[i$7] = 0;
+      }
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FDataArray[0] = 9;
+      Self.FDataArray[1] = 0;
+      Self.FDataArray[2] = 153;
+      Self.FDataArray[3] = 255;
+      TLccMessage.InsertDWordAsDataBytes(Self,SearchData,4);
+      Self.FDataCount = 8;
+      Self.FMTI = 2324;
+   }
    /// procedure TLccMessage.LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word)
    ///  [line: 1341, column: 23, file: lcc_node_messages]
    ,LoadVerifiedNodeID:function(Self, ASourceID, ASourceAlias) {
@@ -33188,6 +33338,229 @@ var TLccMessage = {
       Self.FDestID = TempNodeID.slice(0);
       Self.FCAN.FSourceAlias = Self.FCAN.FDestAlias;
       Self.FCAN.FDestAlias = TempAlias;
+   }
+   /// function TLccMessage.TractionExtractFunctionAddress() : Longword
+   ///  [line: 987, column: 22, file: lcc_node_messages]
+   ,TractionExtractFunctionAddress:function(Self) {
+      var Result = 0;
+      Result = 0;
+      Result = Self.FDataArray[1];
+      Result = Result<<8;
+      Result = Result|Self.FDataArray[2];
+      Result = Result<<8;
+      Result = Result|Self.FDataArray[3];
+      return Result
+   }
+   /// function TLccMessage.TractionExtractFunctionValue() : Word
+   ///  [line: 997, column: 22, file: lcc_node_messages]
+   ,TractionExtractFunctionValue:function(Self) {
+      var Result = 0;
+      Result = 0;
+      Result = Self.FDataArray[4];
+      Result = Result<<8;
+      Result = Result|Self.FDataArray[5];
+      return Result
+   }
+   /// function TLccMessage.TractionExtractSpeed() : THalfFloat
+   ///  [line: 1005, column: 22, file: lcc_node_messages]
+   ,TractionExtractSpeed:function(Self) {
+      var Result = 0;
+      var Speed$1 = 0;
+      Speed$1 = Self.FDataArray[0];
+      Speed$1 = Speed$1<<8;
+      Speed$1 = Speed$1|Self.FDataArray[1];
+      Result = Speed$1;
+      return Result
+   }
+   /// function TLccMessage.TractionSearchDecodeSearchString() : String
+   ///  [line: 1015, column: 22, file: lcc_node_messages]
+   ,TractionSearchDecodeSearchString:function(Self) {
+      var Result = "";
+      var Nibble = 0,
+         Snippit = 0,
+         i$7 = 0;
+      Result = "";
+      for(i$7=4;i$7<=6;i$7++) {
+         Nibble = Self.FDataArray[i$7];
+         Snippit = Nibble>>>4;
+         switch (Snippit) {
+            case 15 :
+               /* null */
+break;
+            case 0 :
+               Result = Result + "0";
+               break;
+            case 1 :
+               Result = Result + "1";
+               break;
+            case 2 :
+               Result = Result + "2";
+               break;
+            case 3 :
+               Result = Result + "3";
+               break;
+            case 4 :
+               Result = Result + "4";
+               break;
+            case 5 :
+               Result = Result + "5";
+               break;
+            case 6 :
+               Result = Result + "6";
+               break;
+            case 7 :
+               Result = Result + "7";
+               break;
+            case 8 :
+               Result = Result + "8";
+               break;
+            case 9 :
+               Result = Result + "9";
+               break;
+         }
+         Snippit = Nibble&15;
+         switch (Snippit) {
+            case 15 :
+               /* null */
+break;
+            case 0 :
+               Result = Result + "0";
+               break;
+            case 1 :
+               Result = Result + "1";
+               break;
+            case 2 :
+               Result = Result + "2";
+               break;
+            case 3 :
+               Result = Result + "3";
+               break;
+            case 4 :
+               Result = Result + "4";
+               break;
+            case 5 :
+               Result = Result + "5";
+               break;
+            case 6 :
+               Result = Result + "6";
+               break;
+            case 7 :
+               Result = Result + "7";
+               break;
+            case 8 :
+               Result = Result + "8";
+               break;
+            case 9 :
+               Result = Result + "9";
+               break;
+         }
+      }
+      return Result
+   }
+   /// function TLccMessage.TractionSearchEncodeSearchString(SearchString: String; TrackProtocolFlags: Byte; var SearchData: DWord) : TSearchEncodeStringError
+   ///  [line: 1055, column: 28, file: lcc_node_messages]
+   ,TractionSearchEncodeSearchString:function(Self, SearchString, TrackProtocolFlags, SearchData) {
+      var Result = 0;
+      var i$7 = 0,
+         iFiller = 0;
+      Result = 0;
+      if (SearchString.length > 6) {
+         Result = 1;
+         return Result;
+      }
+      SearchData.v = 0;
+      var $temp169;
+      for(i$7=1,$temp169=SearchString.length;i$7<=$temp169;i$7++) {
+         {var $temp170 = SearchString.charAt(i$7-1);
+            if ($temp170=="0") {
+               SearchData.v = SearchData.v|0;
+            }
+             else if ($temp170=="1") {
+               SearchData.v = SearchData.v|1;
+            }
+             else if ($temp170=="2") {
+               SearchData.v = SearchData.v|2;
+            }
+             else if ($temp170=="3") {
+               SearchData.v = SearchData.v|3;
+            }
+             else if ($temp170=="4") {
+               SearchData.v = SearchData.v|4;
+            }
+             else if ($temp170=="5") {
+               SearchData.v = SearchData.v|5;
+            }
+             else if ($temp170=="6") {
+               SearchData.v = SearchData.v|6;
+            }
+             else if ($temp170=="7") {
+               SearchData.v = SearchData.v|7;
+            }
+             else if ($temp170=="8") {
+               SearchData.v = SearchData.v|8;
+            }
+             else if ($temp170=="9") {
+               SearchData.v = SearchData.v|9;
+            }
+             else if ($temp170=="F") {
+               SearchData.v = SearchData.v|15;
+            }
+             else {
+               SearchData.v = 0;
+               Result = 2;
+               return Result;
+            }
+         }
+         SearchData.v = SearchData.v<<4;
+      }
+      iFiller = 6-SearchString.length;
+      var $temp171;
+      for(i$7=0,$temp171=iFiller;i$7<$temp171;i$7++) {
+         SearchData.v = SearchData.v|15;
+         SearchData.v = SearchData.v<<4;
+      }
+      SearchData.v = SearchData.v<<4;
+      SearchData.v = SearchData.v|TrackProtocolFlags;
+      return Result
+   }
+   /// function TLccMessage.TractionSearchIsEvent() : Boolean
+   ///  [line: 1113, column: 22, file: lcc_node_messages]
+   ,TractionSearchIsEvent:function(Self) {
+      return Self.FDataArray[0] == 9 && (Self.FDataArray[1]==0) && Self.FDataArray[2] == 153 && Self.FDataArray[3] == 255;
+   }
+   /// function TLccMessage.TractionSearchIsForceAllocate() : Boolean
+   ///  [line: 1123, column: 22, file: lcc_node_messages]
+   ,TractionSearchIsForceAllocate:function(Self) {
+      return (Self.FDataArray[7]&128) == 128;
+   }
+   /// function TLccMessage.TractionSearchIsProtocolAny() : Boolean
+   ///  [line: 1128, column: 22, file: lcc_node_messages]
+   ,TractionSearchIsProtocolAny:function(Self) {
+      return ((Self.FDataArray[7]&511)==0);
+   }
+   /// function TLccMessage.TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep) : Boolean
+   ///  [line: 1133, column: 22, file: lcc_node_messages]
+   ,TractionSearchIsProtocolDCC:function(Self, ForceLongAddress, SpeedStep$1) {
+      var Result = false;
+      Result = (Self.FDataArray[7]&24) == 8;
+      if (Result) {
+         switch ((Self.FDataArray[7]&3)) {
+            case 0 :
+               SpeedStep$1.v = 0;
+               break;
+            case 1 :
+               SpeedStep$1.v = 1;
+               break;
+            case 2 :
+               SpeedStep$1.v = 2;
+               break;
+            case 3 :
+               SpeedStep$1.v = 3;
+               break;
+         }
+         ForceLongAddress.v = (Self.FDataArray[7]&4) == 4;
+      }
+      return Result
    }
    /// procedure TLccMessage.ZeroFields()
    ///  [line: 838, column: 23, file: lcc_node_messages]
@@ -33415,6 +33788,9 @@ function EqualNodeID(NodeID1, NodeID2, IncludeNullNode) {
    }
    return Result
 };
+function EqualNode(NodeID1, Node1AliasID, NodeID2, Node2AliasID) {
+   return NodeID1[0] == NodeID2[0] && NodeID1[1] == NodeID2[1] && Node1AliasID == Node2AliasID;
+};
 function EqualEventID(EventID1, EventID2) {
    return EventID1[0] == EventID2[0] && EventID1[1] == EventID2[1] && EventID1[2] == EventID2[2] && EventID1[3] == EventID2[3] && EventID1[4] == EventID2[4] && EventID1[5] == EventID2[5] && EventID1[6] == EventID2[6] && EventID1[7] == EventID2[7];
 };
@@ -33489,8 +33865,8 @@ var TNodeProtocolBase = {
          TStream.SetSize$(AStream,Address+WriteCount);
       }
       TStream.SetPosition$(AStream,Address);
-      var $temp169;
-      for(i$7=iStart$1,$temp169=LccMessage.FDataCount;i$7<$temp169;i$7++) {
+      var $temp172;
+      for(i$7=iStart$1,$temp172=LccMessage.FDataCount;i$7<$temp172;i$7++) {
          StreamWriteByte(AStream,TLccMessage.GetDataArrayIndexer(LccMessage,i$7));
       }
    }
@@ -33685,8 +34061,8 @@ var TProtocolMemoryInfo = {
    ,Clear$31:function(Self) {
       var i$7 = 0;
       try {
-         var $temp170;
-         for(i$7=0,$temp170=TObjectList.GetCount$1(Self.FList$1);i$7<$temp170;i$7++) {
+         var $temp173;
+         for(i$7=0,$temp173=TObjectList.GetCount$1(Self.FList$1);i$7<$temp173;i$7++) {
             TObject.Free(TObjectList.GetItem$14(Self.FList$1,i$7));
          }
       } finally {
@@ -33941,8 +34317,8 @@ var TProtocolEvents = {
    ,Clear$32:function(Self) {
       var i$7 = 0;
       try {
-         var $temp171;
-         for(i$7=0,$temp171=TObjectList.GetCount$1(Self.FEventList);i$7<$temp171;i$7++) {
+         var $temp174;
+         for(i$7=0,$temp174=TObjectList.GetCount$1(Self.FEventList);i$7<$temp174;i$7++) {
             TObject.Free(TObjectList.GetItem$14(Self.FEventList,i$7));
          }
       } finally {
@@ -34236,6 +34612,237 @@ var TDatagramQueue = {
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
+/// TLccTrainDirection enumeration
+///  [line: 75, column: 3, file: lcc_node_train]
+var TLccTrainDirection = [ "tdForward", "tdBackward" ];
+/// TLccTrainCanNode = class (TLccCanNode)
+///  [line: 82, column: 3, file: lcc_node_train]
+var TLccTrainCanNode = {
+   $ClassName:"TLccTrainCanNode",$Parent:TLccCanNode
+   ,$Init:function ($) {
+      TLccCanNode.$Init($);
+      $.FAssignedControllerAliasID = 0;
+      $.FAssignedControllerNodeID = [0,0];
+      $.FDccAddress = 0;
+      $.FDccLongAddress = false;
+      $.FFunctions = function () {
+         for (var r=[],i=0; i<28; i++) r.push(0);
+         return r
+      }();
+      $.FName$6 = $.FRoadNumber = "";
+      $.FReservationAliasID = 0;
+      $.FReservationNodeID = [0,0];
+      $.FReserveWatchDogTimer = null;
+      $.FSpeed = 0;
+      $.FSpeedStep = 0;
+   }
+   /// function TLccTrainCanNode.ControllerAssigned() : Boolean
+   ///  [line: 135, column: 27, file: lcc_node_train]
+   ,ControllerAssigned:function(Self) {
+      return (Self.FAssignedControllerNodeID[0]==0) && (Self.FAssignedControllerNodeID[1]==0) && (Self.FAssignedControllerAliasID==0);
+   }
+   /// function TLccTrainCanNode.ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word) : Boolean
+   ///  [line: 140, column: 27, file: lcc_node_train]
+   ,ControllerEquals:function(Self, ATestNodeID, ATestAlias) {
+      return Self.FAssignedControllerNodeID[0] == ATestNodeID[0] && Self.FAssignedControllerNodeID[1] == ATestNodeID[1] && ATestAlias == Self.FAssignedControllerAliasID;
+   }
+   /// procedure TLccTrainCanNode.OnReserveWatchDogTimer(Sender: TObject)
+   ///  [line: 145, column: 28, file: lcc_node_train]
+   ,OnReserveWatchDogTimer:function(Self, Sender) {
+      TW3Timer.SetEnabled(Self.FReserveWatchDogTimer,false);
+      Self.FReservationAliasID = 0;
+      Self.FReservationNodeID = NULL_NODE_ID.slice(0);
+   }
+   /// function TLccTrainCanNode.ProcessMessage(SourceLccMessage: TLccMessage) : Boolean
+   ///  [line: 152, column: 27, file: lcc_node_train]
+   ,ProcessMessage$1:function(Self, SourceLccMessage) {
+      var Result = false;
+      var FunctionAddress = 0;
+      Result = TLccCanNode.ProcessMessage$1(Self,SourceLccMessage);
+      switch (SourceLccMessage.FMTI) {
+         case 1512 :
+            switch (SourceLccMessage.FDataArray[0]) {
+               case 0 :
+                  TLccTrainCanNode.SetSpeed(Self,TLccMessage.TractionExtractSpeed(SourceLccMessage));
+                  break;
+               case 1 :
+                  FunctionAddress = TLccMessage.TractionExtractFunctionAddress(SourceLccMessage);
+                  if (FunctionAddress < 27) {
+                     Self.FFunctions[FunctionAddress] = TLccMessage.TractionExtractFunctionValue(SourceLccMessage);
+                  }
+                  break;
+               case 2 :
+                  TLccTrainCanNode.SetSpeed(Self,0);
+                  break;
+               case 16 :
+                  TLccMessage.LoadTractionQuerySpeedReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,Self.FSpeed,0,Self.FSpeed,Self.FSpeed);
+                  Self.FSendMessageFunc$1(Self.FWorkerMessage$1);
+                  break;
+               case 17 :
+                  FunctionAddress = TLccMessage.TractionExtractFunctionAddress(SourceLccMessage);
+                  if (FunctionAddress < 27) {
+                     TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,FunctionAddress,Self.FFunctions[FunctionAddress]);
+                  } else {
+                     TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,FunctionAddress,0);
+                  }
+                  Self.FSendMessageFunc$1(Self.FWorkerMessage$1);
+                  break;
+               case 32 :
+                  switch (SourceLccMessage.FDataArray[1]) {
+                     case 1 :
+                        if (TLccTrainCanNode.ReservationEquals(Self,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias)) {
+                           if ((!(TLccTrainCanNode.ControllerAssigned(Self))) || TLccTrainCanNode.ControllerEquals(Self,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias)) {
+                              Self.FAssignedControllerNodeID = SourceLccMessage.FSourceID.slice(0);
+                              Self.FAssignedControllerAliasID = SourceLccMessage.FCAN.FSourceAlias;
+                              TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,0);
+                           } else {
+                              Self.FAssignedControllerNodeID = SourceLccMessage.FSourceID.slice(0);
+                              Self.FAssignedControllerAliasID = SourceLccMessage.FCAN.FSourceAlias;
+                              TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,0);
+                           }
+                        }
+                        break;
+                     case 2 :
+                        if (TLccTrainCanNode.ReservationEquals(Self,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias)) {
+                           if (TLccTrainCanNode.ControllerEquals(Self,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias)) {
+                              Self.FAssignedControllerNodeID = NULL_NODE_ID.slice(0);
+                              Self.FAssignedControllerAliasID = 0;
+                           }
+                        }
+                        break;
+                     case 3 :
+                        if ((Self.FAssignedControllerNodeID[0]==0) && (Self.FAssignedControllerNodeID[1]==0) && (Self.FAssignedControllerAliasID==0)) {
+                           TLccMessage.LoadTractionConsistQuery(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,NULL_NODE_ID.slice(0),0);
+                        } else {
+                           TLccMessage.LoadTractionConsistQuery(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,Self.FAssignedControllerNodeID.slice(0),Self.FAssignedControllerAliasID);
+                        }
+                        Self.FSendMessageFunc$1(Self.FWorkerMessage$1);
+                        break;
+                     case 4 :
+                        if (TLccTrainCanNode.ControllerAssigned(Self)) {
+                           TLccMessage.LoadTractionControllerChangingNotify(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,Self.FAssignedControllerNodeID.slice(0),Self.FAssignedControllerAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias);
+                           Self.FSendMessageFunc$1(Self.FWorkerMessage$1);
+                        }
+                        break;
+                  }
+                  break;
+               case 48 :
+                  switch (SourceLccMessage.FDataArray[1]) {
+                     case 1 :
+                        /* null */
+break;
+                     case 2 :
+                        /* null */
+break;
+                     case 3 :
+                        /* null */
+break;
+                  }
+                  break;
+               case 64 :
+                  switch (SourceLccMessage.FDataArray[1]) {
+                     case 1 :
+                        Self.FReservationNodeID = SourceLccMessage.FSourceID.slice(0);
+                        Self.FReservationAliasID = SourceLccMessage.FCAN.FSourceAlias;
+                        TLccMessage.LoadTractionManageReply(Self.FWorkerMessage$1,Self.FNodeID.slice(0),Self.FAliasID,SourceLccMessage.FSourceID.slice(0),SourceLccMessage.FCAN.FSourceAlias,true);
+                        Self.FSendMessageFunc$1(Self.FWorkerMessage$1);
+                        if (!Self.FReserveWatchDogTimer) {
+                           Self.FReserveWatchDogTimer = TW3OwnedObject.Create$11$($New(TW3Timer),null);
+                           TW3Timer.SetDelay(Self.FReserveWatchDogTimer,5000);
+                           Self.FReserveWatchDogTimer.OnTime = $Event1(Self,TLccTrainCanNode.OnReserveWatchDogTimer);
+                        }
+                        TW3Timer.SetEnabled(Self.FReserveWatchDogTimer,true);
+                        break;
+                     case 2 :
+                        Self.FReservationNodeID = NULL_NODE_ID.slice(0);
+                        Self.FReservationAliasID = 0;
+                        break;
+                  }
+                  break;
+            }
+            break;
+         case 488 :
+            switch (SourceLccMessage.FDataArray[0]) {
+               case 1 :
+                  switch (SourceLccMessage.FDataArray[1]) {
+                     case 4 :
+                        /* null */
+break;
+                  }
+                  break;
+            }
+            break;
+      }
+      return Result
+   }
+   /// function TLccTrainCanNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word) : Boolean
+   ///  [line: 304, column: 27, file: lcc_node_train]
+   ,ReservationEquals:function(Self, ATestNodeID, ATestAlias) {
+      return Self.FReservationNodeID[0] == ATestNodeID[0] && Self.FReservationNodeID[1] == ATestNodeID[1] && ATestAlias == Self.FReservationAliasID;
+   }
+   /// procedure TLccTrainCanNode.SetDccAdddress(AValue: Word)
+   ///  [line: 309, column: 28, file: lcc_node_train]
+   ,SetDccAdddress:function(Self, AValue) {
+      if (Self.FDccAddress == AValue) {
+         return;
+      }
+      Self.FDccAddress = AValue;
+   }
+   /// procedure TLccTrainCanNode.SetDccLongAddress(AValue: Boolean)
+   ///  [line: 315, column: 28, file: lcc_node_train]
+   ,SetDccLongAddress:function(Self, AValue) {
+      if (Self.FDccLongAddress == AValue) {
+         return;
+      }
+      Self.FDccLongAddress = AValue;
+   }
+   /// procedure TLccTrainCanNode.SetFunctions(AValue: TLccFunctions)
+   ///  [line: 327, column: 28, file: lcc_node_train]
+   ,SetFunctions:function(Self, AValue) {
+      /* null */
+   }
+   /// procedure TLccTrainCanNode.SetName(AValue: String)
+   ///  [line: 332, column: 28, file: lcc_node_train]
+   ,SetName$6:function(Self, AValue) {
+      if (Self.FName$6 == AValue) {
+         return;
+      }
+      Self.FName$6 = AValue;
+   }
+   /// procedure TLccTrainCanNode.SetRoadNumber(AValue: String)
+   ///  [line: 338, column: 28, file: lcc_node_train]
+   ,SetRoadNumber:function(Self, AValue) {
+      if (Self.FRoadNumber == AValue) {
+         return;
+      }
+      Self.FRoadNumber = AValue;
+   }
+   /// procedure TLccTrainCanNode.SetSpeed(AValue: THalfFloat)
+   ///  [line: 344, column: 28, file: lcc_node_train]
+   ,SetSpeed:function(Self, AValue) {
+      if (AValue == Self.FSpeed) {
+         return;
+      }
+      Self.FSpeed = AValue;
+   }
+   /// procedure TLccTrainCanNode.SetSpeedStep(AValue: TLccDccSpeedStep)
+   ///  [line: 350, column: 28, file: lcc_node_train]
+   ,SetSpeedStep:function(Self, AValue) {
+      if (Self.FSpeedStep == AValue) {
+         return;
+      }
+      Self.FSpeedStep = AValue;
+   }
+   ,Destroy:TLccCanNode.Destroy
+   ,GetAlias:TLccCanNode.GetAlias
+   ,IsDestinationEqual:TLccCanNode.IsDestinationEqual
+   ,IsNode:TLccCanNode.IsNode
+   ,Login:TLccCanNode.Login
+   ,Logout:TLccCanNode.Logout
+   ,On_800msTimer:TLccCanNode.On_800msTimer
+   ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
+   ,Creating:TLccCanNode.Creating
+};
 /// TWebLccNode = class (TObject)
 ///  [line: 30, column: 3, file: LccNode]
 var TWebLccNode = {
@@ -34246,7 +34853,7 @@ var TWebLccNode = {
    }
    /// constructor TWebLccNode.Create()
    ///  [line: 47, column: 25, file: LccNode]
-   ,Create$206:function(Self) {
+   ,Create$207:function(Self) {
       Self.NodeManager = TLccCanNodeManager.Create$199($New(TLccCanNodeManager),null);
       return Self
    }
@@ -34549,23 +35156,26 @@ var pre_RunPause = ["paused", "running"];
 SetupConversionLUT();
 SetupBase64();
 SetupTypeLUT();
+var __ByteToHexLUT = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d", "2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4a", "4b", "4c", "4d", "4e", "4f", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5a", "5b", "5c", "5d", "5e", "5f", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6a", "6b", "6c", "6d", "6e", "6f", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7a", "7b", "7c", "7d", "7e", "7f", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8a", "8b", "8c", "8d", "8e", "8f", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9a", "9b", "9c", "9d", "9e", "9f", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab", "ac", "ad", "ae", "af", "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "ba", "bb", "bc", "bd", "be", "bf", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd", "ce", "cf", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"];
+var __HexToByteLUT = JSON.parse("{\"00\":0,\"01\":1,\"02\":2,\"03\":3,\"04\":4,\"05\":5,\"06\":6,\"07\":7,\"08\":8,\"09\":9,\r\n\"0a\":10,\"0b\":11,\"0c\":12,\"0d\":13,\"0e\":14,\"0f\":15,\"10\":16,\"11\":17,\"12\":18,\r\n\"13\":19,\"14\":20,\"15\":21,\"16\":22,\"17\":23,\"18\":24,\"19\":25,\"1a\":26,\"1b\":27,\r\n\"1c\":28,\"1d\":29,\"1e\":30,\"1f\":31,\"20\":32,\"21\":33,\"22\":34,\"23\":35,\"24\":36,\r\n\"25\":37,\"26\":38,\"27\":39,\"28\":40,\"29\":41,\"2a\":42,\"2b\":43,\"2c\":44,\"2d\":45,\r\n\"2e\":46,\"2f\":47,\"30\":48,\"31\":49,\"32\":50,\"33\":51,\"34\":52,\"35\":53,\"36\":54,\r\n\"37\":55,\"38\":56,\"39\":57,\"3a\":58,\"3b\":59,\"3c\":60,\"3d\":61,\"3e\":62,\"3f\":63,\r\n\"40\":64,\"41\":65,\"42\":66,\"43\":67,\"44\":68,\"45\":69,\"46\":70,\"47\":71,\"48\":72,\r\n\"49\":73,\"4a\":74,\"4b\":75,\"4c\":76,\"4d\":77,\"4e\":78,\"4f\":79,\"50\":80,\"51\":81,\r\n\"52\":82,\"53\":83,\"54\":84,\"55\":85,\"56\":86,\"57\":87,\"58\":88,\"59\":89,\"5a\":90,\r\n\"5b\":91,\"5c\":92,\"5d\":93,\"5e\":94,\"5f\":95,\"60\":96,\"61\":97,\"62\":98,\"63\":99,\r\n\"64\":100,\"65\":101,\"66\":102,\"67\":103,\"68\":104,\"69\":105,\"6a\":106,\"6b\":107,\r\n\"6c\":108,\"6d\":109,\"6e\":110,\"6f\":111,\"70\":112,\"71\":113,\"72\":114,\"73\":115,\r\n\"74\":116,\"75\":117,\"76\":118,\"77\":119,\"78\":120,\"79\":121,\"7a\":122,\"7b\":123,\r\n\"7c\":124,\"7d\":125,\"7e\":126,\"7f\":127,\"80\":128,\"81\":129,\"82\":130,\"83\":131,\r\n\"84\":132,\"85\":133,\"86\":134,\"87\":135,\"88\":136,\"89\":137,\"8a\":138,\"8b\":139,\r\n\"8c\":140,\"8d\":141,\"8e\":142,\"8f\":143,\"90\":144,\"91\":145,\"92\":146,\"93\":147,\r\n\"94\":148,\"95\":149,\"96\":150,\"97\":151,\"98\":152,\"99\":153,\"9a\":154,\"9b\":155,\r\n\"9c\":156,\"9d\":157,\"9e\":158,\"9f\":159,\"a0\":160,\"a1\":161,\"a2\":162,\"a3\":163,\r\n\"a4\":164,\"a5\":165,\"a6\":166,\"a7\":167,\"a8\":168,\"a9\":169,\"aa\":170,\"ab\":171,\r\n\"ac\":172,\"ad\":173,\"ae\":174,\"af\":175,\"b0\":176,\"b1\":177,\"b2\":178,\"b3\":179,\r\n\"b4\":180,\"b5\":181,\"b6\":182,\"b7\":183,\"b8\":184,\"b9\":185,\"ba\":186,\"bb\":187,\r\n\"bc\":188,\"bd\":189,\"be\":190,\"bf\":191,\"c0\":192,\"c1\":193,\"c2\":194,\"c3\":195,\r\n\"c4\":196,\"c5\":197,\"c6\":198,\"c7\":199,\"c8\":200,\"c9\":201,\"ca\":202,\"cb\":203,\r\n\"cc\":204,\"cd\":205,\"ce\":206,\"cf\":207,\"d0\":208,\"d1\":209,\"d2\":210,\"d3\":211,\r\n\"d4\":212,\"d5\":213,\"d6\":214,\"d7\":215,\"d8\":216,\"d9\":217,\"da\":218,\"db\":219,\r\n\"dc\":220,\"dd\":221,\"de\":222,\"df\":223,\"e0\":224,\"e1\":225,\"e2\":226,\"e3\":227,\r\n\"e4\":228,\"e5\":229,\"e6\":230,\"e7\":231,\"e8\":232,\"e9\":233,\"ea\":234,\"eb\":235,\r\n\"ec\":236,\"ed\":237,\"ee\":238,\"ef\":239,\"f0\":240,\"f1\":241,\"f2\":242,\"f3\":243,\r\n\"f4\":244,\"f5\":245,\"f6\":246,\"f7\":247,\"f8\":248,\"f9\":249,\"fa\":250,\"fb\":251,\r\n\"fc\":252,\"fd\":253,\"fe\":254,\"ff\":255}");
+var __StrByteLUT = JSON.parse("{\"0\":0,\"1\":1,\"2\":2,\"3\":3,\"4\":4,\"5\":5,\"6\":6,\"7\":7,\"8\":8,\"9\":9,\"10\":10,\"11\":11,\r\n\"12\":12,\"13\":13,\"14\":14,\"15\":15,\"16\":16,\"17\":17,\"18\":18,\"19\":19,\"20\":20,\r\n\"21\":21,\"22\":22,\"23\":23,\"24\":24,\"25\":25,\"26\":26,\"27\":27,\"28\":28,\"29\":29,\r\n\"30\":30,\"31\":31,\"32\":32,\"33\":33,\"34\":34,\"35\":35,\"36\":36,\"37\":37,\"38\":38,\r\n\"39\":39,\"40\":40,\"41\":41,\"42\":42,\"43\":43,\"44\":44,\"45\":45,\"46\":46,\"47\":47,\r\n\"48\":48,\"49\":49,\"50\":50,\"51\":51,\"52\":52,\"53\":53,\"54\":54,\"55\":55,\"56\":56,\r\n\"57\":57,\"58\":58,\"59\":59,\"60\":60,\"61\":61,\"62\":62,\"63\":63,\"64\":64,\"65\":65,\r\n\"66\":66,\"67\":67,\"68\":68,\"69\":69,\"70\":70,\"71\":71,\"72\":72,\"73\":73,\"74\":74,\r\n\"75\":75,\"76\":76,\"77\":77,\"78\":78,\"79\":79,\"80\":80,\"81\":81,\"82\":82,\"83\":83,\r\n\"84\":84,\"85\":85,\"86\":86,\"87\":87,\"88\":88,\"89\":89,\"90\":90,\"91\":91,\"92\":92,\r\n\"93\":93,\"94\":94,\"95\":95,\"96\":96,\"97\":97,\"98\":98,\"99\":99,\"100\":100,\"101\":101,\r\n\"102\":102,\"103\":103,\"104\":104,\"105\":105,\"106\":106,\"107\":107,\"108\":108,\r\n\"109\":109,\"110\":110,\"111\":111,\"112\":112,\"113\":113,\"114\":114,\"115\":115,\r\n\"116\":116,\"117\":117,\"118\":118,\"119\":119,\"120\":120,\"121\":121,\"122\":122,\r\n\"123\":123,\"124\":124,\"125\":125,\"126\":126,\"127\":127,\"128\":128,\"129\":129,\r\n\"130\":130,\"131\":131,\"132\":132,\"133\":133,\"134\":134,\"135\":135,\"136\":136,\r\n\"137\":137,\"138\":138,\"139\":139,\"140\":140,\"141\":141,\"142\":142,\"143\":143,\r\n\"144\":144,\"145\":145,\"146\":146,\"147\":147,\"148\":148,\"149\":149,\"150\":150,\r\n\"151\":151,\"152\":152,\"153\":153,\"154\":154,\"155\":155,\"156\":156,\"157\":157,\r\n\"158\":158,\"159\":159,\"160\":160,\"161\":161,\"162\":162,\"163\":163,\"164\":164,\r\n\"165\":165,\"166\":166,\"167\":167,\"168\":168,\"169\":169,\"170\":170,\"171\":171,\r\n\"172\":172,\"173\":173,\"174\":174,\"175\":175,\"176\":176,\"177\":177,\"178\":178,\r\n\"179\":179,\"180\":180,\"181\":181,\"182\":182,\"183\":183,\"184\":184,\"185\":185,\r\n\"186\":186,\"187\":187,\"188\":188,\"189\":189,\"190\":190,\"191\":191,\"192\":192,\r\n\"193\":193,\"194\":194,\"195\":195,\"196\":196,\"197\":197,\"198\":198,\"199\":199,\r\n\"200\":200,\"201\":201,\"202\":202,\"203\":203,\"204\":204,\"205\":205,\"206\":206,\r\n\"207\":207,\"208\":208,\"209\":209,\"210\":210,\"211\":211,\"212\":212,\"213\":213,\r\n\"214\":214,\"215\":215,\"216\":216,\"217\":217,\"218\":218,\"219\":219,\"220\":220,\r\n\"221\":221,\"222\":222,\"223\":223,\"224\":224,\"225\":225,\"226\":226,\"227\":227,\r\n\"228\":228,\"229\":229,\"230\":230,\"231\":231,\"232\":232,\"233\":233,\"234\":234,\r\n\"235\":235,\"236\":236,\"237\":237,\"238\":238,\"239\":239,\"240\":240,\"241\":241,\r\n\"242\":242,\"243\":243,\"244\":244,\"245\":245,\"246\":246,\"247\":247,\"248\":248,\r\n\"249\":249,\"250\":250,\"251\":251,\"252\":252,\"253\":253,\"254\":254,\"255\":255}");
 var _Selection_Mode_LUT = TVariant.CreateObject();
 _Selection_Mode_LUT["none"] = 0;
 _Selection_Mode_LUT["auto"] = 1;
 _Selection_Mode_LUT["text"] = 2;
 _Selection_Mode_LUT["all"] = 3;
 _Selection_Mode_LUT["element"] = 4;
-var __ByteToHexLUT = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d", "2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4a", "4b", "4c", "4d", "4e", "4f", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5a", "5b", "5c", "5d", "5e", "5f", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6a", "6b", "6c", "6d", "6e", "6f", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7a", "7b", "7c", "7d", "7e", "7f", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8a", "8b", "8c", "8d", "8e", "8f", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9a", "9b", "9c", "9d", "9e", "9f", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab", "ac", "ad", "ae", "af", "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "ba", "bb", "bc", "bd", "be", "bf", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd", "ce", "cf", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"];
-var __HexToByteLUT = JSON.parse("{\"00\":0,\"01\":1,\"02\":2,\"03\":3,\"04\":4,\"05\":5,\"06\":6,\"07\":7,\"08\":8,\"09\":9,\r\n\"0a\":10,\"0b\":11,\"0c\":12,\"0d\":13,\"0e\":14,\"0f\":15,\"10\":16,\"11\":17,\"12\":18,\r\n\"13\":19,\"14\":20,\"15\":21,\"16\":22,\"17\":23,\"18\":24,\"19\":25,\"1a\":26,\"1b\":27,\r\n\"1c\":28,\"1d\":29,\"1e\":30,\"1f\":31,\"20\":32,\"21\":33,\"22\":34,\"23\":35,\"24\":36,\r\n\"25\":37,\"26\":38,\"27\":39,\"28\":40,\"29\":41,\"2a\":42,\"2b\":43,\"2c\":44,\"2d\":45,\r\n\"2e\":46,\"2f\":47,\"30\":48,\"31\":49,\"32\":50,\"33\":51,\"34\":52,\"35\":53,\"36\":54,\r\n\"37\":55,\"38\":56,\"39\":57,\"3a\":58,\"3b\":59,\"3c\":60,\"3d\":61,\"3e\":62,\"3f\":63,\r\n\"40\":64,\"41\":65,\"42\":66,\"43\":67,\"44\":68,\"45\":69,\"46\":70,\"47\":71,\"48\":72,\r\n\"49\":73,\"4a\":74,\"4b\":75,\"4c\":76,\"4d\":77,\"4e\":78,\"4f\":79,\"50\":80,\"51\":81,\r\n\"52\":82,\"53\":83,\"54\":84,\"55\":85,\"56\":86,\"57\":87,\"58\":88,\"59\":89,\"5a\":90,\r\n\"5b\":91,\"5c\":92,\"5d\":93,\"5e\":94,\"5f\":95,\"60\":96,\"61\":97,\"62\":98,\"63\":99,\r\n\"64\":100,\"65\":101,\"66\":102,\"67\":103,\"68\":104,\"69\":105,\"6a\":106,\"6b\":107,\r\n\"6c\":108,\"6d\":109,\"6e\":110,\"6f\":111,\"70\":112,\"71\":113,\"72\":114,\"73\":115,\r\n\"74\":116,\"75\":117,\"76\":118,\"77\":119,\"78\":120,\"79\":121,\"7a\":122,\"7b\":123,\r\n\"7c\":124,\"7d\":125,\"7e\":126,\"7f\":127,\"80\":128,\"81\":129,\"82\":130,\"83\":131,\r\n\"84\":132,\"85\":133,\"86\":134,\"87\":135,\"88\":136,\"89\":137,\"8a\":138,\"8b\":139,\r\n\"8c\":140,\"8d\":141,\"8e\":142,\"8f\":143,\"90\":144,\"91\":145,\"92\":146,\"93\":147,\r\n\"94\":148,\"95\":149,\"96\":150,\"97\":151,\"98\":152,\"99\":153,\"9a\":154,\"9b\":155,\r\n\"9c\":156,\"9d\":157,\"9e\":158,\"9f\":159,\"a0\":160,\"a1\":161,\"a2\":162,\"a3\":163,\r\n\"a4\":164,\"a5\":165,\"a6\":166,\"a7\":167,\"a8\":168,\"a9\":169,\"aa\":170,\"ab\":171,\r\n\"ac\":172,\"ad\":173,\"ae\":174,\"af\":175,\"b0\":176,\"b1\":177,\"b2\":178,\"b3\":179,\r\n\"b4\":180,\"b5\":181,\"b6\":182,\"b7\":183,\"b8\":184,\"b9\":185,\"ba\":186,\"bb\":187,\r\n\"bc\":188,\"bd\":189,\"be\":190,\"bf\":191,\"c0\":192,\"c1\":193,\"c2\":194,\"c3\":195,\r\n\"c4\":196,\"c5\":197,\"c6\":198,\"c7\":199,\"c8\":200,\"c9\":201,\"ca\":202,\"cb\":203,\r\n\"cc\":204,\"cd\":205,\"ce\":206,\"cf\":207,\"d0\":208,\"d1\":209,\"d2\":210,\"d3\":211,\r\n\"d4\":212,\"d5\":213,\"d6\":214,\"d7\":215,\"d8\":216,\"d9\":217,\"da\":218,\"db\":219,\r\n\"dc\":220,\"dd\":221,\"de\":222,\"df\":223,\"e0\":224,\"e1\":225,\"e2\":226,\"e3\":227,\r\n\"e4\":228,\"e5\":229,\"e6\":230,\"e7\":231,\"e8\":232,\"e9\":233,\"ea\":234,\"eb\":235,\r\n\"ec\":236,\"ed\":237,\"ee\":238,\"ef\":239,\"f0\":240,\"f1\":241,\"f2\":242,\"f3\":243,\r\n\"f4\":244,\"f5\":245,\"f6\":246,\"f7\":247,\"f8\":248,\"f9\":249,\"fa\":250,\"fb\":251,\r\n\"fc\":252,\"fd\":253,\"fe\":254,\"ff\":255}");
-var __StrByteLUT = JSON.parse("{\"0\":0,\"1\":1,\"2\":2,\"3\":3,\"4\":4,\"5\":5,\"6\":6,\"7\":7,\"8\":8,\"9\":9,\"10\":10,\"11\":11,\r\n\"12\":12,\"13\":13,\"14\":14,\"15\":15,\"16\":16,\"17\":17,\"18\":18,\"19\":19,\"20\":20,\r\n\"21\":21,\"22\":22,\"23\":23,\"24\":24,\"25\":25,\"26\":26,\"27\":27,\"28\":28,\"29\":29,\r\n\"30\":30,\"31\":31,\"32\":32,\"33\":33,\"34\":34,\"35\":35,\"36\":36,\"37\":37,\"38\":38,\r\n\"39\":39,\"40\":40,\"41\":41,\"42\":42,\"43\":43,\"44\":44,\"45\":45,\"46\":46,\"47\":47,\r\n\"48\":48,\"49\":49,\"50\":50,\"51\":51,\"52\":52,\"53\":53,\"54\":54,\"55\":55,\"56\":56,\r\n\"57\":57,\"58\":58,\"59\":59,\"60\":60,\"61\":61,\"62\":62,\"63\":63,\"64\":64,\"65\":65,\r\n\"66\":66,\"67\":67,\"68\":68,\"69\":69,\"70\":70,\"71\":71,\"72\":72,\"73\":73,\"74\":74,\r\n\"75\":75,\"76\":76,\"77\":77,\"78\":78,\"79\":79,\"80\":80,\"81\":81,\"82\":82,\"83\":83,\r\n\"84\":84,\"85\":85,\"86\":86,\"87\":87,\"88\":88,\"89\":89,\"90\":90,\"91\":91,\"92\":92,\r\n\"93\":93,\"94\":94,\"95\":95,\"96\":96,\"97\":97,\"98\":98,\"99\":99,\"100\":100,\"101\":101,\r\n\"102\":102,\"103\":103,\"104\":104,\"105\":105,\"106\":106,\"107\":107,\"108\":108,\r\n\"109\":109,\"110\":110,\"111\":111,\"112\":112,\"113\":113,\"114\":114,\"115\":115,\r\n\"116\":116,\"117\":117,\"118\":118,\"119\":119,\"120\":120,\"121\":121,\"122\":122,\r\n\"123\":123,\"124\":124,\"125\":125,\"126\":126,\"127\":127,\"128\":128,\"129\":129,\r\n\"130\":130,\"131\":131,\"132\":132,\"133\":133,\"134\":134,\"135\":135,\"136\":136,\r\n\"137\":137,\"138\":138,\"139\":139,\"140\":140,\"141\":141,\"142\":142,\"143\":143,\r\n\"144\":144,\"145\":145,\"146\":146,\"147\":147,\"148\":148,\"149\":149,\"150\":150,\r\n\"151\":151,\"152\":152,\"153\":153,\"154\":154,\"155\":155,\"156\":156,\"157\":157,\r\n\"158\":158,\"159\":159,\"160\":160,\"161\":161,\"162\":162,\"163\":163,\"164\":164,\r\n\"165\":165,\"166\":166,\"167\":167,\"168\":168,\"169\":169,\"170\":170,\"171\":171,\r\n\"172\":172,\"173\":173,\"174\":174,\"175\":175,\"176\":176,\"177\":177,\"178\":178,\r\n\"179\":179,\"180\":180,\"181\":181,\"182\":182,\"183\":183,\"184\":184,\"185\":185,\r\n\"186\":186,\"187\":187,\"188\":188,\"189\":189,\"190\":190,\"191\":191,\"192\":192,\r\n\"193\":193,\"194\":194,\"195\":195,\"196\":196,\"197\":197,\"198\":198,\"199\":199,\r\n\"200\":200,\"201\":201,\"202\":202,\"203\":203,\"204\":204,\"205\":205,\"206\":206,\r\n\"207\":207,\"208\":208,\"209\":209,\"210\":210,\"211\":211,\"212\":212,\"213\":213,\r\n\"214\":214,\"215\":215,\"216\":216,\"217\":217,\"218\":218,\"219\":219,\"220\":220,\r\n\"221\":221,\"222\":222,\"223\":223,\"224\":224,\"225\":225,\"226\":226,\"227\":227,\r\n\"228\":228,\"229\":229,\"230\":230,\"231\":231,\"232\":232,\"233\":233,\"234\":234,\r\n\"235\":235,\"236\":236,\"237\":237,\"238\":238,\"239\":239,\"240\":240,\"241\":241,\r\n\"242\":242,\"243\":243,\"244\":244,\"245\":245,\"246\":246,\"247\":247,\"248\":248,\r\n\"249\":249,\"250\":250,\"251\":251,\"252\":252,\"253\":253,\"254\":254,\"255\":255}");
 SetupMouseCursorTable();
-SetupTextBehaviorStyles();
 SetupThemeLookupTables();
+SetupTextBehaviorStyles();
 var Sheet$1 = TW3StyleSheet.GlobalStyleSheet(TW3StyleSheet);
 var StyleCode = ".TW3ToolButtonTable {\r\n  padding: 0px;\r\n  border: 0px;\r\n  margin: 0px;\r\n}";
 TW3StyleSheet.Append$2(Sheet$1,StyleCode);
 InitAnimationFrameShim();
 TW3StyleSheet.Append$2(TW3StyleSheet.GlobalStyleSheet(TW3StyleSheet),"\r\n.TW3NoAnimation {\r\n  -webkit-animation: none !important;\r\n  -moz-animation: none !important;\r\n  -ms-animation: none !important;\r\n  -o-animation: none !important;\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: BACKSCROLL\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n         -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-moz-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-ms-keyframes BACKSCROLL {\r\n  0%   { -ms-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -ms-transform: translateZ(0); }\r\n}\r\n\r\n@keyframes BACKSCROLL {\r\n  0%   { transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       transform: translateZ(0); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-LEFT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-LEFT {\r\n\t0%   { -webkit-transform: translateX(100%); }\r\n\t100% { -webkit-transform: translateX(0);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -webkit-transform: translateX(0%); }\r\n\t100% { -webkit-transform: translateX(-100%); }\r\n}\r\n\r\n@-moz-keyframes MOVE-LEFT {\r\n\t0%   { -moz-transform: translateX(100%); }\r\n\t100% { -moz-transform: translateX(0);    }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -moz-transform: translateX(0%);    }\r\n\t100% { -moz-transform: translateX(-100%); }\r\n}\r\n\r\n@-ms-keyframes MOVE-LEFT {\r\n\t0%   { -ms-transform: translateX(100%); }\r\n\t100% { -ms-transform: translateX(0);    }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -ms-transform: translateX(0%);    }\r\n\t100% { -ms-transform: translateX(-100%); }\r\n}\r\n\r\n@keyframes MOVE-LEFT {\r\n\t0%   { transform: translateX(100%); }\r\n\t100% { transform: translateX(0);    }\r\n}\r\n\r\n@keyframes MOVE-OUT-LEFT {\r\n\t0%   { transform: translateX(0%);    }\r\n\t100% { transform: translateX(-100%); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-RIGHT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-RIGHT {\r\n\t0%   { -webkit-transform: translateX(-100%); }\r\n\t100% { -webkit-transform: translateX(0%);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -webkit-transform: translateX(0%);    }\r\n\t100% { -webkit-transform: translateX(100%);  }\r\n}\r\n\r\n@-moz-keyframes MOVE-RIGHT {\r\n\t0%   { -moz-transform: translateX(-100%);  }\r\n\t100% { -moz-transform: translateX(0%);     }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -moz-transform: translateX(0%);     }\r\n\t100% { -moz-transform: translateX(100%);   }\r\n}\r\n\r\n@-ms-keyframes MOVE-RIGHT {\r\n\t0%   { -ms-transform: translateX(-100%);  }\r\n\t100% { -ms-transform: translateX(0%);     }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -ms-transform: translateX(0%);     }\r\n\t100% { -ms-transform: translateX(100%);   }\r\n}\r\n\r\n@keyframes MOVE-RIGHT {\r\n\t0%   { transform: translateX(-100%);  }\r\n\t100% { transform: translateX(0%);     }\r\n}\r\n\r\n@keyframes MOVE-OUT-RIGHT {\r\n\t0%   { transform: translateX(0%);     }\r\n\t100% { transform: translateX(100%);   }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: ROTATE-FOREVER\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-FOREVER {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-FOREVER {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-FOREVER {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-FOREVER {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(-360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(-360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(-360deg); }\r\n}\r\n\r\n@keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(-360deg); }\r\n}\r\n");
+var CaptureTime = 0;
+var FBinaryData = TAllocation.Create$79($New(TBinaryData),1);
+var FOneByteArray = TBinaryData.ToBytes(FBinaryData);
 var Max_Allowed_Buffers = 1;
 NULL_NODE_ID[0] = 0;
 NULL_NODE_ID[1] = 0;
@@ -34618,15 +35228,12 @@ EVENT_DELIVERS_CLOCK[3] = 0;
 EVENT_DELIVERS_CLOCK[4] = 0;
 EVENT_DELIVERS_CLOCK[5] = 5;
 EVENT_DELIVERS_CLOCK[6] = 1;
-var CaptureTime = 0;
-var FBinaryData = TAllocation.Create$79($New(TBinaryData),1);
-var FOneByteArray = TBinaryData.ToBytes(FBinaryData);
 var InprocessMessageAllocated = 0;
 SetupEditTypeLookupTables();
-var WebLccNode = TWebLccNode.Create$206($New(TWebLccNode));
+var WebLccNode = TWebLccNode.Create$207($New(TWebLccNode));
 TApplicationFormsList.RegisterForm(Forms$2(),"TabMainForm",TTabMainForm);
-TApplicationFormsList.RegisterForm(Forms$2(),"FormThrottle",TFormThrottle);
 TApplicationFormsList.RegisterForm(Forms$2(),"TabSettingsForm",TTabSettingsForm);
+TApplicationFormsList.RegisterForm(Forms$2(),"FormThrottle",TFormThrottle);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"FormThrottle",true,true);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabMainForm",true,false);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabSettingsForm",true,false);

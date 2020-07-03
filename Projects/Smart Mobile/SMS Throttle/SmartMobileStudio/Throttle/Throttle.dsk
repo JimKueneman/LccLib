@@ -13,8 +13,8 @@
       <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="848" col="19" row="865" />
       <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="32" row="14" />
       <tab filename="lcc_node_manager" fullname="..\..\Target-Common\lcc_node_manager.pas" topline="16" col="27" row="42" />
-      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="81" col="40" row="106" />
-      <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="125" col="19" row="140" />
+      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="252" col="59" row="268" />
+      <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="407" col="39" row="420" />
       <activetab>lcc_node_commandstation</activetab>
       <breakpoints>
         <bkpt>
@@ -24,10 +24,10 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5901</BackgroundCompilations>
-      <EditTime>T03:53:29.041</EditTime>
-      <CompileTime>T00:05:46.309</CompileTime>
-      <TotalTime>1900-01-24T02:42:17.090</TotalTime>
+      <BackgroundCompilations>5905</BackgroundCompilations>
+      <EditTime>T03:56:52.584</EditTime>
+      <CompileTime>T00:05:56.401</CompileTime>
+      <TotalTime>1900-01-24T02:42:26.911</TotalTime>
       <DesigningTime>T10:48:07.911</DesigningTime>
       <RunningTime>1900-01-03T13:39:36.770</RunningTime>
       <TotalLinesOfCode>615</TotalLinesOfCode>
