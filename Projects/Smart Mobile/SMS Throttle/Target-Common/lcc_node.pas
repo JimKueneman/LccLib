@@ -63,6 +63,7 @@ const
 type
 
 { TLccNode }
+TLccNodeClass = class of TLccNode;
 
 TLccNode = class(TObject)
 private

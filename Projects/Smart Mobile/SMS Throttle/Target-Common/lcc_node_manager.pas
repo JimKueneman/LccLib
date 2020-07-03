@@ -188,6 +188,8 @@ type
 
     procedure Clear;
     function AddNode(CdiXML: string): TLccNode; virtual;
+    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass): TLccNode; virtual;
+
     procedure LogoutAll;
 
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
@@ -534,6 +536,17 @@ begin
   Result := TLccNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
+end;
+
+function TLccNodeManager.AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass): TLccNode;
+begin
+  Result := nil;
+  if Assigned(NodeClass) then
+  begin
+    Result := NodeClass.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
+    Nodes.Add(Result);
+    DoCreateLccNode(Result);
+  end;
 end;
 
 destructor TLccNodeManager.Destroy;
