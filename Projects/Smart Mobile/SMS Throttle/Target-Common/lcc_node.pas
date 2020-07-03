@@ -63,7 +63,6 @@ const
 type
 
 { TLccNode }
-TLccNodeClass = class of TLccNode;
 
 TLccNode = class(TObject)
 private
@@ -167,6 +166,8 @@ public
   procedure SendProducerIdentify(var Event: TEventID);
   procedure SendInitializeComplete;
 end;
+
+TLccNodeClass = class of TLccNode;
 
 { TLccCanNode }
 
