@@ -90,11 +90,19 @@ type
 
   TLccWaitingRoom = class(TObject)
   private
+    {$IFDEF DELPHI}
+    FPatients: TObjectList<TLccWaitingPatient>;
+    {$ELSE}
     FPatients: TObjectList;
+    {$ENDIF}
     function GetLccWaitingPatients(Index: Integer): TLccWaitingPatient;
     procedure SetLccWaitingPatients(Index: Integer; AValue: TLccWaitingPatient);
   protected
+    {$IFDEF DELPHI}
+    property Patients: TObjectList<TLccWaitingPatient> read FPatients write FPatients;
+    {$ELSE}
     property Patients: TObjectList read FPatients write FPatients;
+    {$ENDIF}
   public
     property LccWaitingPatients[Index: Integer]: TLccWaitingPatient read GetLccWaitingPatients write SetLccWaitingPatients;
 
@@ -138,7 +146,14 @@ implementation
 constructor TLccWaitingRoom.Create;
 begin
   inherited Create;
-  FPatients := TObjectList.Create(False);
+  {$IFDEF DELPHI}
+  FPatients := TObjectList<TLccWaitingPatient>.Create;
+  {$ELSE}
+  FPatients := TObjectList.Create;
+  {$ENDIF}
+  {$IFNDEF DWSCRIPT}
+  FPatients.OwnsObjects := False
+  {$ENDIF};
 end;
 
 function TLccWaitingRoom.AddPatient(NodePatient: TLccCanNode;
