@@ -146,17 +146,24 @@ public
   procedure LoadTractionSetFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AnAddress: DWord; AValue: Word);
   procedure LoadTractionEStop(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionQuerySpeed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure LoadTractionQuerySpeedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SetSpeed: THalfFloat; Status: Byte; CommandedSpeed, ActualSpeed: THalfFloat);
   procedure LoadTractionQueryFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure LoadTractionQueryFunctionReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word; Value: Word);
   procedure LoadTractionControllerAssign(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
+  procedure LoadTractionControllerAssignReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word; AResult: Byte);
   procedure LoadTractionControllerRelease(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionControllerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadTractionControllerChangeNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
-  procedure LoadTractionControllerChangeNotifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
+  procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID; AControllerAlias: Word);
+  procedure LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
+  procedure LoadTractionControllerChangedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
   procedure LoadTractionConsistAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionConsistDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
+
+  function TractionExtractSpeed: THalfFloat;
+  function TractionExtractFunction: LongWord;
 
   // Traction Search
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
@@ -482,6 +489,9 @@ begin
     begin
       if CAN.MTI and MTI_CAN_ADDRESS_PRESENT = MTI_CAN_ADDRESS_PRESENT then
       begin
+
+        Assert(Length(DataStr) >= 4, 'Malformed message.  Address Present bit set but not enough bytes in the payload');
+
         ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
         {$IFDEF DWSCRIPT}DestHi := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestHi := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
         ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
@@ -974,6 +984,26 @@ begin
   CAN.DestAlias := TempAlias;
 end;
 
+function TLccMessage.TractionExtractFunction: LongWord;
+begin
+  Result := 0;
+  Result := DataArray[1];
+  Result := Result shl 8;
+  Result := Result or DataArray[2];
+  Result := Result shl 8;
+  Result := Result or DataArray[3];
+end;
+
+function TLccMessage.TractionExtractSpeed: THalfFloat;
+var
+  Speed: Word;
+begin
+  Speed := DataArray[0];
+  Speed := Speed shl 8;
+  Speed := Speed or DataArray[1];
+  Result := THalfFloat( Speed);
+end;
+
 function TLccMessage.TractionSearchDecodeSearchString: string;
 var
   Nibble, Snippit: Byte;
@@ -1355,6 +1385,27 @@ begin
   MTI := MTI_TRACTION_REQUEST;
 end;
 
+procedure TLccMessage.LoadTractionQuerySpeedReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SetSpeed: THalfFloat;
+  Status: Byte; CommandedSpeed, ActualSpeed: THalfFloat);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 8;
+  FDataArray[0] := TRACTION_QUERY_SPEED_REPLY;
+  FDataArray[1] := Hi(SetSpeed);
+  FDataArray[2] := Lo(SetSpeed);
+  FDataArray[3] := Status;
+  FDataArray[4] := Hi(CommandedSpeed);
+  FDataArray[5] := Lo(CommandedSpeed);
+  FDataArray[5] := Hi(ActualSpeed);
+  FDataArray[7] := Lo(ActualSpeed);
+  MTI := MTI_TRACTION_REPLY;
+end;
+
 procedure TLccMessage.LoadTractionSearch(ASourceID: TNodeID;
   ASourceAlias: Word; SearchData: DWORD);
 var
@@ -1387,6 +1438,26 @@ begin
   MTI := MTI_TRACTION_REQUEST;
 end;
 
+procedure TLccMessage.LoadTractionQueryFunctionReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word;
+  Value: Word);
+
+begin
+   ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 6;
+  FDataArray[0] := TRACTION_QUERY_FUNCTION_REPLY;
+  FDataArray[1] := Address shl 16;
+  FDataArray[2] := Address shl 8;
+  FDataArray[3] := Address;
+  FDataArray[4] := Value shl 8;
+  FDataArray[5] := Value;
+  MTI := MTI_TRACTION_REPLY;
+end;
+
 procedure TLccMessage.LoadTractionControllerAssign(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
   AnAlias: Word);
@@ -1414,6 +1485,24 @@ begin
     InsertNodeID(3, ANodeID);
   end;
   MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionControllerAssignReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
+  AnAlias: Word; AResult: Byte);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+
+  DataCount := 11;
+  FDataArray[0] := TRACTION_CONTROLLER_CONFIG_REPLY;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY;
+  FDataArray[2] := AResult;
+
+  MTI := MTI_TRACTION_REPLY;
 end;
 
 procedure TLccMessage.LoadTractionControllerRelease(ASourceID: TNodeID;
@@ -1459,7 +1548,38 @@ begin
   MTI := MTI_TRACTION_REQUEST;
 end;
 
-procedure TLccMessage.LoadTractionControllerChangeNotify(ASourceID: TNodeID;
+procedure TLccMessage.LoadTractionControllerQueryReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  AControllerID: TNodeID; AControllerAlias: Word);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+
+  if AControllerAlias <> 0 then
+  begin
+    DataCount := 11;
+    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
+    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
+    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
+    InsertNodeID(3, AControllerID);
+    FDataArray[9] := Hi( AControllerAlias);
+    FDataArray[10] := Lo( AControllerAlias);
+  end else
+  begin
+    DataCount := 9;
+    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
+    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
+    FDataArray[2] := 0;
+    InsertNodeID(3, AControllerID);
+  end;
+
+  MTI := MTI_TRACTION_REPLY;
+end;
+
+procedure TLccMessage.LoadTractionControllerChangingNotify(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
   AnAlias: Word);
 begin
@@ -1472,7 +1592,7 @@ begin
   begin
     DataCount := 11;
     FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_NOTIFY;
+    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY;
     FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
     InsertNodeID(3, ANodeID);
     FDataArray[9] := Hi( AnAlias);
@@ -1481,16 +1601,15 @@ begin
   begin
     DataCount := 9;
     FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_NOTIFY;
+    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY;
     FDataArray[2] := 0;
     InsertNodeID(3, ANodeID);
   end;
   MTI := MTI_TRACTION_REQUEST;
 end;
 
-procedure TLccMessage.LoadTractionControllerChangeNotifyReply(
-  ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
-  Allow: Boolean);
+procedure TLccMessage.LoadTractionControllerChangedReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
 begin
   ZeroFields;
   SourceID := ASourceID;
@@ -1500,7 +1619,7 @@ begin
   MTI := MTI_TRACTION_REPLY;
   DataCount := 3;
   FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_NOTIFY;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGED_NOTIFY;
   if Allow then
     FDataArray[2] := 0
   else

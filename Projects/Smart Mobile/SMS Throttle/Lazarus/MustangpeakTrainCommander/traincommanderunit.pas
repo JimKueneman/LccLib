@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, lcc_ethernet_server, lcc_math_float16, lcc_defines, lcc_node,
   lcc_node_manager, lcc_ethernet_client, lcc_utilities, lcc_node_messages,
-  TrainDatabaseUnit;
+  lcc_tasks, TrainDatabaseUnit;
 
 
 const
@@ -71,10 +71,10 @@ type
   { TFormTrainCommander }
 
   TFormTrainCommander = class(TForm)
-    Button1: TButton;
     ButtonTrainsClear: TButton;
     ButtonClear: TButton;
     ButtonManualConnect: TButton;
+    CheckBoxUseSyncronize: TCheckBox;
     CheckBoxLogMessages: TCheckBox;
     CheckBoxLoopBackIP: TCheckBox;
     CheckBoxAutoConnect: TCheckBox;
@@ -183,6 +183,7 @@ begin
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
   EthernetRec.ListenerPort := 12021;
+  LccServer.UseSynchronize := CheckBoxUseSyncronize.Checked;
   Result := LccServer.OpenConnection(EthernetRec) <> nil;
 end;
 

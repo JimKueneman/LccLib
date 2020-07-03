@@ -29,6 +29,7 @@ type
     FOutgoingCircularArray: TThreadedCirularArray;
     FOutgoingGridConnect: TThreadStringList;
     FSleepCount: Integer;
+    FUseSynchronize: Boolean;
     FWorkerMsg: TLccMessage;
     function GetIsTerminated: Boolean;
   protected
@@ -48,18 +49,43 @@ type
     property IsTerminated: Boolean read GetIsTerminated;
     property SleepCount: Integer read FSleepCount write FSleepCount;
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
+    property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
   end;
 
 
   { TLccHardwareConnectionManager }
 
   TLccHardwareConnectionManager = class(TComponent)
+  protected
+    FIncomingCircularArray: TThreadedCirularArray;
+    FIncomingGridConnect: TThreadStringList;
   public
+    property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
+    property IncomingCircularArray: TThreadedCirularArray read FIncomingCircularArray;
+
+    constructor Create(AOwner: TComponent); virtual;
+    destructor Destroy; override;
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;
   end;
 
 implementation
+
+{ TLccHardwareConnectionManager }
+
+constructor TLccHardwareConnectionManager.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FIncomingGridConnect := TThreadStringList.Create;
+  FIncomingCircularArray := TThreadedCirularArray.Create;
+end;
+
+destructor TLccHardwareConnectionManager.Destroy;
+begin
+  FreeAndNil(FIncomingCircularArray);
+  FreeAndNil(FIncomingGridConnect);
+  inherited Destroy;
+end;
 
 { TLccConnectionThread }
 

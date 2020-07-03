@@ -167,6 +167,7 @@ type
     FOnReceiveMessage: TOnEthernetReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
     FSleepCount: Integer;
+    FUseSynchronize: Boolean;  // If set the threads will call back on a Syncronize call else incoming messages are put in the IncomingGridConnect or IncomingCircularArray buffers and the app needs to poll this buffer
     function GetConnected: Boolean;
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
@@ -197,6 +198,7 @@ type
     property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
     property SleepCount: Integer read FSleepCount write SetSleepCount;
+    property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
   end;
 
 procedure Register;
@@ -390,6 +392,7 @@ end;
 constructor TLccEthernetClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FUseSynchronize := True;
   FEthernetThreads := TLccEthernetThreadList.Create;
 end;
 
@@ -407,6 +410,7 @@ begin
   Result.OnReceiveMessage := OnReceiveMessage;
   Result.OnSendMessage := OnSendMessage;
   Result.GridConnect := Gridconnect;
+  Result.UseSynchronize := UseSynchronize;
   EthernetThreads.Add(Result);
   Result.Start
 end;
@@ -612,7 +616,7 @@ var
   GridConnectStrPtr: PGridConnectString;
   GridConnectStr: TGridConnectString;
   GridConnectHelper: TGridConnectHelper;
-  TxList: TStringList;
+  TxList, RxList: TStringList;
   RetryCount: Integer;
   Peer: TVarSin;
   DynamicByteArray: TDynamicByteArray;
@@ -718,7 +722,16 @@ begin
                     begin
                       FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                       FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
-                      Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+                      if UseSynchronize then
+                         Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                      else begin
+                         RxList := Owner.IncomingGridConnect.LockList;
+                        try
+                          RxList.Add(FEthernetRec.MessageStr);
+                        finally
+                          Owner.IncomingGridConnect.UnlockList;
+                        end;
+                      end;
                     end;
                   end;
                 WSAETIMEDOUT :
@@ -758,7 +771,19 @@ begin
                   begin
                     DynamicByteArray := nil;
                     if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
-                      Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+                    begin
+                      if UseSynchronize then
+                        Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                      else begin
+                        DynamicByteArray := nil;
+                        Owner.IncomingCircularArray.LockArray;
+                        try
+                          Owner.IncomingCircularArray.AddChunk(FEthernetRec.MessageArray);
+                        finally
+                          Owner.IncomingCircularArray.UnLockArray;
+                        end;
+                      end
+                    end;
                   end;
                 WSAETIMEDOUT :
                   begin
