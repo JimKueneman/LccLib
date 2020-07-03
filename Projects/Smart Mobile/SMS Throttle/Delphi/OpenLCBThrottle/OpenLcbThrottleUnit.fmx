@@ -371,8 +371,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Size.Height = 418.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
-            Viewport.Width = 469.000000000000000000
-            Viewport.Height = 414.000000000000000000
+            Viewport.Width = 473.000000000000000000
+            Viewport.Height = 418.000000000000000000
           end
           object LayoutOpenLcbTools: TLayout
             Align = Bottom

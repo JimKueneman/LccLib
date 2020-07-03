@@ -137,7 +137,7 @@ implementation
 
 constructor TLccWaitingRoom.Create;
 begin
-  inherited;
+  inherited Create;
   FPatients := TObjectList.Create(False);
 end;
 

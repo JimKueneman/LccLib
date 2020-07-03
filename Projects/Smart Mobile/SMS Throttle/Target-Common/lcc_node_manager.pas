@@ -37,6 +37,9 @@ uses
   {$ENDIF}
 {$ENDIF}
   lcc_node,
+  lcc_node_train,
+  lcc_node_controller,
+  lcc_node_commandstation,
   lcc_defines,
   lcc_node_messages;
 

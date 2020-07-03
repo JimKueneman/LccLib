@@ -90,7 +90,7 @@ type
     FName: string;
     FReservationAliasID: Word;
     FReservationNodeID: TNodeID;
-    FReserveWatchDogTimer: TTimer;
+    FReserveWatchDogTimer: TLccTimer;
     FRoadNumber: string;
     FSpeed: THalfFloat;
     FSpeedStep: TLccDccSpeedStep;
@@ -103,7 +103,7 @@ type
     procedure SetSpeed(AValue: THalfFloat);
     procedure SetSpeedStep(AValue: TLccDccSpeedStep);
   protected
-    property ReserveWatchDogTimer: TTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
+    property ReserveWatchDogTimer: TLccTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
 
     procedure OnReserveWatchDogTimer(Sender: TObject);
   public
@@ -266,7 +266,7 @@ begin
                     begin
                       ReserveWatchDogTimer := TTimer.Create(nil);
                       ReserveWatchDogTimer.Interval := 5000;  // 5 seconds allowed to complete
-                      ReserveWatchDogTimer.OnTimer := @OnReserveWatchDogTimer;
+                      ReserveWatchDogTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}OnReserveWatchDogTimer;
                     end;
                     ReserveWatchDogTimer.Enabled := True;
                   end;

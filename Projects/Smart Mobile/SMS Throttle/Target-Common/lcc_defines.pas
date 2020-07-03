@@ -37,6 +37,12 @@ uses
   SysUtils;
 {$ENDIF}
 
+{$IFDEF DWSCRIPT}
+const
+  S_OK = $00;
+  S_FALSE = $01;
+{$ENDIF}
+
 const
   LCC_BYTE_COUNT            = 1024;       // This is longest data structure defined in Lcc
   MAX_DATAGRAM_LENGTH       = 72;

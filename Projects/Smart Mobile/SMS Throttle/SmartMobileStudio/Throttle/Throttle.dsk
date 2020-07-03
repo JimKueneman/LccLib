@@ -5,14 +5,17 @@
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="1" col="1" row="41" splitview="1" designview="1" splitter="0.444702242846094" />
       <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="20" col="22" row="37" splitview="1" designview="1" splitter="0.444702242846094" />
       <tab filename="lcc_utilities" fullname="..\..\Target-Common\lcc_utilities.pas" topline="166" col="37" row="46" />
-      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="11" col="25" row="25" />
-      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="57" col="25" row="74" />
+      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="29" col="18" row="42" />
+      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="1" col="29" row="1754" />
       <tab filename="LccNode" fullname="LccNode.pas" topline="10" col="1" row="1" />
       <tab filename="Storage" fullname="Storage.pas" topline="1" col="1" row="1" />
       <tab filename="Unit1" fullname="Unit1.pas" topline="1" col="1" row="1" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="848" col="3" row="821" />
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="848" col="19" row="865" />
       <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="32" row="14" />
-      <activetab>lcc_node</activetab>
+      <tab filename="lcc_node_manager" fullname="..\..\Target-Common\lcc_node_manager.pas" topline="16" col="27" row="42" />
+      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="81" col="40" row="106" />
+      <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="125" col="19" row="140" />
+      <activetab>lcc_node_commandstation</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -21,9 +24,9 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5899</BackgroundCompilations>
-      <EditTime>T03:52:00.160</EditTime>
-      <CompileTime>T00:05:37.030</CompileTime>
+      <BackgroundCompilations>5901</BackgroundCompilations>
+      <EditTime>T03:53:29.041</EditTime>
+      <CompileTime>T00:05:46.309</CompileTime>
       <TotalTime>1900-01-24T02:42:17.090</TotalTime>
       <DesigningTime>T10:48:07.911</DesigningTime>
       <RunningTime>1900-01-03T13:39:36.770</RunningTime>
