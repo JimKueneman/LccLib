@@ -41,6 +41,7 @@ uses
   lcc_node_controller,
   lcc_node_commandstation,
   lcc_defines,
+  lcc_utilities,
   lcc_node_messages;
 
 type
@@ -187,8 +188,8 @@ type
     destructor Destroy; override;
 
     procedure Clear;
-    function AddNode(CdiXML: string): TLccNode; virtual;
-    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass): TLccNode; virtual;
+    function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode; virtual;
+    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
 
     procedure LogoutAll;
 
@@ -531,14 +532,17 @@ begin
   {$ENDIF}
 end;
 
-function TLccNodeManager.AddNode(CdiXML: string): TLccNode;
+function TLccNodeManager.AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode;
 begin
   Result := TLccNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
+  if AutoLogin then
+    Result.Login(NULL_NODE_ID);
 end;
 
-function TLccNodeManager.AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass): TLccNode;
+function TLccNodeManager.AddNodeByClass(CdiXML: string;
+  NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode;
 begin
   Result := nil;
   if Assigned(NodeClass) then
@@ -546,6 +550,8 @@ begin
     Result := NodeClass.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
     Nodes.Add(Result);
     DoCreateLccNode(Result);
+    if AutoLogin then
+      Result.Login(NULL_NODE_ID);
   end;
 end;
 
@@ -633,13 +639,27 @@ begin
 end;
 
 procedure TLccNodeManager.SendMessage(LccMessage: TLccMessage);
+var
+  i: Integer;
 begin
   DoLccMessageSend(LccMessage);
+
+  Exit;
+
+  // Send the messages to all the other virtual nodes.
+  for i := 0 to Nodes.Count - 1 do
+  begin
+    if Node[i].Initialized then
+    begin
+      if not EqualNode(LccMessage.SourceID, LccMessage.CAN.SourceAlias, Node[i].NodeID, (Node[i] as TLccCanNode).AliasID) then
+        Node[i].ProcessMessage(LccMessage);
+    end;
+  end;
 end;
 
 procedure TLccNodeManager.LccMessageSendCallback(LccMessage: TLccMessage);
 begin
-  DoLccMessageSend(LccMessage);
+  SendMessage(LccMessage);
 end;
 
 
@@ -650,6 +670,5 @@ initialization
 {$ENDIF}
 
 finalization
-
 end.
 

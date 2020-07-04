@@ -16,9 +16,9 @@ uses
   SynEdit,
   lcc_utilities,
   lcc_node,
+  lcc_defines,
   lcc_node_manager,
   lcc_node_messages,
-  lcc_defines,
   lcc_ethernet_server,
   lcc_ethernet_client,
   lcc_protocol_memory_configurationdefinitioninfo,
@@ -26,7 +26,7 @@ uses
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
-  lcc_math_float16;
+  lcc_math_float16,lcc_node_commandstation, lcc_node_controller, lcc_node_train;
 
 type
   TLccStateMachine = class;
@@ -124,7 +124,7 @@ type
     Label2: TLabel;
     LabelMyIpAddress: TLabel;
     LabelThrottleTechnologyTitle: TLabel;
-    LabeledEditThrottleAddress: TLabeledEdit;
+    EditThrottleAddress: TLabeledEdit;
     LabelThrottleIPAddress: TLabel;
     LabelThrottleAliasID: TLabel;
     LabelThrottleNodeID: TLabel;
@@ -158,29 +158,22 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FSM_ConnectToTrain: TLccThrottleConnectStateMachine;
-    FWorkerMsg: TLccMessage;
+    FControllerNode: TLccTrainController;
   protected
-    procedure DoAllocateTrainStateMachineEnded(Sender: TObject);
   public
-    ThrottleEthernetClient: TLccEthernetClient;
-    ThrottleNodeManager: TLccCanNodeManager;
+    EthernetClient: TLccEthernetClient;
+    NodeManager: TLccCanNodeManager;
 
-    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
-    // StateMachines
-    property SM_ConnectToTrain: TLccThrottleConnectStateMachine read FSM_ConnectToTrain write FSM_ConnectToTrain;
+    property ControllerNode: TLccTrainController read FControllerNode write FControllerNode;
 
     // Throttle
-    procedure OnThrottleEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnThrottleEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnThrottleNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnThrottleNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnThrottleSendMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure OnThrottleReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnClientServerConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnClientServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 
-    procedure OnLccNodeTractionManage(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure OnLccNodeTractionControllerConfig(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure OnLccNodeProducerIdentified(Sender: TObject;  LccSourceNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState);
+    procedure OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
   end;
 
 
@@ -213,12 +206,12 @@ begin
         RefusedReason := rrNone;
         Inc(FState)
       end;
-    TRACTION_CONTROLLER_CONFIG_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+    TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
       begin
          Result := False;
          RefusedReason := rrAssignedControllerRefused;
       end;
-    TRACTION_CONTROLLER_CONFIG_REPLY_REFUSE_TRAIN :
+    TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
       begin
         Result := False;
         RefusedReason := rrTrainRefused;
@@ -397,7 +390,6 @@ end;
 procedure TFormTrainController.ButtonThrottleAssignAddressClick(Sender: TObject);
 var
   TrackProtocolFlags: Word;  // 5 bits
-  SearchData: DWORD;
 begin
   TrackProtocolFlags := 0;
   case PageControlThrottleTechnology.ActivePageIndex of
@@ -445,9 +437,7 @@ begin
     1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TARGET_ANY_MATCH;
   end;
 
-  SM_ConnectToTrain := TLccThrottleConnectStateMachine.Create(ThrottleNodeManager.CanNode[0].NodeID, ThrottleNodeManager.CanNode[0].AliasID, ThrottleNodeManager.OnLccMessageSend, @DoAllocateTrainStateMachineEnded);
-  if not SM_ConnectToTrain.HandleTrainSearchState(LabeledEditThrottleAddress.Text, TrackProtocolFlags) then
-    FreeAndNil(FSM_ConnectToTrain);
+  ControllerNode.AssginTrainByOpenLCB(EditThrottleAddress.Text, TrackProtocolFlags);
 end;
 
 procedure TFormTrainController.ButtonHammerTestClick(Sender: TObject);
@@ -456,9 +446,7 @@ var
 begin
   for i := 0 to StrToInt(EditHammerTest.Text) - 1 do
   begin
-    SM_ConnectToTrain := TLccThrottleConnectStateMachine.Create(ThrottleNodeManager.CanNode[0].NodeID, ThrottleNodeManager.CanNode[0].AliasID, ThrottleNodeManager.OnLccMessageSend, @DoAllocateTrainStateMachineEnded);
-    if not SM_ConnectToTrain.HandleTrainSearchState(IntToStr(i), 232) then
-    FreeAndNil(FSM_ConnectToTrain);
+
   end;
 end;
 
@@ -468,10 +456,10 @@ var
 begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.ListenerPort := 12021;
-  if ThrottleEthernetClient.Connected then
+  if EthernetClient.Connected then
   begin
-    ThrottleNodeManager.LogoutAll;
-    ThrottleEthernetClient.CloseConnection(nil);
+    NodeManager.LogoutAll;
+    EthernetClient.CloseConnection(nil);
     ButtonThrottleConnectAndLogin.Caption := 'Connect and Login';
     CheckBoxThrottleLocalIP.Enabled := True;
   end else
@@ -482,51 +470,38 @@ begin
     else
       EthernetRec.ListenerIP := Edit1.Text;
 
-    ThrottleEthernetClient.OpenConnection(EthernetRec);
+    EthernetClient.OpenConnection(EthernetRec);
     ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
     CheckBoxThrottleLocalIP.Enabled := False;
   end;
-end;
-
-procedure TFormTrainController.DoAllocateTrainStateMachineEnded(Sender: TObject);
-begin
-   // Grab the info from the statemachine and start running the train
 end;
 
 procedure TFormTrainController.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
 
-  ThrottleNodeManager.Clear;
-  ThrottleEthernetClient.CloseConnection(nil);
-  while ThrottleEthernetClient.Connected do
+  NodeManager.Clear;
+  EthernetClient.CloseConnection(nil);
+  while EthernetClient.Connected do
     Sleep(500);
-  ThrottleEthernetClient.Free;
-  ThrottleNodeManager.Free;
-
-  WorkerMsg.Free;
+  EthernetClient.Free;
+  NodeManager.Free;
 end;
 
 procedure TFormTrainController.FormCreate(Sender: TObject);
 begin
-  FWorkerMsg := TLccMessage.Create;
-
   // throttle node
-  ThrottleNodeManager := TLccCanNodeManager.Create(nil);
-  ThrottleNodeManager.OnLccNodeAliasIDChanged := @OnThrottleNodeAliasChange;
-  ThrottleNodeManager.OnLccNodeIDChanged := @OnThrottleNodeIDChange;
-  ThrottleNodeManager.OnLccMessageSend := @OnThrottleSendMessage;
-  ThrottleNodeManager.OnLccMessageReceive := @OnThrottleReceiveMessage;
-  ThrottleNodeManager.OnLccNodeProducerIdentified := @OnLccNodeProducerIdentified;
-  ThrottleNodeManager.OnLccNodeTractionManage := @OnLccNodeTractionManage;
-  ThrottleNodeManager.OnLccNodeTractionControllerConfig := @OnLccNodeTractionControllerConfig;
-  ThrottleNodeManager.OnLccNodeProducerIdentified := @OnLccNodeProducerIdentified;;
+  NodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager.OnLccNodeAliasIDChanged := @OnNodeManagerAliasChange;
+  NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChange;
+  NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
+  NodeManager.OnLccMessageReceive := @OnNodeManagerReceiveMessage;
 
-  ThrottleEthernetClient := TLccEthernetClient.Create(nil);
-  ThrottleEthernetClient.Gridconnect := True;
-  ThrottleEthernetClient.NodeManager := ThrottleNodeManager;
-  ThrottleEthernetClient.OnConnectionStateChange := @OnThrottleEthernetConnectionChange;
-  ThrottleEthernetClient.OnErrorMessage := @OnThrottleEthernetErrorMessage;
+  EthernetClient := TLccEthernetClient.Create(nil);
+  EthernetClient.Gridconnect := True;
+  EthernetClient.NodeManager := NodeManager;
+  EthernetClient.OnConnectionStateChange := @OnClientServerConnectionChange;
+  EthernetClient.OnErrorMessage := @OnClientServerErrorMessage;
 end;
 
 procedure TFormTrainController.FormShow(Sender: TObject);
@@ -538,128 +513,48 @@ begin
   {$ENDIF}
 end;
 
-procedure TFormTrainController.OnLccNodeProducerIdentified(Sender: TObject;
-  LccSourceNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID;
-  State: TEventState);
-begin
-  // Look for the Search Protocol in the EventID, we have a train node
-  if (Event[0] = $09) and (Event[1] = $00) and (Event[2] = $99) and (Event[3] = $FF) then
-    if Assigned(FSM_ConnectToTrain) then
-      if not SM_ConnectToTrain.HandleTrainSearchWaitReply(LccMessage) then FreeAndNil(FSM_ConnectToTrain);
-end;
-
-procedure TFormTrainController.OnLccNodeTractionControllerConfig(
-  Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage;
-  IsReply: Boolean);
-var
-  RefusedReason: TAllocateTrainRefusedReason;
-begin
-  if Assigned(FSM_ConnectToTrain) and IsReply then
-  begin
-   RefusedReason := rrNone;
-   // Allow the State Machine to continue to send the release
-   if not SM_ConnectToTrain.HandleAllocateThrottleStateReply(LccMessage, RefusedReason) then
-   begin
-     case RefusedReason of
-        rrAssignedControllerRefused : ShowMessage('Assigned Controller Refused to Release Train');
-        rrTrainRefused              : ShowMessage('Train Refused to Accept');
-        rrUnknown                   : ShowMessage('Unknown Failure Result Code');
-     end;
-   end;
-  end;
-end;
-
-procedure TFormTrainController.OnLccNodeTractionManage(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-begin
-  if Assigned(FSM_ConnectToTrain) and IsReply then
-    if not FSM_ConnectToTrain.HandleReserveTrainStateReply(LccMessage) then FreeAndNil(FSM_ConnectToTrain);
-end;
-
-procedure TFormTrainController.OnThrottleEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-var
-  CanNode: TLccCanNode;
+procedure TFormTrainController.OnClientServerConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
     ccsClientConnecting : LabelThrottleIPAddress.Caption    := 'IP Address: Connecting';
     ccsClientConnected  :
       begin
         LabelThrottleIPAddress.Caption    := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
-
-        CanNode := ThrottleNodeManager.AddNode(CDI_XML) as TLccCanNode;
-
-        CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
-        CanNode.ProtocolSupportedProtocols.Datagram := True;
-        CanNode.ProtocolSupportedProtocols.EventExchange := True;
-        CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
-        CanNode.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
-        CanNode.ProtocolSupportedProtocols.TractionControl := True;
-        CanNode.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
-        CanNode.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
-        CanNode.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
-
-        CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
-        CanNode.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
-
-        CanNode.ProtocolMemoryOptions.WriteUnderMask := True;
-        CanNode.ProtocolMemoryOptions.UnAlignedReads := True;
-        CanNode.ProtocolMemoryOptions.UnAlignedWrites := True;
-        CanNode.ProtocolMemoryOptions.SupportACDIMfgRead := True;
-        CanNode.ProtocolMemoryOptions.SupportACDIUserRead := True;
-        CanNode.ProtocolMemoryOptions.SupportACDIUserWrite := True;
-        CanNode.ProtocolMemoryOptions.WriteLenOneByte := True;
-        CanNode.ProtocolMemoryOptions.WriteLenTwoBytes := True;
-        CanNode.ProtocolMemoryOptions.WriteLenFourBytes := True;
-        CanNode.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
-        CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-        CanNode.ProtocolMemoryOptions.WriteStream := False;
-        CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-        CanNode.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
-
-    //    CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
-    //    CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
-
-     //   CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
-     //   CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
-
-        CanNode.Login(NULL_NODE_ID); // Create our own ID
+        ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
       end;
     ccsClientDisconnecting :
       begin
-        ThrottleNodeManager.Clear;   // Logout
+        NodeManager.Clear;   // Logout
+        ControllerNode := nil;
         LabelThrottleIPAddress.Caption := 'IP Address: Disconnecting';
       end;
     ccsClientDisconnected : LabelThrottleIPAddress.Caption  := 'IP Address: Disconnected';
   end;
 end;
 
-procedure TFormTrainController.OnThrottleEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TFormTrainController.OnClientServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   ShowMessage(EthernetRec.MessageStr);
   LabelThrottleIPAddress.Caption := 'IP Address Disconnected';
   ButtonThrottleConnectAndLogin.Caption := 'Connect and Login';
 end;
 
-procedure TFormTrainController.OnThrottleNodeIDChange(Sender: TObject; LccSourceNode: TLccNode );
+procedure TFormTrainController.OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode );
 begin
   LabelThrottleNodeID.Caption := 'NodeID: ' + LccSourceNode.NodeIDStr;
 end;
 
-procedure TFormTrainController.OnThrottleNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
+procedure TFormTrainController.OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   LabelThrottleAliasID.Caption := 'AliasID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
 end;
 
-procedure TFormTrainController.OnThrottleSendMessage(Sender: TObject; LccMessage: TLccMessage);
+procedure TFormTrainController.OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  ThrottleEthernetClient.SendMessage(LccMessage);
+  EthernetClient.SendMessage(LccMessage);
 end;
 
-procedure TFormTrainController.OnThrottleReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+procedure TFormTrainController.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
 
 end;

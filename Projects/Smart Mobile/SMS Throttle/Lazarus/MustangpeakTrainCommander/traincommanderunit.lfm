@@ -1239,9 +1239,9 @@ object FormTrainCommander: TFormTrainCommander
     }
   end
   object TimerIncomingMessagePump: TTimer
-    Interval = 200
+    Interval = 100
     OnTimer = TimerIncomingMessagePumpTimer
-    left = 296
+    left = 288
     top = 32
   end
 end

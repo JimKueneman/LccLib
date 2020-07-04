@@ -139,7 +139,7 @@ object FormTrainController: TFormTrainController
       ClientHeight = 533
       ClientWidth = 424
       TabOrder = 2
-      object LabeledEditThrottleAddress: TLabeledEdit
+      object EditThrottleAddress: TLabeledEdit
         Left = 7
         Height = 21
         Top = 24

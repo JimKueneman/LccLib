@@ -130,6 +130,8 @@ type
   protected
     property WaitingRoom: TLccWaitingRoom read FWaitingRoom write FWaitingRoom;
     procedure Creating; override;
+    function GetCdiFile: string; override;
+    procedure BeforeLogin; override;
   public
     {$IFDEF DELPHI}
     property Trains: TObjectList<TLccCanNode> read FTrains write FTrains;
@@ -145,6 +147,8 @@ type
     function FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainCanNode;
     function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   end;
+
+  TLccCommandStationNodeClass = class of TLccCommandStationNode;
 
 
 implementation
@@ -248,53 +252,39 @@ end;
 function TLccCommandStationNode.AddTrain(ARoadName, ARoadNumber: string;
   ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
 begin
-  Result := TLccTrainCanNode.Create(SendMessageFunc, NodeManager, CDI_XML_TRAIN_NODE);
-  Result.DccAddress := ADccAddress;
-  Result.DccLongAddress := ALongAddress;
-  Result.Name := ARoadName;
-  Result.RoadNumber := ARoadNumber;
-  Result.SpeedStep := ASpeedStep;
+  Result := TLccTrainCanNode.Create(SendMessageFunc, NodeManager, '');
+  if Assigned(Result) then
+    Result.Login(NULL_NODE_ID);
+end;
 
-  Result.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.Datagram := True;
-  Result.ProtocolSupportedProtocols.EventExchange := True;
-  Result.ProtocolSupportedProtocols.SimpleNodeInfo := True;
-  Result.ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.TractionControl := True;
-  Result.ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
-  Result.ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
-  Result.ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+procedure TLccCommandStationNode.BeforeLogin;
+begin
+  ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.Datagram := True;
+  ProtocolSupportedProtocols.EventExchange := True;
+  ProtocolSupportedProtocols.SimpleNodeInfo := True;
+  ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
 
-  Result.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
-  Result.ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
 
-  Result.ProtocolMemoryOptions.WriteUnderMask := True;
-  Result.ProtocolMemoryOptions.UnAlignedReads := True;
-  Result.ProtocolMemoryOptions.UnAlignedWrites := True;
-  Result.ProtocolMemoryOptions.SupportACDIMfgRead := True;
-  Result.ProtocolMemoryOptions.SupportACDIUserRead := True;
-  Result.ProtocolMemoryOptions.SupportACDIUserWrite := True;
-  Result.ProtocolMemoryOptions.WriteLenOneByte := True;
-  Result.ProtocolMemoryOptions.WriteLenTwoBytes := True;
-  Result.ProtocolMemoryOptions.WriteLenFourBytes := True;
-  Result.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
-  Result.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-  Result.ProtocolMemoryOptions.WriteStream := False;
-  Result.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-  Result.ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
-
- // NodeManager.;
-
- // TODO
- //   NEED TO ADD IT TO THE NODE MANAGER!!!!!!!!!!
-
-
-  Result.Login(NULL_NODE_ID);
+  ProtocolMemoryOptions.WriteUnderMask := True;
+  ProtocolMemoryOptions.UnAlignedReads := True;
+  ProtocolMemoryOptions.UnAlignedWrites := True;
+  ProtocolMemoryOptions.SupportACDIMfgRead := True;
+  ProtocolMemoryOptions.SupportACDIUserRead := True;
+  ProtocolMemoryOptions.SupportACDIUserWrite := True;
+  ProtocolMemoryOptions.WriteLenOneByte := True;
+  ProtocolMemoryOptions.WriteLenTwoBytes := True;
+  ProtocolMemoryOptions.WriteLenFourBytes := True;
+  ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
+  ProtocolMemoryOptions.WriteArbitraryBytes := True;
+  ProtocolMemoryOptions.WriteStream := False;
+  ProtocolMemoryOptions.HighSpace := MSI_CDI;
+  ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 end;
 
 procedure TLccCommandStationNode.ClearTrains;
@@ -374,6 +364,11 @@ begin
   end;
 end;
 
+function TLccCommandStationNode.GetCdiFile: string;
+begin
+  Result := CDI_XML_COMMANDSTATION;
+end;
+
 function TLccCommandStationNode.GetTrain(Index: Integer): TLccTrainCanNode;
 begin
   Result := Trains[Index] as TLccTrainCanNode;
@@ -412,9 +407,7 @@ begin
           end
         end;
       end;
-    MTI_PRODUCER_IDENTIFIED_CLEAR,
-    MTI_PRODUCER_IDENTIFIED_SET,
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+    MTI_PRODUCER_IDENDIFY :
       begin
         if SourceLccMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
         begin

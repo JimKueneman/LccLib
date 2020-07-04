@@ -106,6 +106,8 @@ type
     property ReserveWatchDogTimer: TLccTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
 
     procedure OnReserveWatchDogTimer(Sender: TObject);
+    function GetCdiFile: string; override;
+    procedure BeforeLogin; override;
   public
     property AssignedControllerNodeID: TNodeID read FAssignedControllerNodeID write FAssignedControllerNodeID;
     property AssignedControllerAliasID: Word read FAssignedControllerAliasID write FAssignedControllerAliasID;
@@ -127,10 +129,48 @@ type
     function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
   end;
 
+  TLccTrainCanNodeClass = class of TLccTrainCanNode;
+
 
 implementation
 
 { TLccTrainCanNode }
+
+procedure TLccTrainCanNode.BeforeLogin;
+begin
+  ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.Datagram := True;
+  ProtocolSupportedProtocols.EventExchange := True;
+  ProtocolSupportedProtocols.SimpleNodeInfo := True;
+  ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.TractionControl := True;
+  ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
+  ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
+  ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+
+  ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
+
+  ProtocolMemoryOptions.WriteUnderMask := True;
+  ProtocolMemoryOptions.UnAlignedReads := True;
+  ProtocolMemoryOptions.UnAlignedWrites := True;
+  ProtocolMemoryOptions.SupportACDIMfgRead := True;
+  ProtocolMemoryOptions.SupportACDIUserRead := True;
+  ProtocolMemoryOptions.SupportACDIUserWrite := True;
+  ProtocolMemoryOptions.WriteLenOneByte := True;
+  ProtocolMemoryOptions.WriteLenTwoBytes := True;
+  ProtocolMemoryOptions.WriteLenFourBytes := True;
+  ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
+  ProtocolMemoryOptions.WriteArbitraryBytes := True;
+  ProtocolMemoryOptions.WriteStream := False;
+  ProtocolMemoryOptions.HighSpace := MSI_CDI;
+  ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+end;
 
 function TLccTrainCanNode.ControllerAssigned: Boolean;
 begin
@@ -140,6 +180,11 @@ end;
 function TLccTrainCanNode.ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
   Result := (((AssignedControllerNodeID[0] = ATestNodeID[0]) and (AssignedControllerNodeID[1] = ATestNodeID[1])) and (ATestAlias = AssignedControllerAliasID))
+end;
+
+function TLccTrainCanNode.GetCdiFile: string;
+begin
+  Result := CDI_XML_TRAIN_NODE
 end;
 
 procedure TLccTrainCanNode.OnReserveWatchDogTimer(Sender: TObject);

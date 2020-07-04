@@ -60,166 +60,200 @@ uses
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
 
+const
+
+ CDI_XML: string = (
+'<?xml version="1.0" encoding="utf-8"?>'+
+'<?xml-stylesheet type="text/xsl" href="http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl"?>'+
+'<cdi xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://openlcb.org/trunk/specs/schema/cdi.xsd">'+
+	'<identification>'+
+		'<manufacturer>Mustangpeak</manufacturer>'+
+		'<model>TC1000</model>'+
+		'<hardwareVersion>1.0.0.0</hardwareVersion>'+
+		'<softwareVersion>1.0.0.0</softwareVersion>'+
+	'</identification>'+
+	'<segment origin="1" space="253">'+
+		'<name>User</name>'+
+		'<description>User defined information</description>'+
+		'<group>'+
+			'<name>User Data</name>'+
+			'<description>Add your own unique node info here</description>'+
+			'<string size="63">'+
+				'<name>User Name</name>'+
+			'</string>'+
+			'<string size="64">'+
+				'<name>User Description</name>'+
+			'</string>'+
+		'</group>'+
+	'</segment>'+
+'</cdi>');
+
 type
 
-{ TLccNode }
+  { TLccNode }
 
-TLccNode = class(TObject)
-private
-  FWorkerMessageDatagram: TLccMessage;
-  FInitialized: Boolean;
-  FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
-  FSendMessageFunc: TLccSendMessageFunc;
-  FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data with Fixed Offsets for read only data
-                                                 // SNIP uses this structure to create a packed version of this information (null separated strings) +
-                                                 // the user name and user description which it pulls out of the Configuration Stream
-                                                 // Address 0 = Version
-                                                 // Address 1 = Manufacturer
-                                                 // Address 42 = Model
-                                                 // Address 83 = Hardware Version
-                                                 // Address 104 = Software Version
-  FStreamCdi: TMemoryStream;                     // Stream containing the XML string for the CDI (Configuration Definition Info)
-  FStreamConfig: TMemoryStream;                  // Stream containing the writable configuration memory where the Address = Offset in the stream
-                                                 // and the following MUST be true
-                                                 // Address 0 = User info Version number
-                                                 // Address 1 = User Defined name (ACDI/SNIP)
-                                                 // Address 64 = User defined description  (ACDI/SNIP)
-                                                 // Address 128 = Node specific persistent data
-  FStreamTractionConfig: TMemoryStream;          // Stream containing the writable configuration memory for a Traction node where the Address = Offset in the stream
-  FStreamTractionFdi: TMemoryStream;             // Stream containing the XML string for the FDI (Function Definition Info)
-  FTProtocolMemoryConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo;
-  FProtocolMemoryOptions: TProtocolMemoryOptions;
-  FProtocolMemoryConfiguration: TProtocolMemoryConfiguration;
-  FProtocolEventConsumed: TProtocolEvents;
-  FProtocolEventsProduced: TProtocolEvents;
-  FProtocolSupportedProtocols: TProtocolSupportedProtocols;
-  FProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo;
-  FProtocolMemoryInfo: TProtocolMemoryInfo;
-  FProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo;
-  FProtocolTraction: TProtocolTraction;
-  FProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo;
-  FProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration;
-  FACDIMfg: TACDIMfg;
-  FACDIUser: TACDIUser;
-  FDatagramResendQueue: TDatagramQueue;
-  FWorkerMessage: TLccMessage;
-  F_800msTimer: TLccTimer;
+  TLccNode = class(TObject)
+  private
+    FWorkerMessageDatagram: TLccMessage;
+    FInitialized: Boolean;
+    FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
+    FSendMessageFunc: TLccSendMessageFunc;
+    FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data with Fixed Offsets for read only data
+                                                   // SNIP uses this structure to create a packed version of this information (null separated strings) +
+                                                   // the user name and user description which it pulls out of the Configuration Stream
+                                                   // Address 0 = Version
+                                                   // Address 1 = Manufacturer
+                                                   // Address 42 = Model
+                                                   // Address 83 = Hardware Version
+                                                   // Address 104 = Software Version
+    FStreamCdi: TMemoryStream;                     // Stream containing the XML string for the CDI (Configuration Definition Info)
+    FStreamConfig: TMemoryStream;                  // Stream containing the writable configuration memory where the Address = Offset in the stream
+                                                   // and the following MUST be true
+                                                   // Address 0 = User info Version number
+                                                   // Address 1 = User Defined name (ACDI/SNIP)
+                                                   // Address 64 = User defined description  (ACDI/SNIP)
+                                                   // Address 128 = Node specific persistent data
+    FStreamTractionConfig: TMemoryStream;          // Stream containing the writable configuration memory for a Traction node where the Address = Offset in the stream
+    FStreamTractionFdi: TMemoryStream;             // Stream containing the XML string for the FDI (Function Definition Info)
+    FTProtocolMemoryConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo;
+    FProtocolMemoryOptions: TProtocolMemoryOptions;
+    FProtocolMemoryConfiguration: TProtocolMemoryConfiguration;
+    FProtocolEventConsumed: TProtocolEvents;
+    FProtocolEventsProduced: TProtocolEvents;
+    FProtocolSupportedProtocols: TProtocolSupportedProtocols;
+    FProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo;
+    FProtocolMemoryInfo: TProtocolMemoryInfo;
+    FProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo;
+    FProtocolTraction: TProtocolTraction;
+    FProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo;
+    FProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration;
+    FACDIMfg: TACDIMfg;
+    FACDIUser: TACDIUser;
+    FDatagramResendQueue: TDatagramQueue;
+    FWorkerMessage: TLccMessage;
+    F_800msTimer: TLccTimer;
 
-  function GetNodeIDStr: String;
-protected
-  FNodeID: TNodeID;
+    function GetNodeIDStr: String;
+  protected
+    FNodeID: TNodeID;
 
-  property NodeManager:{$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF} read FNodeManager write FNodeManager;
-  property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
-  property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
-  property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
-  property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
-  property StreamTractionFdi: TMemoryStream read FStreamTractionFdi write FStreamTractionFdi;
-  property StreamTractionConfig: TMemoryStream read FStreamTractionConfig write FStreamTractionConfig;
+    property NodeManager:{$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF} read FNodeManager write FNodeManager;
+    property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
+    property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
+    property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
+    property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
+    property StreamTractionFdi: TMemoryStream read FStreamTractionFdi write FStreamTractionFdi;
+    property StreamTractionConfig: TMemoryStream read FStreamTractionConfig write FStreamTractionConfig;
 
-  property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
-  property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
-  property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
+    property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
+    property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
 
-  procedure CreateNodeID(var Seed: TNodeID);
-  function GetAlias: Word; virtual;
-  function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
-  function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
-  function LoadManufacturerDataStream(ACdi: string): Boolean;
-  procedure AutoGenerateEvents;
-  procedure SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
-  procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
-  procedure SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
-  procedure On_800msTimer(Sender: TObject);  virtual;
-public
-  property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
-  property NodeID: TNodeID read FNodeID;
-  property NodeIDStr: String read GetNodeIDStr;
-  property Initialized: Boolean read FInitialized;
+    procedure CreateNodeID(var Seed: TNodeID);
+    function GetAlias: Word; virtual;
+    function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
+    function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
+    function LoadManufacturerDataStream(ACdi: string): Boolean;
+    procedure AutoGenerateEvents;
+    procedure SendDatagramAckReply(SourceLccMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
+    procedure SendDatagramRejectedReply(SourceLccMessage: TLccMessage; Reason: Word);
+    procedure SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
+    procedure On_800msTimer(Sender: TObject);  virtual;
+    function GetCdiFile: string virtual;
+    procedure BeforeLogin; virtual;
+  public
+    property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
+    property NodeID: TNodeID read FNodeID;
+    property NodeIDStr: String read GetNodeIDStr;
+    property Initialized: Boolean read FInitialized;
 
-  property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
-  property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
-  property ProtocolMemoryConfiguration: TProtocolMemoryConfiguration read FProtocolMemoryConfiguration write FProtocolMemoryConfiguration;
-  property ProtocolConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo read FTProtocolMemoryConfigurationDefinitionInfo write FTProtocolMemoryConfigurationDefinitionInfo;
-  property ProtocolMemoryOptions: TProtocolMemoryOptions read FProtocolMemoryOptions write FProtocolMemoryOptions;
-  property ProtocolMemoryInfo: TProtocolMemoryInfo read FProtocolMemoryInfo write FProtocolMemoryInfo;
-  property ProtocolEventConsumed: TProtocolEvents read FProtocolEventConsumed write FProtocolEventConsumed;
-  property ProtocolEventsProduced: TProtocolEvents read FProtocolEventsProduced write FProtocolEventsProduced;
-  property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
-  property ProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo read FProtocolSimpleNodeInfo write FProtocolSimpleNodeInfo;
-  property ProtocolTraction: TProtocolTraction read FProtocolTraction write FProtocolTraction;
-  property ProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo read FProtocolTractionFunctionDefinitionInfo write FProtocolTractionFunctionDefinitionInfo;
-  property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
-  property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
+    property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
+    property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
+    property ProtocolMemoryConfiguration: TProtocolMemoryConfiguration read FProtocolMemoryConfiguration write FProtocolMemoryConfiguration;
+    property ProtocolConfigurationDefinitionInfo: TProtocolMemoryConfigurationDefinitionInfo read FTProtocolMemoryConfigurationDefinitionInfo write FTProtocolMemoryConfigurationDefinitionInfo;
+    property ProtocolMemoryOptions: TProtocolMemoryOptions read FProtocolMemoryOptions write FProtocolMemoryOptions;
+    property ProtocolMemoryInfo: TProtocolMemoryInfo read FProtocolMemoryInfo write FProtocolMemoryInfo;
+    property ProtocolEventConsumed: TProtocolEvents read FProtocolEventConsumed write FProtocolEventConsumed;
+    property ProtocolEventsProduced: TProtocolEvents read FProtocolEventsProduced write FProtocolEventsProduced;
+    property ProtocolSupportedProtocols: TProtocolSupportedProtocols read FProtocolSupportedProtocols write FProtocolSupportedProtocols;
+    property ProtocolSimpleNodeInfo: TProtocolSimpleNodeInfo read FProtocolSimpleNodeInfo write FProtocolSimpleNodeInfo;
+    property ProtocolTraction: TProtocolTraction read FProtocolTraction write FProtocolTraction;
+    property ProtocolTractionFunctionDefinitionInfo: TTractionFunctionDefinitionInfo read FProtocolTractionFunctionDefinitionInfo write FProtocolTractionFunctionDefinitionInfo;
+    property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
+    property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
-  destructor Destroy; override;
+    constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
+    destructor Destroy; override;
 
-  function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
-  procedure Login(ANodeID: TNodeID); virtual;
-  procedure Logout; virtual;
-  function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual;
-  procedure SendEvents;
-  procedure SendConsumedEvents;
-  procedure SendConsumerIdentify(var Event: TEventID);
-  procedure SendProducedEvents;
-  procedure SendProducerIdentify(var Event: TEventID);
-  procedure SendInitializeComplete;
-end;
+    function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
+    procedure Login(ANodeID: TNodeID); virtual;
+    procedure Logout; virtual;
+    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; virtual;
+    procedure SendEvents;
+    procedure SendConsumedEvents;
+    procedure SendConsumerIdentify(var Event: TEventID);
+    procedure SendProducedEvents;
+    procedure SendProducerIdentify(var Event: TEventID);
+    procedure SendInitializeComplete;
+  end;
 
-TLccNodeClass = class of TLccNode;
+  TLccNodeClass = class of TLccNode;
 
-{ TLccCanNode }
+  { TLccCanNode }
 
-TLccCanNode = class(TLccNode)
-private
-  FAliasID: Word;
-  FDuplicateAliasDetected: Boolean;
-  {$IFDEF DELPHI}
-  FInProcessMultiFrameMessage: TObjectList<TLccMessage>;
-  {$ELSE}
-  FInProcessMultiFrameMessage: TObjectList;
-  {$ENDIF}
-  FSeedNodeID: TNodeID;
-  FPermitted: Boolean;
+  TLccCanNode = class(TLccNode)
+  private
+    FAliasID: Word;
+    FDuplicateAliasDetected: Boolean;
+    {$IFDEF DELPHI}
+    FInProcessMultiFrameMessage: TObjectList<TLccMessage>;
+    {$ELSE}
+    FInProcessMultiFrameMessage: TObjectList;
+    {$ENDIF}
+    FSeedNodeID: TNodeID;
+    FPermitted: Boolean;
 
-  function GetAliasIDStr: String;
-protected
-  property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
-  {$IFDEF DELPHI}
-  property InProcessMultiFrameMessage: TObjectList<TLccMessage> read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
-  {$ELSE}
-  property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
-  {$ENDIF}
-  property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
+    function GetAliasIDStr: String;
+  protected
+    property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
+    {$IFDEF DELPHI}
+    property InProcessMultiFrameMessage: TObjectList<TLccMessage> read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
+    {$ELSE}
+    property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
+    {$ENDIF}
+    property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
-  procedure Creating; virtual;
-  function GetAlias: Word; override;
-  function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
-  procedure GenerateNewSeed(var Seed: TNodeID);
-  procedure InProcessMessageClear;
-  procedure InProcessMessageAddMessage(NewMessage: TLccMessage);
-  procedure InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
-  function InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
-  function InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
-  function InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
-  function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
-  procedure On_800msTimer(Sender: TObject); override;
-  procedure Relogin;
-  procedure SendAMD;
-  procedure SendAMR;
-public
-   property AliasID: Word read FAliasID;
-   property AliasIDStr: String read GetAliasIDStr;
-   property Permitted: Boolean read FPermitted;
+    procedure Creating; virtual;
+    function GetAlias: Word; override;
+    function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
+    procedure GenerateNewSeed(var Seed: TNodeID);
+    procedure InProcessMessageClear;
+    procedure InProcessMessageAddMessage(NewMessage: TLccMessage);
+    procedure InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
+    function InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
+    function InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
+    function InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
+    function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
+    procedure On_800msTimer(Sender: TObject); override;
+    procedure Relogin;
+    procedure SendAMD;
+    procedure SendAMR;
+  public
+     property AliasID: Word read FAliasID;
+     property AliasIDStr: String read GetAliasIDStr;
+     property Permitted: Boolean read FPermitted;
 
-   constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); reintroduce;
-   destructor Destroy; override;
-   function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
-   procedure Login(ANodeID: TNodeID); override;
-   procedure Logout; override;
-   function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
-end;
+     constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
+     destructor Destroy; override;
+     function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
+     procedure Login(ANodeID: TNodeID); override;
+     procedure Logout; override;
+     function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+  end;
+
+  TLccCanNodeClass = class of TLccCanNode;
+
+
 
 var
   InprocessMessageAllocated: Integer = 0;
@@ -867,6 +901,9 @@ begin
   _800msTimer.Interval := 800;
   {$ENDIF}
 
+  if CdiXML = '' then
+    CdiXML := GetCdiFile;
+
   // Setup the Cdi Stream
   StreamCdi.Size := Int64( Length(CdiXML) + 1);   // Need the null
   i := Low(CdiXML);
@@ -917,6 +954,48 @@ begin
     end;
     ProtocolEventsProduced.Valid := True;
   end;
+end;
+
+procedure TLccNode.BeforeLogin;
+begin
+  ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.Datagram := True;
+  ProtocolSupportedProtocols.EventExchange := True;
+  ProtocolSupportedProtocols.SimpleNodeInfo := True;
+  ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.TractionControl := True;
+  ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
+  ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
+  ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+
+  ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
+  ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
+
+  ProtocolMemoryOptions.WriteUnderMask := True;
+  ProtocolMemoryOptions.UnAlignedReads := True;
+  ProtocolMemoryOptions.UnAlignedWrites := True;
+  ProtocolMemoryOptions.SupportACDIMfgRead := True;
+  ProtocolMemoryOptions.SupportACDIUserRead := True;
+  ProtocolMemoryOptions.SupportACDIUserWrite := True;
+  ProtocolMemoryOptions.WriteLenOneByte := True;
+  ProtocolMemoryOptions.WriteLenTwoBytes := True;
+  ProtocolMemoryOptions.WriteLenFourBytes := True;
+  ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
+  ProtocolMemoryOptions.WriteArbitraryBytes := True;
+  ProtocolMemoryOptions.WriteStream := False;
+  ProtocolMemoryOptions.HighSpace := MSI_CDI;
+  ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+
+  // Create a few events for fun
+  ProtocolEventConsumed.AutoGenerate.Count := 5;
+  ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
+  ProtocolEventsProduced.AutoGenerate.Count := 5;
+  ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
 end;
 
 procedure TLccNode.CreateNodeID(var Seed: TNodeID);
@@ -993,8 +1072,14 @@ begin
   Result := 0;
 end;
 
+function TLccNode.GetCdiFile: string;
+begin
+  Result := CDI_XML;
+end;
+
 procedure TLccNode.Login(ANodeID: TNodeID);
 begin
+  BeforeLogin;
   if NullNodeID(ANodeID) then
     CreateNodeID(ANodeID);
   FNodeID := ANodeID;
