@@ -171,10 +171,10 @@ type
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoVerifiedNodeID(LccNode: TLccNode); virtual;
 
-    procedure DoLccMessageSend(Message: TLccMessage); virtual;
+    procedure DoLccMessageSend(Sender: TObject; Message: TLccMessage); virtual;
     procedure DoLccMessageReceive(Message: TLccMessage); virtual;
 
-    procedure LccMessageSendCallback(LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
+    procedure LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
 
   public
     {$IFDEF DELPHI}
@@ -197,7 +197,7 @@ type
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
-    procedure SendMessage(LccMessage: TLccMessage);
+    procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
 
   published
     // Node Management
@@ -402,10 +402,10 @@ begin
     OnLccMessageReceive(Self, Message);
 end;
 
-procedure TLccNodeManager.DoLccMessageSend(Message: TLccMessage);
+procedure TLccNodeManager.DoLccMessageSend(Sender: TObject; Message: TLccMessage);
 begin
   if Assigned(OnLccMessageSend) then
-    OnLccMessageSend(Self, Message);
+    OnLccMessageSend(Sender, Message);
 end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);
@@ -638,28 +638,26 @@ begin
     ( Nodes[i] as TLccNode).ProcessMessage(LccMessage);
 end;
 
-procedure TLccNodeManager.SendMessage(LccMessage: TLccMessage);
+procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
   i: Integer;
 begin
-  DoLccMessageSend(LccMessage);
-
-  Exit;
+  DoLccMessageSend(Sender, LccMessage);
 
   // Send the messages to all the other virtual nodes.
-  for i := 0 to Nodes.Count - 1 do
+  if Sender is TLccNode then
   begin
-    if Node[i].Initialized then
+    for i := 0 to Nodes.Count - 1 do
     begin
-      if not EqualNode(LccMessage.SourceID, LccMessage.CAN.SourceAlias, Node[i].NodeID, (Node[i] as TLccCanNode).AliasID) then
+      if Node[i] <> Sender then
         Node[i].ProcessMessage(LccMessage);
     end;
   end;
 end;
 
-procedure TLccNodeManager.LccMessageSendCallback(LccMessage: TLccMessage);
+procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage);
 begin
-  SendMessage(LccMessage);
+  SendMessage(Sender, LccMessage);
 end;
 
 

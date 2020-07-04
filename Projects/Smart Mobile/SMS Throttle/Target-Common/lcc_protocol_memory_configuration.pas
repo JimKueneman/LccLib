@@ -41,7 +41,7 @@ private
   {$ENDIF}   *)
 protected
 public
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
+  constructor Create(ASendMessageFunc: TOnMessageEvent); override;
   destructor Destroy; override;
 
   procedure DatagramWriteRequest(LccMessage: TLccMessage; AStream: TStream); override;
@@ -56,7 +56,7 @@ implementation
 
 { TProtocolMemoryConfiguration }
 
-constructor TProtocolMemoryConfiguration.Create(ASendMessageFunc: TLccSendMessageFunc );
+constructor TProtocolMemoryConfiguration.Create(ASendMessageFunc: TOnMessageEvent );
 begin
  inherited Create(ASendMessageFunc );
 // AutoSaveOnWrite := False;

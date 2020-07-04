@@ -220,7 +220,7 @@ begin
           TRACTION_QUERY_SPEED :
             begin
                WorkerMessage.LoadTractionQuerySpeedReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, Speed, 0, Speed, Speed);
-               SendMessageFunc(WorkerMessage);
+               SendMessageFunc(Self, WorkerMessage);
             end;
           TRACTION_QUERY_FUNCTION :
             begin
@@ -229,7 +229,7 @@ begin
                 WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, FunctionAddress, Functions[FunctionAddress])
               else
                 WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, FunctionAddress, 0);
-              SendMessageFunc(WorkerMessage);
+              SendMessageFunc(Self, WorkerMessage);
             end;
           TRACTION_CONTROLLER_CONFIG :
             begin
@@ -271,14 +271,14 @@ begin
                       WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
                     else
                       WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, AssignedControllerNodeID, AssignedControllerAliasID);
-                    SendMessageFunc(WorkerMessage);
+                    SendMessageFunc(Self, WorkerMessage);
                   end;
                 TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
                   begin
                     if ControllerAssigned then
                     begin
                       WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, AssignedControllerNodeID, AssignedControllerAliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
-                      SendMessageFunc(WorkerMessage);
+                      SendMessageFunc(Self, WorkerMessage);
                     end;
                   end;
               end;
@@ -305,7 +305,7 @@ begin
                     ReservationNodeID := SourceLccMessage.SourceID;
                     ReservationAliasID := SourceLccMessage.CAN.SourceAlias;
                     WorkerMessage.LoadTractionManageReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, True);
-                    SendMessageFunc(WorkerMessage);
+                    SendMessageFunc(Self, WorkerMessage);
                     // Start a timer to clear the Reserve Node if it never Releases
                     if not Assigned(FReserveWatchDogTimer) then
                     begin

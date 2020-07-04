@@ -88,7 +88,7 @@ protected
   property EventList: TObjectList read FEventList write FEventList;
   {$ENDIF}
 public
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
+  constructor Create(ASendMessageFunc: TOnMessageEvent); override;
   destructor Destroy; override;
 
   procedure Add(Event: TEventID; State: TEventState);
@@ -147,7 +147,7 @@ end;
 
 { TProtocolEvents }
 
-constructor TProtocolEvents.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TProtocolEvents.Create(ASendMessageFunc: TOnMessageEvent);
 begin
   inherited Create(ASendMessageFunc);
   {$IFDEF DELPHI}

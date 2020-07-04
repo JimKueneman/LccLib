@@ -35,7 +35,7 @@ TNodeProtocolBase = class(TObject)
 private
 //JDK  FCreateTime: DWord;    Not sure what I used this for
   FErrorCode: Word;
-  FSendMessageFunc: TLccSendMessageFunc;
+  FSendMessageFunc: TOnMessageEvent;
   FWorkerMessage: TLccMessage;
 protected
   FValid: Boolean;
@@ -43,11 +43,11 @@ protected
 //JDK  property CreateTime: DWord read FCreateTime write FCreateTime;
   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 public
-  property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
+  property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
   property ErrorCode: Word read FErrorCode write FErrorCode;
   property Valid: Boolean read FValid write SetValid;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc); virtual;
+  constructor Create(ASendMessageFunc: TOnMessageEvent); virtual;
   destructor Destroy; override;
 
   function ReadAsString(Address: DWord; AStream: TStream): String;
@@ -89,7 +89,7 @@ begin
     StreamWriteByte(AStream, LccMessage.DataArrayIndexer[i]);
 end;
 
-constructor TNodeProtocolBase.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TNodeProtocolBase.Create(ASendMessageFunc: TOnMessageEvent);
 begin
   inherited Create;
 //JDK  FCreateTime := GetTickCount;

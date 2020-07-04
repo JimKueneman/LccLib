@@ -79,7 +79,7 @@ type
     property AddressSpace[Index: Integer]: TConfigMemAddressSpaceInfoObject read GetAddressSpace; default;
     property Count: Integer read GetCount;
 
-    constructor Create(ASendMessageFunc: TLccSendMessageFunc); override;
+    constructor Create(ASendMessageFunc: TOnMessageEvent); override;
     destructor Destroy; override;
     procedure Add(_Space: Byte; _IsPresent, _IsReadOnly, _ImpliedZeroLowAddress: Boolean; _LowAddress, _HighAddress: DWord);
     procedure Clear;
@@ -118,7 +118,7 @@ begin
  end;
 end;
 
-constructor TProtocolMemoryInfo.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TProtocolMemoryInfo.Create(ASendMessageFunc: TOnMessageEvent);
 begin
  inherited Create(ASendMessageFunc);
  {$IFDEF DELPHI}

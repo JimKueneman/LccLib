@@ -97,7 +97,7 @@ type
     FWorkerMessageDatagram: TLccMessage;
     FInitialized: Boolean;
     FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
-    FSendMessageFunc: TLccSendMessageFunc;
+    FSendMessageFunc: TOnMessageEvent;
     FStreamManufacturerData: TMemoryStream;        // Stream containing the Manufacturer Data stored like the User data with Fixed Offsets for read only data
                                                    // SNIP uses this structure to create a packed version of this information (null separated strings) +
                                                    // the user name and user description which it pulls out of the Configuration Stream
@@ -138,7 +138,7 @@ type
     FNodeID: TNodeID;
 
     property NodeManager:{$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF} read FNodeManager write FNodeManager;
-    property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
+    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
     property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
     property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
     property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
@@ -182,7 +182,7 @@ type
     property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
     property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
 
-    constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
     destructor Destroy; override;
 
     function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
@@ -243,7 +243,7 @@ type
      property AliasIDStr: String read GetAliasIDStr;
      property Permitted: Boolean read FPermitted;
 
-     constructor Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
+     constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
      destructor Destroy; override;
      function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
      procedure Login(ANodeID: TNodeID); override;
@@ -265,7 +265,7 @@ uses
 
 { TLccCanNode }
 
-constructor TLccCanNode.Create(ASendMessageFunc: TLccSendMessageFunc; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
+constructor TLccCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
   {$IFDEF DELPHI}
@@ -424,13 +424,13 @@ begin
   FNodeID := ANodeID;
 
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 2);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 3);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
 
   _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
 end;
@@ -458,20 +458,20 @@ begin
       FSeedNodeID := Temp;
       FAliasID := GenerateID_Alias_From_Seed(Temp);
       WorkerMessage.LoadCID(NodeID, AliasID, 0);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       WorkerMessage.LoadCID(NodeID, AliasID, 1);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       WorkerMessage.LoadCID(NodeID, AliasID, 2);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       WorkerMessage.LoadCID(NodeID, AliasID, 3);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
     end else
     begin
       FPermitted := True;
       WorkerMessage.LoadRID(AliasID);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       WorkerMessage.LoadAMD(NodeID, AliasID);
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
       inherited Login(NodeID);
     end
@@ -495,7 +495,7 @@ begin
     if ((SourceLccMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((SourceLccMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
     begin
       WorkerMessage.LoadRID(AliasID);                   // sorry charlie this is mine
-      SendMessageFunc(WorkerMessage);
+      SendMessageFunc(Self, WorkerMessage);
       Result := True;
     end else
     if Permitted then
@@ -632,7 +632,7 @@ begin
                       // Out of order but let the node handle that if needed (Owned Nodes Only)
                       // Don't swap the IDs, need to find the right target node first
                       SourceLccMessage.LoadOptionalInteractionRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, SourceLccMessage.MTI);
-                      SendMessageFunc(SourceLccMessage);
+                      SendMessageFunc(Self, SourceLccMessage);
                       Exit; // Move on
                     end;
                   end;
@@ -688,12 +688,12 @@ begin
               if EqualNodeID(TestNodeID, NodeID, False) then
               begin
                 WorkerMessage.LoadAMD(NodeID, AliasID);
-                SendMessageFunc(WorkerMessage);
+                SendMessageFunc(Self, WorkerMessage);
               end
             end else
             begin
               WorkerMessage.LoadAMD(NodeID, AliasID);
-              SendMessageFunc(WorkerMessage);
+              SendMessageFunc(Self, WorkerMessage);
             end;
             Result := True;
           end;
@@ -716,13 +716,13 @@ begin
   FSeedNodeID := Temp;
   FAliasID := GenerateID_Alias_From_Seed(Temp);
   WorkerMessage.LoadCID(NodeID, AliasID, 0);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 1);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 2);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   WorkerMessage.LoadCID(NodeID, AliasID, 3);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
 
   _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
 end;
@@ -757,7 +757,7 @@ begin
   if Permitted then
   begin
     WorkerMessage.LoadAMD(NodeID, AliasID);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -767,7 +767,7 @@ begin
   begin
     FPermitted := False;
     WorkerMessage.LoadAMR(NodeID, AliasID);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
     (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
   end;
 end;
@@ -857,7 +857,7 @@ begin
   Result := True;
 end;
 
-constructor TLccNode.Create(ASendMessageFunc: TLccSendMessageFunc;
+constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent;
   ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 var
   i, Counter: Integer;
@@ -1152,19 +1152,19 @@ begin
             if EqualNodeID(TestNodeID, NodeID, False) then
             begin
               WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
-              SendMessageFunc(WorkerMessage);
+              SendMessageFunc(Self, WorkerMessage);
             end
           end else
           begin
             WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
-            SendMessageFunc(WorkerMessage);
+            SendMessageFunc(Self, WorkerMessage);
           end;
           Result := True;
         end;
     MTI_VERIFY_NODE_ID_NUMBER_DEST :
         begin
           WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
-          SendMessageFunc(WorkerMessage);
+          SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
     MTI_VERIFIED_NODE_ID_NUMBER :
@@ -1177,7 +1177,7 @@ begin
     MTI_SIMPLE_NODE_INFO_REQUEST :
         begin
           WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerData, StreamConfig));
-          SendMessageFunc(WorkerMessage);
+          SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
     MTI_SIMPLE_NODE_INFO_REPLY :
@@ -1191,7 +1191,7 @@ begin
     MTI_PROTOCOL_SUPPORT_INQUIRY :
         begin
           WorkerMessage.LoadProtocolIdentifyReply(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
-          SendMessageFunc(WorkerMessage);
+          SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
     MTI_PROTOCOL_SUPPORT_REPLY :
@@ -1522,7 +1522,7 @@ begin
          else begin {case else}
              // Unknown Datagram Type
              WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_DATAGRAMS_NOT_ACCEPTED);
-             SendMessageFunc(WorkerMessage);
+             SendMessageFunc(Self, WorkerMessage);
              Result := True;
            end;
          end;  // case
@@ -1531,7 +1531,7 @@ begin
       if SourceLccMessage.HasDestination then
       begin
         WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, REJECTED_BUFFER_FULL, SourceLccMessage.MTI);
-        SendMessageFunc(WorkerMessage);
+        SendMessageFunc(Self, WorkerMessage);
         Result := True;
       end;
     end;
@@ -1544,7 +1544,7 @@ begin
   WorkerMessageDatagram.LoadDatagramAck(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
                                         SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
                                         True, ReplyPending, TimeOutValueN);
-  SendMessageFunc(WorkerMessageDatagram);
+  SendMessageFunc(Self, WorkerMessageDatagram);
 end;
 
 procedure TLccNode.SendConsumedEvents;
@@ -1556,7 +1556,7 @@ begin
   begin
     Temp := ProtocolEventConsumed.Event[i].ID;
     WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, ProtocolEventConsumed.Event[i].State);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -1570,7 +1570,7 @@ begin
   begin
     Temp := EventObj.ID;
     WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, EventObj.State);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -1579,7 +1579,7 @@ begin
   WorkerMessageDatagram.LoadDatagramRejected(SourceLccMessage.DestID, SourceLccMessage.CAN.DestAlias,
                                              SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias,
                                              Reason);
-  SendMessageFunc(WorkerMessageDatagram);
+  SendMessageFunc(Self, WorkerMessageDatagram);
 end;
 
 procedure TLccNode.SendDatagramRequiredReply(SourceLccMessage, ReplyLccMessage: TLccMessage);
@@ -1587,7 +1587,7 @@ begin
   if DatagramResendQueue.Add(ReplyLccMessage.Clone) then     // Waiting for an ACK
   begin
     SendDatagramAckReply(SourceLccMessage, False, 0);   // We will be sending a Read Reply
-    SendMessageFunc(ReplyLccMessage);
+    SendMessageFunc(Self, ReplyLccMessage);
   end else
     SendDatagramRejectedReply(SourceLccMessage, REJECTED_BUFFER_FULL)
 end;
@@ -1601,7 +1601,7 @@ end;
 procedure TLccNode.SendInitializeComplete;
 begin
   WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
-  SendMessageFunc(WorkerMessage);
+  SendMessageFunc(Self, WorkerMessage);
   (NodeManager as INodeManagerCallbacks).DoInitializationComplete(Self);
 end;
 
@@ -1614,7 +1614,7 @@ begin
   begin
     Temp := ProtocolEventsProduced.Event[i].ID;
     WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, ProtocolEventsProduced.Event[i].State);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -1628,7 +1628,7 @@ begin
   begin
     Temp := EventObj.ID;
     WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, EventObj.State);
-    SendMessageFunc(WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 

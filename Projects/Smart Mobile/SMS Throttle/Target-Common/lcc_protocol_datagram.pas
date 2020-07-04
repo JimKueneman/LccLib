@@ -56,7 +56,7 @@ private
   {$ELSE}
   FQueue: TObjectList;
   {$ENDIF}
-  FSendMessageFunc: TLccSendMessageFunc;
+  FSendMessageFunc: TOnMessageEvent;
 protected
   {$IFDEF DELPHI}
   property Queue: TObjectList<TLccMessage> read FQueue write FQueue;
@@ -66,9 +66,9 @@ protected
 
   function FindBySourceNode(LccMessage: TLccMessage): Integer;
 public
-  property SendMessageFunc: TLccSendMessageFunc read FSendMessageFunc;
+  property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
 
-  constructor Create(ASendMessageFunc: TLccSendMessageFunc);
+  constructor Create(ASendMessageFunc: TOnMessageEvent);
   destructor Destroy; override;
   function Add(LccMessage: TLccMessage): Boolean;
   procedure Clear;
@@ -103,7 +103,7 @@ begin
   LccMessage.AbandonTimeout := 0;
 end;
 
-constructor TDatagramQueue.Create(ASendMessageFunc: TLccSendMessageFunc);
+constructor TDatagramQueue.Create(ASendMessageFunc: TOnMessageEvent);
 begin
   inherited Create;
   FSendMessageFunc := ASendMessageFunc;
@@ -180,7 +180,7 @@ begin
     if LocalMessage.RetryAttempts < 5 then
     begin
       LocalMessage := Queue[iLocalMessage] as TLccMessage;
-      SendMessageFunc(LocalMessage);
+      SendMessageFunc(Self, LocalMessage);
       LocalMessage.RetryAttempts := LocalMessage.RetryAttempts + 1;
     end else
       {$IFDEF DWSCRIPT}

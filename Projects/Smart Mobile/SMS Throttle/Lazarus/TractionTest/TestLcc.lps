@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="22">
+    <Units Count="21">
       <Unit0>
         <Filename Value="TestLcc.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -29,150 +29,143 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="674"/>
         <CursorPos X="26" Y="690"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="28"/>
       </Unit2>
       <Unit3>
         <Filename Value="../Target-Common/lcc_node_messages.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="140"/>
         <CursorPos X="19" Y="155"/>
-        <UsageCount Value="51"/>
+        <UsageCount Value="48"/>
       </Unit3>
       <Unit4>
-        <Filename Value="../Target-Common/lcc_defines.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="395"/>
-        <CursorPos X="18" Y="411"/>
-        <UsageCount Value="1"/>
-      </Unit4>
-      <Unit5>
         <Filename Value="../Target-Common/lcc_protocol_simplenodeinfo.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="10" Y="152"/>
-        <UsageCount Value="33"/>
-      </Unit5>
-      <Unit6>
+        <UsageCount Value="30"/>
+      </Unit4>
+      <Unit5>
         <Filename Value="../Target-Common/lcc_protocol_memory_configuration.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="9" Y="10"/>
-        <UsageCount Value="39"/>
-      </Unit6>
-      <Unit7>
+        <UsageCount Value="36"/>
+      </Unit5>
+      <Unit6>
         <Filename Value="../Target-Common/lcc_protocol_acdi.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="9" Y="6"/>
-        <UsageCount Value="14"/>
-      </Unit7>
-      <Unit8>
+        <UsageCount Value="11"/>
+      </Unit6>
+      <Unit7>
         <Filename Value="../Target-Common/lcc_protocol_base.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="90"/>
         <CursorPos X="41" Y="95"/>
-        <UsageCount Value="44"/>
-      </Unit8>
-      <Unit9>
+        <UsageCount Value="41"/>
+      </Unit7>
+      <Unit8>
         <Filename Value="../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="33"/>
         <CursorPos X="42" Y="42"/>
-        <UsageCount Value="35"/>
-      </Unit9>
-      <Unit10>
+        <UsageCount Value="32"/>
+      </Unit8>
+      <Unit9>
         <Filename Value="../Target-Common/lcc_node_manager.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="519"/>
         <CursorPos Y="534"/>
-        <UsageCount Value="28"/>
-      </Unit10>
-      <Unit11>
+        <UsageCount Value="25"/>
+      </Unit9>
+      <Unit10>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
         <EditorIndex Value="11"/>
         <TopLine Value="579"/>
         <CursorPos X="29" Y="587"/>
         <UsageCount Value="353"/>
         <Loaded Value="True"/>
-      </Unit11>
-      <Unit12>
+      </Unit10>
+      <Unit11>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
         <EditorIndex Value="9"/>
         <TopLine Value="765"/>
         <CursorPos X="72" Y="777"/>
         <UsageCount Value="352"/>
         <Loaded Value="True"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="../../Target-Common/lcc_defines.pas"/>
         <EditorIndex Value="8"/>
         <TopLine Value="416"/>
         <CursorPos X="22" Y="431"/>
         <UsageCount Value="326"/>
         <Loaded Value="True"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
         <EditorIndex Value="7"/>
-        <TopLine Value="80"/>
+        <TopLine Value="79"/>
         <CursorPos X="14" Y="224"/>
         <UsageCount Value="279"/>
         <Loaded Value="True"/>
-      </Unit14>
-      <Unit15>
+      </Unit13>
+      <Unit14>
         <Filename Value="/Developer/lazarus/lcl/include/control.inc"/>
         <EditorIndex Value="5"/>
         <TopLine Value="3557"/>
         <CursorPos Y="3568"/>
         <UsageCount Value="276"/>
         <Loaded Value="True"/>
-      </Unit15>
-      <Unit16>
+      </Unit14>
+      <Unit15>
         <Filename Value="/Developer/lazarus/lcl/include/graphiccontrol.inc"/>
         <EditorIndex Value="6"/>
         <CursorPos Y="22"/>
         <UsageCount Value="276"/>
         <Loaded Value="True"/>
-      </Unit16>
-      <Unit17>
+      </Unit15>
+      <Unit16>
         <Filename Value="../../Target-Common/lcc_utilities.pas"/>
         <EditorIndex Value="4"/>
         <TopLine Value="721"/>
         <CursorPos X="74" Y="833"/>
         <UsageCount Value="275"/>
         <Loaded Value="True"/>
-      </Unit17>
-      <Unit18>
+      </Unit16>
+      <Unit17>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
         <EditorIndex Value="10"/>
         <TopLine Value="862"/>
         <CursorPos X="72" Y="875"/>
         <UsageCount Value="275"/>
         <Loaded Value="True"/>
-      </Unit18>
-      <Unit19>
+      </Unit17>
+      <Unit18>
         <Filename Value="../../Target-Common/lcc_protocol_memory_configurationdefinitioninfo.pas"/>
         <EditorIndex Value="3"/>
         <TopLine Value="23"/>
         <CursorPos Y="32"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../Target-Common/lcc_node.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="847"/>
+        <CursorPos X="55" Y="861"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="../../Target-Common/lcc_node.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="848"/>
-        <CursorPos X="55" Y="861"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-      </Unit20>
-      <Unit21>
         <Filename Value="../../Target-Common/lcc_node_commandstation.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="416"/>
-        <CursorPos X="7" Y="424"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="392"/>
+        <CursorPos X="4" Y="395"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
-      </Unit21>
+      </Unit20>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>

@@ -141,7 +141,7 @@ type
     property Train[Index: Integer]: TLccTrainCanNode read GetTrain write SetTrain;
 
     destructor Destroy; override;
-    function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
+    function AddTrainAndLogItIn(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
     procedure ClearTrains;
     function FindTrainByLccID(TestNode: TLccMessage): TLccTrainCanNode;
     function FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainCanNode;
@@ -211,7 +211,8 @@ begin
   Result := nil;
   for i := 0 to Patients.Count - 1 do
   begin
-    if EqualNode(NodeID, AliasID, LccWaitingPatients[i].NodeWaitingToInitialize.NodeID, LccWaitingPatients[i].NodeWaitingToInitialize.AliasID) then
+    // The Alias will have changed so only look at what matters, the NodeID
+    if EqualNodeID(NodeID, LccWaitingPatients[i].NodeWaitingToInitialize.NodeID, True) then
     begin
       Result := LccWaitingPatients[i];
       Break
@@ -234,6 +235,7 @@ begin
      if (Patients[i] as TLccWaitingPatient).NodeWaitingToInitialize = PatientNode then
      begin
        Patient := Patients[i] as TLccWaitingPatient;
+       Patients.Delete(i);
        Patient.Free;
      end;
   end;
@@ -249,12 +251,21 @@ end;
 
 { TLccCommandStationNode }
 
-function TLccCommandStationNode.AddTrain(ARoadName, ARoadNumber: string;
-  ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
+function TLccCommandStationNode.AddTrainAndLogItIn(ARoadName,
+  ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean;
+  ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
 begin
   Result := TLccTrainCanNode.Create(SendMessageFunc, NodeManager, '');
   if Assigned(Result) then
+  begin
+    Result.Name := ARoadName;
+    Result.RoadNumber := ARoadNumber;
+    Result.DccAddress := ADccAddress;
+    Result.DccLongAddress := ALongAddress;
+    Result.SpeedStep := ASpeedStep;
+    Trains.Add(Result);
     Result.Login(NULL_NODE_ID);
+  end;
 end;
 
 procedure TLccCommandStationNode.BeforeLogin;
@@ -402,7 +413,7 @@ begin
           begin
             AnEvent := APatient.FWaitingEvent;
             WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, AnEvent, evs_Valid);
-            SendMessageFunc(WorkerMessage);
+            SendMessageFunc(Self, WorkerMessage);
             WaitingRoom.ReleasePatient(APatient.NodeWaitingToInitialize);
           end
         end;
@@ -436,7 +447,7 @@ begin
 
               if (ATrain = nil) and SourceLccMessage.TractionSearchIsForceAllocate then
               begin
-                ATrain := AddTrain('New ATrain', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
+                ATrain := AddTrainAndLogItIn('New ATrain', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
                 AnEvent := SourceLccMessage.ExtractDataBytesAsEventID(0);
                 APatient := WaitingRoom.AddPatient(ATrain, AnEvent);
                 APatient.NodeWaitingToInitialize := ATrain;
@@ -445,7 +456,7 @@ begin
               begin  // Send back the existing node
                 AnEvent := SourceLccMessage.ExtractDataBytesAsEventID(0);
                 WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, AnEvent, evs_Valid);
-                SendMessageFunc(WorkerMessage);
+                SendMessageFunc(Self, WorkerMessage);
               end;
             end
           end
