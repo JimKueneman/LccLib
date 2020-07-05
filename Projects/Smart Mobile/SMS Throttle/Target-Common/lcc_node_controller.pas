@@ -42,7 +42,9 @@ uses
   lcc_defines,
   lcc_node_messages,
   lcc_math_float16,
-  lcc_node;
+  lcc_node,
+  lcc_node_tasks,
+  lcc_utilities;
 
 const
   CDI_XML_CONTROLLER: string = (
@@ -71,14 +73,43 @@ const
          '</segment>'+
   '</cdi>');
 
-type
 
+type
+  TTaskProcedure = function(Node: TLccNode; SourceMessage: TLccMessage): Word;
   TTrainControllerAssignResults = (afrOk, afrAssignedControllerRefused, afrTrainRefused);
-
-type
   TLccTrainControllerState = (tcsNone, tcsSearching, tcsAssigning, tcsAssigned, tcsReleasing);
 
 type
+
+
+{ TTaskControllerManageReserve }
+
+  TTaskControllerManageReserve = class(TNodeTaskBase)
+  private
+    FIsReserved: Boolean;
+  public
+    property IsReserved: Boolean read FIsReserved;
+
+    procedure ProcessMessage(SourceMessage: TLccMessage); override;
+    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); override;
+  end;
+
+  { TTaskControllerTrainSearch }
+
+  TTaskControllerTrainSearch = class(TNodeTaskBase)
+  private
+    FSearchData: DWORD;
+    FSearchString: string;
+    FTrackProtocolFlags: Word;
+  public
+    property TrackProtocolFlags: Word read FTrackProtocolFlags write FTrackProtocolFlags;
+    property SearchString: string read FSearchString write FSearchString;
+    property SearchData: DWORD read FSearchData write FSearchData;
+
+    procedure ProcessMessage(SourceMessage: TLccMessage); override;
+    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); override;
+  end;
+
   { TLccTrainController }
 
   TLccTrainController = class(TLccCanNode)
@@ -90,7 +121,7 @@ type
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
     procedure ClearSearch;
-    procedure ReleaseTrain;
+  //  procedure ReleaseTrain;
   public
     property State: TLccTrainControllerState read FState;
     property AssignedTrainNodeId: TNodeID read FAssignedTrainNodeId write FAssignedTrainNodeId;
@@ -109,6 +140,75 @@ type
 
 implementation
 
+{ TTaskControllerManageReserve }
+
+procedure TTaskControllerManageReserve.ProcessMessage(SourceMessage: TLccMessage);
+begin
+  case SourceMessage.MTI of
+     MTI_TRACTION_REPLY :
+       begin
+         case SourceMessage.DataArray[1] of
+            TRACTION_CONTROLLER_CONFIG_ASSIGN :
+              begin
+                FIsReserved := SourceMessage.DataArray[2] = S_OK;
+                FState := ltsComplete;
+              end;
+         end;
+       end;
+  end;
+end;
+
+procedure TTaskControllerManageReserve.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+begin
+  inherited Start(ANode, ATargetNode);
+  WorkerMessage.LoadTractionManage(OwnerNode.NodeID, OwnerNode.AliasID, TargetNode.NodeID, TargetNode.AliasID, True);
+  SendMessage(WorkerMessage);
+  // Wait for the reply for the reservation
+end;
+
+{ TTaskControllerTrainSearch }
+
+procedure TTaskControllerTrainSearch.ProcessMessage(SourceMessage: TLccMessage);
+begin
+  case SourceMessage.MTI of
+    MTI_VERIFIED_NODE_ID_NUMBER :
+      begin
+        if TargetNode.AliasID = SourceMessage.CAN.SourceAlias then
+        begin
+          SourceMessage.ExtractDataBytesAsNodeID(0, FTargetNode.NodeID);
+          FState := ltsComplete;
+        end;
+      end;
+    MTI_PRODUCER_IDENTIFIED_CLEAR,
+    MTI_PRODUCER_IDENTIFIED_SET,
+    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+      begin
+        // Note many results potentailly be returned this only grabs the first one
+        // TODO:  Make this stay watching and queue up the results before call it complete
+        if (State = ltsRunning) and SourceMessage.TractionSearchIsEvent and (SourceMessage.TractionSearchExtractSearchData = SearchData) then
+        begin
+          if EqualNodeID( SourceMessage.SourceID, NULL_NODE_ID, True) then
+          begin
+            FTargetNode.AliasID := SourceMessage.CAN.SourceAlias;
+            WorkerMessage.LoadVerifyNodeIDAddressed(OwnerNode.NodeID, OwnerNode.AliasID, NULL_NODE_ID, SourceMessage.CAN.SourceAlias);
+            SendMessage(WorkerMessage);
+          end;
+          FState := ltsComplete;
+        end;
+      end;
+  end;
+end;
+
+procedure TTaskControllerTrainSearch.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+begin
+  inherited Start(ANode, ATargetNode);
+  SearchData := 0;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FSearchData);
+  WorkerMessage.LoadTractionSearch(OwnerNode.NodeID, OwnerNode.AliasID, FSearchData);
+  SendMessage(WorkerMessage);
+  // Now wait for the Event Identified Messages
+end;
+
 { TLccTrainController }
 
 procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string;
@@ -116,7 +216,7 @@ procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string;
 var
   SearchData: DWord;
 begin
-  if tcsAssigned in State then
+ { if tcsAssigned in State then
     R;
   if not SearchInitiated then
   begin
@@ -131,7 +231,7 @@ begin
     WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
     WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
     SendMessageFunc(Self, WorkerMessage);
-  end;
+  end;    }
 end;
 
 procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word;
@@ -140,7 +240,7 @@ var
   TrackProtocolFlags: Word;
   SearchData: DWord;
 begin
-  if not SearchInitiated then
+ { if not SearchInitiated then
   begin;
     if AssignedToTrain then
       ReleaseTrain;
@@ -168,7 +268,7 @@ begin
     WorkerMessage.TractionSearchEncodeSearchString(IntToStr(DccAddress), TrackProtocolFlags, SearchData);
     WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
     SendMessageFunc(Self, WorkerMessage);
-  end;
+  end;    }
 end;
 
 procedure TLccTrainController.AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
@@ -176,7 +276,7 @@ var
   TrackProtocolFlags: Word;
   SearchData: DWord;
 begin
-  if not SearchInitiated then
+ { if not SearchInitiated then
   begin
     if AssignedToTrain then
       ReleaseTrain;
@@ -204,7 +304,7 @@ begin
     WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
     WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
     SendMessageFunc(Self, WorkerMessage);
-  end;
+  end;                          }
 end;
 
 procedure TLccTrainController.BeforeLogin;
@@ -245,19 +345,12 @@ end;
 
 procedure TLccTrainController.ClearSearch;
 begin
-  FSearchInitiated := False;
+{  FSearchInitiated := False;
   FAssignedToTrain := False;
   AssignedTrainNodeId := NULL_NODE_ID;
-  AssignedTrainAliasID := 0;
+  AssignedTrainAliasID := 0;     }
 end;
 
-procedure TLccTrainController.ReleaseTrain;
-begin
-  ReleaseTrain := True;
-  WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, True);
-  SendMessageFunc(Self, WorkerMessage);
-  // Now wait for Release Reply
-end;
 
 function TLccTrainController.GetCdiFile: string;
 begin
@@ -272,7 +365,7 @@ begin
     MTI_PRODUCER_IDENTIFIED_SET,
     MTI_PRODUCER_IDENTIFIED_UNKNOWN :  // Result of the Traction Search
       begin
-        if SearchInitiated and SourceLccMessage.TractionSearchIsEvent then
+  //      if SearchInitiated and SourceLccMessage.TractionSearchIsEvent then
         begin
           AssignedTrainNodeId := SourceLccMessage.SourceID;
           AssignedTrainAliasID := SourceLccMessage.CAN.SourceAlias;
@@ -289,7 +382,7 @@ begin
               case SourceLccMessage.DataArray[1] of
                 TRACTION_MANAGE_RESERVE_REPLY_OK :
                   begin
-                    if Ass;
+     //               if Ass;
                     WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, NodeID, AliasID);
                     SendMessageFunc(Self, WorkerMessage);
                   end;
@@ -306,7 +399,7 @@ begin
                           // Send a Reserve Release
                           WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, False);
                           SendMessageFunc(Self, WorkerMessage);
-                          FAssignedToTrain := True;
+             //             FAssignedToTrain := True;
                         end;
                       TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
                         begin

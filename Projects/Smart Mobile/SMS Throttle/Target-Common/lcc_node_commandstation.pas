@@ -43,7 +43,8 @@ uses
   lcc_node_messages,
   lcc_node,
   lcc_node_train,
-  lcc_utilities;
+  lcc_utilities,
+  lcc_tasks;
 
 const
   CDI_XML_COMMANDSTATION: string = (
@@ -73,6 +74,23 @@ const
   '</cdi>');
 
 type
+
+  { TTaskCommandStationTrainSearch }
+
+  TTaskCommandStationTrainSearch = class(TNodeTaskBase)
+  private
+    FNewTrainNode: TNodeIdentifier;
+    FSearchString: string;
+    FTrackProtocolFlags: Word;
+  public
+    property TrackProtocolFlags: Word read FTrackProtocolFlags write FTrackProtocolFlags;
+    property SearchString: string read FSearchString write FSearchString;
+    property NewTrainNode: TNodeIdentifier read FNewTrainNode;
+
+    procedure ProcessMessage(SourceMessage: TLccMessage); override;
+    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); override;
+  end;
+
 
   { TLccWaitingPatient }
 
@@ -132,6 +150,9 @@ type
     procedure Creating; override;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
+
+    // ITrainManagement
+    function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep; AutoLogIn: Boolean): TLccTrainCanNode;
   public
     {$IFDEF DELPHI}
     property Trains: TObjectList<TLccCanNode> read FTrains write FTrains;
@@ -152,6 +173,91 @@ type
 
 
 implementation
+
+{ TTaskCommandStationTrainSearch }
+
+procedure TTaskCommandStationTrainSearch.ProcessMessage(SourceMessage: TLccMessage);
+var
+  NMRA_SpeedStep: TLccDccSpeedStep;
+  NMRA_ForceLongAddress: Boolean;
+  SearchStr: string;
+  {$IFDEF DWSCRIPT}
+  SearchDccAddress: Integer;
+  {$ELSE}
+  SearchDccAddress: LongInt;
+  {$ENDIF}
+  ForceLongAddress: Boolean;
+  SpeedStep: TLccDccSpeedStep;
+  AnEvent: TEventID;
+ // ATrain: TLccTrainCanNode;
+//  APatient: TLccWaitingPatient;
+begin
+  case SourceMessage.MTI of
+    MTI_INITIALIZATION_COMPLETE :
+      begin  // Need to wait for new trains to fully initalize before returning from the Traction Search Event........
+  //      APatient := WaitingRoom.FindPatient(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+   //     if Assigned(APatient) then
+        begin
+    //      ATrain := FindTrainByLccID(SourceMessage);
+  //        if APatient.NodeWaitingToInitialize = ATrain then
+          begin
+  //          AnEvent := APatient.FWaitingEvent;
+   //         WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, AnEvent, evs_Valid);
+   //         SendMessageFunc(Self, WorkerMessage);
+  //          WaitingRoom.ReleasePatient(APatient.NodeWaitingToInitialize);
+          end
+        end;
+      end;
+    MTI_PRODUCER_IDENDIFY :
+      begin
+        if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
+        begin
+          NMRA_ForceLongAddress := False;
+          NMRA_SpeedStep := ldssDefault;
+
+          SearchStr := SourceMessage.TractionSearchDecodeSearchString;
+
+          if TryStrToInt(SearchStr, SearchDccAddress) then                       // Gaurd against an empty string
+          begin
+            SearchDccAddress := StrToInt(SearchStr);
+            ForceLongAddress := False;                          // Setup up what we call defaults
+            SpeedStep := ldss14;                                // Setup up what we call defaults
+
+            if SourceMessage.TractionSearchIsProtocolAny then
+            begin
+
+            end else
+            if SourceMessage.TractionSearchIsProtocolDCC(NMRA_ForceLongAddress, NMRA_SpeedStep) then
+            begin
+              // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
+              SourceMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
+
+              // Look for an existing Train
+   //           ATrain := FindTrainByDccAddress(SearchDccAddress, ForceLongAddress);
+
+       //       if (ATrain = nil) and SourceMessage.TractionSearchIsForceAllocate then
+      //        begin
+      //          ATrain := AddTrainAndLogItIn('New ATrain', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
+                AnEvent := SourceMessage.ExtractDataBytesAsEventID(0);
+      //          APatient := WaitingRoom.AddPatient(ATrain, AnEvent);
+      //          APatient.NodeWaitingToInitialize := ATrain;
+      //          APatient.FWaitingEvent := SourceMessage.ExtractDataBytesAsEventID(0);
+              end else
+              begin  // Send back the existing node
+                AnEvent := SourceMessage.ExtractDataBytesAsEventID(0);
+    //            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, AnEvent, evs_Valid);
+     //           SendMessageFunc(Self, WorkerMessage);
+              end;
+            end
+          end
+      end;
+  end;
+end;
+
+procedure TTaskCommandStationTrainSearch.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+begin
+  inherited Start(ANode, ATargetNode);
+end;
 
 { TLccWaitingRoom }
 
@@ -250,6 +356,13 @@ begin
 end;
 
 { TLccCommandStationNode }
+
+function TLccCommandStationNode.AddTrain(ARoadName, ARoadNumber: string;
+  ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep;
+  AutoLogIn: Boolean): TLccTrainCanNode;
+begin
+
+end;
 
 function TLccCommandStationNode.AddTrainAndLogItIn(ARoadName,
   ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean;

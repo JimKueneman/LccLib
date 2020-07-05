@@ -90,6 +90,31 @@ const
 
 type
 
+    TLccTaskState = (ltsIdle, ltsRunning, ltsComplete);
+
+    TLccCanNode = class;
+
+  { TNodeTaskBase }
+
+  TNodeTaskBase = class(TObject)
+  protected
+    FOwnerNode: TLccCanNode;
+    FTargetNode: TNodeIdentifier;
+    FState: TLccTaskState;
+    FWorkerMessage: TLccMessage;
+  public
+    property OwnerNode: TLccCanNode read FOwnerNode;
+    property TargetNode: TNodeIdentifier read FTargetNode;
+    property State: TLccTaskState read FState;
+    property WorkerMessage: TLccMessage read FWorkerMessage;
+
+    constructor Create;
+    destructor Destroy; override;
+    procedure ProcessMessage(SourceMessage: TLccMessage); virtual; abstract;
+    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); virtual;
+    procedure SendMessage(AMessage: TLccMessage);
+  end;
+
   { TLccNode }
 
   TLccNode = class(TObject)
@@ -138,7 +163,6 @@ type
     FNodeID: TNodeID;
 
     property NodeManager:{$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF} read FNodeManager write FNodeManager;
-    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
     property StreamCdi: TMemoryStream read FStreamCdi write FStreamCdi;
     property StreamConfig: TMemoryStream read FStreamConfig write FStreamConfig;
     property StreamManufacturerData: TMemoryStream read FStreamManufacturerData write FStreamManufacturerData;
@@ -166,6 +190,7 @@ type
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
     property Initialized: Boolean read FInitialized;
+    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
 
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
     property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
@@ -262,6 +287,34 @@ implementation
 
 uses
   lcc_node_manager;
+
+{ TNodeTaskBase }
+
+constructor TNodeTaskBase.Create;
+begin
+  inherited Create;
+  FWorkerMessage := TLccMessage.Create;
+end;
+
+destructor TNodeTaskBase.Destroy;
+begin
+  FreeAndNil(FWorkerMessage);
+  inherited Destroy;
+end;
+
+procedure TNodeTaskBase.SendMessage(AMessage: TLccMessage);
+begin
+  if Assigned(FOwnerNode) then
+    OwnerNode.SendMessageFunc(OwnerNode, AMessage);
+end;
+
+procedure TNodeTaskBase.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+begin
+  FOwnerNode := ANode;
+  FTargetNode := ATargetNode;
+  FState := ltsRunning;
+end;
+
 
 { TLccCanNode }
 

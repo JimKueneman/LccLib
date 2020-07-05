@@ -166,6 +166,7 @@ public
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
   function TractionSearchDecodeSearchString: string;
   procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; SearchData: DWORD);
+  function TractionSearchExtractSearchData: DWORD;
   function TractionSearchIsEvent: Boolean;
   function TractionSearchIsForceAllocate: Boolean;
   function TractionSearchIsExactMatchOnly: Boolean;
@@ -1100,6 +1101,11 @@ begin
 
    // Above the shl 4 was done on the last byte so it is shifted over ready for the Track Protocol Flags
   SearchData := SearchData or DWORD( TrackProtocolFlags);
+end;
+
+function TLccMessage.TractionSearchExtractSearchData: DWORD;
+begin
+  Result := ExtractDataBytesAsInt(4, 7);
 end;
 
 function TLccMessage.TractionSearchIsAddressMatchOnly: Boolean;
