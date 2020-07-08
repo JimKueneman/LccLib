@@ -10,12 +10,12 @@
       <tab filename="LccNode" fullname="LccNode.pas" topline="10" col="1" row="1" />
       <tab filename="Storage" fullname="Storage.pas" topline="1" col="1" row="1" />
       <tab filename="Unit1" fullname="Unit1.pas" topline="1" col="1" row="1" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="148" col="35" row="170" />
-      <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="32" row="14" />
-      <tab filename="lcc_node_manager" fullname="..\..\Target-Common\lcc_node_manager.pas" topline="16" col="27" row="42" />
-      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="252" col="59" row="268" />
-      <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="407" col="61" row="433" />
-      <activetab>lcc_node</activetab>
+      <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="61" row="14" />
+      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="109" col="67" row="132" />
+      <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="233" col="95" row="255" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="330" col="34" row="358" />
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="306" col="40" row="310" />
+      <activetab>lcc_node_controller</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -24,10 +24,10 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5907</BackgroundCompilations>
-      <EditTime>T03:57:03.342</EditTime>
-      <CompileTime>T00:06:06.285</CompileTime>
-      <TotalTime>1900-01-24T02:43:08.377</TotalTime>
+      <BackgroundCompilations>5910</BackgroundCompilations>
+      <EditTime>T04:01:28.206</EditTime>
+      <CompileTime>T00:06:30.936</CompileTime>
+      <TotalTime>1900-01-24T02:45:41.985</TotalTime>
       <DesigningTime>T10:48:07.911</DesigningTime>
       <RunningTime>1900-01-03T13:39:59.293</RunningTime>
       <TotalLinesOfCode>615</TotalLinesOfCode>

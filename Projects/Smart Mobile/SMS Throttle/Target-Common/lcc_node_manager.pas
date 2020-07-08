@@ -536,7 +536,11 @@ begin
   if Index < Nodes.Count then
   begin
     Result := Nodes[Index] as TLccNode;
+    {$IFDEF DWSCRIPT}
+    Nodes.Remove(Index);
+    {$ELSE}
     Nodes.Delete(Index);
+    {$ENDIF}
   end;
 end;
 

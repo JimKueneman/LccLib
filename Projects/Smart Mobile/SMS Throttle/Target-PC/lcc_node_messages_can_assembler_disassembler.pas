@@ -1,5 +1,9 @@
 unit lcc_node_messages_can_assembler_disassembler;
 
+{$IFNDEF DWSCRIPT}
+  {$I lcc_compilers.inc}
+{$ENDIF}
+
 interface
 
 uses
@@ -20,6 +24,11 @@ uses
   Classes,
   SysUtils,
   contnrs,
+{$ENDIF}
+{$IFDEF LCC_WINDOWS}
+  {$IFNDEF FPC}
+  System.Types,
+  {$ENDIF}
 {$ENDIF}
   lcc_node_messages,
   lcc_defines;

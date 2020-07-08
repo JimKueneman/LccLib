@@ -334,11 +334,6 @@ procedure TLccEthernetListener.Execute;
 
 var
   NewLink: TLccEthernetServerThread;
-  {$IFDEF LCC_WINDOWS}
-  LocalName: String;
-  IpStrings: TStringList;
-  i: Integer;
-  {$ENDIF}
 begin
   FRunning := True;
 

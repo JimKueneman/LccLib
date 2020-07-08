@@ -1,5 +1,9 @@
 unit lcc_math_float16;
 
+{$IFNDEF DWSCRIPT}
+  {$I lcc_compilers.inc}
+{$ENDIF}
+
 
 interface
 

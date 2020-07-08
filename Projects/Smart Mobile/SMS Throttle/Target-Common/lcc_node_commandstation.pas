@@ -196,6 +196,7 @@ var
   SpeedStep: TLccDccSpeedStep;
   ATrain: TLccTrainCanNode;
   ANodeID: TNodeID;
+  LocalEvent: TEventID;
 begin
   case SourceMessage.MTI of
     MTI_INITIALIZATION_COMPLETE :
@@ -206,7 +207,8 @@ begin
           ATrain := (OwnerNode as TLccCommandStationNode).FindTrainByLccID(SourceMessage);
           if Assigned(ATrain) then
           begin
-            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, FEvent, evs_Valid);
+            LocalEvent := FEvent;
+            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, LocalEvent, evs_Valid);
             SendMessage(WorkerMessage);
             FState := ltsComplete;
           end
@@ -249,7 +251,8 @@ begin
               end else
               begin  // Send back the existing node
                 FEvent := SourceMessage.ExtractDataBytesAsEventID(0);
-                WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, FEvent, evs_Valid);
+                LocalEvent := FEvent;
+                WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, LocalEvent, evs_Valid);
                 OwnerNode.SendMessageFunc(ATrain, WorkerMessage);      // Need to send the train for this one
                 FState := ltsComplete;
               end;

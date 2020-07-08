@@ -82,6 +82,8 @@ type
   TAttachedTrainAssignmentState = (tasNotAssigned, tasAssigning, tasAssigned, tasUnAssigning);
   TAttachedTrainSearchState = (tssNotSearching, tssSearching);
 
+  // WARNING: For SMS these are zeroed manually in the Clear method.   If you add
+  // more data, make sure it is cleared in the method for SMS
   TAttachedTrain = record
     NodeID: TNodeID;
     AliasID: Word;
@@ -124,13 +126,15 @@ implementation
 { TLccTrainController }
 
 procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
-//var
- // NewTask: TLccTaskControllerTrainSearch;
+var
+  SearchData: DWORD;
 begin
   ClearAssignedTrain;
   FAssignedTrain.SearchData := 0;
   FAssignedTrain.SearchState := tssSearching;
-  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FAssignedTrain.SearchData);
+  SearchData := 0;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
+  FAssignedTrain.SearchData := SearchData;
   WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.SearchData);
   SendMessageFunc(Self, WorkerMessage);
 
@@ -270,6 +274,7 @@ end;
 procedure TLccTrainController.AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
 var
   TrackProtocolFlags: Word;
+  LocalSearchData: DWORD;
 begin
 
   TrackProtocolFlags := TRACTION_SEARCH_TARGET_ANY_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_ALL_MATCH or
@@ -290,7 +295,9 @@ begin
   ClearAssignedTrain;
   FAssignedTrain.SearchData := 0;
   FAssignedTrain.SearchState := tssSearching;
-  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FAssignedTrain.SearchData);
+  LocalSearchData := 0;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, LocalSearchData);
+  FAssignedTrain.SearchData := LocalSearchData;
   WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.SearchData);
   SendMessageFunc(Self, WorkerMessage);
 
@@ -334,10 +341,24 @@ begin
 end;
 
 procedure TLccTrainController.ClearAssignedTrain;
+var
+  i: Integer;
 begin
   FAssignedTrain.SearchString := '';
   FAssignedTrain.Listeners := nil;
+  {$IFNDEF DWSCRIPT}
   FillChar(FAssignedTrain, Sizeof(AssignedTrain), 0);
+  {$ELSE}
+  //   TODO Need to do this manually in SMS
+  FAssignedTrain.NodeID := NULL_NODE_ID;
+  FAssignedTrain.AliasID := 0;
+  FAssignedTrain.SearchData := 0;
+  FAssignedTrain.SearchString := '';
+  FAssignedTrain.ReservedState := trsNotReserved;
+  FAssignedTrain.AttachedState := tasNotAssigned;
+  FAssignedTrain.SearchState := tssNotSearching;
+  FAssignedTrain.Listeners := nil;
+  {$ENDIF}
 end;
 
 function TLccTrainController.GetCdiFile: string;
