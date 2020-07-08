@@ -45,6 +45,18 @@ uses
   lcc_node_messages;
 
 type
+  INodeManager = interface
+    ['{0FE72011-CBDB-9EDC-0C36-C5031A63F27F}']
+    procedure Clear;
+    function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode;
+    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode;
+    procedure LogoutAll;
+    function GetNode(Index: Integer): TLccNode;
+    function GetNodeCount: Integer;
+    function ExtractNode(Index: Integer): TLccNode;
+  end;
+
+
   INodeManagerCallbacks = interface
     ['{C6920bCA-08BC-4D45-B27C-174640FA3106}']
     procedure DoAliasIDChanged(LccNode: TLccNode);               //*
@@ -94,7 +106,7 @@ type
 
   { TLccNodeManager }
 
-  TLccNodeManager = class(TComponent, INodeManagerCallbacks)
+  TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
@@ -190,6 +202,8 @@ type
     procedure Clear;
     function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode; virtual;
     function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
+    function GetNodeCount: Integer;
+    function ExtractNode(Index: Integer): TLccNode;
 
     procedure LogoutAll;
 
@@ -516,6 +530,16 @@ begin
     OnLccNodeVerifiedNodeID(Self, LccNode);
 end;
 
+function TLccNodeManager.ExtractNode(Index: Integer): TLccNode;
+begin
+  Result := nil;
+  if Index < Nodes.Count then
+  begin
+    Result := Nodes[Index] as TLccNode;
+    Nodes.Delete(Index);
+  end;
+end;
+
 constructor TLccNodeManager.Create(AnOwner: TComponent);
 begin
   {$IFDEF DWSCRIPT}
@@ -618,6 +642,11 @@ begin
     Result := nil;
 end;
 
+function TLccNodeManager.GetNodeCount: Integer;
+begin
+  Result := Nodes.Count;
+end;
+
 procedure TLccNodeManager.LogoutAll;
 var
   i: Integer;
@@ -649,7 +678,12 @@ begin
   begin
     for i := 0 to Nodes.Count - 1 do
     begin
-      if Node[i] <> Sender then
+
+      Assert(not NullNodeID( (Node[i] as TLccNode).NodeID ));
+      Assert(not NullNodeID( LccMessage.SourceID ));
+
+      if not EqualNodeID(Node[i].NodeID, LccMessage.SourceID, True) then
+   //   if Node[i] <> Sender then
         Node[i].ProcessMessage(LccMessage);
     end;
   end;

@@ -39,6 +39,7 @@ uses
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
+  lcc_utilities,
   lcc_defines,
   lcc_node_messages,
   lcc_math_float16,
@@ -125,8 +126,10 @@ type
 
     function ControllerAssigned: Boolean;
     function ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
+    function IsReservedBy(SourceMessage: TLccMessage): Boolean;
+    function IsReserved: Boolean;
     function ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
-    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+    function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
   end;
 
   TLccTrainCanNodeClass = class of TLccTrainCanNode;
@@ -174,7 +177,7 @@ end;
 
 function TLccTrainCanNode.ControllerAssigned: Boolean;
 begin
-  Result := ((AssignedControllerNodeID[0] = 0) and (AssignedControllerNodeID[1] = 0) and (AssignedControllerAliasID = 0))
+  Result := ((AssignedControllerNodeID[0] <> 0) and (AssignedControllerNodeID[1] <> 0) or (AssignedControllerAliasID <> 0))
 end;
 
 function TLccTrainCanNode.ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
@@ -187,6 +190,16 @@ begin
   Result := CDI_XML_TRAIN_NODE
 end;
 
+function TLccTrainCanNode.IsReserved: Boolean;
+begin
+  Result := (ReservationNodeID[0] <> 0) or (ReservationNodeID[1] <> 0) or (ReservationAliasID <> 0);
+end;
+
+function TLccTrainCanNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
+begin
+  Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ReservationNodeID, ReservationAliasID);
+end;
+
 procedure TLccTrainCanNode.OnReserveWatchDogTimer(Sender: TObject);
 begin
   ReserveWatchDogTimer.Enabled := False;
@@ -194,24 +207,24 @@ begin
   ReservationNodeID := NULL_NODE_ID;
 end;
 
-function TLccTrainCanNode.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
+function TLccTrainCanNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   FunctionAddress: LongWord;
 begin
-  Result := inherited ProcessMessage(SourceLccMessage);
-  case SourceLccMessage.MTI of
+  Result := inherited ProcessMessage(SourceMessage);
+  case SourceMessage.MTI of
     MTI_TRACTION_REQUEST :
       begin
-        case SourceLccMessage.DataArray[0] of
+        case SourceMessage.DataArray[0] of
           TRACTION_SPEED_DIR :
             begin
-              Speed := SourceLccMessage.TractionExtractSpeed;
+              Speed := SourceMessage.TractionExtractSpeed;
             end;
           TRACTION_FUNCTION :
             begin
-              FunctionAddress := SourceLccMessage.TractionExtractFunctionAddress;
+              FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
               if FunctionAddress < Length(FFunctions) - 1 then
-                FFunctions[FunctionAddress] := SourceLccMessage.TractionExtractFunctionValue;
+                FFunctions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
             end;
           TRACTION_E_STOP :
             begin
@@ -219,106 +232,104 @@ begin
             end;
           TRACTION_QUERY_SPEED :
             begin
-               WorkerMessage.LoadTractionQuerySpeedReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, Speed, 0, Speed, Speed);
+               WorkerMessage.LoadTractionQuerySpeedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Speed, 0, Speed, Speed);
                SendMessageFunc(Self, WorkerMessage);
             end;
           TRACTION_QUERY_FUNCTION :
             begin
-              FunctionAddress := SourceLccMessage.TractionExtractFunctionAddress;
+              FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
               if FunctionAddress < Length(FFunctions) - 1 then
-                WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, FunctionAddress, Functions[FunctionAddress])
+                WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, FunctionAddress, Functions[FunctionAddress])
               else
-                WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, FunctionAddress, 0);
+                WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, FunctionAddress, 0);
               SendMessageFunc(Self, WorkerMessage);
             end;
           TRACTION_CONTROLLER_CONFIG :
             begin
-              case SourceLccMessage.DataArray[1] of
-                TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                  begin
-                    if ReservationEquals(SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias) then
+              if IsReservedBy(SourceMessage) then
+              begin
+                case SourceMessage.DataArray[1] of
+                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
                     begin
-                      // If a controller is not assigned or the controller is the assigned controller then just simply assign and send
-                      if not ControllerAssigned or ControllerEquals(SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias) then
+                      // Reservation is checked above
+                      if not ControllerAssigned or ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
                       begin
-                        AssignedControllerNodeID := SourceLccMessage.SourceID;
-                        AssignedControllerAliasID := SourceLccMessage.CAN.SourceAlias;
-                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
+                        AssignedControllerNodeID := SourceMessage.SourceID;
+                        AssignedControllerAliasID := SourceMessage.CAN.SourceAlias;
+                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
+                        SendMessageFunc(Self, WorkerMessage);
                       end else
                       begin
                         // Run a task as we need to ask the assigned controller if it is ok to release it and if so assign else fail......
                         // TODO
 
                         // for now just allow the steal.......
-                        AssignedControllerNodeID := SourceLccMessage.SourceID;
-                        AssignedControllerAliasID := SourceLccMessage.CAN.SourceAlias;
-                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
+                        AssignedControllerNodeID := SourceMessage.SourceID;
+                        AssignedControllerAliasID := SourceMessage.CAN.SourceAlias;
+                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
+                        SendMessageFunc(Self, WorkerMessage);
                       end;
-                    end
-                  end;
-                TRACTION_CONTROLLER_CONFIG_RELEASE :
-                  begin
-                    if ReservationEquals(SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias) then
-                      if ControllerEquals(SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias) then
-                      begin
-                        AssignedControllerNodeID := NULL_NODE_ID;
-                        AssignedControllerAliasID := 0;;
-                      end;
-                  end;
-                TRACTION_CONTROLLER_CONFIG_QUERY :
-                  begin
-                    if (AssignedControllerNodeID[0] = 0) and (AssignedControllerNodeID[1] = 0) and (AssignedControllerAliasID = 0) then
-                      WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
-                    else
-                      WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, AssignedControllerNodeID, AssignedControllerAliasID);
-                    SendMessageFunc(Self, WorkerMessage);
-                  end;
-                TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
-                  begin
-                    if ControllerAssigned then
+                    end;
+                  TRACTION_CONTROLLER_CONFIG_RELEASE :
                     begin
-                      WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, AssignedControllerNodeID, AssignedControllerAliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias);
+                        // Reservation is checked above
+                        if ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
+                        begin
+                          AssignedControllerNodeID := NULL_NODE_ID;
+                          AssignedControllerAliasID := 0;
+                        end;
+                    end;
+                  TRACTION_CONTROLLER_CONFIG_QUERY :
+                    begin
+                      // Reservation is checked above
+                      if (AssignedControllerNodeID[0] = 0) and (AssignedControllerNodeID[1] = 0) and (AssignedControllerAliasID = 0) then
+                        WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
+                      else
+                        WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedControllerNodeID, AssignedControllerAliasID);
                       SendMessageFunc(Self, WorkerMessage);
                     end;
-                  end;
-              end;
+                  TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
+                    begin
+                      // Reservation is checked above
+                      if ControllerAssigned then
+                      begin
+                        WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, AssignedControllerNodeID, AssignedControllerAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                        SendMessageFunc(Self, WorkerMessage);
+                      end;
+                    end;
+                end;
+             end
             end;
           TRACTION_LISTENER :
             begin
-              case SourceLccMessage.DataArray[1] of
-                TRACTION_LISTENER_ATTACH :
-                  begin
-                  end;
-                TRACTION_LISTENER_DETACH :
-                  begin
-                  end;
-                TRACTION_LISTENER_QUERY :
-                  begin
-                  end;
-              end;
+              if IsReservedBy(SourceMessage) then
+              begin
+                case SourceMessage.DataArray[1] of
+                  TRACTION_LISTENER_ATTACH :
+                    begin
+                    end;
+                  TRACTION_LISTENER_DETACH :
+                    begin
+                    end;
+                  TRACTION_LISTENER_QUERY :
+                    begin
+                    end;
+                end;
+              end
             end;
           TRACTION_MANAGE :
             begin
-              case SourceLccMessage.DataArray[1] of
+              case SourceMessage.DataArray[1] of
                 TRACTION_MANAGE_RESERVE :
                   begin
-                    ReservationNodeID := SourceLccMessage.SourceID;
-                    ReservationAliasID := SourceLccMessage.CAN.SourceAlias;
-                    WorkerMessage.LoadTractionManageReply(NodeID, AliasID, SourceLccMessage.SourceID, SourceLccMessage.CAN.SourceAlias, True);
-                    SendMessageFunc(Self, WorkerMessage);
-                    // Start a timer to clear the Reserve Node if it never Releases
-                    if not Assigned(FReserveWatchDogTimer) then
+                    if not IsReserved then
                     begin
-                      ReserveWatchDogTimer := TLccTimer.Create(nil);
-                      {$IFDEF DWSCRIPT}
-                      ReserveWatchDogTimer.Delay := 5000;
-                      ReserveWatchDogTimer.OnTime := @OnReserveWatchDogTimer;
-                      {$ELSE}
-                       ReserveWatchDogTimer.Interval := 5000;  // 5 seconds allowed to complete
-                       ReserveWatchDogTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}OnReserveWatchDogTimer;
-                      {$ENDIF}
-                    end;
-                    ReserveWatchDogTimer.Enabled := True;
+                      ReservationNodeID := SourceMessage.SourceID;
+                      ReservationAliasID := SourceMessage.CAN.SourceAlias;
+                      WorkerMessage.LoadTractionManageReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
+                    end else                                                               // TODO I think we should define some result values for reasons it won't reserve
+                       WorkerMessage.LoadTractionManageReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False);
+                    SendMessageFunc(Self, WorkerMessage);
                   end;
                 TRACTION_MANAGE_RELEASE :
                   begin
@@ -329,26 +340,12 @@ begin
             end;
         end;
       end;
-    MTI_TRACTION_REPLY :
-      begin
-        case SourceLccMessage.DataArray[0] of
-          TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
-          begin
-            case SourceLccMessage.DataArray[1] of
-              TRACTION_CONTROLLER_CONFIG_CHANGED_NOTIFY :
-              begin
-                // The controllers response to asking it if we can steal the throttle....
-              end;
-            end;
-          end;
-        end;
-      end;
   end;
 end;
 
 function TLccTrainCanNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
-    Result := (((ReservationNodeID[0] = ATestNodeID[0]) and (ReservationNodeID[1] = ATestNodeID[1])) and (ATestAlias = ReservationAliasID))
+    Result := ((ReservationNodeID[0] = ATestNodeID[0]) and (ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = ReservationAliasID)
 end;
 
 procedure TLccTrainCanNode.SetDccAdddress(AValue: Word);

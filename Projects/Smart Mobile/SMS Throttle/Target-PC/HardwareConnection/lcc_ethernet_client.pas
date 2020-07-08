@@ -56,7 +56,8 @@ uses
   lcc_ethernet_tcp,
   lcc_utilities,
   lcc_app_common_settings,
-  lcc_common_classes;
+  lcc_common_classes,
+  lcc_node_messages_can_assembler_disassembler;
 
 type
   TLccEthernetClient = class;   // Forward
@@ -106,6 +107,7 @@ type
   TLccEthernetClientThread =  class(TLccConnectionThread)
     private
       FEthernetRec: TLccEthernetRec;
+      FGridConnectMessageAssembler: TLccGridConnectMessageAssembler;
       FOnErrorMessage: TOnEthernetRecFunc;
       FOnConnectionStateChange: TOnEthernetRecFunc;
       FOnReceiveMessage: TOnEthernetReceiveFunc;
@@ -139,6 +141,7 @@ type
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
       property Owner: TLccEthernetClient read FOwner write FOwner;
       property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
+      property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetClient; AnEthernetRec: TLccEthernetRec); reintroduce;
       destructor Destroy; override;
@@ -722,15 +725,24 @@ begin
                     begin
                       FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                       FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
-                      if UseSynchronize then
-                         Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
-                      else begin
-                         RxList := Owner.IncomingGridConnect.LockList;
-                        try
-                          RxList.Add(FEthernetRec.MessageStr);
-                        finally
-                          Owner.IncomingGridConnect.UnlockList;
-                        end;
+
+                      case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
+                        imgcr_True :
+                          begin
+                            if UseSynchronize then
+                              Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                            else begin
+                              RxList := Owner.IncomingGridConnect.LockList;
+                              try
+                                RxList.Add(FEthernetRec.MessageStr);
+                              finally
+                                Owner.IncomingGridConnect.UnlockList;
+                              end;
+                            end;
+                          end;
+                        imgcr_False,
+                        imgcr_ErrorToSend,
+                        imgcr_UnknownError : begin end;
                       end;
                     end;
                   end;
@@ -841,6 +853,7 @@ begin
   FEthernetRec.Thread := Self;
   FEthernetRec.LccMessage := TLccMessage.Create;
   FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
+  GridConnectMessageAssembler := TLccGridConnectMessageAssembler.Create;
   {$IFDEF ULTIBO}
   StringList := TThreadStringList.Create;
   TcpClient := TWinsock2TCPClient.Create;
@@ -853,8 +866,15 @@ begin
   FreeAndNil(FStringList);
   FreeAndNil(FTcpClient);
   {$ENDIF}
+  {$IFDEF DWSCRIPT}
+  FEthernetRec.LccMessage.Free;
+  FTcpDecodeStateMachine.Free;
+  FGridConnectMessageAssembler.Free;
+  {$ELSE}
   FreeAndNil(FEthernetRec.LccMessage);
   FreeAndNil(FTcpDecodeStateMachine);
+  FreeAndNil(FGridConnectMessageAssembler);
+  {$ENDIF}
   inherited Destroy;
 end;
 

@@ -94,24 +94,29 @@ type
 
     TLccCanNode = class;
 
-  { TNodeTaskBase }
+  { TLccTaskBase }
 
-  TNodeTaskBase = class(TObject)
+  TLccTaskBase = class(TObject)
+  private
+
   protected
     FOwnerNode: TLccCanNode;
-    FTargetNode: TNodeIdentifier;
     FState: TLccTaskState;
+    FTargetAliasID: Word;
+    FTargetNodeID: TNodeID;
     FWorkerMessage: TLccMessage;
   public
     property OwnerNode: TLccCanNode read FOwnerNode;
-    property TargetNode: TNodeIdentifier read FTargetNode;
+    property TargetNodeID: TNodeID read FTargetNodeID write FTargetNodeID;
+    property TargetAliasID: Word read FTargetAliasID write FTargetAliasID;
     property State: TLccTaskState read FState;
     property WorkerMessage: TLccMessage read FWorkerMessage;
 
-    constructor Create;
+    constructor Create(ANode: TLccCanNode; ATargetNodeID: TNodeID; ATargetAliasID: Word);
+    constructor Create(ANode: TLccCanNode);
     destructor Destroy; override;
     procedure ProcessMessage(SourceMessage: TLccMessage); virtual; abstract;
-    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); virtual;
+    procedure Start(SourceMessage: TLccMessage; CallProcessMessage: Boolean); virtual;
     procedure SendMessage(AMessage: TLccMessage);
   end;
 
@@ -119,6 +124,7 @@ type
 
   TLccNode = class(TObject)
   private
+    FActiveTask: TLccTaskBase;
     FWorkerMessageDatagram: TLccMessage;
     FInitialized: Boolean;
     FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
@@ -159,6 +165,7 @@ type
     F_800msTimer: TLccTimer;
 
     function GetNodeIDStr: String;
+    procedure SetActiveTask(AValue: TLccTaskBase);
   protected
     FNodeID: TNodeID;
 
@@ -186,6 +193,9 @@ type
     function GetCdiFile: string virtual;
     procedure BeforeLogin; virtual;
   public
+
+    property ActiveTask: TLccTaskBase read FActiveTask write SetActiveTask;
+
     property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
@@ -288,31 +298,41 @@ implementation
 uses
   lcc_node_manager;
 
-{ TNodeTaskBase }
+{ TLccTaskBase }
 
-constructor TNodeTaskBase.Create;
+
+constructor TLccTaskBase.Create(ANode: TLccCanNode; ATargetNodeID: TNodeID; ATargetAliasID: Word);
 begin
-  inherited Create;
+  FOwnerNode := ANode;
+  FTargetAliasID := ATargetAliasID;
+  FTargetNodeID := ATargetNodeID;
   FWorkerMessage := TLccMessage.Create;
 end;
 
-destructor TNodeTaskBase.Destroy;
+constructor TLccTaskBase.Create(ANode: TLccCanNode);
+begin
+  inherited Create;
+  FOwnerNode := ANode;
+  FWorkerMessage := TLccMessage.Create;
+end;
+
+destructor TLccTaskBase.Destroy;
 begin
   FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
-procedure TNodeTaskBase.SendMessage(AMessage: TLccMessage);
+procedure TLccTaskBase.SendMessage(AMessage: TLccMessage);
 begin
   if Assigned(FOwnerNode) then
     OwnerNode.SendMessageFunc(OwnerNode, AMessage);
 end;
 
-procedure TNodeTaskBase.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+procedure TLccTaskBase.Start(SourceMessage: TLccMessage; CallProcessMessage: Boolean);
 begin
-  FOwnerNode := ANode;
-  FTargetNode := ATargetNode;
   FState := ltsRunning;
+  if CallProcessMessage then
+    ProcessMessage(SourceMessage);
 end;
 
 
@@ -521,7 +541,7 @@ begin
     end else
     begin
       FPermitted := True;
-      WorkerMessage.LoadRID(AliasID);
+      WorkerMessage.LoadRID(NodeID, AliasID);
       SendMessageFunc(Self, WorkerMessage);
       WorkerMessage.LoadAMD(NodeID, AliasID);
       SendMessageFunc(Self, WorkerMessage);
@@ -547,7 +567,7 @@ begin
     // Check if it is a Check ID message for a node trying to use our Alias and if so tell them no.
     if ((SourceLccMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((SourceLccMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
     begin
-      WorkerMessage.LoadRID(AliasID);                   // sorry charlie this is mine
+      WorkerMessage.LoadRID(NodeID, AliasID);                   // sorry charlie this is mine
       SendMessageFunc(Self, WorkerMessage);
       Result := True;
     end else
@@ -1189,6 +1209,10 @@ begin
       Exit;
   end;
 
+  if Assigned(ActiveTask) then
+    if ActiveTask.State = ltsRunning then
+      ActiveTask.ProcessMessage(SourceLccMessage);
+
   case SourceLccMessage.MTI of
     MTI_OPTIONAL_INTERACTION_REJECTED :
         begin
@@ -1683,6 +1707,14 @@ begin
     WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, EventObj.State);
     SendMessageFunc(Self, WorkerMessage);
   end;
+end;
+
+procedure TLccNode.SetActiveTask(AValue: TLccTaskBase);
+begin
+  if FActiveTask = AValue then Exit;
+  if Assigned(FActiveTask) then
+    FActiveTask.Free;
+  FActiveTask := AValue;
 end;
 
 

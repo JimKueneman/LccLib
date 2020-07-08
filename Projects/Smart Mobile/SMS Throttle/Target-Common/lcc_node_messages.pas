@@ -105,6 +105,7 @@ public
   function ExtractDataBytesAsInt(StartByteIndex, EndByteIndex: Integer): DWORD;
   function ExtractDataBytesAsNodeID(StartIndex: Integer; var ANodeID: TNodeID): TNodeID;
   function ExtractDataBytesAsString(StartIndex, Count: Integer): String;
+  function ExtractDataBytesAsWord(StartIndex: Integer): Word;
   function DestinationMatchs(TestAliasID: Word; TestNodeID: TNodeID): Boolean;
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
@@ -117,7 +118,7 @@ public
 
   // CAN
   procedure LoadCID(ASourceID: TNodeID; ASourceAlias: Word; ACID: Byte);
-  procedure LoadRID(ASourceAlias: Word);
+  procedure LoadRID(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadAMD(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadAMR(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadAME(ASourceID: TNodeID; ASourceAlias: Word);
@@ -416,6 +417,13 @@ begin
     else
       Break
   end;
+end;
+
+function TLccMessage.ExtractDataBytesAsWord(StartIndex: Integer): Word;
+begin
+  Result := DataArray[StartIndex];
+  Result := Result shl 8;
+  Result := DataArray[StartIndex+1] or Result;
 end;
 
 function TLccMessage.LoadByGridConnectStr(GridConnectStr: String): Boolean;
@@ -861,9 +869,10 @@ begin
   end;
 end;
 
-procedure TLccMessage.LoadRID(ASourceAlias: Word);
+procedure TLccMessage.LoadRID(ASourceID: TNodeID; ASourceAlias: Word);
 begin
   ZeroFields;
+  SourceID := ASourceID;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
   CAN.MTI := MTI_CAN_RID or ASourceAlias;
@@ -1507,7 +1516,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
 
-  DataCount := 11;
+  DataCount := 3;
   FDataArray[0] := TRACTION_CONTROLLER_CONFIG_REPLY;
   FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY;
   FDataArray[2] := AResult;

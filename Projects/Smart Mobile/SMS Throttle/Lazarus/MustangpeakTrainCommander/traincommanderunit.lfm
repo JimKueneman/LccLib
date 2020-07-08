@@ -76,7 +76,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 113
       Height = 16
       Top = 47
-      Width = 106
+      Width = 143
       AutoSize = False
       ParentColor = False
     end
@@ -84,7 +84,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 113
       Height = 16
       Top = 71
-      Width = 106
+      Width = 147
       AutoSize = False
       ParentColor = False
     end
@@ -1241,7 +1241,7 @@ object FormTrainCommander: TFormTrainCommander
   object TimerIncomingMessagePump: TTimer
     Interval = 100
     OnTimer = TimerIncomingMessagePumpTimer
-    left = 288
+    left = 336
     top = 32
   end
 end

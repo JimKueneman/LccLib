@@ -26,81 +26,19 @@ uses
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
-  lcc_math_float16,lcc_node_commandstation, lcc_node_controller, lcc_node_train;
+  lcc_math_float16,
+  lcc_node_commandstation,
+  lcc_node_controller,
+  lcc_node_train;
 
 type
-  TLccStateMachine = class;
-
-  TStateMachineCallback = procedure(Sender: TLccStateMachine);
-
-  { TLccStateMachine }
-
-  TLccStateMachine = class
-  private
-    FDestAlias: Word;
-    FDestID: TNodeID;
-    FOnEnded: TNotifyEvent;
-    FSendMessage: TOnMessageEvent;
-    FSourceAlias: Word;
-    FSourceID: TNodeID;
-    FState: Integer;
-    FTimer: TTimer;
-    FWatchdogCount: Integer;
-    FWatchdogTime: Integer;
-    FWorkerMsg: TLccMessage;
-  protected
-    property WatchdogCount: Integer read FWatchdogCount write FWatchdogCount;
-    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
-    property OnEnded: TNotifyEvent read FOnEnded write FOnEnded;
-
-    procedure OnTimer(Sender: TObject);
-    procedure DoEnded; virtual;
-
-    property SendMessage: TOnMessageEvent read FSendMessage write FSendMessage;
-    procedure StateMachineRun; virtual; abstract;
-    procedure WatchdogTimedOut; virtual abstract;
-  public
-    property Timer: TTimer read FTimer write FTimer;
-    property State: Integer read FState;
-    property WatchdogTime: Integer read FWatchdogTime write FWatchdogTime;
-    property SourceID: TNodeID read FSourceID write FSourceID;        // the Source of this conversation with the target node
-    property SourceAlias: Word read FSourceAlias write FSourceAlias;
-    property DestID: TNodeID read FDestID write FDestID;              // The selected Node to communicate with
-    property DestAlias: Word read FDestAlias write FDestAlias;
-
-    constructor Create(ASourceNodeID: TNodeID; ASourceAliasID: Word; SendMessageFunc: TOnMessageEvent; AnOnEndFunc: TNotifyEvent);
-    destructor Destroy; override;
-    procedure Start;
-    procedure Stop;
-  end;
 
   TAllocateTrainRefusedReason = (rrNone, rrAssignedControllerRefused, rrTrainRefused, rrUnknown);
-
-  { TLccThrottleConnectStateMachine }
-
-  TLccThrottleConnectStateMachine = class(TLccStateMachine)
-  protected
-    procedure StateMachineRun; override;
-    procedure WatchdogTimedOut; override;
-  public
-    function HandleTrainSearchState(SearchStr: string; TrackProtocolFlags: Word): Boolean;
-    function HandleTrainSearchWaitReply(LccMessage: TLccMessage): Boolean;
-    function HandleReserveTrainState(LccMessage: TLccMessage): Boolean;
-    function HandleReserveTrainStateReply(LccMessage: TLccMessage): Boolean;
-    function HandleAllocateThrottleState(LccMessage: TLccMessage): Boolean;
-    function HandleAllocateThrottleStateReply(LccMessage: TLccMessage; var RefusedReason: TAllocateTrainRefusedReason): Boolean;
-    function HandleReleaseTrainState(LccMessage: TLccMessage): Boolean;
-  end;
-
-type
-  TTrainTarget = record
-    NodeID: TNodeID;
-    NodeAlias: Word;
-  end;
 
   { TFormTrainController }
 
   TFormTrainController = class(TForm)
+    ButtonReleaseTrain: TButton;
     ButtonHammerTest: TButton;
     ButtonThrottleF0: TButton;
     ButtonThrottleF1: TButton;
@@ -148,10 +86,12 @@ type
     TabSheetThrottleTechnologyOther: TTabSheet;
     TabSheetThrottleTechnologyDCC: TTabSheet;
     TabSheetThrottleTechnologyMarklin: TTabSheet;
+    TimerTaskPump: TTimer;
     ToggleBoxThrottleForward: TToggleBox;
     ToggleBoxThrottleReverse: TToggleBox;
     TrackBarThrottleSpeed: TTrackBar;
     procedure ButtonHammerTestClick(Sender: TObject);
+    procedure ButtonReleaseTrainClick(Sender: TObject);
     procedure ButtonThrottleAssignAddressClick(Sender: TObject);
     procedure ButtonThrottleConnectAndLoginClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -183,207 +123,6 @@ var
 implementation
 
 {$R *.lfm}
-
-{ TLccThrottleConnectStateMachine }
-
-function TLccThrottleConnectStateMachine.HandleAllocateThrottleState(
-  LccMessage: TLccMessage): Boolean;
-begin
-  Result := True;
-  WorkerMsg.LoadTractionControllerAssign(SourceID, SourceAlias, DestID, DestAlias, SourceID, SourceAlias);
-  SendMessage(Self, WorkerMsg);
-  Inc(FState);
-end;
-
-function TLccThrottleConnectStateMachine.HandleAllocateThrottleStateReply(
-  LccMessage: TLccMessage; var RefusedReason: TAllocateTrainRefusedReason
-  ): Boolean;
-begin
-  case LccMessage.DataArray[2] of
-    S_OK :
-      begin
-        Result := True;
-        RefusedReason := rrNone;
-        Inc(FState)
-      end;
-    TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
-      begin
-         Result := False;
-         RefusedReason := rrAssignedControllerRefused;
-      end;
-    TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
-      begin
-        Result := False;
-        RefusedReason := rrTrainRefused;
-      end else
-    begin
-      Result := False;
-      RefusedReason := rrUnknown
-    end;
-  end
-end;
-
-function TLccThrottleConnectStateMachine.HandleReleaseTrainState(
-  LccMessage: TLccMessage): Boolean;
-begin
-  WorkerMsg.LoadTractionManage(SourceID, SourceAlias, DestID, DestAlias, False);
-  SendMessage(Self, WorkerMsg);
-  Result := True;
-  Timer.Enabled := False;
-  DoEnded;
-end;
-
-function TLccThrottleConnectStateMachine.HandleReserveTrainState(LccMessage: TLccMessage): Boolean;
-begin
-  Result := True;
-  WorkerMsg.LoadTractionManage(SourceID, SourceAlias, DestID, DestAlias, True);
-  SendMessage(Self, LccMessage);
-  Inc(FState)
-end;
-
-function TLccThrottleConnectStateMachine.HandleReserveTrainStateReply(LccMessage: TLccMessage): Boolean;
-begin
-  if (LccMessage.DataArray[TRACTION_RESERVE_REPLY] = $01) and  (LccMessage.DataArray[2] = S_OK) then
-  begin
-    Inc(FState)
-  end else
-  begin
-    Timer.Enabled := False;
-    Result := False;
-  end;
-end;
-
-function TLccThrottleConnectStateMachine.HandleTrainSearchState(SearchStr: string; TrackProtocolFlags: Word): Boolean;
-var
-  SearchData: DWORD;
-begin
-  Result := False;
-  SearchData := 0;
-  case WorkerMsg.TractionSearchEncodeSearchString(SearchStr, TrackProtocolFlags, SearchData) of
-    sese_ok :
-      begin
-        WorkerMsg.LoadTractionSearch(SourceID, SourceAlias, SearchData);
-        SendMessage(Self, WorkerMsg);
-        Start;
-        Inc(FState); // Next State to wait
-        Result := True;
-      end;
-    sese_TooLong           : ShowMessage('Search String too long, only 6 characters are available');
-    sese_InvalidCharacters : ShowMessage('Invalid character in search string, only 0-9 or F are valid');
-  end;
-end;
-
-function TLccThrottleConnectStateMachine.HandleTrainSearchWaitReply(LccMessage: TLccMessage): Boolean;
-var
-  CanNode: TLccCanNode;
-begin
-  Result := True;
-  // Pick up this node we are going to use as our train
-  DestID := LccMessage.SourceID;
-  DestAlias := LccMessage.CAN.SourceAlias;
-  WorkerMsg.LoadTractionManage(SourceID, SourceAlias, DestID, DestAlias, True);
-  SendMessage(Self, WorkerMsg);
-  Inc(FState); // Next State to wait
-end;
-
-procedure TLccThrottleConnectStateMachine.StateMachineRun;
-const
-  STATE_SEARCH_TRAINS            = 0;
-  STATE_SEARCH_TRAINS_WAIT       = 1;
-  STATE_RESERVE_TRAIN            = 2;
-  STATE_RESERVE_TRAIN_REPLY_WAIT = 3;
-  STATE_ALLOCATE_THROTTLE        = 4;
-  STATE_ALLOCATE_THROTTLE_WAIT   = 5;
-  STATE_RELEASE_TRAIN            = 6;
-
-begin
-  case State of
-    STATE_SEARCH_TRAINS :
-    begin
-
-    end;
-    STATE_SEARCH_TRAINS_WAIT :
-    begin
-
-    end;
-    STATE_RESERVE_TRAIN :
-    begin
- //     WorkerMsg.LoadTractionManage(SourceID, SourceAlias, DestID, DestAlias, True);
- //     SendMessage(Self, WorkerMsg);
-    end;
-    STATE_RESERVE_TRAIN_REPLY_WAIT :
-    begin
-
-    end;
-    STATE_ALLOCATE_THROTTLE :
-    begin
-
-    end;
-    STATE_ALLOCATE_THROTTLE_WAIT :
-    begin
-
-    end;
-    STATE_RELEASE_TRAIN :
-    begin
-
-    end;
-  end;
-end;
-
-procedure TLccThrottleConnectStateMachine.WatchdogTimedOut;
-begin
-
-end;
-
-{ TLccStateMachine }
-
-constructor TLccStateMachine.Create(ASourceNodeID: TNodeID;
-  ASourceAliasID: Word; SendMessageFunc: TOnMessageEvent;
-  AnOnEndFunc: TNotifyEvent);
-begin
-  FTimer := TTimer.Create(nil);
-  FWorkerMsg := TLccMessage.Create;
-  Timer.OnStartTimer := @OnTimer;
-  Timer.Interval := 50;
-  FState := 0;
-  FWatchdogCount := 0;
-  FWatchdogTime := 200;  // set for 1 second
-  FSendMessage := SendMessageFunc;
-  FSourceAlias := ASourceAliasID;
-  FSourceID := ASourceNodeID;
-  FOnEnded := AnOnEndFunc;
-end;
-
-destructor TLccStateMachine.Destroy;
-begin
-  FreeAndNil(FTimer);
-  FreeAndNIl(FWorkerMsg);
-  inherited Destroy;
-end;
-
-procedure TLccStateMachine.DoEnded;
-begin
-  if Assigned(OnEnded) then
-    OnEnded(Self);
-end;
-
-procedure TLccStateMachine.OnTimer(Sender: TObject);
-begin
-  StateMachineRun;
-  WatchdogCount := WatchdogCount + Timer.Interval;
-  if WatchdogCount > WatchdogTime then
-     beep
-end;
-
-procedure TLccStateMachine.Start;
-begin
-  Timer.Enabled := True;
-end;
-
-procedure TLccStateMachine.Stop;
-begin
-  Timer.Enabled := False;
-end;
 
 { TFormTrainController }
 
@@ -437,7 +176,7 @@ begin
     1 : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TARGET_ANY_MATCH;
   end;
 
-  ControllerNode.AssginTrainByOpenLCB(EditThrottleAddress.Text, TrackProtocolFlags);
+  ControllerNode.AssignTrainByOpenLCB(EditThrottleAddress.Text, TrackProtocolFlags);
 end;
 
 procedure TFormTrainController.ButtonHammerTestClick(Sender: TObject);
@@ -448,6 +187,11 @@ begin
   begin
 
   end;
+end;
+
+procedure TFormTrainController.ButtonReleaseTrainClick(Sender: TObject);
+begin
+  ControllerNode.ReleaseTrain;
 end;
 
 procedure TFormTrainController.ButtonThrottleConnectAndLoginClick(Sender: TObject);
@@ -479,7 +223,7 @@ end;
 procedure TFormTrainController.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
-
+  TimerTaskPump.Enabled := False;
   NodeManager.Clear;
   EthernetClient.CloseConnection(nil);
   while EthernetClient.Connected do

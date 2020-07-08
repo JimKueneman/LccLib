@@ -1,7 +1,7 @@
 object FormTrainController: TFormTrainController
   Left = 641
   Height = 684
-  Top = -4
+  Top = 0
   Width = 436
   Caption = 'Train Controller'
   ClientHeight = 684
@@ -523,7 +523,7 @@ object FormTrainController: TFormTrainController
         TabOrder = 6
       end
       object EditHammerTest: TEdit
-        Left = 163
+        Left = 200
         Height = 21
         Top = 50
         Width = 80
@@ -531,13 +531,22 @@ object FormTrainController: TFormTrainController
         Text = '10'
       end
       object ButtonHammerTest: TButton
-        Left = 256
+        Left = 288
         Height = 23
         Top = 48
         Width = 128
         Caption = 'Hammer Test'
         OnClick = ButtonHammerTestClick
         TabOrder = 8
+      end
+      object ButtonReleaseTrain: TButton
+        Left = 104
+        Height = 23
+        Top = 48
+        Width = 83
+        Caption = 'Release Train'
+        OnClick = ButtonReleaseTrainClick
+        TabOrder = 9
       end
     end
   end
@@ -552,5 +561,10 @@ object FormTrainController: TFormTrainController
     Height = 661
     Top = 0
     Width = 5
+  end
+  object TimerTaskPump: TTimer
+    Interval = 100
+    left = 186
+    top = 94
   end
 end

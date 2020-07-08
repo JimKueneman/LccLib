@@ -20,11 +20,9 @@ uses
   Classes,
   SysUtils,
   contnrs,
-  lcc_xmlutilities,
 {$ENDIF}
   lcc_node_messages,
   lcc_defines;
- // lcc_compiler_types;
 
 // TLccMessageQueue holds TLccMessages that are being received piece-meal over
 // an interface such as CAN where it can't sent entire message arrays and decodes
@@ -36,9 +34,9 @@ type
 
   TIncomingMessageGridConnectReply = (imgcr_False, imgcr_True, imgcr_ErrorToSend, imgcr_UnknownError);
 
-{ TLccMessageAssembler }
+{ TLccGridConnectMessageAssembler }
 
-TLccMessageAssembler = class
+TLccGridConnectMessageAssembler = class
 private
   FInProcessMessageList: TObjectList;
   FWorkerMessage: TLccMessage;
@@ -61,9 +59,9 @@ public
   function IncomingMessageGridConnect(LccMessage: TLccMessage): TIncomingMessageGridConnectReply; overload;
 end;
 
-{ TLccMessageDisAssembler }
+{ TLccGridConnectMessageDisAssembler }
 
-TLccMessageDisAssembler = class
+TLccGridConnectMessageDisAssembler = class
 public
   function OutgoingMsgToGridConnect(Msg: TLccMessage): String;
   procedure OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
@@ -76,28 +74,28 @@ var
 
 implementation
 
-{ TLccMessageDisAssembler }
+{ TLccGridConnectMessageDisAssembler }
 
-function TLccMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): String;
+function TLccGridConnectMessageDisAssembler.OutgoingMsgToGridConnect(Msg: TLccMessage): String;
 begin
   // Unsure if there is anything special to do here yet
-  Result := Msg.ConvertToGridConnectStr(#10);
+  Result := Msg.ConvertToGridConnectStr(#10, False);
 end;
 
-procedure TLccMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
+procedure TLccGridConnectMessageDisAssembler.OutgoingMsgToMsgList(Msg: TLccMessage; MsgList: TStringList);
 begin
   if Assigned(MsgList) then
-    MsgList.Text := Msg.ConvertToGridConnectStr(#10);
+    MsgList.Text := Msg.ConvertToGridConnectStr(#10, False);
 end;
 
-{ TLccMessageAssembler }
+{ TLccGridConnectMessageAssembler }
 
-function TLccMessageAssembler.GetCount: Integer;
+function TLccGridConnectMessageAssembler.GetCount: Integer;
 begin
   Result := FInProcessMessageList.Count;
 end;
 
-constructor TLccMessageAssembler.Create;
+constructor TLccGridConnectMessageAssembler.Create;
 begin
   inherited Create;
   FInProcessMessageList := TObjectList.Create;
@@ -107,7 +105,7 @@ begin
   WorkerMessage := TLccMessage.Create;
 end;
 
-procedure TLccMessageAssembler.Remove(AMessage: TLccMessage; DoFree: Boolean);
+procedure TLccGridConnectMessageAssembler.Remove(AMessage: TLccMessage; DoFree: Boolean);
 begin
  {$IFDEF DWSCRIPT}
   Messages.Remove(Messages.IndexOf(AMessage));
@@ -118,7 +116,7 @@ begin
     AMessage.Free;
 end;
 
-destructor TLccMessageAssembler.Destroy;
+destructor TLccGridConnectMessageAssembler.Destroy;
 begin
   Clear;
   FInProcessMessageList.Free;
@@ -126,12 +124,12 @@ begin
   inherited Destroy;
 end;
 
-procedure TLccMessageAssembler.Add(AMessage: TLccMessage);
+procedure TLccGridConnectMessageAssembler.Add(AMessage: TLccMessage);
 begin
   Messages.Add(AMessage);
 end;
 
-procedure TLccMessageAssembler.Clear;
+procedure TLccGridConnectMessageAssembler.Clear;
 var
   i: Integer;
 begin
@@ -144,7 +142,7 @@ begin
 end;
 
 
-function TLccMessageAssembler.FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
+function TLccGridConnectMessageAssembler.FindByAliasAndMTI(AMessage: TLccMessage): TLccMessage;
 var
   i: Integer;
   LccMessage: TLccMessage;
@@ -162,7 +160,7 @@ begin
 end;
 
 
-procedure TLccMessageAssembler.FlushMessagesByAlias(Alias: Word);
+procedure TLccGridConnectMessageAssembler.FlushMessagesByAlias(Alias: Word);
 var
   i: Integer;
   AMessage: TLccMessage;
@@ -184,7 +182,7 @@ begin
   end;
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccGridConnectMessageAssembler.IncomingMessageGridConnect(GridConnectStr: String; LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 begin
   if LccMessage.LoadByGridConnectStr(GridConnectStr) then
     Result := IncomingMessageGridConnect(LccMessage)
@@ -192,7 +190,7 @@ begin
     Result := imgcr_UnknownError
 end;
 
-function TLccMessageAssembler.IncomingMessageGridConnect(LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
+function TLccGridConnectMessageAssembler.IncomingMessageGridConnect(LccMessage: TLccMessage): TIncomingMessageGridConnectReply;
 var
   InProcessMessage: TLccMessage;
   i: Integer;

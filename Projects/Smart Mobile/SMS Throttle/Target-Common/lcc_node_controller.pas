@@ -43,7 +43,6 @@ uses
   lcc_node_messages,
   lcc_math_float16,
   lcc_node,
-  lcc_node_tasks,
   lcc_utilities;
 
 const
@@ -75,63 +74,45 @@ const
 
 
 type
-  TTaskProcedure = function(Node: TLccNode; SourceMessage: TLccMessage): Word;
-  TTrainControllerAssignResults = (afrOk, afrAssignedControllerRefused, afrTrainRefused);
-  TLccTrainControllerState = (tcsNone, tcsSearching, tcsAssigning, tcsAssigned, tcsReleasing);
-
-type
 
 
-{ TTaskControllerManageReserve }
+// ******************************************************************************
 
-  TTaskControllerManageReserve = class(TNodeTaskBase)
-  private
-    FIsReserved: Boolean;
-  public
-    property IsReserved: Boolean read FIsReserved;
+  TAttachedTrainReservationState = (trsNotReserved, trsReserving, trsReserved);
+  TAttachedTrainAssignmentState = (tasNotAssigned, tasAssigning, tasAssigned, tasUnAssigning);
+  TAttachedTrainSearchState = (tssNotSearching, tssSearching);
 
-    procedure ProcessMessage(SourceMessage: TLccMessage); override;
-    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); override;
-  end;
-
-  { TTaskControllerTrainSearch }
-
-  TTaskControllerTrainSearch = class(TNodeTaskBase)
-  private
-    FSearchData: DWORD;
-    FSearchString: string;
-    FTrackProtocolFlags: Word;
-  public
-    property TrackProtocolFlags: Word read FTrackProtocolFlags write FTrackProtocolFlags;
-    property SearchString: string read FSearchString write FSearchString;
-    property SearchData: DWORD read FSearchData write FSearchData;
-
-    procedure ProcessMessage(SourceMessage: TLccMessage); override;
-    procedure Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier); override;
+  TAttachedTrain = record
+    NodeID: TNodeID;
+    AliasID: Word;
+    SearchData: DWORD;
+    SearchString: string;
+    ReservedState: TAttachedTrainReservationState;
+    AttachedState: TAttachedTrainAssignmentState;
+    SearchState: TAttachedTrainSearchState;
+    Listeners: array of TAttachedTrain
   end;
 
   { TLccTrainController }
 
   TLccTrainController = class(TLccCanNode)
   private
-    FAssignedTrainAliasID: Word;
-    FAssignedTrainNodeId: TNodeID;
-    FState: TLccTrainControllerState;
+    FAssignedTrain: TAttachedTrain;
+
   protected
+    procedure ClearAssignedTrain;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
-    procedure ClearSearch;
-  //  procedure ReleaseTrain;
+
   public
-    property State: TLccTrainControllerState read FState;
-    property AssignedTrainNodeId: TNodeID read FAssignedTrainNodeId write FAssignedTrainNodeId;
-    property AssignedTrainAliasID: Word read FAssignedTrainAliasID write FAssignedTrainAliasID;
+    property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
 
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
-    function ProcessMessage(SourceLccMessage: TLccMessage): Boolean; override;
+    procedure ReleaseTrain;
 
+    function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
     // TODO Need a watchdog timer to make sure it does not get hung forever
   end;
 
@@ -140,171 +121,180 @@ type
 
 implementation
 
-{ TTaskControllerManageReserve }
+{ TLccTrainController }
 
-procedure TTaskControllerManageReserve.ProcessMessage(SourceMessage: TLccMessage);
+procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
+//var
+ // NewTask: TLccTaskControllerTrainSearch;
 begin
-  case SourceMessage.MTI of
-     MTI_TRACTION_REPLY :
-       begin
-         case SourceMessage.DataArray[1] of
-            TRACTION_CONTROLLER_CONFIG_ASSIGN :
-              begin
-                FIsReserved := SourceMessage.DataArray[2] = S_OK;
-                FState := ltsComplete;
-              end;
-         end;
-       end;
-  end;
+  ClearAssignedTrain;
+  FAssignedTrain.SearchData := 0;
+  FAssignedTrain.SearchState := tssSearching;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FAssignedTrain.SearchData);
+  WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.SearchData);
+  SendMessageFunc(Self, WorkerMessage);
+
+  // Now wait for the Event Identified Messages
+
+ { NewTask := TLccTaskControllerTrainSearch.Create(Self);
+  NewTask.SearchString := SearchString;
+  NewTask.TrackProtocolFlags := TrackProtocolFlags;
+  NewTask.AutoAssignToFirstFound := True;
+  ActiveTask := NewTask;
+  NewTask.Start(nil, False);     }
 end;
 
-procedure TTaskControllerManageReserve.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
+procedure TLccTrainController.ReleaseTrain;
 begin
-  inherited Start(ANode, ATargetNode);
-  WorkerMessage.LoadTractionManage(OwnerNode.NodeID, OwnerNode.AliasID, TargetNode.NodeID, TargetNode.AliasID, True);
-  SendMessage(WorkerMessage);
-  // Wait for the reply for the reservation
+  if AssignedTrain.AttachedState = tasAssigned then
+  begin
+    FAssignedTrain.AttachedState := tasUnAssigning;
+    FAssignedTrain.ReservedState := trsReserving;
+    WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, True);
+    SendMessageFunc(Self, WorkerMessage);
+  end;  ;
 end;
 
-{ TTaskControllerTrainSearch }
-
-procedure TTaskControllerTrainSearch.ProcessMessage(SourceMessage: TLccMessage);
+function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
+  Result :=inherited ProcessMessage(SourceMessage);
+
+  // Event is global and unaddressed so it can come from anywhere so no check for Target yet
+  // The response here will give us our target.
   case SourceMessage.MTI of
-    MTI_VERIFIED_NODE_ID_NUMBER :
-      begin
-        if TargetNode.AliasID = SourceMessage.CAN.SourceAlias then
-        begin
-          SourceMessage.ExtractDataBytesAsNodeID(0, FTargetNode.NodeID);
-          FState := ltsComplete;
-        end;
-      end;
     MTI_PRODUCER_IDENTIFIED_CLEAR,
     MTI_PRODUCER_IDENTIFIED_SET,
     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
       begin
         // Note many results potentailly be returned this only grabs the first one
-        // TODO:  Make this stay watching and queue up the results before call it complete
-        if (State = ltsRunning) and SourceMessage.TractionSearchIsEvent and (SourceMessage.TractionSearchExtractSearchData = SearchData) then
+        if FAssignedTrain.SearchState = tssSearching then
         begin
-          if EqualNodeID( SourceMessage.SourceID, NULL_NODE_ID, True) then
+          if SourceMessage.TractionSearchIsEvent and (SourceMessage.TractionSearchExtractSearchData = AssignedTrain.SearchData) then
           begin
-            FTargetNode.AliasID := SourceMessage.CAN.SourceAlias;
-            WorkerMessage.LoadVerifyNodeIDAddressed(OwnerNode.NodeID, OwnerNode.AliasID, NULL_NODE_ID, SourceMessage.CAN.SourceAlias);
-            SendMessage(WorkerMessage);
+            FAssignedTrain.NodeID := SourceMessage.SourceID;
+            FAssignedTrain.AliasID := SourceMessage.CAN.SourceAlias;
+            FAssignedTrain.ReservedState := trsReserving;
+            FAssignedTrain.SearchState := tssNotSearching;
+            WorkerMessage.LoadTractionManage(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
+            SendMessageFunc(Self, WorkerMessage);
           end;
-          FState := ltsComplete;
         end;
       end;
   end;
-end;
 
-procedure TTaskControllerTrainSearch.Start(ANode: TLccCanNode; ATargetNode: TNodeIdentifier);
-begin
-  inherited Start(ANode, ATargetNode);
-  SearchData := 0;
-  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FSearchData);
-  WorkerMessage.LoadTractionSearch(OwnerNode.NodeID, OwnerNode.AliasID, FSearchData);
-  SendMessage(WorkerMessage);
-  // Now wait for the Event Identified Messages
-end;
-
-{ TLccTrainController }
-
-procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string;
-  TrackProtocolFlags: Word);
-var
-  SearchData: DWord;
-begin
- { if tcsAssigned in State then
-    R;
-  if not SearchInitiated then
+    // Only care if coming from our potential Target Train
+  if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID) then
   begin
-    if AssignedToTrain then
-      ReleaseTrain;
+    case SourceMessage.MTI of
+      MTI_TRACTION_REPLY :
+        begin
+          case SourceMessage.DataArray[0] of
+            TRACTION_MANAGE :
+              begin
+                case SourceMessage.DataArray[1] of
+                  TRACTION_MANAGE_RESERVE :
+                    begin
+                      case SourceMessage.DataArray[2] of
+                        TRACTION_MANAGE_RESERVE_REPLY_OK :
+                          begin
+                            if AssignedTrain.ReservedState = trsReserving then
+                            begin
+                              if AssignedTrain.AttachedState = tasUnAssigning then
+                              begin
+                                WorkerMessage.LoadTractionControllerRelease(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, NodeID, AliasID);
+                                SendMessageFunc(Self, WorkerMessage);
+                                WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
+                                SendMessageFunc(Self, WorkerMessage);
+                                ClearAssignedTrain;
+                              end else
+                              if AssignedTrain.AttachedState = tasNotAssigned then
+                              begin
+                                WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, NodeID, AliasID);
+                                SendMessageFunc(Self, WorkerMessage);
+                                FAssignedTrain.AttachedState := tasAssigning;
+                                FAssignedTrain.ReservedState := trsReserved;
+                              end;
+                            end
+                          end else
+                          begin
 
-    ClearSearch;
-
-    FSearchInitiated := True;
-
-    SearchData := 0;
-    WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
-    WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
-    SendMessageFunc(Self, WorkerMessage);
-  end;    }
+                            // TODO Call back to tell the app it failed.
+                          end
+                      end;
+                    end;
+                end;
+              end;
+            TRACTION_CONTROLLER_CONFIG_REPLY :
+              begin
+                case SourceMessage.DataArray[1] of
+                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                    begin
+                      case SourceMessage.DataArray[2] of
+                        TRACTION_CONTROLLER_CONFIG_REPLY_OK :
+                          begin
+                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
+                            SendMessageFunc(Self, WorkerMessage);
+                            FAssignedTrain.ReservedState := trsNotReserved;
+                            FAssignedTrain.AttachedState := tasAssigned;
+                          end;
+                        TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+                          begin
+                            // TODO Call back to tell the app it failed.
+                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
+                            SendMessageFunc(Self, WorkerMessage);
+                            ClearAssignedTrain;
+                          end;
+                        TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
+                          begin
+                            // TODO Call back to tell the app it failed.
+                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
+                            SendMessageFunc(Self, WorkerMessage);
+                            ClearAssignedTrain;
+                          end;
+                      end;
+                    end;
+                end
+              end;
+          end;
+        end;
+      end
+  end;
 end;
 
 procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word;
   IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
-var
-  TrackProtocolFlags: Word;
-  SearchData: DWord;
 begin
- { if not SearchInitiated then
-  begin;
-    if AssignedToTrain then
-      ReleaseTrain;
-
-    ClearSearch;
-
-    FSearchInitiated := True;
-
-    TrackProtocolFlags := TRACTION_SEARCH_TARGET_ANY_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_ALL_MATCH or
-                          TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
-
-    if IsLongAddress then
-      TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
-    else
-      TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
-
-    case SpeedSteps of
-       ldssDefault : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
-       ldss14      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
-       ldss28      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
-       ldss128      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
-    end;
-
-    SearchData := 0;
-    WorkerMessage.TractionSearchEncodeSearchString(IntToStr(DccAddress), TrackProtocolFlags, SearchData);
-    WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
-    SendMessageFunc(Self, WorkerMessage);
-  end;    }
+  AssignTrainByDccTrain(IntToStr(DccAddress), IsLongAddress, SpeedSteps);
 end;
 
 procedure TLccTrainController.AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
 var
   TrackProtocolFlags: Word;
-  SearchData: DWord;
 begin
- { if not SearchInitiated then
-  begin
-    if AssignedToTrain then
-      ReleaseTrain;
 
-    ClearSearch;
+  TrackProtocolFlags := TRACTION_SEARCH_TARGET_ANY_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_ALL_MATCH or
+                        TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
 
-    FSearchInitiated := True;
+  if IsLongAddress then
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
+  else
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
 
-    TrackProtocolFlags := TRACTION_SEARCH_TARGET_ANY_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_ALL_MATCH or
-                          TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+  case SpeedSteps of
+     ldssDefault : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+     ldss14      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+     ldss28      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+     ldss128      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+  end;
 
-    if IsLongAddress then
-      TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
-    else
-      TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+  ClearAssignedTrain;
+  FAssignedTrain.SearchData := 0;
+  FAssignedTrain.SearchState := tssSearching;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, FAssignedTrain.SearchData);
+  WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.SearchData);
+  SendMessageFunc(Self, WorkerMessage);
 
-    case SpeedSteps of
-       ldssDefault : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
-       ldss14      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
-       ldss28      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
-       ldss128      : TrackProtocolFlags := TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
-    end;
-
-    SearchData := 0;
-    WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
-    WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
-    SendMessageFunc(Self, WorkerMessage);
-  end;                          }
+ // AssignTrainByOpenLCB(SearchString, TrackProtocolFlags);
 end;
 
 procedure TLccTrainController.BeforeLogin;
@@ -343,85 +333,18 @@ begin
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 end;
 
-procedure TLccTrainController.ClearSearch;
+procedure TLccTrainController.ClearAssignedTrain;
 begin
-{  FSearchInitiated := False;
-  FAssignedToTrain := False;
-  AssignedTrainNodeId := NULL_NODE_ID;
-  AssignedTrainAliasID := 0;     }
+  FAssignedTrain.SearchString := '';
+  FAssignedTrain.Listeners := nil;
+  FillChar(FAssignedTrain, Sizeof(AssignedTrain), 0);
 end;
-
 
 function TLccTrainController.GetCdiFile: string;
 begin
   Result := CDI_XML_CONTROLLER;
 end;
 
-function TLccTrainController.ProcessMessage(SourceLccMessage: TLccMessage): Boolean;
-begin
-  Result := inherited ProcessMessage(SourceLccMessage);
-  case SourceLccMessage.MTI of
-    MTI_PRODUCER_IDENTIFIED_CLEAR,
-    MTI_PRODUCER_IDENTIFIED_SET,
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :  // Result of the Traction Search
-      begin
-  //      if SearchInitiated and SourceLccMessage.TractionSearchIsEvent then
-        begin
-          AssignedTrainNodeId := SourceLccMessage.SourceID;
-          AssignedTrainAliasID := SourceLccMessage.CAN.SourceAlias;
-          WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, True);
-          SendMessageFunc(Self, WorkerMessage);
-           // Now wait for Release Reply
-        end;
-      end;
-    MTI_TRACTION_REPLY :
-      begin
-        case SourceLccMessage.DataArray[0] of
-          TRACTION_CONTROLLER_CONFIG_REPLY :
-            begin
-              case SourceLccMessage.DataArray[1] of
-                TRACTION_MANAGE_RESERVE_REPLY_OK :
-                  begin
-     //               if Ass;
-                    WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, NodeID, AliasID);
-                    SendMessageFunc(Self, WorkerMessage);
-                  end;
-                TRACTION_MANAGE_RESERVE_REPLY_FAIL :
-                  begin
-                    ClearSearch;
-                    // TODO Need feedback that it failed.
-                  end;
-                TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
-                  begin
-                    case SourceLccMessage.DataArray[2] of
-                      S_OK :
-                        begin
-                          // Send a Reserve Release
-                          WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, False);
-                          SendMessageFunc(Self, WorkerMessage);
-             //             FAssignedToTrain := True;
-                        end;
-                      TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
-                        begin
-                          // Send a Reserve Release
-                          WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, False);
-                          SendMessageFunc(Self, WorkerMessage);
-                           // TODO Need feedback that it failed.
-                        end;
-                      TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
-                        begin
-                          WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrainNodeId, AssignedTrainAliasID, False);
-                          SendMessageFunc(Self, WorkerMessage);
-                           // TODO Need feedback that it failed.
-                        end;
-                    end;
-                  end;
-              end;
-            end;
-        end;
-      end;
-  end;
-end;
 
 end.
 
