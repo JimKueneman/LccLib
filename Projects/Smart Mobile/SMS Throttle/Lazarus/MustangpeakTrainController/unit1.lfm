@@ -174,6 +174,9 @@ object FormTrainController: TFormTrainController
           Height = 130
           Top = 17
           Width = 43
+          Frequency = 10
+          Max = 100
+          OnChange = TrackBarThrottleSpeedChange
           Orientation = trVertical
           Position = 0
           TickMarks = tmTopLeft
@@ -187,6 +190,7 @@ object FormTrainController: TFormTrainController
           Top = 16
           Width = 75
           Caption = 'Forward'
+          OnChange = ToggleBoxThrottleForwardChange
           TabOrder = 1
         end
         object ToggleBoxThrottleReverse: TToggleBox
@@ -195,111 +199,103 @@ object FormTrainController: TFormTrainController
           Top = 16
           Width = 75
           Caption = 'Reverse'
+          OnChange = ToggleBoxThrottleReverseChange
           TabOrder = 2
         end
-        object ButtonThrottleF0: TButton
-          Left = 104
-          Height = 23
+        object SpeedButtonF0: TSpeedButton
+          Left = 16
+          Height = 22
           Top = 48
           Width = 75
           Caption = 'F0'
-          TabOrder = 3
+          OnClick = SpeedButtonF0Click
         end
-        object ButtonThrottleF1: TButton
-          Left = 24
-          Height = 23
-          Top = 72
-          Width = 75
-          Caption = 'F1'
-          TabOrder = 4
-        end
-        object ButtonThrottleF2: TButton
-          Left = 104
-          Height = 23
-          Top = 72
+        object SpeedButtonF2: TSpeedButton
+          Left = 176
+          Height = 22
+          Top = 49
           Width = 75
           Caption = 'F2'
-          TabOrder = 5
+          OnClick = SpeedButtonF2Click
         end
-        object ButtonThrottleF3: TButton
-          Left = 184
+        object SpeedButtonF3: TSpeedButton
+          Left = 256
+          Height = 22
+          Top = 49
+          Width = 75
+          Caption = 'F3'
+          OnClick = SpeedButtonF3Click
+        end
+        object SpeedButtonF1: TSpeedButton
+          Left = 96
+          Height = 23
+          Top = 48
+          Width = 75
+          Caption = 'F1'
+          OnClick = SpeedButtonF1Click
+        end
+        object SpeedButtonF4: TSpeedButton
+          Left = 16
+          Height = 22
+          Top = 73
+          Width = 75
+          Caption = 'F4'
+          OnClick = SpeedButtonF4Click
+        end
+        object SpeedButtonF5: TSpeedButton
+          Left = 96
           Height = 23
           Top = 72
           Width = 75
-          Caption = 'F3'
-          TabOrder = 6
-        end
-        object ButtonThrottleF4: TButton
-          Left = 24
-          Height = 23
-          Top = 96
-          Width = 75
-          Caption = 'F4'
-          TabOrder = 7
-        end
-        object ButtonThrottleF5: TButton
-          Left = 104
-          Height = 23
-          Top = 96
-          Width = 75
           Caption = 'F5'
-          TabOrder = 8
         end
-        object ButtonThrottleF6: TButton
-          Left = 184
-          Height = 23
-          Top = 96
+        object SpeedButtonF6: TSpeedButton
+          Left = 176
+          Height = 22
+          Top = 73
           Width = 75
           Caption = 'F6'
-          TabOrder = 9
+          OnClick = SpeedButtonF6Click
         end
-        object ButtonThrottleF11: TButton
-          Left = 104
-          Height = 23
-          Top = 144
-          Width = 75
-          Caption = 'F11'
-          TabOrder = 10
-        end
-        object ButtonThrottleF12: TButton
-          Left = 184
-          Height = 23
-          Top = 144
-          Width = 75
-          Caption = 'F12'
-          TabOrder = 11
-        end
-        object ButtonThrottleF10: TButton
-          Left = 24
-          Height = 23
-          Top = 144
-          Width = 75
-          Caption = 'F10'
-          TabOrder = 12
-        end
-        object ButtonThrottleF7: TButton
-          Left = 24
-          Height = 23
-          Top = 120
+        object SpeedButtonF7: TSpeedButton
+          Left = 256
+          Height = 22
+          Top = 73
           Width = 75
           Caption = 'F7'
-          TabOrder = 13
+          OnClick = SpeedButtonF7Click
         end
-        object ButtonThrottleF8: TButton
-          Left = 104
-          Height = 23
-          Top = 120
+        object SpeedButtonF8: TSpeedButton
+          Left = 16
+          Height = 22
+          Top = 97
           Width = 75
           Caption = 'F8'
-          TabOrder = 14
+          OnClick = SpeedButtonF8Click
         end
-        object ButtonThrottleF9: TButton
-          Left = 184
+        object SpeedButtonF9: TSpeedButton
+          Left = 96
           Height = 23
-          Top = 120
+          Top = 96
           Width = 75
           Caption = 'F9'
-          TabOrder = 15
+          OnClick = SpeedButtonF9Click
+        end
+        object SpeedButtonF10: TSpeedButton
+          Left = 176
+          Height = 22
+          Top = 97
+          Width = 75
+          Caption = 'F10'
+          OnClick = SpeedButtonF10Click
+        end
+        object SpeedButtonF11: TSpeedButton
+          Left = 256
+          Height = 22
+          Top = 96
+          Width = 75
+          Caption = 'F11'
+          OnClick = SpeedButtonF11Click
         end
       end
       object PanelThrottleTechnology: TPanel
@@ -545,7 +541,6 @@ object FormTrainController: TFormTrainController
         Top = 48
         Width = 83
         Caption = 'Release Train'
-        OnClick = ButtonReleaseTrainClick
         TabOrder = 9
       end
     end
@@ -563,6 +558,7 @@ object FormTrainController: TFormTrainController
     Width = 5
   end
   object TimerTaskPump: TTimer
+    Enabled = False
     Interval = 100
     left = 186
     top = 94

@@ -33,7 +33,7 @@ uses
   {$ENDIF}
   {$IFNDEF DWSCRIPT}
     {$IFDEF FPC}
-      contnrs,
+  //    contnrs,
     {$ELSE}
       System.Generics.Collections,
     {$ENDIF}
@@ -43,6 +43,7 @@ uses
   lcc_node_messages,
   lcc_math_float16,
   lcc_node,
+  lcc_node_train,
   lcc_utilities;
 
 const
@@ -100,14 +101,26 @@ type
   TLccTrainController = class(TLccCanNode)
   private
     FAssignedTrain: TAttachedTrain;
+    FDirection: TLccTrainDirection;
+    FFunctionArray: TLccFunctions;
+    FSpeed: single;
+    function GetFunctions(Index: Integer): Word;
+    procedure SetDirection(AValue: TLccTrainDirection);
+    procedure SetFunctions(Index: Integer; AValue: Word);
+    procedure SetSpeed(AValue: single);
 
   protected
+    property FunctionArray: TLccFunctions read FFunctionArray write FFunctionArray;
+
     procedure ClearAssignedTrain;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
+    property Speed: single read FSpeed write SetSpeed;
+    property Direction: TLccTrainDirection read FDirection write SetDirection;
+    property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
 
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
@@ -159,6 +172,45 @@ begin
   end;  ;
 end;
 
+procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection);
+begin
+  FDirection := AValue;
+  if AssignedTrain.AttachedState = tasAssigned then
+  begin
+    if Direction = tdForward then
+      WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, Speed)
+    else
+      WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, -Speed);
+    SendMessageFunc(Self, WorkerMessage);
+  end;
+end;
+
+procedure TLccTrainController.SetFunctions(Index: Integer; AValue: Word);
+begin
+  if (Index >= 0) and (Index < High(FunctionArray)) then
+  begin
+    FFunctionArray[Index] := AValue;
+    if AssignedTrain.AttachedState = tasAssigned then
+    begin
+      WorkerMessage.LoadTractionSetFunction(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, Index, AValue);
+      SendMessageFunc(Self, WorkerMessage);
+    end;
+  end;
+end;
+
+procedure TLccTrainController.SetSpeed(AValue: single);
+begin
+  FSpeed := Abs(AValue);
+  if AssignedTrain.AttachedState = tasAssigned then
+  begin
+    if Direction = tdForward then
+      WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, AValue)
+    else
+      WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, -AValue);
+    SendMessageFunc(Self, WorkerMessage);
+  end;
+end;
+
 function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
   Result :=inherited ProcessMessage(SourceMessage);
@@ -190,6 +242,22 @@ begin
   if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID) then
   begin
     case SourceMessage.MTI of
+      MTI_TRACTION_REQUEST :
+        begin
+          case SourceMessage.DataArray[0] of
+            TRACTION_CONTROLLER_CONFIG :
+              begin
+                case SourceMessage.DataArray[1] of
+                  TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
+                  begin
+                    // TODO: NEED TO POP A MESSAGE HERE
+                    WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
+                    SendMessageFunc(Self, WorkerMessage);
+                  end;
+                end;
+              end;
+          end
+        end;
       MTI_TRACTION_REPLY :
         begin
           case SourceMessage.DataArray[0] of
@@ -341,8 +409,6 @@ begin
 end;
 
 procedure TLccTrainController.ClearAssignedTrain;
-var
-  i: Integer;
 begin
   FAssignedTrain.SearchString := '';
   FAssignedTrain.Listeners := nil;
@@ -364,6 +430,13 @@ end;
 function TLccTrainController.GetCdiFile: string;
 begin
   Result := CDI_XML_CONTROLLER;
+end;
+
+function TLccTrainController.GetFunctions(Index: Integer): Word;
+begin
+  Result := 0;
+  if (Index >= 0) and (Index < High(FunctionArray)) then
+    Result := FunctionArray[Index];
 end;
 
 

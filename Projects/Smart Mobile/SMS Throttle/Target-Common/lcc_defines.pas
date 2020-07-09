@@ -97,11 +97,6 @@ type
   TFunctionStatesArray = array[0..28] of Word;
   TDynamicByteArray = array of Byte;
 
-  TNodeIdentifier = record
-    NodeID: TNodeID;
-    AliasID: Word;
-  end;
-
 type
   TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
 
@@ -557,7 +552,6 @@ const
 
 var
   NULL_NODE_ID: TNodeID;
-  NULL_NODE_IDENTIFIER: TNodeIdentifier;
 
   NULL_EVENT_ID              : TEventID;
   EVENT_EMERGENCY_STOP       : TEventID;
@@ -612,10 +606,6 @@ initialization
   // Necessary because of bug in Smart Mobile Studio Compiler.... 12/18/2019
   NULL_NODE_ID[0]               := 0;
   NULL_NODE_ID[1]               := 0;
-
-  NULL_NODE_IDENTIFIER.NodeID[0] := 0;
-  NULL_NODE_IDENTIFIER.NodeID[1] := 0;
-  NULL_NODE_IDENTIFIER.AliasID := 0;
 
   NULL_EVENT_ID[0]               := 0;
   NULL_EVENT_ID[1]               := 0;

@@ -12,7 +12,7 @@ uses
   Graphics,
   Dialogs,
   StdCtrls,
-  ComCtrls, ExtCtrls, Arrow,
+  ComCtrls, ExtCtrls, Arrow, Buttons,
   SynEdit,
   lcc_utilities,
   lcc_node,
@@ -22,11 +22,6 @@ uses
   lcc_ethernet_server,
   lcc_ethernet_client,
   lcc_protocol_memory_configurationdefinitioninfo,
-  lcc_protocol_traction,
-  lcc_protocol_traction_configuration_functions,
-  lcc_protocol_traction_configuation_functiondefinitioninfo,
-  lcc_protocol_traction_simpletrainnodeinfo,
-  lcc_math_float16,
   lcc_node_commandstation,
   lcc_node_controller,
   lcc_node_train;
@@ -40,19 +35,6 @@ type
   TFormTrainController = class(TForm)
     ButtonReleaseTrain: TButton;
     ButtonHammerTest: TButton;
-    ButtonThrottleF0: TButton;
-    ButtonThrottleF1: TButton;
-    ButtonThrottleF7: TButton;
-    ButtonThrottleF8: TButton;
-    ButtonThrottleF9: TButton;
-    ButtonThrottleF2: TButton;
-    ButtonThrottleF3: TButton;
-    ButtonThrottleF4: TButton;
-    ButtonThrottleF5: TButton;
-    ButtonThrottleF6: TButton;
-    ButtonThrottleF11: TButton;
-    ButtonThrottleF12: TButton;
-    ButtonThrottleF10: TButton;
     ButtonThrottleAssignAddress: TButton;
     ButtonThrottleConnectAndLogin: TButton;
     CheckBoxThrottleLocalIP: TCheckBox;
@@ -80,6 +62,18 @@ type
     RadioGroupThrottleTechnologyMarklin: TRadioGroup;
     RadioGroupThrottleTechnologyAddress: TRadioGroup;
     RadioGroupThrottleTechnologyOther: TRadioGroup;
+    SpeedButtonF10: TSpeedButton;
+    SpeedButtonF11: TSpeedButton;
+    SpeedButtonF2: TSpeedButton;
+    SpeedButtonF3: TSpeedButton;
+    SpeedButtonF1: TSpeedButton;
+    SpeedButtonF4: TSpeedButton;
+    SpeedButtonF0: TSpeedButton;
+    SpeedButtonF5: TSpeedButton;
+    SpeedButtonF6: TSpeedButton;
+    SpeedButtonF7: TSpeedButton;
+    SpeedButtonF8: TSpeedButton;
+    SpeedButtonF9: TSpeedButton;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     StatusBar1: TStatusBar;
@@ -91,12 +85,25 @@ type
     ToggleBoxThrottleReverse: TToggleBox;
     TrackBarThrottleSpeed: TTrackBar;
     procedure ButtonHammerTestClick(Sender: TObject);
-    procedure ButtonReleaseTrainClick(Sender: TObject);
     procedure ButtonThrottleAssignAddressClick(Sender: TObject);
     procedure ButtonThrottleConnectAndLoginClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure SpeedButtonF0Click(Sender: TObject);
+    procedure SpeedButtonF10Click(Sender: TObject);
+    procedure SpeedButtonF11Click(Sender: TObject);
+    procedure SpeedButtonF1Click(Sender: TObject);
+    procedure SpeedButtonF2Click(Sender: TObject);
+    procedure SpeedButtonF3Click(Sender: TObject);
+    procedure SpeedButtonF4Click(Sender: TObject);
+    procedure SpeedButtonF6Click(Sender: TObject);
+    procedure SpeedButtonF7Click(Sender: TObject);
+    procedure SpeedButtonF8Click(Sender: TObject);
+    procedure SpeedButtonF9Click(Sender: TObject);
+    procedure ToggleBoxThrottleForwardChange(Sender: TObject);
+    procedure ToggleBoxThrottleReverseChange(Sender: TObject);
+    procedure TrackBarThrottleSpeedChange(Sender: TObject);
   private
     FControllerNode: TLccTrainController;
   protected
@@ -189,11 +196,6 @@ begin
   end;
 end;
 
-procedure TFormTrainController.ButtonReleaseTrainClick(Sender: TObject);
-begin
-  ControllerNode.ReleaseTrain;
-end;
-
 procedure TFormTrainController.ButtonThrottleConnectAndLoginClick(Sender: TObject);
 var
   EthernetRec: TLccEthernetRec;
@@ -257,6 +259,61 @@ begin
   {$ENDIF}
 end;
 
+procedure TFormTrainController.SpeedButtonF0Click(Sender: TObject);
+begin
+  ControllerNode.Functions[0] := not ControllerNode.Functions[0];
+end;
+
+procedure TFormTrainController.SpeedButtonF10Click(Sender: TObject);
+begin
+  ControllerNode.Functions[10] := not ControllerNode.Functions[10];
+end;
+
+procedure TFormTrainController.SpeedButtonF11Click(Sender: TObject);
+begin
+  ControllerNode.Functions[11] := not ControllerNode.Functions[11];
+end;
+
+procedure TFormTrainController.SpeedButtonF1Click(Sender: TObject);
+begin
+  ControllerNode.Functions[1] := not ControllerNode.Functions[1];
+end;
+
+procedure TFormTrainController.SpeedButtonF2Click(Sender: TObject);
+begin
+  ControllerNode.Functions[2] := not ControllerNode.Functions[2];
+end;
+
+procedure TFormTrainController.SpeedButtonF3Click(Sender: TObject);
+begin
+  ControllerNode.Functions[3] := not ControllerNode.Functions[4];
+end;
+
+procedure TFormTrainController.SpeedButtonF4Click(Sender: TObject);
+begin
+  ControllerNode.Functions[5] := not ControllerNode.Functions[5];
+end;
+
+procedure TFormTrainController.SpeedButtonF6Click(Sender: TObject);
+begin
+  ControllerNode.Functions[6] := not ControllerNode.Functions[6];
+end;
+
+procedure TFormTrainController.SpeedButtonF7Click(Sender: TObject);
+begin
+  ControllerNode.Functions[7] := not ControllerNode.Functions[7];
+end;
+
+procedure TFormTrainController.SpeedButtonF8Click(Sender: TObject);
+begin
+  ControllerNode.Functions[8] := not ControllerNode.Functions[8];
+end;
+
+procedure TFormTrainController.SpeedButtonF9Click(Sender: TObject);
+begin
+  ControllerNode.Functions[9] := not ControllerNode.Functions[9];
+end;
+
 procedure TFormTrainController.OnClientServerConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
   case EthernetRec.ConnectionState of
@@ -296,6 +353,21 @@ end;
 procedure TFormTrainController.OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   EthernetClient.SendMessage(LccMessage);
+end;
+
+procedure TFormTrainController.ToggleBoxThrottleForwardChange(Sender: TObject);
+begin
+  ControllerNode.Direction := tdForward;
+end;
+
+procedure TFormTrainController.ToggleBoxThrottleReverseChange(Sender: TObject);
+begin
+  ControllerNode.Direction := tdReverse;
+end;
+
+procedure TFormTrainController.TrackBarThrottleSpeedChange(Sender: TObject);
+begin
+  ControllerNode.Speed := TrackBarThrottleSpeed.Position;
 end;
 
 procedure TFormTrainController.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
