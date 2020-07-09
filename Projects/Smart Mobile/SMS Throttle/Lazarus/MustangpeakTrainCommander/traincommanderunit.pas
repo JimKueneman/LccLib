@@ -282,6 +282,9 @@ begin
       NodeManager.ProcessMessage(LocalMsg);
     end;
   finally
+
+    GridConnectStr := List.Text;
+
     List.Clear;
     LccServer.IncomingGridConnect.UnlockList;
     FreeAndNil(LocalMsg);

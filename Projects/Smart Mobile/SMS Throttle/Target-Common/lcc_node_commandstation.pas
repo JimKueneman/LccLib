@@ -74,9 +74,6 @@ const
 
 type
 
-  { TSearchProcessData }
-
-
   { TLccCommandStationNode }
 
   TLccCommandStationNode = class(TLccCanNode)

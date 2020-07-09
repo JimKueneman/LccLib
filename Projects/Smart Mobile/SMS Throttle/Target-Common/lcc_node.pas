@@ -686,7 +686,7 @@ begin
       begin
         if SourceMessage.CAN.FramingBits <> $00 then                                // Is it a Multi Frame Message?
         begin
-          case SourceMessage.CAN.FramingBits of                                     // Train SNIP falls under this now
+          case SourceMessage.CAN.FramingBits of                                     // Train SNIP falls under this now as well as a few Traction messages
             $10 : begin   // First Frame
                     if not InProcessMessageFindAndFreeByAliasAndMTI(SourceMessage) then
                     begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
@@ -708,8 +708,8 @@ begin
                     begin
                       // Out of order but let the node handle that if needed (Owned Nodes Only)
                       // Don't swap the IDs, need to find the right target node first
-                      SourceMessage.LoadOptionalInteractionRejected(SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, SourceMessage.MTI);
-                      SendMessageFunc(Self, SourceMessage);
+                      WorkerMessage.LoadOptionalInteractionRejected(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, SourceMessage.MTI);
+                      SendMessageFunc(Self, WorkerMessage);
                       Exit; // Move on
                     end;
                   end;
@@ -1622,7 +1622,7 @@ end;
 procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   // Only Ack if we accept the datagram
-  WorkerMessageDatagram.LoadDatagramAck(SourceMessage.DestID, SourceMessage.CAN.DestAlias,
+  WorkerMessageDatagram.LoadDatagramAck(NodeID, GetAlias,
                                         SourceMessage.SourceID, SourceMessage.CAN.SourceAlias,
                                         True, ReplyPending, TimeOutValueN);
   SendMessageFunc(Self, WorkerMessageDatagram);
@@ -1657,7 +1657,7 @@ end;
 
 procedure TLccNode.SendDatagramRejectedReply(SourceMessage: TLccMessage; Reason: Word);
 begin
-  WorkerMessageDatagram.LoadDatagramRejected(SourceMessage.DestID, SourceMessage.CAN.DestAlias,
+  WorkerMessageDatagram.LoadDatagramRejected(NodeID, GetAlias,
                                              SourceMessage.SourceID, SourceMessage.CAN.SourceAlias,
                                              Reason);
   SendMessageFunc(Self, WorkerMessageDatagram);
