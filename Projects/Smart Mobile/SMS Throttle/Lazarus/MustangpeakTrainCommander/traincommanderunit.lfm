@@ -104,6 +104,8 @@ object FormTrainCommander: TFormTrainCommander
       Top = 8
       Width = 202
       Caption = 'Use Syncronize in the threads'
+      Checked = True
+      State = cbChecked
       TabOrder = 5
     end
   end
@@ -1239,7 +1241,7 @@ object FormTrainCommander: TFormTrainCommander
     }
   end
   object TimerIncomingMessagePump: TTimer
-    Interval = 100
+    Interval = 1
     OnTimer = TimerIncomingMessagePumpTimer
     left = 336
     top = 32

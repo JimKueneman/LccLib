@@ -734,7 +734,7 @@ begin
                             else begin
                               RxList := Owner.IncomingGridConnect.LockList;
                               try
-                                RxList.Add(FEthernetRec.MessageStr);
+                                RxList.Add(FEthernetRec.LccMessage.ConvertToGridConnectStr('', False));
                               finally
                                 Owner.IncomingGridConnect.UnlockList;
                               end;
