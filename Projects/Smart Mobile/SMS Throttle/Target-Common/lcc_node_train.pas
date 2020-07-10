@@ -239,6 +239,13 @@ var
   FunctionAddress: LongWord;
 begin
   Result := inherited ProcessMessage(SourceMessage);
+
+  if SourceMessage.HasDestination then
+  begin
+    if not IsDestinationEqual(SourceMessage) then
+      Exit;
+  end;
+
   case SourceMessage.MTI of
     MTI_TRACTION_REQUEST :
       begin
@@ -336,7 +343,7 @@ begin
               case SourceMessage.DataArray[1] of
                 TRACTION_MANAGE_RESERVE :
                   begin
-                    if not IsReserved then
+                    if not IsReserved or IsReservedBy(SourceMessage) then
                     begin
                       FAttachedController.ReservationNodeID := SourceMessage.SourceID;
                       FAttachedController.ReservationAliasID := SourceMessage.CAN.SourceAlias;
@@ -362,23 +369,23 @@ begin
             case SourceMessage.DataArray[1] of
               TRACTION_CONTROLLER_CONFIG_CHANGED_NOTIFY :
               begin
-                if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.AttatchNotifyNodeID, AttachedController.AttachNotifyAliasID) then
+                if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID) then
                 begin
                   case SourceMessage.DataArray[2] of
                     S_OK :
                       begin
                         // Let the throttle change occur
-                        FAttachedController.NodeID := SourceMessage.SourceID;
-                        FAttachedController.AliasID := SourceMessage.CAN.SourceAlias;
+                        FAttachedController.NodeID := AttachedController.AttatchNotifyNodeID;
+                        FAttachedController.AliasID :=  AttachedController.AttachNotifyAliasID;
                         FAttachedController.AttatchNotifyNodeID := NULL_NODE_ID;
                         FAttachedController.AttachNotifyAliasID := 0;
-                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
+                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, FAttachedController.NodeID, FAttachedController.AliasID, TRACTION_CONTROLLER_CONFIG_REPLY_OK);
                         SendMessageFunc(Self, WorkerMessage);
                       end
                      else begin // Assigned controller said no way I'm giving you up
+                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, AttachedController.AttatchNotifyNodeID, AttachedController.AttachNotifyAliasID, TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER);
                         FAttachedController.AttatchNotifyNodeID := NULL_NODE_ID;
                         FAttachedController.AttachNotifyAliasID := 0;
-                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER);
                         SendMessageFunc(Self, WorkerMessage);
                      end
                    end

@@ -177,10 +177,10 @@ public
   function TractionSearchIsProtocolMFX_M4: Boolean;
   function TractionSearchIsProtocolMarklin(var ProtocolVersion: TLccMarklinProtocolVersion): Boolean;
   function TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep): Boolean;
-class  function TractionSearchSetNativeOpenLcb(ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
-class  function TractionSearchSetMFX_M4(ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
-class  function TractionSearchSetMarklin(ProtocolVersion: TLccMarklinProtocolVersion; ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
-class  function TractionSearchSetNMRA(ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class  function TractionSearchEncodeNativeOpenLcb(ForceAllocate, ExactMatchOnly, MatchAddressOnly: Boolean): Byte;
+class  function TractionSearchEncodeMFX_M4(ForceAllocate, ExactMatchOnly, MatchAddressOnly: Boolean): Byte;
+class  function TractionSearchEncodeMarklin(ProtocolVersion: TLccMarklinProtocolVersion; ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate, ExactMatchOnly, MatchAddressOnly: Boolean): Byte;
 
   // Remote Button
 
@@ -1139,7 +1139,7 @@ end;
 
 function TLccMessage.TractionSearchIsProtocolAny: Boolean;
 begin
-  Result := (DataArray[7] and $01FF) = 0;
+  Result := (DataArray[7] and $001F) = 0;
 end;
 
 function TLccMessage.TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep): Boolean;
@@ -1181,7 +1181,7 @@ begin
   Result := (DataArray[7] and TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB) = TRACTION_SEARCH_TRACK_PROTOCOL_NATIVE_OPENLCB;
 end;
 
-class function TLccMessage.TractionSearchSetMarklin(
+class function TLccMessage.TractionSearchEncodeMarklin(
   ProtocolVersion: TLccMarklinProtocolVersion; ForceAllocate, ExactMatchOnly,
   MachAddressOnly: Boolean): Byte;
 begin
@@ -1198,32 +1198,32 @@ begin
   end;
 end;
 
-class function TLccMessage.TractionSearchSetMFX_M4(
-  ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class function TLccMessage.TractionSearchEncodeMFX_M4(ForceAllocate,
+  ExactMatchOnly, MatchAddressOnly: Boolean): Byte;
 begin
   Result := $00;
   if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
   if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
-  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+  if MatchAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
 end;
 
-class function TLccMessage.TractionSearchSetNativeOpenLcb(
-  ForceAllocate, ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class function TLccMessage.TractionSearchEncodeNativeOpenLcb(
+  ForceAllocate, ExactMatchOnly, MatchAddressOnly: Boolean): Byte;
 begin
   Result := $00;
   if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
   if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
-  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+  if MatchAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
 end;
 
-class function TLccMessage.TractionSearchSetNMRA(
-  ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate,
-  ExactMatchOnly, MachAddressOnly: Boolean): Byte;
+class function TLccMessage.TractionSearchEncodeNMRA(ForceLongAddress: Boolean;
+  SpeedStep: TLccDccSpeedStep; ForceAllocate, ExactMatchOnly,
+  MatchAddressOnly: Boolean): Byte;
 begin
   Result := $00;
   if ForceAllocate then Result := Result or TRACTION_SEARCH_ALLOCATE_FORCE;
   if ExactMatchOnly then Result := Result or TRACTION_SEARCH_TYPE_EXACT_MATCH;
-  if MachAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
+  if MatchAddressOnly then Result := Result or TRACTION_SEARCH_TARGET_ADDRESS_MATCH;
   Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
   if ForceLongAddress then Result := Result or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG;
   case SpeedStep of

@@ -225,20 +225,28 @@ end;
 function TLccCommandStationNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   NMRA_SpeedStep: TLccDccSpeedStep;
-  NMRA_ForceLongAddress: Boolean;
   SearchStr: string;
   {$IFDEF DWSCRIPT}
   SearchDccAddress: Integer;
   {$ELSE}
   SearchDccAddress: LongInt;
   {$ENDIF}
-  ForceLongAddress: Boolean;
+  ForceAllocate, ExactMatchOnly, MatchAddressOnly, LongAddressOnly, IsDCC: Boolean;
   SpeedStep: TLccDccSpeedStep;
   ATrain: TLccTrainCanNode;
+  ReturnEvent: TEventID;
+  TrackProtocolFlags: Byte;
+  SearchData: DWORD;
   ANodeID: TNodeID;
-  LocalEvent: TEventID;
 begin
   Result := inherited ProcessMessage(SourceMessage);
+
+  if SourceMessage.HasDestination then
+  begin
+    if not IsDestinationEqual(SourceMessage) then
+      Exit;
+  end;
+
   case SourceMessage.MTI of
      MTI_INITIALIZATION_COMPLETE :
       begin  // Need to wait for new trains to fully initalize before returning from the Traction Search Event........
@@ -246,8 +254,8 @@ begin
           ATrain := FindTrainByLccNodeID(SourceMessage.SourceID);
           if Assigned(ATrain) then
           begin
-            LocalEvent := ATrain.SearchEvent;
-            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, LocalEvent, evs_Valid);
+            ReturnEvent := ATrain.SearchEvent;
+            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, ReturnEvent, evs_Valid);
             SendMessageFunc(ATrain, WorkerMessage);
           end
       end;
@@ -255,41 +263,55 @@ begin
       begin
         if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
         begin
-          NMRA_ForceLongAddress := False;
-          NMRA_SpeedStep := ldssDefault;
-
           SearchStr := SourceMessage.TractionSearchDecodeSearchString;
 
-          if TryStrToInt(SearchStr, SearchDccAddress) then                       // Gaurd against an empty string
+          if SearchStr <> '' then                       // Gaurd against an empty string
           begin
             SearchDccAddress := StrToInt(SearchStr);
-            ForceLongAddress := False;                          // Setup up what we call defaults
-            SpeedStep := ldss14;                                // Setup up what we call defaults
+            LongAddressOnly := False;
+            SpeedStep := ldss14;
 
             if SourceMessage.TractionSearchIsProtocolAny then
             begin
-
+              NMRA_SpeedStep := ldss14;
+              LongAddressOnly := False;
+              IsDcc := True;
             end else
-            if SourceMessage.TractionSearchIsProtocolDCC(NMRA_ForceLongAddress, NMRA_SpeedStep) then
+            if SourceMessage.TractionSearchIsProtocolDCC(LongAddressOnly, NMRA_SpeedStep) then
             begin
-              // Was a NMRA DCC message so look for the DCC specific information that overrides our defaults
-              SourceMessage.TractionSearchIsProtocolDCC(ForceLongAddress, SpeedStep);
+              if NMRA_SpeedStep = ldssDefault then
+                NMRA_SpeedStep := ldss14;
+              IsDCC := True;
+            end else
+              IsDCC := False;                 //    IF I CHANGE TO LONG ADDRESS OR CHANGE SPEED STEP SHOULD THAT BE A NEW TRAIN NODE???????
+
+            if IsDCC then
+            begin
+              // Create an Event that contains what we actually created from the search parameters
+              ForceAllocate := SourceMessage.TractionSearchIsForceAllocate;
+              ExactMatchOnly := SourceMessage.TractionSearchIsExactMatchOnly;
+              MatchAddressOnly := SourceMessage.TractionSearchIsAddressMatchOnly;
+              TrackProtocolFlags := SourceMessage.TractionSearchEncodeNMRA(LongAddressOnly, NMRA_SpeedStep, ForceAllocate, ExactMatchOnly, MatchAddressOnly);
+              WorkerMessage.TractionSearchEncodeSearchString(SearchStr, TrackProtocolFlags, SearchData);
+              WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
+              ReturnEvent := WorkerMessage.ExtractDataBytesAsEventID(0);
 
               // Look for an existing Train
-              ATrain := FindTrainByDccAddress(SearchDccAddress, ForceLongAddress);
+              ATrain := FindTrainByDccAddress(SearchDccAddress, LongAddressOnly);
 
-              if (ATrain = nil) and SourceMessage.TractionSearchIsForceAllocate then
+              if (ATrain = nil) and ForceAllocate then
               begin
-                ATrain := AddTrain('New ATrain', SearchStr, SearchDccAddress, ForceLongAddress, SpeedStep);
-                ATrain.SearchEvent := SourceMessage.ExtractDataBytesAsEventID(0);
+                ATrain := AddTrain('New ATrain', SearchStr, SearchDccAddress, LongAddressOnly, SpeedStep);
+                ATrain.SearchEvent := ReturnEvent;
                 ATrain.Login(NULL_NODE_ID);
                 // Alias will change
               end else
               begin  // Send back the existing node
-                LocalEvent := SourceMessage.ExtractDataBytesAsEventID(0);
-                LocalEvent := LocalEvent;
-                WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, LocalEvent, evs_Valid);
-                SendMessageFunc(ATrain, WorkerMessage);      // Need to send the train for this one
+                if Assigned(ATrain) then
+                begin
+                  WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, ReturnEvent, evs_Valid);
+                  SendMessageFunc(ATrain, WorkerMessage);      // Need to send the train for this one
+                end
               end;
             end
           end
