@@ -1,21 +1,21 @@
 object Form1: TForm1
-  Left = 162
-  Height = 460
-  Top = 183
-  Width = 1134
+  Left = 475
+  Height = 498
+  Top = 186
+  Width = 707
   Caption = 'Form1'
-  ClientHeight = 460
-  ClientWidth = 1134
+  ClientHeight = 498
+  ClientWidth = 707
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
   object PanelThrottle1: TPanel
     Left = 0
-    Height = 410
+    Height = 448
     Top = 50
     Width = 352
     Align = alLeft
-    ClientHeight = 410
+    ClientHeight = 448
     ClientWidth = 352
     TabOrder = 0
     object PanelThrottleEthernet: TPanel
@@ -74,7 +74,7 @@ object Form1: TForm1
     object StatusBarThrottle1: TStatusBar
       Left = 1
       Height = 23
-      Top = 386
+      Top = 424
       Width = 350
       Panels = <      
         item
@@ -85,11 +85,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace1: TPanel
       Left = 1
-      Height = 337
+      Height = 375
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 337
+      ClientHeight = 375
       ClientWidth = 350
       TabOrder = 2
       object Panel6: TPanel
@@ -102,7 +102,7 @@ object Form1: TForm1
         ClientWidth = 348
         TabOrder = 0
         object EditThrottleAddress1: TEdit
-          Left = 96
+          Left = 112
           Height = 21
           Top = 14
           Width = 96
@@ -118,7 +118,7 @@ object Form1: TForm1
           ParentColor = False
         end
         object CheckBoxThrottleLongAddress1: TCheckBox
-          Left = 96
+          Left = 104
           Height = 17
           Top = 45
           Width = 83
@@ -153,18 +153,18 @@ object Form1: TForm1
           Left = 8
           Height = 28
           Top = 36
-          Width = 73
+          Width = 92
           Caption = 'Assign Train'
           OnClick = SpeedButtonThrottleAssign1Click
         end
       end
       object PanelThrottleKeypad1: TPanel
         Left = 1
-        Height = 256
+        Height = 294
         Top = 80
         Width = 348
         Align = alClient
-        ClientHeight = 256
+        ClientHeight = 294
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction0: TSpeedButton
@@ -312,11 +312,77 @@ object Form1: TForm1
           ParentColor = False
           ParentFont = False
         end
-        object SpeedButton1: TSpeedButton
-          Left = 110
+        object SpeedButtonQuerySpeedThrottle2: TSpeedButton
+          Left = 16
           Height = 22
-          Top = 217
-          Width = 23
+          Top = 208
+          Width = 98
+          Caption = 'Query Speed'
+          OnClick = SpeedButtonQuerySpeedThrottle1Click
+        end
+        object Label8: TLabel
+          Left = 128
+          Height = 13
+          Top = 208
+          Width = 49
+          Caption = 'Set Speed'
+          ParentColor = False
+        end
+        object Label9: TLabel
+          Left = 128
+          Height = 13
+          Top = 224
+          Width = 92
+          Caption = 'Commanded Speed'
+          ParentColor = False
+        end
+        object Label10: TLabel
+          Left = 128
+          Height = 13
+          Top = 240
+          Width = 60
+          Caption = 'ActualSpeed'
+          ParentColor = False
+        end
+        object Label11: TLabel
+          Left = 128
+          Height = 13
+          Top = 256
+          Width = 83
+          Caption = 'Set Speed Status'
+          ParentColor = False
+        end
+        object LabelSetSpeedThrottle1: TLabel
+          Left = 269
+          Height = 13
+          Top = 208
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelCommandedSpeedThrottle1: TLabel
+          Left = 269
+          Height = 13
+          Top = 224
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelActualSpeedThrottle1: TLabel
+          Left = 269
+          Height = 13
+          Top = 240
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelSetSpeedStatusThrottle1: TLabel
+          Left = 269
+          Height = 13
+          Top = 256
+          Width = 6
+          Caption = '0'
+          ParentColor = False
         end
       end
     end
@@ -325,10 +391,10 @@ object Form1: TForm1
     Left = 0
     Height = 50
     Top = 0
-    Width = 1134
+    Width = 707
     Align = alTop
     ClientHeight = 50
-    ClientWidth = 1134
+    ClientWidth = 707
     TabOrder = 1
     object EditCommandStationIPAddress: TEdit
       Left = 232
@@ -349,11 +415,11 @@ object Form1: TForm1
   end
   object PanelThrottle2: TPanel
     Left = 352
-    Height = 410
+    Height = 448
     Top = 50
     Width = 352
     Align = alLeft
-    ClientHeight = 410
+    ClientHeight = 448
     ClientWidth = 352
     TabOrder = 2
     object PanelThrottleEthernet1: TPanel
@@ -412,7 +478,7 @@ object Form1: TForm1
     object StatusBarThrottle2: TStatusBar
       Left = 1
       Height = 23
-      Top = 386
+      Top = 424
       Width = 350
       Panels = <      
         item
@@ -423,11 +489,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace2: TPanel
       Left = 1
-      Height = 337
+      Height = 375
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 337
+      ClientHeight = 375
       ClientWidth = 350
       TabOrder = 2
       object Panel7: TPanel
@@ -440,7 +506,7 @@ object Form1: TForm1
         ClientWidth = 348
         TabOrder = 0
         object EditThrottleAddress2: TEdit
-          Left = 96
+          Left = 112
           Height = 21
           Top = 14
           Width = 96
@@ -456,7 +522,7 @@ object Form1: TForm1
           ParentColor = False
         end
         object CheckBoxThrottleLongAddress2: TCheckBox
-          Left = 96
+          Left = 104
           Height = 17
           Top = 45
           Width = 83
@@ -490,19 +556,19 @@ object Form1: TForm1
         object SpeedButtonThrottleAssign2: TSpeedButton
           Left = 8
           Height = 28
-          Top = 36
-          Width = 73
+          Top = 35
+          Width = 89
           Caption = 'Assign Train'
           OnClick = SpeedButtonThrottleAssign2Click
         end
       end
       object PanelThrottleKeypad2: TPanel
         Left = 1
-        Height = 256
+        Height = 294
         Top = 80
         Width = 348
         Align = alClient
-        ClientHeight = 256
+        ClientHeight = 294
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction12: TSpeedButton
@@ -638,6 +704,78 @@ object Form1: TForm1
           Font.Style = [fsBold]
           ParentColor = False
           ParentFont = False
+        end
+        object SpeedButtonQuerySpeedThrottle3: TSpeedButton
+          Left = 16
+          Height = 22
+          Top = 208
+          Width = 98
+          Caption = 'Query Speed'
+          OnClick = SpeedButtonQuerySpeedThrottle2Click
+        end
+        object Label12: TLabel
+          Left = 128
+          Height = 13
+          Top = 208
+          Width = 49
+          Caption = 'Set Speed'
+          ParentColor = False
+        end
+        object LabelSetSpeedThrottle2: TLabel
+          Left = 269
+          Height = 13
+          Top = 208
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelCommandedSpeedThrottle2: TLabel
+          Left = 269
+          Height = 13
+          Top = 224
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelActualSpeedThrottle2: TLabel
+          Left = 269
+          Height = 13
+          Top = 240
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object LabelSetSpeedStatusThrottle2: TLabel
+          Left = 269
+          Height = 13
+          Top = 256
+          Width = 6
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label13: TLabel
+          Left = 128
+          Height = 13
+          Top = 256
+          Width = 83
+          Caption = 'Set Speed Status'
+          ParentColor = False
+        end
+        object Label14: TLabel
+          Left = 128
+          Height = 13
+          Top = 240
+          Width = 60
+          Caption = 'ActualSpeed'
+          ParentColor = False
+        end
+        object Label15: TLabel
+          Left = 128
+          Height = 13
+          Top = 224
+          Width = 92
+          Caption = 'Commanded Speed'
+          ParentColor = False
         end
       end
     end

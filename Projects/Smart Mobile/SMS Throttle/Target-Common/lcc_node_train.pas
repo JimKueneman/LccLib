@@ -254,7 +254,7 @@ begin
             begin
               if ControllerAssigned then
                 if ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
-                  Speed := SourceMessage.TractionExtractSpeed;
+                  Speed := SourceMessage.TractionExtractSetSpeed;
             end;
           TRACTION_FUNCTION :
             begin
@@ -400,7 +400,7 @@ end;
 
 function TLccTrainCanNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
-    Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
+  Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
 end;
 
 procedure TLccTrainCanNode.SetDccAdddress(AValue: Word);

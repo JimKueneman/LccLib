@@ -11,6 +11,12 @@ uses
 
 type
 
+  TControllerState = record
+    QueryingSpeed,
+    QueryingFunctions: Boolean;
+    FunctionQueryIndex: Integer;
+  end;
+
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -22,16 +28,36 @@ type
     EditCommandStationIPAddress: TEdit;
     EditThrottleAddress2: TEdit;
     Label1: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    LabelSetSpeedThrottle1: TLabel;
+    LabelActualSpeedThrottle1: TLabel;
+    LabelSetSpeedStatusThrottle1: TLabel;
+    LabelCommandedSpeedThrottle1: TLabel;
+    LabelCommandedSpeedThrottle2: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    LabelActualSpeedThrottle2: TLabel;
+    Label103: TLabel;
+    Label101: TLabel;
+    Label100: TLabel;
     LabelAlias2: TLabel;
     LabelNodeID2: TLabel;
     LabelNodeID1: TLabel;
     LabelAlias1: TLabel;
+    Label104: TLabel;
+    LabelSetSpeedStatusThrottle2: TLabel;
+    LabelSetSpeedThrottle2: TLabel;
     LabelThrottleSpeed1: TLabel;
     LabelThrottleSpeed2: TLabel;
     Panel7: TPanel;
@@ -47,7 +73,8 @@ type
     PanelThrottleKeypad2: TPanel;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
-    SpeedButton1: TSpeedButton;
+    SpeedButtonQuerySpeedThrottle2: TSpeedButton;
+    SpeedButtonQuerySpeedThrottle1: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
     SpeedButtonForward2: TSpeedButton;
     SpeedButtonFunction0: TSpeedButton;
@@ -88,6 +115,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure SpeedButtonForward1Click(Sender: TObject);
     procedure SpeedButtonForward2Click(Sender: TObject);
+    procedure SpeedButtonQuerySpeedThrottle1Click(Sender: TObject);
+    procedure SpeedButtonQuerySpeedThrottle2Click(Sender: TObject);
     procedure SpeedButtonReverse1Click(Sender: TObject);
     procedure SpeedButtonReverse2Click(Sender: TObject);
     procedure SpeedButtonThrottle2FunctionClick(Sender: TObject);
@@ -116,6 +145,12 @@ type
     procedure Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
     procedure Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 
+    procedure OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte);
+    procedure OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
+
+    procedure OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte);
+    procedure OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
+
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
 
@@ -129,6 +164,9 @@ type
     ControllerNode2: TLccTrainController;
 
     AssignedTrain: TLccTrainCanNode;
+
+    Controller1State: TControllerState;
+    Controller2State: TControllerState;
 
   end;
 
@@ -238,6 +276,16 @@ begin
   end;
 end;
 
+procedure TForm1.SpeedButtonQuerySpeedThrottle1Click(Sender: TObject);
+begin
+  ControllerNode1.QuerySpeed;
+end;
+
+procedure TForm1.SpeedButtonQuerySpeedThrottle2Click(Sender: TObject);
+begin
+  ControllerNode2.QuerySpeed;
+end;
+
 procedure TForm1.SpeedButtonReverse1Click(Sender: TObject);
 begin
   if Assigned(ControllerNode1) then
@@ -340,6 +388,8 @@ begin
         StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode1.OnMessageCallback := @Controller1Callback;
+        ControllerNode1.OnQuerySpeed := @OnControllerQuerySpeed1;
+        ControllerNode1.OnQueryFunction := @OnControllerQueryFunction1;
         PanelThrottleFace1.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -377,6 +427,8 @@ begin
         StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode2.OnMessageCallback := @Controller2Callback;
+        ControllerNode2.OnQuerySpeed := @OnControllerQuerySpeed2;
+        ControllerNode2.OnQueryFunction := @OnControllerQueryFunction2;
         PanelThrottleFace2.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -404,6 +456,54 @@ begin
   ButtonConnect2.Caption := 'Connect';
 end;
 
+procedure TForm1.OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
+begin
+ case Controller1State.FunctionQueryIndex of
+   0 : begin if Value = 0 then SpeedButtonFunction0.Color := clGreen else SpeedButtonFunction0.Color := clYellow; end;
+   1 : begin if Value = 0 then SpeedButtonFunction1.Color := clGreen else SpeedButtonFunction1.Color := clYellow; end;
+   2 : begin if Value = 0 then SpeedButtonFunction2.Color := clGreen else SpeedButtonFunction2.Color := clYellow; end;
+   3 : begin if Value = 0 then SpeedButtonFunction3.Color := clGreen else SpeedButtonFunction3.Color := clYellow; end;
+   4 : begin if Value = 0 then SpeedButtonFunction4.Color := clGreen else SpeedButtonFunction4.Color := clYellow; end;
+   5 : begin if Value = 0 then SpeedButtonFunction5.Color := clGreen else SpeedButtonFunction5.Color := clYellow; end;
+   end;
+  Controller1State.FunctionQueryIndex := Controller1State.FunctionQueryIndex + 1;
+  if Controller1State.FunctionQueryIndex < 12 then
+    ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex)
+  else begin
+    Controller1State.QueryingFunctions := False;
+    if not Controller1State.QueryingSpeed then
+      PanelThrottleKeypad1.Enabled := True;
+  end;
+end;
+
+procedure TForm1.OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
+begin
+
+end;
+
+procedure TForm1.OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed,
+  CommandSpeed, ActualSpeed: single; Status: Byte);
+begin
+  LabelSetSpeedThrottle1.Caption := IntToStr( Round(SetSpeed));
+  LabelCommandedSpeedThrottle1.Caption := IntToStr( Round(CommandSpeed));
+  LabelActualSpeedThrottle1.Caption := IntToStr( Round(ActualSpeed));
+  LabelSetSpeedStatusThrottle1.Caption := '0x' + IntToHex(Status, 2);
+
+  Controller1State.QueryingSpeed := False;
+
+  if not Controller1State.QueryingFunctions then
+     PanelThrottleKeypad1.Enabled := True;
+end;
+
+procedure TForm1.OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed,
+  CommandSpeed, ActualSpeed: single; Status: Byte);
+begin
+  LabelSetSpeedThrottle2.Caption := IntToStr( Round(SetSpeed));
+  LabelCommandedSpeedThrottle2.Caption := IntToStr( Round(CommandSpeed));
+  LabelActualSpeedThrottle2.Caption := IntToStr( Round(ActualSpeed));
+  LabelSetSpeedStatusThrottle2.Caption := '0x' + IntToHex(Status, 2);
+end;
+
 procedure TForm1.Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 begin
   case Reason of
@@ -421,12 +521,17 @@ begin
       end;
     ccbControllerAssigned :
       begin
-        ShowMessage('Throttle 1: Assigned!');
-        PanelThrottleKeypad1.Enabled := True;
+   //     ShowMessage('Throttle 1: Assigned!');
+        Controller1State.QueryingSpeed := True;
+        Controller1State.QueryingFunctions := True;
+        Controller1State.FunctionQueryIndex := 0;
+        ControllerNode1.QuerySpeed;
+        ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
+    //    PanelThrottleKeypad1.Enabled := True;
       end;
     ccbControllerUnassigned :
       begin
-        ShowMessage('Throttle 1: Unassigned!');
+  //      ShowMessage('Throttle 1: Unassigned!');
         PanelThrottleKeypad1.Enabled := False;
       end;
   end;
@@ -449,12 +554,12 @@ begin
       end;
     ccbControllerAssigned :
       begin
-        ShowMessage('Throttle 2: Assigned!');
+ //       ShowMessage('Throttle 2: Assigned!');
         PanelThrottleKeypad2.Enabled := True;
       end;
     ccbControllerUnassigned :
       begin
-        ShowMessage('Throttle 2: Unassigned!');
+ //       ShowMessage('Throttle 2: Unassigned!');
         PanelThrottleKeypad2.Enabled := False;
       end;
   end;

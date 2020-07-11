@@ -78,6 +78,8 @@ type
 
   TControllerCallBackMessages = (ccbReservedFail, ccbAssignFailTrainRefused, ccbAssignFailControllerRefused, ccbControllerAssigned, ccbControllerUnassigned);
   TOnControllerCallBack = procedure(Sender: TLccNode; Reason: TControllerCallBackMessages) of object;
+  TOnControllerQuerySpeed = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte) of object;
+  TOnControllerQueryFunction = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
 
   // ******************************************************************************
 
@@ -107,6 +109,8 @@ type
     FDirection: TLccTrainDirection;
     FFunctionArray: TLccFunctions;
     FOnMessageCallback: TOnControllerCallBack;
+    FOnQueryFunction: TOnControllerQueryFunction;
+    FOnQuerySpeed: TOnControllerQuerySpeed;
     FSpeed: single;
     function GetFunctions(Index: Integer): Word;
     procedure SetDirection(AValue: TLccTrainDirection);
@@ -119,7 +123,9 @@ type
     procedure ClearAssignedTrain;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
-    procedure DoMessageCallback(AMessage: TControllerCallBackMessages);
+    procedure DoMessageCallback(AMessage: TControllerCallBackMessages); virtual;
+    procedure DoQuerySpeed(ASetSpeed, ACommandSpeed, AnActualSpeed: single; Status: Byte); virtual;
+    procedure DoQueryFunction(Address: DWORD; Value: Word); virtual;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
@@ -127,11 +133,17 @@ type
     property Direction: TLccTrainDirection read FDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
     property OnMessageCallback: TOnControllerCallBack read FOnMessageCallback write FOnMessageCallback;
+    property OnQuerySpeed: TOnControllerQuerySpeed read FOnQuerySpeed write FOnQuerySpeed;
+    property OnQueryFunction: TOnControllerQueryFunction read FOnQueryFunction write FOnQueryFunction;
 
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
     procedure ReleaseTrain;
+    procedure QuerySpeed;
+    procedure QueryFunction(Address: Word);
+    procedure EmergencyStop;
+    function IsTrainAssigned: Boolean;
 
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
     // TODO Need a watchdog timer to make sure it does not get hung forever
@@ -270,6 +282,17 @@ begin
       MTI_TRACTION_REPLY :
         begin
           case SourceMessage.DataArray[0] of
+            TRACTION_QUERY_SPEED_REPLY :
+              begin
+                DoQuerySpeed(HalfToFloat(SourceMessage.TractionExtractSetSpeed),
+                             HalfToFloat(SourceMessage.TractionExtractCommandedSpeed),
+                             HalfToFloat(SourceMessage.TractionExtractActualSpeed),
+                             SourceMessage.TractionExtractSpeedStatus);
+              end;
+            TRACTION_QUERY_FUNCTION_REPLY :
+              begin
+                DoQueryFunction(SourceMessage.TractionExtractFunctionAddress, SourceMessage.TractionExtractFunctionValue);
+              end;
             TRACTION_MANAGE :
               begin
                 case SourceMessage.DataArray[1] of
@@ -342,6 +365,24 @@ begin
           end;
         end;
       end
+  end;
+end;
+
+procedure TLccTrainController.QueryFunction(Address: Word);
+begin
+  if IsTrainAssigned then
+  begin
+    WorkerMessage.LoadTractionQueryFunction(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, Address);
+    SendMessageFunc(Self, WorkerMessage);
+  end;
+end;
+
+procedure TLccTrainController.QuerySpeed;
+begin
+  if IsTrainAssigned then
+  begin
+    WorkerMessage.LoadTractionQuerySpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -425,6 +466,30 @@ begin
     OnMessageCallBack(Self, AMessage);
 end;
 
+procedure TLccTrainController.DoQueryFunction(Address: DWORD; Value: Word);
+begin
+  if Assigned(OnQueryFunction) then
+    OnQueryFunction(Self, Address, Value);
+end;
+
+procedure TLccTrainController.DoQuerySpeed(ASetSpeed, ACommandSpeed,
+  AnActualSpeed: single; Status: Byte);
+begin
+  if Assigned(OnQuerySpeed) then
+    OnQuerySpeed(Self, ASetSpeed, ACommandSpeed, AnActualSpeed, Status);
+end;
+
+procedure TLccTrainController.EmergencyStop;
+begin
+  if IsTrainAssigned then
+  begin
+    WorkerMessage.LoadTractionEStop(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID);
+    SendMessageFunc(Self, WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
+    SendMessageFunc(Self, WorkerMessage);
+  end;
+end;
+
 procedure TLccTrainController.ClearAssignedTrain;
 begin
   FAssignedTrain.SearchString := '';
@@ -454,6 +519,11 @@ begin
   Result := 0;
   if (Index >= 0) and (Index < High(FunctionArray)) then
     Result := FunctionArray[Index];
+end;
+
+function TLccTrainController.IsTrainAssigned: Boolean;
+begin
+  Result := (AssignedTrain.NodeID[0] <> 0) or (AssignedTrain.NodeID[1] <> 0) or (AssignedTrain.AliasID <> 0);
 end;
 
 
