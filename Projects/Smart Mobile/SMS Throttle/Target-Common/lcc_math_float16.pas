@@ -47,8 +47,14 @@ const
 
   function FloatToHalf(Float: Single): THalfFloat;
   function HalfToFloat(Half: THalfFloat): Single;
+  function HalfIsNegative(Half: THalfFloat): Boolean;
 
 implementation
+
+function HalfIsNegative(Half: THalfFloat): Boolean;
+begin
+  Result := (Half and $8000) = $8000;
+end;
 
 function HalfToFloat(Half: THalfFloat): Single;
 var

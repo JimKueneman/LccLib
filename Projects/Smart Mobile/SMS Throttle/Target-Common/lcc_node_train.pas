@@ -94,7 +94,6 @@ type
     FAttachedController: TAttachedController;
     FDccAddress: Word;
     FDccLongAddress: Boolean;
-    FDirection: TLccTrainDirection;
     FFunctions: TLccFunctions;
     FName: string;
     FReserveWatchDogTimer: TLccTimer;
@@ -102,6 +101,7 @@ type
     FSearchEvent: TEventID;
     FSpeed: THalfFloat;
     FSpeedStep: TLccDccSpeedStep;
+    function GetDirection: TLccTrainDirection;
     function GetFunctions(Index: Integer): Word;
     procedure SetDccAdddress(AValue: Word);
     procedure SetDccLongAddress(AValue: Boolean);
@@ -127,7 +127,7 @@ type
     property RoadNumber: string read FRoadNumber write SetRoadNumber;
     property SpeedStep: TLccDccSpeedStep read FSpeedStep write SetSpeedStep;
     property Speed: THalfFloat read FSpeed write SetSpeed;
-    property Direction: TLccTrainDirection read FDirection write SetDirection;
+    property Direction: TLccTrainDirection read GetDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
 
     // The Search Event that may have created this Train Node, used as storage for the Command Station to create and wait for Initilization to complete
@@ -207,6 +207,14 @@ end;
 function TLccTrainCanNode.GetCdiFile: string;
 begin
   Result := CDI_XML_TRAIN_NODE
+end;
+
+function TLccTrainCanNode.GetDirection: TLccTrainDirection;
+begin
+  if HalfIsNegative(Speed) then
+    Result := tdReverse
+  else
+    Result := tdForward;
 end;
 
 function TLccTrainCanNode.GetFunctions(Index: Integer): Word;
@@ -417,8 +425,10 @@ end;
 
 procedure TLccTrainCanNode.SetDirection(AValue: TLccTrainDirection);
 begin
-  if AValue = FDirection then Exit;
-  FDirection := AValue;
+  if AValue = tdReverse then
+    FSpeed := FSpeed or $8000
+  else
+    FSpeed := FSpeed and $7FFF;
 end;
 
 procedure TLccTrainCanNode.SetFunctions(Index: Integer; AValue: Word);

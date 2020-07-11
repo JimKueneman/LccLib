@@ -1016,6 +1016,8 @@ begin
   Result := DataArray[1];
   Result := Result shl 8;
   Result := Result or DataArray[2];
+  Result := Result shl 8;
+  Result := Result or DataArray[3];
 end;
 
 function TLccMessage.TractionExtractFunctionValue: Word;
@@ -1393,11 +1395,11 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 6;
   FDataArray[0] := TRACTION_FUNCTION;
-  FDataArray[1] := _Higher( AnAddress);
-  FDataArray[2] := _Hi( AnAddress);
-  FDataArray[3] := _Lo( AnAddress);
-  FDataArray[4] := _Hi( AValue);
-  FDataArray[5] := _Lo (AValue);
+  FDataArray[1] := Byte((AnAddress shr 16) and $0000FF);
+  FDataArray[2] := Byte((AnAddress shr 8) and $0000FF);
+  FDataArray[3] := Byte(AnAddress and $0000FF);
+  FDataArray[4] := Hi(AValue);
+  FDataArray[5] := Lo(AValue);
   MTI := MTI_TRACTION_REQUEST;
 end;
 
@@ -1475,30 +1477,30 @@ begin
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  DataCount := 3;
+  DataCount := 4;
   FDataArray[0] := TRACTION_QUERY_FUNCTION;
-  FDataArray[1] := Hi(Address);
-  FDataArray[2] := Lo(Address);
+  FDataArray[1] := Byte((Address shr 16) and $0000FF);
+  FDataArray[2] := Byte((Address shr 8) and $0000FF);
+  FDataArray[3] := Byte(Address and $0000FF);
   MTI := MTI_TRACTION_REQUEST;
 end;
 
 procedure TLccMessage.LoadTractionQueryFunctionReply(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word;
   Value: Word);
-
 begin
-   ZeroFields;
+  ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 6;
   FDataArray[0] := TRACTION_QUERY_FUNCTION_REPLY;
-  FDataArray[1] := Address shl 16;
-  FDataArray[2] := Address shl 8;
-  FDataArray[3] := Address;
-  FDataArray[4] := Value shl 8;
-  FDataArray[5] := Value;
+  FDataArray[1] := Byte((Address shr 16) and $0000FF);
+  FDataArray[2] := Byte((Address shr 8) and $0000FF);
+  FDataArray[3] := Byte(Address and $00FF);
+  FDataArray[4] := hi(Value);
+  FDataArray[5] := lo(Value);
   MTI := MTI_TRACTION_REPLY;
 end;
 

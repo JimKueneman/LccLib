@@ -78,7 +78,7 @@ type
 
   TControllerCallBackMessages = (ccbReservedFail, ccbAssignFailTrainRefused, ccbAssignFailControllerRefused, ccbControllerAssigned, ccbControllerUnassigned);
   TOnControllerCallBack = procedure(Sender: TLccNode; Reason: TControllerCallBackMessages) of object;
-  TOnControllerQuerySpeed = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte) of object;
+  TOnControllerQuerySpeed = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
   TOnControllerQueryFunction = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
 
   // ******************************************************************************
@@ -124,7 +124,7 @@ type
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
     procedure DoMessageCallback(AMessage: TControllerCallBackMessages); virtual;
-    procedure DoQuerySpeed(ASetSpeed, ACommandSpeed, AnActualSpeed: single; Status: Byte); virtual;
+    procedure DoQuerySpeed(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunction(Address: DWORD; Value: Word); virtual;
 
   public
@@ -284,9 +284,9 @@ begin
           case SourceMessage.DataArray[0] of
             TRACTION_QUERY_SPEED_REPLY :
               begin
-                DoQuerySpeed(HalfToFloat(SourceMessage.TractionExtractSetSpeed),
-                             HalfToFloat(SourceMessage.TractionExtractCommandedSpeed),
-                             HalfToFloat(SourceMessage.TractionExtractActualSpeed),
+                DoQuerySpeed(SourceMessage.TractionExtractSetSpeed,
+                             SourceMessage.TractionExtractCommandedSpeed,
+                             SourceMessage.TractionExtractActualSpeed,
                              SourceMessage.TractionExtractSpeedStatus);
               end;
             TRACTION_QUERY_FUNCTION_REPLY :
@@ -473,7 +473,7 @@ begin
 end;
 
 procedure TLccTrainController.DoQuerySpeed(ASetSpeed, ACommandSpeed,
-  AnActualSpeed: single; Status: Byte);
+  AnActualSpeed: THalfFloat; Status: Byte);
 begin
   if Assigned(OnQuerySpeed) then
     OnQuerySpeed(Self, ASetSpeed, ACommandSpeed, AnActualSpeed, Status);

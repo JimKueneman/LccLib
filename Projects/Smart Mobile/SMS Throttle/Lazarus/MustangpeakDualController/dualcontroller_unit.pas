@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
-  lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train;
+  StdCtrls, Buttons, Spin, lcc_node_manager, lcc_ethernet_client, lcc_node,
+  lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16;
 
 type
 
@@ -27,27 +27,14 @@ type
     EditThrottleAddress1: TEdit;
     EditCommandStationIPAddress: TEdit;
     EditThrottleAddress2: TEdit;
+    ImageList: TImageList;
     Label1: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
-    Label14: TLabel;
-    Label15: TLabel;
-    LabelSetSpeedThrottle1: TLabel;
-    LabelActualSpeedThrottle1: TLabel;
-    LabelSetSpeedStatusThrottle1: TLabel;
-    LabelCommandedSpeedThrottle1: TLabel;
-    LabelCommandedSpeedThrottle2: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
-    LabelActualSpeedThrottle2: TLabel;
     Label103: TLabel;
     Label101: TLabel;
     Label100: TLabel;
@@ -56,8 +43,6 @@ type
     LabelNodeID1: TLabel;
     LabelAlias1: TLabel;
     Label104: TLabel;
-    LabelSetSpeedStatusThrottle2: TLabel;
-    LabelSetSpeedThrottle2: TLabel;
     LabelThrottleSpeed1: TLabel;
     LabelThrottleSpeed2: TLabel;
     Panel7: TPanel;
@@ -73,7 +58,6 @@ type
     PanelThrottleKeypad2: TPanel;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
-    SpeedButtonQuerySpeedThrottle2: TSpeedButton;
     SpeedButtonQuerySpeedThrottle1: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
     SpeedButtonForward2: TSpeedButton;
@@ -115,8 +99,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure SpeedButtonForward1Click(Sender: TObject);
     procedure SpeedButtonForward2Click(Sender: TObject);
-    procedure SpeedButtonQuerySpeedThrottle1Click(Sender: TObject);
-    procedure SpeedButtonQuerySpeedThrottle2Click(Sender: TObject);
     procedure SpeedButtonReverse1Click(Sender: TObject);
     procedure SpeedButtonReverse2Click(Sender: TObject);
     procedure SpeedButtonThrottle2FunctionClick(Sender: TObject);
@@ -145,10 +127,10 @@ type
     procedure Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
     procedure Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 
-    procedure OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte);
+    procedure OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
 
-    procedure OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: single; Status: Byte);
+    procedure OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
 
     procedure ReleaseTrain1;
@@ -265,6 +247,8 @@ begin
   if Assigned(ControllerNode1) then
   begin
     ControllerNode1.Direction := tdForward;
+    SpeedButtonForward1.ImageIndex := 2;
+    SpeedButtonReverse1.ImageIndex := -1;
   end;
 end;
 
@@ -273,17 +257,9 @@ begin
   if Assigned(ControllerNode2) then
   begin
     ControllerNode2.Direction := tdForward;
+    SpeedButtonForward2.ImageIndex := 2;
+    SpeedButtonReverse2.ImageIndex := -1;
   end;
-end;
-
-procedure TForm1.SpeedButtonQuerySpeedThrottle1Click(Sender: TObject);
-begin
-  ControllerNode1.QuerySpeed;
-end;
-
-procedure TForm1.SpeedButtonQuerySpeedThrottle2Click(Sender: TObject);
-begin
-  ControllerNode2.QuerySpeed;
 end;
 
 procedure TForm1.SpeedButtonReverse1Click(Sender: TObject);
@@ -291,6 +267,8 @@ begin
   if Assigned(ControllerNode1) then
   begin
     ControllerNode1.Direction := tdReverse;
+    SpeedButtonForward1.ImageIndex := -1;
+    SpeedButtonReverse1.ImageIndex := 2;
   end;
 end;
 
@@ -299,22 +277,58 @@ begin
   if Assigned(ControllerNode2) then
   begin
     ControllerNode2.Direction := tdReverse;
+    SpeedButtonForward2.ImageIndex := -1;
+    SpeedButtonReverse2.ImageIndex := 2;
   end;
 end;
 
 procedure TForm1.SpeedButtonThrottle2FunctionClick(Sender: TObject);
+var
+  Value: Word;
 begin
  if Assigned(ControllerNode2) then
   begin
-    ControllerNode2.Functions[(Sender as TSpeedButton).Tag] := not ControllerNode1.Functions[(Sender as TSpeedButton).Tag];
+    ControllerNode2.Functions[(Sender as TSpeedButton).Tag] := not ControllerNode2.Functions[(Sender as TSpeedButton).Tag];
+    Value := ControllerNode2.Functions[(Sender as TSpeedButton).Tag];
+    case (Sender as TSpeedButton).Tag of
+       0 : begin if Value = 0 then SpeedButtonFunction12.ImageIndex := 0 else SpeedButtonFunction12.ImageIndex := 1; end;
+       1 : begin if Value = 0 then SpeedButtonFunction13.ImageIndex := 0 else SpeedButtonFunction13.ImageIndex := 1; end;
+       2 : begin if Value = 0 then SpeedButtonFunction14.ImageIndex := 0 else SpeedButtonFunction14.ImageIndex := 1; end;
+       3 : begin if Value = 0 then SpeedButtonFunction15.ImageIndex := 0 else SpeedButtonFunction15.ImageIndex := 1; end;
+       4 : begin if Value = 0 then SpeedButtonFunction16.ImageIndex := 0 else SpeedButtonFunction16.ImageIndex := 1; end;
+       5 : begin if Value = 0 then SpeedButtonFunction17.ImageIndex := 0 else SpeedButtonFunction17.ImageIndex := 1; end;
+       6 : begin if Value = 0 then SpeedButtonFunction18.ImageIndex := 0 else SpeedButtonFunction18.ImageIndex := 1; end;
+       7 : begin if Value = 0 then SpeedButtonFunction19.ImageIndex := 0 else SpeedButtonFunction19.ImageIndex := 1; end;
+       8 : begin if Value = 0 then SpeedButtonFunction20.ImageIndex := 0 else SpeedButtonFunction20.ImageIndex := 1; end;
+       9 : begin if Value = 0 then SpeedButtonFunction21.ImageIndex := 0 else SpeedButtonFunction21.ImageIndex := 1; end;
+       10 : begin if Value = 0 then SpeedButtonFunction22.ImageIndex := 0 else SpeedButtonFunction22.ImageIndex := 1; end;
+       11 : begin if Value = 0 then SpeedButtonFunction23.ImageIndex := 0 else SpeedButtonFunction23.ImageIndex := 1; end;
+    end;
   end;
 end;
 
 procedure TForm1.SpeedButtonThrottle1FunctionClick(Sender: TObject);
+var
+  Value: Word;
 begin
   if Assigned(ControllerNode1) then
   begin
     ControllerNode1.Functions[(Sender as TSpeedButton).Tag] := not ControllerNode1.Functions[(Sender as TSpeedButton).Tag];
+    Value := ControllerNode1.Functions[(Sender as TSpeedButton).Tag];
+     case (Sender as TSpeedButton).Tag of
+       0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
+       1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
+       2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
+       3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
+       4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
+       5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
+       6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
+       7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
+       8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
+       9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
+       10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
+       11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
+     end;
   end;
 end;
 
@@ -458,50 +472,111 @@ end;
 
 procedure TForm1.OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
- case Controller1State.FunctionQueryIndex of
-   0 : begin if Value = 0 then SpeedButtonFunction0.Color := clGreen else SpeedButtonFunction0.Color := clYellow; end;
-   1 : begin if Value = 0 then SpeedButtonFunction1.Color := clGreen else SpeedButtonFunction1.Color := clYellow; end;
-   2 : begin if Value = 0 then SpeedButtonFunction2.Color := clGreen else SpeedButtonFunction2.Color := clYellow; end;
-   3 : begin if Value = 0 then SpeedButtonFunction3.Color := clGreen else SpeedButtonFunction3.Color := clYellow; end;
-   4 : begin if Value = 0 then SpeedButtonFunction4.Color := clGreen else SpeedButtonFunction4.Color := clYellow; end;
-   5 : begin if Value = 0 then SpeedButtonFunction5.Color := clGreen else SpeedButtonFunction5.Color := clYellow; end;
-   end;
-  Controller1State.FunctionQueryIndex := Controller1State.FunctionQueryIndex + 1;
-  if Controller1State.FunctionQueryIndex < 12 then
-    ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex)
-  else begin
-    Controller1State.QueryingFunctions := False;
-    if not Controller1State.QueryingSpeed then
-      PanelThrottleKeypad1.Enabled := True;
+  if Controller1State.QueryingFunctions then
+  begin
+    ControllerNode1.Functions[Address] := Value;
+    case Controller1State.FunctionQueryIndex of
+      0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
+      1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
+      2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
+      3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
+      4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
+      5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
+      6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
+      7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
+      8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
+      9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
+      10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
+      11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
+    end;
+    Controller1State.FunctionQueryIndex := Controller1State.FunctionQueryIndex + 1;
+    if Controller1State.FunctionQueryIndex < 12 then
+    begin
+      ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex)
+    end else
+    begin
+      Controller1State.QueryingFunctions := False;
+      if not Controller1State.QueryingSpeed then
+        PanelThrottleKeypad1.Enabled := True;
+    end;
   end;
 end;
 
 procedure TForm1.OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
+  if Controller2State.QueryingFunctions then
+  begin
+    ControllerNode2.Functions[Address] := Value;
 
+    case Controller2State.FunctionQueryIndex of
+     0 : begin if Value = 0 then SpeedButtonFunction12.ImageIndex := 0 else SpeedButtonFunction12.ImageIndex := 1; end;
+     1 : begin if Value = 0 then SpeedButtonFunction13.ImageIndex := 0 else SpeedButtonFunction13.ImageIndex := 1; end;
+     2 : begin if Value = 0 then SpeedButtonFunction14.ImageIndex := 0 else SpeedButtonFunction14.ImageIndex := 1; end;
+     3 : begin if Value = 0 then SpeedButtonFunction15.ImageIndex := 0 else SpeedButtonFunction15.ImageIndex := 1; end;
+     4 : begin if Value = 0 then SpeedButtonFunction16.ImageIndex := 0 else SpeedButtonFunction16.ImageIndex := 1; end;
+     5 : begin if Value = 0 then SpeedButtonFunction17.ImageIndex := 0 else SpeedButtonFunction17.ImageIndex := 1; end;
+     6 : begin if Value = 0 then SpeedButtonFunction18.ImageIndex := 0 else SpeedButtonFunction18.ImageIndex := 1; end;
+     7 : begin if Value = 0 then SpeedButtonFunction19.ImageIndex := 0 else SpeedButtonFunction19.ImageIndex := 1; end;
+     8 : begin if Value = 0 then SpeedButtonFunction20.ImageIndex := 0 else SpeedButtonFunction20.ImageIndex := 1; end;
+     9 : begin if Value = 0 then SpeedButtonFunction21.ImageIndex := 0 else SpeedButtonFunction21.ImageIndex := 1; end;
+     10 : begin if Value = 0 then SpeedButtonFunction22.ImageIndex := 0 else SpeedButtonFunction22.ImageIndex := 1; end;
+     11 : begin if Value = 0 then SpeedButtonFunction23.ImageIndex := 0 else SpeedButtonFunction23.ImageIndex := 1; end;
+    end;
+
+    Controller2State.FunctionQueryIndex := Controller2State.FunctionQueryIndex + 1;
+    if Controller2State.FunctionQueryIndex < 12 then
+    begin
+      ControllerNode2.QueryFunction(Controller2State.FunctionQueryIndex)
+    end else
+    begin
+      Controller2State.QueryingFunctions := False;
+      if not Controller2State.QueryingSpeed then
+        PanelThrottleKeypad2.Enabled := True;
+    end;
+  end;
 end;
 
 procedure TForm1.OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed,
-  CommandSpeed, ActualSpeed: single; Status: Byte);
+  CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
-  LabelSetSpeedThrottle1.Caption := IntToStr( Round(SetSpeed));
-  LabelCommandedSpeedThrottle1.Caption := IntToStr( Round(CommandSpeed));
-  LabelActualSpeedThrottle1.Caption := IntToStr( Round(ActualSpeed));
-  LabelSetSpeedStatusThrottle1.Caption := '0x' + IntToHex(Status, 2);
 
+  TrackBarThrottle1.Position := Abs( Round(HalfToFloat(SetSpeed)));
   Controller1State.QueryingSpeed := False;
 
+  if HalfIsNegative(SetSpeed) then
+  begin
+    SpeedButtonForward1.ImageIndex := -1;
+    SpeedButtonReverse1.ImageIndex := 2;
+  end else
+  begin
+    SpeedButtonForward1.ImageIndex := 2;
+    SpeedButtonReverse1.ImageIndex := -1;
+  end;
+
+
   if not Controller1State.QueryingFunctions then
-     PanelThrottleKeypad1.Enabled := True;
+    PanelThrottleKeypad1.Enabled := True;
 end;
 
 procedure TForm1.OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed,
-  CommandSpeed, ActualSpeed: single; Status: Byte);
+  CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
-  LabelSetSpeedThrottle2.Caption := IntToStr( Round(SetSpeed));
-  LabelCommandedSpeedThrottle2.Caption := IntToStr( Round(CommandSpeed));
-  LabelActualSpeedThrottle2.Caption := IntToStr( Round(ActualSpeed));
-  LabelSetSpeedStatusThrottle2.Caption := '0x' + IntToHex(Status, 2);
+
+  TrackBarThrottle2.Position := Abs( Round(HalfToFloat(SetSpeed)));
+  Controller2State.QueryingSpeed := False;
+
+  if HalfIsNegative(SetSpeed) then
+  begin
+    SpeedButtonForward2.ImageIndex := -1;
+    SpeedButtonReverse2.ImageIndex := 2;
+  end else
+  begin
+    SpeedButtonForward2.ImageIndex := 2;
+    SpeedButtonReverse2.ImageIndex := -1;
+  end;
+
+  if not Controller2State.QueryingFunctions then
+     PanelThrottleKeypad2.Enabled := True;
 end;
 
 procedure TForm1.Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
@@ -555,7 +630,11 @@ begin
     ccbControllerAssigned :
       begin
  //       ShowMessage('Throttle 2: Assigned!');
-        PanelThrottleKeypad2.Enabled := True;
+        Controller2State.QueryingSpeed := True;
+        Controller2State.QueryingFunctions := True;
+        Controller2State.FunctionQueryIndex := 0;
+        ControllerNode2.QuerySpeed;
+        ControllerNode2.QueryFunction(Controller2State.FunctionQueryIndex);
       end;
     ccbControllerUnassigned :
       begin

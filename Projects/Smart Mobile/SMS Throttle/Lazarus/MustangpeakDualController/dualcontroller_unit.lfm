@@ -1,21 +1,21 @@
 object Form1: TForm1
-  Left = 475
-  Height = 498
-  Top = 186
+  Left = 403
+  Height = 428
+  Top = 183
   Width = 707
   Caption = 'Form1'
-  ClientHeight = 498
+  ClientHeight = 428
   ClientWidth = 707
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
   object PanelThrottle1: TPanel
     Left = 0
-    Height = 448
+    Height = 378
     Top = 50
     Width = 352
     Align = alLeft
-    ClientHeight = 448
+    ClientHeight = 378
     ClientWidth = 352
     TabOrder = 0
     object PanelThrottleEthernet: TPanel
@@ -74,7 +74,7 @@ object Form1: TForm1
     object StatusBarThrottle1: TStatusBar
       Left = 1
       Height = 23
-      Top = 424
+      Top = 354
       Width = 350
       Panels = <      
         item
@@ -85,11 +85,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace1: TPanel
       Left = 1
-      Height = 375
+      Height = 305
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 375
+      ClientHeight = 305
       ClientWidth = 350
       TabOrder = 2
       object Panel6: TPanel
@@ -160,11 +160,11 @@ object Form1: TForm1
       end
       object PanelThrottleKeypad1: TPanel
         Left = 1
-        Height = 294
+        Height = 224
         Top = 80
         Width = 348
         Align = alClient
-        ClientHeight = 294
+        ClientHeight = 224
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction0: TSpeedButton
@@ -173,6 +173,8 @@ object Form1: TForm1
           Top = 8
           Width = 78
           Caption = 'F0'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction1: TSpeedButton
@@ -182,6 +184,8 @@ object Form1: TForm1
           Top = 8
           Width = 79
           Caption = 'F1'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction2: TSpeedButton
@@ -191,6 +195,8 @@ object Form1: TForm1
           Top = 8
           Width = 78
           Caption = 'F2'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction3: TSpeedButton
@@ -200,6 +206,8 @@ object Form1: TForm1
           Top = 8
           Width = 79
           Caption = 'F3'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction4: TSpeedButton
@@ -209,6 +217,8 @@ object Form1: TForm1
           Top = 40
           Width = 78
           Caption = 'F4'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction5: TSpeedButton
@@ -218,6 +228,8 @@ object Form1: TForm1
           Top = 40
           Width = 79
           Caption = 'F5'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction6: TSpeedButton
@@ -227,6 +239,8 @@ object Form1: TForm1
           Top = 40
           Width = 78
           Caption = 'F6'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction7: TSpeedButton
@@ -236,6 +250,8 @@ object Form1: TForm1
           Top = 40
           Width = 79
           Caption = 'F7'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction8: TSpeedButton
@@ -245,6 +261,8 @@ object Form1: TForm1
           Top = 72
           Width = 78
           Caption = 'F8'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction9: TSpeedButton
@@ -254,6 +272,8 @@ object Form1: TForm1
           Top = 72
           Width = 79
           Caption = 'F9'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction10: TSpeedButton
@@ -263,6 +283,8 @@ object Form1: TForm1
           Top = 72
           Width = 78
           Caption = 'F10'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonFunction11: TSpeedButton
@@ -272,6 +294,8 @@ object Form1: TForm1
           Top = 72
           Width = 79
           Caption = 'F11'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle1FunctionClick
         end
         object SpeedButtonForward1: TSpeedButton
@@ -280,6 +304,7 @@ object Form1: TForm1
           Top = 118
           Width = 159
           Caption = 'Forward'
+          Images = ImageList
           OnClick = SpeedButtonForward1Click
         end
         object SpeedButtonReverse1: TSpeedButton
@@ -288,6 +313,7 @@ object Form1: TForm1
           Top = 118
           Width = 159
           Caption = 'Reverse'
+          Images = ImageList
           OnClick = SpeedButtonReverse1Click
         end
         object TrackBarThrottle1: TTrackBar
@@ -311,78 +337,6 @@ object Form1: TForm1
           Font.Style = [fsBold]
           ParentColor = False
           ParentFont = False
-        end
-        object SpeedButtonQuerySpeedThrottle2: TSpeedButton
-          Left = 16
-          Height = 22
-          Top = 208
-          Width = 98
-          Caption = 'Query Speed'
-          OnClick = SpeedButtonQuerySpeedThrottle1Click
-        end
-        object Label8: TLabel
-          Left = 128
-          Height = 13
-          Top = 208
-          Width = 49
-          Caption = 'Set Speed'
-          ParentColor = False
-        end
-        object Label9: TLabel
-          Left = 128
-          Height = 13
-          Top = 224
-          Width = 92
-          Caption = 'Commanded Speed'
-          ParentColor = False
-        end
-        object Label10: TLabel
-          Left = 128
-          Height = 13
-          Top = 240
-          Width = 60
-          Caption = 'ActualSpeed'
-          ParentColor = False
-        end
-        object Label11: TLabel
-          Left = 128
-          Height = 13
-          Top = 256
-          Width = 83
-          Caption = 'Set Speed Status'
-          ParentColor = False
-        end
-        object LabelSetSpeedThrottle1: TLabel
-          Left = 269
-          Height = 13
-          Top = 208
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelCommandedSpeedThrottle1: TLabel
-          Left = 269
-          Height = 13
-          Top = 224
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelActualSpeedThrottle1: TLabel
-          Left = 269
-          Height = 13
-          Top = 240
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelSetSpeedStatusThrottle1: TLabel
-          Left = 269
-          Height = 13
-          Top = 256
-          Width = 6
-          Caption = '0'
-          ParentColor = False
         end
       end
     end
@@ -415,11 +369,11 @@ object Form1: TForm1
   end
   object PanelThrottle2: TPanel
     Left = 352
-    Height = 448
+    Height = 378
     Top = 50
     Width = 352
     Align = alLeft
-    ClientHeight = 448
+    ClientHeight = 378
     ClientWidth = 352
     TabOrder = 2
     object PanelThrottleEthernet1: TPanel
@@ -478,7 +432,7 @@ object Form1: TForm1
     object StatusBarThrottle2: TStatusBar
       Left = 1
       Height = 23
-      Top = 424
+      Top = 354
       Width = 350
       Panels = <      
         item
@@ -489,11 +443,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace2: TPanel
       Left = 1
-      Height = 375
+      Height = 305
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 375
+      ClientHeight = 305
       ClientWidth = 350
       TabOrder = 2
       object Panel7: TPanel
@@ -564,11 +518,11 @@ object Form1: TForm1
       end
       object PanelThrottleKeypad2: TPanel
         Left = 1
-        Height = 294
+        Height = 224
         Top = 80
         Width = 348
         Align = alClient
-        ClientHeight = 294
+        ClientHeight = 224
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction12: TSpeedButton
@@ -577,6 +531,8 @@ object Form1: TForm1
           Top = 8
           Width = 78
           Caption = 'F0'
+          Images = ImageList
+          ImageIndex = 0
           OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction13: TSpeedButton
@@ -586,6 +542,9 @@ object Form1: TForm1
           Top = 8
           Width = 79
           Caption = 'F1'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction14: TSpeedButton
           Tag = 2
@@ -594,6 +553,9 @@ object Form1: TForm1
           Top = 8
           Width = 78
           Caption = 'F2'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction15: TSpeedButton
           Tag = 3
@@ -602,6 +564,9 @@ object Form1: TForm1
           Top = 8
           Width = 79
           Caption = 'F3'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction16: TSpeedButton
           Tag = 4
@@ -610,6 +575,9 @@ object Form1: TForm1
           Top = 40
           Width = 78
           Caption = 'F4'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction17: TSpeedButton
           Tag = 5
@@ -618,22 +586,31 @@ object Form1: TForm1
           Top = 40
           Width = 79
           Caption = 'F5'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction18: TSpeedButton
           Tag = 6
           Left = 170
           Height = 30
-          Top = 40
+          Top = 38
           Width = 78
           Caption = 'F6'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction19: TSpeedButton
           Tag = 7
           Left = 250
           Height = 30
-          Top = 40
+          Top = 38
           Width = 79
           Caption = 'F7'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction20: TSpeedButton
           Tag = 8
@@ -642,6 +619,9 @@ object Form1: TForm1
           Top = 72
           Width = 78
           Caption = 'F8'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction21: TSpeedButton
           Tag = 9
@@ -650,6 +630,9 @@ object Form1: TForm1
           Top = 72
           Width = 79
           Caption = 'F9'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction22: TSpeedButton
           Tag = 10
@@ -658,14 +641,20 @@ object Form1: TForm1
           Top = 72
           Width = 78
           Caption = 'F10'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonFunction23: TSpeedButton
           Tag = 11
-          Left = 250
+          Left = 248
           Height = 30
-          Top = 72
+          Top = 70
           Width = 79
           Caption = 'F11'
+          Images = ImageList
+          ImageIndex = 0
+          OnClick = SpeedButtonThrottle2FunctionClick
         end
         object SpeedButtonForward2: TSpeedButton
           Left = 10
@@ -673,6 +662,7 @@ object Form1: TForm1
           Top = 118
           Width = 159
           Caption = 'Forward'
+          Images = ImageList
           OnClick = SpeedButtonForward2Click
         end
         object SpeedButtonReverse2: TSpeedButton
@@ -681,6 +671,7 @@ object Form1: TForm1
           Top = 118
           Width = 159
           Caption = 'Reverse'
+          Images = ImageList
           OnClick = SpeedButtonReverse2Click
         end
         object TrackBarThrottle2: TTrackBar
@@ -705,79 +696,110 @@ object Form1: TForm1
           ParentColor = False
           ParentFont = False
         end
-        object SpeedButtonQuerySpeedThrottle3: TSpeedButton
-          Left = 16
-          Height = 22
-          Top = 208
-          Width = 98
-          Caption = 'Query Speed'
-          OnClick = SpeedButtonQuerySpeedThrottle2Click
-        end
-        object Label12: TLabel
-          Left = 128
-          Height = 13
-          Top = 208
-          Width = 49
-          Caption = 'Set Speed'
-          ParentColor = False
-        end
-        object LabelSetSpeedThrottle2: TLabel
-          Left = 269
-          Height = 13
-          Top = 208
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelCommandedSpeedThrottle2: TLabel
-          Left = 269
-          Height = 13
-          Top = 224
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelActualSpeedThrottle2: TLabel
-          Left = 269
-          Height = 13
-          Top = 240
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object LabelSetSpeedStatusThrottle2: TLabel
-          Left = 269
-          Height = 13
-          Top = 256
-          Width = 6
-          Caption = '0'
-          ParentColor = False
-        end
-        object Label13: TLabel
-          Left = 128
-          Height = 13
-          Top = 256
-          Width = 83
-          Caption = 'Set Speed Status'
-          ParentColor = False
-        end
-        object Label14: TLabel
-          Left = 128
-          Height = 13
-          Top = 240
-          Width = 60
-          Caption = 'ActualSpeed'
-          ParentColor = False
-        end
-        object Label15: TLabel
-          Left = 128
-          Height = 13
-          Top = 224
-          Width = 92
-          Caption = 'Commanded Speed'
-          ParentColor = False
-        end
       end
     end
+  end
+  object ImageList: TImageList
+    left = 396
+    top = 9
+    Bitmap = {
+      4C69030000001000000010000000FFFFFF00F7F7FEFFF7F7FEFFFFFFFF00FFFF
+      FF00F7F7FEFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00F7F7FEFF4949F3FF1313E7FFFFFFFFFFC8C8
+      FEFF5A5AF8FFF7F7FEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF1313E7FF1313E7FF4949
+      F3FFFFFFFFFFDBC9ACFFDBC9ACFFC7AD87FFBBA07BFFB59875FFB59875FF9E7F
+      63FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFFFF5A5AF8FF1313E7FF3232
+      F3FFFFFFFFFFFFFFFFFFFFFFFFFFFDFCFBFFF9F5F2FFF7F1ECFFF4EAE2FFF4EA
+      E2FF95775DFFFFFFFFFFFFFFFF00F7F7FEFF3232F3FF1313E7FFFFFFFFFF5A5A
+      F8FF8888FFFFFFFFFFFFFEE2C5FFFDDFC0FFFDDFC0FFFDDEBEFFFDDEBEFFF4EA
+      E2FFF9F5F2FF9E7F63FFFFFFFFFFF7F7FEFF1313E7FF8888FFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFDDFC0FFFDDEBEFFFDDCBAFFFCDAB7FFFDDEBEFFFCD7
+      B1FFF9F5F2FF95775DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEE2C5FFFEE2
+      C5FFFEE2C5FFFDDFC0FFFDDEBEFFFDDCBAFFFCDAB7FFFCD9B4FFFCD7B1FFFBD4
+      ABFFF9F5F2FF95775DFFFFFFFFFFFFFFFFFFC7AD87FFF9F5F2FFFDDFC0FFFDDF
+      C0FFFDDEBEFFFCDAB7FFFCD9B4FFFCD7B1FFFBD4ABFFFBD4ABFFFBD1A4FFFBD1
+      A4FFF4EAE2FF89705AFFFFFFFFFFFFFFFFFFBBA07BFFF7F1ECFFFDDEBEFFFDDC
+      BAFFFCDAB7FFFCD7B1FFFBD4ABFFFBD4ABFFFBD1A4FFFBD1A4FFFCCD9BFFFCCD
+      9BFFF4EAE2FF7B6553FFFFFFFFFFFFFFFFFFB59875FFF7F1ECFFFDDCBAFFFCDA
+      B7FFFCD9B4FFFCD7B1FFFBD4ABFFFBD1A4FFFBD1A4FFFCCD9BFFFCCD9BFFFCCD
+      9BFFF4EAE2FF7B6553FFFFFFFFFFFFFFFF00FFFFFFFFB59875FFF7F1ECFFF7F1
+      ECFFF7F1ECFFF7F1ECFFF7F1ECFFF7F1ECFFFCCD9BFFFBD1A4FFF7F1ECFFF7F1
+      ECFF7B6553FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFFFF9E7F63FF9E7F
+      63FF95775DFF89705AFF89705AFF7B6553FFF7F1ECFFF7F1ECFF7B6553FF715A
+      48FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7B6553FFF7F1ECFF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF7B6553FF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF2DAC72FF2DAC
+      72FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFFFFFFFFFFFFFF4BCB97FF48C9
+      95FFFFFFFFFFFFFFFFFFFFFFFFFFC2A781FFC2A781FFB69976FFB69976FFA787
+      67FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF2DAC72FF4ACA96FF47C792FF44C4
+      8FFF3FC089FF2DAC72FFFFFFFFFFFEFDFCFFF9F5F2FFF7EFE6FFF4EAE2FFF4EA
+      E2FF95775DFFFFFFFFFFFFFFFF00FFFFFFFF2DAC72FF45C590FF40C08BFF3BBC
+      84FF37B67EFF2DAC72FFFFF4EAFFFDDFC0FFFDDFC0FFFDDEBEFFFDDEBEFFF4EA
+      E2FFF9F5F2FF9B7C61FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF38B880FF33B3
+      7AFFFFF6EEFFFFF6EEFFFEF3E8FFFDDEBEFFFDDCBAFFFCDAB7FFFDDEBEFFFCD7
+      B1FFF9F5F2FF95775DFFFFFFFFFFFFFFFFFFD3BC96FFFFFFFFFF2DAC72FF2DAC
+      72FFFFF6EEFFFDDFC0FFFDDEBEFFFDDCBAFFFCDAB7FFFCD9B4FFFCD7B1FFFBD4
+      ABFFF9F5F2FF95775DFFFFFFFFFFFFFFFFFFC2A781FFFCFAF9FFFEF3E8FFFEF3
+      E8FFFEF3E7FFFCDAB7FFFCD9B4FFFCD7B1FFFBD4ABFFFBD4ABFFFBD1A4FFFBD1
+      A4FFF4EAE2FF89705AFFFFFFFFFFFFFFFFFFB69976FFF7F1ECFFFDDEBEFFFDDC
+      BAFFFCDAB7FFFCD7B1FFFBD4ABFFFBD4ABFFFBD1A4FFFBD1A4FFFCCD9BFFFCCD
+      9BFFF4EAE2FF7B6553FFFFFFFFFFFFFFFFFFB69976FFF7F1ECFFFDDCBAFFFCDA
+      B7FFFCD9B4FFFCD7B1FFFBD4ABFFFBD1A4FFFBD1A4FFFCCD9BFFFCCD9BFFFCCD
+      9BFFF4EAE2FF7B6553FFFFFFFFFFFFFFFF00FFFFFFFFB69976FFF7F1ECFFF7F1
+      ECFFF7F1ECFFF7F1ECFFF7F1ECFFF7F1ECFFFCCD9BFFFBD1A4FFF7F1ECFFF7F1
+      ECFF7B6553FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFFFF9B7C61FF9B7C
+      61FF95775DFF89705AFF89705AFF7B6553FFF7F1ECFFF7F1ECFF7B6553FF715A
+      48FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7B6553FFF7F1ECFF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF7B6553FF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF7B6553FFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFF
+      FFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF7BE896FF67E888FF67E8
+      88FF57E176FF4BDF6AFF43E66AFF3EE765FF33E75FFF33E75FFF193659FF1936
+      59FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF67E888FFE2FDE9FFCDF5
+      D7FFCDF5D7FFB9F5C9FFB9F5C9FF8BF5A7FF8BF5A7FF7DF29CFF32D859FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF57E176FFCDF5D7FF32D8
+      59FF2ED752FF2ED752FF2CD952FF27DA50FF27DA50FF27DA50FF1BAE51FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF4BDF6AFFB9F5C9FF2ED7
+      52FF29D44DFF29D44DFF29D44DFF24D84CFF24D84CFF27DA50FF1F8332FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF3FDA60FF8BF5A7FF29D4
+      4DFF29D44DFF24D349FF24D349FF24D349FF20D447FF24D84CFF1F8332FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF32D859FF7DF29CFF29D4
+      4DFF24D349FF24D349FF24D349FF20D447FF20D447FF20D447FF1F8332FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF2CD952FF7DF29CFF24D3
+      49FF24D349FF24D349FF20D447FF20D447FF20D447FF20D447FF1D7F30FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF27DA50FF67E888FF43E6
+      6AFF43E66AFF3EE765FF3EE765FF3EE765FF3EE765FF3EE765FF003867FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFF24DF56FF1CCC58FF1CCC
+      58FF1BAE51FF1BAE51FF1BAE51FF1BAE51FF1BAE51FF1B9251FF193659FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF193659FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF193659FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF193659FF4576
+      B1FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFF193659FF1936
+      59FF193659FFFFFFFFFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFF00
+    }
   end
 end
