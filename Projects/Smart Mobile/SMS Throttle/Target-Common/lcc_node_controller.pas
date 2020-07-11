@@ -500,7 +500,8 @@ begin
   //   TODO Need to do this manually in SMS
   FAssignedTrain.NodeID := NULL_NODE_ID;
   FAssignedTrain.AliasID := 0;
-  FAssignedTrain.SearchData := 0;
+  FAssignedTrain.RequestedSearchData := 0;
+  FAssignedTrain.RepliedSearchData := 0;
   FAssignedTrain.SearchString := '';
   FAssignedTrain.ReservedState := trsNotReserved;
   FAssignedTrain.AttachedState := tasNotAssigned;
