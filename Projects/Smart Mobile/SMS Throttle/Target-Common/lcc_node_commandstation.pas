@@ -232,7 +232,6 @@ var
   SearchDccAddress: LongInt;
   {$ENDIF}
   ForceAllocate, ExactMatchOnly, MatchAddressOnly, LongAddressOnly, IsDCC: Boolean;
-  SpeedStep: TLccDccSpeedStep;
   ATrain: TLccTrainCanNode;
   ReturnEvent: TEventID;
   TrackProtocolFlags: Byte;
@@ -269,7 +268,7 @@ begin
           begin
             SearchDccAddress := StrToInt(SearchStr);
             LongAddressOnly := False;
-            SpeedStep := ldss14;
+            NMRA_SpeedStep := ldss14;
 
             if SourceMessage.TractionSearchIsProtocolAny then
             begin
@@ -301,7 +300,7 @@ begin
 
               if (ATrain = nil) and ForceAllocate then
               begin
-                ATrain := AddTrain('New ATrain', SearchStr, SearchDccAddress, LongAddressOnly, SpeedStep);
+                ATrain := AddTrain('New ATrain', SearchStr, SearchDccAddress, LongAddressOnly, NMRA_SpeedStep);
                 ATrain.SearchEvent := ReturnEvent;
                 ATrain.Login(NULL_NODE_ID);
                 // Alias will change

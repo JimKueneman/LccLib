@@ -514,6 +514,7 @@ end;
 
 procedure TLccCanNode.Logout;
 begin
+  (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
   SendAMR;
   FPermitted := False;
   InProcessMessageClear;
@@ -1083,7 +1084,7 @@ begin
   {$ELSE}
   Seed[0] := Random($FFFFFF);
   {$ENDIF}
-  (NodeManager as INodeManagerCallbacks).DoCreateLccNode(Self);
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
 end;
 
 destructor TLccNode.Destroy;
@@ -1165,6 +1166,7 @@ begin
   SendInitializeComplete;
   AutoGenerateEvents;
   SendEvents;
+  (NodeManager as INodeManagerCallbacks).DoLogInNode(Self);
 end;
 
 procedure TLccNode.Logout;

@@ -65,6 +65,8 @@ type
     procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerIDChanged(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
@@ -142,6 +144,8 @@ begin
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChanged;
   NodeManager.OnLccMessageReceive := @OnNodeManagerReceiveMessage;
   NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
+  NodeManager.OnLccNodeLogin := @OnNodeManagerNodeLogin;
+  NodeManager.OnLccNodeLogout := @OnNodeManagerNodeLogout;
 
   LccServer.NodeManager := NodeManager;
 
@@ -230,6 +234,49 @@ procedure TFormTrainCommander.OnNodeManagerIDChanged(Sender: TObject;
   LccSourceNode: TLccNode);
 begin
   LabelNodeID.Caption := LccSourceNode.NodeIDStr;
+end;
+
+procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject;
+  LccSourceNode: TLccNode);
+var
+  TrainNode: TLccTrainCanNode;
+  Item: TListItem;
+  SpeedStep: string;
+begin
+  if LccSourceNode is TLccTrainCanNode then
+  begin
+    TrainNode := LccSourceNode as TLccTrainCanNode;
+    Item := ListViewTrains.Items.Add;
+    Item.Data := TrainNode;
+    Item.ImageIndex := 18;
+    case TrainNode.SpeedStep of
+      ldssDefault : SpeedStep := 'Default Step';
+      ldss14      : SpeedStep := '14 Step';
+      ldss28      : SpeedStep := '28 Step';
+      ldss128     : SpeedStep := '128 Step';
+    end;
+    if TrainNode.DccLongAddress then
+      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Long ' + SpeedStep
+    else
+      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Short ' + SpeedStep;
+  end;
+end;
+
+procedure TFormTrainCommander.OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
+var
+  i: Integer;
+begin
+  if LccSourceNode is TLccTrainCanNode then
+  begin
+    for i := 0 to ListViewTrains.Items.Count - 1 do
+    begin
+      if ListViewTrains.Items[i].Data = Pointer(LccSourceNode) then
+      begin
+        ListViewTrains.Items.Delete(i);
+        Break;
+      end;
+    end;
+  end;
 end;
 
 procedure TFormTrainCommander.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);

@@ -71,6 +71,8 @@ type
     procedure DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState);
     procedure DoDatagramReply(LccNode: TLccNode);
     procedure DoDestroyLccNode(LccNode: TLccNode);   //*
+    procedure DoLogInNode(LccNode: TLccNode);
+    procedure DoLogOutNode(LccNode: TLccNode);
     procedure DoFDI(LccNode: TLccNode);
     procedure DoFunctionConfiguration(LccNode: TLccNode);
     procedure DoInitializationComplete(LccNode: TLccNode);   //*
@@ -125,6 +127,8 @@ type
     FOnLccNodeFDI: TOnLccNodeMessageWithDest;
     FOnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest;
     FOnLccNodeInitializationComplete: TOnLccNodeMessage;
+    FOnLccNodeLogin: TOnLccNodeMessage;
+    FOnLccNodeLogout: TOnLccNodeMessage;
     FOnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest;
     FOnLccNodeProducerIdentified: TOnLccNodeEventIdentified;
     FOnLccNodeProducerIdentify: TOnLccNodeEventIdentify;
@@ -158,6 +162,8 @@ type
     procedure DoConfigMemReadReply(LccNode: TLccNode); virtual;
     procedure DoConfigMemWriteReply(LccNode: TLccNode); virtual;
     procedure DoCreateLccNode(LccNode: TLccNode); virtual;     //*
+    procedure DoLogInNode(LccNode: TLccNode); virtual;         //*
+    procedure DoLogOutNode(LccNode: TLccNode);
     procedure DoConsumerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState); virtual;
     procedure DoDatagramReply(LccNode: TLccNode); virtual;
@@ -217,6 +223,8 @@ type
     // Node Management
     property OnLccNodeCreate: TOnLccNodeMessage read FOnLccNodeCreate write FOnLccNodeCreate;
     property OnLccNodeDestroy: TOnLccNodeMessage read FOnLccNodeDestroy write FOnLccNodeDestroy;
+    property OnLccNodeLogin: TOnLccNodeMessage read FOnLccNodeLogin write FOnLccNodeLogin;
+    property OnLccNodeLogout: TOnLccNodeMessage read FOnLccNodeLogout write FOnLccNodeLogout;
     property OnLccNodeIDChanged: TOnLccNodeMessage read FOnLccNodeIDChanged write FOnLccNodeIDChanged;
     property OnLccNodeInitializationComplete: TOnLccNodeMessage read FOnLccNodeInitializationComplete write FOnLccNodeInitializationComplete;
     property OnLccNodeVerifiedNodeID: TOnLccNodeMessage read FOnLccNodeVerifiedNodeID write FOnLccNodeVerifiedNodeID;
@@ -420,6 +428,18 @@ procedure TLccNodeManager.DoLccMessageSend(Sender: TObject; Message: TLccMessage
 begin
   if Assigned(OnLccMessageSend) then
     OnLccMessageSend(Sender, Message);
+end;
+
+procedure TLccNodeManager.DoLogInNode(LccNode: TLccNode);
+begin
+  if Assigned(OnLccNodeLogin) then
+    OnLccNodeLogin(Self, LccNode);
+end;
+
+procedure TLccNodeManager.DoLogOutNode(LccNode: TLccNode);
+begin
+  if Assigned(OnLccNodeLogout) then
+    OnLccNodeLogout(Self, LccNode);
 end;
 
 procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode);

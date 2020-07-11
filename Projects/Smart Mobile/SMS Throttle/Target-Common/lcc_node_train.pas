@@ -103,7 +103,7 @@ type
     FSpeedStep: TLccDccSpeedStep;
     function GetDirection: TLccTrainDirection;
     function GetFunctions(Index: Integer): Word;
-    procedure SetDccAdddress(AValue: Word);
+    procedure SetDccAddress(AValue: Word);
     procedure SetDccLongAddress(AValue: Boolean);
     procedure SetDirection(AValue: TLccTrainDirection);
     procedure SetFunctions(Index: Integer; AValue: Word);
@@ -121,7 +121,7 @@ type
     procedure BeforeLogin; override;
   public
 
-    property DccAddress: Word read FDccAddress write SetDccAdddress;
+    property DccAddress: Word read FDccAddress write SetDccAddress;
     property DccLongAddress: Boolean read FDccLongAddress write SetDccLongAddress;
     property Name: string read FName write SetName;
     property RoadNumber: string read FRoadNumber write SetRoadNumber;
@@ -411,7 +411,7 @@ begin
   Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
 end;
 
-procedure TLccTrainCanNode.SetDccAdddress(AValue: Word);
+procedure TLccTrainCanNode.SetDccAddress(AValue: Word);
 begin
   if FDccAddress = AValue then Exit;
   FDccAddress := AValue;
