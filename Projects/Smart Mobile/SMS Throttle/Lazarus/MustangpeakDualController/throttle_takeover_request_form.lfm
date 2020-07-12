@@ -1,0 +1,38 @@
+object FormThrottleTakeover: TFormThrottleTakeover
+  Left = 497
+  Height = 120
+  Top = 266
+  Width = 536
+  BorderStyle = bsDialog
+  Caption = 'New Throttle Request'
+  ClientHeight = 120
+  ClientWidth = 536
+  LCLVersion = '2.0.6.0'
+  object Label1: TLabel
+    Left = 16
+    Height = 16
+    Top = 16
+    Width = 499
+    Caption = 'A new Throttle is requestiing to take over your train, would you like to allow it?'
+    ParentColor = False
+    WordWrap = True
+  end
+  object BitBtn1: TBitBtn
+    Left = 56
+    Height = 30
+    Top = 56
+    Width = 187
+    Caption = 'Yes'
+    ModalResult = 6
+    TabOrder = 0
+  end
+  object BitBtn2: TBitBtn
+    Left = 296
+    Height = 30
+    Top = 56
+    Width = 187
+    Caption = 'No'
+    ModalResult = 7
+    TabOrder = 1
+  end
+end
