@@ -69,7 +69,6 @@ type
       FSocket: TTCPBlockSocket;
       FSocketHandleForListener: TSocket;
       {$ENDIF}
-      FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
     protected
       procedure DoClientDisconnect;
       procedure DoConnectionState;
@@ -91,7 +90,6 @@ type
       property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
       property Owner: TLccEthernetServer read FOwner write FOwner;
-      property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
       property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
     public
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec); reintroduce;
@@ -925,7 +923,6 @@ begin
   FEthernetRec := AnEthernetRec;
   FEthernetRec.Thread := Self;
   FEthernetRec.LccMessage := TLccMessage.Create;
-  FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
   GridConnectMessageAssembler := TLccGridConnectMessageAssembler.Create;
 end;
 
@@ -937,7 +934,6 @@ begin
   FGridConnectMessageAssembler.Free;
   {$ELSE}
   FreeAndNil(FEthernetRec.LccMessage);
-  FreeAndNil(FTcpDecodeStateMachine);
   FreeAndNil(FGridConnectMessageAssembler);
   {$ENDIF}
   inherited Destroy;

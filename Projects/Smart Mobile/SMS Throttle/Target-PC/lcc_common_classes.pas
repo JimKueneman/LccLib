@@ -17,6 +17,7 @@ uses
   {$ENDIF}
   lcc_node_messages,
   lcc_threaded_circulararray,
+  lcc_ethernet_tcp,
   lcc_threaded_stringlist;
 
 type
@@ -29,6 +30,7 @@ type
     FOutgoingCircularArray: TThreadedCirularArray;
     FOutgoingGridConnect: TThreadStringList;
     FSleepCount: Integer;
+    FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
     FUseSynchronize: Boolean;
     FWorkerMsg: TLccMessage;
     function GetIsTerminated: Boolean;
@@ -50,6 +52,7 @@ type
     property SleepCount: Integer read FSleepCount write FSleepCount;
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
     property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
+    property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
   end;
 
 
@@ -101,6 +104,7 @@ begin
   FOutgoingCircularArray := TThreadedCirularArray.Create;
   FOutgoingGridConnect := TThreadStringList.Create;
   OutgoingGridConnect.Delimiter := #10;
+  FTcpDecodeStateMachine := TOPStackcoreTcpDecodeStateMachine.Create;
 end;
 
 destructor TLccConnectionThread.Destroy;
@@ -109,6 +113,7 @@ begin
   FreeAndNil(FMsgStringList);
   FreeAndNil(FOutgoingCircularArray);
   FreeAndNil(FOutgoingGridConnect);
+  FreeAndNil(FTcpDecodeStateMachine);
   inherited Destroy;
 end;
 

@@ -80,6 +80,7 @@ type
   TOnControllerCallBack = procedure(Sender: TLccNode; Reason: TControllerCallBackMessages) of object;
   TOnControllerQuerySpeed = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
   TOnControllerQueryFunction = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
+  TOnControllerRequestTakeover = procedure(Sender: TLccNode; var Allow: Boolean) of object;
 
   // ******************************************************************************
 
@@ -108,6 +109,7 @@ type
     FAssignedTrain: TAttachedTrain;
     FDirection: TLccTrainDirection;
     FFunctionArray: TLccFunctions;
+    FOnControllerRequestTakeover: TOnControllerRequestTakeover;
     FOnMessageCallback: TOnControllerCallBack;
     FOnQueryFunction: TOnControllerQueryFunction;
     FOnQuerySpeed: TOnControllerQuerySpeed;
@@ -126,6 +128,7 @@ type
     procedure DoMessageCallback(AMessage: TControllerCallBackMessages); virtual;
     procedure DoQuerySpeed(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunction(Address: DWORD; Value: Word); virtual;
+    procedure DoControllerTakeOver(var Allow: Boolean); virtual;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
@@ -135,6 +138,7 @@ type
     property OnMessageCallback: TOnControllerCallBack read FOnMessageCallback write FOnMessageCallback;
     property OnQuerySpeed: TOnControllerQuerySpeed read FOnQuerySpeed write FOnQuerySpeed;
     property OnQueryFunction: TOnControllerQueryFunction read FOnQueryFunction write FOnQueryFunction;
+    property OnControllerRequestTakeover: TOnControllerRequestTakeover read FOnControllerRequestTakeover write FOnControllerRequestTakeover;
 
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
@@ -224,9 +228,12 @@ begin
 end;
 
 function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+var
+  AllowTakeOver: Boolean;
 begin
   Result :=inherited ProcessMessage(SourceMessage);
 
+  // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
     if not IsDestinationEqual(SourceMessage) then
@@ -270,10 +277,19 @@ begin
                 case SourceMessage.DataArray[1] of
                   TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
                   begin
-                    ClearAssignedTrain;
-                    WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
-                    SendMessageFunc(Self, WorkerMessage);
-                    DoMessageCallback(ccbControllerUnassigned);
+                    AllowTakeover := True;
+                    DoControllerTakeOver(AllowTakeover);
+                    if AllowTakeover then
+                    begin
+                      ClearAssignedTrain;
+                      WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
+                      SendMessageFunc(Self, WorkerMessage);
+                      DoMessageCallback(ccbControllerUnassigned);
+                    end else
+                    begin
+                      WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False );
+                      SendMessageFunc(Self, WorkerMessage);
+                    end;
                   end;
                 end;
               end;
@@ -284,10 +300,7 @@ begin
           case SourceMessage.DataArray[0] of
             TRACTION_QUERY_SPEED_REPLY :
               begin
-                DoQuerySpeed(SourceMessage.TractionExtractSetSpeed,
-                             SourceMessage.TractionExtractCommandedSpeed,
-                             SourceMessage.TractionExtractActualSpeed,
-                             SourceMessage.TractionExtractSpeedStatus);
+                DoQuerySpeed(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
               end;
             TRACTION_QUERY_FUNCTION_REPLY :
               begin
@@ -508,6 +521,12 @@ begin
   FAssignedTrain.SearchState := tssNotSearching;
   FAssignedTrain.Listeners := nil;
   {$ENDIF}
+end;
+
+procedure TLccTrainController.DoControllerTakeOver(var Allow: Boolean);
+begin
+  If Assigned(OnControllerRequestTakeover) then
+    OnControllerRequestTakeover(Self, Allow);
 end;
 
 function TLccTrainController.GetCdiFile: string;

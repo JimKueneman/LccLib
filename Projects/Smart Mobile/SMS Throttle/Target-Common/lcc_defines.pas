@@ -43,6 +43,15 @@ const
   S_FALSE = $01;
 {$ENDIF}
 
+
+const
+  PATH_OSX_RESOURCES = 'Contents/Resources/';
+  PATH_OSX_EXECUTABLE = 'Contents/MacOS/';
+  PATH_UNIX_APPLICATION = '/usr/share/';    // Typical place to store the application foldler
+  PATH_UNIX_SETTINGS = '/home/{user}/.config/{executable_name}';  // GetAppConfigDir  does this for us but this is what it returns
+  PATH_LINUX_DEV = '/dev/';
+  PATH_OSX_DEV = 'dev/';
+
 const
   LCC_BYTE_COUNT            = 1024;       // This is longest data structure defined in Lcc
   MAX_DATAGRAM_LENGTH       = 72;

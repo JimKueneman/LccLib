@@ -8,13 +8,15 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, lcc_ethernet_server, lcc_defines, lcc_node,
   lcc_node_manager, lcc_ethernet_client, lcc_node_messages,
-  lcc_node_commandstation, lcc_node_controller, lcc_node_train;
+  lcc_node_commandstation, lcc_node_controller, lcc_node_train,
+  lcc_comport, synaser;
 
 type
 
   { TFormTrainCommander }
 
   TFormTrainCommander = class(TForm)
+    Button1: TButton;
     ButtonTrainsClear: TButton;
     ButtonClear: TButton;
     ButtonManualConnect: TButton;
@@ -22,6 +24,7 @@ type
     CheckBoxLogMessages: TCheckBox;
     CheckBoxLoopBackIP: TCheckBox;
     CheckBoxAutoConnect: TCheckBox;
+    ComboBox1: TComboBox;
     ImageListMain: TImageList;
     LabelNodeID: TLabel;
     LabelAliasID: TLabel;
@@ -38,6 +41,7 @@ type
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
     TimerIncomingMessagePump: TTimer;
+    procedure Button1Click(Sender: TObject);
     procedure ButtonClearClick(Sender: TObject);
     procedure ButtonManualConnectClick(Sender: TObject);
     procedure ButtonTrainsClearClick(Sender: TObject);
@@ -82,6 +86,11 @@ implementation
 
 { TFormTrainCommander }
 
+procedure TFormTrainCommander.Button1Click(Sender: TObject);
+begin
+  ComboBox1.Items.Delimiter := ';';
+  ComboBox1.Items.DelimitedText := StringReplace(GetSerialPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
+end;
 
 procedure TFormTrainCommander.ButtonClearClick(Sender: TObject);
 begin

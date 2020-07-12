@@ -1,26 +1,40 @@
 unit lcc_comport;
 
 {$IFDEF FPC}
-  {$DEFINE LOGGING}
-{$ENDIF}
-
-{$IFDEF FPC}
 {$mode objfpc}{$H+}
 {$ENDIF}
 
 interface
 
 uses
-  Classes, SysUtils, contnrs,
+  Classes,
+  SysUtils,
   {$IFDEF FPC}
-  LResources, Forms, Controls, Graphics, Dialogs,
+    {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
+  {$ELSE}
+  FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
-  {$IFDEF LOGGING}
-  frame_lcc_logging, lcc_detailed_logging,
+
+  {$IFDEF ULTIBO}
+  lcc_threaded_stringlist,
+  Winsock2,
+  Console,
+  {$ELSE}
+  blcksock,
+  synsock,
   {$ENDIF}
-  lcc_gridconnect, synaser, lcc_threaded_stringlist,
-  lcc_nodemanager, lcc_messages, lcc_defines, lcc_utilities, lcc_app_common_settings,
-  lcc_common_classes, file_utilities, lcc_compiler_types, lcc_can_message_assembler_disassembler;
+  synaser,
+  lcc_threaded_circulararray,
+  lcc_threaded_stringlist,
+  lcc_gridconnect,
+  lcc_utilities,
+  lcc_defines,
+  lcc_node_manager,
+  lcc_node_messages,
+  lcc_app_common_settings,
+  lcc_common_classes,
+  lcc_ethernet_tcp,
+  lcc_node_messages_can_assembler_disassembler;
 
 type
   TLccComPortThread = class;             // Forward
@@ -37,6 +51,7 @@ type
     HardwareHandShake: Boolean;          // Enable CTS/RTS handshake
     ConnectionState: TConnectionState;   // Current State of the connection
     MessageStr: String;                  // Contains the string for the resuting message from the thread
+    MessageArray: lcc_defines.TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
     LccMessage: TLccMessage;
     SuppressNotification: Boolean;       // True to stop any Syncronoize() call being called
   end;
@@ -98,7 +113,6 @@ type
     FComPortThreads: TLccComPortThreadList;
     FHub: Boolean;
     FLccSettings: TLccSettings;
-    FLoggingFrame: TFrameLccLogging;
     FNodeManager: TLccNodeManager;
     FOnErrorMessage: TOnComChangeFunc;
     FOnConnectionStateChange: TOnComChangeFunc;
@@ -139,15 +153,8 @@ type
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
-procedure Register;
 
 implementation
-
-procedure Register;
-begin
-  {$I TLccComPort.lrs}
-  RegisterComponents('LCC',[TLccComPort]);
-end;
 
 { TLccComPortThreadList }
 
@@ -435,6 +442,8 @@ var
   GridConnectHelper: TGridConnectHelper;
   TxList: TStringList;
   LocalSleepCount: Integer;
+  DynamicByteArray: TDynamicByteArray;
+  RcvByte: Byte;
 begin
   FRunning := True;
 
@@ -466,70 +475,110 @@ begin
           LocalSleepCount := 0;
           while not IsTerminated and (FComPortRec.ConnectionState = ccsPortConnected) do
           begin
-
-            // Transmit new message on every N (SleepCount) Receive trys
-            if LocalSleepCount >= SleepCount then
+             // Handle the ComPort using GridConnect
+            if Gridconnect then
             begin
-              TxStr := '';
-              TxList := OutgoingGridConnect.LockList;
-              try
-                if TxList.Count > 0 then
-                begin
-                  if SleepCount = 0 then
-                  begin
-                    TxStr := '';
-                    for i := 0 to TxList.Count - 1 do
-                      TxStr := TxStr + TxList[i];
-                    TxList.Clear;
-                  end else
+              if LocalSleepCount >= SleepCount then
+              begin
+                TxStr := '';
+                TxList := OutgoingGridConnect.LockList;
+                try
+                  if TxList.Count > 0 then
                   begin
                     TxStr := TxList[0];
                     TxList.Delete(0);
                   end;
+                finally
+                  OutgoingGridConnect.UnlockList;
                 end;
-              finally
-                OutgoingGridConnect.UnlockList;
+
+                if TxStr <> '' then
+                begin
+                  Serial.SendString(TxStr);
+                  if Serial.LastError <> 0 then
+                    HandleErrorAndDisconnect;
+                end;
+                LocalSleepCount := 0;
+              end;
+              Inc(LocalSleepCount);
+
+              RcvStr := Serial.Recvstring(1);
+              case Serial.LastError of
+                0, ErrTimeout : begin end;
+              else
+                HandleErrorAndDisconnect
               end;
 
-              if TxStr <> '' then
+              for i := 1 to Length(RcvStr) do
               begin
-                Serial.SendString(TxStr);
-                if Serial.LastError <> 0 then
-                  HandleErrorAndDisconnect;
-              end;
-              LocalSleepCount := 0;
-            end;
-            Inc(LocalSleepCount);
-
-            RcvStr := Serial.Recvstring(1);
-            case Serial.LastError of
-              0, ErrTimeout : begin end;
-            else
-              HandleErrorAndDisconnect
-            end;
-             {$IFDEF FPC}
-             for i := 1 to Length(RcvStr) do
-             begin
                GridConnectStrPtr := nil;
 
                if GridConnectHelper.GridConnect_DecodeMachine(Ord( RcvStr[i]), GridConnectStrPtr) then
                begin
-                 FComPortRec.MessageStr := NullArrayToString(GridConnectStrPtr^);
+                 FComPortRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                  FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
                  Synchronize(@DoReceiveMessage);
                end;
-             end;
-             {$ELSE}
-             for i := Low(RcvStr) to Length(RcvStr) do
-             begin
-               if GridConnectHelper.GridConnect_DecodeMachine(RcvStr[i], GridConnectStrPtr) then
-               begin
-                 FComPortRec.MessageStr := GridConnectStrPtr^;
-                 FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
-                 Synchronize(@DoReceiveMessage);
-               end;
-             end;
-             {$ENDIF}
+              end;
+            end else
+            begin    // Handle the Socket with LCC TCP Protocol
+              if LocalSleepCount >= SleepCount then
+              begin
+                DynamicByteArray := nil;
+                OutgoingCircularArray.LockArray;
+                try
+                  if OutgoingCircularArray.Count > 0 then
+                    OutgoingCircularArray.PullArray(DynamicByteArray);
+                finally
+                  OutgoingCircularArray.UnLockArray;
+                end;
+
+                if Length(DynamicByteArray) > 0 then
+                begin
+                  Serial.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
+                  if Serial.LastError <> 0 then
+                    HandleErrorAndDisconnect;
+                  DynamicByteArray := nil;
+                end;
+                LocalSleepCount := 0;
+              end;
+              Inc(LocalSleepCount);
+
+              RcvByte := Serial.RecvByte(1);
+              case Serial.LastError of
+                0 :
+                  begin
+                    DynamicByteArray := nil;
+                    if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FComPortRec.MessageArray) then
+                    begin
+                      if UseSynchronize then
+                        Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                      else begin
+                        DynamicByteArray := nil;
+                        Owner.IncomingCircularArray.LockArray;
+                        try
+                          Owner.IncomingCircularArray.AddChunk(FComPortRec.MessageArray);
+                        finally
+                          Owner.IncomingCircularArray.UnLockArray;
+                        end;
+                      end
+                    end;
+                  end;
+                WSAETIMEDOUT :
+                  begin
+
+                  end;
+                WSAECONNRESET   :
+                  begin
+                    FComPortRec.MessageStr := Serial.LastErrorDesc;
+          //          Synchronize({$IFDEF FPC}@{$ENDIF}DoClientDisconnect);
+                    FComPortRec.MessageStr := '';
+                    Terminate;
+                  end
+              else
+                HandleErrorAndDisconnect
+              end;
+            end;
           end;
         finally
           SendConnectionNotification(ccsPortDisconnecting);
@@ -550,21 +599,21 @@ end;
 
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
 var
+  ByteArray: TDynamicByteArray;
   i: Integer;
 begin
   if not IsTerminated then
   begin
-    MsgDisAssembler.OutgoingMsgToMsgList(AMessage, MsgStringList);
-
-    for i := 0 to MsgStringList.Count - 1 do
+    if Gridconnect then
     begin
-    OutgoingGridConnect.Add(MsgStringList[i]);
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'S ComPort: ' + MsgStringList[i],
-                      Owner.LoggingFrame.SynEdit,
-                      Owner.LoggingFrame.ActionLogPause.Checked,
-                      Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                      Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
+      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
+      for i := 0 to MsgStringList.Count - 1 do
+        OutgoingGridConnect.Add(MsgStringList[i]);
+    end else
+    begin
+      ByteArray := nil;
+      if AMessage.ConvertToLccTcp(ByteArray) then
+        OutgoingCircularArray.AddChunk(ByteArray);
     end;
     DoSendMessage(AMessage);
   end;
@@ -603,36 +652,56 @@ begin
 end;
 
 procedure TLccComPortThread.DoReceiveMessage;
+var
+  L: TList;
+  i: Integer;
 begin
   if not IsTerminated then
   begin
-    if Assigned(Owner) and Assigned(Owner.LoggingFrame) and not Owner.LoggingFrame.Paused and Owner.LoggingFrame.Visible then
-      PrintToSynEdit( 'R ComPort : ' + ComPortRec.MessageStr,
-                      Owner.LoggingFrame.SynEdit,
-                      Owner.LoggingFrame.ActionLogPause.Checked,
-                      Owner.LoggingFrame.CheckBoxDetailedLogging.Checked,
-                      Owner.LoggingFrame.CheckBoxJMRIFormat.Checked);
-
     // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
+    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
       OnReceiveMessage(Self, FComPortRec);
 
+    if Gridconnect then
     begin
-      case MsgAssembler.IncomingMessageGridConnect(FComPortRec.MessageStr, WorkerMsg) of
-        imgcr_True :
+      if Owner.NodeManager <> nil then
+        Owner.NodeManager.ProcessMessage(FComPortRec.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+
+      if Owner.Hub then
+      begin
+        L := Owner.ComPortThreads.LockList;
+        try
+          for i := 0 to L.Count - 1 do
           begin
-            if Owner.NodeManager <> nil then
-              Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+            if TLccComPortThread(L[i]) <> Self then
+              TLccComPortThread(L[i]).SendMessage(FComPortRec.LccMessage);
           end;
-        imgcr_ErrorToSend :
-          begin
-            if Owner.NodeManager <> nil then
-              if Owner.NodeManager.FindOwnedNodeBySourceID(WorkerMsg) <> nil then
-                Owner.NodeManager.SendLccMessage(WorkerMsg);
-          end;
+        finally
+          Owner.ComPortThreads.UnlockList;
+        end
       end;
-    end
+    end else
+    begin   // TCP Protocol
+      if WorkerMsg.LoadByLccTcp(FComPortRec.MessageArray) then // In goes a raw message
+      begin
+        if (Owner.NodeManager <> nil) then
+          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+
+        if Owner.Hub then
+        begin
+          L := Owner.ComPortThreads.LockList;
+          try
+            for i := 0 to L.Count - 1 do
+            begin
+              if TLccComPortThread(L[i]) <> Self then
+                TLccComPortThread(L[i]).SendMessage(WorkerMsg);
+            end;
+          finally
+            Owner.ComPortThreads.UnlockList;
+          end
+        end
+      end
+    end;
   end
 end;
 

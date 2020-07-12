@@ -13,11 +13,11 @@ object FormTrainCommander: TFormTrainCommander
   LCLVersion = '2.0.6.0'
   object PanelDetails: TPanel
     Left = 0
-    Height = 96
+    Height = 120
     Top = 0
     Width = 684
     Align = alTop
-    ClientHeight = 96
+    ClientHeight = 120
     ClientWidth = 684
     TabOrder = 0
     object CheckBoxAutoConnect: TCheckBox
@@ -38,9 +38,9 @@ object FormTrainCommander: TFormTrainCommander
       TabOrder = 1
     end
     object ButtonClear: TButton
-      Left = 560
+      Left = 568
       Height = 23
-      Top = 64
+      Top = 88
       Width = 104
       Caption = 'Clear'
       OnClick = ButtonClearClick
@@ -91,7 +91,7 @@ object FormTrainCommander: TFormTrainCommander
     object CheckBoxLogMessages: TCheckBox
       Left = 440
       Height = 18
-      Top = 64
+      Top = 93
       Width = 108
       Caption = 'Log Messages'
       Checked = True
@@ -107,6 +107,24 @@ object FormTrainCommander: TFormTrainCommander
       Checked = True
       State = cbChecked
       TabOrder = 5
+    end
+    object ComboBox1: TComboBox
+      Left = 376
+      Height = 21
+      Top = 47
+      Width = 284
+      ItemHeight = 0
+      TabOrder = 6
+      Text = 'ComboBox1'
+    end
+    object Button1: TButton
+      Left = 288
+      Height = 25
+      Top = 47
+      Width = 75
+      Caption = 'Button1'
+      OnClick = Button1Click
+      TabOrder = 7
     end
   end
   object PanelConnections: TPanel
@@ -142,8 +160,8 @@ object FormTrainCommander: TFormTrainCommander
   end
   object SplitterTrains: TSplitter
     Left = 211
-    Height = 343
-    Top = 96
+    Height = 319
+    Top = 120
     Width = 5
   end
   object StatusBarMain: TStatusBar
@@ -162,17 +180,17 @@ object FormTrainCommander: TFormTrainCommander
   end
   object PanelTrains: TPanel
     Left = 0
-    Height = 343
-    Top = 96
+    Height = 319
+    Top = 120
     Width = 211
     Align = alLeft
     Caption = 'PanelTrains'
-    ClientHeight = 343
+    ClientHeight = 319
     ClientWidth = 211
     TabOrder = 5
     object ListViewTrains: TListView
       Left = 1
-      Height = 310
+      Height = 286
       Top = 32
       Width = 209
       Align = alClient
@@ -202,8 +220,8 @@ object FormTrainCommander: TFormTrainCommander
   end
   object MemoLog: TMemo
     Left = 216
-    Height = 343
-    Top = 96
+    Height = 319
+    Top = 120
     Width = 468
     Align = alClient
     ScrollBars = ssVertical
@@ -1243,7 +1261,7 @@ object FormTrainCommander: TFormTrainCommander
   object TimerIncomingMessagePump: TTimer
     Interval = 1
     OnTimer = TimerIncomingMessagePumpTimer
-    left = 336
-    top = 32
+    left = 88
+    top = 40
   end
 end

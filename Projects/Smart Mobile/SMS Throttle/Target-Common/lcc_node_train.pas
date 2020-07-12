@@ -143,8 +143,79 @@ type
 
   TLccTrainCanNodeClass = class of TLccTrainCanNode;
 
+  function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
+  function SpeedStepToIndex(SpeedStep: TLccDccSpeedStep): Integer;
+  function IndexToSpeedStep(Index: Integer): TLccDccSpeedStep;
+  function AddressBooleanToText(IsLong: Boolean; Verbose: Boolean): string;
 
 implementation
+
+function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean
+  ): string;
+begin
+  if Verbose then
+  begin
+    case SpeedStep of
+      ldssDefault : Result := 'Default';
+      ldss14      : Result := '14 Step';
+      ldss28      : Result := '28 Step';
+      ldss128     : Result := '128 Step';
+     else
+       Result := 'Unknown'
+     end;
+  end else
+  begin
+    case SpeedStep of
+      ldssDefault : Result := 'S=Def';
+      ldss14      : Result := 'S=14';
+      ldss28      : Result := 'S=28';
+      ldss128     : Result := 'S=128';
+     else
+       Result := 'Unknown'
+     end;
+  end;
+end;
+
+function SpeedStepToIndex(SpeedStep: TLccDccSpeedStep): Integer;
+begin
+  case SpeedStep of
+    ldssDefault : Result := 0;
+    ldss14      : Result := 1;
+    ldss28      : Result := 2;
+    ldss128     : Result := 3;
+   else
+     Result := -1;
+   end;
+end;
+
+function IndexToSpeedStep(Index: Integer): TLccDccSpeedStep;
+begin
+  case Index of
+     0 : Result := ldssDefault;
+     1 : Result := ldss14;
+     2 : Result := ldss28;
+     3 : Result := ldss128;
+   else
+     Result := ldssDefault;
+   end;
+end;
+
+function AddressBooleanToText(IsLong: Boolean; Verbose: Boolean): string;
+begin
+  if Verbose then
+  begin
+    if IsLong then
+      Result := 'Long Address'
+    else
+      Result := 'Short Address'
+  end else
+  begin
+     if IsLong then
+      Result := 'L'
+    else
+      Result := 'S'
+  end
+end;
 
 { TLccTrainCanNode }
 
@@ -248,6 +319,7 @@ var
 begin
   Result := inherited ProcessMessage(SourceMessage);
 
+  // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
     if not IsDestinationEqual(SourceMessage) then

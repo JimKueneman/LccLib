@@ -7,26 +7,44 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, Spin, lcc_node_manager, lcc_ethernet_client, lcc_node,
-  lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16;
+  lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
+  throttle_takeover_request_form;
 
 type
 
   TControllerState = record
     QueryingSpeed,
-    QueryingFunctions: Boolean;
+    QueryingFunctions,
+    BuildingConsist: Boolean;
     FunctionQueryIndex: Integer;
+    LastTreeNode: TTreeNode;
+  end;
+
+  TConsistItem = class(TObject)
+  public
+    DccAddress: Word;
+    SpeedStep: TLccDccSpeedStep;
+    LongAddress: Boolean;
   end;
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    ButtonBuildConstist1: TButton;
+    ButtonBuildConstist2: TButton;
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
+    CheckBoxConsistAddress1: TCheckBox;
+    CheckBoxConsistAddress2: TCheckBox;
+    CheckBoxThrottleTakeover1: TCheckBox;
     CheckBoxThrottleLongAddress1: TCheckBox;
     CheckBoxThrottleLongAddress2: TCheckBox;
+    CheckBoxThrottleTakeover2: TCheckBox;
+    EditConsistAddress2: TEdit;
     EditThrottleAddress1: TEdit;
     EditCommandStationIPAddress: TEdit;
     EditThrottleAddress2: TEdit;
+    EditConsistAddress1: TEdit;
     ImageList: TImageList;
     Label1: TLabel;
     Label2: TLabel;
@@ -38,6 +56,8 @@ type
     Label103: TLabel;
     Label101: TLabel;
     Label100: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     LabelAlias2: TLabel;
     LabelNodeID2: TLabel;
     LabelNodeID1: TLabel;
@@ -45,19 +65,27 @@ type
     Label104: TLabel;
     LabelThrottleSpeed1: TLabel;
     LabelThrottleSpeed2: TLabel;
-    Panel7: TPanel;
+    PanelConsistWizard1: TPanel;
+    PanelConsistWizard2: TPanel;
+    PanelThrottleAssign2: TPanel;
     PanelThrottle1: TPanel;
-    PanelMain: TPanel;
+    PanelTop: TPanel;
     PanelThrottle2: TPanel;
     PanelThrottleEthernet: TPanel;
-    Panel6: TPanel;
+    PanelThrottleAssign1: TPanel;
     PanelThrottleEthernet1: TPanel;
     PanelThrottleFace1: TPanel;
     PanelThrottleFace2: TPanel;
     PanelThrottleKeypad1: TPanel;
     PanelThrottleKeypad2: TPanel;
+    RadioGroupConstistSpeedStep2: TRadioGroup;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
+    RadioGroupConstistSpeedStep1: TRadioGroup;
+    SpeedButtonConsistSubtract2: TSpeedButton;
+    SpeedButtonConsistTrainAdd1: TSpeedButton;
+    SpeedButtonConsistSubtract1: TSpeedButton;
+    SpeedButtonConstistTrainAdd2: TSpeedButton;
     SpeedButtonQuerySpeedThrottle1: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
     SpeedButtonForward2: TSpeedButton;
@@ -93,10 +121,18 @@ type
     StatusBarThrottle2: TStatusBar;
     TrackBarThrottle1: TTrackBar;
     TrackBarThrottle2: TTrackBar;
+    TreeViewConsistWizard1: TTreeView;
+    TreeViewConsistWizard2: TTreeView;
+    procedure ButtonBuildConstist1Click(Sender: TObject);
+    procedure ButtonBuildConstist2Click(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
     procedure ButtonConnect2Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
+    procedure SpeedButtonConsistSubtract1Click(Sender: TObject);
+    procedure SpeedButtonConsistSubtract2Click(Sender: TObject);
+    procedure SpeedButtonConsistTrainAdd1Click(Sender: TObject);
+    procedure SpeedButtonConstistTrainAdd2Click(Sender: TObject);
     procedure SpeedButtonForward1Click(Sender: TObject);
     procedure SpeedButtonForward2Click(Sender: TObject);
     procedure SpeedButtonReverse1Click(Sender: TObject);
@@ -107,6 +143,9 @@ type
     procedure SpeedButtonThrottleAssign2Click(Sender: TObject);
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
+    procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
+    procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
 
   protected
@@ -124,6 +163,7 @@ type
     procedure OnClientServer2ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure OnClientServer2ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 
+    // The Controller is the Controller Node created in the NodeManager
     procedure Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
     procedure Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 
@@ -132,6 +172,9 @@ type
 
     procedure OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
+
+    procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
+    procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -142,13 +185,11 @@ type
     NodeManager2: TLccCanNodeManager;
     ClientServer2: TLccEthernetClient;
 
-    ControllerNode1: TLccTrainController;
-    ControllerNode2: TLccTrainController;
+    ControllerNode1: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
+    ControllerNode2: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
 
-    AssignedTrain: TLccTrainCanNode;
-
-    Controller1State: TControllerState;
-    Controller2State: TControllerState;
+    Controller1State: TControllerState; // Helps deal with the statmachine like series of steps needed to excute a particular use task
+    Controller2State: TControllerState; // Helps deal with the statmachine like series of steps needed to excute a particular use task
 
   end;
 
@@ -160,6 +201,28 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
+
+procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
+{var
+  TreeNode: TTreeNode;
+  ConsistItem: TConsistItem; }
+begin         {
+  TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
+  if Assigned(TreeNode) then
+  begin
+    Controller1State.BuildingConsist := True;
+    Controller1State.LastTreeNode := TreeNode;
+    Controller1State.
+    ConsistItem := TConsistItem( TreeNode.Data);
+    ControllerNode1.AssignTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
+  end;      }
+  ShowMessage('Rethinking the Traction Messages.. not sure if Listeners are really needed.  The Controller can maintain the list and forwrd the information');
+end;
+
+procedure TForm1.ButtonBuildConstist2Click(Sender: TObject);
+begin
+  ShowMessage('Rethinking the Traction Messages.. not sure if Listeners are really needed.  The Controller can maintain the list and forwrd the information');
+end;
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 var
@@ -334,20 +397,14 @@ end;
 
 procedure TForm1.SpeedButtonThrottleAssign1Click(Sender: TObject);
 var
-  SpeedStep: TLccDccSpeedStep;
   DccAddress: LongInt;
 begin
   if Assigned(ControllerNode1) then
   begin
     ReleaseTrain1;
-
-    case RadioGroupThrottleSpeedSteps1.ItemIndex of
-      0 : SpeedStep := ldss14;
-      1 : SpeedStep := ldss28;
-      2 : SpeedStep := ldss128;
-    end;
+    // We will get a notification callback when the controller is assigned (or refused)
     if TryStrToInt(EditThrottleAddress1.Text, DccAddress) then
-      ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, SpeedStep)
+      ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps1.ItemIndex + 1))
     else
       ShowMessage('Invalid Address');
   end;
@@ -355,20 +412,14 @@ end;
 
 procedure TForm1.SpeedButtonThrottleAssign2Click(Sender: TObject);
 var
-  SpeedStep: TLccDccSpeedStep;
   DccAddress: LongInt;
 begin
   if Assigned(ControllerNode2) then
   begin
     ReleaseTrain2;
-
-    case RadioGroupThrottleSpeedSteps2.ItemIndex of
-      0 : SpeedStep := ldss14;
-      1 : SpeedStep := ldss28;
-      2 : SpeedStep := ldss128;
-    end;
+    // We will get a notification callback when the controller is assigned (or refused)
     if TryStrToInt(EditThrottleAddress2.Text, DccAddress) then
-      ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, SpeedStep)
+      ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps2.ItemIndex + 1))
     else
       ShowMessage('Invalid Address');
   end;
@@ -389,6 +440,60 @@ begin
   begin
     ControllerNode2.Speed := TrackBarThrottle2.Position;
     LabelThrottleSpeed2.Caption := IntToStr(TrackBarThrottle2.Position);
+  end;
+end;
+
+procedure TForm1.TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
+var
+  ConsistItem: TConsistItem;
+begin
+  ConsistItem := TConsistItem( Node.Data);
+  FreeAndNil(ConsistItem);
+end;
+
+procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
+var
+  Node: TTreeNode;
+  ConsistItem: TConsistItem;
+begin
+  Node := TreeViewConsistWizard1.Selected;
+  if Assigned(Node) then
+  begin
+    ConsistItem := TConsistItem(Node.Data);
+    if Assigned(ConsistItem) then
+    begin
+      CheckBoxConsistAddress1.Checked := ConsistItem.LongAddress;
+      RadioGroupConstistSpeedStep1.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
+      EditConsistAddress1.Text := IntToStr(ConsistItem.DccAddress);
+    end
+  end else
+  begin
+    CheckBoxConsistAddress1.Checked := False;
+    RadioGroupConstistSpeedStep1.ItemIndex := -1;
+    EditConsistAddress1.Text := '';
+  end;
+end;
+
+procedure TForm1.TreeViewConsistWizard2SelectionChanged(Sender: TObject);
+var
+  Node: TTreeNode;
+  ConsistItem: TConsistItem;
+begin
+  Node := TreeViewConsistWizard1.Selected;
+  if Assigned(Node) then
+  begin
+    ConsistItem := TConsistItem(Node.Data);
+    if Assigned(ConsistItem) then
+    begin
+      CheckBoxConsistAddress2.Checked := ConsistItem.LongAddress;
+      RadioGroupConstistSpeedStep2.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
+      EditConsistAddress2.Text := IntToStr(ConsistItem.DccAddress);
+    end
+  end else
+  begin
+    CheckBoxConsistAddress2.Checked := False;
+    RadioGroupConstistSpeedStep2.ItemIndex := -1;
+    EditConsistAddress2.Text := '';
   end;
 end;
 
@@ -579,6 +684,18 @@ begin
      PanelThrottleKeypad2.Enabled := True;
 end;
 
+procedure TForm1.OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
+begin
+  if CheckBoxThrottleTakeover1.Checked then
+    Allow :=  FormThrottleTakeover.ShowModal = mrYes
+end;
+
+procedure TForm1.OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
+begin
+  if CheckBoxThrottleTakeover2.Checked then
+    Allow :=  FormThrottleTakeover.ShowModal = mrYes
+end;
+
 procedure TForm1.Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 begin
   case Reason of
@@ -596,17 +713,21 @@ begin
       end;
     ccbControllerAssigned :
       begin
-   //     ShowMessage('Throttle 1: Assigned!');
-        Controller1State.QueryingSpeed := True;
-        Controller1State.QueryingFunctions := True;
-        Controller1State.FunctionQueryIndex := 0;
-        ControllerNode1.QuerySpeed;
-        ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
-    //    PanelThrottleKeypad1.Enabled := True;
+        if Controller1State.BuildingConsist then
+        begin
+      //    Controller1State.LastTreeNode;
+        end else
+        begin
+          ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
+          Controller1State.QueryingSpeed := True;
+          Controller1State.QueryingFunctions := True;
+          Controller1State.FunctionQueryIndex := 0;
+          ControllerNode1.QuerySpeed;
+          ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
+        end;
       end;
     ccbControllerUnassigned :
       begin
-  //      ShowMessage('Throttle 1: Unassigned!');
         PanelThrottleKeypad1.Enabled := False;
       end;
   end;
@@ -630,6 +751,7 @@ begin
     ccbControllerAssigned :
       begin
  //       ShowMessage('Throttle 2: Assigned!');
+        ControllerNode2.OnControllerRequestTakeover := @OnControllerReqestTakeover2;
         Controller2State.QueryingSpeed := True;
         Controller2State.QueryingFunctions := True;
         Controller2State.FunctionQueryIndex := 0;
@@ -653,6 +775,7 @@ begin
     ControllerNode1.ReleaseTrain;
     TickCount := GetTickCount64;     // ~10ms resolution
     // Hate this but don't know what else to do... need to get through this handshake
+    // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
     while ControllerNode1.AssignedTrain.AttachedState <> tasNotAssigned do
     begin
       Application.ProcessMessages;
@@ -671,6 +794,7 @@ begin
     ControllerNode2.ReleaseTrain;
     TickCount := GetTickCount64;     // ~10ms resolution
     // Hate this but don't know what else to do... need to get through this handshake
+    // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
     while ControllerNode2.AssignedTrain.AttachedState <> tasNotAssigned do
     begin
       Application.ProcessMessages;
@@ -678,6 +802,90 @@ begin
         Break;
     end;
   end;
+end;
+
+procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);
+var
+  TreeNode: TTreeNode;
+begin
+  TreeNode := TreeViewConsistWizard1.Selected;
+  if Assigned(TreeNode) then
+    TreeViewConsistWizard1.Items.Delete(TreeNode);
+end;
+
+procedure TForm1.SpeedButtonConsistSubtract2Click(Sender: TObject);
+var
+  TreeNode: TTreeNode;
+begin
+  TreeNode := TreeViewConsistWizard2.Selected;
+  if Assigned(TreeNode) then
+    TreeViewConsistWizard2.Items.Delete(TreeNode);
+end;
+
+procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
+var
+  SelectedNode, TreeNode: TTreeNode;
+  ConsistItem: TConsistItem;
+  NodeCaption: string;
+begin
+  ConsistItem := TConsistItem.Create;
+  ConsistItem.DccAddress := StrToInt(EditConsistAddress1.Text);
+  ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
+  ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
+  NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
+
+  SelectedNode := TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption);
+  if not Assigned(SelectedNode) then
+  begin
+    if not Assigned(TreeViewConsistWizard1.Items.GetFirstNode) then
+    begin
+        // Create the Root TODO: Option to rename it
+      SelectedNode := TreeViewConsistWizard1.Items.AddChild(nil, NodeCaption);
+      TreeViewConsistWizard1.Selected := SelectedNode;
+      SelectedNode.Data := ConsistItem;
+    end else
+    begin
+      SelectedNode := TreeViewConsistWizard1.Selected;
+      if not Assigned(SelectedNode) then
+        SelectedNode := TreeViewConsistWizard1.Items.GetFirstNode;
+      TreeNode := TreeViewConsistWizard1.Items.AddChild(SelectedNode, NodeCaption);
+      TreeNode.Data := ConsistItem;
+      TreeNode.MakeVisible;
+    end
+  end
+end;
+
+procedure TForm1.SpeedButtonConstistTrainAdd2Click(Sender: TObject);
+var
+  SelectedNode, TreeNode: TTreeNode;
+  ConsistItem: TConsistItem;
+  NodeCaption: string;
+begin
+  ConsistItem := TConsistItem.Create;
+  ConsistItem.DccAddress := StrToInt(EditConsistAddress2.Text);
+  ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
+  ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
+  NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
+
+  SelectedNode := TreeViewConsistWizard2.Items.FindNodeWithText(NodeCaption);
+  if not Assigned(SelectedNode) then
+  begin
+    if not Assigned(TreeViewConsistWizard2.Items.GetFirstNode) then
+    begin
+        // Create the Root TODO: Option to rename it
+      SelectedNode := TreeViewConsistWizard2.Items.AddChild(nil, NodeCaption);
+      TreeViewConsistWizard2.Selected := SelectedNode;
+      SelectedNode.Data := ConsistItem;
+    end else
+    begin
+      SelectedNode := TreeViewConsistWizard2.Selected;
+      if not Assigned(SelectedNode) then
+        SelectedNode := TreeViewConsistWizard2.Items.GetFirstNode;
+      TreeNode := TreeViewConsistWizard2.Items.AddChild(SelectedNode, NodeCaption);
+      TreeNode.Data := ConsistItem;
+      TreeNode.MakeVisible;
+    end
+  end
 end;
 
 procedure TForm1.OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
