@@ -1,0 +1,13 @@
+<USB_SPI_click>
+	<Attributes>
+		<Url></Url>
+		<Image>usb_spi_click_thumb.jpg</Image>
+		<File></File>
+	</Attributes>
+	<Events>
+		<OnLeftClick></OnLeftClick>
+		<OnRightClick></OnRightClick>
+		<OnDblClick></OnDblClick>
+		<OnMouseOver>PreviewImage</OnMouseOver>
+	</Events>
+</USB_SPI_click>

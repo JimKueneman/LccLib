@@ -1,0 +1,50 @@
+[DEVICE]
+Name=P18F45K22
+Clock=32000000
+[MEMORY_MODEL]
+Value=0
+[BUILD_TYPE]
+Value=0
+[ACTIVE_TAB]
+Value=SPI.mpas
+[USE_EEPROM]
+Value=0
+[EEPROM_DEFINITION]
+Value=
+[USE_HEAP]
+Value=0
+[HEAP_SIZE]
+Value=2000
+[FILES]
+Count=1
+File0=SPI.mpas
+[BINARIES]
+Count=0
+[IMAGES]
+Count=2
+File0=SPI Terminal settings.JPG
+File1=usb_spi_click_thumb.jpg
+ActiveImageIndex=1
+[EEPROM]
+Count=0
+[ACTIVE_COMMENTS_FILES]
+Count=2
+File0=SPI_Terminal_Settings.xml
+File1=USB_SPI_click.xml
+[HEADER_PATH]
+Count=0
+[HEADERS]
+Count=0
+[PLDS]
+Count=0
+[Useses]
+Count=3
+File0=SPI
+File1=ADC
+File2=Sound
+[EXPANDED NODES]
+Node1=Sources
+Node2=Image Files
+Node3=Active Comments Files
+Node4=Output Files
+Count=4

@@ -1,0 +1,13 @@
+<SPI_Terminal_Settings>
+	<Attributes>
+		<Url></Url>
+		<Image>SPI Terminal settings.JPG</Image>
+		<File></File>
+	</Attributes>
+	<Events>
+		<OnLeftClick></OnLeftClick>
+		<OnRightClick></OnRightClick>
+		<OnDblClick></OnDblClick>
+		<OnMouseOver>PreviewImage</OnMouseOver>
+	</Events>
+</SPI_Terminal_Settings>
