@@ -46,6 +46,85 @@ uses
   lcc_node;
 
 const
+  MAX_NMRA_DCC_DATA = 5;     // Number of Bytes in a valid NMRA DCC Message
+  NMRA_LONGADDRESS_MASK_BYTE         = $C0;
+  NMRA_LONGADDRESS_MASK_WORD         = $C000;
+  MAX_DCC_FUNCTIONS                  = 29;
+
+  // Mappings of the train speed step to the encoded Byte
+  // 128 step is a direct mapping with the high bit the direction
+  const
+  _28_STEP_TABLE: array[0..28] of Byte = (
+    %00000000,    // Stop
+    %00000010,    // Step 1
+    %00010010,    // Step 2
+    %00000011,    // Step 3
+    %00010011,    // Step 4
+    %00000100,    // Step 5
+    %00010100,    // Step 6
+    %00000101,    // Step 7
+    %00010101,    // Step 8
+    %00000110,    // Step 9
+    %00010110,    // Step 10
+    %00000111,    // Step 11
+    %00010111,    // Step 12
+    %00001000,    // Step 13
+    %00011000,    // Step 14
+    %00001001,    // Step 15
+    %00011001,    // Step 16
+    %00001010,    // Step 17
+    %00011010,    // Step 18
+    %00001011,    // Step 19
+    %00011011,    // Step 20
+    %00001100,    // Step 21
+    %00011100,    // Step 22
+    %00001101,    // Step 23
+    %00011101,    // Step 24
+    %00001110,    // Step 25
+    %00011110,    // Step 26
+    %00001111,    // Step 27
+    %00011111     // Step 28
+  );
+
+  _14_STEP_TABLE: array[0..14] of Byte = (
+    %00000000,    // Stop
+    %00000010,    // Step 1
+    %00000011,    // Step 3
+    %00000100,    // Step 5
+    %00000101,    // Step 7
+    %00000110,    // Step 9
+    %00000111,    // Step 11
+    %00001000,    // Step 13
+    %00001001,    // Step 15
+    %00001010,    // Step 17
+    %00001011,    // Step 19
+    %00001100,    // Step 21
+    %00001101,    // Step 23
+    %00001110,    // Step 25
+    %00001111     // Step 27
+  );
+
+type
+    // ***************************************************************************
+  // Implements the raw byte array that hold the NMRA DCC Message bytes
+  // ***************************************************************************
+  TDCCPacketBytesArray = array[0..MAX_NMRA_DCC_DATA-1] of Byte;
+  PDCCPacketBytesArray = ^TDCCPacketBytesArray;
+
+
+  TDCCPacket = record
+    PacketBytes: TDCCPacketBytesArray;       // NMRA defines at most 5 data LoadTransmitter per message packet
+    Flags: Byte;                               // See the QUEUE_MESSAGE_XXXXX Flags
+                                               // Bit 0 1 2         = Number of Valid data bytes in the message.
+                                               // Bit 3             = Address is a Multi-Function decoder with 7 bit address (short address)
+                                               // Bit 4             = Address is a Basic Accessory Decoder with 9 bit address and Extended Accessory Decoder with 11 bit address
+                                               // Bit 5             = Address is a Multi-Function decoder with a 14 bit address (extended address)
+                                               // Bit 6             = Address is in the NMRA Reserved range
+                                               // Bit 7             = Address is special ($00 = Reset; $FF = Idle; $FE = ??? but defined in S-9.2);
+  end;
+
+
+const
   CDI_XML_TRAIN_NODE: string = (
   '<?xml version="1.0" encoding="utf-8"?>'+
   '<?xml-stylesheet type="text/xsl" href="http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl"?>'+
@@ -74,7 +153,8 @@ const
 
 type
   TLccTrainDirection = (tdForward, tdReverse);
-  TLccFunctions = array[0..27] of Word;
+  TLccFunctions = array[0..28] of Word;
+  TMessageComPort = procedure(Sender: TObject; var GridConnectStyleMessage: string) of object;
 
   TAttachedController = record
     NodeID: TNodeID;
@@ -96,6 +176,7 @@ type
     FDccLongAddress: Boolean;
     FFunctions: TLccFunctions;
     FName: string;
+    FOnSendMessageComPort: TMessageComPort;
     FReserveWatchDogTimer: TLccTimer;
     FRoadNumber: string;
     FSearchEvent: TEventID;
@@ -119,6 +200,15 @@ type
     procedure OnReserveWatchDogTimer(Sender: TObject);
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
+    function EncodeFunctionValuesDccStyle: DWORD;
+    function EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
+    procedure DoSendMessageComPort(GridConnectString: string);
+
+    function DccFunctionHandler(DccAddress: Word; LongAddress: Boolean; FunctionAddress: DWORD; AllDccFunctionBitsEncoded: DWORD): TDCCPacket;
+    function DccSpeedDirHandler(DccAddress: Word; LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep): TDCCPacket;
+    procedure DccLoadPacket(var NewMessage: TDCCPacket; Data1, Data2, Data3, Data4, Data5, ValidDataByes: Byte);
+
+
   public
 
     property DccAddress: Word read FDccAddress write SetDccAddress;
@@ -129,6 +219,7 @@ type
     property Speed: THalfFloat read FSpeed write SetSpeed;
     property Direction: TLccTrainDirection read GetDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
+    property OnSendMessageComPort: TMessageComPort read FOnSendMessageComPort write FOnSendMessageComPort;
 
     // The Search Event that may have created this Train Node, used as storage for the Command Station to create and wait for Initilization to complete
     property SearchEvent: TEventID read FSearchEvent write FSearchEvent;
@@ -140,7 +231,6 @@ type
     function ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
   end;
-
   TLccTrainCanNodeClass = class of TLccTrainCanNode;
 
   function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
@@ -150,8 +240,7 @@ type
 
 implementation
 
-function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean
-  ): string;
+function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
 begin
   if Verbose then
   begin
@@ -253,6 +342,175 @@ begin
   ProtocolMemoryOptions.WriteStream := False;
   ProtocolMemoryOptions.HighSpace := MSI_CDI;
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+end;
+
+function TLccTrainCanNode.EncodeFunctionValuesDccStyle: DWORD;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := MAX_DCC_FUNCTIONS - 1 downto 0 do
+  begin
+    if Functions[i] > 0 then
+      Result := Result or $00000001;
+    Result := Result shl 1
+  end;
+end;
+
+function TLccTrainCanNode.EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
+var
+  i: Integer;
+begin
+  Result := ':R' + IntToHex(DccPacket.Flags, 8) +  'N';   // make it the same size header as OpenLCB
+  for i := 0 to DccPacket.Flags - 1 do
+    Result := Result + IntToHex(DccPacket.PacketBytes[i], 2);
+  Result := Result + ';';
+end;
+
+procedure TLccTrainCanNode.DoSendMessageComPort(GridConnectString: string);
+begin
+  if Assigned(OnSendMessageComPort) then
+    OnSendMessageComPort(Self, GridConnectString);
+end;
+
+function TLccTrainCanNode.DccFunctionHandler(DccAddress: Word;
+  LongAddress: Boolean; FunctionAddress: DWORD; AllDccFunctionBitsEncoded: DWORD
+  ): TDCCPacket;
+var
+  FunctionMask, FunctionExtendedCode: Byte;
+  AddressHi, AddressLo: Byte;
+begin
+  // Split the address to make clear when loading bytes
+  AddressHi := (DccAddress shr 8) and $00FF;
+  if LongAddress then
+    AddressHi := AddressHi or NMRA_LONGADDRESS_MASK_BYTE;
+  AddressLo := DccAddress and $00FF;
+
+  if FunctionAddress < 29 then
+  begin
+    if FunctionAddress < 5 then
+    begin
+      FunctionMask := (AllDccFunctionBitsEncoded shr 1) and $0F;
+      if AllDccFunctionBitsEncoded and $00000001 = 0 then
+        FunctionMask := FunctionMask and not $10                                // Clear Bit 4
+      else
+        FunctionMask := FunctionMask or $10;                                    // Set Bit 4
+      FunctionMask := FunctionMask or %10000000;                                // Opcode bits
+    end else
+    if FunctionAddress < 9 then
+    begin
+      FunctionMask := (AllDccFunctionBitsEncoded shr 5) and $0F;
+      FunctionMask := FunctionMask or %10110000;                                // Opcode bits
+    end else
+    if FunctionAddress < 13 then
+    begin
+      FunctionMask := (AllDccFunctionBitsEncoded shr 9) and $0F;
+      FunctionMask := FunctionMask or %10100000;                                // Opcode bits
+    end else
+    if FunctionAddress < 21 then
+    begin
+      FunctionMask := AllDccFunctionBitsEncoded shr 13;
+      FunctionExtendedCode := %11011110
+    end
+  end else
+  begin
+    FunctionMask := AllDccFunctionBitsEncoded shr 21;
+    FunctionExtendedCode := %11011111
+  end;
+
+  // Now create the DCC Packet
+  if AddressHi and NMRA_LONGADDRESS_MASK_BYTE = NMRA_LONGADDRESS_MASK_BYTE then
+  begin
+    if FunctionAddress < 13 then
+      DccLoadPacket(Result, AddressHi, AddressLo, FunctionMask, 0, 0, 3)
+    else
+      DccLoadPacket(Result, AddressHi, AddressLo, FunctionExtendedCode, FunctionMask, 0, 4)
+  end else
+  begin
+    if FunctionAddress < 13 then
+      DccLoadPacket(Result, AddressLo, FunctionMask, 0, 0, 0, 2)
+    else
+      DccLoadPacket(Result, AddressLo, FunctionExtendedCode, FunctionMask, 0, 0, 3)
+  end;
+end;
+
+function TLccTrainCanNode.DccSpeedDirHandler(DccAddress: Word;
+  LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep
+  ): TDCCPacket;
+var
+  IsForward: Boolean;
+  AbsoluteSpeed: single;
+  LocalSpeedStep: Word;
+  AddressHi, AddressLo: Byte;
+begin
+  IsForward := SpeedDir and $8000 <> $8000;                                                      // Split the Speed and Direction
+  AbsoluteSpeed := HalfToFloat( SpeedDir and not $8000);
+  if LongAddress then
+    DccAddress := DccAddress or NMRA_LONGADDRESS_MASK_WORD;
+
+  // Split the address to make clear when loading bytes
+  AddressHi := Hi(DccAddress);
+  AddressLo := Lo(DccAddress);
+
+  case DccSpeedStep of
+    ldssDefault,
+    ldss14 :
+          begin
+            AbsoluteSpeed := (14/100) * AbsoluteSpeed;
+            LocalSpeedStep := Trunc(AbsoluteSpeed);
+
+            LocalSpeedStep := _14_STEP_TABLE[LocalSpeedStep];
+            if IsForward then
+              LocalSpeedStep := LocalSpeedStep or $60
+            else
+              LocalSpeedStep := LocalSpeedStep or $40;
+            if AddressHi and NMRA_LONGADDRESS_MASK_BYTE = NMRA_LONGADDRESS_MASK_BYTE then
+              DccLoadPacket(Result, AddressHi, AddressLo, LocalSpeedStep, 0, 0, 3)
+            else
+              DccLoadPacket(Result, AddressLo, LocalSpeedStep, 0, 0, 0, 2);
+          end;
+    ldss28  :
+          begin
+            AbsoluteSpeed := (28/100) * AbsoluteSpeed;
+            LocalSpeedStep := Trunc(AbsoluteSpeed);
+            LocalSpeedStep := _28_STEP_TABLE[LocalSpeedStep];
+            if IsForward then
+              LocalSpeedStep := LocalSpeedStep or $60
+            else
+              LocalSpeedStep := LocalSpeedStep or $40;
+
+            if AddressHi and NMRA_LONGADDRESS_MASK_BYTE = NMRA_LONGADDRESS_MASK_BYTE then
+              DccLoadPacket(Result, AddressHi, AddressLo, LocalSpeedStep, 0, 0, 3)
+            else
+              DccLoadPacket(Result, AddressLo, LocalSpeedStep, 0, 0, 0, 2);
+
+          end;
+    ldss128 :
+          begin
+             // Allow a mistaken short address to work here by adding the $C0  Per Tim
+            AddressHi := AddressHi or NMRA_LONGADDRESS_MASK_BYTE;
+
+            AbsoluteSpeed := (127/100) * AbsoluteSpeed;
+            LocalSpeedStep := Trunc(AbsoluteSpeed);
+            if LocalSpeedStep > 0 then
+              Inc(LocalSpeedStep);   // 1 = EStop
+            if IsForward then
+              LocalSpeedStep := LocalSpeedStep or $80;
+            DccLoadPacket(Result, AddressHi, AddressLo, %00111111, LocalSpeedStep, 0, 4);
+          end;
+
+  end;
+end;
+
+procedure TLccTrainCanNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1,
+  Data2, Data3, Data4, Data5, ValidDataByes: Byte);
+begin
+  NewMessage.PacketBytes[0] := Data1;
+  NewMessage.PacketBytes[1] := Data2;
+  NewMessage.PacketBytes[2] := Data3;
+  NewMessage.PacketBytes[3] := Data4;
+  NewMessage.PacketBytes[4] := Data5;
+  NewMessage.Flags := ValidDataByes;
 end;
 
 procedure TLccTrainCanNode.ClearAttachedController;
@@ -498,15 +756,23 @@ end;
 procedure TLccTrainCanNode.SetDirection(AValue: TLccTrainDirection);
 begin
   if AValue = tdReverse then
-    FSpeed := FSpeed or $8000
+    Speed := FSpeed or $8000
   else
-    FSpeed := FSpeed and $7FFF;
+    Speed := FSpeed and $7FFF;
 end;
 
 procedure TLccTrainCanNode.SetFunctions(Index: Integer; AValue: Word);
+var
+  DccPacket: TDCCPacket;
+  DccGridConnect: string;
 begin
   if (Index >= 0) and (Index < Length(FFunctions)) then
-    FFunctions[Index] := AValue
+  begin
+    FFunctions[Index] := AValue;
+    DccPacket := DccFunctionHandler(DccAddress, DccLongAddress, Index, EncodeFunctionValuesDccStyle);
+    DccGridConnect := EncodeToDccGridConnect( DccPacket);
+    DoSendMessageComPort(DccGridConnect);
+  end;
 end;
 
 procedure TLccTrainCanNode.SetName(AValue: string);
@@ -522,9 +788,15 @@ begin
 end;
 
 procedure TLccTrainCanNode.SetSpeed(AValue: THalfFloat);
+var
+  DccPacket: TDCCPacket;
+  DccGridConnect: string;
 begin
   if AValue = Speed then Exit;
   FSpeed := AValue;
+  DccPacket := DccSpeedDirHandler(DccAddress, DccLongAddress, Speed, SpeedStep);
+  DccGridConnect := EncodeToDccGridConnect( DccPacket);
+  DoSendMessageComPort(DccGridConnect);
 end;
 
 procedure TLccTrainCanNode.SetSpeedStep(AValue: TLccDccSpeedStep);

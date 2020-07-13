@@ -55,3 +55,13 @@ Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/OSX32
 Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/OSX64
 Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/iOSDevice32
 Projects/Smart Mobile/SMS Throttle/Delphi/LccTest/iOSSimulator
+*.ini
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.bmk
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.brk
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.dct
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.dlt
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.log
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.lst
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.mppds_callertable.txt
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.user.dic
+Projects/Smart Mobile/SMS Throttle/MikroPascal/TrainDriver/TrainDriver.wch

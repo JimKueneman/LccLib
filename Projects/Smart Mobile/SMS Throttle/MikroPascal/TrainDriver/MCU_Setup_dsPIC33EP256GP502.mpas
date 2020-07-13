@@ -1,0 +1,151 @@
+unit MCU_Setup_dsPIC33EP256GP502;
+
+uses
+  NMRAnetDCC;
+//  dsPIC_CAN_RawBuffers,
+ // dsPIC33_CAN,
+ // dsPIC33_DMA;
+
+//{$I Options.inc}
+
+const
+  CAN_SWJ        = 0;               // Set up for 125Khz Baud Rate with a 8Mhz Crystal
+  CAN_BRP        = 7;               // Baud Rate Prescaler = 15 Quanta (125000 * 16 = 20Meg)
+  CAN_PHASESEG_1 = 4;               //   16 - (1 + 6 + 5) = 4
+  CAN_PHASESEG_2 = 5;               //
+  CAN_PROP_SEG   = 3;               //
+
+
+  procedure MCU_Setup_Initialize;
+  procedure MCU_EnableDCCTimer;
+  procedure MCU_Enable100msTimer;
+  procedure MCU_EnableUART;
+//  procedure MCU_EnableCAN;
+  procedure MCU_EnableSerialFlash;
+  procedure MCU_Enable5msServiceModeTimer;
+  procedure MCU_Enable10msTimer;
+  procedure MCU_EnableADC;
+
+implementation
+
+procedure MCU_Setup_Initialize;
+begin
+  ANSELA := 0;
+  ANSELB := 0;
+
+
+  OSCCON := OSCCON and $F8FF;                                                   // Clear NOSC bits (set to FRC mode)
+  OSCCON.0 := 1;                                                                // Tell it to change modes
+  while OSCCON.0 = 1 do;                                                        // wait for it to take effect
+
+  CLKDIV := CLKDIV and 0xFFE0;                                                  // PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
+                                                                                // (must be within 0.8 MHz to 8 MHz range)
+  PLLFBD :=   30;                                                               // PLLDIV<8:0> = 30 ->  M = 32    4MHz * 32 = 128MHz
+                                                                                // (must be within 100 MHz to 200 MHz range)
+  PLLPOST_1_bit := 0;
+  PLLPOST_0_bit := 0;                                                           // PLLPOST<1:0> = 0 ->  N2 = 2    128MHz / 2 = 64MHz
+
+  OSCCON := OSCCON or $0300;                                                    // Set COSC to 011 = XT with PLL
+  OSCCON.0 := 1;                                                                // Tell it to change modes
+  while OSCCON.0 = 1 do;                                                        // wait for it to take effect
+  while LOCK_bit = 0 do;
+
+  Delay_ms(10);
+end;
+
+procedure MCU_Enable10msTimer;
+begin
+  TCS_T3CON_bit := 0;       // Disable
+  T3IP_0_bit := 0;          // Timer 3 Interrupt Priority = 2   (1 means off)
+  T3IP_1_bit := 1;
+  T3IP_2_bit := 0;
+  TCKPS_0_T3CON_bit := 1;   // 256 Prescaler
+  TCKPS_1_T3CON_bit := 1;
+  PR3 := 1250;             // Clock ticks every 31.25ns * 256 * 1250 = 10ms interrupts
+  T3IF_bit := 0;            // Clear T3IF
+  T3IE_bit := 1;            // Enable the Interrupt
+
+end;
+
+procedure MCU_EnableADC;
+begin
+  // Setup of the ADC(s)
+  ANSA0_bit := 1;            // Pin RA0 = Analog
+
+  AD1CON3 := $1FFF;          // SAMC = 11111 = 31 * Tad; ADCS = 11111111 (ACDS + 1) = 3 * Tcy = Tad    Sample as slow as we can
+  ASAM_bit := 1;            // Automatic Sample Bit
+  SSRCG_bit := 0;           // Sample Clock Source Group Bit, something other than the PWM
+  SSRC_0_bit := 1;          // Sample Clock Source Select Bit, Internal counter ends sampling and starts conversion (auto-convert)
+  SSRC_1_bit := 1;          //
+  SSRC_2_bit := 1;          //
+  ADDMAEN_bit := 0;         // Do not use DMA, store the results in the ADCxBUF0-ADC-xBUFF registers
+  SMPI_0_bit := 1;
+  SMPI_1_bit := 1;
+  SMPI_2_bit := 1;
+  SMPI_3_bit := 1;
+  SMPI_4_bit := 0;          // Interrupt every 16 conversions
+  AD1IP_0_bit := 1;
+  AD1IP_1_bit := 1;
+  AD1IP_2_bit := 0;         // Interrupt Priority = 3;
+  AD1IF_bit := 0;
+  ADON_bit := 1;            // Enable the ADC Module
+  Delay_us(20);
+end;
+
+procedure MCU_Enable5msServiceModeTimer;
+begin
+  TCS_T5CON_bit := 0;       // Disable
+  T5IP_0_bit := 1;          // Timer 5 Interrupt Priority = 5   (1 means off)
+  T5IP_1_bit := 0;
+  T5IP_2_bit := 1;
+  TCKPS_0_T5CON_bit := 1;   // 256 Prescaler
+  TCKPS_1_T5CON_bit := 1;
+  PR5 := 625;               // Clock ticks every 31.25ns * 256 * 625 = 5ms interrupts
+  T5IF_bit := 0;            // Clear T5IF
+  T5IE_bit := 1;            // Enable the Interrupt
+end;
+
+procedure MCU_EnableDCCTimer;
+begin
+  TCS_T1CON_bit := 0;       // internal cycle clock
+  T1IP_0_bit := 1;          // Timer 1 Interrupt Priority = 7   (1 means off)
+  T1IP_1_bit := 1;
+  T1IP_2_bit := 1;
+  PR1 := DCC_TIMER_58US;
+  T1IF_bit := 0;           // Clear T1IF
+  T1IE_bit := 1;           // Enable the Interrupt
+  TON_T1CON_bit := 1;       // Turn on
+end;
+
+procedure MCU_Enable100msTimer;
+begin
+  TCS_T2CON_bit := 0;       // Disable
+  T2IP_0_bit := 0;          // Timer 2 Interrupt Priority = 2   (1 means off)
+  T2IP_1_bit := 1;
+  T2IP_2_bit := 0;
+  TCKPS_0_T2CON_bit := 1;   // 256 Prescaler
+  TCKPS_1_T2CON_bit := 1;
+  PR2 := 12500;             // Clock ticks every 31.25ns * 256 * 12500 = 100ms interrupts
+  T2IF_bit := 0;            // Clear T2IF
+  T2IE_bit := 1;            // Enable the Interrupt
+  TON_T2CON_bit := 1;       // Turn on
+end;
+
+procedure MCU_EnableUART;
+begin
+  PPS_Mapping(44, _INPUT, _U1RX);                                      // Set RPI44 to the UART Receive
+  PPS_Mapping(42, _OUTPUT, _U1TX);                                     // Set RP42 to the UART Transmit
+  UART1_Init(9600);                       // Initialize UART module a
+  Delay_ms(100);                            // Wait for UART module to stabilize
+end;
+
+procedure MCU_EnableSerialFlash;
+begin
+  SPI1_Init();       // Initialize SPI1 module
+  SPIEN_bit := 0;    // Disable SPI
+  SPI1CON := SPI1CON and $FFE0;  // Clear the prescaler bits
+  SPI1CON := SPI1CON or $0003 or $0018;  // Setup for 5 Mhz (with the CAN plug in boards)     $10=5Mhz, $14=6.67Mhz, $18 = 10Mhz
+  SPIEN_bit := 1;    // Enable the SPI
+end;
+
+end.

@@ -1,0 +1,176 @@
+program TrainDriver;
+
+{ Declarations section }
+
+const
+  UART_1 = 1;
+  UART_2 = 2;
+  
+
+
+var
+
+  TrapFlagPin : sbit at LATA4_bit;
+
+// EEPROM SPI PINS
+  CS_Bank_0                         : sbit at LATB6_bit;
+  CS_Bank_0_Direction               : sbit at TRISB6_bit;
+  EE_PROM_Hold                      : sbit at LATB5_bit;
+  EEPROM_Hold_Direction             : sbit at TRISB5_bit;
+
+  // DCC SIGNAL PINS
+  H_Bridge_A_Lo                     : sbit at LATA1_bit;
+  H_Bridge_A_Hi                     : sbit at LATB0_bit;
+  H_Bridge_B_Lo                     : sbit at LATB1_bit;
+  H_Bridge_B_Hi                     : sbit at LATB4_bit;
+
+  H_Bridge_A_Lo_Direction           : sbit at TRISA1_bit;
+  H_Bridge_A_Hi_Direction           : sbit at TRISB0_bit;
+  H_Bridge_B_Lo_Direction           : sbit at TRISB1_bit;
+  H_Bridge_B_Hi_Direction           : sbit at TRISB4_bit;
+
+//  DCC_Programming_ACK_Pin           : sbit at RB2_bit;                          // Input so use the port and not the latch
+ // DCC_Programming_ACK_Direction     : sbit at TRISB2_bit;
+
+ // DCC_NMRA_Tranmitter_Lo            : sbit at LATB15_bit;                       // DCC Bus Transmitter
+ // DCC_NMRA_Tranmitter_Hi            : sbit at LATB14_bit;                       // DCC Bus Transmitter
+
+ // DCC_NMRA_Tranmitter_Lo_Direction  : sbit at TRISB15_bit;                      // DCC Bus Transmitter
+ // DCC_NMRA_Tranmitter_Hi_Direction  : sbit at TRISB14_bit;                      // DCC Bus Transmitter
+
+  PreambleSyncPin                   : sbit at LATB15_bit;                      // DCC Bus Transmitter
+  PreambleSyncPinDirection          : sbit at TRISB15_bit;                      // DCC Bus Transmitter
+
+// Ack_TimerEnabled_Bit              : sbit at TON_T5CON_bit;                    // DCC Service Mode ACK Timer
+
+  Dcc_Timer_PR                      : Word at PR1;                              // DCC Interrupt Rollover
+
+ // TrapFlagPin                       : sbit at LATB3_bit;                  // OVERLOADING THE NMRA DCC TRANSMITTER CURRENT SENSE
+
+// End DCC Connection Pins
+
+
+procedure OPStack_DCC_Timer(); iv IVT_ADDR_T1INTERRUPT; ics ICS_AUTO;
+begin
+  T1IF_bit := 0;                                                                // Clear the Flag
+
+ // if CommandStationRamData.OverloadDetected then
+ // begin
+    // Toggle the Bridge off
+////    H_Bridge_A_Lo := 0;                                                           // Bridge Off
+ //   H_Bridge_A_Hi := 0;                                                           // Bridge Off
+//    H_Bridge_B_Lo := 0;                                                           // Bridge Off
+//    H_Bridge_B_Hi := 0;                                                           // Bridge Off
+ // end else
+  begin
+  //  if CommandStationConfigurationShadowRam.OutputMode = CONFIG_OUTPUTMODE_SERVICE_MODE then
+  // begin
+  //    RunServiceMode                                                              // Command Station is in Service Mode
+  //  end else
+    begin
+      // Command Station is in Main Line Mode
+      if Track.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT = 1 then
+      begin
+        if H_Bridge_A_Lo = 0 then
+        begin
+          H_Bridge_A_Hi := 0; H_Bridge_B_Lo := 0; H_Bridge_A_Lo := 1; H_Bridge_B_Hi := 1;
+        end
+      end else
+      begin
+        if H_Bridge_A_Hi = 0 then
+        begin
+          H_Bridge_A_Lo := 0; H_Bridge_B_Hi := 0; H_Bridge_A_Hi := 1; H_Bridge_B_Lo := 1;
+        end
+      end;
+
+      // Now we can update the xxxx_DCC_PIN_BIT flags for the next 56us time slot
+      NMRA_DCC_58us_TimeTick(@Track);                                                         // < 1us
+      NMRA_DCC_TransmitterStateMachine(@Track, False, False);   // < 5us
+      NMRA_DCC_LoadPacketIntoTransmitterStateMachine(@Track, PREAMBLE_BIT_COUNT_NORMAL);      // < 11us    Max
+    end
+  end;
+end;
+
+procedure OPStack_100ms_Timer(); iv IVT_ADDR_T2INTERRUPT; ics ICS_AUTO;
+begin
+  T2IF_bit := 0;
+end;
+
+var
+  DccGridConnectString: PGridConnectString;
+  i, DccDataIndex: Integer;
+  N_Found: Boolean;
+  DccPacket: TDCCPacket;
+  HexStr: string[2];
+  W: Byte;
+begin
+
+  TRISB11_bit := 0; // Output
+  
+  H_Bridge_A_Lo_Direction          := 0;
+  H_Bridge_A_Hi_Direction          := 0;
+  H_Bridge_B_Lo_Direction          := 0;
+  H_Bridge_B_Hi_Direction          := 0;
+
+  NMRA_DCC_Initialize(1850);     // Clock ticks every 31.25ns * 1856 = 58us interrupts
+  MCU_Setup_Initialize;
+//  MCU_EnableSerialFlash;
+  MCU_EnableUART;
+ // MCU_Enable100msTimer;
+  MCU_EnableDCCTimer;
+ // MCU_Enable5msServiceModeTimer;
+ // MCU_Enable10msTimer;
+ // MCU_EnableADC;
+
+  TRISA4_bit := 0; // Output
+
+  UART1_Write_Text('Mustangpeak Command Station'+LF);
+ // CheckForInitializedEEPROM(EEPROM_BANK_0, _25AA1024);
+
+  while True do
+  begin
+     
+    if UART1_Data_Ready then
+    begin
+      if GridConnect_DecodeMachine(UART1_Read, DccGridConnectString) then
+      begin
+        if DccGridConnectString^[0] = ':' then
+        begin
+          i := 0;
+          DccDataIndex := 0;
+          N_Found := False;
+          while DccGridConnectString^[i] <> ';' do
+          begin
+            if not N_Found then
+            begin
+              N_Found := (DccGridConnectString^[i] = 'N') or (DccGridConnectString^[i] = 'n');
+              Inc(i);
+            end else
+            begin
+              HexStr[0] := DccGridConnectString^[i];
+              HexStr[1] := DccGridConnectString^[i+1];
+              HexStr[2] := #0;     // VERY IMPORTANT UNLESS YOU SET A STRING TO HEXSTR OR THE NULL WON'T BE SET AND LENGTH() FAILS IN THE HEXTOBYTE!!!!
+              W := HexToByte(HexStr);
+              DccPacket.PacketBytes[DccDataIndex] := W;
+              DccDataIndex := DccDataIndex + 1;
+              i := i + 2;  // 2 char = byte
+            end;
+          end;
+          DccPacket.Flags := DccDataIndex;
+
+      {
+          UART1_Write_Text(':R00000000N');
+          for i := 0 to DccPacket.Flags - 1 do
+          begin
+            ByteToHex(DccPacket.PacketBytes[i], HexStr);
+            UART1_Write_Text(HexStr);
+          end;
+          UART1_Write_Text(';');
+          UART1_Write_Text(LF);
+                                   }
+          NMRA_DCC_QueuePacket(@Track, @DccPacket, False);
+        end
+      end;
+    end;
+  end;
+end.

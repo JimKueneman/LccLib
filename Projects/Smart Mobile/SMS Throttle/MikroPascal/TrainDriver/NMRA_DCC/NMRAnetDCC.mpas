@@ -1,0 +1,975 @@
+unit NMRAnetDCC;
+
+// ******************************************************************************
+//
+// * Copyright:
+//     (c) Mustangpeak Software 2020.
+//
+//     The contents of this file are subject to the GNU GPL v3 licence/ you maynot use
+//     this file except in compliance with the License. You may obtain a copy of the
+//     License at http://www.gnu.org/licenses/gpl.html
+//
+// * Revision History:
+//     2011-01-17:   Created
+//     2012-10-07:   Version 1.0
+//
+// * Description:
+//    Implements the DCC Signal that is to be placed on the track, sent to the
+//  accessory DCC bus, or the programming track
+//
+// TODO: CanTransmitMessage is broken to meet a coupld Recommened Practices for _old_ decoders.... Disabled so we don't meet those RPs in 9.2
+//
+// ******************************************************************************
+
+uses
+  HelperFunctions;
+  
+const
+  DEFAULT_SPEED_STEPS = 28;
+
+  // Mappings of the train speed step to the encoded Byte
+  // 128 step is a direct mapping with the high bit the direction
+  const
+  _28_STEP_TABLE: array[0..28] of Byte = (
+    %00000000,    // Stop
+    %00000010,    // Step 1
+    %00010010,    // Step 2
+    %00000011,    // Step 3
+    %00010011,    // Step 4
+    %00000100,    // Step 5
+    %00010100,    // Step 6
+    %00000101,    // Step 7
+    %00010101,    // Step 8
+    %00000110,    // Step 9
+    %00010110,    // Step 10
+    %00000111,    // Step 11
+    %00010111,    // Step 12
+    %00001000,    // Step 13
+    %00011000,    // Step 14
+    %00001001,    // Step 15
+    %00011001,    // Step 16
+    %00001010,    // Step 17
+    %00011010,    // Step 18
+    %00001011,    // Step 19
+    %00011011,    // Step 20
+    %00001100,    // Step 21
+    %00011100,    // Step 22
+    %00001101,    // Step 23
+    %00011101,    // Step 24
+    %00001110,    // Step 25
+    %00011110,    // Step 26
+    %00001111,    // Step 27
+    %00011111     // Step 28
+  );
+
+  _14_STEP_TABLE: array[0..14] of Byte = (
+    %00000000,    // Stop
+    %00000010,    // Step 1
+    %00000011,    // Step 3
+    %00000100,    // Step 5
+    %00000101,    // Step 7
+    %00000110,    // Step 9
+    %00000111,    // Step 11
+    %00001000,    // Step 13
+    %00001001,    // Step 15
+    %00001010,    // Step 17
+    %00001011,    // Step 19
+    %00001100,    // Step 21
+    %00001101,    // Step 23
+    %00001110,    // Step 25
+    %00001111     // Step 27
+  );
+
+  NMRA_LONGADDRESS_MASK_BYTE         = $C0;
+  NMRA_LONGADDRESS_MASK_WORD         = $C000;
+
+const
+  _5ms_PERIOD   = 90;        // 5ms/56us = 89.3 (number of 56us ticks)
+  _20ms_PERIOD = 360;        // 20ms/56us = 357.1 (number of 56us ticks)
+
+  MAX_NMRA_DCC_DATA = 5;     // Number of Bytes in a valid NMRA DCC Message
+  MAX_NMRA_DCC_STARTUP_IDLE = 20;
+  
+  PREAMBLE_BIT_COUNT_NORMAL                 = 14;      // Normal message preamble bit count
+  PREAMBLE_BIT_COUNT_SERVICEMODE            = 20;      // Service Mode message count
+
+  MESSAGE_RESET_0                            = $00;       // Reset message = 20+1 = 21 ones;  24+3 = 27 zeros (48) = 8.70ms
+  MESSAGE_RESET_1                            = $00;
+  MESSAGE_RESET_XOR                          = $00;
+  MESSAGE_IDLE_0                             = $FF;       // Idle message = 20+8+8+1 = 37 ones;  8+3 = 11 zeros (48) = 6.84ms
+  MESSAGE_IDLE_1                             = $00;
+  MESSAGE_IDLE_XOR                           = $FF;
+  MESSAGE_PAGE_PRESET_0                      = $7D; // %01111101;
+  MESSAGE_PAGE_PRESET_1                      = $01; // %00000001;
+  MESSAGE_PAGE_PRESET_XOR                    = $7C; // %01111100
+
+  POM_MESSAGE_REPEAT_COUNT                   = $03;
+
+  MAX_TRACK_BUFFER_DEPTH = 255;              // Max Number of Packets stored to send to the Track DCC Output
+  MAX_TRACK_PRIORITY_BUFFER_DEPTH = 255;     // Max Number of Priority Packets stored to send to the Track DCC Output
+  
+    // DCC Bit State Machine Constants
+  STATE_NMRA_DCC_BIT_0 = 0;
+  STATE_NMRA_DCC_BIT_7 = 7;
+
+  // DCC Pin State Machine Constants
+  STATE_NMRA_DCC_PIN_0 = 0;                                                     // First 56us
+  STATE_NMRA_DCC_PIN_1 = 1;                                                     // Second 56us (for a "0")
+  STATE_NMRA_DCC_PIN_2 = 2;                                                     // First 56us
+  STATE_NMRA_DCC_PIN_3 = 3;                                                     // Second 56us (for a "0")
+  STATE_NMRA_DCC_PIN_0_RAILCOM = 4;
+  STATE_NMRA_DCC_PIN_1_RAILCOM = 5;
+  STATE_NMRA_DCC_PIN_2_RAILCOM = 6;
+  STATE_NMRA_DCC_PIN_3_RAILCOM = 7;
+  STATE_NMRA_DCC_PIN_4_RAILCOM = 8;
+
+type
+  // ***************************************************************************
+  // Implements the raw byte array that hold the NMRA DCC Message bytes
+  // ***************************************************************************
+  TDCCPacketBytesArray = array[0..MAX_NMRA_DCC_DATA-1] of Byte;
+  PDCCPacketBytesArray = ^TDCCPacketBytesArray;
+
+  // ***************************************************************************
+  // Implements a NMRA DCC message and information about it
+  // ***************************************************************************
+const
+  MASK_DCC_PACKET_COUNT                        = $07;  // Bits 0, 1, 2 are the data byte count, 7 byte possible but only 6 defined by NMRA including XOR
+  MASK_DCC_PACKET_SHORT_MULTI_FUNCTION_ADDRESS = $08;  // Bit 3 = Address is a Multi-Function decoder with 7 bit address (short address)
+  MASK_DCC_PACKET_ACCESSORY_ADDRESS            = $10;  // Bit 4 = Address is a Basic Accessory Decoder with 9 bit addres and Extended Accessory Decoder with 11 bit address
+  MASK_DCC_PACKET_LONG_MULTI_FUNCTION_ADDRESS  = $20;  // Bit 5 = Address is a Multi-Function decoder with a 14 bit address (extended address)
+  MASK_DCC_PACKET_RESERVED                     = $40;  // Bit 6 = Address is in the NMRA Reserved range
+  MASK_DCC_PACKET_SPECIAL                      = $80;  // Bit 7 = Address is special ($00 = Reset; $FF = Idle; $FE = ??? but defined in S-9.2);
+  MASK_DCC_PACKET_ADDRESS_BITS                 = $F8;  // Bits 3..7 All the Address Bits
+  MASK_DCC_PACKET_INITIALIZE_FLAGS             = $00;  //
+  MASK_DCC_PACKET_IDLE_MESSAGE                 = $02 or MASK_DCC_PACKET_SPECIAL;    // 2 Bytes and it is special
+  MASK_DCC_PACKET_RESET_MESSAGE                = $02 or MASK_DCC_PACKET_SPECIAL;    // 2 Bytes and it is special
+  MASK_DCC_PACKET_PAGE_PRESET_MESSAGE          = $02 or MASK_DCC_PACKET_SPECIAL;    // 2 Bytes and it is special
+
+type
+  TDCCPacket = record
+    PacketBytes: TDCCPacketBytesArray;       // NMRA defines at most 5 data LoadTransmitter per message packet
+    Flags: Byte;                               // See the QUEUE_MESSAGE_XXXXX Flags
+                                               // Bit 0 1 2         = Number of Valid data bytes in the message.
+                                               // Bit 3             = Address is a Multi-Function decoder with 7 bit address (short address)
+                                               // Bit 4             = Address is a Basic Accessory Decoder with 9 bit address and Extended Accessory Decoder with 11 bit address
+                                               // Bit 5             = Address is a Multi-Function decoder with a 14 bit address (extended address)
+                                               // Bit 6             = Address is in the NMRA Reserved range
+                                               // Bit 7             = Address is special ($00 = Reset; $FF = Idle; $FE = ??? but defined in S-9.2);
+  end;
+  PDCCPacket = ^TDCCPacket;
+
+  // ***************************************************************************
+  // Implements a array of NMRA DCC messages and their information
+  // ***************************************************************************
+  TDCCPacketArray = array[0..0] of TDCCPacket;
+  PDCCPacketArray = ^TDCCPacketArray;
+
+  // ***************************************************************************
+  // Implements a Queue for the DCC Messages
+  // ***************************************************************************
+  TDCCPacketList = record
+    Slots: PDCCPacketArray;         // Array of the message slots
+    Count: Byte;                          // Number of Queue slots used
+    MaxCount: Byte;                       // Size of the Queue
+    Head: Byte;                           // Head of the Queue buffer (Index of the last item added in the array)
+    Tail: Byte;                           // Tail of the Queue buffer (Index of the first item in the array that is next in line to be transmitted)
+    Peak: Byte;                           // Max number of messages in the Queue during the power on
+    TotalSent: Word;                      // Total number of Queued messages sent to the DCC output
+  end;
+  PQueueInfo = ^TDCCPacketList;
+
+  // ***************************************************************************
+  // Implements the core Buffer Manager that handles the Main Queue, Priority Queue
+  //  (if not nil) and the transmitter state
+  // ***************************************************************************
+const
+  TRANSMITTING_FLAG_CURRENT_BIT                     = 0;           // Bit 0 = Current bit being transmitted
+  TRANSMITTING_FLAG_STOP_BIT                        = 1;           // Bit 1 = Transmitting the last bit ("1" stop)
+  TRANSMITTING_FLAG_DCC_PIN_BIT                     = 2;           // Bit 2 = State of the I/O Pin
+  TRANSMITTING_FLAG_RAIL_COM_CUTOUT_BIT             = 4;           // Bit 4 = RailCom Cutout Occuring
+
+type
+  TDCCBufferInfo = record
+    Main: TDCCPacketList;                      // Main Queue
+    Priority: TDCCPacketList;                  // Priorty Queue
+
+    TX_TransmittingPacket: TDCCPacket;         // Message that is being currently transmitted
+    TX_PreambleBitCount: Byte;                 // Number of Preamble Bits to send, the value is destroyed when the state machine is run
+    TX_iStateMachine: Byte;                    // Main State machine
+    TX_RailComCount: Byte;
+    TX_iBit: Byte;                             // Index of the current Bit being sent
+    TX_iDCC_Pin_StateMachine: Byte;            // Index of the running the I/O Pin state
+    TX_XOR_Byte: Byte;                         // XOR byte to transmit
+    TX_TimerCount: Word;                       // Count down of 56us time slices used to ensure S9.2 special address timing requirements (20ms, etc for address that fall in the service mode instruction range). See the DCC_DELAY_xxx flags
+    TX_LastAddress: Byte;                      // The address that was sent in the previous message.  This only counts if the address was a short address, hence the byte and not a word (deals with timing issues in 9.2 spec)
+    TX_Flags: Byte;                            // State of the Transmitter, see the MASK_TRANSMITTING_FLAG_XXX constants
+                                               // Bit 0 = Current Transmitting Bit Value
+                                               // Bit 1 = Transmitting
+                                               // Bit 2 = Transmitting Preamble
+                                               // Bit 3 = Transmitting XOR
+                                               // Bit 4 = Transmitting the Stop Bit
+                                               // Bit 5 = State of the DCC Pin
+                                               // Bit 6 = A Reset Packet was sent and 20ms has not expired before any address between 100 and 127 if we don't want to enter service mode
+                                               // Bit 7 = A Packet between the addresses of 100 and 127 was sent and 5ms has not expired between the stop bit of the last packet and the start of the next packet to that address
+  end;
+  PDCCBufferInfo = ^TDCCBufferInfo;
+
+var
+  Track: TDCCBufferInfo;
+  Programming: TDCCBufferInfo;
+  
+  Dcc_Timer_PR: Word; sfr; external;                                            //
+  PreambleSyncPin: sbit; sfr; external;
+  PreambleSyncPinDirection: sbit; sfr; external;
+
+// Call once on start up
+procedure NMRA_DCC_Initialize(TimerCountsFor58us: Word); forward;
+// Places a message in the queue to be transmitted
+function NMRA_DCC_QueuePacket(ABuffer: PDCCBufferInfo; NewMessage: PDCCPacket; HighPriority: Boolean): Boolean; forward;
+// Loads the passed message with the raw passed data information
+procedure NMRA_DCC_LoadPacket(NewMessage: PDCCPacket; Data1, Data2, Data3, Data4, Data5, ValidDataByes: byte);
+// Increments to the next bit to transmit and returns it, keep checking IsTransmitting to see if tranmission is complete before calling expects to be called every 56us
+procedure NMRA_DCC_TransmitterStateMachine(ABuffer: PDCCBufferInfo; ServiceMode, RailCom: Boolean); forward;
+// Called by a timer that ticks every 56us or so
+procedure NMRA_DCC_58us_TimeTick(ABuffer: PDCCBufferInfo); forward;
+// Loads the next message into the transmitter
+procedure NMRA_DCC_LoadPacketIntoTransmitterStateMachine(ABuffer: PDCCBufferInfo; PreambleCount: Byte);
+// Fires the 20 Idle Packets per the NMRA Spec
+procedure NMRA_DCC_Packet_Init; forward;
+//
+procedure NMRA_DCC_ResetTransmitter(Buffer: PDCCBufferInfo);
+
+procedure NMRA_DCC_LoadIdlePacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+procedure NMRA_DCC_LoadResetPacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+procedure NMRA_DCC_LoadPagePresetPacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+
+
+var
+  DCC_TIMER_58US: Word;
+  DCC_TIMER_29US: Word;
+
+implementation
+
+const
+  // DCC State Machine Constants
+  STATE_NMRA_DCC_PREAMBLE    = 0;
+  STATE_NMRA_DCC_START_BIT_0 = 1;
+  STATE_NMRA_DCC_BYTE_0      = 2;
+  STATE_NMRA_DCC_START_BIT_1 = 3;
+  STATE_NMRA_DCC_BYTE_1      = 4;
+  STATE_NMRA_DCC_START_BIT_2 = 5;
+  STATE_NMRA_DCC_BYTE_2      = 6;
+  STATE_NMRA_DCC_START_BIT_3 = 7;
+  STATE_NMRA_DCC_BYTE_3      = 8;
+  STATE_NMRA_DCC_START_BIT_4 = 9;
+  STATE_NMRA_DCC_BYTE_4      = 10;
+  STATE_NMRA_DCC_START_BIT_XOR = 11;
+  STATE_NMRA_DCC_XOR_BYTE    = 12;
+  STATE_NMRA_DCC_STOP_BIT    = 13;
+
+type
+
+  TTrackMessageQueue = array[0..MAX_TRACK_BUFFER_DEPTH-1] of TDCCPacket;
+  TTrackMessageQueuePriority = array[0..MAX_TRACK_PRIORITY_BUFFER_DEPTH-1] of TDCCPacket;
+
+var
+  TrackQueue: TTrackMessageQueue;
+  TrackQueuePriority: TTrackMessageQueuePriority;
+  
+procedure InitializeBuffer(ABuffer: PDCCBufferInfo; SlotQueue, PrioritySlotQueue: PDCCPacketArray; QueueSize, QueuePrioritySize: Byte); forward;
+procedure NMRA_DCC_ResetTransmitter(ABuffer: PDCCBufferInfo); forward;
+
+
+
+// ****************************************************************************
+// procedure NMRA_DCC_Initialize;
+//
+//  Parameters: None
+//
+//  Results: None
+//
+//  Description:
+//     Initalizes the unit and assigns the buffer memory locations to the
+//  BufferInfo records.  Called once at program initialization
+//
+// ****************************************************************************
+procedure NMRA_DCC_Initialize(TimerCountsFor58us: Word);
+begin
+  PreambleSyncPinDirection := 0; // output
+  InitializeBuffer(@Track, @TrackQueue, @TrackQueuePriority, MAX_TRACK_BUFFER_DEPTH, MAX_TRACK_PRIORITY_BUFFER_DEPTH);
+  InitializeBuffer(@Programming, nil, nil, 0, 0);
+  DCC_TIMER_58US := TimerCountsFor58us;
+  DCC_TIMER_29US := DCC_TIMER_29US div 2;
+end;
+
+// ****************************************************************************
+// procedure InitializeBuffer
+//
+//  Parameters:
+//     ABuffer:    Pointer to the Buffer Info record to operate on
+//     QueueSize:  The lengh of the Queue used in the buffer.  Allows for
+//                 a variable length of buffers but use the same general functions
+//                 to maniulate them
+//     QueuePrioritySize: The lengh of the Priority Message Queue used in the buffer.
+//                 Allows for a variable length of buffers but use the same general
+//                 functions to maniulate them
+//
+//  Results: None
+//
+//  Description:
+//     Initalizes the contents of the TDCCBufferInfo record
+//
+// ****************************************************************************
+procedure InitializeBuffer(ABuffer: PDCCBufferInfo; SlotQueue, PrioritySlotQueue: PDCCPacketArray; QueueSize, QueuePrioritySize: Byte);
+var
+  i: Integer;
+begin
+  NMRA_DCC_ResetTransmitter(ABuffer);
+  // Initialize the main Queue
+  ABuffer^.Main.Slots := SlotQueue;
+  ABuffer^.Main.Count := 0;
+  ABuffer^.Main.MaxCount := QueueSize;
+  ABuffer^.Main.Head := 0;
+  ABuffer^.Main.Tail := 0;
+  ABuffer^.Main.Peak := 0;
+  ABuffer^.Main.TotalSent := 0;
+  for i := 0 to ABuffer^.Main.MaxCount - 1 do
+  begin
+    ABuffer^.Main.Slots^[i].Flags := MASK_DCC_PACKET_INITIALIZE_FLAGS;
+  end;
+
+  // Initialize the Priority Queue
+  ABuffer^.Priority.Slots := PrioritySlotQueue;
+  ABuffer^.Priority.Count := 0;
+  ABuffer^.Priority.MaxCount := QueuePrioritySize;
+  ABuffer^.Priority.Head := 0;
+  ABuffer^.Priority.Tail := 0;
+  ABuffer^.Priority.Peak := 0;
+  ABuffer^.Priority.TotalSent := 0;
+  for i := 0 to ABuffer^.Priority.MaxCount - 1 do
+    ABuffer^.Priority.Slots^[i].Flags := MASK_DCC_PACKET_INITIALIZE_FLAGS;
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_Packet_Init;
+//
+// ****************************************************************************
+procedure NMRA_DCC_Packet_Init;
+var
+  NewDCCMessage: TDCCPacket;
+  i: Integer;
+begin
+  NMRA_DCC_LoadPacket(@NewDCCMessage, MESSAGE_IDLE_0, MESSAGE_IDLE_1, 0, 0, 0, 2);
+
+  for i := 0 to MAX_NMRA_DCC_STARTUP_IDLE - 1 do
+  begin
+    if not NMRA_DCC_QueuePacket(@Track, @NewDCCMessage, True) then
+    begin
+      Delay_us(500);
+    end;
+  end;
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_58us_TimeTick
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//
+//  Results:  None
+//
+//  Description:
+//     Updates internal counters that Track NMRA requirements for time between
+//  packets with legacy service mode addresses.  Expects to be called every 56us
+//  or so
+//
+//  WARNING:  This is called from the 56us Timer so make sure anything done is
+//            "ThreadSafe"
+//
+// ****************************************************************************
+procedure NMRA_DCC_58us_TimeTick(ABuffer: PDCCBufferInfo);
+begin
+  if ABuffer^.TX_TimerCount > 0 then
+    Dec(ABuffer^.TX_TimerCount);
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_ResetTransmitter
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//
+//  Results:  None
+//
+//  Description:
+//                   Clears the state machine and resets the flags to a completetly
+//               clean slate state for the transmitter in the Buffer Info
+//
+// ****************************************************************************
+procedure NMRA_DCC_ResetTransmitter(ABuffer: PDCCBufferInfo);
+begin
+  // Initialize the State Machines
+  ABuffer^.TX_iStateMachine := STATE_NMRA_DCC_PREAMBLE;
+  ABuffer^.TX_iBit := STATE_NMRA_DCC_BIT_7;
+  ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0;
+  // Initialize the Transmitter
+  ABuffer^.TX_PreambleBitCount := $0;
+  ABuffer^.TX_Flags := 0;
+  ABuffer^.TX_LastAddress := MESSAGE_IDLE_0;
+end;
+
+
+// ***************************************************************************
+//  function ClassifyAddress(AMessage: PDCCPacket): Boolean;
+//
+//  Parameters:
+//           AMessage: PDCCPacket      Message to check for address type
+//
+//  Result:
+//          Classifies and set the flag for the type of address it is
+//
+// ***************************************************************************
+procedure NMRA_DCCClassifyAddress(AMessage: PDCCPacket);
+begin
+  // Clear the Address Flags
+  AMessage^.Flags := AMessage^.Flags and not MASK_DCC_PACKET_ADDRESS_BITS;
+
+  if (AMessage^.PacketBytes[0] = MESSAGE_RESET_0) or (AMessage^.PacketBytes[0] = MESSAGE_IDLE_0) or (AMessage^.PacketBytes[0] = $FE) then
+     AMessage^.Flags := AMessage^.Flags or MASK_DCC_PACKET_SPECIAL
+  else
+  if AMessage^.PacketBytes[0] < 128 then
+    AMessage^.Flags := AMessage^.Flags or MASK_DCC_PACKET_SHORT_MULTI_FUNCTION_ADDRESS
+  else
+  if AMessage^.PacketBytes[0] < 192 then
+    AMessage^.Flags := AMessage^.Flags or MASK_DCC_PACKET_ACCESSORY_ADDRESS
+  else
+  if AMessage^.PacketBytes[0] < 232 then
+    AMessage^.Flags := AMessage^.Flags or MASK_DCC_PACKET_LONG_MULTI_FUNCTION_ADDRESS
+  else
+    AMessage^.Flags := AMessage^.Flags or MASK_DCC_PACKET_RESERVED
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_LoadPacket
+//
+//  Parameters:
+//     NewMessage:    Pointer to the TDCCPacket record to load the rest of the
+//                    passed paramters into
+//     Data1..Data5:  The raw NMRA DCC message bytes. Note do NOT pass the XOR byte it is calculated automatically
+//     Priority:      Priority of the message, higher priority moves the message up in the queue
+//                    and will allow it to be sent ahead of lower priority messages
+//                    only 0..7 allowed
+//     ValidDataByte: The number of data bytes (Data1..Data5) that are actually valid
+//
+//  Results: None
+//
+//  Description:
+//     Helper function to load a TDCCPacket with the passed information
+//
+// ****************************************************************************
+procedure NMRA_DCC_LoadPacket(NewMessage: PDCCPacket; Data1, Data2, Data3, Data4, Data5, ValidDataByes: Byte);
+begin
+  NewMessage^.PacketBytes[0] := Data1;
+  NewMessage^.PacketBytes[1] := Data2;
+  NewMessage^.PacketBytes[2] := Data3;
+  NewMessage^.PacketBytes[3] := Data4;
+  NewMessage^.PacketBytes[4] := Data5;
+  NewMessage^.Flags := ValidDataByes;
+end;
+
+
+
+// ****************************************************************************
+// procedure NMRA_DCC_QueuePacket
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//     NewMessage:    Pointer to the TDCCPacket record to place in the queue
+//                    a copy is made of the data so the passed record is not needed
+//                    when the function returns
+//     HighPriority:  If true place the message in the high priority Queue
+//
+//  Results:
+//     False:         The queueing of the message failed, likely because the queue if full
+//     True :         The queuing of the message succeeded
+//
+//  Description:
+//     Helper function to load a TDCCPacket with the passed information
+//
+//  Execution Time:    6.4us-7.2us
+//
+//
+//   TODO:  I BELIEVE THIS IS THREAD SAFE BY NOT UPDATING THE HEAD AND COUNT UNTIL AFTER THE
+//          PACKET IS LOADED.   THINK ABOUT IT MORE 1/24/2011
+//
+// ****************************************************************************
+function NMRA_DCC_QueuePacket(ABuffer: PDCCBufferInfo; NewMessage: PDCCPacket; HighPriority: Boolean): Boolean;
+var
+  QueueTarget: PDCCPacket;
+  iNextHead: Integer;
+begin
+  Result := False;
+  QueueTarget := PDCCPacket( nil);
+  if HighPriority then
+  begin
+    if ABuffer^.Priority.Count < ABuffer^.Priority.MaxCount then
+    begin
+      iNextHead := ABuffer^.Priority.Head;                                      // Head points to the next empty buffer
+      QueueTarget := @ABuffer^.Priority.Slots^[iNextHead];                      // Get the address of that next empty buffer
+      Inc(iNextHead);                                                           // We allocated it so now calculate the next next Head (wrap it if needed) and store it local
+      if iNextHead >= ABuffer^.Priority.MaxCount then
+        iNextHead := 0;
+      with NewMessage^ do                                                       // Fill in the empty buffer
+        NMRA_DCC_LoadPacket(QueueTarget, PacketBytes[0], PacketBytes[1], PacketBytes[2], PacketBytes[3], PacketBytes[4], NewMessage^.Flags and MASK_DCC_PACKET_COUNT);
+      NMRA_DCCClassifyAddress(QueueTarget);                                     // use the upper bits of the Flags to classify the address to what it is per the DCC spec (looking at the bits)
+      ABuffer^.Priority.Head := iNextHead;                                      // Update the structure to tell it where the next head (empty) buffer is
+      if ABuffer^.Priority.Count + 1 > ABuffer^.Priority.Peak then              // Update the peak count for tracking how full the buffer got
+        ABuffer^.Priority.Peak := ABuffer^.Priority.Count + 1;                  // Need to do this before actually increasing the count, see the next comment
+      Inc(ABuffer^.Priority.Count);                                             // Update the count in the buffer mananger to tell everyone there is a message to grab
+      Result := True;                                                           // Everything must be valid by this point as the interrupt can cut in after this and transfer this immediately to the transmitter
+    end
+  end else
+  begin
+    if ABuffer^.Main.Count < ABuffer^.Main.MaxCount then
+    begin
+      iNextHead := ABuffer^.Main.Head;                                          // Head points to the next empty buffer
+      QueueTarget := @ABuffer^.Main.Slots^[iNextHead];                          // Get the address of that next empty buffer
+      Inc(iNextHead);                                                           // We allocated it so now calculate the next next Head (wrap it if needed) and store it local
+      if iNextHead >= ABuffer^.Main.MaxCount then
+        iNextHead := 0;
+      with NewMessage^ do                                                       // Fill in the empty buffer
+          NMRA_DCC_LoadPacket(QueueTarget, PacketBytes[0], PacketBytes[1], PacketBytes[2], PacketBytes[3], PacketBytes[4], NewMessage^.Flags and MASK_DCC_PACKET_COUNT);
+      NMRA_DCCClassifyAddress(QueueTarget);                                     // use the upper bits of the Flags to classify the address to what it is per the DCC spec (looking at the bits)
+      ABuffer^.Main.Head := iNextHead;                                          // Update the structure to tell it where the next head (empty) buffer is
+      if ABuffer^.Main.Count + 1 > ABuffer^.Main.Peak then                      // Update the peak count for tracking how full the buffer got
+        ABuffer^.Main.Peak := ABuffer^.Main.Count + 1;                          // Need to do this before actually increasing the count, see the next comment
+      Inc(ABuffer^.Main.Count);                                                 // Update the count in the buffer mananger to tell everyone there is a message to grab
+      Result := True;                                                           // Everything must be valid by this point as the interrupt can cut in after this and transfer this immediately to the transmitter
+    end;
+  end
+end;
+
+// ***************************************************************************
+//  procedure NMRA_DCC_LoadIdlePacketIntoTransmitter
+//
+//  Parameters:
+//                Buffer -   The buffer to load the Transmitter with
+//                PreambleCount - The number of preamble bits to send with the packet
+//
+//  Result:  None
+//
+//  Description:
+//                Local helper function
+//
+// ***************************************************************************
+procedure NMRA_DCC_LoadIdlePacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+begin
+  Buffer^.TX_TransmittingPacket.PacketBytes[0] := MESSAGE_IDLE_0;
+  Buffer^.TX_TransmittingPacket.PacketBytes[1] := MESSAGE_IDLE_1;
+  Buffer^.TX_XOR_Byte := MESSAGE_IDLE_XOR;
+  Buffer^.TX_TransmittingPacket.Flags := MASK_DCC_PACKET_IDLE_MESSAGE;      // 2 Bytes and Address Is Special
+  Buffer^.TX_PreambleBitCount := PreambleCount;
+end;
+
+// ***************************************************************************
+//  procedure NMRA_DCC_LoadPagePresetPacketIntoTransmitter
+//
+//  Parameters:
+//                Buffer -   The buffer to load the Transmitter with
+//                PreambleCount - The number of preamble bits to send with the packet
+//
+//  Result:  None
+//
+//  Description:
+//                Local helper function
+//
+// ***************************************************************************
+procedure NMRA_DCC_LoadPagePresetPacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+begin
+  Buffer^.TX_TransmittingPacket.PacketBytes[0] := MESSAGE_PAGE_PRESET_0;
+  Buffer^.TX_TransmittingPacket.PacketBytes[1] := MESSAGE_PAGE_PRESET_1;
+  Buffer^.TX_XOR_Byte := MESSAGE_PAGE_PRESET_XOR;
+  Buffer^.TX_TransmittingPacket.Flags := MASK_DCC_PACKET_PAGE_PRESET_MESSAGE;      // 2 Bytes and Address Is Special
+  Buffer^.TX_PreambleBitCount := PreambleCount;
+end;
+
+// ***************************************************************************
+//  procedure NMRA_DCC_LoadResetPacketIntoTransmitter
+//
+//  Parameters:
+//                Buffer -   The buffer to load the Transmitter with
+//                PreambleCount - The number of preamble bits to send with the packet
+//
+//  Result:  None
+//
+//  Description:
+//                Local helper function
+//
+// ***************************************************************************
+procedure NMRA_DCC_LoadResetPacketIntoTransmitter(Buffer: PDCCBufferInfo; PreambleCount: Byte);
+begin
+  Buffer^.TX_TransmittingPacket.PacketBytes[0] := MESSAGE_RESET_0;
+  Buffer^.TX_TransmittingPacket.PacketBytes[1] := MESSAGE_RESET_1;
+  Buffer^.TX_XOR_Byte := MESSAGE_RESET_XOR;
+  Buffer^.TX_TransmittingPacket.Flags := MASK_DCC_PACKET_RESET_MESSAGE;
+  Buffer^.TX_PreambleBitCount := PreambleCount;
+end;
+
+// ****************************************************************************
+// function CanTransmitMessage
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//     AMessage:      Pointer to the message that is trying to be transmitted
+//
+//  Results:
+//     True  : The message can be transmitted
+//     False : There is a NMRA timnig requirement that needs the message to be
+//               held for
+//
+//  Description:  Tests the buffer to see if there are special address that
+//    need to meet timing requirements.  If returns false then an Idle Message
+//    will be sent until the timing is met
+//
+// ****************************************************************************
+function CanTransmitMessage(ABuffer: PDCCBufferInfo; AMessage: PDCCPacket): Boolean;
+begin
+
+Result := True;
+(*
+  // See if it is a short message that requires special attention per the S-9.2 spec
+  if AMessage^.Flags and MASK_DCC_PACKET_SHORT_MULTI_FUNCTION_ADDRESS <> 0 then
+  begin
+    if AMessage^.PacketBytes[0] = ABuffer^.TX_LastAddress then
+    begin
+      if AMessage^.PacketBytes[0] >= 112 then
+        if AMessage^.PacketBytes[0] <= 127 then
+        begin
+                 THIS IS ALL WRONG AN DOES NOT WORK RIGHT
+        UART1_Write_Text('Dup Address');
+          // Care must be taken to ensure that two packets with identical addresses are not are not transmitted within 5
+          // milliseconds of each other for addresses in the range between 112-127 as older decoders may interpret these packets as
+          // service mode packets (see RP-9.2.3).
+          if ABuffer^.TX_TimerCount < _5ms_PERIOD then
+            ABuffer^.TX_TimerCount := _5ms_PERIOD;          // 5ms/56us = 89.3
+        end
+    end
+  end;
+
+  if ABuffer^.TX_LastAddress = MESSAGE_RESET_0 then
+  begin
+    if (AMessage^.PacketBytes[0] >= 100) then
+      if AMessage^.PacketBytes[0] <= 127 then
+      begin
+          // Following a Digital Decoder Reset Packet, a Command Station shall not send any packets with an address data byte
+          // between the range "01100100" and "01111111" inclusive within 20 milliseconds, unless it is the intent to enter
+          // service mode
+        if ABuffer^.TX_TimerCount < _20ms_PERIOD then      // 20ms/56us = 357.1
+          ABuffer^.TX_TimerCount := _20ms_PERIOD;
+      end;
+  end;
+  Result := ABuffer^.TX_TimerCount = 0
+  
+  *)
+end;
+
+
+// ****************************************************************************
+// procedure NMRA_DCC_LoadPacketStateMachine
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//     PreambleCount: Number of preamble bits to send with the message
+//
+//  Results:  None
+//
+//
+//  Description:
+//     Loads the transmitter with the next message.  It handles the requirements
+//  of the NMRA spec for message transmittion timing.  If no messages available
+//  it either sends idle messages or refreshes active throttles/devices
+//
+//  WARNING:  This is called from the 56us Timer so make sure anything done is
+//            "ThreadSafe"
+//
+// ****************************************************************************
+
+procedure NMRA_DCC_LoadPacketIntoTransmitterStateMachine(ABuffer: PDCCBufferInfo; PreambleCount: Byte);
+var
+  AMessage: PDCCPacket;
+  AQueue: PQueueInfo;
+  i, Count: Byte;
+begin
+  AQueue := nil;
+  if ABuffer^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then                      // If previous packet is on the stop bit then time to load the next packet
+  begin
+  
+    if ABuffer^.Priority.Count > 0 then
+    begin
+      AMessage := @ABuffer^.Priority.Slots^[ABuffer^.Priority.Tail];
+      if CanTransmitMessage(ABuffer, AMessage) then
+        AQueue := @ABuffer^.Priority
+    end;
+    
+    if AQueue = nil then
+    begin
+      if ABuffer^.Main.Count > 0 then
+      begin   
+        AMessage := @ABuffer^.Main.Slots^[ABuffer^.Main.Tail];
+        if CanTransmitMessage(ABuffer, AMessage) then
+          AQueue := @ABuffer^.Main
+      end
+    end;
+
+    // Test to see if any of the Queues had a message to send, if not then send an idle message
+    if AQueue <> nil then
+    begin
+    
+    LATB11_bit := 1;
+    
+      ABuffer^.TX_TransmittingPacket := AMessage^;                               // Copy the message to the Transmit Buffer
+      ABuffer^.TX_XOR_Byte := 0;                                                  // Build the XOR Byte
+      i := 0;
+      Count := ABuffer^.TX_TransmittingPacket.Flags and MASK_DCC_PACKET_COUNT;
+      while i < Count do
+      begin
+        ABuffer^.TX_XOR_Byte := ABuffer^.TX_XOR_Byte xor ABuffer^.TX_TransmittingPacket.PacketBytes[i];
+        Inc(i)
+      end;
+      ABuffer^.TX_PreambleBitCount := PreambleCount;                              // Update the Preamble Count
+      ABuffer^.TX_LastAddress := ABuffer^.TX_TransmittingPacket.PacketBytes[0];   // Update the Last Address
+
+      Inc(AQueue^.Tail);
+      if AQueue^.Tail >= AQueue^.MaxCount then                                    // Remove the message from the Queue
+        AQueue^.Tail := 0;
+      Inc(AQueue^.TotalSent);
+      Dec(AQueue^.Count);
+      
+    LATB11_bit := 0;
+
+    end else
+      NMRA_DCC_LoadIdlePacketIntoTransmitter(ABuffer, PreambleCount);
+  end
+end;
+
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachineHandlePreamble
+//
+//  Description:
+//    NMRA_DCC_TransmitterStateMachine helper function
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachineHandlePreamble(ABuffer: PDCCBufferInfo);
+begin     
+  PreambleSyncPin := 1;
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_CURRENT_BIT := 1;
+  if ABuffer^.TX_PreambleBitCount > 0 then
+  begin
+    Dec(ABuffer^.TX_PreambleBitCount);
+    if ABuffer^.TX_PreambleBitCount = 0 then
+      Inc(ABuffer^.TX_iStateMachine);
+  end else
+  begin
+    NMRA_DCC_LoadIdlePacketIntoTransmitter(ABuffer, PREAMBLE_BIT_COUNT_NORMAL);
+    ABuffer^.TX_LastAddress := MESSAGE_IDLE_0;
+  end
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachineHandleByte
+//
+//  Description:
+//    NMRA_DCC_TransmitterStateMachine helper function
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer: PDCCBufferInfo; ByteIndex: Byte);
+var
+  Offset: Byte;
+begin
+  Offset := ABuffer^.TX_iBit;
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_CURRENT_BIT := ABuffer^.TX_TransmittingPacket.PacketBytes[ByteIndex].Offset;
+  Dec(ABuffer^.TX_iBit);
+  if (ABuffer^.TX_iBit > STATE_NMRA_DCC_BIT_7) or (ABuffer^.TX_iBit < STATE_NMRA_DCC_BIT_0) then
+  begin
+    if (ABuffer^.TX_TransmittingPacket.Flags and MASK_DCC_PACKET_COUNT) = ByteIndex + 1 then
+      ABuffer^.TX_iStateMachine := STATE_NMRA_DCC_START_BIT_XOR
+    else
+      Inc(ABuffer^.TX_iStateMachine)
+  end
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachineHandleStartBit
+//
+//  Description:
+//    NMRA_DCC_TransmitterStateMachine helper function
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer: PDCCBufferInfo);
+begin
+  PreambleSyncPin := 0;
+  ABuffer^.TX_iBit := STATE_NMRA_DCC_BIT_7;                                              // Reset Bit index for the next Byte
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_CURRENT_BIT := 0;                         // Current Bit = 0 (start bit)
+  Inc(ABuffer^.TX_iStateMachine)                                                // Move to the next State
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachineXORByte
+//
+//  Description:
+//    NMRA_DCC_TransmitterStateMachine helper function
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachineXORByte(ABuffer: PDCCBufferInfo);
+var
+  Offset: Byte;
+begin
+  Offset := ABuffer^.TX_iBit;
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_CURRENT_BIT := ABuffer^.TX_XOR_Byte.Offset;
+  Dec(ABuffer^.TX_iBit);
+  if (ABuffer^.TX_iBit > STATE_NMRA_DCC_BIT_7) or (ABuffer^.TX_iBit < STATE_NMRA_DCC_BIT_0) then
+    Inc(ABuffer^.TX_iStateMachine)
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachineHandleStopBit
+//
+//  Description:
+//    NMRA_DCC_TransmitterStateMachine helper function
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachineHandleStopBit(ABuffer: PDCCBufferInfo);
+begin
+  ABuffer^.TX_iBit := STATE_NMRA_DCC_BIT_7;                                     // Reset Bit index for the next Byte
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_CURRENT_BIT := 1;                         // Current Bit = 1 (stop bit)
+  ABuffer^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT := 1;                            // Flag we are transmitting the Stop Bit
+end;
+
+// ****************************************************************************
+// procedure NMRA_DCC_TransmitterStateMachine
+//
+//  Parameters:
+//     ABuffer:       Pointer to the Buffer Info record to operate on:
+//
+//  Results:
+//     True if the last half of the stop bit is being transmitted
+//
+//  Description:
+//     Runs the Statemachine for the transmitter, call every 56us
+//
+//  WARNING:  This is called from the 56us Timer so make sure anything done is
+//            "ThreadSafe"
+//
+//  Execution Time:    ~5.1us max
+//
+// ****************************************************************************
+procedure NMRA_DCC_TransmitterStateMachine(ABuffer: PDCCBufferInfo; ServiceMode, RailCom: Boolean);
+begin
+  case ABuffer^.TX_iDCC_Pin_StateMachine of
+    STATE_NMRA_DCC_PIN_0 :     // Pin State 0 is the first "positive" 56us of a new bit being sent on the DCC line
+      begin
+        case ABuffer^.TX_iStateMachine of
+          STATE_NMRA_DCC_PREAMBLE          : NMRA_DCC_TransmitterStateMachineHandlePreamble(ABuffer);
+          STATE_NMRA_DCC_START_BIT_0       : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_BYTE_0            : NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer, 0);
+          STATE_NMRA_DCC_START_BIT_1       : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_BYTE_1            : NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer, 1);
+          STATE_NMRA_DCC_START_BIT_2       : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_BYTE_2            : NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer, 2);
+          STATE_NMRA_DCC_START_BIT_3       : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_BYTE_3            : NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer, 3);
+          STATE_NMRA_DCC_START_BIT_4       : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_BYTE_4            : NMRA_DCC_TransmitterStateMachineHandleByte(ABuffer, 4);
+          STATE_NMRA_DCC_START_BIT_XOR     : NMRA_DCC_TransmitterStateMachineHandleStartBit(ABuffer);
+          STATE_NMRA_DCC_XOR_BYTE          : NMRA_DCC_TransmitterStateMachineXORByte(ABuffer);
+          STATE_NMRA_DCC_STOP_BIT          : NMRA_DCC_TransmitterStateMachineHandleStopBit(ABuffer);
+         end;
+
+        ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 1;                   // Set the I/O Pin High for the start of the bit
+
+        if ABuffer^.Tx_Flags.TRANSMITTING_FLAG_CURRENT_BIT = 0 then             // If is a zero we need to add a 56us wait state to make a 112us wide pulse
+          Inc(ABuffer^.TX_iDCC_Pin_StateMachine)
+        else
+          ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_2             // If is a one then we jump right to the back edge of the pulse width at 56us
+    end;
+  STATE_NMRA_DCC_PIN_1 : 
+    begin
+      Inc(ABuffer^.TX_iDCC_Pin_StateMachine);                // Pin State 1 is the second "positive" 56us of a new "0" bit being sent on the DCC line, if the bit was a 1 in Pin State 0 then this state is skipped
+    end;
+  STATE_NMRA_DCC_PIN_2 :                                                        // Pin State 2 is the first "negative" 56us of a new bit being sent on the DCC line
+    begin
+      ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 0;                     // Set the I/O Pin Low (negative half of the DCC cycle)
+
+      if ABuffer^.Tx_Flags.TRANSMITTING_FLAG_CURRENT_BIT = 0 then
+      begin
+        // If it is a zero it can't be the stop bit!
+        Inc(ABuffer^.TX_iDCC_Pin_StateMachine)                                  // It is a "0" so jump to the next half for a wait state to make it 112us wide
+      end else 
+      begin
+        ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0;              // It is a "1" so start the next bit from the beginning
+
+        if ABuffer^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then                // If transmitting the second half of the stop bit then reset everything and get ready for the next message
+        begin  
+          ABuffer^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT := 0;                    // Reset the Stop Bit Flag
+          ABuffer^.TX_iStateMachine := STATE_NMRA_DCC_PREAMBLE;                 // New message starting.... eventually
+          
+          // Don't do RailCom stuff in Service Mode
+          if not ServiceMode then
+          begin
+            if RailCom then
+              ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0_RAILCOM  // Jump to RailCom Statemachine
+            else
+              ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0;        // Restart the Pin Statemachine
+          end
+        end
+      end;
+    end;
+  STATE_NMRA_DCC_PIN_3 :
+    begin
+      ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0; // Pin State 3 is the second "negative" 56us of a new "0" bit being sent on the DCC line, if the bit was a 1 in Pin State 2 then this state is skipped
+    end;
+  STATE_NMRA_DCC_PIN_0_RAILCOM :
+    begin
+      Dcc_Timer_PR := DCC_TIMER_29US;
+      ABuffer^.Tx_Flags.TRANSMITTING_FLAG_CURRENT_BIT := 1;
+      ABuffer^.TX_Flags.TRANSMITTING_FLAG_RAIL_COM_CUTOUT_BIT := 1;
+      ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_1_RAILCOM
+    end;
+  STATE_NMRA_DCC_PIN_1_RAILCOM :
+    begin
+      Dcc_Timer_PR := DCC_TIMER_58US;
+      ABuffer^.TX_RailComCount := 0;
+      ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_2_RAILCOM
+    end;
+  STATE_NMRA_DCC_PIN_2_RAILCOM :
+    begin
+      Inc(ABuffer^.TX_RailComCount);
+      if ABuffer^.TX_RailComCount > 7 then
+      begin
+        Dcc_Timer_PR := DCC_TIMER_29US;
+        ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_3_RAILCOM;
+        ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 0;  // Second Half
+      end else
+      if ABuffer^.TX_RailComCount > 6 then
+      begin
+        ABuffer^.TX_Flags.TRANSMITTING_FLAG_RAIL_COM_CUTOUT_BIT := 0;
+        ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 1;  // First Half
+      end;
+    end;
+  STATE_NMRA_DCC_PIN_3_RAILCOM :
+    begin
+      Dcc_Timer_PR := DCC_TIMER_58US;
+      ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 1;  // First Half
+      ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_4_RAILCOM;
+    end;
+  STATE_NMRA_DCC_PIN_4_RAILCOM :
+    begin
+      ABuffer^.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT := 0;  // Second Half
+      ABuffer^.TX_iDCC_Pin_StateMachine := STATE_NMRA_DCC_PIN_0;
+    end;
+  end;
+end;
+
+end.

@@ -72,6 +72,7 @@ type
       FOnReceiveMessage: TOnComReceiveFunc;
       FOnSendMessage: TOnMessageEvent;
       FOwner: TLccComPort;
+      FRawData: Boolean;
       FSerial: TBlockSerial;                                                      // Serial object
     protected
       procedure DoConnectionState;
@@ -89,6 +90,8 @@ type
       property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
       property Owner: TLccComPort read FOwner write FOwner;
     public
+      property RawData: Boolean read FRawData write FRawData;
+
       constructor Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec); reintroduce;
       destructor Destroy; override;
   end;
@@ -111,6 +114,7 @@ type
   TLccComPort = class(TLccHardwareConnectionManager)
   private
     FComPortThreads: TLccComPortThreadList;
+    FConnected: Boolean;
     FHub: Boolean;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
@@ -118,6 +122,7 @@ type
     FOnConnectionStateChange: TOnComChangeFunc;
     FOnReceiveMessage: TOnComReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
+    FRawData: Boolean;
     FSleepCount: Integer;
     procedure SetOnSendMessage(AValue: TOnMessageEvent);
     procedure SetSleepCount(AValue: Integer);
@@ -130,6 +135,8 @@ type
     { Public declarations }
     property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
+    property Connected: Boolean read FConnected;
+    property RawData: Boolean read FRawData write FRawData;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -293,6 +300,17 @@ begin
   Result.OnReceiveMessage := OnReceiveMessage;
   Result.OnSendMessage := OnSendMessage;
   Result.SleepCount := SleepCount;
+  Result.RawData := RawData;
+  {$IFDEF MSWINDOWS}
+
+  {$ELSE}
+    {$IFDEF DARWIN}
+    Result.FComPortRec.ComPort := PATH_OSX_DEV + Result.ComPortRec.ComPort;
+    {$ELSE}
+    Result.FComPortRec.ComPort := PATH_LINUX_DEV + Result.ComPortRec.ComPort;
+    {$ENDIF}
+  {$ENDIF}
+
   ComPortThreads.Add(Result);
   Result.Suspended := False;
 end;
@@ -475,8 +493,7 @@ begin
           LocalSleepCount := 0;
           while not IsTerminated and (FComPortRec.ConnectionState = ccsPortConnected) do
           begin
-             // Handle the ComPort using GridConnect
-            if Gridconnect then
+            if Gridconnect then              // Handle the ComPort using GridConnect
             begin
               if LocalSleepCount >= SleepCount then
               begin
@@ -508,17 +525,17 @@ begin
               else
                 HandleErrorAndDisconnect
               end;
-
               for i := 1 to Length(RcvStr) do
               begin
-               GridConnectStrPtr := nil;
+                GridConnectStrPtr := nil;
 
-               if GridConnectHelper.GridConnect_DecodeMachine(Ord( RcvStr[i]), GridConnectStrPtr) then
-               begin
-                 FComPortRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
-                 FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
-                 Synchronize(@DoReceiveMessage);
-               end;
+                if GridConnectHelper.GridConnect_DecodeMachine(Ord( RcvStr[i]), GridConnectStrPtr) then
+                begin
+                  FComPortRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
+                  if not RawData then
+                    FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
+                  Synchronize(@DoReceiveMessage);
+                end;
               end;
             end else
             begin    // Handle the Socket with LCC TCP Protocol
@@ -638,6 +655,8 @@ end;
 
 procedure TLccComPortThread.DoConnectionState;
 begin
+  Owner.FConnected := FComPortRec.ConnectionState = ccsPortConnected;
+
   if Assigned(OnConnectionStateChange) then
     OnConnectionStateChange(Self, FComPortRec)
 end;

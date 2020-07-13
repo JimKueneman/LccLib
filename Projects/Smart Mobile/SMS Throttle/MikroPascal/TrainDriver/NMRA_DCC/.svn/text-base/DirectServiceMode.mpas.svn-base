@@ -1,0 +1,213 @@
+unit DirectServiceMode;
+
+{$I Options.inc}
+
+{.$DEFINE PRINT_DIRECT_MODE_STATEMACHINE}
+
+uses
+  NMRAnetDCC,
+  CommonServiceMode,
+  ServiceModeDefines;
+  
+  
+  procedure DirectByteByBitServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+  procedure DirectByteServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+
+implementation
+
+// ***************************************************************************
+//  procedure NextBitAndTestForCompletion
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure NextBitAndTestForCompletion(BufferPtr: PDCCBufferInfo);
+begin
+  Inc(ServiceModeInfo.ReadIndex);                                     // Try the next Bit
+  if ServiceModeInfo.ReadIndex < 8 then                               // Have we run all the bits?
+  begin
+    ServiceModeInfo.iInstructionCountSent := 1;                       // Run the next bit cycle
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESET_CYCLE;
+  end else
+  begin
+    ServiceModeInfo.ServiceModeResult := SERVICE_MODE_RESULT_RESPONSE_DIRECT_BIT_MODE;
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESULTS_READY
+  end;
+  NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);
+end;
+
+// ***************************************************************************
+//  procedure InstructionSendBit
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionSendBit(BufferPtr: PDCCBufferInfo);
+begin
+  if ServiceModeInfo.ReadWrite = SERVICEMODE_WRITE then
+    CommonServiceMode_DirectLoadTransmitterDirectMode(BufferPtr, ServiceModeInfo.CV-1, %00001000, %11110000 or ((ServiceModeInfo.Value) shl 3) or ServiceModeInfo.ReadIndex)        // The passed value must be in the xxxxDBBB format where D = Data and BBB is the offset 0..7
+  else
+    CommonServiceMode_DirectLoadTransmitterDirectMode(BufferPtr, ServiceModeInfo.CV-1, %00001000, %11101000 or ServiceModeInfo.ReadIndex);  // Always trying to read ones and assuming zeros if no response
+end;
+
+// ***************************************************************************
+//  procedure AckHandlerBit
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure AckHandlerBit(BufferPtr: PDCCBufferInfo);
+var
+  BitOffset: Byte;
+begin
+  BitOffset := ServiceModeInfo.ReadIndex;
+  ServiceModeInfo.Value.BitOffset := 1;                               // Set the offset to 1 (default is 0)
+  NextBitAndTestForCompletion(BufferPtr);
+end;
+
+// ***************************************************************************
+//  procedure NoAckHandlerBit
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure NoAckHandlerBit(BufferPtr: PDCCBufferInfo);
+begin
+  if ServiceModeInfo.ReadWrite = SERVICEMODE_READ then
+  begin
+    NextBitAndTestForCompletion(BufferPtr);
+  end else
+  begin
+    ServiceModeInfo.iInstructionCountSent := 1;
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESULTS_READY;
+  end;
+end;
+
+// ***************************************************************************
+//  procedure InstructionSendByte
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionSendByte(BufferPtr: PDCCBufferInfo);
+begin
+  if ServiceModeInfo.ReadWrite = SERVICEMODE_WRITE then
+    CommonServiceMode_DirectLoadTransmitterDirectMode(BufferPtr, ServiceModeInfo.CV-1, %00001100, ServiceModeInfo.ReadIndex)
+  else
+    CommonServiceMode_DirectLoadTransmitterDirectMode(BufferPtr, ServiceModeInfo.CV-1, %00000100, ServiceModeInfo.ReadIndex);
+end;
+
+// ***************************************************************************
+//  procedure DirectByteServiceMode_StateMachine
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+//         StateMachine that handles a Direct CV Service Mode Programmming sequence
+//    per the S9.2.3 spec
+//
+//    NOTE:  Everytime this StateMachine is entered the Transmitter MUST BE LOADED
+// ***************************************************************************
+procedure DirectByteServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+begin
+  // Only update when we see the stop bit and need to update for the next packet sent
+  if BufferPtr^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then
+  begin
+    if ServiceModeInfo.CV <= SERVICE_MODE_DIRECT_MODE_MAX_CV then
+    begin
+      case ServiceModeInfo.iStateMachine of
+        STATE_SERVICEMODE_POWER_ON_CYCLE            : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_POWER_ON_CYCLE'+LF); {$ENDIF}
+                                                        CommonServiceMode_PowerOnCycle(BufferPtr, SERVICEMODE_POWER_ON_CYCLE_COUNT, STATE_SERVICEMODE_RESET_CYCLE);
+                                                      end;
+        STATE_SERVICEMODE_RESET_CYCLE               : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_RESET_CYCLE'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResetCycle(BufferPtr, @InstructionSendByte, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_SEND_INSTRUCTION, True);
+                                                      end;
+        STATE_SERVICEMODE_SEND_INSTRUCTION          : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_SEND_INSTRUCTION'+LF); {$ENDIF}
+                                                        CommonServiceMode_SendInstructions(BufferPtr, @InstructionSendByte, @CommonServiceMode_AckHandlerByte, @CommonServiceMode_NoAckHandler, SERVICEMODE_DIRECT_INSTRUCTION_COUNT);
+                                                      end;
+        STATE_SERVICEMODE_WRITE_RECOVERY            : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_WRITE_RECOVERY'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResetCycle(BufferPtr, @InstructionSendByte, SERVICEMODE_RECOVER_CYCLE_RESET_COUNT, STATE_SERVICEMODE_RESULTS_READY, True);
+                                                      end;
+        STATE_SERVICEMODE_RESULTS_READY             : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_RESULTS_READY'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResultReady(BufferPtr);
+                                                      end;
+      end
+    end else
+    begin
+      {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('INVALID_CV_IN_SERVICE_MODE_STATEMACHINE'+LF); {$ENDIF}
+      ServiceModeInfo.Value := 0;
+      ServiceModeInfo.ServiceModeResult := SERVICE_MODE_RESULT_INVALID_CV;
+      NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);  // Per 9.2.3
+      ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESULTS_READY;
+    end
+  end;
+end;
+
+// ***************************************************************************
+//  procedure DirectByteByBitServiceMode_StateMachine
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+//         StateMachine that handles a Direct CV Service Mode Programmming sequence
+//    per the S9.2.3 spec
+//
+//    NOTE:  Everytime this StateMachine is entered the Transmitter MUST BE LOADED
+// ***************************************************************************
+procedure DirectByteByBitServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+var
+  BitOffset: Byte;
+begin
+  // Only update when we see the stop bit and need to update for the next packet sent
+  if BufferPtr^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then
+  begin
+    if ServiceModeInfo.CV <= SERVICE_MODE_DIRECT_MODE_MAX_CV then
+    begin
+      case ServiceModeInfo.iStateMachine of
+        STATE_SERVICEMODE_POWER_ON_CYCLE            : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_POWER_ON_CYCLE'+LF); {$ENDIF}
+                                                        CommonServiceMode_PowerOnCycle(BufferPtr, SERVICEMODE_POWER_ON_CYCLE_COUNT, STATE_SERVICEMODE_RESET_CYCLE);
+                                                      end;
+        STATE_SERVICEMODE_RESET_CYCLE               : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_RESET_CYCLE'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResetCycle(BufferPtr, @InstructionSendBit, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_SEND_INSTRUCTION, True);
+                                                      end;
+        STATE_SERVICEMODE_SEND_INSTRUCTION          : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_SEND_INSTRUCTION'+LF); {$ENDIF}
+                                                        CommonServiceMode_SendInstructions(BufferPtr, @InstructionSendBit, @AckHandlerBit, @NoAckHandlerBit, SERVICEMODE_DIRECT_INSTRUCTION_COUNT);
+                                                      end;
+        STATE_SERVICEMODE_WRITE_RECOVERY            : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_WRITE_RECOVERY'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResetCycle(BufferPtr, nil, SERVICEMODE_RECOVER_CYCLE_RESET_COUNT, STATE_SERVICEMODE_RESULTS_READY, False);
+                                                      end;
+        STATE_SERVICEMODE_RESULTS_READY             : begin {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('STATE_SERVICEMODE_RESULTS_READY'+LF); {$ENDIF}
+                                                        CommonServiceMode_ResultReady(BufferPtr);
+                                                      end;
+      end
+    end else
+    begin
+      {$IFDEF PRINT_DIRECT_MODE_STATEMACHINE}UART1_Write_Text('INVALID_CV_IN_SERVICE_MODE_STATEMACHINE'+LF); {$ENDIF}
+      ServiceModeInfo.Value := 0;
+      ServiceModeInfo.ServiceModeResult := SERVICE_MODE_RESULT_INVALID_CV;
+      NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);  // Per 9.2.3
+      ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESULTS_READY;
+    end
+  end;
+end;
+
+end.

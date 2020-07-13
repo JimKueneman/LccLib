@@ -1,0 +1,95 @@
+unit ServiceModeDefines;
+
+const
+  PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT              = 0;   // Start looking for the Acknowledge bit
+  PROGRAMMING_ACK_DETECTED_BIT                      = 1;   // A valid Acknowledge was detected
+  PROGRAMMING_ACK_TIMER_DETECTED_LEADINGEDGE_BIT    = 2;   // 6ms timer is running
+  PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT = 3;   // 6ms timer ran but ACK was not high at the end of the timer
+
+  SERVICE_MODE_RESULT_ERROR_CODE_SET                      = $80;  // Hi bit set = Error
+  SERVICE_MODE_RESULT_NO_ACK                              = $80;  // There was no ACK
+  SERVICE_MODE_RESULT_SHORTCIRCUIT                        = $81;  // System had too much current draw
+  SERVICE_MODE_RESULT_INVALID_CV                          = $82;  // CV asked for does not exist in the requested service mode
+  SERVICE_MODE_RESULT_SHORT_ACK                           = $83;  // The ACK was less than 5ms
+
+  SERVICE_MODE_RESULT_RESPONSE_DIRECT_BYTE_MODE           = $01;  // Response was achieved in Direct Byte Mode
+  SERVICE_MODE_RESULT_RESPONSE_DIRECT_BIT_MODE            = $02;  // Response was achieved in Direct Bit Mode
+  SERVICE_MODE_RESULT_RESPONSE_PAGED_MODE                 = $03;  // Response was achieved in Paged mode
+  SERVICE_MODE_RESULT_RESPONSE_REGISTER_MODE              = $04;  // Response was achieved in Register mode
+
+  SERVICEMODE_POWER_ON_CYCLE_COUNT               = 16;     // Per RP-9.2.3
+  SERVICEMODE_RESET_COUNT                        = 3;      // Per RP-9.2.3
+  SERVICEMODE_RECOVER_CYCLE_RESET_COUNT          = 6;      // Per RP-9.2.3
+  
+  SERVICEMODE_PAGED_PAGE_WRITE_COUNT             = 5;    // Per RP-9.2.3
+  SERVICEMODE_PAGED_PAGE_WRITE_RECOVER_COUNT     = 6;    // Per RP-9.2.3
+  SERVICEMODE_PAGED_INSTRUCTION_COUNT            = 5;    // Per RP-9.2.3
+
+  SERVICEMODE_DIRECT_INSTRUCTION_COUNT           = 5;    // Per RP-9.2.3
+  
+  SERVICE_MODE_REGISTER_PAGE_PRESET_COUNT        = 5;    // Per RP-9.2.3
+  SERVICEMODE_REGISTER_WRITE_RECOVER_COUNT       = 10;   // Per RP-9.2.3   Register 1 = 10 the rest are 6 so use 10
+  SERVICEMODE_REGISTER_INSTRUCTION_COUNT         = 7;    // Per RP-9.2.3   Actually 7 for Read and 5 for Write
+
+  STATE_SERVICEMODE_IDLE                                           = 00;
+  STATE_SERVICEMODE_POWER_ON_CYCLE                                 = 01;
+  STATE_SERVICEMODE_RESET_CYCLE                                    = 02;
+  STATE_SERVICEMODE_SEND_INSTRUCTION                               = 03;
+  STATE_SERVICEMODE_WRITE_RECOVERY                                 = 100;
+  STATE_SERVICEMODE_RESULTS_READY                                  = 101;
+
+
+  STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER                      = 10;
+  STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER_RECOVER              = 11;
+  STATE_SERVICEMODE_PAGED_INSTRUCTION                              = 12;
+  STATE_SERVICEMODE_PAGED_INSTRUCTION_RESET                        = 13;
+
+  STATE_SERVICEMODE_REGISTER_INSTRUCTION_PAGE_PRESET               = 10;
+  STATE_SERVICEMODE_REGISTER_PAGE_PRESET_RECOVERY                  = 11;
+  STATE_SERVICEMODE_REGISTER_OPTIONAL_POWER_ON_CYCLE               = 12;
+  STATE_SERVICEMODE_REGISTER_INSTRUCTION_RESET                     = 13;
+  STATE_SERVICEMODE_REGISTER_INSTRUCTION                           = 14;
+
+
+  // Address/Register/Page
+  STATE_SERVICEMODE_WRITE_PAGE_PRESET                              = 10;
+
+  SERVICE_MODE_TYPE_DIRECT_BYTE                                    = 1;
+  SERVICE_MODE_TYPE_DIRECT_BIT                                     = 2;
+  SERVICE_MODE_TYPE_REGISTER                                       = 3;
+  SERVICE_MODE_TYPE_REGISTER_WITH_OPTIONAL_POWER_CYCLE             = 4;
+  SERVICE_MODE_TYPE_ADDRESS                                        = 5;
+  SERVICE_MODE_TYPE_PAGED                                          = 6;
+
+  SERVICEMODE_READ                                                = 1;
+  SERVICEMODE_WRITE                                               = 2;
+
+  SERVICE_MODE_DIRECT_MODE_MAX_CV                                 = 1024;
+  SERVICE_MODE_PAGED_MODE_MAX_CV                                  = 1024;
+  SERVICE_MODE_REGISTER_MODE_MAX_CV                               = 8;
+  SERVICE_MODE_ADDRESS_MODE_MAX_CV                                = 1;
+
+  HUNG_BUS_TIMEOUT                                      = 10;  // 50 * 100ms = 5 seconds
+
+type
+  TServiceModeInfo = record
+    ServiceModeResult       : Byte;                       // [OUT] The result of executing the Service Mode   SEE SERVICE_MODE_RESULT_XXXXX constant
+    Value                   : Byte;                       // [IN][OUT] Buffer to receive value to write to or start a read from
+    ReadWrite               : Byte;                       // [IN] SERVICEMODE_READ or SERVICEMODE_WRITE
+    CV                      : Word;                       // [IN] The CV to write or read from
+    ServiceModeType         : Byte;                       // [IN] Which Service Mode Type to use; see SERVICE_MODE_TYPE_xxxx constants
+    State                   : Byte;                       // [INTERNAL] See PROGRAMMING_ACK_STATE_XXXXX constants
+    iStateMachine           : Byte;                       // [INTERNAL] Current State of the Service Mode State Machine
+    iInstructionCountSent   : Byte;                       // [INTERNAL] State Machine uses to count the number of Packets for different states of a Service Mode call
+    ReadIndex               : Byte;                       // [INTERNAL] Tracks what Value the read is attempting or the Offset Bit in Bit mode
+    LastPagedOffset         : Integer;                    // [INTERNAL] Tracks the last write to a paged Offset to allow skipping the Offst Write step of the access, - 1 means it is invalid
+  end;
+  PServiceModeInfo = ^TServiceModeInfo;
+  
+  
+var
+  ServiceModeInfo: TServiceModeInfo;
+
+implementation
+
+end.

@@ -1,0 +1,152 @@
+unit GridConnect;
+
+uses
+  HelperFunctions;
+
+const
+  MAX_GRID_CONNECT_LEN = 64; // is shorter than this..
+  
+type
+  TGridConnectString = array[0..MAX_GRID_CONNECT_LEN-1] of char;
+  PGridConnectString = ^TGridConnectString;
+
+ var
+  ReceiveGridConnectBuffer: TGridConnectString;                                // Needs to persist between receptions
+  ReceiveGridConnectBufferIndex: Integer;
+  GridConnectReceiveState: Word;
+
+procedure GridConnect_Initialize;
+
+function GridConnect_DecodeMachine(NextChar: Char; var GridConnectStrPtr: PGridConnectString): Boolean;
+
+implementation
+
+const
+  GRIDCONNECT_STATE_SYNC_START = 0;
+  GRIDCONNECT_STATE_SYNC_FIND_X = 1;
+  GRIDCONNECT_STATE_SYNC_FIND_HEADER = 2;
+  GRIDCONNECT_STATE_SYNC_FIND_DATA = 4;
+
+
+
+
+// *****************************************************************************
+//  procedure GridConnect_Initialize
+//     Parameters:
+//     Returns:
+//     Description: Initializes the unit
+// *****************************************************************************
+procedure GridConnect_Initialize;
+begin
+  ReceiveGridConnectBufferIndex := 0;
+  GridConnectReceiveState := 0;
+end;
+
+
+// *****************************************************************************
+//  procedure GridConnectToMessage
+//     Parameters: Message that contains the information in the GridConnect String
+//                 GridConnectBuffer: array of characters to convert to a Message
+//     Returns: Pointer to a GridConnectString if a complete one is available, else
+//              nil.  The caller must use or copy the string before calling the
+//              function again as the contents will be corrupted after that
+//     Description: Takes a single character at a time and tries to create a
+//                  GridConnect string from it in a statemachine
+// *****************************************************************************
+function GridConnect_DecodeMachine(NextChar: Char; var GridConnectStrPtr: PGridConnectString): Boolean;
+var
+  HeaderArray: array[0..7] of Char;
+  i, j: Integer;
+begin
+ Result := False;
+ case GridConnectReceiveState of
+      GRIDCONNECT_STATE_SYNC_START :                                            // Find a starting ':'
+        begin
+          if NextChar = ':' then
+          begin
+            ReceiveGridConnectBufferIndex := 0;
+            ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := ':';
+            Inc(ReceiveGridConnectBufferIndex);
+            GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_X
+          end
+        end;
+      GRIDCONNECT_STATE_SYNC_FIND_X :
+        begin
+          if NextChar <> ':' then                                               // Handle double ":"'s by doing nothing if the next byte is a ":", just wait for the next byte to see if it is a "X"
+          begin
+            if (NextChar = 'X') or (NextChar = 'x') or (NextChar = 'R') or (NextChar = 'r') then
+            begin
+              ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := NextChar;
+              Inc(ReceiveGridConnectBufferIndex);
+              GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_HEADER
+            end else
+               GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START          // Error, start over
+          end
+        end;
+      GRIDCONNECT_STATE_SYNC_FIND_HEADER :
+        begin
+          if ReceiveGridConnectBufferIndex < 11 then        // header should be less than 11 bytes
+          begin
+            if (NextChar = 'n') or (NextChar = 'N') then
+            begin
+              if ReceiveGridConnectBufferIndex = 10 then                        // Just right number of characters, all done
+              begin
+                ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := 'N';
+                Inc(ReceiveGridConnectBufferIndex);                             // Skip over the "N"
+                GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_DATA;
+              end else
+              begin
+                for i := 0 to 7 do
+                  HeaderArray[i] := '0';
+                j := 7;
+                for i := ReceiveGridConnectBufferIndex - 1 downto (11 - ReceiveGridConnectBufferIndex) do
+                begin
+                  HeaderArray[j] := ReceiveGridConnectBuffer[i];
+                  Dec(j);
+                end;
+                for i := 0 to 7 do
+                  ReceiveGridConnectBuffer[2 + i] := HeaderArray[i];
+                ReceiveGridConnectBuffer[10] := 'N';
+                ReceiveGridConnectBufferIndex := 11;                             // Skip over the "N"
+                GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_DATA;
+              end;
+            end else
+            begin
+              if IsValidHexChar(NextChar) then
+              begin
+                ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := NextChar;
+                Inc(ReceiveGridConnectBufferIndex);
+              end else
+              GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START         // Error start over
+            end
+          end else
+            GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START         // Error start over
+        end;
+      GRIDCONNECT_STATE_SYNC_FIND_DATA :
+        begin
+           if NextChar = ';'then
+           begin
+             if (ReceiveGridConnectBufferIndex + 1) mod 2 = 0 then              // 0 index, add 1 for the actual character count, if not true the result is broken
+             begin
+               ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := ';';
+               ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex + 1] := #0;
+               GridConnectStrPtr := @ReceiveGridConnectBuffer;
+               Result := True;
+             end;
+             GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START            // Done
+           end else
+           begin
+             if IsValidHexChar(NextChar) then
+             begin
+               ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := NextChar;
+               Inc(ReceiveGridConnectBufferIndex);
+             end else
+               GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START;         // Error start over
+           end
+        end else
+          GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START;              // Invalidate State Index
+    end;  // Case
+
+end;
+
+end.

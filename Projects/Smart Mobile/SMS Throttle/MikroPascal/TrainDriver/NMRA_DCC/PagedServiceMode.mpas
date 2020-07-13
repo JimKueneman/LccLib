@@ -1,0 +1,113 @@
+unit PagedServiceMode;
+
+uses
+  NMRAnetDCC,
+  CommonServiceMode,
+  ServiceModeDefines;
+  
+  
+  procedure PagedServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+
+implementation
+
+// ***************************************************************************
+//  procedure InstructionRegisterWriteSend
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionRegisterWriteSend(BufferPtr: PDCCBufferInfo);
+begin
+  ServiceModeInfo.LastPagedOffset := ((ServiceModeInfo.CV-1) div 4)+1;
+  CommonServiceMode_DirectLoadTransmitter(BufferPtr, %00000101, %00001000, ServiceModeInfo.LastPagedOffset);    // Paging Register is 1 indexed
+end;
+
+// ***************************************************************************
+//  procedure PageRegisterWriteCycle
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure PageRegisterWriteCycle(BufferPtr: PDCCBufferInfo);
+begin
+  if (ServiceModeInfo.iInstructionCountSent < SERVICEMODE_PAGED_PAGE_WRITE_COUNT) and (ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT = 0) then
+  begin
+    // If we have not sent all Page Register Write instructions AND we have not received an ACK from a previous on then keep sending them
+    Inc(ServiceModeInfo.iInstructionCountSent);
+    InstructionRegisterWriteSend(BufferPtr)
+  end else
+  begin
+    // Even if we did not get an ACK assume it succeeded since the spec says to move on after an ACK OR if the number of packets has been sent
+    ServiceModeInfo.iInstructionCountSent := 1;
+    NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);
+    ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT := 0;
+    ServiceModeInfo.State.PROGRAMMING_ACK_TIMER_DETECTED_LEADINGEDGE_BIT := 0;
+    ServiceModeInfo.State.PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT := 0;
+    ServiceModeInfo.State.PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT := 0;
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER_RECOVER;
+  end
+end;
+
+// ***************************************************************************
+//  procedure InstructionSend
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionSend(BufferPtr: PDCCBufferInfo);
+begin
+  if ServiceModeInfo.ReadWrite = SERVICEMODE_WRITE then
+    CommonServiceMode_DirectLoadTransmitter(BufferPtr, (ServiceModeInfo.CV-1) mod 4, %00001000, ServiceModeInfo.Value)
+  else
+    CommonServiceMode_DirectLoadTransmitter(BufferPtr, (ServiceModeInfo.CV-1) mod 4, %00000000, ServiceModeInfo.ReadIndex);
+end;
+
+// ***************************************************************************
+//  procedure PagedServiceMode_StateMachine
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+//         StateMachine that handles a Direct CV Service Mode Programmming sequence
+//    per the S9.2.3 spec
+//
+//    NOTE:  Everytime this StateMachine is entered the Transmitter MUST BE LOADED
+// ***************************************************************************
+procedure PagedServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+begin
+  if BufferPtr^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then
+  begin
+    case ServiceModeInfo.iStateMachine of
+      STATE_SERVICEMODE_POWER_ON_CYCLE                    : begin
+                                                              ServiceModeInfo.LastPagedOffset := -1;
+                                                              CommonServiceMode_PowerOnCycle(BufferPtr, SERVICEMODE_POWER_ON_CYCLE_COUNT, STATE_SERVICEMODE_RESET_CYCLE);
+                                                            end;
+      STATE_SERVICEMODE_RESET_CYCLE                       : begin
+                                                              // Cut down on the number of time we write to the Page Register to save time (and lifetime of EEPROM!), only write if necessary
+                                                              if ServiceModeInfo.LastPagedOffset <> (((ServiceModeInfo.CV-1) div 4)+1) then
+                                                                CommonServiceMode_ResetCycle(BufferPtr, @InstructionRegisterWriteSend, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER, True)
+                                                              else
+                                                                CommonServiceMode_ResetCycle(BufferPtr, nil, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_PAGED_INSTRUCTION_RESET, False);
+                                                            end;
+      STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER         : PageRegisterWriteCycle(BufferPtr);
+      STATE_SERVICEMODE_PAGED_WRITE_PAGE_REGISTER_RECOVER : CommonServiceMode_ResetCycle(BufferPtr, nil, SERVICEMODE_PAGED_PAGE_WRITE_RECOVER_COUNT, STATE_SERVICEMODE_PAGED_INSTRUCTION_RESET, False);
+      STATE_SERVICEMODE_PAGED_INSTRUCTION_RESET           : CommonServiceMode_ResetCycle(BufferPtr, @InstructionSend, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_PAGED_INSTRUCTION, True);
+      STATE_SERVICEMODE_PAGED_INSTRUCTION                 : CommonServiceMode_SendInstructions(BufferPtr, @InstructionSend, @CommonServiceMode_AckHandlerByte, @CommonServiceMode_NoAckHandler, SERVICEMODE_REGISTER_INSTRUCTION_COUNT);
+      STATE_SERVICEMODE_WRITE_RECOVERY                    : CommonServiceMode_ResetCycle(BufferPtr, nil, SERVICEMODE_PAGED_PAGE_WRITE_RECOVER_COUNT, STATE_SERVICEMODE_RESULTS_READY, False);
+      STATE_SERVICEMODE_RESULTS_READY                     : CommonServiceMode_ResultReady(BufferPtr);
+    end
+  end;
+end;
+
+end.

@@ -16,7 +16,7 @@ type
   { TFormTrainCommander }
 
   TFormTrainCommander = class(TForm)
-    Button1: TButton;
+    ButtonManualConnectComPort: TButton;
     ButtonTrainsClear: TButton;
     ButtonClear: TButton;
     ButtonManualConnect: TButton;
@@ -24,7 +24,7 @@ type
     CheckBoxLogMessages: TCheckBox;
     CheckBoxLoopBackIP: TCheckBox;
     CheckBoxAutoConnect: TCheckBox;
-    ComboBox1: TComboBox;
+    ComboBoxComPorts: TComboBox;
     ImageListMain: TImageList;
     LabelNodeID: TLabel;
     LabelAliasID: TLabel;
@@ -32,24 +32,29 @@ type
     LabelNodeIDCaption: TLabel;
     ListViewTrains: TListView;
     ListviewConnections: TListView;
+    MemoComPort: TMemo;
     MemoLog: TMemo;
     PanelTrainsHeader: TPanel;
     PanelTrains: TPanel;
     PanelConnections: TPanel;
     PanelDetails: TPanel;
+    SplitterConnections1: TSplitter;
     SplitterTrains: TSplitter;
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
     TimerIncomingMessagePump: TTimer;
     procedure Button1Click(Sender: TObject);
+    procedure ButtonManualConnectComPortClick(Sender: TObject);
     procedure ButtonClearClick(Sender: TObject);
     procedure ButtonManualConnectClick(Sender: TObject);
     procedure ButtonTrainsClearClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure TimerIncomingMessagePumpTimer(Sender: TObject);
   private
+    FComPort: TLccComPort;
     FNodeManager: TLccCanNodeManager;
     FWorkerMsg: TLccMessage;
     FLccServer: TLccEthernetServer;
@@ -72,9 +77,15 @@ type
     procedure OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 
+    procedure OnComPortConnectionStateChange(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure OnComPortErrorMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure OnComPortReceiveMessage(Sender: TObject; ComPortRec: TLccComPortRec);
+    procedure OnComPortSendMessage(Sender: TObject; var GridConnectStyleMessage: string);
+
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
     property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
+    property ComPort: TLccComPort read FComPort write FComPort;
   end;
 
 var
@@ -88,8 +99,25 @@ implementation
 
 procedure TFormTrainCommander.Button1Click(Sender: TObject);
 begin
-  ComboBox1.Items.Delimiter := ';';
-  ComboBox1.Items.DelimitedText := StringReplace(GetSerialPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
+
+end;
+
+procedure TFormTrainCommander.ButtonManualConnectComPortClick(Sender: TObject);
+var
+  ComPortRec: TLccComPortRec;
+begin
+  if ComPort.Connected then
+  begin
+    ComPort.CloseComPort(nil);
+  end else
+  begin
+    FillChar(ComPortRec, SizeOf(ComPortRec), #0);
+    ComPortRec.ComPort := ComboBoxComPorts.Items[ComboBoxComPorts.ItemIndex];
+    ComPortRec.Baud := 9600;
+    ComPortRec.StopBits := 8;
+    ComPortRec.Parity := 'N';
+    ComPort.OpenComPort(ComPortRec);
+  end;
 end;
 
 procedure TFormTrainCommander.ButtonClearClick(Sender: TObject);
@@ -99,6 +127,13 @@ begin
     MemoLog.Lines.Clear;
   finally
     MemoLog.Lines.EndUpdate;
+  end;
+
+  MemoComPort.Lines.BeginUpdate;
+  try
+    MemoComPort.Lines.Clear;
+  finally
+    MemoComPort.Lines.EndUpdate;
   end;
 end;
 
@@ -136,6 +171,7 @@ end;
 procedure TFormTrainCommander.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   NodeManager.Clear;
+  ComPort.CloseComPort(nil);
   LccServer.CloseConnection(nil);
 end;
 
@@ -156,6 +192,12 @@ begin
   NodeManager.OnLccNodeLogin := @OnNodeManagerNodeLogin;
   NodeManager.OnLccNodeLogout := @OnNodeManagerNodeLogout;
 
+  ComPort := TLccComPort.Create(nil);
+  ComPort.OnConnectionStateChange := @OnComPortConnectionStateChange;
+  ComPort.OnErrorMessage := @OnComPortErrorMessage;
+  ComPort.OnReceiveMessage := @OnComPortReceiveMessage;
+  ComPort.RawData := True;
+
   LccServer.NodeManager := NodeManager;
 
   FWorkerMsg := TLccMessage.Create;
@@ -166,6 +208,14 @@ begin
   FreeAndNil(FNodeManager);
   FreeAndNil(FLccServer);
   FreeAndNil(FWorkerMsg);
+  FreeAndNil(FComPort);
+end;
+
+procedure TFormTrainCommander.FormShow(Sender: TObject);
+begin
+  ComboBoxComPorts.Items.Delimiter := ';';
+  ComboBoxComPorts.Items.DelimitedText := StringReplace(GetSerialPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
+  ComboBoxComPorts.ItemIndex := 0;
 end;
 
 procedure TFormTrainCommander.OnCommandStationServerClientDisconnect(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -255,6 +305,9 @@ begin
   if LccSourceNode is TLccTrainCanNode then
   begin
     TrainNode := LccSourceNode as TLccTrainCanNode;
+
+    TrainNode.OnSendMessageComPort := @OnComPortSendMessage;
+
     Item := ListViewTrains.Items.Add;
     Item.Data := TrainNode;
     Item.ImageIndex := 18;
@@ -268,6 +321,56 @@ begin
       Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Long ' + SpeedStep
     else
       Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Short ' + SpeedStep;
+  end;
+end;
+
+procedure TFormTrainCommander.OnComPortConnectionStateChange(Sender: TObject;
+  ComPortRec: TLccComPortRec);
+begin
+  case ComPortRec.ConnectionState of
+    ccsPortConnecting :    StatusBarMain.Panels[1].Text := 'ComPort Connecting';
+    ccsPortConnected :
+      begin
+        StatusBarMain.Panels[1].Text := 'ComPort: ' + ComPortRec.ComPort;
+        ButtonManualConnectComPort.Caption := 'Close ComPort';
+      end;
+    ccsPortDisconnecting : StatusBarMain.Panels[1].Text := 'ComPort Disconnectiong';
+    ccsPortDisconnected :
+      begin
+        ButtonManualConnectComPort.Caption := 'Open ComPort';
+        StatusBarMain.Panels[1].Text := 'ComPort Disconnected';
+      end;
+  end;
+end;
+
+procedure TFormTrainCommander.OnComPortErrorMessage(Sender: TObject;
+  ComPortRec: TLccComPortRec);
+begin
+  ShowMessage(ComPortRec.MessageStr);
+end;
+
+procedure TFormTrainCommander.OnComPortReceiveMessage(Sender: TObject;
+  ComPortRec: TLccComPortRec);
+begin
+  MemoComPort.Lines.BeginUpdate;
+  try
+    MemoComPort.Lines.Add('R: ' + ComPortRec.MessageStr);
+    MemoComPort.SelStart := Length(MemoComPort.Lines.Text);
+  finally
+    MemoComPort.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormTrainCommander.OnComPortSendMessage(Sender: TObject; var GridConnectStyleMessage: string);
+begin
+  ComPort.SendMessageRawGridConnect(GridConnectStyleMessage);
+
+  MemoComPort.Lines.BeginUpdate;
+  try
+    MemoComPort.Lines.Add('S: ' + GridConnectStyleMessage);
+    MemoComPort.SelStart := Length(MemoComPort.Lines.Text);
+  finally
+    MemoComPort.Lines.EndUpdate;
   end;
 end;
 

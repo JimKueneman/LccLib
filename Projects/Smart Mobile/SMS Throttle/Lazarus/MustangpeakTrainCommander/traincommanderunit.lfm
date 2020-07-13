@@ -10,6 +10,7 @@ object FormTrainCommander: TFormTrainCommander
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object PanelDetails: TPanel
     Left = 0
@@ -108,22 +109,22 @@ object FormTrainCommander: TFormTrainCommander
       State = cbChecked
       TabOrder = 5
     end
-    object ComboBox1: TComboBox
+    object ComboBoxComPorts: TComboBox
       Left = 376
-      Height = 21
+      Height = 20
       Top = 47
       Width = 284
       ItemHeight = 0
+      Style = csDropDownList
       TabOrder = 6
-      Text = 'ComboBox1'
     end
-    object Button1: TButton
-      Left = 288
-      Height = 25
-      Top = 47
-      Width = 75
-      Caption = 'Button1'
-      OnClick = Button1Click
+    object ButtonManualConnectComPort: TButton
+      Left = 256
+      Height = 23
+      Top = 43
+      Width = 107
+      Caption = 'Open ComPort'
+      OnClick = ButtonManualConnectComPortClick
       TabOrder = 7
     end
   end
@@ -153,14 +154,14 @@ object FormTrainCommander: TFormTrainCommander
     Cursor = crVSplit
     Left = 0
     Height = 9
-    Top = 439
+    Top = 340
     Width = 684
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object SplitterTrains: TSplitter
     Left = 211
-    Height = 319
+    Height = 220
     Top = 120
     Width = 5
   end
@@ -180,17 +181,17 @@ object FormTrainCommander: TFormTrainCommander
   end
   object PanelTrains: TPanel
     Left = 0
-    Height = 319
+    Height = 220
     Top = 120
     Width = 211
     Align = alLeft
     Caption = 'PanelTrains'
-    ClientHeight = 319
+    ClientHeight = 220
     ClientWidth = 211
     TabOrder = 5
     object ListViewTrains: TListView
       Left = 1
-      Height = 286
+      Height = 187
       Top = 32
       Width = 209
       Align = alClient
@@ -220,12 +221,33 @@ object FormTrainCommander: TFormTrainCommander
   end
   object MemoLog: TMemo
     Left = 216
-    Height = 319
+    Height = 220
     Top = 120
     Width = 468
     Align = alClient
     ScrollBars = ssVertical
     TabOrder = 6
+  end
+  object MemoComPort: TMemo
+    Left = 0
+    Height = 90
+    Top = 349
+    Width = 684
+    Align = alBottom
+    Lines.Strings = (
+      'MemoComPort'
+    )
+    ScrollBars = ssVertical
+    TabOrder = 7
+  end
+  object SplitterConnections1: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 9
+    Top = 439
+    Width = 684
+    Align = alBottom
+    ResizeAnchor = akBottom
   end
   object ImageListMain: TImageList
     left = 72

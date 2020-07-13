@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/p/openlcb/svn/!svn/ver/3511/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC
+END
+DirectServiceMode.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/DirectServiceMode.mpas
+END
+ServiceModeDefines.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/ServiceModeDefines.mpas
+END
+PagedServiceMode.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/PagedServiceMode.mpas
+END
+NMRAnetServiceMode.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/NMRAnetServiceMode.mpas
+END
+RegisterServiceMode.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/RegisterServiceMode.mpas
+END
+CommonServiceMode.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/openlcb/svn/!svn/ver/3396/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/CommonServiceMode.mpas
+END
+NMRAnetDCC.mpas
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/openlcb/svn/!svn/ver/3511/trunk/scratchpads/jkueneman/OPStack/Library/NMRA_DCC/NMRAnetDCC.mpas
+END

@@ -1,0 +1,101 @@
+unit RegisterServiceMode;
+
+
+uses
+  NMRAnetDCC,
+  CommonServiceMode,
+  ServiceModeDefines;
+
+
+  procedure RegisterServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+
+implementation
+
+// ***************************************************************************
+//  procedure InstructionSend
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionSend(BufferPtr: PDCCBufferInfo);
+begin
+  if ServiceModeInfo.ReadWrite = SERVICEMODE_WRITE then
+    CommonServiceMode_DirectLoadTransmitter(BufferPtr, (ServiceModeInfo.CV-1) mod 8, %00001000, ServiceModeInfo.Value)          // Make sure we keep the Register value 0..7
+  else
+    CommonServiceMode_DirectLoadTransmitter(BufferPtr, (ServiceModeInfo.CV-1) mod 8, %00000000, ServiceModeInfo.ReadIndex);     // Make sure we keep the Register value 0..7
+end;
+
+// ***************************************************************************
+//  procedure InstructionPagePresetSend
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+// ***************************************************************************
+procedure InstructionPagePresetSend(BufferPtr: PDCCBufferInfo);
+begin
+  CommonServiceMode_DirectLoadTransmitterPagePreset(BufferPtr)
+end;
+
+// ***************************************************************************
+//  procedure SendPagePresetInstruction
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+//
+//    NOTE:  Everytime this StateMachine is entered the Transmitter MUST BE LOADED
+// ***************************************************************************
+procedure SendPagePresetInstruction(BufferPtr:PDCCBufferInfo; InstructionCount, NextState: Word);
+begin
+  if ServiceModeInfo.iInstructionCountSent < InstructionCount then
+  begin
+    Inc(ServiceModeInfo.iInstructionCountSent);
+    InstructionPagePresetSend(BufferPtr);
+  end else
+  begin
+    ServiceModeInfo.iInstructionCountSent := 1;
+    NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);    // Next State is always a Reset Packet for all Modes
+    ServiceModeInfo.iStateMachine := NextState
+  end
+end;
+
+
+// ***************************************************************************
+//  procedure RegisterServiceMode_StateMachine
+//
+//  Parameters:  None
+//
+//  Result:  None
+//
+//  Description:
+//         StateMachine that handles a Direct CV Service Mode Programmming sequence
+//    per the S9.2.3 spec
+//
+//    NOTE:  Everytime this StateMachine is entered the Transmitter MUST BE LOADED
+// ***************************************************************************
+procedure RegisterServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+begin
+  if BufferPtr^.TX_Flags.TRANSMITTING_FLAG_STOP_BIT = 1 then
+  begin
+    case ServiceModeInfo.iStateMachine of
+      STATE_SERVICEMODE_POWER_ON_CYCLE                    : CommonServiceMode_PowerOnCycle(BufferPtr, SERVICEMODE_POWER_ON_CYCLE_COUNT, STATE_SERVICEMODE_RESET_CYCLE);
+      STATE_SERVICEMODE_RESET_CYCLE                       : CommonServiceMode_ResetCycle(BufferPtr, @InstructionPagePresetSend, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_REGISTER_INSTRUCTION_PAGE_PRESET, False);
+      STATE_SERVICEMODE_REGISTER_INSTRUCTION_PAGE_PRESET  : SendPagePresetInstruction(BufferPtr, SERVICE_MODE_REGISTER_PAGE_PRESET_COUNT, STATE_SERVICEMODE_REGISTER_PAGE_PRESET_RECOVERY);
+      STATE_SERVICEMODE_REGISTER_PAGE_PRESET_RECOVERY     : CommonServiceMode_ResetCycle(BufferPtr, @InstructionSend, SERVICEMODE_REGISTER_WRITE_RECOVER_COUNT, STATE_SERVICEMODE_REGISTER_INSTRUCTION_RESET, False);
+      STATE_SERVICEMODE_REGISTER_INSTRUCTION_RESET        : CommonServiceMode_ResetCycle(BufferPtr, @InstructionSend, SERVICEMODE_RESET_COUNT, STATE_SERVICEMODE_REGISTER_INSTRUCTION, True);
+      STATE_SERVICEMODE_REGISTER_INSTRUCTION              : CommonServiceMode_SendInstructions(BufferPtr, @InstructionSend, @CommonServiceMode_AckHandlerByte, @CommonServiceMode_NoAckHandler, SERVICEMODE_REGISTER_INSTRUCTION_COUNT);
+      STATE_SERVICEMODE_WRITE_RECOVERY                    : CommonServiceMode_ResetCycle(BufferPtr, nil, SERVICEMODE_REGISTER_WRITE_RECOVER_COUNT, STATE_SERVICEMODE_RESULTS_READY, False);
+      STATE_SERVICEMODE_RESULTS_READY                     : CommonServiceMode_ResultReady(BufferPtr);
+    end
+  end;
+end;
+
+end.

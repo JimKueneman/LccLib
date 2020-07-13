@@ -1,0 +1,382 @@
+// ******************************************************************************
+//
+// * Copyright:
+//     (c) Mustangpeak Software 2011.
+//
+//     The contents of this file are subject to the GNU GPL v3 licence/ you maynot use
+//     this file except in compliance with the License. You may obtain a copy of the
+//     License at http://www.gnu.org/licenses/gpl.html
+//
+// * Revision History:
+//     2010-11-24:   Created
+//
+// * Description: Implements common Helper Functions to use
+//
+// ******************************************************************************
+
+unit HelperFunctions;
+
+{$IFDEF FPC}
+interface
+{$ENDIF}
+ 
+const
+  MAX_IP_ADDRESS_LEN = 21; // xxx.xxx.xxx.xxx:ppppp
+  MAX_COMMANDLINE_LEN = 128;
+  
+  LF = #13+#10;
+
+type
+  TStrArray = array[0..0] of char;
+  PStrArray = ^TStrArray;
+  
+  PWord = ^Word;
+  PDWord = ^DWord;
+  
+  TIPAddressStr = string[MAX_IP_ADDRESS_LEN];
+
+procedure TruncFloat(Value: PStrArray; Digits, Len: Byte);
+function SwapBytes(Test: Word): Word;
+function IsValidHexChar(AChar: Char): Boolean;
+function IsValidIPChar(AChar: Char): Boolean;
+function IsNumeric(AChar: Char): Boolean;
+{$IFNDEF FPC}
+function HexToLongWord(var Hex: string[8]): DWord;
+function HexToWord(var Hex: string[4]): Word;
+function HexToByte(var Hex: string[2]): Byte;
+
+function IPAddressToStr(var IP: array[0..3] of byte): TIPAddressStr;
+function StrToIPAddress(var IPStr: string[MAX_COMMANDLINE_LEN]; var IP: array[0..3] of byte; var Port: Word): Boolean;
+procedure TrimValue(ValueStr: PStrArray);
+{$ENDIF}
+// PIC32 Helpers
+function Map_KSEG_To_Physical(KSEG_Address: ^Byte): ^Byte;
+function Map_Physical_To_KSEG1(Physical_Address: ^Byte): ^Byte;
+function Map_Physical_To_KSEG0(Physical_Address: ^Byte): ^Byte;
+function Map_KSEG0_To_KSEG1(KSEG0_Address: ^Byte): ^Byte;
+//procedure ErrorToStr(Errorcode: Byte; var CodeStr: string[16]);
+
+implementation
+{
+procedure ErrorToStr(Errorcode: Byte; var CodeStr: string[16]);
+begin
+  case Errorcode of
+    E_BUS_HUNG       : CodeStr := 'Bus Hung';
+    E_WINDOW_TIMEOUT : CodeStr := 'Window Timeout';
+    E_TRANSFER_XOR   : CodeStr := 'XOR Error';
+    E_SUCCESS        : CodeStr := 'Success'
+  else
+    CodeStr := 'Unknown Result';
+  end;
+end;}
+
+function FindPeriod(Value: PStrArray; Len: Byte): Integer;
+begin
+  Result := 0;
+  while (Value^[Result] <> #0) and (Result < Len) do
+  begin
+    if Value^[Result] = '.' then
+      Exit;
+    Inc(Result)
+  end;
+  Result := -1;
+end;
+
+procedure TruncFloat(Value: PStrArray; Digits, Len: Byte);
+var
+  i: Integer;
+  j: Byte;
+begin
+  i := FindPeriod(Value, Len);
+  if i > -1 then
+  begin
+    j := 0;
+    while (Value^[i] <> #0) and (i < Len) do
+    begin
+      if j > Digits then
+        Value^[i] := #0;
+      Inc(j);
+      Inc(i);
+    end;
+  end;
+end;
+
+function SwapBytes(Test: Word): Word;
+var
+  B: Byte;
+begin
+  B := Hi( Test);
+  Test := (Test shl 4);
+  Test := Test or B;
+  Result := Test;
+end;
+
+function IsValidHexChar(AChar: Char): Boolean;
+begin
+  Result := ((AChar >= '0') and (AChar <= '9')) or ((AChar >= 'A') and (AChar <= 'F')) or ((AChar >= 'a') and (AChar <= 'f'))
+end;
+
+function IsValidIPChar(AChar: Char): Boolean;
+begin
+  Result := ((AChar >= '0') and (AChar <= '9')) or (AChar = '.') or (AChar = ':')
+end;
+
+function IsNumeric(AChar: Char): Boolean;
+begin
+  Result := ((AChar >= '0') and (AChar <= '9'))
+end;
+
+
+{$IFNDEF FPC}
+function HexToLongWord(var Hex: string[8]): DWord;
+var
+  i: Integer;
+  Nibble: Byte;
+  Base: DWord;
+begin
+  Result := 0;
+  i :=  0;
+  while i < Length(Hex) do
+  begin
+    if Hex[i] >= 'a' then
+      Nibble := Ord(Hex[i]) - 87
+    else
+    if Hex[i] >= 'A' then
+      Nibble := Ord(Hex[i]) - 55
+    else
+      Nibble := Hex[i] - 48;
+    if i <> Length(Hex) - 1 then
+      Base := 2 shl (((Length(Hex)-1-i)*4)-1)
+    else
+      Base := 1;
+    Result := Result + (Base * Nibble);
+    Inc(i);
+  end;
+end;
+
+function HexToByte(var Hex: string[2]): Byte;
+var
+  i: Integer;
+  Nibble: Byte;
+  Base: Word;
+begin
+  Result := 0;
+  i :=  0;
+  while i < Length(Hex) do
+  begin
+    if Hex[i] >= 'a' then
+      Nibble := Ord(Hex[i]) - 87
+    else
+    if Hex[i] >= 'A' then
+      Nibble := Ord(Hex[i]) - 55
+    else
+      Nibble := Hex[i] - 48;
+      
+    // Nibble now holds 0-15 converterd the single letter/number
+    
+    if i <> Length(Hex) - 1 then
+      Base := 2 shl (((Length(Hex)-1-i)*4)-1)
+    else
+      Base := 1;
+    Result := Result + (Base * Nibble);
+    Inc(i);
+  end;
+end;
+
+function HexToWord(var Hex: string[4]): Word;
+var
+  i: Integer;
+  Nibble: Byte;
+  Base: Word;
+begin
+  Result := 0;
+  i :=  0;
+  while i < Length(Hex) do
+  begin
+    if Hex[i] >= 'a' then
+      Nibble := Ord(Hex[i]) - 87
+    else
+    if Hex[i] >= 'A' then
+      Nibble := Ord(Hex[i]) - 55
+    else
+      Nibble := Hex[i] - 48;
+      
+    // Nibble now holds 0-15 converterd the single letter/number
+    
+    if i <> Length(Hex) - 1 then
+      Base := 2 shl (((Length(Hex)-1-i)*4)-1)
+    else
+      Base := 1;
+    Result := Result + (Base * Nibble);
+    Inc(i);
+  end;
+end;
+
+procedure TrimValue(ValueStr: PStrArray);
+var
+  i: Integer;
+begin
+  while (ValueStr^[0] = ' ') and (ValueStr^[0] <> #0) do
+  begin
+    i := 1;
+    while ValueStr^[i] <> $0 do
+    begin
+      ValueStr^[i-1] := ValueStr^[i];
+      Inc(i)
+    end;
+    ValueStr^[i-1] := #0;
+  end;
+end;
+
+function IPAddressToStr(var IP: array[0..3] of byte): TIPAddressStr;
+var
+  Temp: array[6] of char;
+begin
+  Result := '';
+  ByteToStr(IP[0], Temp);
+  TrimValue(@Temp);
+  Result := Temp + '.';
+  ByteToStr(IP[1], Temp);
+  TrimValue(@Temp);
+  Result := Result + Temp + '.';
+  ByteToStr(IP[2], Temp);
+  TrimValue(@Temp);
+  Result := Result + Temp + '.';
+  ByteToStr(IP[3], Temp);
+  TrimValue(@Temp);
+  Result := Result + Temp + #0;
+end;
+
+function StrToIPAddress(var IPStr: string[MAX_COMMANDLINE_LEN]; var IP: array[0..3] of byte; var Port: Word): Boolean;
+const            
+  STATE_FIND_NUMBER = 0;
+  STATE_FIND_SEGMENT = 1;
+  STATE_FIND_PORT_COLON = 2;
+  STATE_FIND_PORT = 3;
+  STATE_SUCCESS = 100;
+  STATE_ERROR = 101;
+  STATE_DONE = 200;
+  
+var
+  TempByteStr: array[5] of char;
+  State, StrOffset, SegmentCharOffset, SegmentOffset: Integer;
+begin        
+  Result := False;
+  
+  State := STATE_FIND_NUMBER;
+  StrOffset := 0;
+  SegmentOffset := 0;
+  while State < STATE_DONE do
+  begin
+    case State of
+      STATE_FIND_NUMBER :
+        begin
+          if IsNumeric(IPStr[StrOffset]) then
+          begin
+            SegmentCharOffset := 0;
+            Inc(State);
+          end else
+            Inc(StrOffset);
+          if StrOffset > MAX_COMMANDLINE_LEN - 1 then
+            State := STATE_ERROR
+        end;
+      STATE_FIND_SEGMENT : 
+        begin
+          if (IPStr[StrOffset] = '.') or (IPStr[StrOffset] = ':') or (IPStr[StrOffset] = #0) or (IPStr[StrOffset] = ' ') then
+          begin
+            TempByteStr[SegmentCharOffset] := #0;
+            IP[SegmentOffset] := StrToWord(TempByteStr);
+            Inc(SegmentOffset);
+            if SegmentOffset < 4 then
+            begin
+              Inc(StrOffset);
+              State := STATE_FIND_NUMBER;
+            end else
+              State := STATE_FIND_PORT_COLON
+          end else
+          begin
+            if IsNumeric(IPStr[StrOffset]) then
+            begin
+              TempByteStr[SegmentCharOffset] := IPStr[StrOffset];
+              Inc(SegmentCharOffset);
+              if (SegmentCharOffset > 3) then
+                State := STATE_ERROR;
+            end;
+            Inc(StrOffset);
+            if StrOffset > MAX_COMMANDLINE_LEN - 1 then
+              State := STATE_ERROR
+          end;
+        end;
+      STATE_FIND_PORT_COLON  :
+        begin
+          if IPStr[StrOffset] = ':' then
+          begin
+            Inc(StrOffset);
+            SegmentCharOffset := 0;
+            Port := 0;
+            State := STATE_FIND_PORT
+          end else
+            State := STATE_SUCCESS
+        end;
+      STATE_FIND_PORT  :
+        begin     
+          if (SegmentCharOffset < 6) then
+          begin
+            if IsNumeric(IPStr[StrOffset]) then
+            begin
+              TempByteStr[SegmentCharOffset] := IPStr[StrOffset];
+              Inc(SegmentCharOffset);
+            end else
+            if (IPStr[StrOffset] = #0) or (IPStr[StrOffset] = ' ') then
+            begin
+              TempByteStr[SegmentCharOffset] := #0;
+              Port := StrToWord(TempByteStr);
+              State := STATE_SUCCESS;
+            end;
+            Inc(StrOffset);
+            if StrOffset > MAX_COMMANDLINE_LEN - 1 then
+              State := STATE_ERROR
+          end else
+            State := STATE_ERROR;
+        end;
+      STATE_SUCCESS : 
+        begin
+          Result := True;
+          State := STATE_DONE;
+        end;
+      STATE_ERROR :
+        begin
+          Result := False;
+          Port := 0;
+          IP[0] := 0;
+          IP[1] := 0;
+          IP[2] := 0;
+          State := STATE_DONE;
+        end;
+    end; // case
+  end;
+end;
+
+{$ENDIF}
+
+function Map_KSEG_To_Physical(KSEG_Address: ^Byte): ^Byte;
+begin
+  Result := PDWord( DWord( KSEG_Address) and $1FFFFFFF);
+end;
+
+function Map_Physical_To_KSEG1(Physical_Address: ^Byte): ^Byte;
+begin
+  Result := PDWord( DWord( Physical_Address) or $80000000);
+end;
+
+function Map_Physical_To_KSEG0(Physical_Address: ^Byte): ^Byte;
+begin
+  Result := PDWord( DWord( Physical_Address) or $A0000000);
+end;
+
+function Map_KSEG0_To_KSEG1(KSEG0_Address: ^Byte): ^Byte;
+begin
+  Result := PDWord( DWord( KSEG0_Address) or $20000000);
+end;
+
+end.

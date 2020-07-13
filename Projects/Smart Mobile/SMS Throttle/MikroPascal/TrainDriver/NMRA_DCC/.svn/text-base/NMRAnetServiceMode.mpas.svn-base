@@ -1,0 +1,240 @@
+// ******************************************************************************
+//
+// Copyright:
+//     (c) Mustangpeak, 2013.
+//
+//     The contents of this file are subject to the GNU GPL v3 licence/ you maynot use
+//     this file except in compliance with the License. You may obtain a copy of the
+//     License at http://www.gnu.org/licenses/gpl.html
+//
+// * Revision History:
+//     2011-01-28:   Created
+//
+// * Description:
+//    Implements Service Mode
+//
+// ******************************************************************************
+
+unit NMRAnetServiceMode;
+
+{$I Options.inc}
+
+{.$DEFINE PRINT}
+
+uses
+  NMRAnetDCC,
+  DirectServiceMode,
+  RegisterServiceMode,
+  PagedServiceMode,
+  ServiceModeDefines;
+
+// Call once on start up
+procedure ServiceMode_Initialize; forward;
+//procedure ServiceMode_LoadBufferFromNextInQueue(PowerOnCycle: Boolean); forward;
+procedure ServiceMode_EngageServiceMode(BufferPtr: PDCCBufferInfo; PowerOnCycle: Boolean; AReadWrite, AServiceModeType: Byte; ACV: Word; Value, BitIndex: Byte);
+// Called by a timer that ticks every 56us or so
+procedure ServiceMode_56us_TimeTick; forward;
+// Called by a timer that ticks every 5ms
+procedure ServiceMode_5ms_TimeTick; forward;
+// Called by a timer that ticks every 5ms
+procedure ServiceMode_100ms_TimeTick; forward;
+// Runs the statemachine from the Stop Bit of the DCC Transmitter Statemachine
+procedure ServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+// Tests if the statemachine is in a mode where it is waiting to have the results of the operation read
+function ServiceMode_ResultsReady: Boolean;
+// Ends the Statemachine (after a completed read/write cycle)
+procedure ServiceMode_Quit;
+{$IFDEF PRINT}
+// Print ServiceModeInfo
+procedure ServiceMode_Print;
+{$ENDIF}
+
+var
+  DCC_Programming_ACK_Pin           : sbit; sfr; external;
+  DCC_Programming_ACK_Direction     : sbit; sfr; external;
+  Ack_TimerEnabled_Bit              : sbit; sfr; external;
+
+implementation
+
+
+procedure ServiceMode_Initialize;
+var
+  i: Integer;
+begin
+  ServiceModeInfo.State := 0;
+  ServiceModeInfo.ServiceModeResult := SERVICE_MODE_RESULT_NO_ACK;
+  ServiceModeInfo.iInstructionCountSent := 0;
+  ServiceModeInfo.Value := 0;
+  ServiceModeInfo.ReadWrite := 0;
+  ServiceModeInfo.CV := 0;
+  ServiceModeInfo.ServiceModeType := 0;
+  ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_IDLE;
+  ServiceModeInfo.ReadIndex := 0;
+  ServiceModeInfo.LastPagedOffset := -1;  // Invalid
+  DCC_Programming_ACK_Direction := 1;  // Input
+end;
+
+{$IFDEF PRINT}
+procedure ServiceMode_Print;
+var
+  s1: string[128];
+begin
+  IntToStr(ServiceModeInfo.State, s1);
+  UART1_Write_Text('State: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.ServiceModeResult, s1);
+  UART1_Write_Text('ServiceModeResult: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.iInstructionCountSent, s1);
+  UART1_Write_Text('iInstructionCountSent: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.Value, s1);
+  UART1_Write_Text('Value: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.ReadWrite, s1);
+  UART1_Write_Text('ReadWrite: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.CV, s1);
+  UART1_Write_Text('CV: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.iStatemachine, s1);
+  UART1_Write_Text('iStateMachine: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.ReadIndex, s1);
+  UART1_Write_Text('ReadIndex: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.LastPagedOffset, s1);
+  UART1_Write_Text('LastPagedOffset: ' + s1 + LF);
+  IntToStr(ServiceModeInfo.iInstructionCountSent, s1);
+  UART1_Write_Text('iInstructionCountSent: ' + s1 + LF);
+end;
+{$ENDIF}
+
+// ****************************************************************************
+// procedure ServiceMode_EngageServiceMode
+//
+//  Parameters:
+//               AValue:  If the state is Direct Mode Bit Write this contains the following: xxxxDBBB where BBB is the bit offset (0..7) and D is the Data to write
+//          ACV: Defined as 1..1024 per NMRA Spec
+//
+//  Results:  None
+//
+//  Description:
+//
+// ****************************************************************************
+procedure ServiceMode_EngageServiceMode(BufferPtr: PDCCBufferInfo; PowerOnCycle: Boolean; AReadWrite, AServiceModeType: Byte; ACV: Word; AValue, BitIndex: Byte);
+begin
+  NMRA_DCC_ResetTransmitter(@Programming);
+  ServiceModeInfo.ReadWrite := AReadWrite;                                      // SERVCIE_MODE_READ or SERVCIE_MODE_WRITE
+  ServiceModeInfo.CV := ACV;                                                    // The CV to write or the buffer to receive the CV read
+  ServiceModeInfo.ServiceModeType := AServiceModeType;
+  ServiceModeInfo.ServiceModeResult := SERVICE_MODE_RESULT_NO_ACK;              // Empty ready to be filled
+  ServiceModeInfo.State := 0;
+  Ack_TimerEnabled_Bit := 0;                                                    // Turn the timer off
+  if AServiceModeType = SERVICE_MODE_TYPE_DIRECT_BIT then
+  begin
+    ServiceModeInfo.ReadIndex := 0;                                             // Redefined as the Index of bits into the Byte
+    if AReadWrite = SERVICEMODE_READ then
+      ServiceModeInfo.Value := 0                                                // Ready to receive data (we only look for "1" and default to "0" if "1" does not reply
+    else begin
+      ServiceModeInfo.ReadIndex := BitIndex;                                    // Setup the index of the Bit to write (0..7)
+      ServiceModeInfo.Value := AValue;                                          // Value to write to the decoder in Bit Mode (must be 0 or 1)
+    end
+  end else
+  begin      
+    ServiceModeInfo.ReadIndex := AValue;                                        // Were to start looking if Reading
+    ServiceModeInfo.Value := AValue;
+  end;
+  if PowerOnCycle then                                                          // Reset the StateMachine
+  begin
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_POWER_ON_CYCLE;
+    NMRA_DCC_LoadIdlePacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);
+  end else
+  begin
+    ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_RESET_CYCLE;
+    NMRA_DCC_LoadResetPacketIntoTransmitter(BufferPtr, PREAMBLE_BIT_COUNT_SERVICEMODE);
+  end;
+  ServiceModeInfo.iInstructionCountSent := 1;
+end;
+
+// ****************************************************************************
+// procedure ServiceMode_56us_TimeTick
+//
+//  Parameters: None
+//
+//  Results:  None
+//
+//  Description:
+//     Updates internal counters that Track NMRA requirements for time between
+//  packets with legacy service mode addresses.  Expects to be called every 56us
+//  or so
+//
+// ****************************************************************************
+procedure ServiceMode_56us_TimeTick;
+begin
+  if ServiceModeInfo.State.PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT = 1 then    // Are we are scanning for an ACK?
+  begin
+    if DCC_Programming_ACK_Pin = 1 then                                       // Have we found an ACK?
+    begin                                                                     // Found the ACK, set the state then start the timer to see if it lasts 6ms +/-1ms
+      ServiceModeInfo.State.PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT := 0;
+      ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT := 0;
+      ServiceModeInfo.State.PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT := 0;
+      ServiceModeInfo.State.PROGRAMMING_ACK_TIMER_DETECTED_LEADINGEDGE_BIT := 1;
+      Ack_TimerEnabled_Bit := 1;                                                // Turn the timer on
+    end
+  end
+end;
+
+// ****************************************************************************
+// procedure ServiceMode_5ms_TimeTick
+//
+//  Parameters: None
+//
+//  Results:  None
+//
+//  Description:
+//     Times out the Service mode 6ms +/-1ms requirement of the NMRA Spec
+//
+// ****************************************************************************
+procedure ServiceMode_5ms_TimeTick;
+begin
+   Ack_TimerEnabled_Bit := 0;                                                   // Turn the timer off
+  // This will only be called if the state machine detects the start of an Acknowledge
+  // from the decoder.
+  if DCC_Programming_ACK_Pin = 1 then
+    ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT := 1
+  else
+    ServiceModeInfo.State.PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT := 1;
+end;
+
+// ****************************************************************************
+// procedure ServiceMode_100ms_TimeTick
+//
+//  Parameters: None
+//
+//  Results:  None
+//
+//  Description:
+//
+// ****************************************************************************
+procedure ServiceMode_100ms_TimeTick;
+begin
+
+end;
+
+procedure ServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+begin
+  case ServiceModeInfo.ServiceModeType of
+    SERVICE_MODE_TYPE_DIRECT_BYTE  : DirectByteServiceMode_StateMachine(BufferPtr);
+    SERVICE_MODE_TYPE_DIRECT_BIT   : DirectByteByBitServiceMode_StateMachine(BufferPtr);
+    SERVICE_MODE_TYPE_REGISTER     : RegisterServiceMode_StateMachine(BufferPtr);
+    SERVICE_MODE_TYPE_PAGED        : PagedServiceMode_StateMachine(BufferPtr);
+  end
+end;
+
+
+function ServiceMode_ResultsReady: Boolean;
+begin
+  Result := False;
+  if ServiceModeInfo.iStateMachine = STATE_SERVICEMODE_RESULTS_READY then
+    Result := True;
+end;
+
+procedure ServiceMode_Quit;
+begin
+  ServiceModeInfo.iStateMachine := STATE_SERVICEMODE_IDLE
+end;
+
+end.
