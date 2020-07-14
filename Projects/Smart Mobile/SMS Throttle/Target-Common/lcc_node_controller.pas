@@ -33,7 +33,7 @@ uses
   {$ENDIF}
   {$IFNDEF DWSCRIPT}
     {$IFDEF FPC}
-  //    contnrs,
+     contnrs,
     {$ELSE}
       System.Generics.Collections,
     {$ENDIF}
@@ -73,6 +73,31 @@ const
          '</segment>'+
   '</cdi>');
 
+
+type
+
+  TSearchReplyRec = record
+    SearchData: Word;
+    NodeID: TNodeID;
+    NodeAlias: Word;
+    TSNIP: string;
+  end;
+
+  { TLccAssignTrainAction }
+
+  TLccAssignTrainAction = class(TLccAction)
+  protected
+    function ActionInitateSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure LoadStateArray; override;
+  public
+    RequestedSearchData: Word;
+    RepliedSearchCriterialCount: Integer;
+    RepliedSearchCriteria: array of TSearchReplyRec;   // could be more than one and we could use the information
+    SelectedTrain: TSearchReplyRec;
+  end;
 
 type
 
@@ -157,6 +182,94 @@ type
 
 
 implementation
+
+{ TLccAssignTrainAction }
+
+function TLccAssignTrainAction.ActionInitateSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+  WorkerMessage.LoadTractionSearch(NodeID, AliasID, RequestedSearchData);
+  SendMessage(Owner, WorkerMessage);
+  SetTimoutCountThreshold(5000); // 5 seconds to collect trains
+  AdvanceToNextState;
+end;
+
+function TLccAssignTrainAction.ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  if RepliedSearchCriterialCount > 0 then
+  begin
+    if RepliedSearchCriterialCount = 1 then
+      AdvanceToNextState
+    else begin
+      // Show user the list to choose from
+    end;
+  end else
+  begin
+    // fail.... and end
+  end;
+end;
+
+function TLccAssignTrainAction.ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+
+  case SourceMessage.MTI of
+     MTI_PRODUCER_IDENTIFIED_CLEAR,
+     MTI_PRODUCER_IDENTIFIED_SET,
+     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+       begin
+          // Search Protocol is flawed, there is no way to uniquely identify this result was from my inital call
+          // I must validate the search result actually matches what I asked for .....
+
+         WorkerMessage.LoadTractionSearch(NULL_NODE_ID, 0, RequestedSearchData);
+         if SourceMessage.TractionSearchDecodeSearchString = WorkerMessage.TractionSearchDecodeSearchString then
+         begin
+           if RepliedSearchCriterialCount < Length(RepliedSearchCriteria) then
+           begin
+             RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
+             RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
+             RepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
+             RepliedSearchCriteria[RepliedSearchCriterialCount].TSNIP := '';
+             Inc(RepliedSearchCriterialCount);
+
+           //    WorkerMessage.TractionLoadSTNIPRequest(Owner.NodeID, (Owner as TLccCanNode).AliasID);
+           //    SendMessage(Owner, WorkerMessage);
+           end else
+             AdvanceToNextState;    // No more slots to hold results
+         end
+      end;
+     MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
+       begin
+          i := 0;
+          while i < RepliedSearchCriterialCount do
+          begin
+            if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
+            begin
+       //       RepliedSearchCriteria[RepliedSearchCriterialCount].TSNIP := SourceMessage.;
+              Break;
+            end;
+             Inc(i);
+          end;
+       end;
+  end;
+  if TimeoutExpired then
+     AdvanceToNextState
+end;
+
+procedure TLccAssignTrainAction.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := @ActionInitateSearch;
+  States[1] := @ActionWaitForSearchResults;
+  States[2] := @ActionShowUserSearchResults;
+
+  SetLength(RepliedSearchCriteria, 10);  // Arbitrary
+  RepliedSearchCriterialCount := 0;
+end;
 
 { TLccTrainController }
 

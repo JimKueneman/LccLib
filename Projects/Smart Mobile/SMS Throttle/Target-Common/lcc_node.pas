@@ -88,43 +88,89 @@ const
 	'</segment>'+
 '</cdi>');
 
+
 type
+  TOnActionCompleteCallback = procedure(LccAction: TObject) of object;
 
-    TLccTaskState = (ltsIdle, ltsRunning, ltsComplete);
+  TLccNode = class;
 
-    TLccCanNode = class;
+ { TLccAction }
 
-  { TLccTaskBase }
+ TLccAction = class(TObject)
+ private
+   FActionStateIndex: Integer;
+   FAliasID: Word;
+   FNodeID: TNodeID;
+   FOnActionCompleteCallback: TOnActionCompleteCallback;
+   FOwner: TLccNode;
+   FSendMessage: TOnMessageEvent;
+   FStates: TOnMessageEventArray;
+   FTimeoutCounts: Integer;
+   FTimeoutCountThreshold: Integer;
+   FWorkerMessage: TLccMessage;
+ protected
+   property ActionStateIndex: Integer read FActionStateIndex write FActionStateIndex;
+   property OnActionCompleteCallback: TOnActionCompleteCallback read FOnActionCompleteCallback write FOnActionCompleteCallback;
+   property States: TOnMessageEventArray read FStates write FStates;
+   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
+   property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
+   property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
 
-  TLccTaskBase = class(TObject)
-  private
+   procedure LoadStateArray; virtual; abstract;  // Assign your state functions to the array to get called in order
+   function ProcessMessage(SourceMessage: TLccMessage): Boolean; virtual;
+   procedure TimeTick;    // 800ms Clock
+ public
+   property AliasID: Word read FAliasID;
+   property NodeID: TNodeID read FNodeID;
+   property Owner: TLccNode read FOwner;
+   property SendMessage: TOnMessageEvent read FSendMessage write FSendMessage;
 
-  protected
-    FOwnerNode: TLccCanNode;
-    FState: TLccTaskState;
-    FTargetAliasID: Word;
-    FTargetNodeID: TNodeID;
-    FWorkerMessage: TLccMessage;
-  public
-    property OwnerNode: TLccCanNode read FOwnerNode;
-    property TargetNodeID: TNodeID read FTargetNodeID write FTargetNodeID;
-    property TargetAliasID: Word read FTargetAliasID write FTargetAliasID;
-    property State: TLccTaskState read FState;
-    property WorkerMessage: TLccMessage read FWorkerMessage;
+   constructor Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
+   destructor Destory;
 
-    constructor Create(ANode: TLccCanNode; ATargetNodeID: TNodeID; ATargetAliasID: Word); overload;
-    constructor Create(ANode: TLccCanNode); overload;
-    destructor Destroy; override;
-    procedure ProcessMessage(SourceMessage: TLccMessage); virtual; abstract;
-    procedure Start(SourceMessage: TLccMessage; CallProcessMessage: Boolean); virtual;
-    procedure SendMessage(AMessage: TLccMessage);
-  end;
+   function AdvanceToNextState: Integer;
+   procedure SetStateArrayLength(NewLength: Integer);
+   procedure SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True);  // 800ms counts
+   function TimeoutExpired: Boolean;
+ end;
+
+ { TLccActionHub }
+
+ TLccActionHub = class(TObject)
+ private
+   {$IFDEF DELPHI}
+    FLccActions<TLccActions>: TObjectList;
+   {$ELSE}
+    FLccActions: TObjectList;
+    FOwner: TLccNode;
+    FSendMessageFunc: TOnMessageEvent;
+   {$ENDIF}
+ protected
+   {$IFDEF DELPHI}
+   property LccActions<TLccAction>: TObjectList read FLccActions write FLccActions;
+   {$ELSE}
+   property LccActions: TObjectList read FLccActions write FLccActions;
+   {$ENDIF}
+   property SendMessageFunc: TOnMessageEvent read FSendMessageFunc write FSendMessageFunc;
+   procedure TimeTick;
+ public
+   property Owner: TLccNode read FOwner write FOwner;
+
+   constructor Create(AnOwner: TLccNode; ASendMessageFunc: TOnMessageEvent);
+   destructor Destory;
+
+   procedure ClearActions;
+   function CreateAction(ANodeID: TNodeID; AnAliasID: Word; OnActionCompleteCallback: TOnActionCompleteCallback): TLccAction;
+   function ProcessMessage(SourceMessage: TLccMessage): Boolean;
+   procedure UnregisterAction(AnAction: TLccAction);
+ end;
+
 
   { TLccNode }
 
   TLccNode = class(TObject)
   private
-    FActiveTask: TLccTaskBase;
+    FLccActions: TLccActionHub;
     FWorkerMessageDatagram: TLccMessage;
     FInitialized: Boolean;
     FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
@@ -165,7 +211,6 @@ type
     F_800msTimer: TLccTimer;
 
     function GetNodeIDStr: String;
-    procedure SetActiveTask(AValue: TLccTaskBase);
   protected
     FNodeID: TNodeID;
 
@@ -193,13 +238,11 @@ type
     function GetCdiFile: string; virtual;
     procedure BeforeLogin; virtual;
   public
-
-    property ActiveTask: TLccTaskBase read FActiveTask write SetActiveTask;
-
     property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
     property Initialized: Boolean read FInitialized;
+    property LccActions: TLccActionHub read FLccActions write FLccActions;
     property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
 
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
@@ -298,47 +341,132 @@ implementation
 uses
   lcc_node_manager;
 
-{ TLccTaskBase }
+{ TLccAction }
 
-
-constructor TLccTaskBase.Create(ANode: TLccCanNode; ATargetNodeID: TNodeID; ATargetAliasID: Word);
+constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID;
+  AnAliasID: Word);
 begin
-  FOwnerNode := ANode;
-  FTargetAliasID := ATargetAliasID;
-  FTargetNodeID := ATargetNodeID;
-  FWorkerMessage := TLccMessage.Create;
+  FOwner := AnOwner;;
+  WorkerMessage := TLccMessage.Create;
+  FNodeID := ANodeID;
+  FAliasID := AnAliasID;
+  LoadStateArray;
 end;
 
-constructor TLccTaskBase.Create(ANode: TLccCanNode);
+function TLccAction.AdvanceToNextState: Integer;
 begin
-  inherited Create;
-  FOwnerNode := ANode;
-  FWorkerMessage := TLccMessage.Create;
+  Inc(FActionStateIndex);
+  Result := FActionStateIndex;
 end;
 
-destructor TLccTaskBase.Destroy;
+destructor TLccAction.Destory;
 begin
   {$IFDEF DWSCRIPT}
-  FWorkerMessage.Free;
+  WorkerMessage.Free;
   {$ELSE}
-  FreeAndNil(FWorkerMessage);
+  FreeAndNil(FWorkerMessage)
   {$ENDIF}
-  inherited Destroy;
 end;
 
-procedure TLccTaskBase.SendMessage(AMessage: TLccMessage);
+function TLccAction.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
-  if Assigned(FOwnerNode) then
-    OwnerNode.SendMessageFunc(OwnerNode, AMessage);
+  // Only send to the active State in the Action
+  if (ActionStateIndex > -1) and (ActionStateIndex < Length(States)) then
+    Result := States[ActionStateIndex](Owner, SourceMessage);
 end;
 
-procedure TLccTaskBase.Start(SourceMessage: TLccMessage; CallProcessMessage: Boolean);
+procedure TLccAction.SetStateArrayLength(NewLength: Integer);
 begin
-  FState := ltsRunning;
-  if CallProcessMessage then
-    ProcessMessage(SourceMessage);
+  SetLength(FStates, NewLength);
 end;
 
+procedure TLccAction.SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean);
+begin
+  TimeoutCountThreshold := Trunc(NewThreshold_ms/0.800) + 1;
+  if ResetCounter then
+    TimeoutCounts := 0;
+end;
+
+procedure TLccAction.TimeTick;
+begin
+  Inc(FTimeoutCounts);
+end;
+
+function TLccAction.TimeoutExpired: Boolean;
+begin
+  Result := TimeoutCounts > TimeoutCountThreshold ;
+end;
+
+{ TLccActionHub }
+
+constructor TLccActionHub.Create(AnOwner: TLccNode;
+  ASendMessageFunc: TOnMessageEvent);
+begin
+  {$IFDEF DELPHI}
+  LccActions := TObjectList<TLccAction>.Create;
+  {$ELSE}
+  LccActions := TObjectList.Create;
+  {$ENDIF}
+  LccActions.OwnsObjects := False;
+
+  FOwner := AnOwner;
+  FSendMessageFunc := ASendMessageFunc;
+end;
+
+procedure TLccActionHub.ClearActions;
+var
+  i: Integer;
+begin
+  try
+    for i := 0 to LccActions.Count - 1 do
+       LccActions[I].Free;
+  finally
+    LccActions.Clear;
+  end;
+end;
+
+destructor TLccActionHub.Destory;
+begin
+  ClearActions;
+  {$IFNDEF GWSCRIPT}
+  FreeAndNil(FLccActions);
+  {$ELSE}
+  LccActions.Free;
+  {$ENDIF}
+end;
+
+function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to LccActions.Count - 1 do
+     Result := (LccActions[i] as TLccAction).ProcessMessage(SourceMessage);
+end;
+
+procedure TLccActionHub.TimeTick;
+var
+  i: Integer;
+begin
+  for i := 0 to LccActions.Count - 1 do
+    (LccActions[i] as TLccAction).TimeTick;
+end;
+
+function TLccActionHub.CreateAction(ANodeID: TNodeID; AnAliasID: Word;
+  OnActionCompleteCallback: TOnActionCompleteCallback): TLccAction;
+begin
+  Result := TLccAction.Create(Owner, ANodeID, AnAliasID);
+  Result.OnActionCompleteCallback := OnActionCompleteCallback;
+  Result.SendMessage := SendMessageFunc;
+end;
+
+procedure TLccActionHub.UnregisterAction(AnAction: TLccAction);
+var
+  i: Integer;
+begin
+  i := LccActions.IndexOf(AnAction);
+  if i > -1 then
+    LccActions.Delete(i);
+end;
 
 { TLccCanNode }
 
@@ -1002,6 +1130,8 @@ begin
   while StreamConfig.Position < StreamConfig.Size do
     StreamWriteByte(StreamConfig, 0);
 
+  FLccActions := TLccActionHub.Create(Self, ASendMessageFunc);
+
   // Setup the Fdi Stream
 
   // Setup the Function Configuration Memory Stream
@@ -1117,6 +1247,7 @@ begin
   FStreamManufacturerData.Free;
   FStreamTractionConfig.Free;
   FStreamTractionFdi.Free;
+  FLccActions.Free;
   inherited;
 end;
 
@@ -1179,6 +1310,7 @@ end;
 procedure TLccNode.On_800msTimer(Sender: TObject);
 begin
   DatagramResendQueue.TickTimeout;
+  LccActions.TimeTick;
 end;
 
 function TLccNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
@@ -1205,6 +1337,8 @@ begin
     Exit;
   end;
 
+  LccActions.ProcessMessage(SourceMessage);
+
 
   // Next look to see if it is an addressed message and if not for use just exit
 
@@ -1214,10 +1348,6 @@ begin
     if not IsDestinationEqual(SourceMessage) then
       Exit;
   end;
-
-  if Assigned(ActiveTask) then
-    if ActiveTask.State = ltsRunning then
-      ActiveTask.ProcessMessage(SourceMessage);
 
   case SourceMessage.MTI of
     MTI_OPTIONAL_INTERACTION_REJECTED :
@@ -1713,14 +1843,6 @@ begin
     WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, EventObj.State);
     SendMessageFunc(Self, WorkerMessage);
   end;
-end;
-
-procedure TLccNode.SetActiveTask(AValue: TLccTaskBase);
-begin
-  if FActiveTask = AValue then Exit;
-  if Assigned(FActiveTask) then
-    FActiveTask.Free;
-  FActiveTask := AValue;
 end;
 
 

@@ -29,6 +29,8 @@ uses
 type
   TLccMessage = class; // forward
   TOnMessageEvent = procedure(Sender: TObject; LccMessage: TLccMessage) of object;
+  TOnMessageEventFunc = function(Sender: TObject; LccMessage: TLccMessage): Boolean of object;
+  TOnMessageEventArray = array of TOnMessageEventFunc;
   TSearchEncodeStringError = (sese_ok, sese_TooLong, sese_InvalidCharacters);
 
   { TLccCANMessage }
