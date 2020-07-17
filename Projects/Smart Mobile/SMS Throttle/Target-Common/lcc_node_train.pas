@@ -6,6 +6,8 @@ interface
 {$I lcc_compilers.inc}
 {$ENDIF}
 
+{.$DEFINE DISABLE_STATE_TIMEOUTS_FOR_DEBUG}
+
 uses
 {$IFDEF DWSCRIPT}
   System.Types,
@@ -505,49 +507,57 @@ begin
 
   Result := False;
 
-  case SourceMessage.MTI of
-     MTI_TRACTION_REQUEST :
-       begin
-         OwnerTrain := Owner as TLccTrainCanNode;
+  if Assigned(SourceMessage) then // Could be from TimeTick
+  begin
+    case SourceMessage.MTI of
+       MTI_TRACTION_REQUEST :
+         begin
+           OwnerTrain := Owner as TLccTrainCanNode;
 
-         case SourceMessage.DataArray[0] of
-            TRACTION_CONTROLLER_CONFIG :
-              begin;
-                case SourceMessage.DataArray[1] of
-                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                    begin
-                      // No reservation required
-                      RequestingControllerNodeID := SourceMessage.SourceID;
-                      RequestingControllerAliasID := SourceMessage.CAN.SourceAlias;
+           case SourceMessage.DataArray[0] of
+              TRACTION_CONTROLLER_CONFIG :
+                begin;
+                  case SourceMessage.DataArray[1] of
+                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                      begin
+                        // No reservation required
+                        RequestingControllerNodeID := SourceMessage.SourceID;
+                        RequestingControllerAliasID := SourceMessage.CAN.SourceAlias;
 
-                      if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
-                      begin
-                        WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, OwnerTrain.AttachedController.NodeID, OwnerTrain.AttachedController.AliasID, RequestingControllerNodeID, RequestingControllerAliasID);
-                        SendMessage(Owner, WorkerMessage);
-                        AdvanceToNextState;
-                      end else
-                      begin
-                        WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, S_OK);
-                        SendMessage(Owner, WorkerMessage);
-                        AssignResult := S_OK;
-                        AdvanceToNextState(2);  // Jump over the Wait for the Assigned Controller to Reply
-                        // Nothing to clock the next state so do it manually
-                        _2SendAssignReply(Sender, SourceMessage);
+                        if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
+                        begin
+                          WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, OwnerTrain.AttachedController.NodeID, OwnerTrain.AttachedController.AliasID, RequestingControllerNodeID, RequestingControllerAliasID);
+                          SendMessage(Owner, WorkerMessage);
+                          AdvanceToNextState;
+                        end else
+                        begin
+                          WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, S_OK);
+                          SendMessage(Owner, WorkerMessage);
+                          AssignResult := S_OK;
+                          AdvanceToNextState(2);  // Jump over the Wait for the Assigned Controller to Reply
+                          // Nothing to clock the next state so do it manually
+                          _2SendAssignReply(Sender, SourceMessage);
+                        end;
                       end;
-                    end;
-                 end
-              end;
+                   end
+                end;
+           end;
          end;
-       end;
-  end;
-  ResetTimeoutCounter;
+    end;
+  end else
+    _2SendAssignReply(nil, nil);   // Something is wrong exit the statemachine
+
+  SetTimoutCountThreshold(10, True);
 end;
 
 function TLccAssignTrainReplyAction._1WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
-   case SourceMessage.MTI of
-     MTI_TRACTION_REQUEST :
+
+  if Assigned(SourceMessage) then   // Could be time tick calling
+  begin
+    case SourceMessage.MTI of
+     MTI_TRACTION_REPLY :
        begin
          case SourceMessage.DataArray[0] of
            TRACTION_CONTROLLER_CONFIG :
@@ -577,16 +587,18 @@ begin
               end
             end;
          end;
-
        end;
-   end;
+     end;
+  end;
 
   if TimeoutExpired then
   begin
+    {$IFNDEF DISABLE_STATE_TIMEOUTS_FOR_DEBUG}
     AssignResult := S_OK;  // No answer, must be ok
     AdvanceToNextState;
     // Nothing to clock the next state so do it manually
-    _2SendAssignReply(Sender, SourceMessage);
+    _2SendAssignReply(Sender, WorkerMessage);
+    {$ENDIF}
   end;
 end;
 
@@ -602,6 +614,7 @@ begin
   end;
   WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
+
 
   UnRegisterSelf;
 end;

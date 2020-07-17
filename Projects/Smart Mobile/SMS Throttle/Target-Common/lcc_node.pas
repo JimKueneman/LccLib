@@ -125,7 +125,7 @@ type
    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual; abstract;
    procedure LoadStateArray; virtual;   // Assign your state functions to the array to get called in order
    function ProcessMessage(SourceMessage: TLccMessage): Boolean; virtual;
-   procedure TimeTick;    // 800ms Clock
+   procedure TimeTick; virtual;    // 800ms Clock
 
    procedure DoTimeoutExpired; virtual;
    procedure UnRegisterSelf;
@@ -426,6 +426,7 @@ end;
 procedure TLccAction.TimeTick;
 begin
   Inc(FTimeoutCounts);
+  ProcessMessage(nil);    // Force a clock tick in the state machine
 end;
 
 procedure TLccAction.UnRegisterSelf;

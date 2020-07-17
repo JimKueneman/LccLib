@@ -1690,7 +1690,7 @@ begin
   if Allow then
     FDataArray[2] := 0
   else
-    FDataArray[2] := $FF
+    FDataArray[2] := TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER
 end;
 
 procedure TLccMessage.LoadTractionConsistAttach(ASourceID: TNodeID;
