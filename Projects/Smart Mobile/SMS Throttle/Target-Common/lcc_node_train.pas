@@ -182,6 +182,12 @@ type
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
    end;
 
+   { TLccQueryTrainAction }
+
+   TLccQueryTrainAction = class(TLccAction)
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+   end;
+
    { TLccQueryFunctionTrainReplyAction }
 
    TLccQueryFunctionTrainReplyAction = class(TLccAction)
@@ -264,6 +270,7 @@ type
      FLccEmergencyStopAction: TLccEmergencyStopAction;
      FLccQueryFunctionTrainReplyAction: TLccQueryFunctionTrainReplyAction;
      FLccQuerySpeedTrainReplyAction: TLccQuerySpeedTrainReplyAction;
+     FLccQueryTrainAction: TLccQueryTrainAction;
      FLccReleaseTrainAction: TLccReleaseTrainAction;
      FLccSetFunctionTrainAction: TLccSetFunctionTrainAction;
      FLccSetSpeedTrainAction: TLccSetSpeedTrainAction;
@@ -276,6 +283,7 @@ type
 
      property LccAssignTrainReplyAction: TLccAssignTrainReplyAction read FLccAssignTrainReplyAction write FLccAssignTrainReplyAction;
      property LccReleaseTrainAction: TLccReleaseTrainAction read FLccReleaseTrainAction write FLccReleaseTrainAction;
+     property LccQueryTrainAction: TLccQueryTrainAction read FLccQueryTrainAction write FLccQueryTrainAction;
      property LccQueryFunctionTrainReplyAction: TLccQueryFunctionTrainReplyAction read FLccQueryFunctionTrainReplyAction write FLccQueryFunctionTrainReplyAction;
      property LccQuerySpeedTrainReplyAction: TLccQuerySpeedTrainReplyAction read FLccQuerySpeedTrainReplyAction write FLccQuerySpeedTrainReplyAction;
      property LccSetSpeedTrainAction: TLccSetSpeedTrainAction read FLccSetSpeedTrainAction write FLccSetSpeedTrainAction;
@@ -395,6 +403,22 @@ begin
     else
       Result := 'S'
   end
+end;
+
+{ TLccQueryTrainAction }
+
+function TLccQueryTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  AttachedController: TAttachedController;
+begin
+  Result := False;
+  AttachedController := (Owner as TLccTrainCanNode).AttachedController;
+
+  if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
+   WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
+  else
+   WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
+  SendMessage(Self, WorkerMessage);
 end;
 
 { TLccReleaseTrainAction }
@@ -625,10 +649,11 @@ constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeMana
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
   FLccAssignTrainReplyAction := TLccAssignTrainReplyAction.Create(Self, NodeID, AliasID);
+  FLccReleaseTrainAction :=  TLccReleaseTrainAction.Create(Self, NodeID, AliasID);
+  FLccQueryTrainAction :=  TLccQueryTrainAction.Create(Self, NodeID, AliasID);
   FLccEmergencyStopAction :=  TLccEmergencyStopAction.Create(Self, NodeID, AliasID);
   FLccQueryFunctionTrainReplyAction :=  TLccQueryFunctionTrainReplyAction.Create(Self, NodeID, AliasID);
   FLccQuerySpeedTrainReplyAction := TLccQuerySpeedTrainReplyAction.Create(Self, NodeID, AliasID);
-  FLccReleaseTrainAction :=  TLccReleaseTrainAction.Create(Self, NodeID, AliasID);
   FLccSetFunctionTrainAction :=  TLccSetFunctionTrainAction.Create(Self, NodeID, AliasID);
   FLccSetSpeedTrainAction := TLccSetSpeedTrainAction.Create(Self, NodeID, AliasID);
 end;
@@ -935,17 +960,9 @@ begin
           TRACTION_CONTROLLER_CONFIG :
             begin
               case SourceMessage.DataArray[1] of
-                TRACTION_CONTROLLER_CONFIG_ASSIGN  : LccActions.RegisterAction(Self, SourceMessage, LccAssignTrainReplyAction);
-                TRACTION_CONTROLLER_CONFIG_RELEASE : LccActions.RegisterAction(Self, SourceMessage, LccReleaseTrainAction);
-                TRACTION_CONTROLLER_CONFIG_QUERY :
-                  begin
-                    // Reservation is checked above
-                    if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
-                      WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
-                    else
-                      WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
-                    SendMessageFunc(Self, WorkerMessage);
-                  end;
+                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAction(Self, SourceMessage, LccAssignTrainReplyAction);
+                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAction(Self, SourceMessage, LccReleaseTrainAction);
+                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAction(Self, SourceMessage, LccQueryTrainAction);
                end
             end;
           TRACTION_LISTENER :
