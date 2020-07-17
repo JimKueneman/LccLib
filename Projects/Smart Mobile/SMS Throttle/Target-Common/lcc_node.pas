@@ -93,15 +93,21 @@ type
   TOnActionCompleteCallback = procedure(LccAction: TObject) of object;
 
   TLccNode = class;
+  TLccAction = class;
+  TLccActionHub = class;
+
+  TOnActionTimoutExpired = procedure(Sender: TLccAction) of object;
 
  { TLccAction }
 
  TLccAction = class(TObject)
  private
+   FActionHub: TLccActionHub;
    FActionStateIndex: Integer;
    FAliasID: Word;
+   FCancel: Boolean;       // Cancels the action, mimics a Timeout in a state which jumps to last state to clean up
    FNodeID: TNodeID;
-   FOnActionCompleteCallback: TOnActionCompleteCallback;
+   FOnTimeoutExpired: TOnActionTimoutExpired;
    FOwner: TLccNode;
    FSendMessage: TOnMessageEvent;
    FStates: TOnMessageEventArray;
@@ -109,28 +115,42 @@ type
    FTimeoutCountThreshold: Integer;
    FWorkerMessage: TLccMessage;
  protected
+   property ActionHub: TLccActionHub read FActionHub write FActionHub;
    property ActionStateIndex: Integer read FActionStateIndex write FActionStateIndex;
-   property OnActionCompleteCallback: TOnActionCompleteCallback read FOnActionCompleteCallback write FOnActionCompleteCallback;
    property States: TOnMessageEventArray read FStates write FStates;
    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
    property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
    property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
 
-   procedure LoadStateArray; virtual; abstract;  // Assign your state functions to the array to get called in order
+   function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual; abstract;
+   procedure LoadStateArray; virtual;   // Assign your state functions to the array to get called in order
    function ProcessMessage(SourceMessage: TLccMessage): Boolean; virtual;
    procedure TimeTick;    // 800ms Clock
+
+   procedure DoTimeoutExpired; virtual;
+   procedure UnRegisterSelf;
+
  public
    property AliasID: Word read FAliasID;
    property NodeID: TNodeID read FNodeID;
    property Owner: TLccNode read FOwner;
    property SendMessage: TOnMessageEvent read FSendMessage write FSendMessage;
+   property Cancel: Boolean read FCancel write FCancel;
+
+   property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
 
    constructor Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
    destructor Destory;
 
-   function AdvanceToNextState: Integer;
+   // Set the index to the next function that will be pointed to in the States array
+   function AdvanceToNextState(JumpCount: Integer = 1): Integer;
+   // Each decendant must set the number of state functions it implements
    procedure SetStateArrayLength(NewLength: Integer);
+   // Sets the number of ms before any wait state is declared hung or complete
    procedure SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True);  // 800ms counts
+   // set the timer counter that starts counting toward the CountThreshold
+   procedure ResetTimeoutCounter;
+   // Compares CountThreshold and Counter to see if the timeout timer has expired
    function TimeoutExpired: Boolean;
  end;
 
@@ -139,17 +159,17 @@ type
  TLccActionHub = class(TObject)
  private
    {$IFDEF DELPHI}
-    FLccActions<TLccActions>: TObjectList;
+    FLccActiveActions<TLccActions>: TObjectList;
    {$ELSE}
-    FLccActions: TObjectList;
+    FLccActiveActions: TObjectList;
     FOwner: TLccNode;
     FSendMessageFunc: TOnMessageEvent;
    {$ENDIF}
  protected
    {$IFDEF DELPHI}
-   property LccActions<TLccAction>: TObjectList read FLccActions write FLccActions;
+   property LccActiveActions<TLccAction>: TObjectList read FLccActiveActions write FLccActiveActions;
    {$ELSE}
-   property LccActions: TObjectList read FLccActions write FLccActions;
+   property LccActiveActions: TObjectList read FLccActiveActions write FLccActiveActions;
    {$ENDIF}
    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc write FSendMessageFunc;
    procedure TimeTick;
@@ -160,8 +180,8 @@ type
    destructor Destory;
 
    procedure ClearActions;
-   function CreateAction(ANodeID: TNodeID; AnAliasID: Word; OnActionCompleteCallback: TOnActionCompleteCallback): TLccAction;
    function ProcessMessage(SourceMessage: TLccMessage): Boolean;
+   function RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction): Boolean;
    procedure UnregisterAction(AnAction: TLccAction);
  end;
 
@@ -343,8 +363,7 @@ uses
 
 { TLccAction }
 
-constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID;
-  AnAliasID: Word);
+constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
 begin
   FOwner := AnOwner;;
   WorkerMessage := TLccMessage.Create;
@@ -353,9 +372,9 @@ begin
   LoadStateArray;
 end;
 
-function TLccAction.AdvanceToNextState: Integer;
+function TLccAction.AdvanceToNextState(JumpCount: Integer): Integer;
 begin
-  Inc(FActionStateIndex);
+  Inc(FActionStateIndex, JumpCount);
   Result := FActionStateIndex;
 end;
 
@@ -368,11 +387,28 @@ begin
   {$ENDIF}
 end;
 
+procedure TLccAction.DoTimeoutExpired;
+begin
+  if Assigned(OnTimeoutExpired) then
+    OnTimeoutExpired(Self)
+end;
+
+procedure TLccAction.LoadStateArray;
+begin
+  SetStateArrayLength(1);
+  States[0] := @_0ReceiveFirstMessage;
+end;
+
 function TLccAction.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
   // Only send to the active State in the Action
   if (ActionStateIndex > -1) and (ActionStateIndex < Length(States)) then
     Result := States[ActionStateIndex](Owner, SourceMessage);
+end;
+
+procedure TLccAction.ResetTimeoutCounter;
+begin
+  FTimeoutCounts := 0;
 end;
 
 procedure TLccAction.SetStateArrayLength(NewLength: Integer);
@@ -392,6 +428,12 @@ begin
   Inc(FTimeoutCounts);
 end;
 
+procedure TLccAction.UnRegisterSelf;
+begin
+  if Assigned(ActionHub) then
+    ActionHub.UnregisterAction(Self);
+end;
+
 function TLccAction.TimeoutExpired: Boolean;
 begin
   Result := TimeoutCounts > TimeoutCountThreshold ;
@@ -403,11 +445,11 @@ constructor TLccActionHub.Create(AnOwner: TLccNode;
   ASendMessageFunc: TOnMessageEvent);
 begin
   {$IFDEF DELPHI}
-  LccActions := TObjectList<TLccAction>.Create;
+  LccActiveActions := TObjectList<TLccAction>.Create;
   {$ELSE}
-  LccActions := TObjectList.Create;
+  LccActiveActions := TObjectList.Create;
   {$ENDIF}
-  LccActions.OwnsObjects := False;
+  LccActiveActions.OwnsObjects := False;
 
   FOwner := AnOwner;
   FSendMessageFunc := ASendMessageFunc;
@@ -418,10 +460,10 @@ var
   i: Integer;
 begin
   try
-    for i := 0 to LccActions.Count - 1 do
-       LccActions[I].Free;
+    for i := 0 to LccActiveActions.Count - 1 do
+       LccActiveActions[I].Free;
   finally
-    LccActions.Clear;
+    LccActiveActions.Clear;
   end;
 end;
 
@@ -429,7 +471,7 @@ destructor TLccActionHub.Destory;
 begin
   ClearActions;
   {$IFNDEF GWSCRIPT}
-  FreeAndNil(FLccActions);
+  FreeAndNil(FLccActiveActions);
   {$ELSE}
   LccActions.Free;
   {$ENDIF}
@@ -439,33 +481,37 @@ function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   i: Integer;
 begin
-  for i := 0 to LccActions.Count - 1 do
-     Result := (LccActions[i] as TLccAction).ProcessMessage(SourceMessage);
+  for i := 0 to LccActiveActions.Count - 1 do
+    Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
+end;
+
+function TLccActionHub.RegisterAction(ANode: TLccNode;
+  SourceMessage: TLccMessage; AnAction: TLccAction): Boolean;
+begin
+  LccActiveActions.Add(AnAction);
+  AnAction.FNodeID := ANode.NodeID;
+  AnAction.FAliasID := (ANode as TLccCanNode).AliasID;
+  AnAction.FOwner := ANode;
+  AnAction.SendMessage := ANode.SendMessageFunc;
+  AnAction.ActionHub := Self;
+  Result := AnAction._0ReceiveFirstMessage(ANode, SourceMessage);
 end;
 
 procedure TLccActionHub.TimeTick;
 var
   i: Integer;
 begin
-  for i := 0 to LccActions.Count - 1 do
-    (LccActions[i] as TLccAction).TimeTick;
-end;
-
-function TLccActionHub.CreateAction(ANodeID: TNodeID; AnAliasID: Word;
-  OnActionCompleteCallback: TOnActionCompleteCallback): TLccAction;
-begin
-  Result := TLccAction.Create(Owner, ANodeID, AnAliasID);
-  Result.OnActionCompleteCallback := OnActionCompleteCallback;
-  Result.SendMessage := SendMessageFunc;
+  for i := LccActiveActions.Count - 1 downto 0  do
+    (LccActiveActions[i] as TLccAction).TimeTick
 end;
 
 procedure TLccActionHub.UnregisterAction(AnAction: TLccAction);
 var
   i: Integer;
 begin
-  i := LccActions.IndexOf(AnAction);
+  i := LccActiveActions.IndexOf(AnAction);
   if i > -1 then
-    LccActions.Delete(i);
+    LccActiveActions.Delete(i);
 end;
 
 { TLccCanNode }

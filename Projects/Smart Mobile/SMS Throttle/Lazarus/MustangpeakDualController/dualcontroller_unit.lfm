@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 389
   Height = 633
-  Top = 109
+  Top = 51
   Width = 703
   BorderStyle = bsSingle
   Caption = 'Form1'
@@ -39,17 +39,17 @@ object Form1: TForm1
       end
       object Label2: TLabel
         Left = 119
-        Height = 16
+        Height = 13
         Top = 6
-        Width = 55
+        Width = 43
         Caption = 'NodeID: '
         ParentColor = False
       end
       object Label3: TLabel
         Left = 120
-        Height = 16
+        Height = 13
         Top = 28
-        Width = 52
+        Width = 40
         Caption = 'AliasID: '
         ParentColor = False
       end
@@ -74,8 +74,8 @@ object Form1: TForm1
     end
     object StatusBarThrottle1: TStatusBar
       Left = 1
-      Height = 15
-      Top = 567
+      Height = 23
+      Top = 559
       Width = 350
       Panels = <      
         item
@@ -86,11 +86,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace1: TPanel
       Left = 1
-      Height = 518
+      Height = 510
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 518
+      ClientHeight = 510
       ClientWidth = 350
       TabOrder = 2
       object PanelThrottleAssign1: TPanel
@@ -104,7 +104,7 @@ object Form1: TForm1
         TabOrder = 0
         object EditThrottleAddress1: TEdit
           Left = 120
-          Height = 22
+          Height = 21
           Top = 10
           Width = 96
           TabOrder = 0
@@ -112,17 +112,17 @@ object Form1: TForm1
         end
         object Label6: TLabel
           Left = 16
-          Height = 16
+          Height = 13
           Top = 10
-          Width = 83
+          Width = 63
           Caption = 'DCC Address'
           ParentColor = False
         end
         object CheckBoxThrottleLongAddress1: TCheckBox
           Left = 120
-          Height = 18
+          Height = 17
           Top = 45
-          Width = 104
+          Width = 83
           Caption = 'Long Address'
           TabOrder = 1
         end
@@ -140,8 +140,8 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 65
-          ClientWidth = 105
+          ClientHeight = 69
+          ClientWidth = 109
           ItemIndex = 0
           Items.Strings = (
             '14 Step'
@@ -160,20 +160,20 @@ object Form1: TForm1
         end
         object CheckBoxThrottleTakeover1: TCheckBox
           Left = 8
-          Height = 18
+          Height = 17
           Top = 64
-          Width = 173
+          Width = 140
           Caption = 'Ask to allow throttle steal'
           TabOrder = 3
         end
       end
       object PanelThrottleKeypad1: TPanel
         Left = 1
-        Height = 213
+        Height = 205
         Top = 304
         Width = 348
         Align = alClient
-        ClientHeight = 213
+        ClientHeight = 205
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction0: TSpeedButton
@@ -338,9 +338,9 @@ object Form1: TForm1
         end
         object LabelThrottleSpeed1: TLabel
           Left = 296
-          Height = 28
+          Height = 29
           Top = 170
-          Width = 16
+          Width = 15
           Caption = '0'
           Font.Height = -24
           Font.Style = [fsBold]
@@ -379,15 +379,15 @@ object Form1: TForm1
         end
         object Label8: TLabel
           Left = 8
-          Height = 16
+          Height = 13
           Top = 8
-          Width = 83
+          Width = 63
           Caption = 'DCC Address'
           ParentColor = False
         end
         object EditConsistAddress1: TEdit
           Left = 96
-          Height = 22
+          Height = 21
           Top = 8
           Width = 48
           TabOrder = 2
@@ -395,9 +395,9 @@ object Form1: TForm1
         end
         object CheckBoxConsistAddress1: TCheckBox
           Left = 16
-          Height = 18
+          Height = 17
           Top = 32
-          Width = 104
+          Width = 83
           Caption = 'Long Address'
           TabOrder = 3
         end
@@ -415,8 +415,8 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 84
-          ClientWidth = 88
+          ClientHeight = 88
+          ClientWidth = 92
           ItemIndex = 0
           Items.Strings = (
             '14 Step'
@@ -463,7 +463,7 @@ object Form1: TForm1
     TabOrder = 1
     object EditCommandStationIPAddress: TEdit
       Left = 232
-      Height = 22
+      Height = 21
       Top = 9
       Width = 136
       TabOrder = 0
@@ -471,9 +471,9 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 32
-      Height = 16
+      Height = 13
       Top = 15
-      Width = 183
+      Width = 139
       Caption = 'Command Station IP Address'
       ParentColor = False
     end
@@ -507,17 +507,17 @@ object Form1: TForm1
       end
       object Label4: TLabel
         Left = 119
-        Height = 16
+        Height = 13
         Top = 6
-        Width = 55
+        Width = 43
         Caption = 'NodeID: '
         ParentColor = False
       end
       object Label5: TLabel
         Left = 120
-        Height = 16
+        Height = 13
         Top = 28
-        Width = 52
+        Width = 40
         Caption = 'AliasID: '
         ParentColor = False
       end
@@ -542,8 +542,8 @@ object Form1: TForm1
     end
     object StatusBarThrottle2: TStatusBar
       Left = 1
-      Height = 15
-      Top = 567
+      Height = 23
+      Top = 559
       Width = 350
       Panels = <      
         item
@@ -554,11 +554,11 @@ object Form1: TForm1
     end
     object PanelThrottleFace2: TPanel
       Left = 1
-      Height = 518
+      Height = 510
       Top = 49
       Width = 350
       Align = alClient
-      ClientHeight = 518
+      ClientHeight = 510
       ClientWidth = 350
       TabOrder = 2
       object PanelThrottleAssign2: TPanel
@@ -572,7 +572,7 @@ object Form1: TForm1
         TabOrder = 0
         object EditThrottleAddress2: TEdit
           Left = 120
-          Height = 22
+          Height = 21
           Top = 10
           Width = 96
           TabOrder = 0
@@ -580,17 +580,17 @@ object Form1: TForm1
         end
         object Label7: TLabel
           Left = 16
-          Height = 16
+          Height = 13
           Top = 10
-          Width = 83
+          Width = 63
           Caption = 'DCC Address'
           ParentColor = False
         end
         object CheckBoxThrottleLongAddress2: TCheckBox
           Left = 120
-          Height = 18
+          Height = 17
           Top = 45
-          Width = 104
+          Width = 83
           Caption = 'Long Address'
           TabOrder = 1
         end
@@ -608,8 +608,8 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 65
-          ClientWidth = 105
+          ClientHeight = 69
+          ClientWidth = 109
           ItemIndex = 0
           Items.Strings = (
             '14 Step'
@@ -628,20 +628,20 @@ object Form1: TForm1
         end
         object CheckBoxThrottleTakeover2: TCheckBox
           Left = 8
-          Height = 18
+          Height = 17
           Top = 64
-          Width = 173
+          Width = 140
           Caption = 'Ask to allow throttle steal'
           TabOrder = 3
         end
       end
       object PanelThrottleKeypad2: TPanel
         Left = 1
-        Height = 213
+        Height = 205
         Top = 304
         Width = 348
         Align = alClient
-        ClientHeight = 213
+        ClientHeight = 205
         ClientWidth = 348
         TabOrder = 1
         object SpeedButtonFunction12: TSpeedButton
@@ -806,9 +806,9 @@ object Form1: TForm1
         end
         object LabelThrottleSpeed2: TLabel
           Left = 298
-          Height = 28
+          Height = 29
           Top = 170
-          Width = 16
+          Width = 15
           Caption = '0'
           Font.Height = -24
           Font.Style = [fsBold]
@@ -836,15 +836,15 @@ object Form1: TForm1
         end
         object Label9: TLabel
           Left = 5
-          Height = 16
+          Height = 13
           Top = 8
-          Width = 83
+          Width = 63
           Caption = 'DCC Address'
           ParentColor = False
         end
         object EditConsistAddress2: TEdit
           Left = 96
-          Height = 22
+          Height = 21
           Top = 8
           Width = 48
           TabOrder = 1
@@ -876,9 +876,9 @@ object Form1: TForm1
         end
         object CheckBoxConsistAddress2: TCheckBox
           Left = 16
-          Height = 18
+          Height = 17
           Top = 32
-          Width = 104
+          Width = 83
           Caption = 'Long Address'
           TabOrder = 2
         end
@@ -896,8 +896,8 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 84
-          ClientWidth = 89
+          ClientHeight = 88
+          ClientWidth = 93
           ItemIndex = 0
           Items.Strings = (
             '14 Step'

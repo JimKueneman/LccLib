@@ -1,5 +1,4 @@
 unit lcc_node_controller;
-
 interface
 
 {$IFNDEF DWSCRIPT}
@@ -76,27 +75,68 @@ const
 
 type
 
-  TSearchReplyRec = record
+  TLccSTNIP = record
+    Version: Word;
+    Roadname: string;
+    TrainClass: string;
+    RoadNumber: string;
+    TrainName: string;
+    Manufacturer: string;
+    Owner: string;
+  end;
+
+  TLccSearchReplyRec = record
     SearchData: Word;
     NodeID: TNodeID;
     NodeAlias: Word;
-    TSNIP: string;
+    HasSTNIP: Boolean;
+    STNIP: TLccSTNIP;
   end;
+
+  TLccSearchResultsArray = array of TLccSearchReplyRec;
+
+  TLccAssignTrainAction = class;
+
+  TOnLccAssignTrainMultipleSearchResults = procedure(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer) of object;
+  TOnLccCommandFailed = procedure(Sender: TLccAssignTrainAction; ErrorCode: Byte) of object;
+  TOnLccAssignTrain = procedure(Sender: TLccAssignTrainAction; Train: TLccSearchReplyRec) of object;
 
   { TLccAssignTrainAction }
 
   TLccAssignTrainAction = class(TLccAction)
+  private
+    FOnAssignFailed: TOnLccCommandFailed;
+    FOnAssignTrain: TOnLccAssignTrain;
+    FOnMultipleSearchResults: TOnLccAssignTrainMultipleSearchResults;
+    FOnNoSearchResults: TOnLccCommandFailed;
+    FRepliedSearchCriteria: TLccSearchResultsArray;
+    FRepliedSearchCriterialCount: Integer;
+    FRequestedSearchData: DWORD;
+    FSelectedSearchResultIndex: Integer;
   protected
-    function ActionInitateSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _2ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _3ActionSendAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _4ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _5ActionAssignTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure DoMultipleSearchResults; virtual;
+    procedure DoAssignFailed(ErrorCode: Byte); virtual;
+    procedure DoNoSearchResults; virtual;
+    procedure DoAssignTrain; virtual;
 
     procedure LoadStateArray; override;
   public
-    RequestedSearchData: Word;
-    RepliedSearchCriterialCount: Integer;
-    RepliedSearchCriteria: array of TSearchReplyRec;   // could be more than one and we could use the information
-    SelectedTrain: TSearchReplyRec;
+    property RequestedSearchData: DWORD read FRequestedSearchData write FRequestedSearchData;
+    property RepliedSearchCriterialCount: Integer read FRepliedSearchCriterialCount;
+    property RepliedSearchCriteria: TLccSearchResultsArray read FRepliedSearchCriteria;
+    property SelectedSearchResultIndex: Integer read FSelectedSearchResultIndex write FSelectedSearchResultIndex;
+
+     property OnMultipleSearchResults: TOnLccAssignTrainMultipleSearchResults read FOnMultipleSearchResults write FOnMultipleSearchResults;
+     property OnAssignFailed: TOnLccCommandFailed read FOnAssignFailed write FOnAssignFailed;
+     property OnNoSearchResults: TOnLccCommandFailed read FOnNoSearchResults write FOnNoSearchResults;
+     property OnAssignTrain: TOnLccAssignTrain read FOnAssignTrain write FOnAssignTrain;
   end;
 
 type
@@ -185,33 +225,19 @@ implementation
 
 { TLccAssignTrainAction }
 
-function TLccAssignTrainAction.ActionInitateSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccAssignTrainAction._0ReceiveFirstMessage(Sender: TObject;
+  SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
+
   WorkerMessage.LoadTractionSearch(NodeID, AliasID, RequestedSearchData);
   SendMessage(Owner, WorkerMessage);
   SetTimoutCountThreshold(5000); // 5 seconds to collect trains
   AdvanceToNextState;
 end;
 
-function TLccAssignTrainAction.ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-begin
-  Result := False;
 
-  if RepliedSearchCriterialCount > 0 then
-  begin
-    if RepliedSearchCriterialCount = 1 then
-      AdvanceToNextState
-    else begin
-      // Show user the list to choose from
-    end;
-  end else
-  begin
-    // fail.... and end
-  end;
-end;
-
-function TLccAssignTrainAction.ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccAssignTrainAction._1ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   i: Integer;
 begin
@@ -233,11 +259,17 @@ begin
              RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
              RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
              RepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
-             RepliedSearchCriteria[RepliedSearchCriterialCount].TSNIP := '';
-             Inc(RepliedSearchCriterialCount);
-
-           //    WorkerMessage.TractionLoadSTNIPRequest(Owner.NodeID, (Owner as TLccCanNode).AliasID);
-           //    SendMessage(Owner, WorkerMessage);
+             RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := False;
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
+             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
+             Inc(FRepliedSearchCriterialCount);
+             WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias);
+             SendMessage(Owner, WorkerMessage);
            end else
              AdvanceToNextState;    // No more slots to hold results
          end
@@ -249,27 +281,150 @@ begin
           begin
             if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
             begin
-       //       RepliedSearchCriteria[RepliedSearchCriterialCount].TSNIP := SourceMessage.;
-              Break;
+              RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := True;
+              with RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP do
+                SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(Version, RoadName, TrainClass, RoadNumber, TrainName, Manufacturer, Owner);
             end;
              Inc(i);
           end;
        end;
   end;
-  if TimeoutExpired then
-     AdvanceToNextState
+
+ // if Cancel then
+ //   AdvanceToFinalState else
+ // if TimeoutExpired then    // Not an error to time out
+ //   AdvanceToNextState;
+end;
+
+function TLccAssignTrainAction._2ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  if RepliedSearchCriterialCount > 0 then
+  begin
+    if RepliedSearchCriterialCount = 1 then
+      AdvanceToNextState
+    else begin
+      DoMultipleSearchResults;
+  //    if (SelectedSearchResultIndex < 0) or (SelectedSearchResultIndex > Length(RepliedSearchCriteria)-1) then
+  //      AdvanceToFinalState
+  //    else
+        AdvanceToNextState;
+    end;
+  end else
+  begin
+    DoNoSearchResults;
+  //  AdvanceToFinalState;
+  end;
+end;
+
+function TLccAssignTrainAction._3ActionSendAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  // Atomic action no need for Reservation (Manage)
+  WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
+  SendMessage(Owner, WorkerMessage);
+  SetTimoutCountThreshold(5000); // 5 seconds to assign the train
+  AdvanceToNextState;
+end;
+
+function TLccAssignTrainAction._4ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  case SourceMessage.MTI of
+     MTI_TRACTION_REPLY :
+       begin
+         case SourceMessage.DataArray[0] of
+           TRACTION_CONTROLLER_CONFIG :
+             begin
+               case SourceMessage.DataArray[1] of
+                 TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
+                   begin
+                     case SourceMessage.DataArray[1] of
+                       S_OK :
+                         begin
+                           AdvanceToNextState;
+                         end;
+                       TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+                         begin
+                            DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER);
+               //             AdvanceToFinalState;
+                         end;
+                       TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
+                         begin
+                            DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN);
+               //             AdvanceToFinalState
+                         end;
+                     end;
+                   end;
+               end;
+             end;
+         end;
+       end;
+  end;
+
+  if TimeoutExpired or Cancel then
+  begin
+    // Just in case
+    WorkerMessage.LoadTractionControllerRelease(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
+    SendMessage(Owner, WorkerMessage);
+    if not Cancel then
+      DoTimeoutExpired;
+   // AdvanceToFinalState;
+  end;
+end;
+
+function TLccAssignTrainAction._5ActionAssignTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  DoAssignTrain;
+
+  UnRegisterSelf;
+end;
+
+procedure TLccAssignTrainAction.DoAssignFailed(ErrorCode: Byte);
+begin
+  if Assigned(OnAssignFailed) then
+    OnAssignFailed(Self, ErrorCode);
+end;
+
+procedure TLccAssignTrainAction.DoAssignTrain;
+begin
+  if Assigned(OnAssignTrain) then
+    OnAssignTrain(Self, RepliedSearchCriteria[SelectedSearchResultIndex]);
+end;
+
+procedure TLccAssignTrainAction.DoMultipleSearchResults;
+begin
+  FSelectedSearchResultIndex := 0;
+  if Assigned(OnMultipleSearchResults) then
+    OnMultipleSearchResults(Self, RepliedSearchCriteria, FSelectedSearchResultIndex);
+end;
+
+procedure TLccAssignTrainAction.DoNoSearchResults;
+begin
+  if Assigned(OnNoSearchResults) then
+    OnNoSearchResults(Self, 0);
 end;
 
 procedure TLccAssignTrainAction.LoadStateArray;
 begin
-  SetStateArrayLength(3);
-  States[0] := @ActionInitateSearch;
-  States[1] := @ActionWaitForSearchResults;
-  States[2] := @ActionShowUserSearchResults;
+  SetStateArrayLength(6);
+  States[0] := @_0ReceiveFirstMessage;
+  States[1] := @_1ActionWaitForSearchResults;
+  States[2] := @_2ActionShowUserSearchResults;
+  States[3] := @_3ActionSendAssignThrottle;
+  States[4] := @_4ActionWaitForAssignThrottleResult;
+  States[5] := @_5ActionAssignTrain;
 
-  SetLength(RepliedSearchCriteria, 10);  // Arbitrary
-  RepliedSearchCriterialCount := 0;
+  SetLength(FRepliedSearchCriteria, 20);  // 7 States
+  FRepliedSearchCriterialCount := 0;
+  FSelectedSearchResultIndex := -1;
 end;
+
 
 { TLccTrainController }
 

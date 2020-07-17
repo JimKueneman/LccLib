@@ -193,6 +193,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
 
   // Traction Identification (STNIP)
   procedure LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure ExtractSimpleTrainNodeIdentInfoReply(var Version: Word; var RoadName: string; var TrainClass: string; var RoadNumber: string; var TrainName: string; var Manufacturer: string; var Owner: string);
   // Node Ident (SNIP)
   procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -431,6 +432,23 @@ begin
   Result := DataArray[StartIndex];
   Result := Result shl 8;
   Result := DataArray[StartIndex+1] or Result;
+end;
+
+procedure TLccMessage.ExtractSimpleTrainNodeIdentInfoReply(var Version: Word;
+  var RoadName: string; var TrainClass: string; var RoadNumber: string;
+  var TrainName: string; var Manufacturer: string; var Owner: string);
+var
+  i: Integer;
+begin
+  if DataCount > 0 then
+    Version := DataArray[0];
+  // TODO
+  RoadName := 'RoadName';
+  TrainClass := 'TrainClass';
+  RoadNumber := 'RoadNumber';
+  TrainName := 'TrainName';
+  Manufacturer := 'Manufacturer';
+  Owner := 'Owner';
 end;
 
 function TLccMessage.LoadByGridConnectStr(GridConnectStr: String): Boolean;
