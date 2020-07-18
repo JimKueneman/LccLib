@@ -527,9 +527,7 @@ function TLccAssignTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; Sourc
 var
   OwnerTrain: TLccTrainCanNode;
 begin
-  ActionStateIndex := 0;     // This state
-
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   if Assigned(SourceMessage) then // Could be from TimeTick
   begin
@@ -571,7 +569,7 @@ begin
   end else
     _2SendAssignReply(nil, nil);   // Something is wrong exit the statemachine
 
-  SetTimoutCountThreshold(10, True);
+  SetTimoutCountThreshold(100000, True);  // 10 seconds
 end;
 
 function TLccAssignTrainReplyAction._1WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;

@@ -5,6 +5,8 @@ interface
 {$I lcc_compilers.inc}
 {$ENDIF}
 
+{.$DEFINE DISABLE_STATE_TIMEOUTS_FOR_DEBUG}
+
 uses
 {$IFDEF DWSCRIPT}
   System.Types,
@@ -86,7 +88,7 @@ type
   end;
 
   TLccSearchReplyRec = record
-    SearchData: Word;
+    SearchData: DWORD;
     NodeID: TNodeID;
     NodeAlias: Word;
     HasSTNIP: Boolean;
@@ -116,10 +118,7 @@ type
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
     function _1ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function _2ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function _3ActionSendAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function _4ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function _5ActionAssignTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _2ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
     procedure DoMultipleSearchResults; virtual;
     procedure DoAssignFailed(ErrorCode: Byte); virtual;
@@ -133,18 +132,59 @@ type
     property RepliedSearchCriteria: TLccSearchResultsArray read FRepliedSearchCriteria;
     property SelectedSearchResultIndex: Integer read FSelectedSearchResultIndex write FSelectedSearchResultIndex;
 
-     property OnMultipleSearchResults: TOnLccAssignTrainMultipleSearchResults read FOnMultipleSearchResults write FOnMultipleSearchResults;
-     property OnAssignFailed: TOnLccCommandFailed read FOnAssignFailed write FOnAssignFailed;
-     property OnNoSearchResults: TOnLccCommandFailed read FOnNoSearchResults write FOnNoSearchResults;
-     property OnAssignTrain: TOnLccAssignTrain read FOnAssignTrain write FOnAssignTrain;
+    // Possible callback that could occur that would require user input
+    property OnMultipleSearchResults: TOnLccAssignTrainMultipleSearchResults read FOnMultipleSearchResults write FOnMultipleSearchResults;
+    property OnAssignFailed: TOnLccCommandFailed read FOnAssignFailed write FOnAssignFailed;
+    property OnNoSearchResults: TOnLccCommandFailed read FOnNoSearchResults write FOnNoSearchResults;
+    property OnAssignTrain: TOnLccAssignTrain read FOnAssignTrain write FOnAssignTrain;
+  end;
+
+  { TLccReleaseTrainAction }
+
+  TLccReleaseTrainAction = class(TLccAction)
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+
+    procedure LoadStateArray; override;
+  end;
+
+  { TLccQuerySpeedAction }
+
+  TLccQuerySpeedAction = class(TLccAction)
+  private
+    FSpeed: THalfFloat;
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionWaitForQuerySpeedResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure LoadStateArray; override;
+  public
+    property Speed: THalfFloat read FSpeed;
+  end;
+
+  { TLccQueryFunctionAction }
+
+  TLccQueryFunctionAction = class(TLccAction)
+  private
+    FAddress: DWORD;
+    FValue: Word;
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionWaitForQueryFunctionResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure LoadStateArray; override;
+  public
+    property Address: DWORD read FAddress write FAddress;
+    property Value: Word read FValue;
   end;
 
 type
 
-  TControllerCallBackMessages = (ccbReservedFail, ccbAssignFailTrainRefused, ccbAssignFailControllerRefused, ccbControllerAssigned, ccbControllerUnassigned);
-  TOnControllerCallBack = procedure(Sender: TLccNode; Reason: TControllerCallBackMessages) of object;
-  TOnControllerQuerySpeed = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
-  TOnControllerQueryFunction = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
+  TControllerTrainAssignResult = (tarAssigned, tarFailTrainRefused, tarFailControllerRefused);
+  TOnControllerTrainAssigned = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
+  TOnControllerTrainReleased = procedure(Sender: TLccNode) of object;
+  TOnControllerQuerySpeedReply = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
+  TOnControllerQueryFunctionReply = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
   TOnControllerRequestTakeover = procedure(Sender: TLccNode; var Allow: Boolean) of object;
 
   // ******************************************************************************
@@ -161,9 +201,9 @@ type
     RequestedSearchData,
     RepliedSearchData: DWORD;
     SearchString: string;
-    ReservedState: TAttachedTrainReservationState;
-    AttachedState: TAttachedTrainAssignmentState;
-    SearchState: TAttachedTrainSearchState;
+ //   ReservedState: TAttachedTrainReservationState;
+ //   AttachedState: TAttachedTrainAssignmentState;
+ //   SearchState: TAttachedTrainSearchState;
     Listeners: array of TAttachedTrain
   end;
 
@@ -172,12 +212,14 @@ type
   TLccTrainController = class(TLccCanNode)
   private
     FAssignedTrain: TAttachedTrain;
+
     FDirection: TLccTrainDirection;
     FFunctionArray: TLccFunctions;
     FOnControllerRequestTakeover: TOnControllerRequestTakeover;
-    FOnMessageCallback: TOnControllerCallBack;
-    FOnQueryFunction: TOnControllerQueryFunction;
-    FOnQuerySpeed: TOnControllerQuerySpeed;
+    FOnQueryFunctionReply: TOnControllerQueryFunctionReply;
+    FOnQuerySpeedReply: TOnControllerQuerySpeedReply;
+    FOnTrainAssigned: TOnControllerTrainAssigned;
+    FOnTrainReleased: TOnControllerTrainReleased;
     FSpeed: single;
     function GetFunctions(Index: Integer): Word;
     procedure SetDirection(AValue: TLccTrainDirection);
@@ -190,21 +232,28 @@ type
     procedure ClearAssignedTrain;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
-    procedure DoMessageCallback(AMessage: TControllerCallBackMessages); virtual;
-    procedure DoQuerySpeed(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
-    procedure DoQueryFunction(Address: DWORD; Value: Word); virtual;
+    procedure DoTrainAssigned(Reason: TControllerTrainAssignResult); virtual;
+    procedure DoTrainReleased; virtual;
+    procedure DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
+    procedure DoQueryFunctionReply(Address: DWORD; Value: Word); virtual;
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
 
   public
+    property LccAssignTrainAction: TLccAssignTrainAction read FLccAssignTrainAction write FLccAssignTrainAction;
+
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
     property Speed: single read FSpeed write SetSpeed;
     property Direction: TLccTrainDirection read FDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
-    property OnMessageCallback: TOnControllerCallBack read FOnMessageCallback write FOnMessageCallback;
-    property OnQuerySpeed: TOnControllerQuerySpeed read FOnQuerySpeed write FOnQuerySpeed;
-    property OnQueryFunction: TOnControllerQueryFunction read FOnQueryFunction write FOnQueryFunction;
+
+    property OnTrainAssigned: TOnControllerTrainAssigned read FOnTrainAssigned write FOnTrainAssigned;
+    property OnTrainReleased: TOnControllerTrainReleased read FOnTrainReleased write FOnTrainReleased;
+    property OnQuerySpeedReply: TOnControllerQuerySpeedReply read FOnQuerySpeedReply write FOnQuerySpeedReply;
+    property OnQueryFunctionReply: TOnControllerQueryFunctionReply read FOnQueryFunctionReply write FOnQueryFunctionReply;
     property OnControllerRequestTakeover: TOnControllerRequestTakeover read FOnControllerRequestTakeover write FOnControllerRequestTakeover;
 
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
+    destructor Destroy; override;
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
@@ -215,7 +264,6 @@ type
     function IsTrainAssigned: Boolean;
 
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
-    // TODO Need a watchdog timer to make sure it does not get hung forever
   end;
 
   TLccTrainControllerClass = class of TLccTrainController;
@@ -223,16 +271,112 @@ type
 
 implementation
 
-{ TLccAssignTrainAction }
+{ TLccReleaseTrainAction }
 
-function TLccAssignTrainAction._0ReceiveFirstMessage(Sender: TObject;
+function TLccReleaseTrainAction._0ReceiveFirstMessage(Sender: TObject;
   SourceMessage: TLccMessage): Boolean;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+end;
+
+procedure TLccReleaseTrainAction.LoadStateArray;
+begin
+  inherited LoadStateArray;
+end;
+
+{ TLccQueryFunctionAction }
+
+function TLccQueryFunctionAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result :=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  WorkerMessage.LoadTractionQuerySpeed(NodeID, AliasID, TargetNodeID, TargetAliasID);
+  SendMessage(Owner, WorkerMessage);
+end;
+
+function TLccQueryFunctionAction._1ActionWaitForQueryFunctionResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
 
+  // Only care if coming from our Assigned Train
+  if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TargetNodeID, TargetAliasID) then
+  begin
+    case SourceMessage.MTI of
+      MTI_TRACTION_REPLY :
+        begin
+          case SourceMessage.DataArray[0] of
+            TRACTION_QUERY_SPEED_REPLY :
+              begin  // this can be turned into a request/reply action
+                if Address = SourceMessage.TractionExtractFunctionAddress then
+                  (Owner as TLccTrainController).DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
+              end;
+          end;
+        end;
+      end
+  end;
+
+  if TimeoutExpired then
+    _NFinalStateCleanup(Sender, SourceMessage);
+end;
+
+procedure TLccQueryFunctionAction.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := @_0ReceiveFirstMessage;
+  States[1] := @_1ActionWaitForQueryFunctionResults;
+  States[2] := @_NFinalStateCleanup;
+end;
+
+{ TLccQuerySpeedAction }
+
+function TLccQuerySpeedAction._0ReceiveFirstMessage(Sender: TObject;
+  SourceMessage: TLccMessage): Boolean;
+begin
+  Result :=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+end;
+
+function TLccQuerySpeedAction._1ActionWaitForQuerySpeedResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  // Only care if coming from our Assigned Train
+  if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, TargetNodeID, TargetAliasID) then
+  begin
+    case SourceMessage.MTI of
+      MTI_TRACTION_REPLY :
+        begin
+          case SourceMessage.DataArray[0] of
+            TRACTION_QUERY_SPEED_REPLY :
+              begin  // this can be turned into a request/reply action
+                (Owner as TLccTrainController).DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
+              end;
+          end;
+        end;
+      end
+  end;
+
+  if TimeoutExpired then
+    _NFinalStateCleanup(Sender, SourceMessage);
+end;
+
+procedure TLccQuerySpeedAction.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := @_0ReceiveFirstMessage;
+  States[1] := @_1ActionWaitForQuerySpeedResults;
+  States[2] := @_NFinalStateCleanup;
+end;
+
+{ TLccAssignTrainAction }
+
+function TLccAssignTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
   WorkerMessage.LoadTractionSearch(NodeID, AliasID, RequestedSearchData);
   SendMessage(Owner, WorkerMessage);
-  SetTimoutCountThreshold(5000); // 5 seconds to collect trains
+  SetTimoutCountThreshold(1000); // seconds to collect trains
   AdvanceToNextState;
 end;
 
@@ -243,146 +387,148 @@ var
 begin
   Result := False;
 
-  case SourceMessage.MTI of
-     MTI_PRODUCER_IDENTIFIED_CLEAR,
-     MTI_PRODUCER_IDENTIFIED_SET,
-     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-       begin
-          // Search Protocol is flawed, there is no way to uniquely identify this result was from my inital call
-          // I must validate the search result actually matches what I asked for .....
-
-         WorkerMessage.LoadTractionSearch(NULL_NODE_ID, 0, RequestedSearchData);
-         if SourceMessage.TractionSearchDecodeSearchString = WorkerMessage.TractionSearchDecodeSearchString then
+  if Assigned(SourceMessage) then
+  begin
+    case SourceMessage.MTI of
+       MTI_PRODUCER_IDENTIFIED_CLEAR,
+       MTI_PRODUCER_IDENTIFIED_SET,
+       MTI_PRODUCER_IDENTIFIED_UNKNOWN :
          begin
-           if RepliedSearchCriterialCount < Length(RepliedSearchCriteria) then
+            // Search Protocol is flawed, there is no way to uniquely identify this result was from my inital call
+            // I must validate the search result actually matches what I asked for .....
+
+           WorkerMessage.LoadTractionSearch(NULL_NODE_ID, 0, RequestedSearchData);
+           if SourceMessage.TractionSearchDecodeSearchString = WorkerMessage.TractionSearchDecodeSearchString then
            begin
-             RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
-             RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
-             RepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
-             RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := False;
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
-             RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
-             Inc(FRepliedSearchCriterialCount);
-             WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias);
-             SendMessage(Owner, WorkerMessage);
-           end else
-             AdvanceToNextState;    // No more slots to hold results
-         end
-      end;
-     MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
-       begin
-          i := 0;
-          while i < RepliedSearchCriterialCount do
-          begin
-            if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
-            begin
-              RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := True;
-              with RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP do
-                SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(Version, RoadName, TrainClass, RoadNumber, TrainName, Manufacturer, Owner);
-            end;
-             Inc(i);
-          end;
-       end;
-  end;
-
- // if Cancel then
- //   AdvanceToFinalState else
- // if TimeoutExpired then    // Not an error to time out
- //   AdvanceToNextState;
-end;
-
-function TLccAssignTrainAction._2ActionShowUserSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-begin
-  Result := False;
-
-  if RepliedSearchCriterialCount > 0 then
-  begin
-    if RepliedSearchCriterialCount = 1 then
-      AdvanceToNextState
-    else begin
-      DoMultipleSearchResults;
-  //    if (SelectedSearchResultIndex < 0) or (SelectedSearchResultIndex > Length(RepliedSearchCriteria)-1) then
-  //      AdvanceToFinalState
-  //    else
-        AdvanceToNextState;
-    end;
-  end else
-  begin
-    DoNoSearchResults;
-  //  AdvanceToFinalState;
-  end;
-end;
-
-function TLccAssignTrainAction._3ActionSendAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-begin
-  Result := False;
-
-  // Atomic action no need for Reservation (Manage)
-  WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
-  SendMessage(Owner, WorkerMessage);
-  SetTimoutCountThreshold(5000); // 5 seconds to assign the train
-  AdvanceToNextState;
-end;
-
-function TLccAssignTrainAction._4ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-begin
-  Result := False;
-
-  case SourceMessage.MTI of
-     MTI_TRACTION_REPLY :
-       begin
-         case SourceMessage.DataArray[0] of
-           TRACTION_CONTROLLER_CONFIG :
+             if RepliedSearchCriterialCount < Length(RepliedSearchCriteria) then
              begin
-               case SourceMessage.DataArray[1] of
-                 TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
-                   begin
-                     case SourceMessage.DataArray[1] of
-                       S_OK :
-                         begin
-                           AdvanceToNextState;
-                         end;
-                       TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
-                         begin
-                            DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER);
-               //             AdvanceToFinalState;
-                         end;
-                       TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
-                         begin
-                            DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN);
-               //             AdvanceToFinalState
-                         end;
-                     end;
-                   end;
-               end;
-             end;
+               RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
+               RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
+               RepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
+               RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := False;
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
+               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
+               WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias);
+               SendMessage(Owner, WorkerMessage);
+               Inc(FRepliedSearchCriterialCount);
+             end else
+               AdvanceToNextState;    // No more slots to hold results
+           end
+        end;
+       MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
+         begin
+            i := 0;
+            // find the right Node that this SNIP belongs to
+            while i < RepliedSearchCriterialCount do
+            begin
+              if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
+              begin
+                RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := True;
+                with RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP do
+                  SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(Version, RoadName, TrainClass, RoadNumber, TrainName, Manufacturer, Owner);
+              end;
+               Inc(i);
+            end;
          end;
-       end;
+    end;
+  end;
+
+
+  if Cancel then
+  begin
+    _NFinalStateCleanup(Sender, SourceMessage);
+    Exit;
+  end;
+
+  if TimeoutExpired then    // Times up, gather them up.....
+  begin
+    if RepliedSearchCriterialCount > 0 then
+    begin
+      if RepliedSearchCriterialCount = 1 then
+      begin
+        SelectedSearchResultIndex := 0;
+          // Atomic action no need for Reservation (Manage)
+        WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
+        SendMessage(Owner, WorkerMessage);
+        SetTimoutCountThreshold(5000); // 5 seconds to assign the train
+        AdvanceToNextState;
+      end else
+      begin
+        DoMultipleSearchResults;
+        if (SelectedSearchResultIndex < 0) or (SelectedSearchResultIndex > Length(RepliedSearchCriteria)-1) then
+          _NFinalStateCleanup(Sender, SourceMessage)    // out of bounds, just quit
+        else begin  // Reply the item at SelectedSearchResultIndex
+          WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
+          SendMessage(Owner, WorkerMessage);
+          SetTimoutCountThreshold(5000); // 5 seconds to assign the train
+          AdvanceToNextState;
+        end
+      end;
+    end else
+    begin // Found Nothing, just quit
+      DoNoSearchResults;
+      _NFinalStateCleanup(Sender, SourceMessage);
+    end;
+  end;
+end;
+
+function TLccAssignTrainAction._2ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  if Assigned(SourceMessage) then
+  begin // Only care if it is coming from our potental Train
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias) then
+    begin
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_CONTROLLER_CONFIG :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
+                       begin
+                         case SourceMessage.DataArray[2] of
+                           S_OK :
+                             begin
+                               DoAssignTrain;
+                                _NFinalStateCleanup(Sender, SourceMessage);
+                             end;
+                           TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+                             begin
+                                DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER);
+                                _NFinalStateCleanup(Sender,SourceMessage);
+                             end;
+                           TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
+                             begin
+                                DoAssignFailed(TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN);
+                                _NFinalStateCleanup(Sender, SourceMessage);
+                             end;
+                         end;
+                       end;
+                   end;
+                 end;
+             end;
+           end;
+      end;
+    end;
   end;
 
   if TimeoutExpired or Cancel then
-  begin
-    // Just in case
-    WorkerMessage.LoadTractionControllerRelease(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
-    SendMessage(Owner, WorkerMessage);
-    if not Cancel then
-      DoTimeoutExpired;
-   // AdvanceToFinalState;
+  begin // Just in case, can't hurt
+    if (SelectedSearchResultIndex > -1) and (SelectedSearchResultIndex < Length(FRepliedSearchCriteria)) then
+    begin
+      WorkerMessage.LoadTractionControllerRelease(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
+      SendMessage(Owner, WorkerMessage);
+    end;
+    _NFinalStateCleanup(Self, SourceMessage)
   end;
-end;
-
-function TLccAssignTrainAction._5ActionAssignTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-begin
-  Result := False;
-
-  DoAssignTrain;
-
-  UnRegisterSelf;
 end;
 
 procedure TLccAssignTrainAction.DoAssignFailed(ErrorCode: Byte);
@@ -412,15 +558,13 @@ end;
 
 procedure TLccAssignTrainAction.LoadStateArray;
 begin
-  SetStateArrayLength(6);
+  SetStateArrayLength(4);
   States[0] := @_0ReceiveFirstMessage;
   States[1] := @_1ActionWaitForSearchResults;
-  States[2] := @_2ActionShowUserSearchResults;
-  States[3] := @_3ActionSendAssignThrottle;
-  States[4] := @_4ActionWaitForAssignThrottleResult;
-  States[5] := @_5ActionAssignTrain;
+  States[2] := @_2ActionWaitForAssignThrottleResult;
+  States[3] := @_NFinalStateCleanup;
 
-  SetLength(FRepliedSearchCriteria, 20);  // 7 States
+  SetLength(FRepliedSearchCriteria, 20);  // 20 Results is enough
   FRepliedSearchCriterialCount := 0;
   FSelectedSearchResultIndex := -1;
 end;
@@ -430,35 +574,35 @@ end;
 
 procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
 var
-  SearchData: DWORD;
+  LocalSearchData: DWORD;
 begin
-  ClearAssignedTrain;
+ { ClearAssignedTrain;
   FAssignedTrain.RepliedSearchData := 0;
   FAssignedTrain.RequestedSearchData := 0;
   FAssignedTrain.SearchState := tssSearching;
-  SearchData := 0;
-  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, SearchData);
-  FAssignedTrain.RequestedSearchData := SearchData;
-  WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.RequestedSearchData);
-  SendMessageFunc(Self, WorkerMessage);
-  // Now wait for the Event Identified Messages
+  LocalSearchData := 0;
+  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, LocalSearchData);
+  FAssignedTrain.RequestedSearchData := LocalSearchData;
+
+  LccAssignTrainAction.RequestedSearchData := LocalSearchData;
+  LccActions.RegisterAction(Self, nil, LccAssignTrainAction);  }
 end;
 
 procedure TLccTrainController.ReleaseTrain;
 begin
-  if AssignedTrain.AttachedState = tasAssigned then
+{  if AssignedTrain.AttachedState = tasAssigned then
   begin
     FAssignedTrain.AttachedState := tasUnAssigning;
     FAssignedTrain.ReservedState := trsReserving;
     WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, True);
     SendMessageFunc(Self, WorkerMessage);
     // Wait for Result of Manage
-  end;
+  end;    }
 end;
 
 procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection);
 begin
-  FDirection := AValue;
+{  FDirection := AValue;
   if AssignedTrain.AttachedState = tasAssigned then
   begin
     if Direction = tdForward then
@@ -466,12 +610,12 @@ begin
     else
       WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, -Speed);
     SendMessageFunc(Self, WorkerMessage);
-  end;
+  end;  }
 end;
 
 procedure TLccTrainController.SetFunctions(Index: Integer; AValue: Word);
 begin
-  if (Index >= 0) and (Index < High(FunctionArray)) then
+ { if (Index >= 0) and (Index < High(FunctionArray)) then
   begin
     FFunctionArray[Index] := AValue;
     if AssignedTrain.AttachedState = tasAssigned then
@@ -479,12 +623,12 @@ begin
       WorkerMessage.LoadTractionSetFunction(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, Index, AValue);
       SendMessageFunc(Self, WorkerMessage);
     end;
-  end;
+  end;  }
 end;
 
 procedure TLccTrainController.SetSpeed(AValue: single);
 begin
-  FSpeed := Abs(AValue);
+ { FSpeed := Abs(AValue);
   if AssignedTrain.AttachedState = tasAssigned then
   begin
     if Direction = tdForward then
@@ -492,7 +636,7 @@ begin
     else
       WorkerMessage.LoadTractionSetSpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, -AValue);
     SendMessageFunc(Self, WorkerMessage);
-  end;
+  end;  }
 end;
 
 function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage): Boolean;
@@ -508,32 +652,7 @@ begin
       Exit;
   end;
 
-  // Event is global and unaddressed so it can come from anywhere so no check for Target yet
-  // The response here will give us our target.
-  case SourceMessage.MTI of
-    MTI_PRODUCER_IDENTIFIED_CLEAR,
-    MTI_PRODUCER_IDENTIFIED_SET,
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-      begin
-        // Note many results potentailly be returned this only grabs the first one
-        if FAssignedTrain.SearchState = tssSearching then
-        begin
-          if SourceMessage.TractionSearchIsEvent and EqualNode(SourceMessage.SourceID, SourceMessage.CAN.DestAlias, AssignedTrain.NodeID, AssignedTrain.AliasID) then
-          begin
-            // Look at the AssignedTrain.RepliedSearchData for what the train actually implemented
-            FAssignedTrain.RepliedSearchData := AssignedTrain.RepliedSearchData;
-            FAssignedTrain.NodeID := SourceMessage.SourceID;
-            FAssignedTrain.AliasID := SourceMessage.CAN.SourceAlias;
-            FAssignedTrain.ReservedState := trsReserving;
-            FAssignedTrain.SearchState := tssNotSearching;
-            WorkerMessage.LoadTractionManage(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
-            SendMessageFunc(Self, WorkerMessage);
-          end;
-        end;
-      end;
-  end;
-
-    // Only care if coming from our potential Target Train
+  // Only care if coming from our Assigned Train
   if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID) then
   begin
     case SourceMessage.MTI of
@@ -544,7 +663,7 @@ begin
               begin
                 case SourceMessage.DataArray[1] of
                   TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
-                  begin
+                  begin  // This message comes unannounced so it must be handled here, or an action that continousely monitors for it
                     AllowTakeover := True;
                     DoControllerTakeOver(AllowTakeover);
                     if AllowTakeover then
@@ -552,7 +671,7 @@ begin
                       ClearAssignedTrain;
                       WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True);
                       SendMessageFunc(Self, WorkerMessage);
-                      DoMessageCallback(ccbControllerUnassigned);
+                      DoTrainReleased;
                     end else
                     begin
                       WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False );
@@ -562,89 +681,7 @@ begin
                 end;
               end;
           end
-        end;
-      MTI_TRACTION_REPLY :
-        begin
-          case SourceMessage.DataArray[0] of
-            TRACTION_QUERY_SPEED_REPLY :
-              begin
-                DoQuerySpeed(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
-              end;
-            TRACTION_QUERY_FUNCTION_REPLY :
-              begin
-                DoQueryFunction(SourceMessage.TractionExtractFunctionAddress, SourceMessage.TractionExtractFunctionValue);
-              end;
-            TRACTION_MANAGE :
-              begin
-                case SourceMessage.DataArray[1] of
-                  TRACTION_MANAGE_RESERVE :
-                    begin
-                      case SourceMessage.DataArray[2] of
-                        TRACTION_MANAGE_RESERVE_REPLY_OK :
-                          begin
-                            if AssignedTrain.ReservedState = trsReserving then
-                            begin
-                              if AssignedTrain.AttachedState = tasUnAssigning then
-                              begin
-                                // This reserve was to Release the train
-                                WorkerMessage.LoadTractionControllerRelease(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, NodeID, AliasID);
-                                SendMessageFunc(Self, WorkerMessage);
-                                WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
-                                SendMessageFunc(Self, WorkerMessage);
-                                ClearAssignedTrain;
-                                DoMessageCallback(ccbControllerUnassigned);
-                              end else
-                              if AssignedTrain.AttachedState = tasNotAssigned then
-                              begin
-                                // This reserve was the Assign the train
-                                WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, NodeID, AliasID);
-                                SendMessageFunc(Self, WorkerMessage);
-                                FAssignedTrain.AttachedState := tasAssigning;
-                                FAssignedTrain.ReservedState := trsReserved;
-                              end;
-                            end
-                          end else
-                          begin
-                            DoMessageCallback(ccbReservedFail);
-                          end
-                      end;
-                    end;
-                end;
-              end;
-            TRACTION_CONTROLLER_CONFIG_REPLY :
-              begin
-                case SourceMessage.DataArray[1] of
-                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
-                    begin
-                      case SourceMessage.DataArray[2] of
-                        TRACTION_CONTROLLER_CONFIG_REPLY_OK :
-                          begin
-                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
-                            SendMessageFunc(Self, WorkerMessage);
-                            FAssignedTrain.ReservedState := trsNotReserved;
-                            FAssignedTrain.AttachedState := tasAssigned;
-                            DoMessageCallback(ccbControllerAssigned);
-                          end;
-                        TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
-                          begin
-                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
-                            SendMessageFunc(Self, WorkerMessage);
-                            ClearAssignedTrain;
-                            DoMessageCallback(ccbAssignFailControllerRefused);
-                          end;
-                        TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
-                          begin
-                            WorkerMessage.LoadTractionManage(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, False);
-                            SendMessageFunc(Self, WorkerMessage);
-                            ClearAssignedTrain;
-                            DoMessageCallback(ccbAssignFailTrainRefused);
-                          end;
-                      end;
-                    end;
-                end
-              end;
-          end;
-        end;
+        end
       end
   end;
 end;
@@ -661,10 +698,13 @@ end;
 procedure TLccTrainController.QuerySpeed;
 begin
   if IsTrainAssigned then
-  begin
-    WorkerMessage.LoadTractionQuerySpeed(NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID);
-    SendMessageFunc(Self, WorkerMessage);
-  end;
+    LccActions.RegisterAction(Self, nil, TLccQueryFunctionAction.Create(Self, NodeID, AliasID));
+end;
+
+constructor TLccTrainController.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
+begin
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
+  FLccAssignTrainAction := TLccAssignTrainAction.Create(Self, NodeID, AliasID);
 end;
 
 procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word;
@@ -694,15 +734,7 @@ begin
      ldss128     : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
   end;
 
-  ClearAssignedTrain;
-  FAssignedTrain.RequestedSearchData := 0;
-  FAssignedTrain.RepliedSearchData := 0;
-  FAssignedTrain.SearchState := tssSearching;
-  LocalSearchData := 0;
-  WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, LocalSearchData);
-  FAssignedTrain.RequestedSearchData := LocalSearchData;
-  WorkerMessage.LoadTractionSearch(NodeID, AliasID, AssignedTrain.RequestedSearchData);
-  SendMessageFunc(Self, WorkerMessage);
+  AssignTrainByOpenLCB(SearchString, TrackProtocolFlags);
 end;
 
 procedure TLccTrainController.BeforeLogin;
@@ -741,23 +773,29 @@ begin
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 end;
 
-procedure TLccTrainController.DoMessageCallback(AMessage: TControllerCallBackMessages);
+procedure TLccTrainController.DoTrainAssigned(Reason: TControllerTrainAssignResult);
 begin
-  if Assigned(OnMessageCallback) then
-    OnMessageCallBack(Self, AMessage);
+  if Assigned(OnTrainAssigned) then
+    OnTrainAssigned(Self, Reason);
 end;
 
-procedure TLccTrainController.DoQueryFunction(Address: DWORD; Value: Word);
+procedure TLccTrainController.DoTrainReleased;
 begin
-  if Assigned(OnQueryFunction) then
-    OnQueryFunction(Self, Address, Value);
+  if Assigned(OnTrainReleased) then
+    OnTrainReleased(Self);
 end;
 
-procedure TLccTrainController.DoQuerySpeed(ASetSpeed, ACommandSpeed,
+procedure TLccTrainController.DoQueryFunctionReply(Address: DWORD; Value: Word);
+begin
+  if Assigned(OnQueryFunctionReply) then
+    OnQueryFunctionReply(Self, Address, Value);
+end;
+
+procedure TLccTrainController.DoQuerySpeedReply(ASetSpeed, ACommandSpeed,
   AnActualSpeed: THalfFloat; Status: Byte);
 begin
-  if Assigned(OnQuerySpeed) then
-    OnQuerySpeed(Self, ASetSpeed, ACommandSpeed, AnActualSpeed, Status);
+  if Assigned(OnQuerySpeedReply) then
+    OnQuerySpeedReply(Self, ASetSpeed, ACommandSpeed, AnActualSpeed, Status);
 end;
 
 procedure TLccTrainController.EmergencyStop;
@@ -789,6 +827,16 @@ begin
   FAssignedTrain.SearchState := tssNotSearching;
   FAssignedTrain.Listeners := nil;
   {$ENDIF}
+end;
+
+destructor TLccTrainController.Destroy;
+begin
+  {$IFDEF GWSCRIPT}
+  LccAssignTrainAction.Free;
+  {$ELSE}
+  FreeAndNil(FLccAssignTrainAction);
+  {$ENDIF}
+  inherited Destroy;
 end;
 
 procedure TLccTrainController.DoControllerTakeOver(var Allow: Boolean);

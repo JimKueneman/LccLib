@@ -164,14 +164,20 @@ type
     procedure OnClientServer2ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 
     // The Controller is the Controller Node created in the NodeManager
+    procedure ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+    procedure ControllerTrainAssigned2(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+
+    procedure ControllerTrainReleased1(Sender: TLccNode);
+    procedure ControllerTrainReleased2(Sender: TLccNode);
+
     procedure Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
     procedure Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
 
-    procedure OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
-    procedure OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
 
-    procedure OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
-    procedure OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply2(Sender: TLccNode; Address: DWORD; Value: Word);
 
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
@@ -507,8 +513,8 @@ begin
         StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode1.OnMessageCallback := @Controller1Callback;
-        ControllerNode1.OnQuerySpeed := @OnControllerQuerySpeed1;
-        ControllerNode1.OnQueryFunction := @OnControllerQueryFunction1;
+        ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
+        ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
         PanelThrottleFace1.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -546,8 +552,8 @@ begin
         StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode2.OnMessageCallback := @Controller2Callback;
-        ControllerNode2.OnQuerySpeed := @OnControllerQuerySpeed2;
-        ControllerNode2.OnQueryFunction := @OnControllerQueryFunction2;
+        ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
+        ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
         PanelThrottleFace2.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -575,7 +581,66 @@ begin
   ButtonConnect2.Caption := 'Connect';
 end;
 
-procedure TForm1.OnControllerQueryFunction1(Sender: TLccNode; Address: DWORD; Value: Word);
+procedure TForm1.ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+begin
+  ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
+  Controller1State.QueryingSpeed := True;
+  Controller1State.QueryingFunctions := True;
+  Controller1State.FunctionQueryIndex := 0;
+  ControllerNode1.QuerySpeed;
+  ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
+end;
+
+procedure TForm1.ControllerTrainAssigned2(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+begin
+
+end;
+
+procedure TForm1.ControllerTrainReleased1(Sender: TLccNode);
+begin
+
+   case Reason of
+    ccbReservedFail :
+      begin
+        ShowMessage('Throttle 1: Reserve Failed');
+      end;
+    ccbAssignFailTrainRefused :
+      begin
+        ShowMessage('Throttle 1: Assign Failed: Train Refused');
+      end;
+    ccbAssignFailControllerRefused :
+      begin
+        ShowMessage('Throttle 1: Assign Failed: Currently Assigned Controller Refused');
+      end;
+    ccbControllerAssigned :
+      begin
+        if Controller1State.BuildingConsist then
+        begin
+      //    Controller1State.LastTreeNode;
+        end else
+        begin
+          ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
+          Controller1State.QueryingSpeed := True;
+          Controller1State.QueryingFunctions := True;
+          Controller1State.FunctionQueryIndex := 0;
+          ControllerNode1.QuerySpeed;
+          ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
+        end;
+      end;
+    ccbControllerUnassigned :
+      begin
+        PanelThrottleKeypad1.Enabled := False;
+      end;
+  end;
+
+end;
+
+procedure TForm1.ControllerTrainReleased2(Sender: TLccNode);
+begin
+
+end;
+
+procedure TForm1.OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
   if Controller1State.QueryingFunctions then
   begin
@@ -607,7 +672,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerQueryFunction2(Sender: TLccNode; Address: DWORD; Value: Word);
+procedure TForm1.OnControllerQueryFunctionReply2(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
   if Controller2State.QueryingFunctions then
   begin
@@ -641,7 +706,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerQuerySpeed1(Sender: TLccNode; SetSpeed,
+procedure TForm1.OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed,
   CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
 
@@ -663,7 +728,7 @@ begin
     PanelThrottleKeypad1.Enabled := True;
 end;
 
-procedure TForm1.OnControllerQuerySpeed2(Sender: TLccNode; SetSpeed,
+procedure TForm1.OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed,
   CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
 
@@ -770,17 +835,20 @@ procedure TForm1.ReleaseTrain1;
 var
   TickCount: QWord;
 begin
-  if ControllerNode1.AssignedTrain.AttachedState = tasAssigned then
+  if Assigned(ControllerNode1) then
   begin
-    ControllerNode1.ReleaseTrain;
-    TickCount := GetTickCount64;     // ~10ms resolution
-    // Hate this but don't know what else to do... need to get through this handshake
-    // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
-    while ControllerNode1.AssignedTrain.AttachedState <> tasNotAssigned do
+    if ControllerNode1.AssignedTrain.AttachedState = tasAssigned then
     begin
-      Application.ProcessMessages;
-      if GetTickCount64 > (TickCount + 5000) then
-        Break;
+      ControllerNode1.ReleaseTrain;
+      TickCount := GetTickCount64;     // ~10ms resolution
+      // Hate this but don't know what else to do... need to get through this handshake
+      // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
+      while ControllerNode1.AssignedTrain.AttachedState <> tasNotAssigned do
+      begin
+        Application.ProcessMessages;
+        if GetTickCount64 > (TickCount + 5000) then
+          Break;
+      end;
     end;
   end;
 end;
@@ -789,19 +857,22 @@ procedure TForm1.ReleaseTrain2;
 var
   TickCount: QWord;
 begin
-  if ControllerNode2.AssignedTrain.AttachedState = tasAssigned then
+  if Assigned(ControllerNode2) then
   begin
-    ControllerNode2.ReleaseTrain;
-    TickCount := GetTickCount64;     // ~10ms resolution
-    // Hate this but don't know what else to do... need to get through this handshake
-    // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
-    while ControllerNode2.AssignedTrain.AttachedState <> tasNotAssigned do
+    if ControllerNode2.AssignedTrain.AttachedState = tasAssigned then
     begin
-      Application.ProcessMessages;
-      if GetTickCount64 > (TickCount + 5000) then
-        Break;
+      ControllerNode2.ReleaseTrain;
+      TickCount := GetTickCount64;     // ~10ms resolution
+      // Hate this but don't know what else to do... need to get through this handshake
+      // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
+      while ControllerNode2.AssignedTrain.AttachedState <> tasNotAssigned do
+      begin
+        Application.ProcessMessages;
+        if GetTickCount64 > (TickCount + 5000) then
+          Break;
+      end;
     end;
-  end;
+  end
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);
