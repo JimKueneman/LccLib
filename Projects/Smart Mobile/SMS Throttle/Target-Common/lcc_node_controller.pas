@@ -239,8 +239,6 @@ type
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
 
   public
-    property LccAssignTrainAction: TLccAssignTrainAction read FLccAssignTrainAction write FLccAssignTrainAction;
-
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
     property Speed: single read FSpeed write SetSpeed;
     property Direction: TLccTrainDirection read FDirection write SetDirection;
@@ -252,8 +250,6 @@ type
     property OnQueryFunctionReply: TOnControllerQueryFunctionReply read FOnQueryFunctionReply write FOnQueryFunctionReply;
     property OnControllerRequestTakeover: TOnControllerRequestTakeover read FOnControllerRequestTakeover write FOnControllerRequestTakeover;
 
-    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
-    destructor Destroy; override;
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
@@ -323,9 +319,9 @@ end;
 procedure TLccQueryFunctionAction.LoadStateArray;
 begin
   SetStateArrayLength(3);
-  States[0] := @_0ReceiveFirstMessage;
-  States[1] := @_1ActionWaitForQueryFunctionResults;
-  States[2] := @_NFinalStateCleanup;
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForQueryFunctionResults;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 end;
 
 { TLccQuerySpeedAction }
@@ -363,9 +359,9 @@ end;
 procedure TLccQuerySpeedAction.LoadStateArray;
 begin
   SetStateArrayLength(3);
-  States[0] := @_0ReceiveFirstMessage;
-  States[1] := @_1ActionWaitForQuerySpeedResults;
-  States[2] := @_NFinalStateCleanup;
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForQuerySpeedResults;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 end;
 
 { TLccAssignTrainAction }
@@ -384,6 +380,13 @@ end;
 function TLccAssignTrainAction._1ActionWaitForSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   i: Integer;
+  TrainVersion: Byte;
+  TrainRoadName,
+  TrainClass,
+  TrainRoadNumber,
+  TrainName,
+  TrainManufacturer,
+  TrainOwner: string;
 begin
   Result := False;
 
@@ -402,17 +405,17 @@ begin
            begin
              if RepliedSearchCriterialCount < Length(RepliedSearchCriteria) then
              begin
-               RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
-               RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
-               RepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
-               RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := False;
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
-               RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].NodeID := SourceMessage.SourceID;
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias := SourceMessage.CAN.SourceAlias;
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].SearchData := SourceMessage.TractionSearchExtractSearchData;
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := False;
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
+               FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
                WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias);
                SendMessage(Owner, WorkerMessage);
                Inc(FRepliedSearchCriterialCount);
@@ -428,9 +431,23 @@ begin
             begin
               if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
               begin
-                RepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := True;
-                with RepliedSearchCriteria[RepliedSearchCriterialCount].STNIP do
-                  SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(Version, RoadName, TrainClass, RoadNumber, TrainName, Manufacturer, Owner);
+                // all this claptrap for SMS and var parameters....
+                TrainVersion := 0;
+                TrainRoadName := '';
+                TrainClass := '';
+                TrainRoadNumber := '';
+                TrainName := '';
+                TrainManufacturer := '';
+                TrainOwner := '';
+                SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].HasSTNIP := True;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Manufacturer := TrainManufacturer;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Owner := TrainOwner;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Roadname := TrainRoadName;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.RoadNumber := TrainRoadNumber;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := TrainClass;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := TrainName;
+                FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := TrainVersion;
               end;
                Inc(i);
             end;
@@ -544,10 +561,16 @@ begin
 end;
 
 procedure TLccAssignTrainAction.DoMultipleSearchResults;
+var
+  NewIndex: Integer;
 begin
-  FSelectedSearchResultIndex := 0;
+  // SMS claptrap
+  NewIndex := 0;
   if Assigned(OnMultipleSearchResults) then
-    OnMultipleSearchResults(Self, RepliedSearchCriteria, FSelectedSearchResultIndex);
+  begin
+    OnMultipleSearchResults(Self, RepliedSearchCriteria, NewIndex);
+    FSelectedSearchResultIndex := NewIndex;
+  end;
 end;
 
 procedure TLccAssignTrainAction.DoNoSearchResults;
@@ -559,10 +582,10 @@ end;
 procedure TLccAssignTrainAction.LoadStateArray;
 begin
   SetStateArrayLength(4);
-  States[0] := @_0ReceiveFirstMessage;
-  States[1] := @_1ActionWaitForSearchResults;
-  States[2] := @_2ActionWaitForAssignThrottleResult;
-  States[3] := @_NFinalStateCleanup;
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForSearchResults;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionWaitForAssignThrottleResult;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 
   SetLength(FRepliedSearchCriteria, 20);  // 20 Results is enough
   FRepliedSearchCriterialCount := 0;
@@ -697,14 +720,8 @@ end;
 
 procedure TLccTrainController.QuerySpeed;
 begin
-  if IsTrainAssigned then
-    LccActions.RegisterAction(Self, nil, TLccQueryFunctionAction.Create(Self, NodeID, AliasID));
-end;
-
-constructor TLccTrainController.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
-begin
-  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
-  FLccAssignTrainAction := TLccAssignTrainAction.Create(Self, NodeID, AliasID);
+//  if IsTrainAssigned then
+ //   LccActions.RegisterAction(Self, nil, TLccQueryFunctionAction.Create(Self, NodeID, AliasID));
 end;
 
 procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word;
@@ -822,21 +839,11 @@ begin
   FAssignedTrain.RequestedSearchData := 0;
   FAssignedTrain.RepliedSearchData := 0;
   FAssignedTrain.SearchString := '';
-  FAssignedTrain.ReservedState := trsNotReserved;
-  FAssignedTrain.AttachedState := tasNotAssigned;
-  FAssignedTrain.SearchState := tssNotSearching;
+ // FAssignedTrain.ReservedState := trsNotReserved;
+//  FAssignedTrain.AttachedState := tasNotAssigned;
+ // FAssignedTrain.SearchState := tssNotSearching;
   FAssignedTrain.Listeners := nil;
   {$ENDIF}
-end;
-
-destructor TLccTrainController.Destroy;
-begin
-  {$IFDEF GWSCRIPT}
-  LccAssignTrainAction.Free;
-  {$ELSE}
-  FreeAndNil(FLccAssignTrainAction);
-  {$ENDIF}
-  inherited Destroy;
 end;
 
 procedure TLccTrainController.DoControllerTakeOver(var Allow: Boolean);

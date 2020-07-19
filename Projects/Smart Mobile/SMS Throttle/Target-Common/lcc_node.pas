@@ -170,16 +170,16 @@ type
  TLccActionHub = class(TObject)
  private
    {$IFDEF DELPHI}
-    FLccActiveActions<TLccActions>: TObjectList;
+    FLccActiveActions: TObjectList<TLccAction>;
    {$ELSE}
     FLccActiveActions: TObjectList;
+   {$ENDIF}
     FOwner: TLccNode;
     FSendMessageFunc: TOnMessageEvent;
     FWorkerMessage: TLccMessage;
-   {$ENDIF}
  protected
    {$IFDEF DELPHI}
-   property LccActiveActions<TLccAction>: TObjectList read FLccActiveActions write FLccActiveActions;
+   property LccActiveActions: TObjectList<TLccAction> read FLccActiveActions write FLccActiveActions;
    {$ELSE}
    property LccActiveActions: TObjectList read FLccActiveActions write FLccActiveActions;
    {$ENDIF}
@@ -427,9 +427,9 @@ end;
 
 procedure TLccAction.LoadStateArray;
 begin
-  SetStateArrayLength(12);
-  States[0] := @_0ReceiveFirstMessage;
-  States[1] := @_NFinalStateCleanup
+  SetStateArrayLength(2);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 function TLccAction.ProcessMessage(SourceMessage: TLccMessage): Boolean;
@@ -488,9 +488,11 @@ begin
   {$IFDEF DELPHI}
   LccActiveActions := TObjectList<TLccAction>.Create;
   {$ELSE}
-  LccActiveActions := TObjectList.Create;
+   LccActiveActions := TObjectList.Create;
+   {$IFNDEF DWSCRIPT}
+   LccActiveActions.OwnsObjects := False;
+   {$ENDIF}
   {$ENDIF}
-  LccActiveActions.OwnsObjects := False;
 
   FWorkerMessage := TLccMessage.Create;
   FOwner := AnOwner;
@@ -512,11 +514,11 @@ end;
 destructor TLccActionHub.Destory;
 begin
   ClearActions;
-  {$IFNDEF GWSCRIPT}
+  {$IFNDEF DWSCRIPT}
   FreeAndNil(FLccActiveActions);
   FreeAndNil(FWorkerMessage);
   {$ELSE}
-  LccActions.Free;
+  LccActiveActions.Free;
   WorkerMessage.Free;
   {$ENDIF}
 end;
@@ -562,7 +564,13 @@ var
 begin
   i := LccActiveActions.IndexOf(AnAction);
   if i > -1 then
+  begin
+    {$IFDEF DWSCRIPT}
+    LccActiveActions.Remove(i);
+    {$ELSE}
     LccActiveActions.Delete(i);
+    {$ENDIF}
+  end;
 end;
 
 { TLccCanNode }

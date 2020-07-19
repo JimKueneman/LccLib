@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<ActiveMobileDevice>
-		<POSx iOSSimulator="_iossimulator_CDC0E966-0485-4967-AE4F-2F589BA5F507" iOSDevice64="" iOSDevice32=""/>
+		<POSx iOSSimulator="iPhone5" iOSDevice64="" iOSDevice32=""/>
 	</ActiveMobileDevice>
 	<Transactions>
     <Transaction>2020/06/26 19:49:06.000.023,\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\OpenLCBThrottle.dproj=\\vmware-host\Shared Folders\Documents\LccLib\Projects\Smart Mobile\SMS Throttle\Delphi\OpenLCBThrottle\TabbedApplication.dproj</Transaction>

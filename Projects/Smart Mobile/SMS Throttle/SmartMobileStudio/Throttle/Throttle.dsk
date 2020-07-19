@@ -1,8 +1,8 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="209" col="43" row="221" splitview="1" designview="1" splitter="0.584686774941995" />
-      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="35" col="1" row="41" splitview="1" designview="1" splitter="0.444702242846094" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="209" col="24" row="226" splitview="1" designview="1" splitter="0.584686774941995" />
+      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="29" col="1" row="41" splitview="1" designview="1" splitter="0.444702242846094" />
       <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="20" col="22" row="37" splitview="1" designview="1" splitter="0.444702242846094" />
       <tab filename="lcc_utilities" fullname="..\..\Target-Common\lcc_utilities.pas" topline="166" col="37" row="46" />
       <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="29" col="18" row="42" />
@@ -11,11 +11,12 @@
       <tab filename="Storage" fullname="Storage.pas" topline="1" col="1" row="1" />
       <tab filename="Unit1" fullname="Unit1.pas" topline="1" col="1" row="1" />
       <tab filename="Throttle" fullname="Throttle.spr" topline="1" col="61" row="14" />
-      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="109" col="67" row="132" />
+      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="895" col="19" row="909" />
       <tab filename="lcc_node_commandstation" fullname="..\..\Target-Common\lcc_node_commandstation.pas" topline="233" col="95" row="255" />
-      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="488" col="17" row="502" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="306" col="40" row="310" />
-      <activetab>TabSettingsForm</activetab>
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="559" col="39" row="569" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="827" col="4" row="844" />
+      <tab filename="SmartCL.Controls" fullname="C:\Users\Jim-Win10\Desktop\Smart Mobile Studio\RTL\SmartCL\Controls\SmartCL.Controls.pas" topline="1" col="3" row="13" />
+      <activetab>lcc_node</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -24,10 +25,10 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>5911</BackgroundCompilations>
-      <EditTime>T04:01:57.322</EditTime>
-      <CompileTime>T00:06:36.669</CompileTime>
-      <TotalTime>1900-01-24T02:52:10.385</TotalTime>
+      <BackgroundCompilations>5914</BackgroundCompilations>
+      <EditTime>T04:08:02.369</EditTime>
+      <CompileTime>T00:07:00.745</CompileTime>
+      <TotalTime>1900-01-24T03:04:57.632</TotalTime>
       <DesigningTime>T10:48:07.911</DesigningTime>
       <RunningTime>1900-01-03T13:43:38.766</RunningTime>
       <TotalLinesOfCode>615</TotalLinesOfCode>

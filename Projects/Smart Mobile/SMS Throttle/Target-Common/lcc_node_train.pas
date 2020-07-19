@@ -57,6 +57,37 @@ const
   // 128 step is a direct mapping with the high bit the direction
   const
   _28_STEP_TABLE: array[0..28] of Byte = (
+    {$IFNDEF FPC}
+    $00,    // Stop
+    $02,    // Step 1
+    $12,    // Step 2
+    $03,    // Step 3
+    $13,    // Step 4
+    $04,    // Step 5
+    $14,    // Step 6
+    $05,    // Step 7
+    $15,    // Step 8
+    $06,    // Step 9
+    $16,    // Step 10
+    $07,    // Step 11
+    $17,    // Step 12
+    $08,    // Step 13
+    $18,    // Step 14
+    $09,    // Step 15
+    $19,    // Step 16
+    $0A,    // Step 17
+    $1A,    // Step 18
+    $0B,    // Step 19
+    $1B,    // Step 20
+    $0C,    // Step 21
+    $1C,    // Step 22
+    $0D,    // Step 23
+    $1D,    // Step 24
+    $0E,    // Step 25
+    $1E,    // Step 26
+    $0F,    // Step 27
+    $0F     // Step 28
+    {$ELSE}
     %00000000,    // Stop
     %00000010,    // Step 1
     %00010010,    // Step 2
@@ -86,9 +117,27 @@ const
     %00011110,    // Step 26
     %00001111,    // Step 27
     %00011111     // Step 28
+    {$ENDIF}
   );
 
   _14_STEP_TABLE: array[0..14] of Byte = (
+    {$IFNDEF FPC}
+    $00,    // Stop
+    $02,    // Step 1
+    $03,    // Step 3
+    $04,    // Step 5
+    $05,    // Step 7
+    $06,    // Step 9
+    $07,    // Step 11
+    $08,    // Step 13
+    $09,    // Step 15
+    $0A,    // Step 17
+    $0B,    // Step 19
+    $0C,    // Step 21
+    $0D,    // Step 23
+    $0E,    // Step 25
+    $0F     // Step 27
+    {$ELSE}
     %00000000,    // Stop
     %00000010,    // Step 1
     %00000011,    // Step 3
@@ -104,6 +153,7 @@ const
     %00001101,    // Step 23
     %00001110,    // Step 25
     %00001111     // Step 27
+    {$ENDIF}
   );
 
 type
@@ -111,7 +161,7 @@ type
   // Implements the raw byte array that hold the NMRA DCC Message bytes
   // ***************************************************************************
   TDCCPacketBytesArray = array[0..MAX_NMRA_DCC_DATA-1] of Byte;
-  PDCCPacketBytesArray = ^TDCCPacketBytesArray;
+ // PDCCPacketBytesArray = ^TDCCPacketBytesArray;
 
 
   TDCCPacket = record
@@ -518,9 +568,9 @@ end;
 procedure TLccAssignTrainReplyAction.LoadStateArray;
 begin
   SetStateArrayLength(3);
-  States[0] := @_0ReceiveFirstMessage;
-  States[1] := @_1WaitForChangeNotify;
-  States[2] := @_2SendAssignReply;
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForChangeNotify;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2SendAssignReply;
 end;
 
 function TLccAssignTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -643,7 +693,7 @@ end;
 
 { TLccTrainCanNode }
 
-constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string);
+constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
   FLccAssignTrainReplyAction := TLccAssignTrainReplyAction.Create(Self, NodeID, AliasID);
@@ -745,27 +795,27 @@ begin
         FunctionMask := FunctionMask and not $10                                // Clear Bit 4
       else
         FunctionMask := FunctionMask or $10;                                    // Set Bit 4
-      FunctionMask := FunctionMask or %10000000;                                // Opcode bits
+      FunctionMask := FunctionMask or {$IFNDEF FPC}$80{$ELSE}%10000000{$ENDIF};                                // Opcode bits
     end else
     if FunctionAddress < 9 then
     begin
       FunctionMask := (AllDccFunctionBitsEncoded shr 5) and $0F;
-      FunctionMask := FunctionMask or %10110000;                                // Opcode bits
+      FunctionMask := FunctionMask or  {$IFNDEF FPC}$B0{$ELSE}%10110000{$ENDIF};                               // Opcode bits
     end else
     if FunctionAddress < 13 then
     begin
       FunctionMask := (AllDccFunctionBitsEncoded shr 9) and $0F;
-      FunctionMask := FunctionMask or %10100000;                                // Opcode bits
+      FunctionMask := FunctionMask or {$IFNDEF FPC}$A0{$ELSE}%10100000{$ENDIF};                               // Opcode bits
     end else
     if FunctionAddress < 21 then
     begin
       FunctionMask := AllDccFunctionBitsEncoded shr 13;
-      FunctionExtendedCode := %11011110
+      FunctionExtendedCode := {$IFNDEF FPC}$DE{$ELSE}%11011110{$ENDIF};
     end
   end else
   begin
     FunctionMask := AllDccFunctionBitsEncoded shr 21;
-    FunctionExtendedCode := %11011111
+    FunctionExtendedCode := {$IFNDEF FPC}$DF{$ELSE}%11011111{$ENDIF};
   end;
 
   // Now create the DCC Packet
@@ -848,7 +898,7 @@ begin
               Inc(LocalSpeedStep);   // 1 = EStop
             if IsForward then
               LocalSpeedStep := LocalSpeedStep or $80;
-            DccLoadPacket(Result, AddressHi, AddressLo, %00111111, LocalSpeedStep, 0, 4);
+            DccLoadPacket(Result, AddressHi, AddressLo, {$IFNDEF FPC}$3F{$ELSE}%00111111{$ENDIF}, LocalSpeedStep, 0, 4);
           end;
 
   end;
@@ -856,6 +906,15 @@ end;
 
 destructor TLccTrainCanNode.Destroy;
 begin
+  {$IFDEF DWSCRIPT}
+  FLccAssignTrainReplyAction.Free;
+  FLccEmergencyStopAction.Free;
+  FLccQueryFunctionTrainReplyAction.Free;
+  FLccQuerySpeedTrainReplyAction.Free;
+  FLccReleaseTrainAction.Free;
+  FLccSetFunctionTrainAction.Free;
+  FLccSetSpeedTrainAction.Free;
+  {$ELSE}
   FreeAndNil(FLccAssignTrainReplyAction);
   FreeAndNil(FLccEmergencyStopAction);
   FreeAndNil(FLccQueryFunctionTrainReplyAction);
@@ -863,6 +922,7 @@ begin
   FreeAndNil(FLccReleaseTrainAction);
   FreeAndNil(FLccSetFunctionTrainAction);
   FreeAndNil(FLccSetSpeedTrainAction);
+  {$ENDIF}
   inherited Destroy;
 end;
 
