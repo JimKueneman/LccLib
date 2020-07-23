@@ -316,29 +316,12 @@ type
     property ReserveWatchDogTimer: TLccTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
    private
      FAssignResult: Byte;
-     FLccAssignTrainReplyAction: TLccAssignTrainReplyAction;
-     FLccEmergencyStopAction: TLccEmergencyStopAction;
-     FLccQueryFunctionTrainReplyAction: TLccQueryFunctionTrainReplyAction;
-     FLccQuerySpeedTrainReplyAction: TLccQuerySpeedTrainReplyAction;
-     FLccQueryTrainAction: TLccQueryTrainAction;
-     FLccReleaseTrainAction: TLccReleaseTrainAction;
-     FLccSetFunctionTrainAction: TLccSetFunctionTrainAction;
-     FLccSetSpeedTrainAction: TLccSetSpeedTrainAction;
      FRequestingControllerAliasID: Word;
      FRequestingControllerNodeID: TNodeID;
    protected
      property AssignResult: Byte read FAssignResult write FAssignResult;
      property RequestingControllerNodeID: TNodeID read FRequestingControllerNodeID write FRequestingControllerNodeID;
      property RequestingControllerAliasID: Word read FRequestingControllerAliasID write FRequestingControllerAliasID;
-
-     property LccAssignTrainReplyAction: TLccAssignTrainReplyAction read FLccAssignTrainReplyAction write FLccAssignTrainReplyAction;
-     property LccReleaseTrainAction: TLccReleaseTrainAction read FLccReleaseTrainAction write FLccReleaseTrainAction;
-     property LccQueryTrainAction: TLccQueryTrainAction read FLccQueryTrainAction write FLccQueryTrainAction;
-     property LccQueryFunctionTrainReplyAction: TLccQueryFunctionTrainReplyAction read FLccQueryFunctionTrainReplyAction write FLccQueryFunctionTrainReplyAction;
-     property LccQuerySpeedTrainReplyAction: TLccQuerySpeedTrainReplyAction read FLccQuerySpeedTrainReplyAction write FLccQuerySpeedTrainReplyAction;
-     property LccSetSpeedTrainAction: TLccSetSpeedTrainAction read FLccSetSpeedTrainAction write FLccSetSpeedTrainAction;
-     property LccSetFunctionTrainAction: TLccSetFunctionTrainAction read FLccSetFunctionTrainAction write FLccSetFunctionTrainAction;
-     property LccEmergencyStopAction: TLccEmergencyStopAction read FLccEmergencyStopAction write FLccEmergencyStopAction;
 
     procedure ClearAttachedController;
     procedure OnReserveWatchDogTimer(Sender: TObject);
@@ -352,8 +335,6 @@ type
     function DccFunctionHandler(DccAddress: Word; LongAddress: Boolean; FunctionAddress: DWORD; AllDccFunctionBitsEncoded: DWORD): TDCCPacket;
     function DccSpeedDirHandler(DccAddress: Word; LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep): TDCCPacket;
     procedure DccLoadPacket(var NewMessage: TDCCPacket; Data1, Data2, Data3, Data4, Data5, ValidDataByes: Byte);
-
-
   public
 
     property DccAddress: Word read FDccAddress write SetDccAddress;
@@ -619,7 +600,7 @@ begin
   end else
     _2SendAssignReply(nil, nil);   // Something is wrong exit the statemachine
 
-  SetTimoutCountThreshold(100000, True);  // 10 seconds
+  SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT, True);
 end;
 
 function TLccAssignTrainReplyAction._1WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -643,8 +624,7 @@ begin
                        // TODO :  What would cause a TRAIN REFUSED?
                      end;
                      AdvanceToNextState;
-                       // Nothing to clock the next state so do it manually
-                     _2SendAssignReply(Sender, SourceMessage);
+                     _2SendAssignReply(Sender, SourceMessage);   // Nothing to clock the next state so do it manually
                    end;
                end;
              end;
@@ -696,14 +676,6 @@ end;
 constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
-  FLccAssignTrainReplyAction := TLccAssignTrainReplyAction.Create(Self, NodeID, AliasID);
-  FLccReleaseTrainAction :=  TLccReleaseTrainAction.Create(Self, NodeID, AliasID);
-  FLccQueryTrainAction :=  TLccQueryTrainAction.Create(Self, NodeID, AliasID);
-  FLccEmergencyStopAction :=  TLccEmergencyStopAction.Create(Self, NodeID, AliasID);
-  FLccQueryFunctionTrainReplyAction :=  TLccQueryFunctionTrainReplyAction.Create(Self, NodeID, AliasID);
-  FLccQuerySpeedTrainReplyAction := TLccQuerySpeedTrainReplyAction.Create(Self, NodeID, AliasID);
-  FLccSetFunctionTrainAction :=  TLccSetFunctionTrainAction.Create(Self, NodeID, AliasID);
-  FLccSetSpeedTrainAction := TLccSetSpeedTrainAction.Create(Self, NodeID, AliasID);
 end;
 
 procedure TLccTrainCanNode.BeforeLogin;
@@ -906,23 +878,6 @@ end;
 
 destructor TLccTrainCanNode.Destroy;
 begin
-  {$IFDEF DWSCRIPT}
-  FLccAssignTrainReplyAction.Free;
-  FLccEmergencyStopAction.Free;
-  FLccQueryFunctionTrainReplyAction.Free;
-  FLccQuerySpeedTrainReplyAction.Free;
-  FLccReleaseTrainAction.Free;
-  FLccSetFunctionTrainAction.Free;
-  FLccSetSpeedTrainAction.Free;
-  {$ELSE}
-  FreeAndNil(FLccAssignTrainReplyAction);
-  FreeAndNil(FLccEmergencyStopAction);
-  FreeAndNil(FLccQueryFunctionTrainReplyAction);
-  FreeAndNil(FLccQuerySpeedTrainReplyAction);
-  FreeAndNil(FLccReleaseTrainAction);
-  FreeAndNil(FLccSetFunctionTrainAction);
-  FreeAndNil(FLccSetSpeedTrainAction);
-  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -1010,17 +965,17 @@ begin
     MTI_TRACTION_REQUEST :
       begin
         case SourceMessage.DataArray[0] of
-          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAction(Self, SourceMessage, LccSetSpeedTrainAction);
-          TRACTION_FUNCTION        : Result := LccActions.RegisterAction(Self, SourceMessage, LccSetFunctionTrainAction);
-          TRACTION_E_STOP          : Result := LccActions.RegisterAction(Self, SourceMessage, LccEmergencyStopAction);
-          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAction(Self, SourceMessage, LccQuerySpeedTrainReplyAction);
-          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAction(Self, SourceMessage, LccQueryFunctionTrainReplyAction);
+          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAction(Self, SourceMessage, TLccSetSpeedTrainAction.Create(Self, NodeID, AliasID));
+          TRACTION_FUNCTION        : Result := LccActions.RegisterAction(Self, SourceMessage, TLccSetFunctionTrainAction.Create(Self, NodeID, AliasID));
+          TRACTION_E_STOP          : Result := LccActions.RegisterAction(Self, SourceMessage, TLccEmergencyStopAction.Create(Self, NodeID, AliasID));
+          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQuerySpeedTrainReplyAction.Create(Self, NodeID, AliasID));
+          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQueryFunctionTrainReplyAction.Create(Self, NodeID, AliasID));
           TRACTION_CONTROLLER_CONFIG :
             begin
               case SourceMessage.DataArray[1] of
-                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAction(Self, SourceMessage, LccAssignTrainReplyAction);
-                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAction(Self, SourceMessage, LccReleaseTrainAction);
-                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAction(Self, SourceMessage, LccQueryTrainAction);
+                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccAssignTrainReplyAction.Create(Self, NodeID, AliasID));
+                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAction(Self, SourceMessage, TLccReleaseTrainAction.Create(Self, NodeID, AliasID));
+                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQueryTrainAction.Create(Self, NodeID, AliasID));
                end
             end;
           TRACTION_LISTENER :

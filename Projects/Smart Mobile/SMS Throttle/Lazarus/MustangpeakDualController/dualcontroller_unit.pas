@@ -13,10 +13,7 @@ uses
 type
 
   TControllerState = record
-    QueryingSpeed,
-    QueryingFunctions,
     BuildingConsist: Boolean;
-    FunctionQueryIndex: Integer;
     LastTreeNode: TTreeNode;
   end;
 
@@ -170,9 +167,6 @@ type
     procedure ControllerTrainReleased1(Sender: TLccNode);
     procedure ControllerTrainReleased2(Sender: TLccNode);
 
-    procedure Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
-    procedure Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
-
     procedure OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
 
@@ -181,6 +175,9 @@ type
 
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
+
+    procedure OnControllerSearchResult1(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -233,10 +230,10 @@ end;
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 var
   EthernetRec: TLccEthernetRec;
+  i: Integer;
 begin
   if ClientServer1.Connected then
   begin
-    ReleaseTrain1;
     ClientServer1.CloseConnection(nil);
   end else
   begin
@@ -256,7 +253,6 @@ var
 begin
   if ClientServer2.Connected then
   begin
-    ReleaseTrain2;
     ClientServer2.CloseConnection(nil);
   end else
   begin
@@ -407,12 +403,18 @@ var
 begin
   if Assigned(ControllerNode1) then
   begin
-    ReleaseTrain1;
-    // We will get a notification callback when the controller is assigned (or refused)
-    if TryStrToInt(EditThrottleAddress1.Text, DccAddress) then
-      ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps1.ItemIndex + 1))
-    else
-      ShowMessage('Invalid Address');
+    if ControllerNode1.IsTrainAssigned then
+    begin
+      ReleaseTrain1;
+      SpeedButtonThrottleAssign1.Caption := 'Allocate Train';
+    end else
+    begin
+      // We will get a notification callback when the controller is assigned (or refused)
+      if TryStrToInt(EditThrottleAddress1.Text, DccAddress) then
+        ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps1.ItemIndex + 1))
+      else
+        ShowMessage('Invalid Address');
+    end;
   end;
 end;
 
@@ -422,12 +424,18 @@ var
 begin
   if Assigned(ControllerNode2) then
   begin
-    ReleaseTrain2;
-    // We will get a notification callback when the controller is assigned (or refused)
-    if TryStrToInt(EditThrottleAddress2.Text, DccAddress) then
-      ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps2.ItemIndex + 1))
-    else
-      ShowMessage('Invalid Address');
+    if ControllerNode2.IsTrainAssigned then
+    begin
+      ReleaseTrain2;
+      SpeedButtonThrottleAssign2.Caption := 'Allocate Train';
+    end else
+    begin
+      // We will get a notification callback when the controller is assigned (or refused)
+      if TryStrToInt(EditThrottleAddress2.Text, DccAddress) then
+        ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps2.ItemIndex + 1))
+      else
+        ShowMessage('Invalid Address');
+    end;
   end;
 end;
 
@@ -512,9 +520,12 @@ begin
         ButtonConnect1.Caption := 'Disconnect';
         StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-        ControllerNode1.OnMessageCallback := @Controller1Callback;
+        ControllerNode1.OnTrainAssigned := @ControllerTrainAssigned1;
+        ControllerNode1.OnTrainReleased := @ControllerTrainReleased1;
+        ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
         ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
         ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
+        ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
         PanelThrottleFace1.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -551,9 +562,12 @@ begin
         ButtonConnect2.Caption := 'Disconnect';
         StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
         ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-        ControllerNode2.OnMessageCallback := @Controller2Callback;
+        ControllerNode2.OnTrainAssigned := @ControllerTrainAssigned2;
+        ControllerNode2.OnTrainReleased := @ControllerTrainReleased2;
+        ControllerNode2.OnControllerRequestTakeover := @OnControllerReqestTakeover2;
         ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
         ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
+        ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
         PanelThrottleFace2.Enabled := True;
       end;
     ccsClientDisconnecting :
@@ -583,102 +597,71 @@ end;
 
 procedure TForm1.ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
 begin
-  ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
-  Controller1State.QueryingSpeed := True;
-  Controller1State.QueryingFunctions := True;
-  Controller1State.FunctionQueryIndex := 0;
-  ControllerNode1.QuerySpeed;
-  ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
+  case Reason of
+    tarAssigned :
+      begin
+        ControllerNode1.QuerySpeed;
+        ControllerNode1.QueryFunctions;
+        PanelThrottleKeypad1.Enabled := True;
+        SpeedButtonThrottleAssign1.Caption := 'Release Train';
+      end;
+    tarFailTrainRefused      : ShowMessage('Train refused assignment to controller');
+    tarFailControllerRefused : ShowMessage('Current controller refused to release train');
+  else
+    ShowMessage('Unknown ControllerTrainAssigned1 result');
+  end;
 end;
 
 procedure TForm1.ControllerTrainAssigned2(Sender: TLccNode; Reason: TControllerTrainAssignResult);
 begin
-
+  case Reason of
+    tarAssigned :
+      begin
+        ControllerNode2.QuerySpeed;
+        ControllerNode2.QueryFunctions;
+        PanelThrottleKeypad2.Enabled := True;
+        SpeedButtonThrottleAssign2.Caption := 'Release Train';
+      end;
+    tarFailTrainRefused      : ShowMessage('Train refused assignment to controller');
+    tarFailControllerRefused : ShowMessage('Current controller refused to release train');
+  else
+    ShowMessage('Unknown ControllerTrainAssigned2 result');
+  end;
 end;
 
 procedure TForm1.ControllerTrainReleased1(Sender: TLccNode);
 begin
-
-   case Reason of
-    ccbReservedFail :
-      begin
-        ShowMessage('Throttle 1: Reserve Failed');
-      end;
-    ccbAssignFailTrainRefused :
-      begin
-        ShowMessage('Throttle 1: Assign Failed: Train Refused');
-      end;
-    ccbAssignFailControllerRefused :
-      begin
-        ShowMessage('Throttle 1: Assign Failed: Currently Assigned Controller Refused');
-      end;
-    ccbControllerAssigned :
-      begin
-        if Controller1State.BuildingConsist then
-        begin
-      //    Controller1State.LastTreeNode;
-        end else
-        begin
-          ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
-          Controller1State.QueryingSpeed := True;
-          Controller1State.QueryingFunctions := True;
-          Controller1State.FunctionQueryIndex := 0;
-          ControllerNode1.QuerySpeed;
-          ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
-        end;
-      end;
-    ccbControllerUnassigned :
-      begin
-        PanelThrottleKeypad1.Enabled := False;
-      end;
-  end;
-
+  PanelThrottleKeypad1.Enabled := False;
 end;
 
 procedure TForm1.ControllerTrainReleased2(Sender: TLccNode);
 begin
-
+  PanelThrottleKeypad2.Enabled := False;
 end;
 
 procedure TForm1.OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
-  if Controller1State.QueryingFunctions then
-  begin
-    ControllerNode1.Functions[Address] := Value;
-    case Controller1State.FunctionQueryIndex of
-      0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
-      1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
-      2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
-      3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
-      4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
-      5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
-      6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
-      7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
-      8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
-      9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
-      10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
-      11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
-    end;
-    Controller1State.FunctionQueryIndex := Controller1State.FunctionQueryIndex + 1;
-    if Controller1State.FunctionQueryIndex < 12 then
-    begin
-      ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex)
-    end else
-    begin
-      Controller1State.QueryingFunctions := False;
-      if not Controller1State.QueryingSpeed then
-        PanelThrottleKeypad1.Enabled := True;
-    end;
+  ControllerNode1.Functions[Address] := Value;
+  case Address of
+    0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
+    1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
+    2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
+    3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
+    4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
+    5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
+    6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
+    7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
+    8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
+    9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
+    10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
+    11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
   end;
 end;
 
 procedure TForm1.OnControllerQueryFunctionReply2(Sender: TLccNode; Address: DWORD; Value: Word);
 begin
-  if Controller2State.QueryingFunctions then
-  begin
     ControllerNode2.Functions[Address] := Value;
-
-    case Controller2State.FunctionQueryIndex of
+    case Address of
      0 : begin if Value = 0 then SpeedButtonFunction12.ImageIndex := 0 else SpeedButtonFunction12.ImageIndex := 1; end;
      1 : begin if Value = 0 then SpeedButtonFunction13.ImageIndex := 0 else SpeedButtonFunction13.ImageIndex := 1; end;
      2 : begin if Value = 0 then SpeedButtonFunction14.ImageIndex := 0 else SpeedButtonFunction14.ImageIndex := 1; end;
@@ -692,26 +675,11 @@ begin
      10 : begin if Value = 0 then SpeedButtonFunction22.ImageIndex := 0 else SpeedButtonFunction22.ImageIndex := 1; end;
      11 : begin if Value = 0 then SpeedButtonFunction23.ImageIndex := 0 else SpeedButtonFunction23.ImageIndex := 1; end;
     end;
-
-    Controller2State.FunctionQueryIndex := Controller2State.FunctionQueryIndex + 1;
-    if Controller2State.FunctionQueryIndex < 12 then
-    begin
-      ControllerNode2.QueryFunction(Controller2State.FunctionQueryIndex)
-    end else
-    begin
-      Controller2State.QueryingFunctions := False;
-      if not Controller2State.QueryingSpeed then
-        PanelThrottleKeypad2.Enabled := True;
-    end;
-  end;
 end;
 
-procedure TForm1.OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed,
-  CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+procedure TForm1.OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
-
   TrackBarThrottle1.Position := Abs( Round(HalfToFloat(SetSpeed)));
-  Controller1State.QueryingSpeed := False;
 
   if HalfIsNegative(SetSpeed) then
   begin
@@ -722,18 +690,11 @@ begin
     SpeedButtonForward1.ImageIndex := 2;
     SpeedButtonReverse1.ImageIndex := -1;
   end;
-
-
-  if not Controller1State.QueryingFunctions then
-    PanelThrottleKeypad1.Enabled := True;
 end;
 
-procedure TForm1.OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed,
-  CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+procedure TForm1.OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
-
   TrackBarThrottle2.Position := Abs( Round(HalfToFloat(SetSpeed)));
-  Controller2State.QueryingSpeed := False;
 
   if HalfIsNegative(SetSpeed) then
   begin
@@ -744,9 +705,6 @@ begin
     SpeedButtonForward2.ImageIndex := 2;
     SpeedButtonReverse2.ImageIndex := -1;
   end;
-
-  if not Controller2State.QueryingFunctions then
-     PanelThrottleKeypad2.Enabled := True;
 end;
 
 procedure TForm1.OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
@@ -761,118 +719,36 @@ begin
     Allow :=  FormThrottleTakeover.ShowModal = mrYes
 end;
 
-procedure TForm1.Controller1Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
+procedure TForm1.OnControllerSearchResult1(Sender: TLccAssignTrainAction;
+  Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
 begin
-  case Reason of
-    ccbReservedFail :
-      begin
-        ShowMessage('Throttle 1: Reserve Failed');
-      end;
-    ccbAssignFailTrainRefused :
-      begin
-        ShowMessage('Throttle 1: Assign Failed: Train Refused');
-      end;
-    ccbAssignFailControllerRefused :
-      begin
-        ShowMessage('Throttle 1: Assign Failed: Currently Assigned Controller Refused');
-      end;
-    ccbControllerAssigned :
-      begin
-        if Controller1State.BuildingConsist then
-        begin
-      //    Controller1State.LastTreeNode;
-        end else
-        begin
-          ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
-          Controller1State.QueryingSpeed := True;
-          Controller1State.QueryingFunctions := True;
-          Controller1State.FunctionQueryIndex := 0;
-          ControllerNode1.QuerySpeed;
-          ControllerNode1.QueryFunction(Controller1State.FunctionQueryIndex);
-        end;
-      end;
-    ccbControllerUnassigned :
-      begin
-        PanelThrottleKeypad1.Enabled := False;
-      end;
+  if Length(Results) = 0 then ShowMessage('No Search Results');
+  if Length(Results) > 1 then
+  begin
+    ShowMessage('Multiple Search Results: Please Select');
   end;
 end;
 
-procedure TForm1.Controller2Callback(Sender: TLccNode; Reason: TControllerCallBackMessages);
+procedure TForm1.OnControllerSearchResult2(Sender: TLccAssignTrainAction;
+  Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
 begin
-  case Reason of
-    ccbReservedFail :
-      begin
-        ShowMessage('Throttle 2: Reserve Failed');
-      end;
-    ccbAssignFailTrainRefused :
-      begin
-        ShowMessage('Throttle 2: Assign Failed: Train Refused');
-      end;
-    ccbAssignFailControllerRefused :
-      begin
-        ShowMessage('Throttle 2: Assign Failed: Currently Assigned Controller Refused');
-      end;
-    ccbControllerAssigned :
-      begin
- //       ShowMessage('Throttle 2: Assigned!');
-        ControllerNode2.OnControllerRequestTakeover := @OnControllerReqestTakeover2;
-        Controller2State.QueryingSpeed := True;
-        Controller2State.QueryingFunctions := True;
-        Controller2State.FunctionQueryIndex := 0;
-        ControllerNode2.QuerySpeed;
-        ControllerNode2.QueryFunction(Controller2State.FunctionQueryIndex);
-      end;
-    ccbControllerUnassigned :
-      begin
- //       ShowMessage('Throttle 2: Unassigned!');
-        PanelThrottleKeypad2.Enabled := False;
-      end;
+  if Length(Results) = 0 then ShowMessage('No Search Results');
+  if Length(Results) > 1 then
+  begin
+    ShowMessage('Multiple Search Results: Please Select');
   end;
 end;
 
 procedure TForm1.ReleaseTrain1;
-var
-  TickCount: QWord;
 begin
   if Assigned(ControllerNode1) then
-  begin
-    if ControllerNode1.AssignedTrain.AttachedState = tasAssigned then
-    begin
-      ControllerNode1.ReleaseTrain;
-      TickCount := GetTickCount64;     // ~10ms resolution
-      // Hate this but don't know what else to do... need to get through this handshake
-      // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
-      while ControllerNode1.AssignedTrain.AttachedState <> tasNotAssigned do
-      begin
-        Application.ProcessMessages;
-        if GetTickCount64 > (TickCount + 5000) then
-          Break;
-      end;
-    end;
-  end;
+    ControllerNode1.ReleaseTrain;
 end;
 
 procedure TForm1.ReleaseTrain2;
-var
-  TickCount: QWord;
 begin
   if Assigned(ControllerNode2) then
-  begin
-    if ControllerNode2.AssignedTrain.AttachedState = tasAssigned then
-    begin
-      ControllerNode2.ReleaseTrain;
-      TickCount := GetTickCount64;     // ~10ms resolution
-      // Hate this but don't know what else to do... need to get through this handshake
-      // Pump the messages waiting for the Train to respond with a release result in the Controller Callback
-      while ControllerNode2.AssignedTrain.AttachedState <> tasNotAssigned do
-      begin
-        Application.ProcessMessages;
-        if GetTickCount64 > (TickCount + 5000) then
-          Break;
-      end;
-    end;
-  end
+    ControllerNode2.ReleaseTrain;
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);

@@ -60,6 +60,8 @@ uses
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
 
+  TIMEOUT_CONTROLLER_NOTIFY_WAIT = 2500;
+
 const
 
  CDI_XML: string = (
@@ -149,7 +151,7 @@ type
    property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
 
    constructor Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
-   destructor Destory;
+   destructor Destroy; override;
 
    // Set the index to the next function that will be pointed to in the States array
    function AdvanceToNextState(JumpCount: Integer = 1): Integer;
@@ -171,8 +173,10 @@ type
  private
    {$IFDEF DELPHI}
     FLccActiveActions: TObjectList<TLccAction>;
+    FLccCompletedActions: TObjectList<TLccAction>;
    {$ELSE}
     FLccActiveActions: TObjectList;
+    FLccCompletedActions: TObjectList;
    {$ENDIF}
     FOwner: TLccNode;
     FSendMessageFunc: TOnMessageEvent;
@@ -180,8 +184,10 @@ type
  protected
    {$IFDEF DELPHI}
    property LccActiveActions: TObjectList<TLccAction> read FLccActiveActions write FLccActiveActions;
+   property LccCompletedActions: TObjectList<TLccAction> read FLccCompletedActions write FLccCompletedActions;
    {$ELSE}
    property LccActiveActions: TObjectList read FLccActiveActions write FLccActiveActions;
+   property LccCompletedActions: TObjectList read FLccCompletedActions write FLccCompletedActions;
    {$ENDIF}
    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc write FSendMessageFunc;
@@ -193,10 +199,11 @@ type
    destructor Destory;
 
    procedure ClearActions;
+   procedure ClearCompletedActions;
    function ProcessMessage(SourceMessage: TLccMessage): Boolean;
    function RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction): Boolean; overload;
    function RegisterAction(ANode: TLccNode; ATargetNodeID: TNodeID; ATargetAliasID: Word; AnAction: TLccAction): Boolean; overload;
-   procedure UnregisterAction(AnAction: TLccAction);
+   procedure UnregisterActionAndMarkForFree(AnAction: TLccAction);
  end;
 
 
@@ -369,6 +376,7 @@ type
 
 var
   InprocessMessageAllocated: Integer = 0;
+  ActionObjectsAllocated: Integer = 0;
 
 implementation
 
@@ -380,10 +388,12 @@ uses
 constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID;
   AnAliasID: Word);
 begin
+  Inc(ActionObjectsAllocated);
   FOwner := AnOwner;;
   WorkerMessage := TLccMessage.Create;
   FNodeID := ANodeID;
   FAliasID := AnAliasID;
+  SetTimoutCountThreshold(5000);  // Default 5 seconds
   LoadStateArray;
 end;
 
@@ -393,13 +403,15 @@ begin
   Result := FActionStateIndex;
 end;
 
-destructor TLccAction.Destory;
+destructor TLccAction.Destroy;
 begin
+  Dec(ActionObjectsAllocated);
   {$IFDEF DWSCRIPT}
   WorkerMessage.Free;
   {$ELSE}
-  FreeAndNil(FWorkerMessage)
+  FreeAndNil(FWorkerMessage);
   {$ENDIF}
+  inherited Destroy;
 end;
 
 procedure TLccAction.DoTimeoutExpired;
@@ -414,8 +426,6 @@ begin
   FActionStateIndex := 0;
   if Assigned(SourceMessage) then
     AssignTargetNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias)
-  else
-    AssignTargetNode(NULL_NODE_ID, 0)
 end;
 
 function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -465,7 +475,7 @@ end;
 procedure TLccAction.UnRegisterSelf;
 begin
   if Assigned(ActionHub) then
-    ActionHub.UnregisterAction(Self);
+    ActionHub.UnregisterActionAndMarkForFree(Self);
 end;
 
 function TLccAction.TimeoutExpired: Boolean;
@@ -487,10 +497,13 @@ constructor TLccActionHub.Create(AnOwner: TLccNode;
 begin
   {$IFDEF DELPHI}
   LccActiveActions := TObjectList<TLccAction>.Create;
+  LccCompletedActions := TObjectList<TLccAction>.Create;
   {$ELSE}
    LccActiveActions := TObjectList.Create;
+   LccCompletedActions := TObjectList.Create;
    {$IFNDEF DWSCRIPT}
    LccActiveActions.OwnsObjects := False;
+   LccCompletedActions.OwnsObjects := False;
    {$ENDIF}
   {$ENDIF}
 
@@ -511,14 +524,29 @@ begin
   end;
 end;
 
+procedure TLccActionHub.ClearCompletedActions;
+var
+  i: Integer;
+begin
+  try
+    for i := 0 to LccCompletedActions.Count - 1 do
+       LccCompletedActions[I].Free;
+  finally
+    LccCompletedActions.Clear;
+  end;
+end;
+
 destructor TLccActionHub.Destory;
 begin
   ClearActions;
+  ClearCompletedActions;
   {$IFNDEF DWSCRIPT}
   FreeAndNil(FLccActiveActions);
+  FreeAndNil(FLccCompletedActions);
   FreeAndNil(FWorkerMessage);
   {$ELSE}
   LccActiveActions.Free;
+  LccCompletedActions.Free;
   WorkerMessage.Free;
   {$ENDIF}
 end;
@@ -527,7 +555,7 @@ function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   i: Integer;
 begin
-  for i := 0 to LccActiveActions.Count - 1 do
+  for i := LccActiveActions.Count - 1 downto 0 do     // May removed some items during the call
     Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
 end;
 
@@ -545,9 +573,11 @@ end;
 
 function TLccActionHub.RegisterAction(ANode: TLccNode; ATargetNodeID: TNodeID; ATargetAliasID: Word; AnAction: TLccAction): Boolean;
 begin
+  Result := True;
   // Dummy message just to load the NodeIDs
-  WorkerMessage.LoadTractionManage(ANode.NodeID, (ANode as TLccCanNode).AliasID, ATargetNodeID, ATargetAliasID, False);
-  RegisterAction(ANode, WorkerMessage, AnAction);
+  AnAction.TargetNodeID := ATargetNodeID;
+  AnAction.TargetAliasID := ATargetAliasID;
+  RegisterAction(ANode, nil, AnAction);
 end;
 
 procedure TLccActionHub.TimeTick;
@@ -555,16 +585,22 @@ var
   i: Integer;
 begin
   for i := LccActiveActions.Count - 1 downto 0  do
-    (LccActiveActions[i] as TLccAction).TimeTick
+  begin
+    (LccActiveActions[i] as TLccAction).TimeTick;
+    ClearCompletedActions;
+  end;
 end;
 
-procedure TLccActionHub.UnregisterAction(AnAction: TLccAction);
+procedure TLccActionHub.UnregisterActionAndMarkForFree(AnAction: TLccAction);
 var
   i: Integer;
 begin
   i := LccActiveActions.IndexOf(AnAction);
   if i > -1 then
   begin
+    // Move to the Completed pile to be freed
+    LccCompletedActions.Add( LccActiveActions[i]);
+    // Take it out of the Active Pile
     {$IFDEF DWSCRIPT}
     LccActiveActions.Remove(i);
     {$ELSE}
@@ -827,6 +863,7 @@ begin
   begin
     // Normal message loop once successfully allocating an Alias
 
+    (*
     if SourceMessage.CAN.IsMultiFrame and SourceMessage.DestinationMatchs(AliasID, NodeID) then
     begin
       // This a a multi frame CAN message addressed to us that may need assembling into a fully qualified message before using
@@ -984,7 +1021,7 @@ begin
           end
         end
       end
-    end;
+    end;       *)
 
     TestNodeID[0] := 0;
     TestNodeID[1] := 0;

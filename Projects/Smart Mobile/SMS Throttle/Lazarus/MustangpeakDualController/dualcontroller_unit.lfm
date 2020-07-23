@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 389
+  Left = 210
   Height = 633
-  Top = 51
+  Top = 40
   Width = 703
   BorderStyle = bsSingle
   Caption = 'Form1'
@@ -155,7 +155,7 @@ object Form1: TForm1
           Height = 28
           Top = 32
           Width = 104
-          Caption = 'Assign Train'
+          Caption = 'Allocate Train'
           OnClick = SpeedButtonThrottleAssign1Click
         end
         object CheckBoxThrottleTakeover1: TCheckBox
@@ -623,7 +623,7 @@ object Form1: TForm1
           Height = 28
           Top = 32
           Width = 104
-          Caption = 'Assign Train'
+          Caption = 'Allocate Train'
           OnClick = SpeedButtonThrottleAssign2Click
         end
         object CheckBoxThrottleTakeover2: TCheckBox
