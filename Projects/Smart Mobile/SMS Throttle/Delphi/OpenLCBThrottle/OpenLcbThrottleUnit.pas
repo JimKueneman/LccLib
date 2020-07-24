@@ -25,6 +25,7 @@ uses
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
+  lcc_node_controller,
   lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
   System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
   Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope;
@@ -183,31 +184,48 @@ type
     procedure TabItemNodeClick(Sender: TObject);
     procedure SpeedButtonAddTrainClick(Sender: TObject);
     procedure ButtonAddTrainAddClick(Sender: TObject);
+    procedure ListViewTrainsChange(Sender: TObject);
+    procedure ListViewTrainsItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
   private
-    FCanNodeManager: TLccCanNodeManager;
+    FNodeManager: TLccCanNodeManager;
     FEthernetServer: TLccEthernetServer;
     FEthernetClient: TLccEthernetClient;
     FOpenLcbSettings: TOpenLcbSettings;
     FNodeID: string;
     FNodeAlias: string;
+    FControllerNode: TLccTrainController;
     { Private declarations }
   protected
-    procedure OnConnectionStateChangeClient(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnConnectionStateChangeServer(Sender: TObject; EthernetRec: TLccEthernetRec);
+    // Client/Server Callbacks
+    procedure OnClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnClientErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 
-    procedure NodeIDChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
-    procedure NodeAliasChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
-    procedure NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
-    procedure NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
-    procedure NodeInitializationCompleteCallback(Sender: TObject; LccSourceNode: TLccNode);
-    procedure NodeSendMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure NodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+    // Node Manager Callbacks
+    procedure OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerNodeDestroy(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerNodeInitializationComplete(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+
+    // The Controller is the Controller Node created in the NodeManager
+    procedure OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+    procedure OnControllerTrainReleased(Sender: TLccNode);
+    procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
+    procedure OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+
+    procedure ReleaseTrain;
 
   public
     { Public declarations }
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
     property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
-    property CanNodeManager: TLccCanNodeManager read FCanNodeManager write FCanNodeManager;
+    property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
+    property ControllerNode: TLccTrainController read FControllerNode write FControllerNode; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
 
     property OpenLcbSettings: TOpenLcbSettings read FOpenLcbSettings write FOpenLcbSettings;
 
@@ -291,9 +309,9 @@ var
 begin
   lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
-  if CanNodeManager.Nodes.Count = 0 then
+  if NodeManager.Nodes.Count = 0 then
   begin
-    CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
+    CanNode := NodeManager.AddNode(CDI_XML) as TLccCanNode;
 
     CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
@@ -340,7 +358,7 @@ end;
 
 procedure TOpenLcbThrottleForm.ButtonNodeDestroyClick(Sender: TObject);
 begin
-  CanNodeManager.Clear;
+  NodeManager.Clear;
 end;
 
 procedure TOpenLcbThrottleForm.CornerButtonForwardClick(Sender: TObject);
@@ -424,8 +442,8 @@ begin
   FreeAndNil(FEthernetClient);
   EthernetServer.CloseConnection(nil);
   FreeAndNil(FEthernetServer);
-  CanNodeManager.Clear;
-  FreeAndNil(FCanNodeManager);
+  NodeManager.Clear;
+  FreeAndNil(FNodeManager);
 end;
 
 procedure TOpenLcbThrottleForm.FormCreate(Sender: TObject);
@@ -437,23 +455,21 @@ begin
 
   FEthernetClient := TLccEthernetClient.Create(nil);
   FEthernetServer := TLccEthernetServer.Create(nil);
-  EthernetClient.OnConnectionStateChange := OnConnectionStateChangeClient;
-  EthernetServer.OnConnectionStateChange := OnConnectionStateChangeServer;
-  EthernetServer.Gridconnect := True;
+  EthernetClient.OnConnectionStateChange := OnClientConnectionStateChange;
   EthernetClient.Gridconnect := True;
 
-  FCanNodeManager := TLccCanNodeManager.Create(nil);
-  CanNodeManager.OnLccNodeAliasIDChanged := NodeAliasChangeCallback;
-  CanNodeManager.OnLccNodeIDChanged := NodeIDChangeCallback;
-  CanNodeManager.OnLccNodeDestroy := NodeDestroyCallback;
-  CanNodeManager.OnLccNodeCreate := NodeCreateCallback;
-  CanNodeManager.OnLccNodeInitializationComplete := NodeInitializationCompleteCallback;
+  FNodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager.OnLccNodeAliasIDChanged := OnNodeManagerAliasChange;
+  NodeManager.OnLccNodeIDChanged := OnNodeManagerIDChange;
+  NodeManager.OnLccNodeDestroy := OnNodeManagerNodeDestroy;
+  NodeManager.OnLccNodeCreate := OnNodeManagerNodeCreate;
+  NodeManager.OnLccNodeInitializationComplete := OnNodeManagerNodeInitializationComplete;
 
-  CanNodeManager.OnLccMessageSend := NodeSendMessage;
-  CanNodeManager.OnLccMessageReceive := NodeReceiveMessage;
+  NodeManager.OnLccMessageSend := OnNodeManagerSendMessage;
+  NodeManager.OnLccMessageReceive := OnNodeManagerReceiveMessage;
 
-  EthernetServer.NodeManager := CanNodeManager;
-  EthernetClient.NodeManager := CanNodeManager;
+  EthernetServer.NodeManager := NodeManager;
+  EthernetClient.NodeManager := NodeManager;
 end;
 
 procedure TOpenLcbThrottleForm.FormGesture(Sender: TObject;
@@ -520,17 +536,28 @@ begin
      }
 end;
 
+procedure TOpenLcbThrottleForm.ListViewTrainsChange(Sender: TObject);
+begin
+  ListViewTrains.Repaint;
+end;
+
+procedure TOpenLcbThrottleForm.ListViewTrainsItemClick(const Sender: TObject;
+  const AItem: TListViewItem);
+begin
+  ListViewTrains.Repaint;
+end;
+
 procedure TOpenLcbThrottleForm.MultiViewTrainsStartShowing(Sender: TObject);
 begin
   MultiViewTrains.Width := Width * 0.75
 end;
 
-procedure TOpenLcbThrottleForm.NodeAliasChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+procedure TOpenLcbThrottleForm.OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   FNodeAlias := (LccSourceNode as TLccCanNode).AliasIDStr;
 end;
 
-procedure TOpenLcbThrottleForm.NodeCreateCallback(Sender: TObject; LccSourceNode: TLccNode);
+procedure TOpenLcbThrottleForm.OnNodeManagerNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TextNodeID.Text := 'Creating Node';
   TextNodeAlias.Text := '';
@@ -538,7 +565,7 @@ begin
   ButtonNodeDestroy.Enabled := False;
 end;
 
-procedure TOpenLcbThrottleForm.NodeDestroyCallback(Sender: TObject; LccSourceNode: TLccNode);
+procedure TOpenLcbThrottleForm.OnNodeManagerNodeDestroy(Sender: TObject; LccSourceNode: TLccNode);
 begin
   TextNodeID.Text := 'Not Connected';
   TextNodeAlias.Text := '';
@@ -548,12 +575,12 @@ begin
   NodeAlias := '';
 end;
 
-procedure TOpenLcbThrottleForm.NodeIDChangeCallback(Sender: TObject; LccSourceNode: TLccNode);
+procedure TOpenLcbThrottleForm.OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   FNodeID := (LccSourceNode as TLccCanNode).NodeIDStr;
 end;
 
-procedure TOpenLcbThrottleForm.NodeInitializationCompleteCallback(
+procedure TOpenLcbThrottleForm.OnNodeManagerNodeInitializationComplete(
   Sender: TObject; LccSourceNode: TLccNode);
 begin
   ButtonNodeCreate.Enabled := False;
@@ -562,7 +589,7 @@ begin
   TextNodeAlias.Text := NodeAlias;
 end;
 
-procedure TOpenLcbThrottleForm.NodeReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+procedure TOpenLcbThrottleForm.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   if OpenLcbSettings.Log then
   begin
@@ -578,7 +605,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.NodeSendMessage(Sender: TObject;LccMessage: TLccMessage);
+procedure TOpenLcbThrottleForm.OnNodeManagerSendMessage(Sender: TObject;LccMessage: TLccMessage);
 begin
   if EthernetClient.Connected then
     EthernetClient.SendMessage(LccMessage);
@@ -599,7 +626,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnConnectionStateChangeClient(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TOpenLcbThrottleForm.OnClientConnectionStateChange(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
    case EthernetRec.ConnectionState of
       ccsClientConnecting    :  TextNetworkStatus.Text := 'Connecting';
@@ -608,9 +635,20 @@ begin
                                   ButtonNetworkDisconnect.Enabled := True;
                                   ButtonNetworkConnect.Enabled := False;
                                   ButtonNodeCreate.Enabled := True;
+
+                                  ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+                                  ControllerNode.OnTrainAssigned := OnControllerTrainAssigned;
+                                  ControllerNode.OnTrainReleased := OnControllerTrainReleased;
+                                  ControllerNode.OnControllerRequestTakeover := OnControllerReqestTakeover;
+                                  ControllerNode.OnQuerySpeedReply := OnControllerQuerySpeedReply;
+                                  ControllerNode.OnQueryFunctionReply := OnControllerQueryFunctionReply;
+                                  ControllerNode.OnSearchResult := OnControllerSearchResult;
+                               //   PanelThrottleFace1.Enabled := True;
                                 end;
       ccsClientDisconnecting :  begin
                                   TextNetworkStatus.Text := 'Disconnecting';
+                                  NodeManager.Clear;   // Logout
+                                  ControllerNode := nil;
                                 end;
       ccsClientDisconnected  :  begin
                                   TextNetworkStatus.Text := 'Not Connected';
@@ -618,23 +656,96 @@ begin
                                   ButtonNetworkDisconnect.Enabled := False;
                                   ButtonNodeCreate.Enabled := False;
                                   ButtonNodeDestroy.Enabled := False;
-                                  CanNodeManager.Clear;
+                                  NodeManager.Clear;
                                 end;
    end;
 end;
 
-procedure TOpenLcbThrottleForm.OnConnectionStateChangeServer(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TOpenLcbThrottleForm.OnClientErrorMessage(Sender: TObject;
+  EthernetRec: TLccEthernetRec);
 begin
- { case EthernetRec.ConnectionState of
-     ccsListenerConnecting          :  HeaderLabel.Text := 'Connecting Server';
-     ccsListenerConnected           :  HeaderLabel.Text := 'Connected Server';
-     ccsListenerDisconnecting       :  HeaderLabel.Text := 'Disconnecting Server';
-     ccsListenerDisconnected        :  HeaderLabel.Text := 'Disconnected Server';
-     ccsListenerClientConnecting    :  HeaderLabel.Text := 'Connecting Client';
-     ccsListenerClientConnected     :  HeaderLabel.Text := 'Connected Client';
-     ccsListenerClientDisconnecting :  HeaderLabel.Text := 'Disconnecting Client';
-     ccsListenerClientDisconnected  :  HeaderLabel.Text := 'Disconnected Client';
-  end;    }
+
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerQueryFunctionReply(Sender: TLccNode;
+  Address: DWORD; Value: Word);
+begin
+  ControllerNode.Functions[Address] := Value;
+ { case Address of
+    0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
+    1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
+    2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
+    3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
+    4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
+    5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
+    6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
+    7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
+    8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
+    9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
+    10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
+    11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
+  end;  }
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerQuerySpeedReply(Sender: TLccNode;
+  SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+begin
+  ScrollBarThrottle.Value := Abs( Round(HalfToFloat(SetSpeed)));
+
+  if HalfIsNegative(SetSpeed) then
+  begin
+ //   SpeedButtonForward1.ImageIndex := -1;
+ //   SpeedButtonReverse1.ImageIndex := 2;
+  end else
+  begin
+ //   SpeedButtonForward1.ImageIndex := 2;
+ //   SpeedButtonReverse1.ImageIndex := -1;
+  end;
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerReqestTakeover(Sender: TLccNode;
+  var Allow: Boolean);
+begin
+  // Allow :=  FormThrottleTakeover.ShowModal = mrYes
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerSearchResult(
+  Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray;
+  var SelectedResultIndex: Integer);
+begin
+  if Length(Results) = 0 then ShowMessage('No Search Results');
+  if Length(Results) > 1 then
+  begin
+    ShowMessage('Multiple Search Results: Please Select');
+  end;
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerTrainAssigned(Sender: TLccNode;
+  Reason: TControllerTrainAssignResult);
+begin
+  case Reason of
+    tarAssigned :
+      begin
+        ControllerNode.QuerySpeed;
+        ControllerNode.QueryFunctions;
+   //     PanelThrottleKeypad1.Enabled := True;
+   //     SpeedButtonThrottleAssign1.Caption := 'Release Train';
+      end;
+    tarFailTrainRefused      : ShowMessage('Train refused assignment to controller');
+    tarFailControllerRefused : ShowMessage('Current controller refused to release train');
+  else
+    ShowMessage('Unknown ControllerTrainAssigned1 result');
+  end;
+end;
+
+procedure TOpenLcbThrottleForm.OnControllerTrainReleased(Sender: TLccNode);
+begin
+ // PanelThrottleKeypad1.Enabled := False;
+end;
+
+procedure TOpenLcbThrottleForm.ReleaseTrain;
+begin
+
 end;
 
 procedure TOpenLcbThrottleForm.ScrollBarThrottleChange(Sender: TObject);

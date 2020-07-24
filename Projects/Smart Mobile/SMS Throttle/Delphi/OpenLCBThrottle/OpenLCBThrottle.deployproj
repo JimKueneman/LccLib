@@ -6,9 +6,9 @@
     <PropertyGroup>
         <DeviceId Condition="'$(Platform)'=='Android'"/>
         <DeviceId Condition="'$(Platform)'=='Android64'"/>
-        <DeviceId Condition="'$(Platform)'=='iOSDevice32'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
-        <DeviceId Condition="'$(Platform)'=='iOSDevice64'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
-        <DeviceId Condition="'$(Platform)'=='iOSSimulator'">CDC0E966-0485-4967-AE4F-2F589BA5F507</DeviceId>
+        <DeviceId Condition="'$(Platform)'=='iOSDevice32'"/>
+        <DeviceId Condition="'$(Platform)'=='iOSDevice64'"/>
+        <DeviceId Condition="'$(Platform)'=='iOSSimulator'">AE7AA552-18AF-46E7-9178-01C6AEAD19AE</DeviceId>
     </PropertyGroup>
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'">
         <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_57x57.png" Condition="'$(Config)'=='Debug'">
@@ -547,19 +547,19 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImagePortrait_1668x2224.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_750x1334.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
-            <RemoteName>Default-1668w-2224h@2x~ipad.png</RemoteName>
-            <DeployClass>iPad_Launch1668</DeployClass>
+            <RemoteName>Default-750w-1334h@2x.png</RemoteName>
+            <DeployClass>iPhone_Launch750</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_750x1334.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImagePortrait_1668x2224.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>OpenLCBThrottle.app\</RemoteDir>
-            <RemoteName>Default-750w-1334h@2x.png</RemoteName>
-            <DeployClass>iPhone_Launch750</DeployClass>
+            <RemoteName>Default-1668w-2224h@2x~ipad.png</RemoteName>
+            <DeployClass>iPad_Launch1668</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>

@@ -864,12 +864,13 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         ItemEditAppearanceClassName = 'TImageListItemBottomDetailShowCheckAppearance'
         HeaderAppearanceClassName = 'TListHeaderObjects'
         FooterAppearanceClassName = 'TListHeaderObjects'
-        EditMode = True
         Align = Client
         Size.Width = 225.000000000000000000
         Size.Height = 78.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
+        OnChange = ListViewTrainsChange
+        OnItemClick = ListViewTrainsItemClick
         object ColorKeyAlphaEffect1: TColorKeyAlphaEffect
           ColorKey = claNull
           Tolerance = 0.300000011920929000

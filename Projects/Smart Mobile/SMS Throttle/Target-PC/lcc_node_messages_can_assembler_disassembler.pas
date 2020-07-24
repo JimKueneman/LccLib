@@ -23,7 +23,11 @@ uses
 {$ELSE}
   Classes,
   SysUtils,
-  contnrs,
+  {$IFDEF FPC}
+    contnrs,
+  {$ELSE}
+    System.Generics.Collections,
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF LCC_WINDOWS}
   {$IFNDEF FPC}
@@ -47,14 +51,22 @@ type
 
 TLccGridConnectMessageAssembler = class
 private
+  {$IFDEF DELPHI}
+  FInProcessMessageList: TObjectList<TLccMessage>;
+  {$ELSE}
   FInProcessMessageList: TObjectList;
+  {$ENDIF}
   FWorkerMessage: TLccMessage;
   function GetCount: Integer;
 protected
   property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 public
   property Count: Integer read GetCount;
+  {$IFDEF DELPHI}
+  property Messages: TObjectList<TLccMessage> read FInProcessMessageList write FInProcessMessageList;
+  {$ELSE}
   property Messages: TObjectList read FInProcessMessageList write FInProcessMessageList;
+  {$ENDIF}
 
   constructor Create;
   destructor Destroy; override;
@@ -107,7 +119,12 @@ end;
 constructor TLccGridConnectMessageAssembler.Create;
 begin
   inherited Create;
+  {$IFDEF DELPHI}
+   FInProcessMessageList := TObjectList<TLccMessage>.Create;
+  {$ELSE}
   FInProcessMessageList := TObjectList.Create;
+  {$ENDIF}
+
   {$IFNDEF DWSCRIPT}
   Messages.OwnsObjects := False;
   {$ENDIF}
