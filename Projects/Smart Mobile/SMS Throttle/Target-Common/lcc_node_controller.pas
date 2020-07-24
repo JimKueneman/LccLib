@@ -741,6 +741,7 @@ begin
                     begin
                       WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False );
                       SendMessageFunc(Self, WorkerMessage);
+                      DoTrainReleased;
                     end;
                   end;
                 end;

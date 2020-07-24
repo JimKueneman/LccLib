@@ -406,7 +406,6 @@ begin
     if ControllerNode1.IsTrainAssigned then
     begin
       ReleaseTrain1;
-      SpeedButtonThrottleAssign1.Caption := 'Allocate Train';
     end else
     begin
       // We will get a notification callback when the controller is assigned (or refused)
@@ -427,7 +426,6 @@ begin
     if ControllerNode2.IsTrainAssigned then
     begin
       ReleaseTrain2;
-      SpeedButtonThrottleAssign2.Caption := 'Allocate Train';
     end else
     begin
       // We will get a notification callback when the controller is assigned (or refused)
@@ -632,11 +630,13 @@ end;
 procedure TForm1.ControllerTrainReleased1(Sender: TLccNode);
 begin
   PanelThrottleKeypad1.Enabled := False;
+  SpeedButtonThrottleAssign1.Caption := 'Allocate Train';
 end;
 
 procedure TForm1.ControllerTrainReleased2(Sender: TLccNode);
 begin
   PanelThrottleKeypad2.Enabled := False;
+  SpeedButtonThrottleAssign2.Caption := 'Allocate Train';
 end;
 
 procedure TForm1.OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);

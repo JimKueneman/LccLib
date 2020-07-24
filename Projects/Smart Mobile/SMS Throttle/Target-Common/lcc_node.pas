@@ -585,10 +585,8 @@ var
   i: Integer;
 begin
   for i := LccActiveActions.Count - 1 downto 0  do
-  begin
     (LccActiveActions[i] as TLccAction).TimeTick;
-    ClearCompletedActions;
-  end;
+  ClearCompletedActions;
 end;
 
 procedure TLccActionHub.UnregisterActionAndMarkForFree(AnAction: TLccAction);

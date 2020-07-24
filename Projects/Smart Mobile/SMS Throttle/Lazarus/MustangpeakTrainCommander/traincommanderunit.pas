@@ -16,6 +16,7 @@ type
   { TFormTrainCommander }
 
   TFormTrainCommander = class(TForm)
+    ButtonActionObjectCount: TButton;
     ButtonManualConnectComPort: TButton;
     ButtonTrainsClear: TButton;
     ButtonClear: TButton;
@@ -43,7 +44,7 @@ type
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
     TimerIncomingMessagePump: TTimer;
-    procedure Button1Click(Sender: TObject);
+    procedure ButtonActionObjectCountClick(Sender: TObject);
     procedure ButtonManualConnectComPortClick(Sender: TObject);
     procedure ButtonClearClick(Sender: TObject);
     procedure ButtonManualConnectClick(Sender: TObject);
@@ -97,9 +98,9 @@ implementation
 
 { TFormTrainCommander }
 
-procedure TFormTrainCommander.Button1Click(Sender: TObject);
+procedure TFormTrainCommander.ButtonActionObjectCountClick(Sender: TObject);
 begin
-
+  ButtonActionObjectCount.Caption := 'Action Objects = ' + IntToStr(ActionObjectsAllocated);
 end;
 
 procedure TFormTrainCommander.ButtonManualConnectComPortClick(Sender: TObject);
