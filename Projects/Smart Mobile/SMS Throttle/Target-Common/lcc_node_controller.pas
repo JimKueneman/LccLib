@@ -261,6 +261,8 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   ControllerNode := Owner as TLccTrainController;
   if Assigned(ControllerNode) then
   begin
