@@ -26,6 +26,7 @@ uses
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,
   lcc_node_controller,
+  lcc_node_train,
   lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
   System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
   Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope;
@@ -89,8 +90,8 @@ type
     CornerButtonF7: TCornerButton;
     CornerButtonF8: TCornerButton;
     CornerButtonF9: TCornerButton;
-    CornerButton10: TCornerButton;
-    CornerButton11: TCornerButton;
+    CornerButtonF10: TCornerButton;
+    CornerButtonF11: TCornerButton;
     LayoutThrottleControls: TLayout;
     TextSpeed: TText;
     Text4: TText;
@@ -158,6 +159,25 @@ type
     ClientDataSetTrainsName: TStringField;
     ClientDataSetTrainsRoadNumber: TStringField;
     ClientDataSetTrainsDecoderAddress: TIntegerField;
+    ClientDataSetTrainsIsLongAddress: TBooleanField;
+    ClientDataSetTrainsSpeedStep: TIntegerField;
+    CornerButtonF12: TCornerButton;
+    CornerButtonF13: TCornerButton;
+    CornerButtonF14: TCornerButton;
+    CornerButtonF15: TCornerButton;
+    CornerButtonF16: TCornerButton;
+    CornerButtonF17: TCornerButton;
+    CornerButtonF18: TCornerButton;
+    CornerButtonF19: TCornerButton;
+    CornerButtonF20: TCornerButton;
+    CornerButtonF21: TCornerButton;
+    CornerButtonF22: TCornerButton;
+    CornerButtonF23: TCornerButton;
+    CornerButtonF24: TCornerButton;
+    CornerButtonF25: TCornerButton;
+    CornerButtonF26: TCornerButton;
+    CornerButtonF27: TCornerButton;
+    CornerButtonF28: TCornerButton;
     procedure FormCreate(Sender: TObject);
     procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ScrollBarThrottleChange(Sender: TObject);
@@ -187,6 +207,7 @@ type
     procedure ListViewTrainsChange(Sender: TObject);
     procedure ListViewTrainsItemClick(const Sender: TObject;
       const AItem: TListViewItem);
+    procedure CornerButtonFnClick(Sender: TObject);
   private
     FNodeManager: TLccCanNodeManager;
     FEthernetServer: TLccEthernetServer;
@@ -216,7 +237,7 @@ type
     procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
     procedure OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
-    procedure OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain;
 
@@ -266,7 +287,10 @@ begin
     ClientDataSetTrains.Append;
     ClientDataSetTrains.FieldByName('Name').AsString := EditAddTrainName.Text;
     ClientDataSetTrains.FieldByName('RoadNumber').AsString := EditAddTrainRoadNumber.Text;
-    ClientDataSettrains.FieldByName('DecoderAddress').AsInteger := StrToInt(EditAddTrainDecoderAddress.Text);
+    ClientDataSettrains.FieldByName('DccAddress').AsInteger := StrToInt(EditAddTrainDecoderAddress.Text);
+    ClientDataSettrains.FieldByName('IsLongAddress').AsBoolean := True;
+    ClientDataSettrains.FieldByName('SpeedStep').AsInteger := 0;   // Type cast to: TLccDccSpeedStep = (ldssDefault, ldss14, ldss28, ldss128);
+
  //  (ClientDataSetTrains.FieldByName('TrainImage') as TBlobField).LoadFromStream(Stream);
     ClientDataSetTrains.Post;
 
@@ -361,14 +385,24 @@ begin
   NodeManager.Clear;
 end;
 
+procedure TOpenLcbThrottleForm.CornerButtonFnClick(Sender: TObject);
+begin
+  if Assigned(ControllerNode) then
+    ControllerNode.Functions[(Sender as TCornerButton).Tag] := not  ControllerNode.Functions[(Sender as TCornerButton).Tag]
+end;
+
 procedure TOpenLcbThrottleForm.CornerButtonForwardClick(Sender: TObject);
 begin
-  TextDirection.Text := 'Forward'
+  TextDirection.Text := 'Forward';
+  if Assigned(ControllerNode) then
+    ControllerNode.Direction := tdForward
 end;
 
 procedure TOpenLcbThrottleForm.CornerButtonReverseClick(Sender: TObject);
 begin
   TextDirection.Text := 'Reverse';
+  if Assigned(ControllerNode) then
+    ControllerNode.Direction := tdReverse
 end;
 
 procedure TOpenLcbThrottleForm.EditSettingsServerIPExit(Sender: TObject);
@@ -539,12 +573,21 @@ end;
 procedure TOpenLcbThrottleForm.ListViewTrainsChange(Sender: TObject);
 begin
   ListViewTrains.Repaint;
+  ToolBarLabel.Text :=  ClientDataSetTrains.FieldByName('Name').AsString + ': ' +
+                        ClientDataSetTrains.FieldByName('RoadNumber').AsString;
+  if Assigned(ControllerNode) then
+    ControllerNode.AssignTrainByDccAddress(
+      ClientDataSetTrains.FieldByName('DccAddress').AsInteger,
+      ClientDataSetTrains.FieldByName('IsLongAddress').AsBoolean,
+      TLccDccSpeedStep( ClientDataSetTrains.FieldByName('SpeedStep').AsInteger)
+      );
 end;
 
 procedure TOpenLcbThrottleForm.ListViewTrainsItemClick(const Sender: TObject;
   const AItem: TListViewItem);
 begin
   ListViewTrains.Repaint;
+  MultiViewTrains.HideMaster
 end;
 
 procedure TOpenLcbThrottleForm.MultiViewTrainsStartShowing(Sender: TObject);
@@ -671,20 +714,37 @@ procedure TOpenLcbThrottleForm.OnControllerQueryFunctionReply(Sender: TLccNode;
   Address: DWORD; Value: Word);
 begin
   ControllerNode.Functions[Address] := Value;
- { case Address of
-    0 : begin if Value = 0 then SpeedButtonFunction0.ImageIndex := 0 else SpeedButtonFunction0.ImageIndex := 1; end;
-    1 : begin if Value = 0 then SpeedButtonFunction1.ImageIndex := 0 else SpeedButtonFunction1.ImageIndex := 1; end;
-    2 : begin if Value = 0 then SpeedButtonFunction2.ImageIndex := 0 else SpeedButtonFunction2.ImageIndex := 1; end;
-    3 : begin if Value = 0 then SpeedButtonFunction3.ImageIndex := 0 else SpeedButtonFunction3.ImageIndex := 1; end;
-    4 : begin if Value = 0 then SpeedButtonFunction4.ImageIndex := 0 else SpeedButtonFunction4.ImageIndex := 1; end;
-    5 : begin if Value = 0 then SpeedButtonFunction5.ImageIndex := 0 else SpeedButtonFunction5.ImageIndex := 1; end;
-    6 : begin if Value = 0 then SpeedButtonFunction6.ImageIndex := 0 else SpeedButtonFunction6.ImageIndex := 1; end;
-    7 : begin if Value = 0 then SpeedButtonFunction7.ImageIndex := 0 else SpeedButtonFunction7.ImageIndex := 1; end;
-    8 : begin if Value = 0 then SpeedButtonFunction8.ImageIndex := 0 else SpeedButtonFunction8.ImageIndex := 1; end;
-    9 : begin if Value = 0 then SpeedButtonFunction9.ImageIndex := 0 else SpeedButtonFunction9.ImageIndex := 1; end;
-    10 : begin if Value = 0 then SpeedButtonFunction10.ImageIndex := 0 else SpeedButtonFunction10.ImageIndex := 1; end;
-    11 : begin if Value = 0 then SpeedButtonFunction11.ImageIndex := 0 else SpeedButtonFunction11.ImageIndex := 1; end;
-  end;  }
+  case Address of
+    0 : begin if Value = 0 then CornerButtonF0.IsPressed := False else CornerButtonF0.IsPressed := True; end;
+    1 : begin if Value = 0 then CornerButtonF1.IsPressed := False else CornerButtonF1.IsPressed := True; end;
+    2 : begin if Value = 0 then CornerButtonF2.IsPressed := False else CornerButtonF2.IsPressed := True; end;
+    3 : begin if Value = 0 then CornerButtonF3.IsPressed := False else CornerButtonF3.IsPressed := True; end;
+    4 : begin if Value = 0 then CornerButtonF4.IsPressed := False else CornerButtonF4.IsPressed := True; end;
+    5 : begin if Value = 0 then CornerButtonF5.IsPressed := False else CornerButtonF5.IsPressed := True; end;
+    6 : begin if Value = 0 then CornerButtonF6.IsPressed := False else CornerButtonF6.IsPressed := True; end;
+    7 : begin if Value = 0 then CornerButtonF7.IsPressed := False else CornerButtonF7.IsPressed := True; end;
+    8 : begin if Value = 0 then CornerButtonF8.IsPressed := False else CornerButtonF8.IsPressed := True; end;
+    9 : begin if Value = 0 then CornerButtonF9.IsPressed := False else CornerButtonF9.IsPressed := True; end;
+    10 : begin if Value = 0 then CornerButtonF10.IsPressed := False else CornerButtonF10.IsPressed := True; end;
+    11 : begin if Value = 0 then CornerButtonF11.IsPressed := False else CornerButtonF11.IsPressed := True; end;
+    12 : begin if Value = 0 then CornerButtonF12.IsPressed := False else CornerButtonF12.IsPressed := True; end;
+    13 : begin if Value = 0 then CornerButtonF13.IsPressed := False else CornerButtonF13.IsPressed := True; end;
+    14 : begin if Value = 0 then CornerButtonF14.IsPressed := False else CornerButtonF14.IsPressed := True; end;
+    15 : begin if Value = 0 then CornerButtonF15.IsPressed := False else CornerButtonF15.IsPressed := True; end;
+    16 : begin if Value = 0 then CornerButtonF16.IsPressed := False else CornerButtonF16.IsPressed := True; end;
+    17 : begin if Value = 0 then CornerButtonF17.IsPressed := False else CornerButtonF17.IsPressed := True; end;
+    18 : begin if Value = 0 then CornerButtonF18.IsPressed := False else CornerButtonF18.IsPressed := True; end;
+    19 : begin if Value = 0 then CornerButtonF19.IsPressed := False else CornerButtonF19.IsPressed := True; end;
+    20 : begin if Value = 0 then CornerButtonF20.IsPressed := False else CornerButtonF20.IsPressed := True; end;
+    21 : begin if Value = 0 then CornerButtonF21.IsPressed := False else CornerButtonF21.IsPressed := True; end;
+    22 : begin if Value = 0 then CornerButtonF22.IsPressed := False else CornerButtonF22.IsPressed := True; end;
+    23 : begin if Value = 0 then CornerButtonF23.IsPressed := False else CornerButtonF23.IsPressed := True; end;
+    24 : begin if Value = 0 then CornerButtonF24.IsPressed := False else CornerButtonF24.IsPressed := True; end;
+    25 : begin if Value = 0 then CornerButtonF25.IsPressed := False else CornerButtonF25.IsPressed := True; end;
+    26 : begin if Value = 0 then CornerButtonF26.IsPressed := False else CornerButtonF26.IsPressed := True; end;
+    27 : begin if Value = 0 then CornerButtonF27.IsPressed := False else CornerButtonF27.IsPressed := True; end;
+    28 : begin if Value = 0 then CornerButtonF28.IsPressed := False else CornerButtonF28.IsPressed := True; end;
+  end;
 end;
 
 procedure TOpenLcbThrottleForm.OnControllerQuerySpeedReply(Sender: TLccNode;
@@ -694,12 +754,12 @@ begin
 
   if HalfIsNegative(SetSpeed) then
   begin
- //   SpeedButtonForward1.ImageIndex := -1;
- //   SpeedButtonReverse1.ImageIndex := 2;
+    CornerButtonForward.IsPressed := False;
+    CornerButtonReverse.IsPressed := True;
   end else
   begin
- //   SpeedButtonForward1.ImageIndex := 2;
- //   SpeedButtonReverse1.ImageIndex := -1;
+    CornerButtonForward.IsPressed := True;
+    CornerButtonReverse.IsPressed := False;
   end;
 end;
 
@@ -711,11 +771,12 @@ end;
 
 procedure TOpenLcbThrottleForm.OnControllerSearchResult(
   Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray;
-  var SelectedResultIndex: Integer);
+  SearchResultCount: Integer; var SelectedResultIndex: Integer);
 begin
-  if Length(Results) = 0 then ShowMessage('No Search Results');
-  if Length(Results) > 1 then
-  begin
+  case SearchResultCount of
+    0: ShowMessage('No Search Results');
+    1: SelectedResultIndex := 0;
+  else
     ShowMessage('Multiple Search Results: Please Select');
   end;
 end;
@@ -751,6 +812,8 @@ end;
 procedure TOpenLcbThrottleForm.ScrollBarThrottleChange(Sender: TObject);
 begin
   TextSpeed.Text := IntToStr( Round(ScrollBarThrottle.Value));
+  if Assigned(ControllerNode) then
+    ControllerNode.Speed := ScrollBarThrottle.Value;
 end;
 
 procedure TOpenLcbThrottleForm.SpeedButtonAddTrainClick(Sender: TObject);

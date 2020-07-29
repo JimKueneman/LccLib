@@ -165,7 +165,7 @@ type
 
 type
 
-  TOnControllerSearchResult = procedure(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer) of object;
+  TOnControllerSearchResult = procedure(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer) of object;
   TOnControllerTrainAssigned = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
   TOnControllerTrainReleased = procedure(Sender: TLccNode) of object;
   TOnControllerQuerySpeedReply = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
@@ -220,7 +220,7 @@ type
     procedure DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunctionReply(Address: DWORD; Value: Word); virtual;
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
-    procedure DoSearchResult(AssignAction: TLccAssignTrainAction; SearchResults: TLccSearchResultsArray; var SelectedIndex: Integer); virtual;
+    procedure DoSearchResult(AssignAction: TLccAssignTrainAction; SearchResults: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedIndex: Integer); virtual;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
@@ -406,6 +406,8 @@ function TLccAssignTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMess
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  FSelectedSearchResultIndex := 0;
+  FRepliedSearchCriterialCount := 0;
   WorkerMessage.LoadTractionSearch(NodeID, AliasID, RequestedSearchData);
   SendMessage(Owner, WorkerMessage);
   SetTimoutCountThreshold(1000); // seconds to collect trains
@@ -619,7 +621,7 @@ begin
   if Assigned(ControllerNode) then
     if Assigned(ControllerNode.OnSearchResult) then
     begin
-      ControllerNode.OnSearchResult(Self, RepliedSearchCriteria, NewIndex);
+      ControllerNode.OnSearchResult(Self, RepliedSearchCriteria, RepliedSearchCriterialCount, NewIndex);
       if ((NewIndex > -1) and (NewIndex < Length(RepliedSearchCriteria))) then
         FSelectedSearchResultIndex := NewIndex;
     end;
@@ -904,10 +906,10 @@ end;
 
 procedure TLccTrainController.DoSearchResult(
   AssignAction: TLccAssignTrainAction; SearchResults: TLccSearchResultsArray;
-  var SelectedIndex: Integer);
+  SearchResultCount: Integer; var SelectedIndex: Integer);
 begin
   if Assigned(OnSearchResult) then
-    OnSearchResult(AssignAction, SearchResults, SelectedIndex);
+    OnSearchResult(AssignAction, SearchResults, SearchResultCount, SelectedIndex);
 end;
 
 function TLccTrainController.GetCdiFile: string;

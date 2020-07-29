@@ -102,12 +102,6 @@ Coordinates=330,780,93,33
 [CornerButtonF2]
 Coordinates=330,620,93,33
 
-[CornerButton11]
-Coordinates=330,980,92,33
-
-[CornerButton10]
-Coordinates=330,940,92,33
-
 [CornerButtonF5]
 Coordinates=330,740,93,33
 
@@ -329,4 +323,10 @@ Coordinates=861,604,140,33
 
 [ClientDataSetTrainsRoadNumber]
 Coordinates=1375,435,176,33
+
+[CornerButtonF11]
+Coordinates=330,980,92,33
+
+[CornerButtonF10]
+Coordinates=330,940,92,33
 

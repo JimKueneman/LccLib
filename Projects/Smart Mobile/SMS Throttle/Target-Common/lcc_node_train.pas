@@ -762,11 +762,17 @@ begin
   begin
     if FunctionAddress < 5 then
     begin
-      FunctionMask := (AllDccFunctionBitsEncoded shr 1) and $0F;
-      if AllDccFunctionBitsEncoded and $00000001 = 0 then
-        FunctionMask := FunctionMask and not $10                                // Clear Bit 4
-      else
-        FunctionMask := FunctionMask or $10;                                    // Set Bit 4
+      if FunctionAddress = 0 then
+      begin
+
+      end else
+      begin
+        FunctionMask := AllDccFunctionBitsEncoded and $0F;
+        if AllDccFunctionBitsEncoded and $00000001 = 0 then
+          FunctionMask := FunctionMask and not $10                                // Clear Bit 4
+        else
+          FunctionMask := FunctionMask or $10;                                    // Set Bit 4
+      end;
       FunctionMask := FunctionMask or {$IFNDEF FPC}$80{$ELSE}%10000000{$ENDIF};                                // Opcode bits
     end else
     if FunctionAddress < 9 then

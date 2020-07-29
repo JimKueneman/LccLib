@@ -103,142 +103,403 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
-              TabOrder = 0
+              TabOrder = 17
               Text = 'F0'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
             object CornerButtonF1: TCornerButton
+              Tag = 1
               Position.X = 76.000000000000000000
               Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 18
+              Text = 'F1'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF2: TCornerButton
+              Tag = 2
+              Position.X = 148.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 19
+              Text = 'F2'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF3: TCornerButton
+              Tag = 3
+              Position.X = 220.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 20
+              Text = 'F3'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF4: TCornerButton
+              Tag = 4
+              Position.X = 292.000000000000000000
+              Position.Y = 4.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 21
+              Text = 'F4'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF5: TCornerButton
+              Tag = 5
+              Position.X = 4.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 22
+              Text = 'F5'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF6: TCornerButton
+              Tag = 6
+              Position.X = 76.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 23
+              Text = 'F6'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF7: TCornerButton
+              Tag = 7
+              Position.X = 148.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 24
+              Text = 'F7'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF8: TCornerButton
+              Tag = 8
+              Position.X = 220.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 25
+              Text = 'F8'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF9: TCornerButton
+              Tag = 9
+              Position.X = 292.000000000000000000
+              Position.Y = 76.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 26
+              Text = 'F9'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF10: TCornerButton
+              Tag = 10
+              Position.X = 4.000000000000000000
+              Position.Y = 148.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 27
+              Text = 'F10'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF11: TCornerButton
+              Tag = 11
+              Position.X = 76.000000000000000000
+              Position.Y = 148.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 28
+              Text = 'F11'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF12: TCornerButton
+              Tag = 12
+              Position.X = 148.000000000000000000
+              Position.Y = 148.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'F12'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF13: TCornerButton
+              Tag = 13
+              Position.X = 220.000000000000000000
+              Position.Y = 148.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
-              Text = 'F1'
+              Text = 'F13'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF2: TCornerButton
-              Position.X = 148.000000000000000000
-              Position.Y = 4.000000000000000000
+            object CornerButtonF14: TCornerButton
+              Tag = 14
+              Position.X = 292.000000000000000000
+              Position.Y = 148.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 2
-              Text = 'F2'
+              Text = 'F14'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF3: TCornerButton
-              Position.X = 220.000000000000000000
-              Position.Y = 4.000000000000000000
+            object CornerButtonF15: TCornerButton
+              Tag = 15
+              Position.X = 4.000000000000000000
+              Position.Y = 220.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 3
-              Text = 'F3'
+              Text = 'F15'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF4: TCornerButton
-              Position.X = 292.000000000000000000
-              Position.Y = 4.000000000000000000
+            object CornerButtonF16: TCornerButton
+              Tag = 16
+              Position.X = 76.000000000000000000
+              Position.Y = 220.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 4
-              Text = 'F4'
+              Text = 'F16'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF5: TCornerButton
-              Position.X = 4.000000000000000000
-              Position.Y = 76.000000000000000000
+            object CornerButtonF17: TCornerButton
+              Tag = 17
+              Position.X = 148.000000000000000000
+              Position.Y = 220.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 5
-              Text = 'F5'
+              Text = 'F17'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF6: TCornerButton
-              Position.X = 76.000000000000000000
-              Position.Y = 76.000000000000000000
+            object CornerButtonF18: TCornerButton
+              Tag = 18
+              Position.X = 220.000000000000000000
+              Position.Y = 220.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 6
-              Text = 'F6'
+              Text = 'F18'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF7: TCornerButton
-              Position.X = 148.000000000000000000
-              Position.Y = 76.000000000000000000
+            object CornerButtonF19: TCornerButton
+              Tag = 19
+              Position.X = 292.000000000000000000
+              Position.Y = 220.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 7
-              Text = 'F7'
+              Text = 'F19'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF8: TCornerButton
+            object CornerButtonF20: TCornerButton
+              Tag = 20
+              Position.X = 4.000000000000000000
+              Position.Y = 292.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 13
+              Text = 'F20'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF21: TCornerButton
+              Tag = 21
+              Position.X = 76.000000000000000000
+              Position.Y = 292.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 14
+              Text = 'F21'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF22: TCornerButton
+              Tag = 22
+              Position.X = 148.000000000000000000
+              Position.Y = 292.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 15
+              Text = 'F22'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF23: TCornerButton
+              Tag = 23
               Position.X = 220.000000000000000000
-              Position.Y = 76.000000000000000000
+              Position.Y = 292.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 16
+              Text = 'F23'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF24: TCornerButton
+              Tag = 8
+              Position.X = 292.000000000000000000
+              Position.Y = 292.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 8
-              Text = 'F8'
+              Text = 'F24'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButtonF9: TCornerButton
-              Position.X = 292.000000000000000000
-              Position.Y = 76.000000000000000000
+            object CornerButtonF25: TCornerButton
+              Tag = 25
+              Position.X = 4.000000000000000000
+              Position.Y = 364.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 9
-              Text = 'F9'
+              Text = 'F25'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButton10: TCornerButton
-              Position.X = 4.000000000000000000
-              Position.Y = 148.000000000000000000
+            object CornerButtonF26: TCornerButton
+              Tag = 26
+              Position.X = 76.000000000000000000
+              Position.Y = 364.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 10
-              Text = 'F10'
+              Text = 'F26'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
-            object CornerButton11: TCornerButton
-              Position.X = 76.000000000000000000
-              Position.Y = 148.000000000000000000
+            object CornerButtonF27: TCornerButton
+              Tag = 27
+              Position.X = 148.000000000000000000
+              Position.Y = 364.000000000000000000
+              Sides = [Top, Left, Bottom, Right]
+              Size.Width = 72.000000000000000000
+              Size.Height = 72.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 12
+              Text = 'F27'
+              XRadius = 3.000000000000000000
+              YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
+            end
+            object CornerButtonF28: TCornerButton
+              Tag = 28
+              Position.X = 220.000000000000000000
+              Position.Y = 364.000000000000000000
               Sides = [Top, Left, Bottom, Right]
               Size.Width = 72.000000000000000000
               Size.Height = 72.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 11
-              Text = 'F11'
+              Text = 'F28'
               XRadius = 3.000000000000000000
               YRadius = 3.000000000000000000
+              OnClick = CornerButtonFnClick
             end
           end
           object LayoutDirectionControls: TLayout
@@ -1041,8 +1302,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
   object ClientDataSetTrains: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 480
-    Top = 272
+    Left = 552
+    Top = 328
     object ClientDataSetTrainsName: TStringField
       FieldName = 'Name'
       Size = 256
@@ -1052,20 +1313,26 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       Size = 128
     end
     object ClientDataSetTrainsDecoderAddress: TIntegerField
-      FieldName = 'DecoderAddress'
+      FieldName = 'DccAddress'
+    end
+    object ClientDataSetTrainsIsLongAddress: TBooleanField
+      FieldName = 'IsLongAddress'
+    end
+    object ClientDataSetTrainsSpeedStep: TIntegerField
+      FieldName = 'SpeedStep'
     end
   end
   object BindSourceDB1: TBindSourceDB
     DataSet = ClientDataSetTrains
     ScopeMappings = <>
-    Left = 376
-    Top = 280
+    Left = 552
+    Top = 392
   end
   object BindingsList1: TBindingsList
     Methods = <>
     OutputConverters = <>
     Left = 452
-    Top = 349
+    Top = 397
     object LinkListControlToField1: TLinkListControlToField
       Category = 'Quick Bindings'
       DataSource = BindSourceDB1

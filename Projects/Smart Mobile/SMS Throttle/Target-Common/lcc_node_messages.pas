@@ -2,6 +2,10 @@ unit lcc_node_messages;
 
 interface
 
+{$IFNDEF DWSCRIPT}
+{$I lcc_compilers.inc}
+{$ENDIF}
+
 uses
   {$IFDEF DWSCRIPT}
   System.Types,
@@ -1121,6 +1125,30 @@ begin
     Exit;
   end;
 
+  {$IFDEF LCC_MOBILE}
+    SearchData := 0;
+  for i := 0 to Length(SearchString)-1 do
+  begin
+    case SearchString[i] of
+      '0' : begin SearchData := SearchData or $00 end;
+      '1' : begin SearchData := SearchData or $01 end;
+      '2' : begin SearchData := SearchData or $02 end;
+      '3' : begin SearchData := SearchData or $03 end;
+      '4' : begin SearchData := SearchData or $04 end;
+      '5' : begin SearchData := SearchData or $05 end;
+      '6' : begin SearchData := SearchData or $06 end;
+      '7' : begin SearchData := SearchData or $07 end;
+      '8' : begin SearchData := SearchData or $08 end;
+      '9' : begin SearchData := SearchData or $09 end;
+      'F' : begin SearchData := SearchData or $0F end;
+      else
+        SearchData := 0;
+        Result := sese_InvalidCharacters;
+        Exit;
+    end;
+    SearchData := SearchData shl 4;
+  end;
+  {$ELSE}
   SearchData := 0;
   for i := 1 to Length(SearchString) do
   begin
@@ -1143,6 +1171,7 @@ begin
     end;
     SearchData := SearchData shl 4;
   end;
+  {$ENDIF}
 
   iFiller := (6 - Length(SearchString));
 

@@ -444,6 +444,7 @@ end;
 
 function TLccAction.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
+  Result := False;
   // Only send to the active State in the Action
   if (ActionStateIndex > -1) and (ActionStateIndex < Length(States)) then
     Result := States[ActionStateIndex](Owner, SourceMessage);
@@ -496,8 +497,8 @@ constructor TLccActionHub.Create(AnOwner: TLccNode;
   ASendMessageFunc: TOnMessageEvent);
 begin
   {$IFDEF DELPHI}
-  LccActiveActions := TObjectList<TLccAction>.Create;
-  LccCompletedActions := TObjectList<TLccAction>.Create;
+  LccActiveActions := TObjectList<TLccAction>.Create(False);
+  LccCompletedActions := TObjectList<TLccAction>.Create(False);
   {$ELSE}
    LccActiveActions := TObjectList.Create;
    LccCompletedActions := TObjectList.Create;
@@ -555,6 +556,7 @@ function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   i: Integer;
 begin
+  Result := False;
   for i := LccActiveActions.Count - 1 downto 0 do     // May removed some items during the call
     Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
 end;
@@ -828,8 +830,6 @@ end;
 function TLccCanNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
-  InProcessMessage: TLccMessage;
-  i: Integer;
 begin
   Result := False;
 
@@ -860,166 +860,6 @@ begin
   end else
   begin
     // Normal message loop once successfully allocating an Alias
-
-    (*
-    if SourceMessage.CAN.IsMultiFrame and SourceMessage.DestinationMatchs(AliasID, NodeID) then
-    begin
-      // This a a multi frame CAN message addressed to us that may need assembling into a fully qualified message before using
-      if SourceMessage.IsCAN then
-      begin
-        case SourceMessage.CAN.MTI of
-          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY :
-            begin
-              if InProcessMessageFindAndFreeByAliasAndMTI(SourceMessage) then
-              begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
-                SourceMessage.SwapDestAndSourceIDs;
-                SendDatagramRejectedReply(SourceMessage, REJECTED_OUT_OF_ORDER);
-                Exit; // Jump Out
-              end else
-              begin // Hack to allow Python Scripts to work with limited buffer size
-                if InProcessMultiFrameMessage.Count < Max_Allowed_Buffers then
-                begin // Convert this CAN message into a fully qualified LccMessage
-                  SourceMessage.IsCAN := False;
-                  SourceMessage.CAN.MTI := 0;
-                  SourceMessage.MTI := MTI_DATAGRAM;
-                end else
-                begin
-                  SourceMessage.SwapDestAndSourceIDs;
-                  SendDatagramRejectedReply(SourceMessage, REJECTED_BUFFER_FULL);
-                  Exit; // Jump Out
-                end
-              end
-            end;
-          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_START :
-            begin
-              if InProcessMessageFindAndFreeByAliasAndMTI(SourceMessage) then
-              begin  // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
-                // We wait for the final frame before we send any error messages
-              end else
-              begin  // Hack to allow Python Scripts to work with limited buffer size
-                if InProcessMultiFrameMessage.Count < Max_Allowed_Buffers then
-                begin // Create an InProcessMessage to pickup and concat later CAN datagram messages
-                  InProcessMessage := TLccMessage.Create;
-                  InProcessMessage.MTI := MTI_DATAGRAM;
-                  SourceMessage.CopyToTarget(InProcessMessage);
-                  InProcessMessageAddMessage(InProcessMessage);
-                  Exit;  // Jump out
-                end else
-                begin
-           //       SourceMessage.SwapDestAndSourceIDs;
-           //       SendDatagramRejectedReply(SourceMessage, REJECTED_BUFFER_FULL);        // See below note in the END FRAME
-                  Exit; // Jump Out
-                end
-              end;
-            end;
-          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME :
-            begin // We wait for the final frame before we send any error messages
-              InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceMessage);
-              if Assigned(InProcessMessage) then
-                InProcessMessage.AppendDataArray(SourceMessage);
-              Exit;  // Jump out
-            end;
-          MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END :
-            begin
-              InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceMessage);
-              if Assigned(InProcessMessage) then
-              begin
-                InProcessMessage.AppendDataArray(SourceMessage);
-                InProcessMessage.CopyToTarget(SourceMessage);
-                InProcessMessageRemoveAndFree(InProcessMessage);  // Don't Free it we are using it.
-                SourceMessage.IsCAN := False;  // Convert this CAN message into a fully qualified LccMessage
-                SourceMessage.CAN.MTI := 0;
-                SourceMessage.MTI := MTI_DATAGRAM;
-              end else
-              begin
-
-
-                // HOW TO FIX THIS>>>>
-                // Node sends only the End you need to send a Out of Order but Buffer Full also passes the Python scripts....
-                // Node sends start but we say buffer full how do we NOT send Out of Order if that node sends an end after a start?
-
-
-                // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
-                SourceMessage.SwapDestAndSourceIDs;
-                SendDatagramRejectedReply(SourceMessage, REJECTED_BUFFER_FULL);
-          //      SendDatagramRejectedReply(SourceMessage, REJECTED_OUT_OF_ORDER);
-                Exit; // Jump out
-              end;
-            end;
-          MTI_CAN_FRAME_TYPE_CAN_STREAM_SEND :
-            begin
-
-            end
-        end
-      end else   // Not IsCan
-      begin
-        if SourceMessage.CAN.FramingBits <> $00 then                                // Is it a Multi Frame Message?
-        begin
-          case SourceMessage.CAN.FramingBits of                                     // Train SNIP falls under this now as well as a few Traction messages
-            $10 : begin   // First Frame
-                    if not InProcessMessageFindAndFreeByAliasAndMTI(SourceMessage) then
-                    begin // If there is another datagram for this node from the same source something is wrong, interleaving is not allowed
-                      InProcessMessage := TLccMessage.Create;
-                      SourceMessage.CopyToTarget(InProcessMessage);
-                      InProcessMessageAddMessage(InProcessMessage);
-                    end;
-                    Exit; // Jump Out
-                  end;
-            $20 : begin   // Last Frame
-                    InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceMessage);
-                    if Assigned(InProcessMessage) then
-                    begin
-                      InProcessMessage.AppendDataArray(SourceMessage);
-                      InProcessMessage.CopyToTarget(SourceMessage);
-                      InProcessMessageRemoveAndFree(InProcessMessage);
-                      // Process the message
-                    end else
-                    begin
-                      // Out of order but let the node handle that if needed (Owned Nodes Only)
-                      // Don't swap the IDs, need to find the right target node first
-                      WorkerMessage.LoadOptionalInteractionRejected(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, REJECTED_OUT_OF_ORDER, SourceMessage.MTI);
-                      SendMessageFunc(Self, WorkerMessage);
-                      Exit; // Move on
-                    end;
-                  end;
-            $30 : begin   // Middle Frame
-                    InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceMessage);
-                    if Assigned(InProcessMessage) then
-                    begin
-                      InProcessMessage.AppendDataArray(SourceMessage);
-                      InProcessMessage.CopyToTarget(SourceMessage);
-                    end;
-                    Exit; // Move on
-                  end;
-          end;
-        end else  // Is it a SNIP... special case as the Framing Bits did not exist yet
-        if (SourceMessage.MTI = MTI_SIMPLE_NODE_INFO_REPLY) then
-        begin
-          InProcessMessage := InProcessMessageFindByAliasAndMTI(SourceMessage);
-          if Assigned(InProcessMessage) then
-          begin
-            if InProcessMessage.AppendDataArrayAsString(SourceMessage, 6) then
-            begin
-              InProcessMessage.CopyToTarget(SourceMessage);
-              InProcessMessageRemoveAndFree(InProcessMessage);
-              // Run the message
-            end else
-              Exit; // Move on
-          end else
-          begin
-            InProcessMessage := TLccMessage.Create;
-            SourceMessage.CopyToTarget(InProcessMessage);
-            for i := 0 to InProcessMessage.DataCount - 1 do
-            begin
-              if InProcessMessage.DataArray[i] = Ord(#0) then
-                InProcessMessage.CAN.iTag := InProcessMessage.CAN.iTag + 1
-            end;
-            InProcessMessageAddMessage(InProcessMessage);
-            Exit; // Move on
-          end
-        end
-      end
-    end;       *)
 
     TestNodeID[0] := 0;
     TestNodeID[1] := 0;
