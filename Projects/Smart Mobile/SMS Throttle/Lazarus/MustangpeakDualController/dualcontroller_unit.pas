@@ -176,8 +176,8 @@ type
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -720,7 +720,8 @@ begin
 end;
 
 procedure TForm1.OnControllerSearchResult1(Sender: TLccAssignTrainAction;
-  Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+  Results: TLccSearchResultsArray; SearchResultCount: Integer;
+  var SelectedResultIndex: Integer);
 begin
   if Length(Results) = 0 then ShowMessage('No Search Results');
   if Length(Results) > 1 then
@@ -730,11 +731,14 @@ begin
 end;
 
 procedure TForm1.OnControllerSearchResult2(Sender: TLccAssignTrainAction;
-  Results: TLccSearchResultsArray; var SelectedResultIndex: Integer);
+  Results: TLccSearchResultsArray; SearchResultCount: Integer;
+  var SelectedResultIndex: Integer);
 begin
-  if Length(Results) = 0 then ShowMessage('No Search Results');
-  if Length(Results) > 1 then
-  begin
+  SelectedResultIndex := -1;
+  case SearchResultCount of
+   0: ShowMessage('No Search Results');
+   1: SelectedResultIndex := 0;
+  else
     ShowMessage('Multiple Search Results: Please Select');
   end;
 end;

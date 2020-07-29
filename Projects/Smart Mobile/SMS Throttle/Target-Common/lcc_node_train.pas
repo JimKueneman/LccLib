@@ -442,7 +442,10 @@ function TLccQueryTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessa
 var
   AttachedController: TAttachedController;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   AttachedController := (Owner as TLccTrainCanNode).AttachedController;
 
   if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
@@ -450,6 +453,8 @@ begin
   else
    WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
   SendMessage(Self, WorkerMessage);
+
+   _NFinalStateCleanup(Sender, SourceMessage);    // Needs to be updated to wait for reply
 end;
 
 { TLccReleaseTrainAction }
@@ -458,14 +463,16 @@ function TLccReleaseTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMes
 var
   OwnerTrain: TLccTrainCanNode;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
   OwnerTrain := Owner as TLccTrainCanNode;
 
   if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
     OwnerTrain.ClearAttachedController;
 
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccEmergencyStopAction }
@@ -474,11 +481,14 @@ function TLccEmergencyStopAction._0ReceiveFirstMessage(Sender: TObject; SourceMe
 var
   OwnerTrain: TLccTrainCanNode;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   OwnerTrain := Owner as TLccTrainCanNode;
   OwnerTrain.Speed := 0;
 
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccSetFunctionTrainAction }
@@ -488,7 +498,10 @@ var
   OwnerTrain: TLccTrainCanNode;
   FunctionAddress: DWORD;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   OwnerTrain := Owner as TLccTrainCanNode;
 
   if OwnerTrain.ControllerAssigned then
@@ -498,7 +511,7 @@ begin
       OwnerTrain.Functions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
     end;
 
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccSetSpeedTrainAction }
@@ -507,13 +520,16 @@ function TLccSetSpeedTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMe
 var
   OwnerTrain: TLccTrainCanNode;
 begin
-  Result := False;
+ Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   OwnerTrain := Owner as TLccTrainCanNode;
   if OwnerTrain.ControllerAssigned then
     if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
       OwnerTrain.Speed := SourceMessage.TractionExtractSetSpeed;
 
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccQueryFunctionTrainReplyAction }
@@ -522,12 +538,15 @@ function TLccQueryFunctionTrainReplyAction._0ReceiveFirstMessage(Sender: TObject
 var
   FunctionAddress: DWORD;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
   WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, FunctionAddress, (Owner as TLccTrainCanNode).Functions[FunctionAddress]);
   SendMessage(Owner, WorkerMessage);
 
-  UnRegisterSelf;
+  _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccQuerySpeedTrainReplyAction }
@@ -536,12 +555,15 @@ function TLccQuerySpeedTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; S
 var
   OwnerTrain: TLccTrainCanNode;
 begin
-  Result := False;
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
   OwnerTrain := Owner as TLccTrainCanNode;
   WorkerMessage.LoadTractionQuerySpeedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, OwnerTrain.Speed, 0, HalfNaN, HalfNaN);
   SendMessage(Owner, WorkerMessage);
 
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccAssignTrainReplyAction }
@@ -667,8 +689,7 @@ begin
   WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
 
-
-  UnRegisterSelf;
+   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
 { TLccTrainCanNode }

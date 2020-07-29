@@ -9,14 +9,14 @@
         <Filename Value="BasicLccNode.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SimpleOlcbNode"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos X="34" Y="169"/>
+        <TopLine Value="22"/>
+        <CursorPos X="18" Y="33"/>
         <UsageCount Value="689"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="1218"/>
         <CursorPos X="76" Y="1234"/>
         <UsageCount Value="343"/>
@@ -25,10 +25,12 @@
       <Unit2>
         <Filename Value="..\..\..\Library\Generics\src\generics.collections.pas"/>
         <UnitName Value="Generics.Collections"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="37"/>
-        <CursorPos X="11" Y="53"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="2803"/>
+        <CursorPos X="28" Y="2812"/>
         <UsageCount Value="343"/>
+        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\..\Library\LCC\lcc_sdn_utilities.pas"/>
@@ -45,7 +47,7 @@
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <CursorPos X="17" Y="814"/>
         <UsageCount Value="343"/>
         <Bookmarks Count="1">
@@ -85,7 +87,7 @@
       <Unit10>
         <Filename Value="C:\Ultibo\Core\fpc\3.1.1\source\rtl\ultibo\core\ultiboclasses.pas"/>
         <UnitName Value="UltiboClasses"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="92"/>
         <CursorPos X="13" Y="107"/>
         <UsageCount Value="338"/>
@@ -122,7 +124,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="..\..\..\Library\LCC\lcc_defines.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="176"/>
         <CursorPos X="21" Y="292"/>
         <UsageCount Value="20"/>
@@ -130,7 +132,7 @@
       </Unit15>
       <Unit16>
         <Filename Value="..\..\..\Library\LCC\lcc_messages.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="75"/>
         <CursorPos Y="84"/>
         <UsageCount Value="18"/>
@@ -161,7 +163,7 @@
     <OtherDefines Count="1">
       <Define0 Value="FPC_CONSOLE_APP"/>
     </OtherDefines>
-    <JumpHistory Count="27" HistoryIndex="26">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="..\..\..\Library\LCC\lcc_nodemanager.pas"/>
         <Caret Line="98" Column="45" TopLine="82"/>
@@ -270,6 +272,10 @@
         <Filename Value="..\..\..\Library\LCC\lcc_ethernetclient.pas"/>
         <Caret Line="486" Column="29" TopLine="463"/>
       </Position27>
+      <Position28>
+        <Filename Value="..\..\..\Library\Generics\src\generics.collections.pas"/>
+        <Caret Line="53" Column="11" TopLine="37"/>
+      </Position28>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
