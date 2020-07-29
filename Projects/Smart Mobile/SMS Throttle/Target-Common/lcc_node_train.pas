@@ -723,7 +723,8 @@ begin
   begin
     if Functions[i] > 0 then
       Result := Result or $00000001;
-    Result := Result shl 1
+    if i > 0 then
+      Result := Result shl 1
   end;
 end;
 
@@ -762,17 +763,12 @@ begin
   begin
     if FunctionAddress < 5 then
     begin
-      if FunctionAddress = 0 then
-      begin
-
-      end else
-      begin
-        FunctionMask := AllDccFunctionBitsEncoded and $0F;
-        if AllDccFunctionBitsEncoded and $00000001 = 0 then
+        // a bit weird that bit 0 is Function 1 and bit 4 could be Function 0 if CV29 is set right
+        FunctionMask := (AllDccFunctionBitsEncoded and $0F) shr 1;
+        if AllDccFunctionBitsEncoded and $00000001 = 0 then                      // Look at Function 0, it is contained in Bit 4
           FunctionMask := FunctionMask and not $10                                // Clear Bit 4
         else
           FunctionMask := FunctionMask or $10;                                    // Set Bit 4
-      end;
       FunctionMask := FunctionMask or {$IFNDEF FPC}$80{$ELSE}%10000000{$ENDIF};                                // Opcode bits
     end else
     if FunctionAddress < 9 then
