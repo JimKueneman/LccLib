@@ -7,10 +7,9 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="143"/>
+        <TopLine Value="158"/>
         <CursorPos Y="167"/>
-        <UsageCount Value="76"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -77,9 +76,10 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="577"/>
-        <CursorPos Y="293"/>
+        <TopLine Value="824"/>
+        <CursorPos X="112" Y="838"/>
         <UsageCount Value="30"/>
         <Loaded Value="True"/>
       </Unit10>
@@ -184,123 +184,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="212" TopLine="185"/>
+        <Caret Line="567" TopLine="551"/>
       </Position1>
       <Position2>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="203" TopLine="185"/>
+        <Caret Line="566" Column="27" TopLine="551"/>
       </Position2>
       <Position3>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="207" TopLine="185"/>
+        <Caret Line="293" TopLine="279"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="212" TopLine="185"/>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="159" Column="14" TopLine="149"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="541" TopLine="524"/>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="157" TopLine="149"/>
       </Position5>
       <Position6>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="546" TopLine="524"/>
+        <Caret Line="293" TopLine="277"/>
       </Position6>
       <Position7>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="164" TopLine="153"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="294" TopLine="277"/>
       </Position7>
       <Position8>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="274" TopLine="245"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="296" TopLine="277"/>
       </Position8>
       <Position9>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="275" TopLine="245"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="326" TopLine="311"/>
       </Position9>
       <Position10>
         <Filename Value="project1.lpr"/>
-        <Caret Line="73" Column="20" TopLine="63"/>
+        <Caret Line="167" TopLine="149"/>
       </Position10>
       <Position11>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="164" Column="49" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="599" Column="28" TopLine="577"/>
       </Position11>
       <Position12>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="157" Column="33" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="76" Column="21" TopLine="58"/>
       </Position12>
       <Position13>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="553" Column="3" TopLine="551"/>
+        <Caret Line="686" Column="85" TopLine="679"/>
       </Position13>
       <Position14>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="157" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="185" Column="17" TopLine="176"/>
       </Position14>
       <Position15>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="158" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="559" Column="3" TopLine="556"/>
       </Position15>
       <Position16>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="159" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="141" Column="16" TopLine="122"/>
       </Position16>
       <Position17>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="160" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="318" Column="3" TopLine="349"/>
       </Position17>
       <Position18>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="161" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="185" Column="18" TopLine="180"/>
       </Position18>
       <Position19>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="162" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="559" Column="3" TopLine="556"/>
       </Position19>
       <Position20>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="566" TopLine="551"/>
+        <Caret Line="185" Column="14" TopLine="172"/>
       </Position20>
       <Position21>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="567" TopLine="551"/>
+        <Caret Line="559" Column="3" TopLine="556"/>
       </Position21>
       <Position22>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="566" Column="27" TopLine="551"/>
+        <Caret Line="143" Column="19" TopLine="128"/>
       </Position22>
       <Position23>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="293" TopLine="279"/>
+        <Caret Line="229" Column="3" TopLine="224"/>
       </Position23>
       <Position24>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="159" Column="14" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="141" Column="17" TopLine="130"/>
       </Position24>
       <Position25>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="157" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="76" Column="21" TopLine="58"/>
       </Position25>
       <Position26>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="293" TopLine="277"/>
+        <Caret Line="690" Column="34" TopLine="671"/>
       </Position26>
       <Position27>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="294" TopLine="277"/>
+        <Caret Line="77" Column="17" TopLine="77"/>
       </Position27>
       <Position28>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="296" TopLine="277"/>
+        <Caret Line="76" Column="19" TopLine="57"/>
       </Position28>
       <Position29>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <Caret Line="326" TopLine="311"/>
+        <Caret Line="690" Column="35" TopLine="677"/>
       </Position29>
       <Position30>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="167" TopLine="149"/>
+        <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
+        <Caret Line="77" Column="17" TopLine="77"/>
       </Position30>
     </JumpHistory>
     <RunParams>

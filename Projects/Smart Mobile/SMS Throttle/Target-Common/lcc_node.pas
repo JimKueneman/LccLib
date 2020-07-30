@@ -457,7 +457,11 @@ end;
 
 procedure TLccAction.SetStateArrayLength(NewLength: Integer);
 begin
+  {$IFDEF DWSCRIPT}
+  FStates.SetLength(NewLength);
+  {$ELSE}
   SetLength(FStates, NewLength);
+  {$ENDIF}
 end;
 
 procedure TLccAction.SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean);

@@ -441,8 +441,6 @@ end;
 procedure TLccMessage.ExtractSimpleTrainNodeIdentInfoReply(var Version: Byte;
   var RoadName: string; var TrainClass: string; var RoadNumber: string;
   var TrainName: string; var Manufacturer: string; var Owner: string);
-var
-  i: Integer;
 begin
   if DataCount > 0 then
     Version := DataArray[0];

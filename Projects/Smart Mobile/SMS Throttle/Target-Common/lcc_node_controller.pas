@@ -638,7 +638,11 @@ begin
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionWaitForAssignThrottleResult;
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 
+  {$IFDEF DWSCRIPT}
+  FRepliedSearchCriteria.SetLength(20);
+  {$ELSE}
   SetLength(FRepliedSearchCriteria, 20);  // 20 Results is enough
+  {$ENDIF}
   FRepliedSearchCriterialCount := 0;
   FSelectedSearchResultIndex := -1;
 end;
