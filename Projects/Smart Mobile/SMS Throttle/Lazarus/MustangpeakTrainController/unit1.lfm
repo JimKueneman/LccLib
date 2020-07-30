@@ -557,10 +557,4 @@ object FormTrainController: TFormTrainController
     Top = 0
     Width = 5
   end
-  object TimerTaskPump: TTimer
-    Enabled = False
-    Interval = 100
-    left = 186
-    top = 94
-  end
 end

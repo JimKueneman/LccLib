@@ -80,7 +80,6 @@ type
     TabSheetThrottleTechnologyOther: TTabSheet;
     TabSheetThrottleTechnologyDCC: TTabSheet;
     TabSheetThrottleTechnologyMarklin: TTabSheet;
-    TimerTaskPump: TTimer;
     ToggleBoxThrottleForward: TToggleBox;
     ToggleBoxThrottleReverse: TToggleBox;
     TrackBarThrottleSpeed: TTrackBar;
@@ -225,7 +224,6 @@ end;
 procedure TFormTrainController.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CanClose;
-  TimerTaskPump.Enabled := False;
   NodeManager.Clear;
   EthernetClient.CloseConnection(nil);
   while EthernetClient.Connected do
