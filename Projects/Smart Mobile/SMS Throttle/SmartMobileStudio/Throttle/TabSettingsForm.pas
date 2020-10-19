@@ -35,18 +35,18 @@ uses
   System.Streams,
   System.Lists,
   Storage,
+  LccNode,
   lcc_node_manager,
   lcc_node,
+  lcc_node_controller,
   lcc_node_messages,
   lcc_protocol_memory_configurationdefinitioninfo,
   lcc_defines,
-  lcc_math_float16,
-  LccNode;
+  lcc_math_float16;
 
 type
   TTabSettingsForm = class(TW3Form)
     procedure W3ButtonClearMessagesClick(Sender: TObject);
-    procedure W3Button1Click(Sender: TObject);
     procedure W3ButtonStartNodeClick(Sender: TObject);
     procedure W3ButtonConnectionClick(Sender: TObject);
   private
@@ -62,12 +62,12 @@ type
     procedure CallbackNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure CallbackNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure CallbackNodeDestroy(Sender: TObject; LccSourceNode: TLccNode);
-    procedure CallbackNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
 
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+
+    procedure WebSocketConnectCallback(Socket: TW3WebSocket; Success: boolean);
   public
-    CanNodeManager: TLccCanNodeManager;
     MessageList: TStringList;
   end;
 
@@ -79,14 +79,14 @@ procedure TTabSettingsForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
-  CanNodeManager := TLccCanNodeManager.Create(nil);
   MessageList := TStringList.Create;
-  CanNodeManager.OnLccMessageSend := @SendMessage;
-  CanNodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
-  CanNodeManager.OnLccNodeIDChanged := @CallbackNodeIDChange;
-  CanNodeManager.OnLccNodeDestroy := @CallbackNodeDestroy;
-  CanNodeManager.OnLccNodeCreate := @CallbackNodeCreate;
+  ControllerManager.NodeManager.OnLccMessageSend := @SendMessage;
+  ControllerManager.NodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
+  ControllerManager.NodeManager.OnLccNodeIDChanged := @CallbackNodeIDChange;
+  ControllerManager.NodeManager.OnLccNodeDestroy := @CallbackNodeDestroy;
   //CanNodeManager.OnLccMessageReceive := @ReceiveMessage;  This causes recurision
+
+  W3ButtonStartNode.Enabled := False;
 end;
 
 procedure TTabSettingsForm.InitializeObject;
@@ -133,72 +133,21 @@ end;
 
 
 procedure TTabSettingsForm.W3ButtonStartNodeClick(Sender: TObject);
-var
-  CanNode: TLccCanNode;
-  BinaryByteArray: TDynamicByteArray;
 begin
-  if CanNodeManager.Nodes.Count = 0 then
+  if not ControllerManager.ControllerCreated then
   begin
-    CanNode := CanNodeManager.AddNode(CDI_XML) as TLccCanNode;
-    CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
-    CanNode.ProtocolSupportedProtocols.Datagram := True;
-    CanNode.ProtocolSupportedProtocols.EventExchange := True;
-    CanNode.ProtocolSupportedProtocols.SimpleNodeInfo := True;
-
-    CanNode.ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
-    CanNode.ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
-    CanNode.ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
-
-    CanNode.ProtocolMemoryOptions.WriteUnderMask := True;
-    CanNode.ProtocolMemoryOptions.UnAlignedReads := True;
-    CanNode.ProtocolMemoryOptions.UnAlignedWrites := True;
-    CanNode.ProtocolMemoryOptions.SupportACDIMfgRead := True;
-    CanNode.ProtocolMemoryOptions.SupportACDIUserRead := True;
-    CanNode.ProtocolMemoryOptions.SupportACDIUserWrite := True;
-    CanNode.ProtocolMemoryOptions.WriteLenOneByte := True;
-    CanNode.ProtocolMemoryOptions.WriteLenTwoBytes := True;
-    CanNode.ProtocolMemoryOptions.WriteLenFourBytes := True;
-    CanNode.ProtocolMemoryOptions.WriteLenSixyFourBytes := True;
-    CanNode.ProtocolMemoryOptions.WriteArbitraryBytes := True;
-    CanNode.ProtocolMemoryOptions.WriteStream := True;
-    CanNode.ProtocolMemoryOptions.HighSpace := MSI_CDI;
-    CanNode.ProtocolMemoryOptions.LowSpace := MSI_CONFIG;
-
-    CanNode.ProtocolEventConsumed.AutoGenerate.Count := 5;
-    CanNode.ProtocolEventConsumed.AutoGenerate.StartIndex := 0;
-
-    CanNode.ProtocolEventsProduced.AutoGenerate.Count := 5;
-    CanNode.ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
-
-    CanNode.Login(NULL_NODE_ID); // Create our own ID
-
-    lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
-
+    ControllerManager.CreateController;
     W3ButtonStartNode.Caption := 'Stop Node';
   end else
   begin
     W3ButtonStartNode.Caption := 'Start Node';
-    CanNodeManager.Clear;
+    ControllerManager.DestroyController;
   end;
 end;
 
 procedure TTabSettingsForm.W3ButtonClearMessagesClick(Sender: TObject);
 begin
   W3ListBoxLog.Clear;
-end;
-
-procedure TTabSettingsForm.W3Button1Click(Sender: TObject);
-var
-  s: single;
-  Float16: THalfFloat;
-begin
-  s := SizeOf(s);
-  s := s + 3;
-  s := StrToFloat(W3EditBox1.Text);
-  Float16 := FloatToHalf(s);
-  W3Label3.Caption := '0x' + IntToHex(Float16, 8);
-  s := HalfToFloat(Float16);
-  W3Label4.Caption := FloatToStr(s);
 end;
 
 procedure TTabSettingsForm.W3ButtonConnectionClick(Sender: TObject);
@@ -208,42 +157,43 @@ var
 begin
   if FSocket.Connected or FConnected then
   begin
-    W3ButtonStartNodeClick(W3ButtonStartNode);
-    FSocket.Disconnect(procedure (Socket: TW3WebSocket; Success: boolean)
+    FSocket.Disconnect(
+      procedure (Socket: TW3WebSocket; Success: boolean)
       begin
         if Success then
         begin
-  //        ShowMessage('Success');
-          W3ButtonConnection.Caption := 'Open';
+          W3ButtonConnection.Caption := 'Connect';
+          W3ButtonStartNode.Enabled := False;
         end else
         begin
-   //       ShowMessage('Failure');
-          W3ButtonConnection.Caption := 'Close'
+          W3ButtonConnection.Caption := 'Disconnect';
+          W3ButtonStartNode.Enabled := True;
         end;
-      end
-    )
+      end )
   end else
   begin
     URL := 'ws://' + W3EditBoxIpAddress.Text + ':' + W3EditBoxIpPort.Text;
     try
       if W3CheckBoxTcp.Checked then
         FSocket.BinaryMessageDataType := wdtArrayBuffer;
-      FSocket.Connect(URL, ['openlcb.websocket'], procedure (Socket: TW3WebSocket; Success: boolean)
+      FSocket.Connect(URL, ['openlcb.websocket'], @WebSocketConnectCallback);
+
+    {    procedure (Socket: TW3WebSocket; Success: boolean)
         begin
           if Success then
           begin
-    //        ShowMessage('Success');
-            W3ButtonConnection.Caption := 'Close';
+            W3ButtonConnection.Caption := 'Disconnect';
+            W3ButtonStartNode.Enabled := True;
+         //    W3ButtonStartNodeClick(W3ButtonStartNode);
           end else
           begin
-    //        ShowMessage('Failure');
-            W3ButtonConnection.Caption := 'Open'
+            W3ButtonConnection.Caption := 'Connect';
+            W3ButtonStartNode.Enabled := False;
           end;
-        end
-    )
+        end )   }
     except
-        ShowMessage('Except');
-      end;
+      ShowMessage('Except');
+    end;
   end;
 end;
 
@@ -263,7 +213,7 @@ end;
 
 procedure TTabSettingsForm.ReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  CanNodeManager.ProcessMessage(LccMessage);
+  ControllerManager.NodeManager.ProcessMessage(LccMessage);
 end;
 
 procedure TTabSettingsForm.CallbackNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -282,10 +232,22 @@ begin
   W3LabelAlias.Caption := 'None';
 end;
 
-procedure TTabSettingsForm.CallbackNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
+procedure TTabSettingsForm.WebSocketConnectCallback(Socket: TW3WebSocket; Success: Boolean);
 begin
+ShowMessage('connect');
 
+  if Success then
+  begin
+    W3ButtonConnection.Caption := 'Disconnect';
+    W3ButtonStartNode.Enabled := True;
+  //    W3ButtonStartNodeClick(W3ButtonStartNode);
+  end else
+  begin
+    W3ButtonConnection.Caption := 'Connect';
+    W3ButtonStartNode.Enabled := False;
+  end;
 end;
+
 
 initialization
   Forms.RegisterForm({$I %FILE%}, TTabSettingsForm);

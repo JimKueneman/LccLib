@@ -26,10 +26,25 @@ uses
   SmartCL.Controls.Button,
   SmartCL.Controls.EditBox,
   SmartCL.Controls.Label,
-  SmartCL.Controls.Panel;
+  SmartCL.Controls.Panel,
+  SmartCL.Slider,
+  lcc_defines,
+  lcc_node_messages,
+  lcc_math_float16,
+  lcc_node,
+  lcc_node_train,
+  lcc_utilities,
+  lcc_node_controller,
+  LccNode, SmartCL.Controls.CheckBox,
+  SmartCL.Controls.RadioGroup;
 
 type
   TTabMainForm = class(TW3Form)
+    procedure W3ButtonAssignTrainClick(Sender: TObject);
+    procedure W3ButtonFunctionClick(Sender: TObject);
+    procedure W3SliderSpeedChange(Sender: TObject);
+    procedure W3ButtonReverseClick(Sender: TObject);
+    procedure W3ButtonForwardClick(Sender: TObject);
   private
     {$I 'TabMainForm:intf'}
  //   FOptionsLayout: TLayout;
@@ -38,6 +53,10 @@ type
     procedure InitializeForm; override;
     procedure InitializeObject; override;
     procedure Resize; override;
+
+    // The Controller is the Controller Node created in the NodeManager
+    procedure ControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+    procedure ControllerTrainReleased(Sender: TLccNode);
   end;
 
 implementation
@@ -48,6 +67,7 @@ procedure TTabMainForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
+  W3RadioGroupSpeedStep.ItemIndex := 0;
 end;
 
 procedure TTabMainForm.InitializeObject;
@@ -92,6 +112,50 @@ begin
 
 end;
 
+
+
+procedure TTabMainForm.W3ButtonReverseClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.Direction := tdReverse
+end;
+
+procedure TTabMainForm.W3SliderSpeedChange(Sender: TObject);
+begin
+  W3LabelSpeed.Caption := 'Speed: ' + FloatToStr(W3SliderSpeed.Value, 0);
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.Speed := W3SliderSpeed.Value
+end;
+
+procedure TTabMainForm.W3ButtonFunctionClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.Functions[(Sender as TW3Button).TagValue] := not ControllerManager.ControllerNode.Functions[(Sender as TW3Button).TagValue]
+end;
+
+procedure TTabMainForm.W3ButtonAssignTrainClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+  begin
+    ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex));
+  end
+end;
+
+procedure TTabMainForm.W3ButtonForwardClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.Direction := tdForward
+end;
+
+procedure TTabMainForm.ControllerTrainReleased(Sender: TLccNode);
+begin
+
+end;
+
+procedure TTabMainForm.ControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+begin
+
+end;
 
 initialization
   Forms.RegisterForm({$I %FILE%}, TTabMainForm);

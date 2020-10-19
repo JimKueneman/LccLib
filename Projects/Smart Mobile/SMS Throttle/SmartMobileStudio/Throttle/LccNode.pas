@@ -19,47 +19,70 @@ uses
   SmartCL.Time,
   SmartCL.Components,
   SmartCL.Application,
+  System.Lists,
   lcc_node_manager,
   lcc_node,
+  lcc_node_controller,
   lcc_node_messages,
   lcc_protocol_memory_configurationdefinitioninfo,
   lcc_defines,
   lcc_math_float16;
 
 type
-  TWebLccNode = class
+  TControllerManager = class
+  private
+    FControllerCreated: Boolean;
   public
-    property NodeManager: TLccNodeManager;
+    NodeManager: TLccCanNodeManager;
+    ControllerNode: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
+    MessageList: TStringList;
+
+    property ControllerCreated: Boolean read FControllerCreated;
 
     constructor Create;
     destructor Destroy; override;
+    procedure CreateController;
+    procedure DestroyController;
   end;
 
 var
-  WebLccNode: TWebLccNode;
+  ControllerManager: TControllerManager;
 
 implementation
 
 
 
-{ TWebLccNode }
+{ TControllerManager }
 
-constructor TWebLccNode.Create;
+constructor TControllerManager.Create;
 begin
   NodeManager := TLccCanNodeManager.Create(nil);
-
 end;
 
-destructor TWebLccNode.Destroy;
+destructor TControllerManager.Destroy;
 begin
   NodeManager.Free;
 end;
 
+procedure TControllerManager.CreateController;
+begin
+  ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+  FControllerCreated := Assigned(ControllerNode);
+  lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+end;
+
+procedure TControllerManager.DestroyController;
+begin
+  NodeManager.Clear;
+  FControllerCreated := False;
+  ControllerNode := nil;
+end;
+
 initialization
-  WebLccNode := TWebLccNode.Create;
+  ControllerManager := TControllerManager.Create;
 
 finalization
-  WebLccNode.Free;
+  ControllerManager.Free;
 
 
 end.

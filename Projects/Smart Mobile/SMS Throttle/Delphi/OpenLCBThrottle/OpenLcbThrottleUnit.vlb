@@ -1,115 +1,115 @@
 ﻿[SwitchSettingsDataFormatGridConnect]
-Coordinates=550,250,207,51
+Coordinates=550,250,239,58
 
 [ListBoxSettingsItemServer]
-Coordinates=842,460,145,33
+Coordinates=842,460,166,36
 
 [SpeedButtonOpenLCBClear]
-Coordinates=168,232,151,51
+Coordinates=168,232,176,58
 
 [ListBoxItemDataFormat]
-Coordinates=682,460,130,33
+Coordinates=682,460,150,36
 
 [ListBoxGroupHeaderSettingsOLCB]
-Coordinates=340,460,187,33
+Coordinates=340,460,216,36
 
 [SwitchOpenLCBLog]
-Coordinates=758,10,113,51
+Coordinates=758,10,130,58
 
 [Text1]
-Coordinates=644,10,41,51
+Coordinates=644,10,47,58
 
 [GestureManager1]
-Coordinates=616,375,101,33
+Coordinates=616,375,118,36
 
 [TabItemOpenLCB]
-Coordinates=117,460,101,33
+Coordinates=117,460,118,36
 
 [TabItemTrains]
-Coordinates=180,570,84,33
+Coordinates=180,570,97,36
 
 [TabItemSettings]
-Coordinates=180,610,94,33
+Coordinates=180,610,108,36
 
 [ListBoxItemSettingsOLCBMonitorDepth]
-Coordinates=649,414,210,33
+Coordinates=649,414,240,36
 
 [EditSettingsServerPort]
-Coordinates=10,300,127,51
+Coordinates=10,300,145,58
 
 [TextSettingsServerPort]
-Coordinates=10,232,128,51
+Coordinates=10,232,148,58
 
 [ToolBarLabel]
-Coordinates=765,232,80,51
+Coordinates=765,232,91,58
 
 [ListBoxItemSettingServerPort]
-Coordinates=455,414,160,33
+Coordinates=455,414,184,36
 
 [Text2]
-Coordinates=165,300,41,51
+Coordinates=165,300,47,58
 
 [HeaderToolBar]
-Coordinates=343,414,88,33
+Coordinates=343,414,102,36
 
 [ListBoxGroupHeaderSettingsNetwork]
-Coordinates=105,414,199,33
+Coordinates=105,414,228,36
 Visible=True
 
 [MemoOpenLCB]
-Coordinates=866,232,91,51
+Coordinates=866,232,106,58
 
 [TextSettingsOCLBDataFormat]
-Coordinates=898,10,162,51
+Coordinates=898,10,189,58
 
 [EditSettingsBufferDepth]
-Coordinates=354,232,133,51
+Coordinates=354,232,152,58
 
 [SpeedButtonMore]
-Coordinates=419,10,103,51
+Coordinates=419,10,118,58
 
 [CornerButtonF4]
-Coordinates=330,700,93,33
+Coordinates=330,700,106,36
 
 [CornerButtonF1]
-Coordinates=330,580,93,33
+Coordinates=330,580,106,36
 
 [CornerButtonF0]
-Coordinates=330,540,93,33
+Coordinates=330,540,106,36
 
 [CornerButtonF9]
-Coordinates=330,900,93,33
+Coordinates=330,900,106,36
 
 [LayoutMainTrain]
-Coordinates=30,620,96,33
+Coordinates=30,620,110,36
 Visible=True
 
 [Text4]
-Coordinates=276,10,41,51
+Coordinates=276,10,47,58
 
 [CornerButtonF3]
-Coordinates=330,660,93,33
+Coordinates=330,660,106,36
 
 [TextSpeed]
-Coordinates=333,10,66,51
+Coordinates=333,10,76,58
 
 [CornerButtonF8]
-Coordinates=330,860,93,33
+Coordinates=330,860,106,36
 
 [CornerButtonF6]
-Coordinates=330,780,93,33
+Coordinates=330,780,106,36
 
 [CornerButtonF2]
-Coordinates=330,620,93,33
+Coordinates=330,620,106,36
 
 [CornerButtonF5]
-Coordinates=330,740,93,33
+Coordinates=330,740,106,36
 
 [CornerButtonF7]
-Coordinates=330,820,93,33
+Coordinates=330,820,106,36
 
 [ScrollBarThrottle]
-Coordinates=365,300,98,51
+Coordinates=365,300,111,58
 ExplicitSubNodes=Value
 
 []
@@ -117,216 +117,273 @@ Coordinates=1186,573,91,36
 Visible=False
 
 [CornerButtonForward]
-Coordinates=382,87,121,33
+Coordinates=382,87,138,36
 Visible=True
 
 [TextDirection]
-Coordinates=168,1,80,51
+Coordinates=168,1,91,58
 
 [CornerButtonReverse]
-Coordinates=216,328,121,33
+Coordinates=216,328,139,36
 
 [TabControlMain]
-Coordinates=160,520,92,33
+Coordinates=160,520,106,36
 
 [RectangleTabSettingsBkGnd]
-Coordinates=926,309,156,33
+Coordinates=926,309,180,36
 
 [RectangleTabOpenLcbBkGnd]
-Coordinates=926,364,160,33
+Coordinates=926,364,185,36
 
 [EditSettingsServerIP]
-Coordinates=547,10,116,51
+Coordinates=547,10,134,58
 
 [TextOpenLcbLogMessages]
-Coordinates=701,10,148,51
+Coordinates=701,10,171,58
 
 [ListBoxSettings]
-Coordinates=10,10,116,177
-
-[GridLayoutFunctionControls]
-Coordinates=30,770,155,33
-Visible=True
+Coordinates=10,10,139,212
 
 [LayoutDirectionControls]
-Coordinates=575,87,135,33
+Coordinates=575,87,152,36
 
 [LayoutThrottleControls]
-Coordinates=30,720,128,33
+Coordinates=30,720,145,36
 
 [ButtonNodeDestroy]
-Coordinates=582,309,111,51
+Coordinates=582,309,127,58
 
 [ListBoxGroupHeaderStatus]
-Coordinates=910,87,149,33
+Coordinates=910,87,171,36
 
 [RectangleTabNodeBkGnd]
-Coordinates=793,142,141,33
+Coordinates=793,142,164,36
 
 [ListBoxItem7]
-Coordinates=0,366,79,33
+Coordinates=0,366,89,36
 
 [ListBoxItem9]
-Coordinates=927,419,79,33
+Coordinates=927,419,89,36
 
 [TabItemNode]
-Coordinates=583,488,79,33
+Coordinates=583,488,92,36
 
 [ButtonNetworkDisconnect]
-Coordinates=382,164,143,51
+Coordinates=382,164,162,58
 
 [TextNetworkStatus]
-Coordinates=582,142,107,51
+Coordinates=582,142,123,58
 
 [ListBoxItem10]
-Coordinates=18,488,84,33
+Coordinates=18,488,96,36
 
 [ListBoxNode]
-Coordinates=168,78,116,177
+Coordinates=168,78,139,212
 
 [ListBoxItem8]
-Coordinates=1149,1,79,33
+Coordinates=1149,1,89,36
 
 [TextNodeID]
-Coordinates=382,87,71,51
+Coordinates=382,87,83,58
 
 [ListBoxGroupHeaderEthernet]
-Coordinates=1149,56,159,33
+Coordinates=1149,56,183,36
 
 [TextNodeAddress]
-Coordinates=49,241,102,51
+Coordinates=49,241,117,58
 
 [ButtonNetworkConnect]
-Coordinates=382,241,129,51
+Coordinates=382,241,147,58
 
 [TextNodeInfo]
-Coordinates=582,219,80,51
+Coordinates=582,219,92,58
 
 [ButtonNodeCreate]
-Coordinates=927,1,105,51
+Coordinates=927,1,121,58
 
 [ListBoxGroupHeaderOpenLcbNode]
-Coordinates=1149,188,188,33
+Coordinates=1149,188,217,36
 
 [Text5]
-Coordinates=793,309,41,51
+Coordinates=793,309,47,58
 
 [Rectangle2]
-Coordinates=1149,243,69,33
+Coordinates=1149,243,80,36
 
 [SpeedButtonTrainSearch]
-Coordinates=1149,111,137,51
+Coordinates=1149,111,159,58
 
 [TextNodeAlias]
-Coordinates=578,534,85,51
+Coordinates=578,534,98,58
 
 [LayoutTrainsMultiViewToolbar]
-Coordinates=1149,298,164,33
+Coordinates=1149,298,188,36
 
 [EditTrainSearch]
-Coordinates=469,534,93,51
+Coordinates=469,534,107,58
 
 [LayoutTrainsMultiViewSearch]
-Coordinates=1149,353,160,33
+Coordinates=1149,353,185,36
 
 [Text3]
-Coordinates=281,534,41,51
+Coordinates=281,534,47,58
 
 [LayoutOpenLcbTools]
-Coordinates=1149,408,120,33
+Coordinates=1149,408,136,36
 
 [ListBoxItem2]
-Coordinates=1149,463,79,33
+Coordinates=1149,463,89,36
 
 [MultiViewTrains]
-Coordinates=1149,518,92,33
+Coordinates=1149,518,106,36
 
 [ListBoxItem1]
-Coordinates=1149,628,79,33
+Coordinates=1149,628,89,36
 
 [ColorKeyAlphaEffect1]
-Coordinates=1404,1,123,33
+Coordinates=1404,1,140,36
 
 [FloatAnimationTrainSearch]
-Coordinates=1404,56,148,33
+Coordinates=1404,56,171,36
 
 [TextMyIpAddress]
-Coordinates=927,515,100,51
+Coordinates=927,515,114,58
 
 [LayoutForm]
-Coordinates=1149,683,73,33
+Coordinates=1149,683,83,36
 
 [ListViewTrains]
-Coordinates=760,580,89,195
+Coordinates=760,580,107,234
 Visible=True
 
 [SpeedButtonAddTrain]
-Coordinates=61,534,123,51
+Coordinates=61,534,141,58
 
 [ListBoxItemTrainName]
-Coordinates=995,142,126,33
+Coordinates=995,142,145,36
 
 [ListBoxItemAddTrainDecoderAddress]
-Coordinates=1404,111,200,33
+Coordinates=1404,111,230,36
 
 [EditAddTrainRoadNumber]
-Coordinates=447,1,143,51
+Coordinates=447,1,165,58
 
 [ListBoxAddTrain]
-Coordinates=0,0,116,177
+Coordinates=0,0,139,212
 
 [ListBoxItemAddTrainRoadNumberEdit]
-Coordinates=1404,166,202,33
+Coordinates=1404,166,232,36
 
 [ListBoxItemAddTrainDecoderAddressEdit]
-Coordinates=1404,221,220,33
+Coordinates=1404,221,252,36
 
 [EditAddTrainName]
-Coordinates=235,328,107,51
+Coordinates=235,328,123,58
 
 [ButtonAddTrainAdd]
-Coordinates=1149,738,112,51
+Coordinates=1149,738,127,58
 
 [EditAddTrainDecoderAddress]
-Coordinates=393,328,161,51
+Coordinates=393,328,185,58
 
 [LayoutTrainsAdd]
-Coordinates=808,534,99,33
+Coordinates=808,534,112,36
 
 [ListBoxItemEnter]
-Coordinates=689,534,99,33
+Coordinates=689,534,113,36
 
 [FloatAnimationAddTrain]
-Coordinates=995,197,134,33
+Coordinates=995,197,153,36
 
 [ListBoxItemAddTrainNameEdit]
-Coordinates=1404,276,165,33
+Coordinates=1404,276,190,36
 
 [ListBoxItemAddTrainRoadNumber]
-Coordinates=1404,331,183,33
+Coordinates=1404,331,210,36
 
 [ClientDataSetTrains]
-Coordinates=1326,760,112,33
+Coordinates=1326,760,130,36
 Visible=True
 
 [BindSourceDB1]
-Coordinates=1000,640,98,123
+Coordinates=1000,640,117,190
 
 [BindingsList1]
-Coordinates=1178,573,82,33
+Coordinates=1178,573,91,36
 
 [ClientDataSetTrainsDecoderAddress]
-Coordinates=1375,383,194,33
+Coordinates=1375,383,226,36
 
 [ClientDataSetTrainsName]
-Coordinates=861,604,140,33
+Coordinates=861,604,164,36
 
 [ClientDataSetTrainsRoadNumber]
-Coordinates=1375,435,176,33
+Coordinates=1375,435,206,36
 
 [CornerButtonF11]
-Coordinates=330,980,92,33
+Coordinates=330,980,113,36
 
 [CornerButtonF10]
-Coordinates=330,940,92,33
+Coordinates=330,940,113,36
+
+[CornerButtonF16]
+Coordinates=881,644,113,36
+
+[CornerButtonF21]
+Coordinates=641,644,113,36
+
+[CornerButtonF19]
+Coordinates=522,644,113,36
+
+[CornerButtonF14]
+Coordinates=1404,490,113,36
+
+[CornerButtonF18]
+Coordinates=1404,545,113,36
+
+[ClientDataSetTrainsSpeedStep]
+Coordinates=1694,1,193,36
+
+[CornerButtonF20]
+Coordinates=1404,600,113,36
+
+[CornerButtonF17]
+Coordinates=1404,655,113,36
+
+[CornerButtonF13]
+Coordinates=1404,710,113,36
+
+[CornerButtonF27]
+Coordinates=1404,815,113,36
+
+[CornerButtonF22]
+Coordinates=1385,868,113,36
+
+[ClientDataSetTrainsIsLongAddress]
+Coordinates=1694,56,216,36
+
+[CornerButtonF24]
+Coordinates=1266,868,113,36
+
+[CornerButtonF12]
+Coordinates=1147,868,113,36
+
+[CornerButtonF26]
+Coordinates=1028,868,113,36
+
+[CornerButtonF25]
+Coordinates=909,868,113,36
+
+[CornerButtonF28]
+Coordinates=790,868,113,36
+
+[CornerButtonF15]
+Coordinates=671,868,113,36
+
+[CornerButtonF23]
+Coordinates=552,868,113,36
+
+[GridLayoutFunctionControlsGroup0]
+Coordinates=30,770,175,36
+Visible=True
 

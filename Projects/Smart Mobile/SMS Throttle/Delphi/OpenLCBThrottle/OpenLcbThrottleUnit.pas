@@ -79,7 +79,7 @@ type
     MemoOpenLCB: TMemo;
     SpeedButtonMore: TSpeedButton;
     LayoutMainTrain: TLayout;
-    GridLayoutFunctionControls: TGridLayout;
+    GridLayoutFunctionControlsGroup0: TGridLayout;
     CornerButtonF0: TCornerButton;
     CornerButtonF1: TCornerButton;
     CornerButtonF2: TCornerButton;
@@ -178,6 +178,10 @@ type
     CornerButtonF26: TCornerButton;
     CornerButtonF27: TCornerButton;
     CornerButtonF28: TCornerButton;
+    TabControlFunctions: TTabControl;
+    TabItemFunctionGroup0: TTabItem;
+    TabItemFunctionGroup1: TTabItem;
+    GridLayoutFunctionControlsGroup1: TGridLayout;
     procedure FormCreate(Sender: TObject);
     procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ScrollBarThrottleChange(Sender: TObject);
@@ -186,7 +190,7 @@ type
     procedure CornerButtonReverseClick(Sender: TObject);
     procedure SpeedButtonTrainSearchClick(Sender: TObject);
     procedure MultiViewTrainsStartShowing(Sender: TObject);
-    procedure GridLayoutFunctionControlsResize(Sender: TObject);
+    procedure GridLayoutFunctionControlsGroup0Resize(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure EditSettingsServerPortKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -205,9 +209,9 @@ type
     procedure SpeedButtonAddTrainClick(Sender: TObject);
     procedure ButtonAddTrainAddClick(Sender: TObject);
     procedure ListViewTrainsChange(Sender: TObject);
-    procedure ListViewTrainsItemClick(const Sender: TObject;
-      const AItem: TListViewItem);
+    procedure ListViewTrainsItemClick(const Sender: TObject; const AItem: TListViewItem);
     procedure CornerButtonFnClick(Sender: TObject);
+    procedure GridLayoutFunctionControlsGroup1Resize(Sender: TObject);
   private
     FNodeManager: TLccCanNodeManager;
     FEthernetServer: TLccEthernetServer;
@@ -529,6 +533,8 @@ begin
 end;
 
 procedure TOpenLcbThrottleForm.FormShow(Sender: TObject);
+var
+  ListItemCount, i: Integer;
 begin
   MultiViewTrains.HideMaster;
   SwitchSettingsDataFormatGridConnect.IsChecked := OpenLcbSettings.GridConnect;
@@ -537,37 +543,18 @@ begin
   EditSettingsServerPort.Text := IntToStr(OpenLcbSettings.Port);
   EditSettingsBufferDepth.Text := IntToStr(OpenLcbSettings.MaxLoggingLines);
 
+  // set the height of the slide down Add Train
+  FloatAnimationAddTrain.StartValue  := 0;
+  ListItemCount := ListBoxAddTrain.Items.Count;
+  for i := 0 to ListItemCount - 1 do
+    FloatAnimationAddTrain.StartValue := FloatAnimationAddTrain.StartValue + ListBoxAddTrain.ListItems[i].Height;
+  FloatAnimationAddTrain.StartValue := FloatAnimationAddTrain.StartValue + 4;
+
   LayoutTrainsAdd.Height := 0;
   LayoutTrainsMultiViewSearch.Height := 0;
 
   ClientDataSetTrains.CreateDataSet;
   ClientDataSetTrains.Open;
-end;
-
-procedure TOpenLcbThrottleForm.GridLayoutFunctionControlsResize(Sender: TObject);
-{
-  procedure CalculateLayout(Columns, GridClientW, GridClientH: single);
-  var
-    Rows: Integer;
-  begin
-    GridLayoutFunctions.ItemWidth := GridClientW/Columns;
-    GridLayoutFunctions.ItemHeight := GridLayoutFunctions.ItemWidth;
-  end;
-
-var
-  Columns, Rows: Integer;
-  GridClientW, GridClientH: single;     }
-begin
-{  Columns := 1;
-  GridClientW := GridLayoutFunctions.Width - (GridLayoutFunctions.Padding.Left+GridLayoutFunctions.Padding.Right);
-  GridClientH := GridLayoutFunctions.Height - (GridLayoutFunctions.Padding.Top+GridLayoutFunctions.Padding.Bottom);
-
-  repeat
-    CalculateLayout(Columns, GridClientW, GridClientH);
-    Rows := GridLayoutFunctions.ChildrenCount div Columns + 1;
-    Inc(Columns);
-  until GridLayoutFunctions.ItemHeight * Rows <= GridClientH;
-     }
 end;
 
 procedure TOpenLcbThrottleForm.ListViewTrainsChange(Sender: TObject);
@@ -819,6 +806,10 @@ end;
 procedure TOpenLcbThrottleForm.SpeedButtonAddTrainClick(Sender: TObject);
 begin
   FloatAnimationAddTrain.Inverse := not FloatAnimationAddTrain.Inverse;
+  if not FloatAnimationAddTrain.Inverse then
+    SpeedButtonAddTrain.StyleLookup := 'additembutton'
+  else
+    SpeedButtonAddTrain.StyleLookup := 'arrowuptoolbutton';
   FloatAnimationAddTrain.Start
 end;
 
@@ -841,6 +832,43 @@ end;
 procedure TOpenLcbThrottleForm.SwitchOpenLCBLogSwitch(Sender: TObject);
 begin
   OpenLcbSettings.Log := SwitchSettingsDataFormatGridConnect.IsChecked;
+end;
+
+procedure TOpenLcbThrottleForm.GridLayoutFunctionControlsGroup0Resize(Sender: TObject);
+const
+  FIXED_COLUMNS_GROUP_0 = 3;
+  FIXED_ROWS_GROUP_0 = 4;
+  FIXED_PADDING = 10;
+var
+  GridClientW, GridClientH: single;
+begin
+  GridClientW := GridLayoutFunctionControlsGroup0.Width - (GridLayoutFunctionControlsGroup0.Padding.Left+GridLayoutFunctionControlsGroup0.Padding.Right);
+  GridClientH := GridLayoutFunctionControlsGroup0.Height - (GridLayoutFunctionControlsGroup0.Padding.Top+GridLayoutFunctionControlsGroup0.Padding.Bottom);
+
+  if (GridClientW > 0) and (GridClientH > 0) then
+  begin
+    GridLayoutFunctionControlsGroup0.ItemWidth := (GridClientW - FIXED_PADDING)/FIXED_COLUMNS_GROUP_0;
+    GridLayoutFunctionControlsGroup0.ItemHeight := (GridClientH - FIXED_PADDING)/FIXED_ROWS_GROUP_0;
+  end;
+
+end;
+
+procedure TOpenLcbThrottleForm.GridLayoutFunctionControlsGroup1Resize(Sender: TObject);
+const
+  FIXED_COLUMNS_GROUP_1 = 3;
+  FIXED_ROWS_GROUP_1 = 6;
+  FIXED_PADDING = 10;
+var
+  GridClientW, GridClientH: single;
+begin
+  GridClientW := GridLayoutFunctionControlsGroup1.Width - (GridLayoutFunctionControlsGroup1.Padding.Left+GridLayoutFunctionControlsGroup1.Padding.Right);
+  GridClientH := GridLayoutFunctionControlsGroup1.Height - (GridLayoutFunctionControlsGroup1.Padding.Top+GridLayoutFunctionControlsGroup1.Padding.Bottom);
+
+  if (GridClientW > 0) and (GridClientH > 0) then
+  begin
+    GridLayoutFunctionControlsGroup1.ItemWidth := (GridClientW - FIXED_PADDING)/FIXED_COLUMNS_GROUP_1;
+    GridLayoutFunctionControlsGroup1.ItemHeight := (GridClientH - FIXED_PADDING)/FIXED_ROWS_GROUP_1;
+  end
 end;
 
 procedure TOpenLcbThrottleForm.TabItemNodeClick(Sender: TObject);

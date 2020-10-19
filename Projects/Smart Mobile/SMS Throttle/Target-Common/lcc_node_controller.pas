@@ -688,7 +688,7 @@ end;
 
 procedure TLccTrainController.SetFunctions(Index: Integer; AValue: Word);
 begin
-  if (Index >= 0) and (Index < High(FunctionArray)) then
+  if (Index >= 0) and (Index <= High(FunctionArray)) then
   begin
     FFunctionArray[Index] := AValue;
     if IsTrainAssigned then
@@ -926,7 +926,7 @@ end;
 function TLccTrainController.GetFunctions(Index: Integer): Word;
 begin
   Result := 0;
-  if (Index >= 0) and (Index < High(FunctionArray)) then
+  if (Index >= 0) and (Index <= High(FunctionArray)) then
     Result := FunctionArray[Index];
 end;
 
