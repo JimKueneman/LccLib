@@ -567,17 +567,19 @@ end;
 constructor TLccNodeManager.Create(AnOwner: TComponent);
 begin
   {$IFDEF DWSCRIPT}
-  inherited Create;
-  FNodes := TObjectList.Create;
+    inherited Create;
+    FNodes := TObjectList.Create;
   {$ELSE}
-  inherited Create(AnOwner);
-  {$IFDEF DELPHI}
-  FNodes := TObjectList<TLccNode>.Create;
-  {$ELSE}
-  FNodes := TObjectList.Create;
+    inherited Create(AnOwner);
+    {$IFDEF DELPHI}
+      FNodes := TObjectList<TLccNode>.Create;
+    {$ELSE}
+      FNodes := TObjectList.Create;
+    {$ENDIF}
+    FNodes.OwnsObjects := False;
   {$ENDIF}
-  FNodes.OwnsObjects := False;
-  {$ENDIF}
+
+
 end;
 
 function TLccNodeManager.AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode;

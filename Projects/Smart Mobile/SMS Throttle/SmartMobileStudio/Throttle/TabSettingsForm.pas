@@ -55,6 +55,8 @@ type
     FConnected: Boolean;
 
   protected
+    ControllerManager: TControllerManager;
+
     procedure InitializeForm; override;
     procedure InitializeObject; override;
     procedure Resize; override;
@@ -79,6 +81,7 @@ procedure TTabSettingsForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
+  ControllerManager := GetControllerManager;
   MessageList := TStringList.Create;
   ControllerManager.NodeManager.OnLccMessageSend := @SendMessage;
   ControllerManager.NodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
@@ -240,7 +243,7 @@ ShowMessage('connect');
   begin
     W3ButtonConnection.Caption := 'Disconnect';
     W3ButtonStartNode.Enabled := True;
-  //    W3ButtonStartNodeClick(W3ButtonStartNode);
+ //   W3ButtonStartNodeClick(W3ButtonStartNode);
   end else
   begin
     W3ButtonConnection.Caption := 'Connect';

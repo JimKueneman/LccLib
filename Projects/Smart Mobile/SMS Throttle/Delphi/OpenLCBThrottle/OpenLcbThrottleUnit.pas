@@ -182,6 +182,7 @@ type
     TabItemFunctionGroup0: TTabItem;
     TabItemFunctionGroup1: TTabItem;
     GridLayoutFunctionControlsGroup1: TGridLayout;
+    SpeedButtonEditTrain: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ScrollBarThrottleChange(Sender: TObject);
@@ -212,6 +213,7 @@ type
     procedure ListViewTrainsItemClick(const Sender: TObject; const AItem: TListViewItem);
     procedure CornerButtonFnClick(Sender: TObject);
     procedure GridLayoutFunctionControlsGroup1Resize(Sender: TObject);
+    procedure SpeedButtonEditTrainClick(Sender: TObject);
   private
     FNodeManager: TLccCanNodeManager;
     FEthernetServer: TLccEthernetServer;
@@ -245,6 +247,11 @@ type
 
     procedure ReleaseTrain;
 
+    procedure OpenAddTrainDrawer;
+    procedure CloseAddTrainDrawer;
+
+    function IsAddTrainDrawerOpen: Boolean;
+
   public
     { Public declarations }
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
@@ -275,6 +282,11 @@ begin
   FIpServerAddress := '10.0.3.154';
   FPort := 12021;
   FGridConnect := True;
+end;
+
+function TOpenLcbThrottleForm.IsAddTrainDrawerOpen: Boolean;
+begin
+  Result := LayoutTrainsAdd.Height > 0;
 end;
 
 procedure TOpenLcbThrottleForm.ButtonAddTrainAddClick(Sender: TObject);
@@ -387,6 +399,16 @@ end;
 procedure TOpenLcbThrottleForm.ButtonNodeDestroyClick(Sender: TObject);
 begin
   NodeManager.Clear;
+end;
+
+procedure TOpenLcbThrottleForm.CloseAddTrainDrawer;
+begin
+  if IsAddTrainDrawerOpen then
+  begin
+   FloatAnimationAddTrain.Inverse := not FloatAnimationAddTrain.Inverse;
+   SpeedButtonAddTrain.StyleLookup := 'composetoolbutton';
+    FloatAnimationAddTrain.Start;
+  end;
 end;
 
 procedure TOpenLcbThrottleForm.CornerButtonFnClick(Sender: TObject);
@@ -574,7 +596,8 @@ procedure TOpenLcbThrottleForm.ListViewTrainsItemClick(const Sender: TObject;
   const AItem: TListViewItem);
 begin
   ListViewTrains.Repaint;
-  MultiViewTrains.HideMaster
+ // MultiViewTrains.HideMaster;
+//  ToggleAddTrainDrawer;
 end;
 
 procedure TOpenLcbThrottleForm.MultiViewTrainsStartShowing(Sender: TObject);
@@ -653,6 +676,16 @@ begin
     finally
       MemoOpenLCB.EndUpdate
     end;
+  end;
+end;
+
+procedure TOpenLcbThrottleForm.OpenAddTrainDrawer;
+begin
+  if not IsAddTrainDrawerOpen then
+  begin
+   FloatAnimationAddTrain.Inverse := not FloatAnimationAddTrain.Inverse;
+   SpeedButtonAddTrain.StyleLookup := 'arrowuptoolbutton';
+   FloatAnimationAddTrain.Start;
   end;
 end;
 
@@ -805,12 +838,12 @@ end;
 
 procedure TOpenLcbThrottleForm.SpeedButtonAddTrainClick(Sender: TObject);
 begin
-  FloatAnimationAddTrain.Inverse := not FloatAnimationAddTrain.Inverse;
-  if not FloatAnimationAddTrain.Inverse then
-    SpeedButtonAddTrain.StyleLookup := 'additembutton'
-  else
-    SpeedButtonAddTrain.StyleLookup := 'arrowuptoolbutton';
-  FloatAnimationAddTrain.Start
+  if IsAddTrainDrawerOpen then CloseAddTrainDrawer else OpenAddTrainDrawer;
+end;
+
+procedure TOpenLcbThrottleForm.SpeedButtonEditTrainClick(Sender: TObject);
+begin
+  ListViewTrains.EditMode := not ListviewTrains.EditMode;
 end;
 
 procedure TOpenLcbThrottleForm.SpeedButtonOpenLCBClearClick(Sender: TObject);

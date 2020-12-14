@@ -1,7 +1,7 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:05.525</Created>
-    <Modified>2020-08-14T05:22:16.817</Modified>
+    <Modified>2020-12-10T19:18:23.128</Modified>
     <object type="TW3Form">
       <Caption>Throttle Control</Caption>
       <Width>352</Width>
@@ -117,6 +117,7 @@
           <Left>120</Left>
           <Height>32</Height>
           <Name>W3ButtonReleaseTrain</Name>
+          <OnClick>W3ButtonReleaseTrainClick</OnClick>
         </object>
         <object type="TW3CheckBox">
           <Caption>Long Address</Caption>

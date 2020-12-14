@@ -130,7 +130,7 @@
         <UnitName Value="frame_lcc_settings"/>
       </Item26>
       <Item27>
-        <Filename Value="../lcc_websocketserver.pas"/>
+        <Filename Value="../../../Projects/Smart Mobile/SMS Throttle/Target-PC/HardwareConnection/lcc_websocketserver.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lcc_websocketserver"/>
       </Item27>

@@ -45,12 +45,20 @@ type
     procedure DestroyController;
   end;
 
-var
-  ControllerManager: TControllerManager;
+function GetControllerManager: TControllerManager;
 
 implementation
 
+var
+  InternalControllerManager: TControllerManager = nil;
 
+
+function GetControllerManager: TControllerManager;
+begin
+  if not Assigned(InternalControllerManager) then
+    InternalControllerManager := TControllerManager.Create;
+  Result := InternalControllerManager
+end;
 
 { TControllerManager }
 
@@ -77,12 +85,5 @@ begin
   FControllerCreated := False;
   ControllerNode := nil;
 end;
-
-initialization
-  ControllerManager := TControllerManager.Create;
-
-finalization
-  ControllerManager.Free;
-
 
 end.

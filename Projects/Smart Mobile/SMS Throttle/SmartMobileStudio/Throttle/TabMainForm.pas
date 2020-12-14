@@ -40,6 +40,7 @@ uses
 
 type
   TTabMainForm = class(TW3Form)
+    procedure W3ButtonReleaseTrainClick(Sender: TObject);
     procedure W3ButtonAssignTrainClick(Sender: TObject);
     procedure W3ButtonFunctionClick(Sender: TObject);
     procedure W3SliderSpeedChange(Sender: TObject);
@@ -50,13 +51,21 @@ type
  //   FOptionsLayout: TLayout;
  //   FLayout: TLayout;
   protected
+    ControllerManager: TControllerManager;
+
     procedure InitializeForm; override;
     procedure InitializeObject; override;
     procedure Resize; override;
 
     // The Controller is the Controller Node created in the NodeManager
-    procedure ControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
-    procedure ControllerTrainReleased(Sender: TLccNode);
+    procedure OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+    procedure OnControllerTrainReleased(Sender: TLccNode);
+    procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerRequestTakeover(Sender: TLccNode; var Allow: Boolean);
+
+
   end;
 
 implementation
@@ -67,7 +76,44 @@ procedure TTabMainForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
+  ControllerManager := GetControllerManager;
+  ControllerManager.ControllerNode.OnTrainAssigned := @OnControllerTrainAssigned;
+  ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
+  ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
+  ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
+  ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
+
   W3RadioGroupSpeedStep.ItemIndex := 0;
+end;
+
+procedure TTabMainForm.OnControllerRequestTakeover(Sender: TLccNode; var Allow: Boolean);
+begin
+ShowMessage('Takeover Request');
+end;
+
+procedure TTabMainForm.OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+begin
+ShowMessage('Search Result');
+end;
+
+procedure TTabMainForm.OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWord; Value: Word);
+begin
+ShowMessage('Query Function Reply');
+end;
+
+procedure TTabMainForm.OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed: THalfFloat; CommandSpeed: THalfFloat; ActualSpeed: THalfFloat; Status: Byte);
+begin
+ShowMessage('Query Speed Reply');
+end;
+
+procedure TTabMainForm.OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+begin
+ShowMessage('Assigned');
+end;
+
+procedure TTabMainForm.OnControllerTrainReleased(Sender: TLccNode);
+begin
+ShowMessage('Released');
 end;
 
 procedure TTabMainForm.InitializeObject;
@@ -99,8 +145,6 @@ begin
 
 end;
 
-
- 
 procedure TTabMainForm.Resize;
 begin
   inherited;
@@ -108,11 +152,7 @@ begin
 //  FOptionsLayout.Resize(W3PanelSettings);
   W3Panel1.Width := Width;
   W3Panel1.Height := Height;
-
-
 end;
-
-
 
 procedure TTabMainForm.W3ButtonReverseClick(Sender: TObject);
 begin
@@ -133,28 +173,24 @@ begin
     ControllerManager.ControllerNode.Functions[(Sender as TW3Button).TagValue] := not ControllerManager.ControllerNode.Functions[(Sender as TW3Button).TagValue]
 end;
 
-procedure TTabMainForm.W3ButtonAssignTrainClick(Sender: TObject);
+procedure TTabMainForm.W3ButtonReleaseTrainClick(Sender: TObject);
 begin
   if ControllerManager.ControllerCreated then
   begin
-    ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex));
-  end
+    ControllerManager.ControllerNode.ReleaseTrain;
+  end;
+end;
+
+procedure TTabMainForm.W3ButtonAssignTrainClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex + 1));
 end;
 
 procedure TTabMainForm.W3ButtonForwardClick(Sender: TObject);
 begin
   if ControllerManager.ControllerCreated then
     ControllerManager.ControllerNode.Direction := tdForward
-end;
-
-procedure TTabMainForm.ControllerTrainReleased(Sender: TLccNode);
-begin
-
-end;
-
-procedure TTabMainForm.ControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
-begin
-
 end;
 
 initialization

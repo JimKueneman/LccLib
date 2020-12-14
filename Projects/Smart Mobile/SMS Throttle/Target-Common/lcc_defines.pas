@@ -180,6 +180,7 @@ const
   MTI_CAN_CID4                           = $03000000;                                // non-OpenLCB Protocol
   MTI_CAN_CID5                           = $02000000;                                // non-OpenLCB Protocol
   MTI_CAN_CID6                           = $01000000;                                // non-OpenLCB Protocol
+  MTI_CAN_CIDX_MASK                      = $0F000000;
   MTI_CAN_CID_MASK                       = $0FFFF000;
 
   MTI_CAN_RID                            = $00700000;                                // Reserve ID

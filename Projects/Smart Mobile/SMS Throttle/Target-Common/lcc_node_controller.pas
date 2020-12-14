@@ -34,7 +34,7 @@ uses
   {$ENDIF}
   {$IFNDEF DWSCRIPT}
     {$IFDEF FPC}
-     contnrs,
+    contnrs,
     {$ELSE}
       System.Generics.Collections,
     {$ENDIF}

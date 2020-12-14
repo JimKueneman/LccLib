@@ -184,25 +184,28 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Size.Width = 408.000000000000000000
             Size.Height = 420.000000000000000000
             Size.PlatformDefault = False
+            TabHeight = 44.000000000000000000
             TabIndex = 0
             TabOrder = 2
             TabPosition = PlatformDefault
             Sizes = (
               408s
-              394s
+              376s
               408s
-              394s)
+              376s)
             object TabItemFunctionGroup0: TTabItem
               CustomIcon = <
                 item
                 end>
               IsSelected = True
               Size.Width = 56.000000000000000000
-              Size.Height = 26.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = ''
               TabOrder = 0
               Text = 'F0-F12'
+              ExplicitSize.cx = 56.000000000000000000
+              ExplicitSize.cy = 26.000000000000000000
               object GridLayoutFunctionControlsGroup0: TGridLayout
                 Align = Client
                 ClipChildren = True
@@ -216,7 +219,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 Padding.Bottom = 4.000000000000000000
                 Orientation = Horizontal
                 Size.Width = 408.000000000000000000
-                Size.Height = 394.000000000000000000
+                Size.Height = 376.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
                 OnResize = GridLayoutFunctionControlsGroup0Resize
@@ -409,18 +412,20 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 end>
               IsSelected = False
               Size.Width = 63.000000000000000000
-              Size.Height = 26.000000000000000000
+              Size.Height = 44.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = ''
               TabOrder = 0
               Text = 'F13-F28'
+              ExplicitSize.cx = 63.000000000000000000
+              ExplicitSize.cy = 26.000000000000000000
               object GridLayoutFunctionControlsGroup1: TGridLayout
                 Align = Client
                 ItemHeight = 44.000000000000000000
                 ItemWidth = 44.000000000000000000
                 Orientation = Horizontal
                 Size.Width = 408.000000000000000000
-                Size.Height = 394.000000000000000000
+                Size.Height = 376.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
                 OnResize = GridLayoutFunctionControlsGroup1Resize
@@ -1142,10 +1147,10 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         TabOrder = 0
         object SpeedButtonAddTrain: TSpeedButton
           Align = Left
-          Size.Width = 48.000000000000000000
+          Size.Width = 50.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
-          StyleLookup = 'additembutton'
+          StyleLookup = 'composetoolbutton'
           Text = 'SpeedButtonAddTrain'
           OnClick = SpeedButtonAddTrainClick
         end
@@ -1159,10 +1164,20 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           Text = 'SpeedButtonEditTrains'
           OnClick = SpeedButtonTrainSearchClick
         end
+        object SpeedButtonEditTrain: TSpeedButton
+          Align = Left
+          Position.X = 50.000000000000000000
+          Size.Width = 135.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'deleteitembutton'
+          Text = 'SpeedButtonEditTrain'
+          OnClick = SpeedButtonEditTrainClick
+        end
       end
       object ListViewTrains: TListView
-        ItemAppearanceClassName = 'TImageListItemBottomDetailAppearance'
-        ItemEditAppearanceClassName = 'TImageListItemBottomDetailShowCheckAppearance'
+        ItemAppearanceClassName = 'TListItemRightDetailAppearance'
+        ItemEditAppearanceClassName = 'TListItemRightDetailDeleteAppearance'
         HeaderAppearanceClassName = 'TListHeaderObjects'
         FooterAppearanceClassName = 'TListHeaderObjects'
         Align = Client

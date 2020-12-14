@@ -92,7 +92,7 @@ object FormTrainCommander: TFormTrainCommander
     object CheckBoxLogMessages: TCheckBox
       Left = 440
       Height = 18
-      Top = 93
+      Top = 72
       Width = 108
       Caption = 'Log Messages'
       Checked = True
@@ -135,6 +135,16 @@ object FormTrainCommander: TFormTrainCommander
       Caption = 'Action Objects = 0'
       OnClick = ButtonActionObjectCountClick
       TabOrder = 8
+    end
+    object CheckBoxDetailedLog: TCheckBox
+      Left = 443
+      Height = 18
+      Top = 93
+      Width = 97
+      Caption = 'Detailed Log'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 9
     end
   end
   object PanelConnections: TPanel
@@ -181,10 +191,13 @@ object FormTrainCommander: TFormTrainCommander
     Width = 684
     Panels = <    
       item
-        Width = 400
+        Width = 350
       end    
       item
-        Width = 500
+        Width = 350
+      end    
+      item
+        Width = 400
       end>
     SimplePanel = False
   end
