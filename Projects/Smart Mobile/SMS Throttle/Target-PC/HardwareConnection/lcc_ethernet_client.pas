@@ -79,6 +79,7 @@ type
     ErrorCode: Integer;
     LccMessage: TLccMessage;
     SuppressNotification: Boolean;    // True to stop any Syncronoize() call being called
+    WebSocket: Boolean;               // Create A Websocket thread vs a basic TCP thread
   end;
 
 

@@ -644,7 +644,10 @@ end;
 {$ELSE}
 function TLccEthernetListener.CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
 begin
-  Result := TLccEthernetServerThread.Create(True, Owner, FEthernetRec);
+  if EthernetRec.WebSocket then
+    Result := TLccWebSocketServerThread.Create(True, Owner, FEthernetRec)
+  else
+    Result := TLccEthernetServerThread.Create(True, Owner, FEthernetRec);
   Result.SocketHandleForListener := ASocketHandle;    // Back create the sockets with this handle
   Result.OnClientDisconnect := OnClientDisconnect;
   Result.OnConnectionStateChange := OnConnectionStateChange;

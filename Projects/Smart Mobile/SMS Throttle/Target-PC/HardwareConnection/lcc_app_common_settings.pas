@@ -281,6 +281,7 @@ type
     FPiSpiPort: TPiSpiSettings;
     {$ENDIF}
     FThrottle: TThrottleSettings;
+    FWebSocket: Boolean;
   protected
     property Lock: TCriticalSection read FLock write FLock;
     procedure DoLoadFromFile(IniFile: TIniFile); virtual;
@@ -302,6 +303,7 @@ type
     property OnLoadFromFile: TOnCustomSettingFileOperations read FOnLoadFromFile write FOnLoadFromFile;
     property OnSaveToFile: TOnCustomSettingFileOperations read FOnSaveToFile write FOnSaveToFile;
     property Throttle: TThrottleSettings read FThrottle write FThrottle;
+    property WebSocket: Boolean read FWebSocket write FWebSocket;
   end;
 
 procedure Register;
