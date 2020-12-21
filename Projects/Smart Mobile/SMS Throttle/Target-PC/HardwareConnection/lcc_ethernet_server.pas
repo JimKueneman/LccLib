@@ -119,7 +119,7 @@ type
 
   { TLccEthernetThreadList }
 
-  TLccEthernetThreadList = class(TThreadList)      // Contains TServerSocketThread objects
+  TLccEthernetThreadList = class(TThreadList)      // Contains TLccEthernetServerThread and decendent objects
   private
     function GetCount: Integer;
   public
@@ -166,6 +166,7 @@ type
     {$IFDEF ULTIBO}
     {$ELSE}
     function CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
+    function CreateThreadObject: TLccEthernetServerThread; virtual;
     {$ENDIF}
     procedure DoConnectionState;
     procedure DoErrorMessage;
@@ -182,6 +183,16 @@ type
     property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
     property SleepCount: Integer read FSleepCount write FSleepCount;
+  end;
+
+  { TLccWebSocketListener }
+
+  TLccWebSocketListener = class(TLccEthernetListener)
+  protected
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    function CreateThreadObject: TLccEthernetServerThread; override;
+    {$ENDIF}
   end;
 
   { TLccEthernetServer }
@@ -267,6 +278,13 @@ begin
   {$ENDIF}
   RegisterComponents('LCC',[TLccEthernetServer]);
   {$ENDIF}
+end;
+
+{ TLccWebSocketListener }
+
+function TLccWebSocketListener.CreateThreadObject: TLccEthernetServerThread;
+begin
+  Result := TLccWebSocketServerThread.Create(True, Owner, FEthernetRec)
 end;
 
 { TLccWebSocketServerThread }
@@ -662,10 +680,7 @@ end;
 {$ELSE}
 function TLccEthernetListener.CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
 begin
-  if EthernetRec.WebSocket then
-    Result := TLccWebSocketServerThread.Create(True, Owner, FEthernetRec)
-  else
-    Result := TLccEthernetServerThread.Create(True, Owner, FEthernetRec);
+  Result := CreateThreadObject;
   Result.SocketHandleForListener := ASocketHandle;    // Back create the sockets with this handle
   Result.OnClientDisconnect := OnClientDisconnect;
   Result.OnConnectionStateChange := OnConnectionStateChange;
@@ -677,6 +692,12 @@ begin
   Result.UseSynchronize := Owner.UseSynchronize;
   Result.Start;
 end;
+
+function TLccEthernetListener.CreateThreadObject: TLccEthernetServerThread;
+begin
+   Result := TLccEthernetServerThread.Create(True, Owner, FEthernetRec);
+end;
+
 {$ENDIF}
 
 destructor TLccEthernetListener.Destroy;
@@ -997,7 +1018,10 @@ end;
 
 function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
-  Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
+  if AnEthernetRec.WebSocket then
+    Result := TLccWebSocketListener.Create(True, Self, AnEthernetRec)
+  else
+    Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
   Result.Owner := Self;
   UpdateListenerEvents(Result);
   Result.Suspended := False;
