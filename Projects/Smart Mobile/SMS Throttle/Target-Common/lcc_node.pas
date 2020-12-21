@@ -565,8 +565,7 @@ begin
     Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
 end;
 
-function TLccActionHub.RegisterAction(ANode: TLccNode;
-  SourceMessage: TLccMessage; AnAction: TLccAction): Boolean;
+function TLccActionHub.RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction): Boolean;
 begin
   LccActiveActions.Add(AnAction);
   AnAction.FNodeID := ANode.NodeID;

@@ -1,15 +1,15 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:05.525</Created>
-    <Modified>2020-12-10T19:18:23.128</Modified>
+    <Modified>2020-12-20T11:42:22.324</Modified>
     <object type="TW3Form">
       <Caption>Throttle Control</Caption>
       <Width>352</Width>
       <Height>424</Height>
       <Name>TabMainForm</Name>
       <object type="TW3Panel">
-        <Width>312</Width>
-        <Height>408</Height>
+        <Width>328</Width>
+        <Height>424</Height>
         <Name>W3Panel1</Name>
         <object type="TW3Label">
           <Caption>Address</Caption>
@@ -138,6 +138,15 @@
           <Left>8</Left>
           <Height>88</Height>
           <Name>W3RadioGroupSpeedStep</Name>
+        </object>
+        <object type="TW3Button">
+          <Caption>QFunctions</Caption>
+          <Width>96</Width>
+          <Top>144</Top>
+          <Left>168</Left>
+          <Height>32</Height>
+          <Name>W3ButtonQueryFunction</Name>
+          <OnClick>W3ButtonQueryFunctionClick</OnClick>
         </object>
       </object>
     </object>

@@ -261,8 +261,6 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
-
   ControllerNode := Owner as TLccTrainController;
   if Assigned(ControllerNode) then
   begin
@@ -547,6 +545,9 @@ begin
       case SourceMessage.MTI of
          MTI_TRACTION_REPLY :
            begin
+
+
+
              case SourceMessage.DataArray[0] of
                TRACTION_CONTROLLER_CONFIG :
                  begin
@@ -605,7 +606,9 @@ begin
   if Assigned(ControllerNode) then
   begin
     if Assigned(ControllerNode.OnTrainAssigned) then
+    begin
       ControllerNode.OnTrainAssigned(ControllerNode, ResultCode);
+    end;
   end;
 end;
 

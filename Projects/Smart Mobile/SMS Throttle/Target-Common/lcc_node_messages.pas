@@ -485,16 +485,16 @@ begin
               TRACTION_CONTROLLER_CONFIG_ASSIGN :
                 begin
                   if AMessage.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                    Result := Result + ' Controller Config Assign - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
+                    Result := Result + ' Controller Config Assign - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
                   else
-                    Result := Result + ' Controller Config Assign - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                    Result := Result + ' Controller Config Assign - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' Alias not included'
                 end;
               TRACTION_CONTROLLER_CONFIG_RELEASE :
                 begin
                   if AMessage.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                    Result := Result + ' Controller Config Release - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
+                    Result := Result + ' Controller Config Release - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
                   else
-                    Result := Result + ' Controller Config Release - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                    Result := Result + ' Controller Config Release - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' Alias not included'
                 end;
               TRACTION_CONTROLLER_CONFIG_QUERY :
                 begin
@@ -503,9 +503,9 @@ begin
               TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
                 begin
                   if AMessage.ExtractDataBytesAsInt(2, 2) and TRACTION_FLAGS_ALIAS_INCLUDED <> 0 then
-                    Result := Result + ' Controller Config Notify - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
+                    Result := Result + ' Controller Config Notify - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' [Alias: ' + AMessage.ExtractDataBytesAsHex(9, 10) + ']'
                   else
-                    Result := Result + ' Controller Config Notify - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 8) + ' Alias not included'
+                    Result := Result + ' Controller Config Notify - Flags: ' + AMessage.ExtractDataBytesAsHex(2, 2) + ' Controller ID ' + AMessage.ExtractDataBytesAsHex(3, 6) + AMessage.ExtractDataBytesAsHex(7, 8) + ' Alias not included'
                 end
             end
           end;
@@ -802,7 +802,7 @@ begin
   // Can't find an instance where more than 4 bytes are requested in the library but this will test to be sure at runtime
   Result := 0;
   Offset := EndByteIndex - StartByteIndex;
- // Assert(Offset > 3, 'ExtractDataBytesAsInt requested larger than a DWORD result');
+  Assert(Offset < 4, 'ExtractDataBytesAsInt requested larger than a DWORD result');
   for i := StartByteIndex to EndByteIndex do
   begin
     Shift := Offset * 8;

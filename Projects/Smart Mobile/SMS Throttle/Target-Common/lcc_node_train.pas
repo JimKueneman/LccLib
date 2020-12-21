@@ -606,8 +606,8 @@ begin
                           AdvanceToNextState;
                         end else
                         begin
-                          WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, S_OK);
-                          SendMessage(Owner, WorkerMessage);
+                   //       WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, S_OK);
+                   //       SendMessage(Owner, WorkerMessage);
                           AssignResult := S_OK;
                           AdvanceToNextState(2);  // Jump over the Wait for the Assigned Controller to Reply
                           // Nothing to clock the next state so do it manually

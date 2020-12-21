@@ -83,13 +83,9 @@ begin
   // this is a good place to initialize components
   ControllerManager := GetControllerManager;
   MessageList := TStringList.Create;
-  ControllerManager.NodeManager.OnLccMessageSend := @SendMessage;
-  ControllerManager.NodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
-  ControllerManager.NodeManager.OnLccNodeIDChanged := @CallbackNodeIDChange;
-  ControllerManager.NodeManager.OnLccNodeDestroy := @CallbackNodeDestroy;
-  //CanNodeManager.OnLccMessageReceive := @ReceiveMessage;  This causes recurision
 
-  W3ButtonStartNode.Enabled := False;
+    // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+ // W3ButtonStartNode.Enabled := False;
 end;
 
 procedure TTabSettingsForm.InitializeObject;
@@ -158,6 +154,14 @@ var
   URL: string;
 
 begin
+  // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+  ControllerManager.NodeManager.OnLccMessageSend := @SendMessage;
+  ControllerManager.NodeManager.OnLccNodeAliasIDChanged := @CallbackNodeAliasChange;
+  ControllerManager.NodeManager.OnLccNodeIDChanged := @CallbackNodeIDChange;
+  ControllerManager.NodeManager.OnLccNodeDestroy := @CallbackNodeDestroy;
+  //CanNodeManager.OnLccMessageReceive := @ReceiveMessage;  This causes recurision
+
+
   if FSocket.Connected or FConnected then
   begin
     FSocket.Disconnect(

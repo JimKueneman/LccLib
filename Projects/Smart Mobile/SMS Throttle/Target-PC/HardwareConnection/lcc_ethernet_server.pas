@@ -312,7 +312,7 @@ var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
-  TxList: TStringList;
+  TxList, RxList: TStringList;
   DynamicByteArray: TDynamicByteArray;
   LocalSleepCount, i: Integer;
   HeaderStrings: TStringList;
@@ -412,7 +412,25 @@ begin
                       begin
                         FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                         FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
-                        Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage);
+
+                        case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
+                            imgcr_True :
+                              begin
+                                if UseSynchronize then
+                                  Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                                else begin
+                                  RxList := Owner.IncomingGridConnect.LockList;
+                                  try
+                                    RxList.Add(FEthernetRec.LccMessage.ConvertToGridConnectStr('', False));
+                                  finally
+                                    Owner.IncomingGridConnect.UnlockList;
+                                  end;
+                                end;
+                              end;
+                            imgcr_False,
+                            imgcr_ErrorToSend,
+                            imgcr_UnknownError : begin end;
+                         end;
                       end;
                     end;
                   end

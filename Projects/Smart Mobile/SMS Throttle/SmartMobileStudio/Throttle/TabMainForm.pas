@@ -40,6 +40,7 @@ uses
 
 type
   TTabMainForm = class(TW3Form)
+    procedure W3ButtonQueryFunctionClick(Sender: TObject);
     procedure W3ButtonReleaseTrainClick(Sender: TObject);
     procedure W3ButtonAssignTrainClick(Sender: TObject);
     procedure W3ButtonFunctionClick(Sender: TObject);
@@ -76,14 +77,11 @@ procedure TTabMainForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
-  ControllerManager := GetControllerManager;
-  ControllerManager.ControllerNode.OnTrainAssigned := @OnControllerTrainAssigned;
-  ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
-  ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
-  ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
-  ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
 
-  W3RadioGroupSpeedStep.ItemIndex := 0;
+  ControllerManager := GetControllerManager;
+
+  // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+//  W3RadioGroupSpeedStep.ItemIndex := 0;
 end;
 
 procedure TTabMainForm.OnControllerRequestTakeover(Sender: TLccNode; var Allow: Boolean);
@@ -181,10 +179,27 @@ begin
   end;
 end;
 
+procedure TTabMainForm.W3ButtonQueryFunctionClick(Sender: TObject);
+begin
+  if ControllerManager.ControllerCreated then
+  begin
+    ControllerManager.ControllerNode.QueryFunction(0);
+  end;
+end;
+
 procedure TTabMainForm.W3ButtonAssignTrainClick(Sender: TObject);
 begin
   if ControllerManager.ControllerCreated then
+  begin
+    // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+    ControllerManager.ControllerNode.OnTrainAssigned := @OnControllerTrainAssigned;
+    ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
+    ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
+    ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
+    ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
+
     ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex + 1));
+  end
 end;
 
 procedure TTabMainForm.W3ButtonForwardClick(Sender: TObject);

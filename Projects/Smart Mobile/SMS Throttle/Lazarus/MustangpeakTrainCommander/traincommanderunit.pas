@@ -160,20 +160,10 @@ begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
-  EthernetRec.ListenerPort := 12021;
+  EthernetRec.ListenerPort := 12022; // 12021;
   LccServer.UseSynchronize := CheckBoxUseSyncronize.Checked;    // Do we call the timer to pump a receive buffer or do we let it call back through Syncronize on every message received
-  EthernetRec.WebSocket := False;
+  EthernetRec.WebSocket := True; // False;
   Result := LccServer.OpenConnection(EthernetRec) <> nil;
-
-  if Result then
-  begin
-    FillChar(EthernetRec, Sizeof(EthernetRec), #0);
-    EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
-    EthernetRec.ListenerIP := '127.0.0.1';
-    EthernetRec.ListenerPort := 12022;
-    EthernetRec.WebSocket := True;
-    Result := LccServer.OpenConnection(EthernetRec) <> nil;
-  end;
 end;
 
 procedure TFormTrainCommander.DisconnectServer;
