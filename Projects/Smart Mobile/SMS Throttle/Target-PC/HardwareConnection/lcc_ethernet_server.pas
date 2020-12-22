@@ -32,6 +32,8 @@ uses
   Winsock2,
   Console,
   {$ELSE}
+  httpprotocol,
+  httpsend,
   blcksock,
   synsock,
   Base64,
@@ -320,8 +322,78 @@ end;
 { TLccHTTPServerThread }
 
 procedure TLccHTTPServerThread.Execute;
+var
+  RxStr: String;
 begin
-  inherited Execute;
+  FRunning := True;
+
+  HandleSendConnectionNotification(ccsListenerClientConnecting);
+  Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+  Socket.Family := SF_IP4;                  // IP4
+  Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
+  Socket.HeartbeatRate := EthernetRec.HeartbeatRate;
+  Socket.SetTimeout(0);
+  Socket.Socket := SocketHandleForListener;    // Read back the handle
+  if Socket.LastError <> 0 then
+  begin
+    HandleErrorAndDisconnect;
+    Socket.CloseSocket;
+    Socket.Free;
+    Socket := nil;
+    FRunning := False
+  end else
+  begin
+    FEthernetRec.ClientIP := Socket.GetRemoteSinIP;
+    FEthernetRec.ClientPort := Socket.GetRemoteSinPort;
+    FEthernetRec.ListenerIP := Socket.GetLocalSinIP;
+    FEthernetRec.ListenerPort := Socket.GetLocalSinPort;
+    if Socket.LastError <> 0 then
+    begin
+      HandleErrorAndDisconnect;
+      Socket.CloseSocket;
+      Socket.Free;
+      Socket := nil;
+      FRunning := False
+    end else
+    begin
+      HandleSendConnectionNotification(ccsListenerClientConnected);
+      try
+        try
+          while not IsTerminated and (FEthernetRec.ConnectionState = ccsListenerClientConnected) do
+          begin
+            RxStr := Socket.RecvString(1000);
+        //    RcvByte := Socket.RecvByte(1);
+            case Socket.LastError of
+              0 :
+                begin
+                  beep;
+                end;
+              WSAETIMEDOUT :
+                begin
+                  HandleErrorAndDisconnect;
+                end;
+              WSAECONNRESET   :
+                begin
+                  HandleErrorAndDisconnect;
+                end
+            else
+              HandleErrorAndDisconnect
+            end;
+
+        end;
+        finally
+          HandleSendConnectionNotification(ccsListenerClientDisconnecting);
+          Socket.CloseSocket;
+          Socket.Free;
+          Socket := nil;
+        end;
+      finally
+        HandleSendConnectionNotification(ccsListenerClientDisconnected);
+        Owner.EthernetThreads.Remove(Self);
+        FRunning := False;
+      end;
+    end;
+  end;
 end;
 
 { TLccHTTPListener }

@@ -159,8 +159,8 @@ object FormTrainCommander: TFormTrainCommander
       Left = 629
       Height = 22
       Top = 7
-      Width = 115
-      Caption = 'HTTP Start'
+      Width = 139
+      Caption = 'HTTP Connect'
       OnClick = ButtonHTTPServerClick
       TabOrder = 11
     end

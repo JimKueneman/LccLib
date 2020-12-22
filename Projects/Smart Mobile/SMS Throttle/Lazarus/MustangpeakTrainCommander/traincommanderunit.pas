@@ -233,7 +233,7 @@ begin
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
-  EthernetRec.ListenerPort := 80;
+  EthernetRec.ListenerPort := 12020;
   Result := LccHTTPServer.OpenConnection(EthernetRec) <> nil;
 end;
 
@@ -443,7 +443,7 @@ begin
       end;
     ccsListenerDisconnecting :
       begin
-        ButtonWebserverConnect.Caption := 'Disconnecting from HTTP Server';
+        ButtonHTTPServer.Caption := 'Disconnecting from HTTP Server';
         ButtonHTTPServer.Enabled := False;
       end;
     ccsListenerDisconnected :
