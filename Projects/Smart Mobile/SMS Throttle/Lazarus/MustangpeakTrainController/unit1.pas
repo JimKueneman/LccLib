@@ -77,6 +77,7 @@ type
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     StatusBar1: TStatusBar;
+    SynEdit1: TSynEdit;
     TabSheetThrottleTechnologyOther: TTabSheet;
     TabSheetThrottleTechnologyDCC: TTabSheet;
     TabSheetThrottleTechnologyMarklin: TTabSheet;
@@ -351,6 +352,7 @@ end;
 procedure TFormTrainController.OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   EthernetClient.SendMessage(LccMessage);
+  SynEdit1.Lines.Add('S:' + LccMessage.ConvertToGridConnectStr('', False));
 end;
 
 procedure TFormTrainController.ToggleBoxThrottleForwardChange(Sender: TObject);
@@ -370,7 +372,7 @@ end;
 
 procedure TFormTrainController.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-
+  SynEdit1.Lines.Add('R:' + LccMessage.ConvertToGridConnectStr('', False));
 end;
 
 end.

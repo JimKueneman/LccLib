@@ -2,11 +2,11 @@ object FormTrainCommander: TFormTrainCommander
   Left = 418
   Height = 565
   Top = 119
-  Width = 684
+  Width = 804
   Align = alBottom
   Caption = 'Train Commander'
   ClientHeight = 565
-  ClientWidth = 684
+  ClientWidth = 804
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -16,10 +16,10 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 120
     Top = 0
-    Width = 684
+    Width = 804
     Align = alTop
     ClientHeight = 120
-    ClientWidth = 684
+    ClientWidth = 804
     TabOrder = 0
     object CheckBoxAutoConnect: TCheckBox
       Left = 192
@@ -29,13 +29,13 @@ object FormTrainCommander: TFormTrainCommander
       Caption = 'AutoConnect at Startup'
       TabOrder = 0
     end
-    object ButtonManualConnect: TButton
+    object ButtonEthernetConnect: TButton
       Left = 17
       Height = 23
       Top = 8
       Width = 152
-      Caption = 'Manual Connect'
-      OnClick = ButtonManualConnectClick
+      Caption = 'Ethernet Connect'
+      OnClick = ButtonEthernetConnectClick
       TabOrder = 1
     end
     object ButtonClear: TButton
@@ -56,27 +56,27 @@ object FormTrainCommander: TFormTrainCommander
       TabOrder = 3
     end
     object LabelNodeIDCaption: TLabel
-      Left = 17
+      Left = 16
       Height = 16
-      Top = 47
+      Top = 72
       Width = 86
       AutoSize = False
       Caption = 'NodeID'
       ParentColor = False
     end
     object LabelAliasIDCaption: TLabel
-      Left = 18
+      Left = 17
       Height = 16
-      Top = 71
+      Top = 96
       Width = 87
       AutoSize = False
       Caption = 'AliasID'
       ParentColor = False
     end
     object LabelNodeID: TLabel
-      Left = 113
+      Left = 376
       Height = 16
-      Top = 47
+      Top = 200
       Width = 143
       AutoSize = False
       ParentColor = False
@@ -146,21 +146,39 @@ object FormTrainCommander: TFormTrainCommander
       ShowHint = True
       TabOrder = 9
     end
+    object ButtonWebserverConnect: TButton
+      Left = 17
+      Height = 23
+      Top = 36
+      Width = 152
+      Caption = 'Webserver Connect'
+      OnClick = ButtonWebserverConnectClick
+      TabOrder = 10
+    end
+    object ButtonHTTPServer: TButton
+      Left = 629
+      Height = 22
+      Top = 7
+      Width = 115
+      Caption = 'HTTP Start'
+      OnClick = ButtonHTTPServerClick
+      TabOrder = 11
+    end
   end
   object PanelConnections: TPanel
     Left = 0
     Height = 102
     Top = 448
-    Width = 684
+    Width = 804
     Align = alBottom
     ClientHeight = 102
-    ClientWidth = 684
+    ClientWidth = 804
     TabOrder = 1
     object ListviewConnections: TListView
       Left = 1
       Height = 100
       Top = 1
-      Width = 682
+      Width = 802
       Align = alClient
       Columns = <>
       GridLines = True
@@ -174,7 +192,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 9
     Top = 340
-    Width = 684
+    Width = 804
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -188,7 +206,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 15
     Top = 550
-    Width = 684
+    Width = 804
     Panels = <    
       item
         Width = 350
@@ -245,7 +263,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 216
     Height = 220
     Top = 120
-    Width = 468
+    Width = 588
     Align = alClient
     ScrollBars = ssVertical
     TabOrder = 6
@@ -253,8 +271,8 @@ object FormTrainCommander: TFormTrainCommander
   object MemoComPort: TMemo
     Left = 0
     Height = 90
-    Top = 349
-    Width = 684
+    Top = 358
+    Width = 804
     Align = alBottom
     Lines.Strings = (
       'MemoComPort'
@@ -266,8 +284,8 @@ object FormTrainCommander: TFormTrainCommander
     Cursor = crVSplit
     Left = 0
     Height = 9
-    Top = 439
-    Width = 684
+    Top = 349
+    Width = 804
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -1305,7 +1323,7 @@ object FormTrainCommander: TFormTrainCommander
   object TimerIncomingMessagePump: TTimer
     Interval = 1
     OnTimer = TimerIncomingMessagePumpTimer
-    left = 88
-    top = 40
+    left = 200
+    top = 56
   end
 end
