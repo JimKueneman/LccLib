@@ -81,8 +81,8 @@
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="355"/>
-        <CursorPos X="45" Y="373"/>
+        <TopLine Value="377"/>
+        <CursorPos Y="391"/>
         <UsageCount Value="185"/>
         <Loaded Value="True"/>
       </Unit9>
@@ -225,123 +225,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1212" TopLine="1188"/>
+        <Caret Line="1229" TopLine="1211"/>
       </Position1>
       <Position2>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1213" TopLine="1189"/>
+        <Caret Line="1233" TopLine="1211"/>
       </Position2>
       <Position3>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1214" TopLine="1190"/>
+        <Caret Line="1303" TopLine="1289"/>
       </Position3>
       <Position4>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1215" TopLine="1191"/>
+        <Caret Line="1305" TopLine="1289"/>
       </Position4>
       <Position5>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1225" TopLine="1211"/>
+        <Caret Line="1306" TopLine="1289"/>
       </Position5>
       <Position6>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1226" TopLine="1211"/>
+        <Caret Line="1307" TopLine="1289"/>
       </Position6>
       <Position7>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1227" TopLine="1211"/>
+        <Caret Line="1296" Column="33" TopLine="1289"/>
       </Position7>
       <Position8>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1228" TopLine="1211"/>
+        <Caret Line="35" Column="5" TopLine="21"/>
       </Position8>
       <Position9>
-        <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1229" TopLine="1211"/>
+        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-web/src/base/httpprotocol.pp"/>
+        <Caret Line="131" Column="15" TopLine="119"/>
       </Position9>
       <Position10>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1233" TopLine="1211"/>
+        <Caret Line="81" Column="19" TopLine="61"/>
       </Position10>
       <Position11>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1303" TopLine="1289"/>
+        <Caret Line="1184" TopLine="1182"/>
       </Position11>
       <Position12>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1305" TopLine="1289"/>
+        <Caret Line="124" Column="18" TopLine="109"/>
       </Position12>
       <Position13>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1306" TopLine="1289"/>
+        <Caret Line="332" TopLine="320"/>
       </Position13>
       <Position14>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1307" TopLine="1289"/>
+        <Caret Line="372" Column="24" TopLine="350"/>
       </Position14>
       <Position15>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1296" Column="33" TopLine="1289"/>
+        <Caret Line="389" TopLine="346"/>
       </Position15>
       <Position16>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="35" Column="5" TopLine="21"/>
+        <Caret Line="364" TopLine="346"/>
       </Position16>
       <Position17>
-        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-web/src/base/httpprotocol.pp"/>
-        <Caret Line="131" Column="15" TopLine="119"/>
+        <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
+        <Caret Line="366" TopLine="346"/>
       </Position17>
       <Position18>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="81" Column="19" TopLine="61"/>
+        <Caret Line="364" TopLine="346"/>
       </Position18>
       <Position19>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="1184" TopLine="1182"/>
+        <Caret Line="366" TopLine="346"/>
       </Position19>
       <Position20>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="124" Column="18" TopLine="109"/>
+        <Caret Line="369" TopLine="375"/>
       </Position20>
       <Position21>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="332" TopLine="320"/>
+        <Caret Line="391" TopLine="376"/>
       </Position21>
       <Position22>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="372" Column="24" TopLine="350"/>
+        <Caret Line="369" TopLine="380"/>
       </Position22>
       <Position23>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="389" TopLine="346"/>
+        <Caret Line="368" Column="17" TopLine="358"/>
       </Position23>
       <Position24>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="364" TopLine="346"/>
+        <Caret Line="373" TopLine="358"/>
       </Position24>
       <Position25>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="366" TopLine="346"/>
+        <Caret Line="391" TopLine="377"/>
       </Position25>
       <Position26>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="364" TopLine="346"/>
+        <Caret Line="373" TopLine="359"/>
       </Position26>
       <Position27>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="366" TopLine="346"/>
+        <Caret Line="391" TopLine="377"/>
       </Position27>
       <Position28>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="369" TopLine="375"/>
+        <Caret Line="373" TopLine="359"/>
       </Position28>
       <Position29>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="391" TopLine="376"/>
+        <Caret Line="389" Column="19" TopLine="358"/>
       </Position29>
       <Position30>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <Caret Line="369" TopLine="380"/>
+        <Caret Line="369" TopLine="358"/>
       </Position30>
     </JumpHistory>
     <RunParams>
