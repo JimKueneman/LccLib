@@ -320,10 +320,12 @@ end;
 
 { TLccHTTPServerThread }
 
+// Good Example of HTTP
+// https://wiki.freepascal.org/Light_Web_Server
 procedure TLccHTTPServerThread.Execute;
 const
   BASE_PATH = '/Users/JimKueneman/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
-  INDEX_PATH = '/index.html';
+  INDEX_PATH = '/INDEX.HTML';
   MANIFEST_PATH = '/APP.MANIFEST';
   CSS_PATH = '/RES/APP.CSS';
   SHIM_PATH = '/LIB/MUTATION.OBSERVER.SHIM.JS';
@@ -335,9 +337,7 @@ var
   RxStr, FilePath: String;
   InHeader, OutHeader: TStringList;
   Header, ContentType: string;
-  OutputDataString: string;
   MemStream: TFileStream;
-  Len: Integer;
 begin
   FRunning := True;
 
@@ -385,86 +385,76 @@ begin
                   InHeader.Add(RxStr);
                   if RxStr = '' then
                   begin
-
-                    RxStr := InHeader.Text;
-
-                    RxStr := InHeader[0];
                     Header := UpperCase( InHeader[0]);
-                    Len := Pos('GET', Header);
                     if Pos('GET', Header) = 1 then
                     begin // Is a GET
-                      beep;
+
+                      FilePath := '';
+
+                      if Pos(' ' + MANIFEST_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + MANIFEST_PATH;
+                        ContentType := 'Content-type: text/plain';
+                      end else
+                      if Pos(' ' + CSS_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + CSS_PATH;
+                        ContentType := 'Content-type: Text/css';
+                      end else
+                      if Pos(' ' + SHIM_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + SHIM_PATH;
+                        ContentType := 'Content-type: text/javascript';
+                      end else
+                      if Pos(' ' + POLYFILL_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + POLYFILL_PATH;
+                        ContentType := 'Content-type: text/javascript';
+                      end else
+                      if Pos(' ' + MAIN_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + MAIN_PATH;
+                         ContentType := 'Content-type: text/javascript';
+                      end else
+                      if Pos(' ' + JSON_PATH + ' ', Header) = 4 then
+                      begin
+                        FilePath := BASE_PATH + JSON_PATH;
+                        ContentType := 'Content-type: application/json';
+                      end else
+                      if (Pos(' ' + '/' + ' ', Header) = 4) or (Pos(' ' + INDEX_PATH + ' ', Header) = 4) then
+                      begin
+                        FilePath := BASE_PATH + INDEX_PATH;
+                        ContentType := 'Content-type: Text/Html';
+                      end;
+
+                      if FileExists(FilePath) then
+                      begin
+                        MemStream := TFileStream.Create(FilePath, fmOpenRead or fmShareDenyWrite);
+                        try
+                          MemStream.Position := 0;
+                          Socket.SendString('HTTP/1.0 200' + CRLF);
+                          Socket.SendString(ContentType + CRLF);
+                          Socket.SendString('Content-length: ' + IntToStr(MemStream.Size) + CRLF);
+                    //      Socket.SendString('Connection: close' + CRLF);
+                          Socket.SendString('Date: ' + Rfc822DateTime(now) + CRLF);
+                          Socket.SendString('Server: Mustangpeak LccLib' + CRLF);
+                          Socket.SendString('' + CRLF);
+                          Socket.SendStreamRaw(MemStream);
+                          Socket.SendString(CRLF);
+                        finally
+                          MemStream.Free;
+                          InHeader.Clear;
+                        end;
+                      end else
+                      begin
+                        // probably should return a fail or something here
+                        beep;
+                      end;
                     end;
-
-
-                    if Pos(MANIFEST_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + MANIFEST_PATH;
-                      ContentType := 'Content-type: text/plain';
-                    end else
-                    if Pos(CSS_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + CSS_PATH;
-                      ContentType := 'Content-type: Text/css';
-                    end else
-                    if Pos(SHIM_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + SHIM_PATH;
-                      ContentType := 'Content-type: text/javascript';
-                    end else
-                    if Pos(POLYFILL_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + POLYFILL_PATH;
-                      ContentType := 'Content-type: text/javascript';
-                    end else
-                    if Pos(MAIN_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + MAIN_PATH;
-                       ContentType := 'Content-type: text/javascript';
-                    end else
-                    if Pos(JSON_PATH, Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + JSON_PATH;
-                      ContentType := 'Content-type: application/json';
-                    end else
-                    if Pos('/', Header) > 0 then
-                    begin
-                      FilePath := BASE_PATH + INDEX_PATH;
-                      ContentType := 'Content-type: Text/Html';
-                    end;
-
-
-                    MemStream := TFileStream.Create(FilePath, fmOpenRead or fmShareDenyWrite);
-                    MemStream.Position := 0;
-                    Len := MemStream.Size;
-
-                    OutputDataString := '';
-                    for Len := 0 to MemStream.Size - 1 do
-                      OutputDataString := OutputDataString + char( MemStream.ReadByte);
-                    OutputDataString := OutputDataString + CRLF;
-
-                    MemStream.Free;
-
-               //     OutputDataString := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' + ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + CRLF +
-               //      '<html><h1>Teste</h1></html>' + CRLF
-              //        ;
-
-                    Socket.SendString('HTTP/1.0 200' + CRLF);
-                    Socket.SendString(ContentType + CRLF);
-                    Socket.SendString('Content-length: ' + IntToStr(Length(OutputDataString)) + CRLF);
-              //      Socket.SendString('Connection: close' + CRLF);
-                    Socket.SendString('Date: ' + Rfc822DateTime(now) + CRLF);
-                    Socket.SendString('Server: Mustangpeak LccLib' + CRLF);
-                    Socket.SendString('' + CRLF);
-
-                    // TODO:  Need to chunk this up so I don't need a multimeg string which could be a problem on a RPi and be faster
-                    Socket.SendString(OutputDataString);
-
                   end;
                 end;
               WSAETIMEDOUT :
                 begin
-                  InHeader.Clear;
            //       HandleErrorAndDisconnect;
                 end;
               WSAECONNRESET   :
