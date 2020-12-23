@@ -32,10 +32,9 @@ uses
   Winsock2,
   Console,
   {$ELSE}
-  httpprotocol,
-  httpsend,
   blcksock,
   synsock,
+  Synautil,
   Base64,
   sha1,
   {$ENDIF}
@@ -322,8 +321,23 @@ end;
 { TLccHTTPServerThread }
 
 procedure TLccHTTPServerThread.Execute;
+const
+  BASE_PATH = '/Users/JimKueneman/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
+  INDEX_PATH = '/index.html';
+  MANIFEST_PATH = '/APP.MANIFEST';
+  CSS_PATH = '/RES/APP.CSS';
+  SHIM_PATH = '/LIB/MUTATION.OBSERVER.SHIM.JS';
+  POLYFILL_PATH = '/LIB/POLYFILL.CUSTOM.EVENTS.JS';
+  MAIN_PATH = '/MAIN.JS';
+  JSON_PATH = '/WEBAPP.JSON';
+
 var
-  RxStr: String;
+  RxStr, FilePath: String;
+  InHeader, OutHeader: TStringList;
+  Header: string;
+  OutputDataString: string;
+  MemStream: TFileStream;
+  Len: Integer;
 begin
   FRunning := True;
 
@@ -358,19 +372,84 @@ begin
     begin
       HandleSendConnectionNotification(ccsListenerClientConnected);
       try
+        InHeader := TStringList.Create;
+        OutHeader := TStringList.Create;
         try
           while not IsTerminated and (FEthernetRec.ConnectionState = ccsListenerClientConnected) do
           begin
             RxStr := Socket.RecvString(1000);
-        //    RcvByte := Socket.RecvByte(1);
+
             case Socket.LastError of
               0 :
                 begin
-                  beep;
+                  InHeader.Add(RxStr);
+                  if RxStr = '' then
+                  begin
+
+                    RxStr := InHeader.Text;
+
+                    RxStr := InHeader[0];
+                    Header := UpperCase( InHeader[0]);
+                    Len := Pos('GET', Header);
+                    if Pos('GET', Header) = 1 then
+                    begin // Is a GET
+                      beep;
+                    end;
+
+
+                    if Pos(MANIFEST_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + MANIFEST_PATH
+                    else
+                    if Pos(CSS_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + CSS_PATH
+                    else
+                    if Pos(SHIM_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + SHIM_PATH
+                    else
+                    if Pos(POLYFILL_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + POLYFILL_PATH
+                    else
+                    if Pos(MAIN_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + MAIN_PATH
+                    else
+                    if Pos(JSON_PATH, Header) > 0 then
+                      FilePath := BASE_PATH + JSON_PATH
+                    else
+                    if Pos('/', Header) > 0 then
+                      FilePath := BASE_PATH + INDEX_PATH;
+
+
+                    MemStream := TFileStream.Create(FilePath, fmOpenRead or fmShareDenyWrite);
+                    MemStream.Position := 0;
+                    Len := MemStream.Size;
+
+                    OutputDataString := '';
+                    for Len := 0 to MemStream.Size - 1 do
+                      OutputDataString := OutputDataString + char( MemStream.ReadByte);
+                    OutputDataString := OutputDataString + CRLF;
+
+                    MemStream.Free;
+
+               //     OutputDataString := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' + ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + CRLF +
+               //      '<html><h1>Teste</h1></html>' + CRLF
+              //        ;
+
+                    Socket.SendString('HTTP/1.0 200' + CRLF);
+                    Socket.SendString('Content-type: Text/Html' + CRLF);
+                    Socket.SendString('Content-length: ' + IntToStr(Length(OutputDataString)) + CRLF);
+              //      Socket.SendString('Connection: close' + CRLF);
+                    Socket.SendString('Date: ' + Rfc822DateTime(now) + CRLF);
+                    Socket.SendString('Server: Lazarus Synapse' + CRLF);
+                    Socket.SendString('' + CRLF);
+
+                    Socket.SendString(OutputDataString);
+
+                  end;
                 end;
               WSAETIMEDOUT :
                 begin
-                  HandleErrorAndDisconnect;
+                  InHeader.Clear;
+           //       HandleErrorAndDisconnect;
                 end;
               WSAECONNRESET   :
                 begin
@@ -382,6 +461,8 @@ begin
 
         end;
         finally
+          FreeAndNil(InHeader);
+          FreeAndNil(OutHeader);
           HandleSendConnectionNotification(ccsListenerClientDisconnecting);
           Socket.CloseSocket;
           Socket.Free;
@@ -1204,6 +1285,7 @@ procedure TLccEthernetServer.SendMessageRawGridConnect(GridConnectStr: String);
  // List: TList;
  // i: Integer;
 begin
+  GridConnectStr := GridConnectStr; // Keep Hint quiet
  // List := EthernetThreads.LockList;
   try            // TODO
  //   for i := 0 to List.Count - 1 do
@@ -1559,7 +1641,7 @@ begin
       try
         for j := 0 to LSibling.Count - 1 do
         begin
-          SiblingServer := TLccEthernetServer( LSibling[i]);
+          SiblingServer := TLccEthernetServer( LSibling[j]);
           L := SiblingServer.EthernetThreads.LockList;
           try
             for i := 0 to L.Count - 1 do

@@ -148,6 +148,7 @@ begin
     ComPort.CloseComPort(nil);
   end else
   begin
+    ComPortRec.Baud := 0;  // Keeps hint quiet
     FillChar(ComPortRec, SizeOf(ComPortRec), #0);
     ComPortRec.ComPort := ComboBoxComPorts.Items[ComboBoxComPorts.ItemIndex];
     ComPortRec.Baud := 9600;
@@ -192,6 +193,7 @@ var
   EthernetRec: TLccEthernetRec;
 begin
   Result := False;
+  EthernetRec.ErrorCode := 0;  // Keeps Hints quiet
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
@@ -211,6 +213,7 @@ var
   EthernetRec: TLccEthernetRec;
 begin
   Result := False;
+  EthernetRec.ErrorCode := 0;  // Keeps hint quiet
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
@@ -230,6 +233,7 @@ var
   EthernetRec: TLccEthernetRec;
 begin
   Result := False;
+  EthernetRec.ErrorCode := 0;  // Keeps hint quiet
   FillChar(EthernetRec, Sizeof(EthernetRec), #0);
   EthernetRec.AutoResolveIP := not CheckBoxLoopBackIP.Checked;
   EthernetRec.ListenerIP := '127.0.0.1';
@@ -244,6 +248,7 @@ end;
 
 procedure TFormTrainCommander.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
+  CanClose := CanClose; // Keep Hints quiet
   NodeManager.Clear;
   ComPort.CloseComPort(nil);
   LccServer.UnRegisterSiblingEthernetServer(nil);
@@ -305,8 +310,6 @@ begin
 end;
 
 procedure TFormTrainCommander.FormShow(Sender: TObject);
-var
-  EthernetRec: TLccEthernetRec;
 begin
   ComboBoxComPorts.Items.Delimiter := ';';
   ComboBoxComPorts.Items.DelimitedText := StringReplace(GetSerialPortNames, ',', ';', [rfReplaceAll, rfIgnoreCase]);
@@ -475,7 +478,7 @@ end;
 
 procedure TFormTrainCommander.OnCommandStationHTTPErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
-
+  EthernetRec := EthernetRec; // Keep Hints quiet
 end;
 
 procedure TFormTrainCommander.OnNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
