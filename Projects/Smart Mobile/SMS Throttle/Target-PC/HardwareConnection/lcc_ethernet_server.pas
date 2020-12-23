@@ -334,7 +334,7 @@ const
 var
   RxStr, FilePath: String;
   InHeader, OutHeader: TStringList;
-  Header: string;
+  Header, ContentType: string;
   OutputDataString: string;
   MemStream: TFileStream;
   Len: Integer;
@@ -398,25 +398,40 @@ begin
 
 
                     if Pos(MANIFEST_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + MANIFEST_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + MANIFEST_PATH;
+                      ContentType := 'Content-type: text/plain';
+                    end else
                     if Pos(CSS_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + CSS_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + CSS_PATH;
+                      ContentType := 'Content-type: Text/css';
+                    end else
                     if Pos(SHIM_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + SHIM_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + SHIM_PATH;
+                      ContentType := 'Content-type: text/javascript';
+                    end else
                     if Pos(POLYFILL_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + POLYFILL_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + POLYFILL_PATH;
+                      ContentType := 'Content-type: text/javascript';
+                    end else
                     if Pos(MAIN_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + MAIN_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + MAIN_PATH;
+                       ContentType := 'Content-type: text/javascript';
+                    end else
                     if Pos(JSON_PATH, Header) > 0 then
-                      FilePath := BASE_PATH + JSON_PATH
-                    else
+                    begin
+                      FilePath := BASE_PATH + JSON_PATH;
+                      ContentType := 'Content-type: application/json';
+                    end else
                     if Pos('/', Header) > 0 then
+                    begin
                       FilePath := BASE_PATH + INDEX_PATH;
+                      ContentType := 'Content-type: Text/Html';
+                    end;
 
 
                     MemStream := TFileStream.Create(FilePath, fmOpenRead or fmShareDenyWrite);
@@ -435,13 +450,14 @@ begin
               //        ;
 
                     Socket.SendString('HTTP/1.0 200' + CRLF);
-                    Socket.SendString('Content-type: Text/Html' + CRLF);
+                    Socket.SendString(ContentType + CRLF);
                     Socket.SendString('Content-length: ' + IntToStr(Length(OutputDataString)) + CRLF);
               //      Socket.SendString('Connection: close' + CRLF);
                     Socket.SendString('Date: ' + Rfc822DateTime(now) + CRLF);
-                    Socket.SendString('Server: Lazarus Synapse' + CRLF);
+                    Socket.SendString('Server: Mustangpeak LccLib' + CRLF);
                     Socket.SendString('' + CRLF);
 
+                    // TODO:  Need to chunk this up so I don't need a multimeg string which could be a problem on a RPi and be faster
                     Socket.SendString(OutputDataString);
 
                   end;
