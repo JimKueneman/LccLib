@@ -1682,7 +1682,28 @@ begin
           finally
             Owner.EthernetThreads.UnlockList;
           end
-        end
+        end;
+
+        // Now run all the threads in each sibling server that is registered
+        LSibling := Owner.SiblingEthernetThreads.LockList;
+        try
+          for j := 0 to LSibling.Count - 1 do
+          begin
+            SiblingServer := TLccEthernetServer( LSibling[j]);
+            L := SiblingServer.EthernetThreads.LockList;
+            try
+              for i := 0 to L.Count - 1 do
+              begin
+                if TLccEthernetServerThread(L[i]) <> Self then
+                  TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
+              end;
+            finally
+              SiblingServer.EthernetThreads.UnlockList;
+            end
+          end;
+        finally
+          Owner.SiblingEthernetThreads.UnlockList;
+        end;
       end
     end;
   end
