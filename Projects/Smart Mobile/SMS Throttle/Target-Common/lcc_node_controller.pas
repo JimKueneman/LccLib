@@ -437,7 +437,6 @@ begin
          begin
             // Search Protocol is flawed, there is no way to uniquely identify this result was from my inital call
             // I must validate the search result actually matches what I asked for .....
-
            WorkerMessage.LoadTractionSearch(NULL_NODE_ID, 0, RequestedSearchData);
            if SourceMessage.TractionSearchDecodeSearchString = WorkerMessage.TractionSearchDecodeSearchString then
            begin
@@ -501,11 +500,15 @@ begin
   end;
 
   if TimeoutExpired then    // Times up, gather them up.....
+
   begin
+
     if RepliedSearchCriterialCount > 0 then
     begin
       if RepliedSearchCriterialCount = 1 then
       begin
+        DoSearchResults;
+
         SelectedSearchResultIndex := 0;
           // Atomic action no need for Reservation (Manage)
         WorkerMessage.LoadTractionControllerAssign(NodeID, AliasID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeID, RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias, NodeID, AliasID);
@@ -545,9 +548,6 @@ begin
       case SourceMessage.MTI of
          MTI_TRACTION_REPLY :
            begin
-
-
-
              case SourceMessage.DataArray[0] of
                TRACTION_CONTROLLER_CONFIG :
                  begin

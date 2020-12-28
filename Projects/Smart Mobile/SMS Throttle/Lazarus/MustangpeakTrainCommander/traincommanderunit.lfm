@@ -2,11 +2,11 @@ object FormTrainCommander: TFormTrainCommander
   Left = 418
   Height = 565
   Top = 119
-  Width = 874
+  Width = 897
   Align = alBottom
   Caption = 'Train Commander'
   ClientHeight = 565
-  ClientWidth = 874
+  ClientWidth = 897
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -16,10 +16,10 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 120
     Top = 0
-    Width = 874
+    Width = 897
     Align = alTop
     ClientHeight = 120
-    ClientWidth = 874
+    ClientWidth = 897
     TabOrder = 0
     object CheckBoxAutoConnect: TCheckBox
       Left = 192
@@ -169,16 +169,16 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 102
     Top = 448
-    Width = 874
+    Width = 897
     Align = alBottom
     ClientHeight = 102
-    ClientWidth = 874
+    ClientWidth = 897
     TabOrder = 1
     object ListviewConnections: TListView
       Left = 1
       Height = 100
       Top = 1
-      Width = 872
+      Width = 895
       Align = alClient
       Columns = <>
       GridLines = True
@@ -192,7 +192,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 9
     Top = 340
-    Width = 874
+    Width = 897
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -206,7 +206,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 15
     Top = 550
-    Width = 874
+    Width = 897
     Panels = <    
       item
         Width = 350
@@ -263,7 +263,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 216
     Height = 220
     Top = 120
-    Width = 658
+    Width = 681
     Align = alClient
     ScrollBars = ssVertical
     TabOrder = 6
@@ -271,8 +271,8 @@ object FormTrainCommander: TFormTrainCommander
   object MemoComPort: TMemo
     Left = 0
     Height = 90
-    Top = 358
-    Width = 874
+    Top = 349
+    Width = 897
     Align = alBottom
     Lines.Strings = (
       'MemoComPort'
@@ -284,8 +284,8 @@ object FormTrainCommander: TFormTrainCommander
     Cursor = crVSplit
     Left = 0
     Height = 9
-    Top = 349
-    Width = 874
+    Top = 439
+    Width = 897
     Align = alBottom
     ResizeAnchor = akBottom
   end

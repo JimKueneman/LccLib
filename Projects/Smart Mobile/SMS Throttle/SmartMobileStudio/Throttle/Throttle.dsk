@@ -1,16 +1,17 @@
 <SMART>
   <state>
     <editor>
-      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="35" col="25" row="51" splitview="0" designview="0" splitter="0.444551587104797" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="157" col="54" row="186" splitview="1" designview="1" splitter="0.508196721311475" />
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="142" col="2" row="157" splitview="0" designview="0" splitter="0.645130157470703" />
-      <tab filename="LccNode" fullname="LccNode.pas" topline="25" col="10" row="48" />
-      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="590" col="17" row="609" />
-      <tab filename="lcc_node_manager" fullname="..\..\Target-Common\lcc_node_manager.pas" topline="581" col="18" row="597" />
-      <tab filename="lcc_defines" fullname="..\..\Target-Common\lcc_defines.pas" topline="446" col="28" row="464" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="410" col="3" row="425" />
-      <tab filename="lcc_node_messages" fullname="..\..\Target-Common\lcc_node_messages.pas" topline="333" col="21" row="347" />
-      <activetab>TabMainForm</activetab>
+      <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="25" row="51" splitview="0" designview="1" splitter="0.444551587104797" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="133" col="11" row="137" splitview="0" designview="1" splitter="0.508196711540222" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="125" col="67" row="139" splitview="0" designview="1" splitter="0.468659609556198" />
+      <tab filename="SmartCL.Slider" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.Slider.pas" topline="1" col="14" row="30" />
+      <tab filename="SmartCL.Controls.Button" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\Controls\SmartCL.Controls.Button.pas" topline="30" col="17" row="55" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="183" col="36" row="194" />
+      <tab filename="SmartCL.System" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.System.pas" topline="370" col="17" row="384" />
+      <tab filename="SmartCL.Net.websocket" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.Net.websocket.pas" topline="79" col="34" row="89" />
+      <tab filename="LccNode" fullname="LccNode.pas" topline="66" col="6" row="82" />
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="294" col="25" row="285" />
+      <activetab>TabSettingsForm</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -19,13 +20,13 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>7105</BackgroundCompilations>
-      <EditTime>T05:03:33.919</EditTime>
-      <CompileTime>T00:23:20.315</CompileTime>
-      <TotalTime>1900-02-16T23:50:19.690</TotalTime>
-      <DesigningTime>T10:49:54.612</DesigningTime>
-      <RunningTime>1900-01-11T20:37:39.763</RunningTime>
-      <TotalLinesOfCode>723</TotalLinesOfCode>
+      <BackgroundCompilations>7931</BackgroundCompilations>
+      <EditTime>T05:24:25.771</EditTime>
+      <CompileTime>T00:26:46.512</CompileTime>
+      <TotalTime>1900-02-24T23:33:15.885</TotalTime>
+      <DesigningTime>T10:51:43.017</DesigningTime>
+      <RunningTime>1900-01-14T00:12:27.842</RunningTime>
+      <TotalLinesOfCode>732</TotalLinesOfCode>
     </Statistics>
   </state>
 </SMART>

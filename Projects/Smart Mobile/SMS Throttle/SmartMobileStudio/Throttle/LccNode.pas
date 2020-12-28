@@ -74,16 +74,22 @@ end;
 
 procedure TControllerManager.CreateController;
 begin
-  ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-  FControllerCreated := Assigned(ControllerNode);
-  lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+  if not Assigned(ControllerNode) then
+  begin
+    ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+    FControllerCreated := Assigned(ControllerNode);
+    lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
+  end
 end;
 
 procedure TControllerManager.DestroyController;
 begin
-  NodeManager.Clear;
-  FControllerCreated := False;
-  ControllerNode := nil;
+  if Assigned(ControllerNode) then
+  begin
+    NodeManager.Clear;
+    FControllerCreated := False;
+    ControllerNode := nil;
+  end
 end;
 
 end.

@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="30">
+    <Units Count="24">
       <Unit0>
         <Filename Value="TrainCommander.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -19,8 +19,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="TrainCommanderUnit"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="248"/>
-        <CursorPos X="23" Y="269"/>
+        <TopLine Value="409"/>
+        <CursorPos X="117" Y="423"/>
         <UsageCount Value="245"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -39,7 +39,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="151"/>
         <CursorPos X="12" Y="7"/>
-        <UsageCount Value="168"/>
+        <UsageCount Value="159"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../Target-Common/lcc_node_train.pas"/>
@@ -54,7 +54,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="32"/>
         <CursorPos X="33" Y="46"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="162"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../Target-Common/lcc_node_commandstation.pas"/>
@@ -68,7 +68,7 @@
         <Filename Value="../../Target-Common/lcc_node_tasks.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
-        <UsageCount Value="152"/>
+        <UsageCount Value="143"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
@@ -107,124 +107,84 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="615"/>
         <CursorPos Y="620"/>
-        <UsageCount Value="108"/>
+        <UsageCount Value="99"/>
       </Unit12>
       <Unit13>
         <Filename Value="../../Target-PC/lcc_gridconnect.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="92"/>
         <CursorPos X="23" Y="108"/>
-        <UsageCount Value="91"/>
+        <UsageCount Value="82"/>
       </Unit13>
       <Unit14>
         <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="908"/>
         <CursorPos X="3" Y="931"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="68"/>
       </Unit14>
       <Unit15>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="67"/>
         <CursorPos X="34" Y="82"/>
-        <UsageCount Value="118"/>
+        <UsageCount Value="109"/>
       </Unit15>
       <Unit16>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_websocketserver.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="31"/>
         <CursorPos X="27" Y="52"/>
-        <UsageCount Value="117"/>
+        <UsageCount Value="108"/>
       </Unit16>
       <Unit17>
         <Filename Value="../../Target-PC/lcc_node_messages_can_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="301"/>
         <CursorPos X="28" Y="319"/>
-        <UsageCount Value="86"/>
+        <UsageCount Value="77"/>
       </Unit17>
       <Unit18>
         <Filename Value="../../../../../Library/LCC/lcc_can_message_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="44"/>
         <CursorPos Y="58"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="19"/>
       </Unit18>
       <Unit19>
         <Filename Value="../../../../../Library/LCC/lcc_detailed_logging.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1078"/>
         <CursorPos X="2" Y="1080"/>
-        <UsageCount Value="107"/>
+        <UsageCount Value="98"/>
       </Unit19>
       <Unit20>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_app_common_settings.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="282"/>
         <CursorPos X="56" Y="306"/>
-        <UsageCount Value="56"/>
+        <UsageCount Value="47"/>
       </Unit20>
       <Unit21>
-        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/types.pp"/>
-        <UnitName Value="Types"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="136"/>
-        <CursorPos X="27" Y="150"/>
-        <UsageCount Value="4"/>
-      </Unit21>
-      <Unit22>
-        <Filename Value="/usr/local/share/fpcsrc/rtl/objpas/classes/lists.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="988"/>
-        <CursorPos X="5" Y="990"/>
-        <UsageCount Value="4"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="traincommanderunit.lfm"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit23>
-      <Unit24>
         <Filename Value="../../Target-PC/Synapse_LCC/blcksock.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3839"/>
         <CursorPos Y="3863"/>
-        <UsageCount Value="14"/>
-      </Unit24>
-      <Unit25>
+        <UsageCount Value="5"/>
+      </Unit21>
+      <Unit22>
         <Filename Value="../../../../../Library/Synapse_LCC/httpsend.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="230"/>
         <CursorPos X="10" Y="246"/>
-        <UsageCount Value="14"/>
-      </Unit25>
-      <Unit26>
+        <UsageCount Value="5"/>
+      </Unit22>
+      <Unit23>
         <Filename Value="/usr/local/share/fpcsrc/packages/fcl-web/src/base/httpprotocol.pp"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="68" Y="17"/>
-        <UsageCount Value="14"/>
-      </Unit26>
-      <Unit27>
-        <Filename Value="/usr/local/share/fpcsrc/packages/fcl-web/src/base/httproute.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="214"/>
-        <UsageCount Value="2"/>
-      </Unit27>
-      <Unit28>
-        <Filename Value="/usr/local/share/fpcsrc/packages/httpd22/src/httpd.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="70"/>
-        <UsageCount Value="2"/>
-      </Unit28>
-      <Unit29>
-        <Filename Value="../../../../../Library/Synapse_LCC/blcksock.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="518"/>
-        <CursorPos X="15" Y="438"/>
         <UsageCount Value="5"/>
-      </Unit29>
+      </Unit23>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>

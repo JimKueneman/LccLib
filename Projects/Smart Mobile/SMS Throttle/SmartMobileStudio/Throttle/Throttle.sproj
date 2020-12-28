@@ -2,7 +2,7 @@
   <Project version="3" subversion="9">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2020-12-20T11:43:07.254</Modified>
+    <Modified>2020-12-28T11:36:53.782</Modified>
     <Author>Jim Kueneman</Author>
     <Company>Mustangpeak</Company>
     <Description>Lcc Javascript Throttle</Description>
@@ -125,7 +125,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabMainForm</Name>
         <Created>2019-11-25T18:45:05.525Z</Created>
-        <Modified>2020-12-20T11:43:07.243</Modified>
+        <Modified>2020-12-28T06:13:32.405</Modified>
         <Filename>TabMainForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -136,7 +136,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabSettingsForm</Name>
         <Created>2019-11-25T18:45:18.029Z</Created>
-        <Modified>2020-12-20T11:40:07.230</Modified>
+        <Modified>2020-12-28T11:33:41.137</Modified>
         <Filename>TabSettingsForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>
@@ -153,7 +153,7 @@ geo:*</AllowIntent>
       <File type="unit">
         <Name>LccNode</Name>
         <Created>2020-01-01T10:50:49.261Z</Created>
-        <Modified>2020-12-20T10:55:01.219</Modified>
+        <Modified>2020-12-28T11:19:08.040</Modified>
         <Filename>LccNode.pas</Filename>
       </File>
     </Files>
