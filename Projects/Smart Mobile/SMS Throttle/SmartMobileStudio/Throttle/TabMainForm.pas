@@ -36,7 +36,7 @@ uses
   lcc_utilities,
   lcc_node_controller,
   LccNode, SmartCL.Controls.CheckBox,
-  SmartCL.Controls.RadioGroup;
+  SmartCL.Controls.RadioGroup, SmartCL.Controls.ScrollBar;
 
 type
   TTabMainForm = class(TW3Form)
@@ -49,10 +49,10 @@ type
     procedure W3ButtonForwardClick(Sender: TObject);
   private
     {$I 'TabMainForm:intf'}
- //   FOptionsLayout: TLayout;
- //   FLayout: TLayout;
   protected
     ControllerManager: TControllerManager;
+    FStartupInitializeComplete: Boolean;
+    FCallbacksAssigned: Boolean;
 
     procedure InitializeForm; override;
     procedure InitializeObject; override;
@@ -66,7 +66,13 @@ type
     procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
     procedure OnControllerRequestTakeover(Sender: TLccNode; var Allow: Boolean);
 
+    procedure EnableThrottleControls;
+    procedure DisableThrottleControls;
+    procedure AssignCallbacks;
 
+  public
+    property StartupInitializeComplete: Boolean read FStartupInitializeComplete;
+    property CallbacksAssigned: Boolean read FCallbacksAssigned;
   end;
 
 implementation
@@ -77,79 +83,79 @@ procedure TTabMainForm.InitializeForm;
 begin
   inherited;
   // this is a good place to initialize components
-
   ControllerManager := GetControllerManager;
-
-  // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
-//  W3RadioGroupSpeedStep.ItemIndex := 0;
 end;
 
 procedure TTabMainForm.OnControllerRequestTakeover(Sender: TLccNode; var Allow: Boolean);
 begin
-ShowMessage('Takeover Request');
+  Allow := True;
+  if W3CheckBoxQueryRelease.Checked then
+    Allow := Confirm('Allow another throttle to take over the train');
 end;
 
 procedure TTabMainForm.OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
 begin
-ShowMessage('Search Result');
+ // ShowMessage('Search Result');
 end;
 
 procedure TTabMainForm.OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWord; Value: Word);
 begin
-ShowMessage('Query Function Reply');
+  ShowMessage('Query Function Reply');
 end;
 
 procedure TTabMainForm.OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed: THalfFloat; CommandSpeed: THalfFloat; ActualSpeed: THalfFloat; Status: Byte);
 begin
-ShowMessage('Query Speed Reply');
+  ShowMessage('Query Speed Reply');
 end;
 
 procedure TTabMainForm.OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
 begin
-ShowMessage('Assigned');
+  case Reason of
+    tarAssigned:
+      begin
+        EnableThrottleControls;
+      end;
+    tarFailTrainRefused:
+      begin
+        ShowMessage('Failed: Train Refused to Release');
+        DisableThrottleControls;
+      end;
+    tarFailControllerRefused:
+      begin
+        ShowMessage('Failed Controller Refused to Release');
+        DisableThrottleControls
+      end;
+  end;
 end;
 
 procedure TTabMainForm.OnControllerTrainReleased(Sender: TLccNode);
 begin
-ShowMessage('Released');
+//  ShowMessage('Released');
+  DisableThrottleControls;
 end;
 
 procedure TTabMainForm.InitializeObject;
 begin
   inherited;
   {$I 'TabMainForm:impl'}
-
-{  FOptionsLayout := Layout.Client(Layout.Margins(3).Spacing(3), [
-    Layout.Top([
-      Layout.Left(Layout.Spacing(3), [W3LabelIPAddress]),
-      Layout.Client(Layout.Margins(3), [W3EditBoxIpAddress])
-    ]),
-    Layout.Top([
-      Layout.Left(Layout.Spacing(3), [W3LabelIpPort]),
-      Layout.Client(Layout.Margins(3), [W3EditBoxIpPort])
-    ]),
-    Layout.Top(W3CheckBoxTcp)
-
-  ]);
-
-  FLayout := Layout.Client(Layout.Margins(3).Spacing(3), [
-    Layout.Top(W3LabelHeader),
-    Layout.Client(W3PanelSettings),
-    Layout.Bottom(W3ButtonConnection),
-    Layout.Bottom(W3TabControlNav)
-  ]);
-
-  }
-
+  FStartupInitializeComplete := False;
+  FCallbacksAssigned := False;
 end;
 
 procedure TTabMainForm.Resize;
 begin
   inherited;
-//  FLayout.Resize(Self);
-//  FOptionsLayout.Resize(W3PanelSettings);
   W3Panel1.Width := Width;
   W3Panel1.Height := Height;
+
+  if not StartupInitializeComplete then
+  begin
+   // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+    W3RadioGroupSpeedStep.ItemIndex := 0;
+
+    DisableThrottleControls;
+    FStartupInitializeComplete := True;
+  end;
 end;
 
 procedure TTabMainForm.W3ButtonReverseClick(Sender: TObject);
@@ -189,23 +195,53 @@ end;
 
 procedure TTabMainForm.W3ButtonAssignTrainClick(Sender: TObject);
 begin
-  if ControllerManager.ControllerCreated then
+  if not CallbacksAssigned then
   begin
-    // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
-    ControllerManager.ControllerNode.OnTrainAssigned := @OnControllerTrainAssigned;
-    ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
-    ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
-    ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
-    ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
+    AssignCallbacks;
+    FCallbacksAssigned := True;
+  end;
 
-    ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex + 1));
-  end
+  if ControllerManager.ControllerCreated then
+    ControllerManager.ControllerNode.AssignTrainByDccAddress(StrToInt(W3EditBoxDccAddress.Text), W3CheckBoxLongAddress.Checked, TLccDccSpeedStep( W3RadioGroupSpeedStep.ItemIndex + 1))
 end;
 
 procedure TTabMainForm.W3ButtonForwardClick(Sender: TObject);
 begin
   if ControllerManager.ControllerCreated then
     ControllerManager.ControllerNode.Direction := tdForward
+end;
+
+procedure TTabMainForm.EnableThrottleControls;
+begin
+  W3ButtonF0.Enabled := True;
+  W3ButtonF1.Enabled := True;
+  W3ButtonF2.Enabled := True;
+  W3ButtonF3.Enabled := True;
+  W3ButtonForward.Enabled := True;
+  W3ButtonReverse.Enabled := True;
+  W3SliderSpeed.Enabled := True;
+end;
+
+
+procedure TTabMainForm.DisableThrottleControls;
+begin
+  W3ButtonF0.Enabled := False;
+  W3ButtonF1.Enabled := False;
+  W3ButtonF2.Enabled := False;
+  W3ButtonF3.Enabled := False;
+  W3ButtonForward.Enabled := False;
+  W3ButtonReverse.Enabled := False;
+  W3SliderSpeed.Enabled := False;
+end;
+
+procedure TTabMainForm.AssignCallbacks;
+begin
+   // Javascript limitation, can't do it in InitializeForm or InitialzeObject :(
+  ControllerManager.ControllerNode.OnTrainAssigned := @OnControllerTrainAssigned;
+  ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
+  ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
+  ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
+  ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
 end;
 
 initialization

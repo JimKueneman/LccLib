@@ -1,129 +1,129 @@
 <SMART>
   <Form version="3" subversion="9">
     <Created>2019-11-25T18:45:05.525</Created>
-    <Modified>2020-12-20T11:42:22.324</Modified>
+    <Modified>2020-12-28T11:31:28.419</Modified>
     <object type="TW3Form">
       <Caption>Throttle Control</Caption>
-      <Width>352</Width>
-      <Height>424</Height>
+      <Width>320</Width>
+      <Height>420</Height>
       <Name>TabMainForm</Name>
       <object type="TW3Panel">
-        <Width>328</Width>
+        <Width>312</Width>
         <Height>424</Height>
         <Name>W3Panel1</Name>
         <object type="TW3Label">
           <Caption>Address</Caption>
           <Width>128</Width>
-          <Top>64</Top>
-          <Left>16</Left>
+          <Top>56</Top>
+          <Left>168</Left>
           <Height>32</Height>
           <Name>W3LabelAddress</Name>
         </object>
         <object type="TW3EditBox">
           <Text>40</Text>
           <Width>128</Width>
-          <Top>64</Top>
-          <Left>152</Left>
-          <Height>32</Height>
+          <Top>88</Top>
+          <Left>168</Left>
+          <Height>56</Height>
           <Name>W3EditBoxDccAddress</Name>
         </object>
         <object type="TW3Button">
           <Caption>Forward</Caption>
-          <Width>128</Width>
-          <Top>208</Top>
-          <Left>8</Left>
-          <Height>32</Height>
+          <Width>144</Width>
+          <Top>280</Top>
+          <Left>6</Left>
+          <Height>44</Height>
           <Name>W3ButtonForward</Name>
           <OnClick>W3ButtonForwardClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>Reverse</Caption>
-          <Width>128</Width>
-          <Top>208</Top>
-          <Left>144</Left>
-          <Height>32</Height>
+          <Width>144</Width>
+          <Top>280</Top>
+          <Left>160</Left>
+          <Height>44</Height>
           <Name>W3ButtonReverse</Name>
           <OnClick>W3ButtonReverseClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>F0</Caption>
-          <Width>64</Width>
-          <Top>256</Top>
-          <Left>8</Left>
-          <Height>32</Height>
+          <Width>74</Width>
+          <Top>224</Top>
+          <Left>2</Left>
+          <Height>44</Height>
           <Name>W3ButtonF0</Name>
           <OnClick>W3ButtonFunctionClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>F1</Caption>
-          <Width>64</Width>
-          <Top>256</Top>
-          <Left>72</Left>
-          <Height>32</Height>
+          <Width>74</Width>
+          <Top>224</Top>
+          <Left>78</Left>
+          <Height>44</Height>
           <Name>W3ButtonF1</Name>
           <TagValue>1</TagValue>
           <OnClick>W3ButtonFunctionClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>F2</Caption>
-          <Width>64</Width>
-          <Top>256</Top>
-          <Left>136</Left>
-          <Height>32</Height>
+          <Width>74</Width>
+          <Top>224</Top>
+          <Left>154</Left>
+          <Height>44</Height>
           <Name>W3ButtonF2</Name>
           <TagValue>2</TagValue>
           <OnClick>W3ButtonFunctionClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>F3</Caption>
-          <Width>64</Width>
-          <Top>256</Top>
-          <Left>200</Left>
-          <Height>32</Height>
+          <Width>74</Width>
+          <Top>224</Top>
+          <Left>230</Left>
+          <Height>44</Height>
           <Name>W3ButtonF3</Name>
           <TagValue>3</TagValue>
           <OnClick>W3ButtonFunctionClick</OnClick>
         </object>
         <object type="TW3Slider">
           <Maximum>100</Maximum>
-          <Width>280</Width>
+          <Width>304</Width>
           <Top>352</Top>
-          <Left>8</Left>
-          <Height>32</Height>
+          <Height>44</Height>
+          <BorderRadius>10</BorderRadius>
           <Name>W3SliderSpeed</Name>
           <OnChange>W3SliderSpeedChange</OnChange>
         </object>
         <object type="TW3Label">
           <Caption>Speed: 0</Caption>
           <Width>96</Width>
-          <Top>304</Top>
+          <Top>320</Top>
           <Left>8</Left>
           <Height>32</Height>
           <Name>W3LabelSpeed</Name>
         </object>
         <object type="TW3Button">
           <Caption>Assign Train</Caption>
-          <Width>96</Width>
+          <Width>144</Width>
           <Top>8</Top>
-          <Left>16</Left>
-          <Height>32</Height>
+          <Left>8</Left>
+          <Height>44</Height>
           <Name>W3ButtonAssignTrain</Name>
           <OnClick>W3ButtonAssignTrainClick</OnClick>
         </object>
         <object type="TW3Button">
           <Caption>Release Train</Caption>
-          <Width>96</Width>
+          <Width>144</Width>
           <Top>8</Top>
-          <Left>120</Left>
-          <Height>32</Height>
+          <Left>160</Left>
+          <Height>44</Height>
           <Name>W3ButtonReleaseTrain</Name>
           <OnClick>W3ButtonReleaseTrainClick</OnClick>
         </object>
         <object type="TW3CheckBox">
           <Caption>Long Address</Caption>
           <Width>136</Width>
-          <Top>104</Top>
-          <Left>160</Left>
+          <Top>152</Top>
+          <Left>168</Left>
           <Height>32</Height>
           <Name>W3CheckBoxLongAddress</Name>
         </object>
@@ -134,19 +134,18 @@
 </Items>
           <Caption>Speed Steps</Caption>
           <Width>144</Width>
-          <Top>104</Top>
+          <Top>64</Top>
           <Left>8</Left>
-          <Height>88</Height>
+          <Height>112</Height>
           <Name>W3RadioGroupSpeedStep</Name>
         </object>
-        <object type="TW3Button">
-          <Caption>QFunctions</Caption>
-          <Width>96</Width>
-          <Top>144</Top>
-          <Left>168</Left>
+        <object type="TW3CheckBox">
+          <Caption>Ask to allow throttle steal</Caption>
+          <Width>304</Width>
+          <Top>184</Top>
+          <Left>8</Left>
           <Height>32</Height>
-          <Name>W3ButtonQueryFunction</Name>
-          <OnClick>W3ButtonQueryFunctionClick</OnClick>
+          <Name>W3CheckBoxQueryRelease</Name>
         </object>
       </object>
     </object>
