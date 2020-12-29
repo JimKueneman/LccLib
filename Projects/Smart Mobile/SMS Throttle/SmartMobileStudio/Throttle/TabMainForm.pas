@@ -91,6 +91,8 @@ begin
   Allow := True;
   if W3CheckBoxQueryRelease.Checked then
     Allow := Confirm('Allow another throttle to take over the train');
+  if Allow and Assigned(ControllerManager.ControllerNode) then
+    ControllerManager.ControllerNode.ReleaseTrain;
 end;
 
 procedure TTabMainForm.OnControllerSearchResult(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);

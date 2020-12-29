@@ -710,13 +710,17 @@ end;
 procedure TForm1.OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
 begin
   if CheckBoxThrottleTakeover1.Checked then
-    Allow :=  FormThrottleTakeover.ShowModal = mrYes
+    Allow :=  FormThrottleTakeover.ShowModal = mrYes;
+  if Allow then
+    ReleaseTrain1;
 end;
 
 procedure TForm1.OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 begin
   if CheckBoxThrottleTakeover2.Checked then
-    Allow :=  FormThrottleTakeover.ShowModal = mrYes
+    Allow :=  FormThrottleTakeover.ShowModal = mrYes;
+  if Allow then
+    ReleaseTrain2;
 end;
 
 procedure TForm1.OnControllerSearchResult1(Sender: TLccAssignTrainAction;

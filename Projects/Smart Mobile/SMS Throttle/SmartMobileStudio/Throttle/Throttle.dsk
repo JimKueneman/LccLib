@@ -2,16 +2,10 @@
   <state>
     <editor>
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="25" row="51" splitview="0" designview="1" splitter="0.444551587104797" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="133" col="11" row="137" splitview="0" designview="1" splitter="0.508196711540222" />
-      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="125" col="67" row="139" splitview="0" designview="1" splitter="0.468659609556198" />
-      <tab filename="SmartCL.Slider" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.Slider.pas" topline="1" col="14" row="30" />
-      <tab filename="SmartCL.Controls.Button" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\Controls\SmartCL.Controls.Button.pas" topline="30" col="17" row="55" />
-      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="183" col="36" row="194" />
-      <tab filename="SmartCL.System" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.System.pas" topline="370" col="17" row="384" />
-      <tab filename="SmartCL.Net.websocket" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.Net.websocket.pas" topline="79" col="34" row="89" />
-      <tab filename="LccNode" fullname="LccNode.pas" topline="66" col="6" row="82" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="294" col="25" row="285" />
-      <activetab>TabSettingsForm</activetab>
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="83" col="21" row="93" splitview="0" designview="0" splitter="0.508196711540222" />
+      <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="46" col="22" row="145" splitview="0" designview="0" splitter="0.468659609556198" />
+      <tab filename="SmartCL.System" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\SmartCL\SmartCL.System.pas" topline="370" col="10" row="384" />
+      <activetab>TabMainForm</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -20,13 +14,13 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>7931</BackgroundCompilations>
-      <EditTime>T05:24:25.771</EditTime>
-      <CompileTime>T00:26:46.512</CompileTime>
-      <TotalTime>1900-02-24T23:33:15.885</TotalTime>
+      <BackgroundCompilations>7954</BackgroundCompilations>
+      <EditTime>T05:25:21.423</EditTime>
+      <CompileTime>T00:27:19.441</CompileTime>
+      <TotalTime>1900-02-25T20:59:41.424</TotalTime>
       <DesigningTime>T10:51:43.017</DesigningTime>
-      <RunningTime>1900-01-14T00:12:27.842</RunningTime>
-      <TotalLinesOfCode>732</TotalLinesOfCode>
+      <RunningTime>1900-01-14T21:38:35.373</RunningTime>
+      <TotalLinesOfCode>734</TotalLinesOfCode>
     </Statistics>
   </state>
 </SMART>

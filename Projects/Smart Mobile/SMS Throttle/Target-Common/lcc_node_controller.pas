@@ -506,7 +506,6 @@ begin
   if TimeoutExpired then    // Times up, gather them up.....
 
   begin
-
     if RepliedSearchCriterialCount > 0 then
     begin
       if RepliedSearchCriterialCount = 1 then
@@ -761,7 +760,6 @@ begin
                     begin
                       WorkerMessage.LoadTractionControllerChangedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False );
                       SendMessageFunc(Self, WorkerMessage);
-                      DoTrainReleased;
                     end;
                   end;
                 end;

@@ -1,5 +1,5 @@
 object FormTrainCommander: TFormTrainCommander
-  Left = 418
+  Left = 417
   Height = 565
   Top = 119
   Width = 897
@@ -11,7 +11,7 @@ object FormTrainCommander: TFormTrainCommander
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.11.0'
   object PanelDetails: TPanel
     Left = 0
     Height = 120
@@ -25,7 +25,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 192
       Height = 18
       Top = 8
-      Width = 164
+      Width = 156
       Caption = 'AutoConnect at Startup'
       TabOrder = 0
     end
@@ -51,7 +51,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 192
       Height = 18
       Top = 24
-      Width = 68
+      Width = 67
       Caption = 'Local IP'
       TabOrder = 3
     end
@@ -93,7 +93,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 440
       Height = 18
       Top = 72
-      Width = 108
+      Width = 104
       Caption = 'Log Messages'
       Checked = True
       State = cbChecked
@@ -103,7 +103,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 384
       Height = 18
       Top = 8
-      Width = 202
+      Width = 192
       Caption = 'Use Syncronize in the threads'
       Checked = True
       State = cbChecked
@@ -114,9 +114,10 @@ object FormTrainCommander: TFormTrainCommander
       Height = 20
       Top = 47
       Width = 284
-      ItemHeight = 0
+      ItemHeight = 26
       Style = csDropDownList
       TabOrder = 6
+      Text = '0'
     end
     object ButtonManualConnectComPort: TButton
       Left = 256
@@ -140,7 +141,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 443
       Height = 18
       Top = 93
-      Width = 97
+      Width = 94
       Caption = 'Detailed Log'
       ParentShowHint = False
       ShowHint = True
@@ -168,7 +169,7 @@ object FormTrainCommander: TFormTrainCommander
   object PanelConnections: TPanel
     Left = 0
     Height = 102
-    Top = 448
+    Top = 445
     Width = 897
     Align = alBottom
     ClientHeight = 102
@@ -180,32 +181,37 @@ object FormTrainCommander: TFormTrainCommander
       Top = 1
       Width = 895
       Align = alClient
-      Columns = <>
+      Columns = <      
+        item
+          Caption = 'Server'
+          Width = 500
+        end>
       GridLines = True
       LargeImages = ImageListMain
       SmallImages = ImageListMain
       TabOrder = 0
+      ViewStyle = vsReport
     end
   end
   object SplitterConnections: TSplitter
     Cursor = crVSplit
     Left = 0
     Height = 9
-    Top = 340
+    Top = 337
     Width = 897
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object SplitterTrains: TSplitter
     Left = 211
-    Height = 220
+    Height = 217
     Top = 120
     Width = 5
   end
   object StatusBarMain: TStatusBar
     Left = 0
-    Height = 15
-    Top = 550
+    Height = 18
+    Top = 547
     Width = 897
     Panels = <    
       item
@@ -221,17 +227,17 @@ object FormTrainCommander: TFormTrainCommander
   end
   object PanelTrains: TPanel
     Left = 0
-    Height = 220
+    Height = 217
     Top = 120
     Width = 211
     Align = alLeft
     Caption = 'PanelTrains'
-    ClientHeight = 220
+    ClientHeight = 217
     ClientWidth = 211
     TabOrder = 5
     object ListViewTrains: TListView
       Left = 1
-      Height = 187
+      Height = 184
       Top = 32
       Width = 209
       Align = alClient
@@ -261,17 +267,18 @@ object FormTrainCommander: TFormTrainCommander
   end
   object MemoLog: TMemo
     Left = 216
-    Height = 220
+    Height = 217
     Top = 120
     Width = 681
     Align = alClient
+    Lines.Strings = (    )
     ScrollBars = ssVertical
     TabOrder = 6
   end
   object MemoComPort: TMemo
     Left = 0
     Height = 90
-    Top = 349
+    Top = 346
     Width = 897
     Align = alBottom
     Lines.Strings = (
@@ -284,14 +291,14 @@ object FormTrainCommander: TFormTrainCommander
     Cursor = crVSplit
     Left = 0
     Height = 9
-    Top = 439
+    Top = 436
     Width = 897
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object ImageListMain: TImageList
-    left = 72
-    top = 168
+    Left = 72
+    Top = 168
     Bitmap = {
       4C69200000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1323,7 +1330,7 @@ object FormTrainCommander: TFormTrainCommander
   object TimerIncomingMessagePump: TTimer
     Interval = 1
     OnTimer = TimerIncomingMessagePumpTimer
-    left = 200
-    top = 56
+    Left = 200
+    Top = 56
   end
 end
