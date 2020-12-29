@@ -314,6 +314,8 @@ begin
                   begin  // this can be turned into a request/reply action
                     if Address = SourceMessage.TractionExtractFunctionAddress then
                     begin
+                      IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+
                       ControllerNode.DoQueryFunctionReply(Address, SourceMessage.TractionExtractFunctionValue);
                       _NFinalStateCleanup(Sender, SourceMessage);
                     end;
@@ -378,6 +380,8 @@ begin
               case SourceMessage.DataArray[0] of
                 TRACTION_QUERY_SPEED_REPLY :
                   begin  // this can be turned into a request/reply action
+                    IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+
                     ControllerNode.DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
                     _NFinalStateCleanup(Sender, SourceMessage);
                   end;
@@ -560,22 +564,27 @@ begin
                                ControllerNode := Owner as TLccTrainController;
                                 if Assigned(ControllerNode) then
                                 begin
+                                  IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+
                                   ControllerNode.FAssignedTrain.NodeID := RepliedSearchCriteria[SelectedSearchResultIndex].NodeID;
                                   ControllerNode.FAssignedTrain.AliasID := RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias;
                                   ControllerNode.FAssignedTrain.RepliedSearchData := RepliedSearchCriteria[SelectedSearchResultIndex].SearchData;
+
                                   DoAssigned(tarAssigned);
                                end;
                                _NFinalStateCleanup(Sender, SourceMessage);
                              end;
                            TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
                              begin
+                               IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
                                DoAssigned(tarFailTrainRefused);
                                _NFinalStateCleanup(Sender,SourceMessage);
                              end;
                            TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
                              begin
-                                DoAssigned(tarFailControllerRefused);
-                                _NFinalStateCleanup(Sender, SourceMessage);
+                               IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+                               DoAssigned(tarFailControllerRefused);
+                               _NFinalStateCleanup(Sender, SourceMessage);
                              end;
                          end;
                        end;

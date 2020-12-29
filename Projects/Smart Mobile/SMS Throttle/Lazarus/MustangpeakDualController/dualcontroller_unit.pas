@@ -723,8 +723,8 @@ procedure TForm1.OnControllerSearchResult1(Sender: TLccAssignTrainAction;
   Results: TLccSearchResultsArray; SearchResultCount: Integer;
   var SelectedResultIndex: Integer);
 begin
-  if Length(Results) = 0 then ShowMessage('No Search Results');
-  if Length(Results) > 1 then
+  if SearchResultCount = 0 then ShowMessage('No Search Results');
+  if SearchResultCount > 1 then
   begin
     ShowMessage('Multiple Search Results: Please Select');
   end;

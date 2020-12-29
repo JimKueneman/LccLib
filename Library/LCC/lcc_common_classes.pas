@@ -64,7 +64,38 @@ type
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;
   end;
 
+  { TLccTimerThread }
+
+  TLccTimerThread = class(TThread)
+  private
+    FInterval: Word;
+    FOnTimeTick: TNotifyEvent;
+  protected
+    procedure Execute; override;
+    procedure TimeTick;
+  public
+    property Interval: Word read FInterval write FInterval;
+    property OnTimeTick: TNotifyEvent read FOnTimeTick write FOnTimeTick;
+  end;
+
 implementation
+
+{ TLccTimerThread }
+
+procedure TLccTimerThread.Execute;
+begin
+  while not Terminated do
+  begin
+    Sleep(Interval);
+    Synchronize(@TimeTick);
+  end;
+end;
+
+procedure TLccTimerThread.TimeTick;
+begin
+  if Assinged(OnTimeTick) then
+    OnTimeTick(Self)
+end;
 
 { TLccConnectionThread }
 

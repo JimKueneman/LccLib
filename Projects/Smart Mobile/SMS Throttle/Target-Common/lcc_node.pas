@@ -108,6 +108,7 @@ type
    FActionStateIndex: Integer;
    FAliasID: Word;
    FCancel: Boolean;       // Cancels the action, mimics a Timeout in a state which jumps to last state to clean up
+   FIgnoreTimer: Boolean;
    FNodeID: TNodeID;
    FOnTimeoutExpired: TOnActionTimoutExpired;
    FOwner: TLccNode;
@@ -148,6 +149,8 @@ type
 
    property SendMessage: TOnMessageEvent read FSendMessage write FSendMessage;
 
+   // Disables the timer from running any code.  Does not physically disable the timer but just short circuits TimeTick
+   property IgnoreTimer: Boolean read FIgnoreTimer write FIgnoreTimer;
    property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
 
    constructor Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
@@ -473,8 +476,11 @@ end;
 
 procedure TLccAction.TimeTick;
 begin
-  Inc(FTimeoutCounts);
-  ProcessMessage(nil);    // Force a clock tick in the state machine
+  if not IgnoreTimer then
+  begin
+    Inc(FTimeoutCounts);
+    ProcessMessage(nil);    // Force a clock tick in the state machine
+  end
 end;
 
 procedure TLccAction.UnRegisterSelf;
