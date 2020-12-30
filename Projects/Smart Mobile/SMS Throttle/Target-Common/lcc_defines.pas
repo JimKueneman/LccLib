@@ -361,8 +361,8 @@ const
   STR_PIP_FIRMWARE_UPGRADE_ACTIVE    = 'Firmware Upgrade Active Protocol';
 
 
-  COMMON_TEMPORARY_ERROR                 = $2000;
-  COMMON_PERMANENT_ERROR                 = $1000;
+  ERROR_TEMPORARY                     = $2000;
+  ERROR_PERMANENT                     = $1000;
 
 const
   MCP_WRITE                           = $00;                                    // MemoryConfigurationProtocol - Write Memory Mask
@@ -453,6 +453,12 @@ const
   TRACTION_LISTENER_ATTACH            = $01;
   TRACTION_LISTENER_DETACH            = $02;
   TRACTION_LISTENER_QUERY             = $03;
+
+  TRACTION_LISTENER_FLAG_ALIAS_VALID  = $01;
+  TRACTION_LISTENER_FLAG_REVERSE_DIR  = $02;
+  TRACTION_LISTENER_FLAG_LINK_F0      = $04;
+  TRACTION_LISTENER_FLAG_LINK_FN      = $08;
+  TRACTION_LISTENER_FLAG_HIDDEN       = $10;
 
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;

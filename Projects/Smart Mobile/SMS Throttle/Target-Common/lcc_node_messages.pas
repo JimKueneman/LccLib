@@ -162,9 +162,12 @@ public
   procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID; AControllerAlias: Word);
   procedure LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionControllerChangedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
-  procedure LoadTractionConsistAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
-  procedure LoadTractionConsistDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
-  procedure LoadTractionConsistQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
+  procedure LoadTractionListenerAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+  procedure LoadTractionListenerAttachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID; ReplyCode: Word);
+  procedure LoadTractionListenerDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+  procedure LoadTractionListenerDetachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID; ReplyCode: Word);
+  procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+  procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
@@ -2129,91 +2132,107 @@ begin
     FDataArray[2] := TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER
 end;
 
-procedure TLccMessage.LoadTractionConsistAttach(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
-  AnAlias: Word);
+procedure TLccMessage.LoadTractionListenerAttach(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  ListenerNodeID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if AnAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_ATTACH;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, ANodeID);
-    FDataArray[9] := Hi( AnAlias);
-    FDataArray[10] := Lo( AnAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_ATTACH;
-    FDataArray[2] := 0;
-    InsertNodeID(3, ANodeID);
-  end;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_ATTACH;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
 
-procedure TLccMessage.LoadTractionConsistDetach(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
-  AnAlias: Word);
+procedure TLccMessage.LoadTractionListenerAttachReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if AnAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_DETACH;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, ANodeID);
-    FDataArray[9] := Hi( AnAlias);
-    FDataArray[10] := Lo( AnAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_DETACH;
-    FDataArray[2] := 0;
-    InsertNodeID(3, ANodeID);
-  end;
+  DataCount := 10;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_ATTACH;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
+  FDataArray[8] := Hi(ReplyCode);
+  FDataArray[9] := Lo(ReplyCode);
+  MTI := MTI_TRACTION_REPLY;
+end;
+
+procedure TLccMessage.LoadTractionListenerDetach(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_DETACH;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
 
-procedure TLccMessage.LoadTractionConsistQuery(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID;
-  AnAlias: Word);
+procedure TLccMessage.LoadTractionListenerDetachReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if AnAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, ANodeID);
-    FDataArray[9] := Hi( AnAlias);
-    FDataArray[10] := Lo( AnAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
-    FDataArray[2] := 0;
-    InsertNodeID(3, ANodeID);
-  end;
+  DataCount := 10;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_DETACH;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
+  FDataArray[8] := Hi(ReplyCode);
+  FDataArray[9] := Lo(ReplyCode);
+  MTI := MTI_TRACTION_REPLY;
+end;
+
+procedure TLccMessage.LoadTractionListenerQuery(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_QUERY;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
   MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 9;    //  DEPENDS ON WHAT IS RETURNED>>>>>>>>
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_QUERY;
+  FDataArray[2] := 0;
+  InsertNodeID(3, ListenerNodeID);
+  MTI := MTI_TRACTION_REPLY;
 end;
 
 procedure TLccMessage.LoadTractionManage(ASourceID: TNodeID;

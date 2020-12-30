@@ -270,6 +270,24 @@ type
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
+   { TLccListenerAttachReplyAction }
+
+   TLccListenerAttachReplyAction = class(TLccAction)
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+   end;
+
+   { TLccListenerDetachReplyAction }
+
+   TLccListenerDetachReplyAction = class(TLccAction)
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+   end;
+
+   { TLccListenerQueryReplyAction }
+
+   TLccListenerQueryReplyAction = class(TLccAction)
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+   end;
+
 type
   TLccTrainDirection = (tdForward, tdReverse);
   TLccFunctions = array[0..28] of Word;
@@ -282,6 +300,42 @@ type
     ReservationAliasID: Word;
     AttatchNotifyNodeID: TNodeID;
     AttachNotifyAliasID: Word;
+  end;
+
+  { TListenerNode }
+
+  TListenerNode = class
+  private
+    FHidden: Boolean;
+    FLinkF0: Boolean;
+    FLinkFn: Boolean;
+    FNodeID: TNodeID;
+    FReverseDirection: Boolean;
+  public
+    property NodeID: TNodeID read FNodeID write FNodeID;
+    property ReverseDirection: Boolean read FReverseDirection write FReverseDirection;
+    property LinkF0: Boolean read FLinkF0 write FLinkF0;
+    property LinkFn: Boolean read FLinkFn write FLinkFn;
+    property Hidden: Boolean read FHidden write FHidden;
+  end;
+
+  { TListenerList }
+
+  TListenerList = class
+  private
+    function GetCount: Integer;
+  protected
+    FListenerList: TObjectList;
+
+    function FindNodeIndex(NodeID: TNodeID): Integer;
+  public
+    property Count: Integer read GetCount;
+
+    constructor Create;
+    destructor Destroy; override;
+    function Add(NodeID: TNodeID; Flags: Byte; AliasID: Word = 0): TListenerNode;
+    function Delete(NodeID: TNodeID): Boolean;
+    function FindNode(NodeID: TNodeID): TListenerNode;
   end;
 
 type
@@ -316,6 +370,7 @@ type
     property ReserveWatchDogTimer: TLccTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
    private
      FAssignResult: Byte;
+     FListeners: TListenerList;
      FRequestingControllerAliasID: Word;
      FRequestingControllerNodeID: TNodeID;
    protected
@@ -339,6 +394,7 @@ type
 
     property DccAddress: Word read FDccAddress write SetDccAddress;
     property DccLongAddress: Boolean read FDccLongAddress write SetDccLongAddress;
+    property Listeners: TListenerList read FListeners write FListeners;
     property Name: string read FName write SetName;
     property RoadNumber: string read FRoadNumber write SetRoadNumber;
     property SpeedStep: TLccDccSpeedStep read FSpeedStep write SetSpeedStep;
@@ -436,6 +492,191 @@ begin
   end
 end;
 
+{ TLccListenerQueryReplyAction }
+
+function TLccListenerQueryReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  FunctionAddress: DWORD;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+
+  if OwnerTrain.ControllerAssigned then
+    if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
+    begin
+     // FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
+     // OwnerTrain.Functions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
+    end;
+
+   _NFinalStateCleanup(Sender, SourceMessage);
+end;
+
+{ TLccListenerDetachReplyAction }
+
+function TLccListenerDetachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  FunctionAddress: DWORD;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+
+  if OwnerTrain.ControllerAssigned then
+    if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
+    begin
+     // FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
+     // OwnerTrain.Functions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
+    end;
+
+   _NFinalStateCleanup(Sender, SourceMessage);
+end;
+
+{ TLccListenerAttachReplyAction }
+
+function TLccListenerAttachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  ListenerNodeID: TNodeID;
+  Flags: Byte;
+  NewListenerNode: TListenerNode;
+  ReplyCode: Word;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  // Things to concider:
+  //   1) Can't add a Node as its own Listener
+  //   2) Listener could already be in the list
+  //   3) Only the connected Controller can Attach a Listener
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+  NewListenerNode := nil;
+  SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
+  Flags := SourceMessage.DataArray[2];
+
+  if EqualNodeID(NodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
+    ReplyCode := ERROR_PERMANENT;
+
+
+  if not EqualNodeID(NodeID, ListenerNodeID, False) then
+  begin
+
+    if OwnerTrain.ControllerAssigned then
+      if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
+      begin
+        if Flags and TRACTION_LISTENER_FLAG_ALIAS_VALID = TRACTION_LISTENER_FLAG_ALIAS_VALID then
+          NewListenerNode := OwnerTrain.Listeners.Add(SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID), Flags, SourceMessage.ExtractDataBytesAsWord(9))
+        else
+          NewListenerNode := OwnerTrain.Listeners.Add(SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID), Flags)
+      end;
+
+  //    if Assigned(NewListenerNode) then
+
+  //    WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, );
+  end;
+
+  _NFinalStateCleanup(Sender, SourceMessage);
+end;
+
+
+{ TListenerList }
+
+constructor TListenerList.Create;
+begin
+  inherited Create;
+  {$IFDEF DELPHI}
+  FListenerList := TObjectList<TListenerNode>.Create(False);
+  {$ELSE}
+    FListenerList := TObjectList.Create;
+    {$IFNDEF DWSCRIPT}
+    FListenerList.OwnsObjects := False;
+    {$ENDIF}
+  {$ENDIF}
+end;
+
+function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word): TListenerNode;
+begin
+  Result := TListenerNode.Create;
+  Result.NodeID := NodeID;
+  Result.FReverseDirection := Flags and TRACTION_LISTENER_FLAG_ALIAS_VALID = TRACTION_LISTENER_FLAG_ALIAS_VALID;
+  Result.FLinkF0 := Flags and TRACTION_LISTENER_FLAG_LINK_F0 = TRACTION_LISTENER_FLAG_LINK_F0;
+  Result.FLinkFn := Flags and TRACTION_LISTENER_FLAG_LINK_FN = TRACTION_LISTENER_FLAG_LINK_FN;
+  Result.FHidden := Flags and TRACTION_LISTENER_FLAG_HIDDEN = TRACTION_LISTENER_FLAG_HIDDEN;
+end;
+
+function TListenerList.Delete(NodeID: TNodeID): Boolean;
+var
+  Index: Integer;
+begin
+  Result := False;
+  Index := FindNodeIndex(NodeID);
+  if Index > 0 then
+  begin
+    {$IFDEF DWSCRIPT}
+    FListenerList.Remove(Index);
+    {$ELSE}
+    FListenerList.Delete(Index);
+    {$ENDIF}
+    Result := True;
+  end;
+end;
+
+destructor TListenerList.Destroy;
+begin
+  {$IFNDEF DWSCRIPT}
+  FreeAndNil(FListenerList);
+  {$ELSE}
+  FListenerList.Free;
+  {$ENDIF}
+  inherited Destroy;
+end;
+
+function TListenerList.FindNode(NodeID: TNodeID): TListenerNode;
+var
+  i: Integer;
+  ListenerNode: TListenerNode;
+begin
+  Result := nil;
+  i := 0;
+  while (Result = nil) and (i < FListenerList.Count) do
+  begin
+    ListenerNode := (FListenerList[i] as TListenerNode);
+    if (ListenerNode.NodeID[0] = NodeID[0]) and (ListenerNode.NodeID[1] = NodeID[1]) then
+      Result := ListenerNode;
+    Inc(i);
+  end;
+end;
+
+function TListenerList.FindNodeIndex(NodeID: TNodeID): Integer;
+var
+  i: Integer;
+  ListenerNode: TListenerNode;
+begin
+  Result := -1;
+  i := 0;
+  while (Result < 0) and (i < FListenerList.Count) do
+  begin
+    ListenerNode := (FListenerList[i] as TListenerNode);
+    if (ListenerNode.NodeID[0] = NodeID[0]) and (ListenerNode.NodeID[1] = NodeID[1]) then
+      Result := i;
+    Inc(i);
+  end;
+
+end;
+
+function TListenerList.GetCount: Integer;
+begin
+  Result := FListenerList.Count;
+end;
+
 { TLccQueryTrainAction }
 
 function TLccQueryTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -449,9 +690,9 @@ begin
   AttachedController := (Owner as TLccTrainCanNode).AttachedController;
 
   if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
-   WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
+   WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
   else
-   WorkerMessage.LoadTractionConsistQuery(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
+   WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
   SendMessage(Self, WorkerMessage);
 
    _NFinalStateCleanup(Sender, SourceMessage);    // Needs to be updated to wait for reply
@@ -697,6 +938,7 @@ end;
 constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
+  FListeners := TListenerList.Create;
 end;
 
 procedure TLccTrainCanNode.BeforeLogin;
@@ -901,6 +1143,11 @@ end;
 
 destructor TLccTrainCanNode.Destroy;
 begin
+  {$IFDEF DWSCRIPT}
+  FListeners.Free;
+  {$ELSE}
+  FreeAndNil(FListeners);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -1006,9 +1253,9 @@ begin
               if IsReservedBy(SourceMessage) then
               begin
                 case SourceMessage.DataArray[1] of
-                  TRACTION_LISTENER_ATTACH : begin end;
-                  TRACTION_LISTENER_DETACH : begin end;
-                  TRACTION_LISTENER_QUERY  : begin end;
+                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerAttachReplyAction.Create(Self, NodeID, AliasID));
+                  TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerDetachReplyAction.Create(Self, NodeID, AliasID));
+                  TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerQueryReplyAction.Create(Self, NodeID, AliasID));
                 end;
               end
             end;
