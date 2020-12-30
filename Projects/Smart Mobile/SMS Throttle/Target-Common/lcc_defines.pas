@@ -360,10 +360,6 @@ const
   STR_PIP_FIRMWARE_UPGRADE           = 'Firmware Upgrade Protocol';
   STR_PIP_FIRMWARE_UPGRADE_ACTIVE    = 'Firmware Upgrade Active Protocol';
 
-
-  ERROR_TEMPORARY                     = $2000;
-  ERROR_PERMANENT                     = $1000;
-
 const
   MCP_WRITE                           = $00;                                    // MemoryConfigurationProtocol - Write Memory Mask
   MCP_WRITE_STREAM                    = $20;
@@ -524,16 +520,28 @@ const
 
   MAX_CONFIG_MEM_READWRITE_SIZE = 64;
 
-  REJECTED                        = $0000;
-  REJECTED_PERMANENT_ERROR        = $1000;
-  REJECTED_INFORMATION_LOGGED     = $1010;
-  REJECTED_SOURCE_NOT_PERMITTED   = $1020;
-  REJECTED_DATAGRAMS_NOT_ACCEPTED = $1040;
-  REJECTED_BUFFER_FULL            = $2000;
-  REJECTED_OUT_OF_ORDER           = $6000;
-  REJECTED_NO_RESEND_MASK         = $1000;
-  REJECTED_RESEND_MASK            = $2000;
-  REJECTED_TRANSPORT_ERROR_MASK   = $4000;
+  ERROR_TEMPORARY                     = $2000;
+  ERROR_PERMANENT                     = $1000;
+
+  // Permanent error modifier (OR with ERROR_PERMANENT}
+  ERROR_SOURCE_NOT_PERMITED           = $0020;
+  ERROR_NOT_FOUND                     = $0030;
+  ERROR_NOT_IMPLEMENTED               = $0040;
+
+  ERROR_SUBCOMMAND                    = $0001;
+  ERROR_TYPE                          = $0002;
+  ERROR_MTI                           = $0003;
+
+  // Temporary error modifier (OR with ERROR_TEMPORARY}
+  ERROR_TIMEOUT                       = $0010;
+  ERROR_BUFFER_UNAVAILABLE            = $0020;
+  ERROR_NOT_EXPECTED                  = $0040;
+  ERROR_TRANSFER_ERROR                = $0080;
+  ERROR_INVALID_ARGUMENTS             = $0080;
+
+  ERROR_WAITING_FOR_ENDFRAME          = $0001;
+  ERROR_NO_START_FRAME                = $0001;
+  ERROR_NO_END_FRAME                  = $0002;
 
   DATAGRAM_PROTOCOL_LOGREQUEST             = $01;
   DATAGRAM_PROTOCOL_LOGREPLY               = $02;

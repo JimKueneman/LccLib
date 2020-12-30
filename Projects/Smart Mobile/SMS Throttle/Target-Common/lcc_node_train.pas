@@ -273,7 +273,20 @@ type
    { TLccListenerAttachReplyAction }
 
    TLccListenerAttachReplyAction = class(TLccAction)
+   private
+     FAttachFlags: Byte;
+     FListenerNodeAliasID: Word;
+     FListenerNodeID: TNodeID;
+   protected
+     property AttachFlags: Byte read FAttachFlags write FAttachFlags;
+     property ListenerNodeID: TNodeID read FListenerNodeID write FListenerNodeID;
+     property ListenerNodeAliasID: Word read FListenerNodeAliasID write FListenerNodeAliasID;
+
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+     function _1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+     procedure LoadStateArray; override;
    end;
 
    { TLccListenerDetachReplyAction }
@@ -317,6 +330,9 @@ type
     property LinkF0: Boolean read FLinkF0 write FLinkF0;
     property LinkFn: Boolean read FLinkFn write FLinkFn;
     property Hidden: Boolean read FHidden write FHidden;
+
+    procedure DecodeFlags(Flags: Byte);
+    function EncodeFlags: Byte;
   end;
 
   { TListenerList }
@@ -336,6 +352,7 @@ type
     function Add(NodeID: TNodeID; Flags: Byte; AliasID: Word = 0): TListenerNode;
     function Delete(NodeID: TNodeID): Boolean;
     function FindNode(NodeID: TNodeID): TListenerNode;
+    function FindByIndex(Index: Byte): TListenerNode;
   end;
 
 type
@@ -492,100 +509,24 @@ begin
   end
 end;
 
-{ TLccListenerQueryReplyAction }
+{ TListenerNode }
 
-function TLccListenerQueryReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  OwnerTrain: TLccTrainCanNode;
-  FunctionAddress: DWORD;
+procedure TListenerNode.DecodeFlags(Flags: Byte);
 begin
-  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-
-  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
-
-  OwnerTrain := Owner as TLccTrainCanNode;
-
-  if OwnerTrain.ControllerAssigned then
-    if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
-    begin
-     // FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
-     // OwnerTrain.Functions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
-    end;
-
-   _NFinalStateCleanup(Sender, SourceMessage);
+  FReverseDirection := Flags and TRACTION_LISTENER_FLAG_REVERSE_DIR = TRACTION_LISTENER_FLAG_REVERSE_DIR;
+  FLinkF0 := Flags and TRACTION_LISTENER_FLAG_LINK_F0 = TRACTION_LISTENER_FLAG_LINK_F0;
+  FLinkFn := Flags and TRACTION_LISTENER_FLAG_LINK_FN = TRACTION_LISTENER_FLAG_LINK_FN;
+  FHidden := Flags and TRACTION_LISTENER_FLAG_HIDDEN = TRACTION_LISTENER_FLAG_HIDDEN;
 end;
 
-{ TLccListenerDetachReplyAction }
-
-function TLccListenerDetachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  OwnerTrain: TLccTrainCanNode;
-  FunctionAddress: DWORD;
+function TListenerNode.EncodeFlags: Byte;
 begin
-  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-
-  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
-
-  OwnerTrain := Owner as TLccTrainCanNode;
-
-  if OwnerTrain.ControllerAssigned then
-    if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
-    begin
-     // FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
-     // OwnerTrain.Functions[FunctionAddress] := SourceMessage.TractionExtractFunctionValue;
-    end;
-
-   _NFinalStateCleanup(Sender, SourceMessage);
+  Result := 0;
+  if ReverseDirection then Result := Result or TRACTION_LISTENER_FLAG_REVERSE_DIR;
+  if ReverseDirection then Result := Result or TRACTION_LISTENER_FLAG_LINK_F0;
+  if ReverseDirection then Result := Result or TRACTION_LISTENER_FLAG_LINK_FN;
+  if ReverseDirection then Result := Result or TRACTION_LISTENER_FLAG_HIDDEN;
 end;
-
-{ TLccListenerAttachReplyAction }
-
-function TLccListenerAttachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  OwnerTrain: TLccTrainCanNode;
-  ListenerNodeID: TNodeID;
-  Flags: Byte;
-  NewListenerNode: TListenerNode;
-  ReplyCode: Word;
-begin
-  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-
-  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
-
-  // Things to concider:
-  //   1) Can't add a Node as its own Listener
-  //   2) Listener could already be in the list
-  //   3) Only the connected Controller can Attach a Listener
-
-  OwnerTrain := Owner as TLccTrainCanNode;
-  NewListenerNode := nil;
-  SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
-  Flags := SourceMessage.DataArray[2];
-
-  if EqualNodeID(NodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
-    ReplyCode := ERROR_PERMANENT;
-
-
-  if not EqualNodeID(NodeID, ListenerNodeID, False) then
-  begin
-
-    if OwnerTrain.ControllerAssigned then
-      if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
-      begin
-        if Flags and TRACTION_LISTENER_FLAG_ALIAS_VALID = TRACTION_LISTENER_FLAG_ALIAS_VALID then
-          NewListenerNode := OwnerTrain.Listeners.Add(SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID), Flags, SourceMessage.ExtractDataBytesAsWord(9))
-        else
-          NewListenerNode := OwnerTrain.Listeners.Add(SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID), Flags)
-      end;
-
-  //    if Assigned(NewListenerNode) then
-
-  //    WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, );
-  end;
-
-  _NFinalStateCleanup(Sender, SourceMessage);
-end;
-
 
 { TListenerList }
 
@@ -606,10 +547,7 @@ function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word): TListen
 begin
   Result := TListenerNode.Create;
   Result.NodeID := NodeID;
-  Result.FReverseDirection := Flags and TRACTION_LISTENER_FLAG_ALIAS_VALID = TRACTION_LISTENER_FLAG_ALIAS_VALID;
-  Result.FLinkF0 := Flags and TRACTION_LISTENER_FLAG_LINK_F0 = TRACTION_LISTENER_FLAG_LINK_F0;
-  Result.FLinkFn := Flags and TRACTION_LISTENER_FLAG_LINK_FN = TRACTION_LISTENER_FLAG_LINK_FN;
-  Result.FHidden := Flags and TRACTION_LISTENER_FLAG_HIDDEN = TRACTION_LISTENER_FLAG_HIDDEN;
+  Result.DecodeFlags(Flags);
 end;
 
 function TListenerList.Delete(NodeID: TNodeID): Boolean;
@@ -655,6 +593,14 @@ begin
   end;
 end;
 
+function TListenerList.FindByIndex(Index: Byte): TListenerNode;
+begin
+  if Index < Count then
+    Result := FListenerList[Index] as TListenerNode
+  else
+    Result := nil
+end;
+
 function TListenerList.FindNodeIndex(NodeID: TNodeID): Integer;
 var
   i: Integer;
@@ -677,6 +623,174 @@ begin
   Result := FListenerList.Count;
 end;
 
+
+{ TLccListenerQueryReplyAction }
+
+function TLccListenerQueryReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  Listener: TListenerNode;
+  RequestedIndex: Integer;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+
+  if (SourceMessage.DataCount = 2) then // no query data, just wants the total number of listeners retured
+    WorkerMessage.LoadTractionListenerQueryReply(NodeID, AliasID, TargetNodeID, TargetAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0)
+  else begin
+    RequestedIndex := SourceMessage.DataArray[2];
+    if RequestedIndex < OwnerTrain.Listeners.Count then
+    begin
+      Listener := OwnerTrain.Listeners.FindByIndex(RequestedIndex);
+      WorkerMessage.LoadTractionListenerQueryReply(NodeID, AliasID, TargetNodeID, TargetAliasID, OwnerTrain.Listeners.Count, RequestedIndex, Listener.NodeID, Listener.EncodeFlags)
+    end else
+      WorkerMessage.LoadTractionListenerQueryReply_NoInfo(NodeID, AliasID, TargetNodeID, TargetAliasID);   // Outside of range, bad index
+  end;
+  SendMessage(Self, WorkerMessage);
+  _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
+end;
+
+{ TLccListenerDetachReplyAction }
+
+function TLccListenerDetachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  ReplyCode: Word;
+  ListenerNodeID: TNodeID;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+  ListenerNodeID := NULL_NODE_ID;
+  SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
+
+  if OwnerTrain.Listeners.Delete(ListenerNodeID) then
+    ReplyCode := S_OK
+  else
+    ReplyCode := ERROR_PERMANENT or ERROR_NOT_FOUND;
+
+  WorkerMessage.LoadTractionListenerDetachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, ReplyCode);
+  SendMessage(Self, WorkerMessage);
+  _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
+
+end;
+
+{ TLccListenerAttachReplyAction }
+
+function TLccListenerAttachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  NewListenerNode: TListenerNode;
+  ReplyCode: Word;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
+
+  // Things to concider:
+  //   1) Can't add a Node as its own Listener
+  //   2) Listener could already be in the list, don't add duplicates but may just want to update flags
+  //   3) Only the connected Controller can Attach a Listener
+  //   4) The Train must be Reserved by the connected controller
+  //   5) Not enough memory to allocate another Listener
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+  SourceMessage.ExtractDataBytesAsNodeID(3, FListenerNodeID);
+  AttachFlags := SourceMessage.DataArray[2];
+
+  ReplyCode := S_OK;
+
+  if EqualNodeID(NodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
+    ReplyCode := ERROR_PERMANENT or ERROR_INVALID_ARGUMENTS;
+  // Balasz does not agree this is a falure
+  // if not EqualNodeID(NodeID, OwnerTrain.AttachedController.NodeID, False) then
+  //   ReplyCode := ERROR_PERMANENT or ERROR_SOURCE_NOT_PERMITED;
+
+  if ReplyCode = S_OK then
+  begin
+    NewListenerNode := OwnerTrain.Listeners.FindNode(ListenerNodeID);
+    if Assigned(NewListenerNode) then
+    begin  // Simple update of flags
+      NewListenerNode.DecodeFlags(AttachFlags);
+      WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, ReplyCode);
+      SendMessage(Self, WorkerMessage);
+     _NFinalStateCleanup(Sender, SourceMessage);  // Done: clean up and free
+    end else
+    begin
+      // TODO need to distinguish if we are running in a CAN enviroment so we can skip this or not
+      WorkerMessage.LoadAME(NodeID, AliasID, ListenerNodeID);
+      SendMessage(Self, WorkerMessage);
+      SetTimoutCountThreshold(1000);
+      AdvanceToNextState;
+    end;
+  end else
+  begin
+    WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, ReplyCode);
+    SendMessage(Self, WorkerMessage);
+    _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
+  end;
+end;
+
+function TLccListenerAttachReplyAction._1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ReplyCode: Word;
+begin
+  Result := False;
+
+  case SourceMessage.CAN.MTI of
+     MTI_CAN_AMD :
+       begin
+         if EqualNodeID(SourceMessage.ExtractDataBytesAsNodeID(0, FListenerNodeID), FListenerNodeID, False) then
+         begin
+           ListenerNodeAliasID := SourceMessage.CAN.SourceAlias;
+           AdvanceToNextState;
+         end;
+       end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    ReplyCode := ERROR_PERMANENT or ERROR_NOT_FOUND;
+    WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, ReplyCode);
+    SendMessage(Self, WorkerMessage);
+    _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
+  end;
+end;
+
+function TLccListenerAttachReplyAction._2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainCanNode;
+  NewListenerNode: TListenerNode;
+  ReplyCode: Word;
+begin
+  Result := False;
+
+  OwnerTrain := Owner as TLccTrainCanNode;
+  NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
+  if Assigned(NewListenerNode) then
+    ReplyCode := S_OK
+  else
+    ReplyCode := ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE;
+  WorkerMessage.LoadTractionListenerAttachReply(NodeID, AliasID, TargetNodeID, TargetAliasID, ListenerNodeID, ReplyCode);
+
+  // Cleanup
+  AdvanceToNextState;
+end;
+
+procedure TLccListenerAttachReplyAction.LoadStateArray;
+begin
+  SetStateArrayLength(4);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForAMD;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2AssignListener;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
+end;
+
 { TLccQueryTrainAction }
 
 function TLccQueryTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -690,9 +804,9 @@ begin
   AttachedController := (Owner as TLccTrainCanNode).AttachedController;
 
   if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
-   WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
+    WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
   else
-   WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
+    WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.NodeID, AttachedController.AliasID);
   SendMessage(Self, WorkerMessage);
 
    _NFinalStateCleanup(Sender, SourceMessage);    // Needs to be updated to wait for reply
@@ -811,10 +925,11 @@ end;
 
 procedure TLccAssignTrainReplyAction.LoadStateArray;
 begin
-  SetStateArrayLength(3);
+  SetStateArrayLength(4);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
   States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForChangeNotify;
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2SendAssignReply;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 function TLccAssignTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -930,7 +1045,7 @@ begin
   WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
 
-   _NFinalStateCleanup(Sender, SourceMessage);
+  AdvanceToNextState;
 end;
 
 { TLccTrainCanNode }

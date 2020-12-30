@@ -130,7 +130,7 @@ public
   procedure LoadRID(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadAMD(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadAMR(ASourceID: TNodeID; ASourceAlias: Word);
-  procedure LoadAME(ASourceID: TNodeID; ASourceAlias: Word);
+  procedure LoadAME(ASourceID: TNodeID; ASourceAlias: Word; TargetNodeID: TNodeID);
   // Basic
   procedure LoadInitializationComplete(ASourceID: TNodeID; ASourceAlias: Word);
   procedure LoadVerifyNodeIDAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -167,7 +167,8 @@ public
   procedure LoadTractionListenerDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
   procedure LoadTractionListenerDetachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID; ReplyCode: Word);
   procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
-  procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+  procedure LoadTractionListenerQueryReply_NoInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount, ListenerNodeIndex: Byte; ListenerNodeID: TNodeID; Flags: Byte);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
@@ -1328,15 +1329,22 @@ begin
   DataCount := 6;
 end;
 
-procedure TLccMessage.LoadAME(ASourceID: TNodeID; ASourceAlias: Word);
+procedure TLccMessage.LoadAME(ASourceID: TNodeID; ASourceAlias: Word;
+  TargetNodeID: TNodeID);
 begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
   CAN.MTI := MTI_CAN_AME or ASourceAlias;
   SourceID := ASourceID;
-  InsertNodeID(0, ASourceID);
-  DataCount := 6;
+  if NullNodeID(TargetNodeID) then
+  begin
+    DataCount := 0;
+  end else
+  begin
+    InsertNodeID(0, TargetNodeID);
+    DataCount := 6;
+  end;
 end;
 
 procedure TLccMessage.LoadAMR(ASourceID: TNodeID; ASourceAlias: Word);
@@ -2219,19 +2227,43 @@ begin
   MTI := MTI_TRACTION_REQUEST;
 end;
 
-procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerNodeID: TNodeID);
+procedure TLccMessage.LoadTractionListenerQueryReply_NoInfo(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  DataCount := 9;    //  DEPENDS ON WHAT IS RETURNED>>>>>>>>
-  FDataArray[0] := TRACTION_LISTENER;
-  FDataArray[1] := TRACTION_LISTENER_QUERY;
-  FDataArray[2] := 0;
-  InsertNodeID(3, ListenerNodeID);
+  DataCount := 0;
+  MTI := MTI_TRACTION_REPLY;
+end;
+
+procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount,
+  ListenerNodeIndex: Byte; ListenerNodeID: TNodeID; Flags: Byte);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  if NullNodeID(ListenerNodeID) then
+  begin
+    DataCount := 3;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
+    FDataArray[2] := ListenerCount;
+  end else
+  begin
+    DataCount := 10;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
+    FDataArray[2] := ListenerCount;
+    FDataArray[3] := ListenerNodeIndex;
+    FDataArray[4] := Flags;
+    InsertNodeID(5, ListenerNodeID);
+  end;
   MTI := MTI_TRACTION_REPLY;
 end;
 
