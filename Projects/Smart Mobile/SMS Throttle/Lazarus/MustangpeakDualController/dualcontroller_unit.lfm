@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 249
+  Left = 245
   Height = 633
   Top = 112
   Width = 703
@@ -165,6 +165,15 @@ object Form1: TForm1
           Width = 166
           Caption = 'Ask to allow throttle steal'
           TabOrder = 3
+        end
+        object Button1: TButton
+          Left = 152
+          Height = 25
+          Top = 70
+          Width = 75
+          Caption = 'Button1'
+          OnClick = Button1Click
+          TabOrder = 4
         end
       end
       object PanelThrottleKeypad1: TPanel
@@ -363,10 +372,13 @@ object Form1: TForm1
           Top = 1
           Width = 195
           Align = alRight
+          HideSelection = False
           Images = ImageList
           TabOrder = 0
           OnDeletion = TreeViewConsistWizard1Deletion
+          OnNodeChanged = TreeViewConsistWizard1NodeChanged
           OnSelectionChanged = TreeViewConsistWizard1SelectionChanged
+          Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         end
         object ButtonBuildConstist1: TButton
           Left = 8

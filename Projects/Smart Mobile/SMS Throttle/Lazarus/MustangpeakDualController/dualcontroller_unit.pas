@@ -27,6 +27,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TButton;
     ButtonBuildConstist1: TButton;
     ButtonBuildConstist2: TButton;
     ButtonConnect1: TButton;
@@ -120,6 +121,7 @@ type
     TrackBarThrottle2: TTrackBar;
     TreeViewConsistWizard1: TTreeView;
     TreeViewConsistWizard2: TTreeView;
+    procedure Button1Click(Sender: TObject);
     procedure ButtonBuildConstist1Click(Sender: TObject);
     procedure ButtonBuildConstist2Click(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
@@ -141,6 +143,8 @@ type
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewConsistWizard1NodeChanged(Sender: TObject;
+      Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
     procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
     procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
@@ -220,6 +224,18 @@ begin         {
     ControllerNode1.AssignTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
   end;      }
   ShowMessage('Rethinking the Traction Messages.. not sure if Listeners are really needed.  The Controller can maintain the list and forwrd the information');
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if ControllerNode1.IsTrainAssigned then
+    ReleaseTrain1;
+
+
+  ControllerNode1.AssignTrainByDccAddress(123, True, ldss28);
+  ControllerNode1.AssignTrainByDccAddress(234, True, ldss28);
+  ControllerNode1.AssignTrainByDccAddress(567, True, ldss28);
+  ControllerNode1.AssignTrainByDccAddress(987, True, ldss28);
 end;
 
 procedure TForm1.ButtonBuildConstist2Click(Sender: TObject);
@@ -461,6 +477,12 @@ var
 begin
   ConsistItem := TConsistItem( Node.Data);
   FreeAndNil(ConsistItem);
+end;
+
+procedure TForm1.TreeViewConsistWizard1NodeChanged(Sender: TObject;
+  Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
+begin
+
 end;
 
 procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
@@ -801,8 +823,8 @@ begin
     end else
     begin
       SelectedNode := TreeViewConsistWizard1.Selected;
-      if not Assigned(SelectedNode) then
-        SelectedNode := TreeViewConsistWizard1.Items.GetFirstNode;
+  //    if not Assigned(SelectedNode) then
+   //     SelectedNode := TreeViewConsistWizard1.Items.GetFirstNode;
       TreeNode := TreeViewConsistWizard1.Items.AddChild(SelectedNode, NodeCaption);
       TreeNode.Data := ConsistItem;
       TreeNode.MakeVisible;
@@ -834,8 +856,8 @@ begin
     end else
     begin
       SelectedNode := TreeViewConsistWizard2.Selected;
-      if not Assigned(SelectedNode) then
-        SelectedNode := TreeViewConsistWizard2.Items.GetFirstNode;
+   //   if not Assigned(SelectedNode) then
+   //     SelectedNode := TreeViewConsistWizard2.Items.GetFirstNode;
       TreeNode := TreeViewConsistWizard2.Items.AddChild(SelectedNode, NodeCaption);
       TreeNode.Data := ConsistItem;
       TreeNode.MakeVisible;

@@ -369,7 +369,7 @@ end;
 
 procedure TFormTrainCommander.OnCommandStationServerErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
-  ShowMessage('TCP Server: ' + EthernetRec.MessageStr);
+ // ShowMessage('TCP Server: ' + EthernetRec.MessageStr);
 end;
 
 procedure TFormTrainCommander.OnCommandStationWebsocketConnectionState(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -425,7 +425,7 @@ end;
 
 procedure TFormTrainCommander.OnCommandStationWebsocketErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
 begin
-   ShowMessage('Websocket Server: ' + EthernetRec.MessageStr);
+ //  ShowMessage('Websocket Server: ' + EthernetRec.MessageStr);
 end;
 
 procedure TFormTrainCommander.OnCommandStationHTTPConnectionState( Sender: TObject; EthernetRec: TLccEthernetRec);

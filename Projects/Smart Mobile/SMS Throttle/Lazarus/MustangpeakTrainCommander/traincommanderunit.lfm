@@ -184,10 +184,10 @@ object FormTrainCommander: TFormTrainCommander
       Columns = <      
         item
           Caption = 'Server'
-          Width = 500
+          Width = 1000
         end>
-      GridLines = True
       LargeImages = ImageListMain
+      ScrollBars = ssAutoBoth
       SmallImages = ImageListMain
       TabOrder = 0
       ViewStyle = vsReport
@@ -241,9 +241,14 @@ object FormTrainCommander: TFormTrainCommander
       Top = 32
       Width = 209
       Align = alClient
-      Columns = <>
+      Columns = <      
+        item
+          Caption = 'Trains Allocated'
+          Width = 600
+        end>
       SmallImages = ImageListMain
       TabOrder = 0
+      ViewStyle = vsReport
     end
     object PanelTrainsHeader: TPanel
       Left = 1
