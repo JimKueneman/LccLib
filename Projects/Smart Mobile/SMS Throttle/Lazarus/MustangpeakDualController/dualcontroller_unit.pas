@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  StdCtrls, Buttons, Spin, lcc_node_manager, lcc_ethernet_client, lcc_node,
+  StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
-  throttle_takeover_request_form;
+  throttle_takeover_request_form, lcc_alias_server;
 
 type
 
@@ -143,8 +143,7 @@ type
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
-    procedure TreeViewConsistWizard1NodeChanged(Sender: TObject;
-      Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
+    procedure TreeViewConsistWizard1NodeChanged(Sender: TObject; Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
     procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
     procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
@@ -153,10 +152,12 @@ type
     procedure OnNodeManager1IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager1SendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManager1LogIn(Sender: TObject; LccSourceNode: TLccNode);
 
     procedure OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager2SendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManager2LogIn(Sender: TObject; LccSourceNode: TLccNode);
 
     procedure OnClientServer1ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
     procedure OnClientServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -180,8 +181,8 @@ type
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -303,6 +304,7 @@ begin
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
   NodeManager1.OnLccNodeIDChanged := @OnNodeManager1IDChange;
   NodeManager1.OnLccMessageSend := @OnNodeManager1SendMessage;
+  NodeManager1.OnLccNodeLogin := @OnNodeManager1LogIn;
 
   ClientServer1.OnConnectionStateChange := @OnClientServer1ConnectionChange;
   ClientServer1.OnErrorMessage := @OnClientServer1ErrorMessage;
@@ -313,6 +315,7 @@ begin
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
   NodeManager2.OnLccMessageSend := @OnNodeManager2SendMessage;
+  NodeManager2.OnLccNodeLogin := @OnNodeManager2LogIn;
 
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
@@ -745,7 +748,7 @@ begin
     ReleaseTrain2;
 end;
 
-procedure TForm1.OnControllerSearchResult1(Sender: TLccAssignTrainAction;
+procedure TForm1.OnControllerSearchResult1(Sender: TLccTractionAssignTrainAction;
   Results: TLccSearchResultsArray; SearchResultCount: Integer;
   var SelectedResultIndex: Integer);
 begin
@@ -756,7 +759,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerSearchResult2(Sender: TLccAssignTrainAction;
+procedure TForm1.OnControllerSearchResult2(Sender: TLccTractionAssignTrainAction;
   Results: TLccSearchResultsArray; SearchResultCount: Integer;
   var SelectedResultIndex: Integer);
 begin
@@ -880,6 +883,15 @@ begin
   ClientServer1.SendMessage(LccMessage);
 end;
 
+procedure TForm1.OnNodeManager1LogIn(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  if not AliasServer.NetworkRefreshed then
+  begin
+    (LccSourceNode as TLccCanNode).SendGlobalAME;
+    AliasServer.NetworkRefreshed := True;
+  end;
+end;
+
 procedure TForm1.OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   LabelAlias2.Caption := 'NodeID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
@@ -893,6 +905,15 @@ end;
 procedure TForm1.OnNodeManager2SendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
   ClientServer2.SendMessage(LccMessage);
+end;
+
+procedure TForm1.OnNodeManager2LogIn(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  if not AliasServer.NetworkRefreshed then
+  begin
+    (LccSourceNode as TLccCanNode).SendGlobalAME;
+    AliasServer.NetworkRefreshed := True;
+  end;
 end;
 
 end.

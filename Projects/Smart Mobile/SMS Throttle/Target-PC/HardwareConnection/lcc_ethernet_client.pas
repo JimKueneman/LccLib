@@ -57,7 +57,8 @@ uses
   lcc_utilities,
   lcc_app_common_settings,
   lcc_common_classes,
-  lcc_node_messages_can_assembler_disassembler;
+  lcc_node_messages_can_assembler_disassembler,
+  lcc_alias_server;
 
 type
   TLccEthernetClient = class;   // Forward
@@ -905,7 +906,13 @@ begin
     if Gridconnect then
     begin
       if Owner.NodeManager <> nil then
+      begin
+        case EthernetRec.LccMessage.CAN.MTI of
+          MTI_CAN_AMR : AliasServer.RemoveMapping(EthernetRec.LccMessage.CAN.SourceAlias);
+          MTI_CAN_AMD : AliasServer.ForceMapping(EthernetRec.LccMessage.SourceID, EthernetRec.LccMessage.CAN.SourceAlias)
+        end;
         Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);
+      end;
     end else
     begin
       // Called in the content of the main thread through Syncronize

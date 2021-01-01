@@ -371,6 +371,7 @@ type
      procedure Login(ANodeID: TNodeID); override;
      procedure Logout; override;
      function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
+     procedure SendGlobalAME;
   end;
 
   TLccCanNodeClass = class of TLccCanNode;
@@ -898,6 +899,15 @@ begin
     end;
     if not Result then
       Result := inherited ProcessMessage(SourceMessage);
+  end;
+end;
+
+procedure TLccCanNode.SendGlobalAME;
+begin
+  if Permitted then
+  begin
+    WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 

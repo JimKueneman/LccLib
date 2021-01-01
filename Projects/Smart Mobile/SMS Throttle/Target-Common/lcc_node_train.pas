@@ -206,9 +206,9 @@ const
 
 type
 
-   { TLccAssignTrainReplyAction }
+   { TLccTractionAssignControllerReplyAction }
 
-   TLccAssignTrainReplyAction = class(TLccAction)
+   TLccTractionAssignControllerReplyAction = class(TLccAction)
    private
      FAssignResult: Byte;
      FRequestingControllerAliasID: Word;
@@ -225,54 +225,54 @@ type
      property RequestingControllerAliasID: Word read FRequestingControllerAliasID write FRequestingControllerAliasID;
    end;
 
-   { TLccReleaseTrainAction }
+   { TLccTractionReleaseControllerAction }
 
-   TLccReleaseTrainAction = class(TLccAction)
+   TLccTractionReleaseControllerAction = class(TLccAction)
    protected
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
    end;
 
-   { TLccQueryTrainAction }
+   { TLccTractionQueryControllerAction }
 
-   TLccQueryTrainAction = class(TLccAction)
+   TLccTractionQueryControllerAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
-   { TLccQueryFunctionTrainReplyAction }
+   { TLccTractionQueryFunctionReplyAction }
 
-   TLccQueryFunctionTrainReplyAction = class(TLccAction)
+   TLccTractionQueryFunctionReplyAction = class(TLccAction)
    protected
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
-   { TLccQuerySpeedTrainReplyAction }
+   { TLccTractionQuerySpeedReplyAction }
 
-   TLccQuerySpeedTrainReplyAction = class(TLccAction)
+   TLccTractionQuerySpeedReplyAction = class(TLccAction)
    protected
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
-   { TLccSetSpeedTrainAction }
+   { TLccTractionSetSpeedAction }
 
-   TLccSetSpeedTrainAction = class(TLccAction)
+   TLccTractionSetSpeedAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
    end;
 
-   { TLccSetFunctionTrainAction }
+   { TLccTractionSetFunctionAction }
 
-   TLccSetFunctionTrainAction = class(TLccAction)
+   TLccTractionSetFunctionAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
    end;
 
-   { TLccEmergencyStopAction }
+   { TLccTractionEmergencyStopAction }
 
-   TLccEmergencyStopAction = class(TLccAction)
+   TLccTractionEmergencyStopAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
-   { TLccListenerAttachReplyAction }
+   { TLccTractionAttachListenerReplyAction }
 
-   TLccListenerAttachReplyAction = class(TLccAction)
+   TLccTractionAttachListenerReplyAction = class(TLccAction)
    private
      FAttachFlags: Byte;
      FListenerNodeAliasID: Word;
@@ -289,15 +289,15 @@ type
      procedure LoadStateArray; override;
    end;
 
-   { TLccListenerDetachReplyAction }
+   { TLccTractionDetachListenerReplyAction }
 
-   TLccListenerDetachReplyAction = class(TLccAction)
+   TLccTractionDetachListenerReplyAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
-   { TLccListenerQueryReplyAction }
+   { TLccTractionQueryListenerReplyAction }
 
-   TLccListenerQueryReplyAction = class(TLccAction)
+   TLccTractionQueryListenerReplyAction = class(TLccAction)
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
@@ -341,7 +341,11 @@ type
   private
     function GetCount: Integer;
   protected
+    {$IFDEF DELPHI}
+    FListenerList: TObjectList<TListenerNode>;
+   {$ELSE}
     FListenerList: TObjectList;
+   {$ENDIF}
 
     function FindNodeIndex(NodeID: TNodeID): Integer;
   public
@@ -624,9 +628,9 @@ begin
 end;
 
 
-{ TLccListenerQueryReplyAction }
+{ TLccTractionQueryListenerReplyAction }
 
-function TLccListenerQueryReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionQueryListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
   Listener: TListenerNode;
@@ -653,9 +657,9 @@ begin
   _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
 end;
 
-{ TLccListenerDetachReplyAction }
+{ TLccTractionDetachListenerReplyAction }
 
-function TLccListenerDetachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionDetachListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
   ReplyCode: Word;
@@ -680,13 +684,14 @@ begin
 
 end;
 
-{ TLccListenerAttachReplyAction }
+{ TLccTractionAttachListenerReplyAction }
 
-function TLccListenerAttachReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAttachListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
   NewListenerNode: TListenerNode;
   ReplyCode: Word;
+  TempNodeID: TNodeID;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -700,7 +705,8 @@ begin
   //   5) Not enough memory to allocate another Listener
 
   OwnerTrain := Owner as TLccTrainCanNode;
-  SourceMessage.ExtractDataBytesAsNodeID(3, FListenerNodeID);
+  SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
+  FListenerNodeID := TempNodeID;
   AttachFlags := SourceMessage.DataArray[2];
 
   ReplyCode := S_OK;
@@ -736,16 +742,18 @@ begin
   end;
 end;
 
-function TLccListenerAttachReplyAction._1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAttachListenerReplyAction._1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   ReplyCode: Word;
+  TempNodeID: TNodeID;
 begin
   Result := False;
 
   case SourceMessage.CAN.MTI of
      MTI_CAN_AMD :
        begin
-         if EqualNodeID(SourceMessage.ExtractDataBytesAsNodeID(0, FListenerNodeID), FListenerNodeID, False) then
+         SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID); // Make SMS happy
+         if EqualNodeID(TempNodeID, FListenerNodeID, False) then
          begin
            ListenerNodeAliasID := SourceMessage.CAN.SourceAlias;
            AdvanceToNextState;
@@ -762,7 +770,7 @@ begin
   end;
 end;
 
-function TLccListenerAttachReplyAction._2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAttachListenerReplyAction._2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
   NewListenerNode: TListenerNode;
@@ -782,7 +790,7 @@ begin
   AdvanceToNextState;
 end;
 
-procedure TLccListenerAttachReplyAction.LoadStateArray;
+procedure TLccTractionAttachListenerReplyAction.LoadStateArray;
 begin
   SetStateArrayLength(4);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
@@ -791,9 +799,9 @@ begin
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
-{ TLccQueryTrainAction }
+{ TLccTractionQueryControllerAction }
 
-function TLccQueryTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionQueryControllerAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   AttachedController: TAttachedController;
 begin
@@ -812,9 +820,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);    // Needs to be updated to wait for reply
 end;
 
-{ TLccReleaseTrainAction }
+{ TLccTractionReleaseControllerAction }
 
-function TLccReleaseTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionReleaseControllerAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
 begin
@@ -830,9 +838,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccEmergencyStopAction }
+{ TLccTractionEmergencyStopAction }
 
-function TLccEmergencyStopAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionEmergencyStopAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
 begin
@@ -846,9 +854,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccSetFunctionTrainAction }
+{ TLccTractionSetFunctionAction }
 
-function TLccSetFunctionTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionSetFunctionAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
   FunctionAddress: DWORD;
@@ -869,9 +877,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccSetSpeedTrainAction }
+{ TLccTractionSetSpeedAction }
 
-function TLccSetSpeedTrainAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionSetSpeedAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
 begin
@@ -887,9 +895,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccQueryFunctionTrainReplyAction }
+{ TLccTractionQueryFunctionReplyAction }
 
-function TLccQueryFunctionTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionQueryFunctionReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   FunctionAddress: DWORD;
 begin
@@ -904,9 +912,9 @@ begin
   _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccQuerySpeedTrainReplyAction }
+{ TLccTractionQuerySpeedReplyAction }
 
-function TLccQuerySpeedTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionQuerySpeedReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
 begin
@@ -921,9 +929,9 @@ begin
    _NFinalStateCleanup(Sender, SourceMessage);
 end;
 
-{ TLccAssignTrainReplyAction }
+{ TLccTractionAssignControllerReplyAction }
 
-procedure TLccAssignTrainReplyAction.LoadStateArray;
+procedure TLccTractionAssignControllerReplyAction.LoadStateArray;
 begin
   SetStateArrayLength(4);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
@@ -932,7 +940,7 @@ begin
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
-function TLccAssignTrainReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAssignControllerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainCanNode;
 begin
@@ -981,7 +989,7 @@ begin
   SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT, True);
 end;
 
-function TLccAssignTrainReplyAction._1WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAssignControllerReplyAction._1WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
 
@@ -1032,7 +1040,7 @@ begin
   end;
 end;
 
-function TLccAssignTrainReplyAction._2SendAssignReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccTractionAssignControllerReplyAction._2SendAssignReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
 
@@ -1350,17 +1358,17 @@ begin
     MTI_TRACTION_REQUEST :
       begin
         case SourceMessage.DataArray[0] of
-          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAction(Self, SourceMessage, TLccSetSpeedTrainAction.Create(Self, NodeID, AliasID));
-          TRACTION_FUNCTION        : Result := LccActions.RegisterAction(Self, SourceMessage, TLccSetFunctionTrainAction.Create(Self, NodeID, AliasID));
-          TRACTION_E_STOP          : Result := LccActions.RegisterAction(Self, SourceMessage, TLccEmergencyStopAction.Create(Self, NodeID, AliasID));
-          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQuerySpeedTrainReplyAction.Create(Self, NodeID, AliasID));
-          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQueryFunctionTrainReplyAction.Create(Self, NodeID, AliasID));
+          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionSetSpeedAction.Create(Self, NodeID, AliasID));
+          TRACTION_FUNCTION        : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionSetFunctionAction.Create(Self, NodeID, AliasID));
+          TRACTION_E_STOP          : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionEmergencyStopAction.Create(Self, NodeID, AliasID));
+          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionQuerySpeedReplyAction.Create(Self, NodeID, AliasID));
+          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionQueryFunctionReplyAction.Create(Self, NodeID, AliasID));
           TRACTION_CONTROLLER_CONFIG :
             begin
               case SourceMessage.DataArray[1] of
-                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccAssignTrainReplyAction.Create(Self, NodeID, AliasID));
-                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAction(Self, SourceMessage, TLccReleaseTrainAction.Create(Self, NodeID, AliasID));
-                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAction(Self, SourceMessage, TLccQueryTrainAction.Create(Self, NodeID, AliasID));
+                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionAssignControllerReplyAction.Create(Self, NodeID, AliasID));
+                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionReleaseControllerAction.Create(Self, NodeID, AliasID));
+                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionQueryControllerAction.Create(Self, NodeID, AliasID));
                end
             end;
           TRACTION_LISTENER :
@@ -1368,9 +1376,9 @@ begin
               if IsReservedBy(SourceMessage) then
               begin
                 case SourceMessage.DataArray[1] of
-                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerAttachReplyAction.Create(Self, NodeID, AliasID));
-                  TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerDetachReplyAction.Create(Self, NodeID, AliasID));
-                  TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccListenerQueryReplyAction.Create(Self, NodeID, AliasID));
+                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionAttachListenerReplyAction.Create(Self, NodeID, AliasID));
+                  TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionDetachListenerReplyAction.Create(Self, NodeID, AliasID));
+                  TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAction(Self, SourceMessage, TLccTractionQueryListenerReplyAction.Create(Self, NodeID, AliasID));
                 end;
               end
             end;

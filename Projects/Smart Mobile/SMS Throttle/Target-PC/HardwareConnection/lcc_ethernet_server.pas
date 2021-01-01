@@ -35,8 +35,10 @@ uses
   blcksock,
   synsock,
   Synautil,
-  Base64,
-  sha1,
+    {$IFDEF DELPHI}
+    Base64,
+    sha1,
+    {$ENDIF}
   {$ENDIF}
   lcc_threaded_circulararray,
   lcc_threaded_stringlist,

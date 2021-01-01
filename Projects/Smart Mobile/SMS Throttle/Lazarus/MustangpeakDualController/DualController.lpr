@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, dualcontroller_unit, throttle_takeover_request_form
+  Forms, dualcontroller_unit, throttle_takeover_request_form, lcc_alias_server
   { you can add units after this };
 
 {$R *.res}

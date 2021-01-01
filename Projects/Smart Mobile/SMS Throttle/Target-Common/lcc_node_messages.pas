@@ -231,7 +231,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
 end;
 
 
-{$IFNDEF DWSCRIPT}
+{$IFDEF FPC}
 function MessageToDetailedMessage(AMessage: TLccMessage): String;
 {$ENDIF}
 
@@ -241,7 +241,7 @@ var
   CaptureTime: Longword;
 
 
-{$IFNDEF DWSCRIPT}
+{$IFDEF FPC}
 function IsPrintableChar(C: Char): Boolean;
 begin
   Result := ((Ord( C) >= 32) and (Ord( C) <= 126))  or ((Ord( C) >= 128) and (Ord( C) <= 255))

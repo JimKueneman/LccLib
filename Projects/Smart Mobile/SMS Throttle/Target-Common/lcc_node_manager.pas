@@ -42,7 +42,8 @@ uses
   lcc_node_commandstation,
   lcc_defines,
   lcc_utilities,
-  lcc_node_messages;
+  lcc_node_messages,
+  lcc_alias_server;
 
 type
   INodeManager = interface
