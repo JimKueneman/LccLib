@@ -9,7 +9,7 @@ uses
   StdCtrls, lcc_ethernet_server, lcc_defines, lcc_node,
   lcc_node_manager, lcc_ethernet_client, lcc_node_messages,
   lcc_node_commandstation, lcc_node_controller, lcc_node_train,
-  lcc_comport, synaser;
+  lcc_comport, synaser, lcc_common_classes;
 
 type
 
@@ -184,7 +184,19 @@ if LccServer.Connected then
 end;
 
 procedure TFormTrainCommander.ButtonTrainsClearClick(Sender: TObject);
+var
+  i: Integer;
+  TrainNode: TLccTrainCanNode;
 begin
+  for i := 0 to NodeManager.GetNodeCount - 1 do
+  begin
+    if NodeManager.Node[i] is TLccTrainCanNode then
+    begin
+      TrainNode := NodeManager.Node[i] as TLccTrainCanNode;
+      TrainNode.Logout;
+      NodeManager.Nodes.Delete(i);
+    end;
+  end;
   ListViewTrains.Clear;
 end;
 

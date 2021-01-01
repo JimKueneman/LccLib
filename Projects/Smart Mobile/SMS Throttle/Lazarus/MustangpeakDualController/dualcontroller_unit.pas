@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
-  throttle_takeover_request_form, lcc_alias_server;
+  throttle_takeover_request_form, lcc_alias_server, lcc_common_classes;
 
 type
 
@@ -254,10 +254,9 @@ var
 begin
   if ClientServer1.Connected then
   begin
-    NodeManager1.Clear;  // Logout do it here so the AMR will be sent before thread is killed
-    ControllerNode1 := nil;
-    Sleep(500);
-    ClientServer1.CloseConnection(nil);
+    if ControllerNode1.IsTrainAssigned then
+      ReleaseTrain1;
+    ClientServer1.CloseConnection(nil)
   end else
   begin
     FillChar(EthernetRec, SizeOf(EthernetRec), #0);
@@ -276,10 +275,9 @@ var
 begin
   if ClientServer2.Connected then
   begin
-    NodeManager2.Clear;   // Logout do it here so the AMR will be sent before thread is killed
-    ControllerNode2 := nil;
-    Sleep(500);
-    ClientServer2.CloseConnection(nil);
+    if ControllerNode2.IsTrainAssigned then
+      ReleaseTrain2;
+    ClientServer2.CloseConnection(nil)
   end else
   begin
     FillChar(EthernetRec, SizeOf(EthernetRec), #0);
@@ -565,6 +563,8 @@ begin
     ccsClientDisconnecting :
       begin
         StatusBarThrottle1.Panels[0].Text := 'Disconnecting';
+        NodeManager1.Clear;
+        ControllerNode1 := nil;
       end;
     ccsClientDisconnected :
       begin
@@ -605,6 +605,8 @@ begin
     ccsClientDisconnecting :
       begin
         StatusBarThrottle2.Panels[0].Text := 'Disconnecting';
+        NodeManager2.Clear;
+        ControllerNode2 := nil;
       end;
     ccsClientDisconnected :
       begin

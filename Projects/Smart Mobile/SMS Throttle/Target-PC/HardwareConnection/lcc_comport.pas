@@ -27,7 +27,6 @@ uses
   lcc_threaded_circulararray,
   lcc_threaded_stringlist,
   lcc_gridconnect,
-  lcc_utilities,
   lcc_defines,
   lcc_node_manager,
   lcc_node_messages,
@@ -80,7 +79,7 @@ type
       procedure DoReceiveMessage;
       procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
-      procedure SendMessage(AMessage: TLccMessage);
+      procedure SendMessage(AMessage: TLccMessage); override;
 
       property ComPortRec: TLccComPortRec read FComPortRec write FComPortRec;
       property Serial: TBlockSerial read FSerial write FSerial;

@@ -56,6 +56,16 @@ type
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
   end;
 
+  { TLccBaseEthernetThread }
+
+  TLccBaseEthernetThread = class(TLccConnectionThread)
+  protected
+    procedure TryTransmitGridConnect(HandleErrors: Boolean);
+    procedure TryTransmitTCPProtocol(HandleErrors: Boolean);
+    procedure TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
+    procedure TryReceiveTCPProtocol(HandleErrors: Boolean);
+  end;
+
 
   { TLccHardwareConnectionManager }
 
@@ -80,6 +90,142 @@ type
   end;
 
 implementation
+
+{ TLccBaseEthernetThread }
+
+procedure TLccBaseEthernetThread.TryTransmitGridConnect(HandleErrors: Boolean);
+var
+  TxStr: string;
+  TxList: TStringList;
+  i: Integer;
+begin
+  TxStr := '';
+  TxList := OutgoingGridConnect.LockList;
+  try
+    for i := 0 to TxList.Count - 1 do
+      TxStr := TxList[i] + LF;
+    TxList.Clear;
+  finally
+    OutgoingGridConnect.UnlockList;
+  end;
+
+  if TxStr <> '' then
+  begin
+    Socket.SendString(String( TxStr) + LF);
+    if (Socket.LastError <> 0) and HandleErrors then
+      HandleErrorAndDisconnect;
+  end;
+end;
+
+procedure TLccBaseEthernetThread.TryTransmitTCPProtocol(HandleErrors: Boolean);
+var
+  DynamicByteArray: TDynamicByteArray;
+begin
+  DynamicByteArray := nil;
+  OutgoingCircularArray.LockArray;
+  try
+    if OutgoingCircularArray.Count > 0 then
+      OutgoingCircularArray.PullArray(DynamicByteArray);
+  finally
+    OutgoingCircularArray.UnLockArray;
+  end;
+
+  if Length(DynamicByteArray) > 0 then
+  begin
+    Socket.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
+    if (Socket.LastError <> 0) and HandleErrors then
+      HandleErrorAndDisconnect;
+  end;
+end;
+
+procedure TLccBaseEthernetThread.TryReceiveGridConnect(
+  AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
+var
+  RcvByte: Byte;
+  GridConnectStrPtr: PGridConnectString;
+  RxList: TStringList;
+begin
+  RcvByte := Socket.RecvByte(1);
+  case Socket.LastError of
+    0 :
+      begin
+        GridConnectStrPtr := nil;
+        if AGridConnectHelper.GridConnect_DecodeMachine(RcvByte, GridConnectStrPtr) then
+        begin
+          FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
+          FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
+
+          case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
+            imgcr_True :
+              begin
+                if UseSynchronize then
+                  Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                else begin
+                  RxList := Owner.IncomingGridConnect.LockList;
+                  try
+                    RxList.Add(FEthernetRec.LccMessage.ConvertToGridConnectStr('', False));
+                  finally
+                    Owner.IncomingGridConnect.UnlockList;
+                  end;
+                end;
+              end;
+            imgcr_False,
+            imgcr_ErrorToSend,
+            imgcr_UnknownError : begin end;
+          end;
+        end;
+      end;
+    WSAETIMEDOUT :
+      begin
+
+      end;
+    WSAECONNRESET   :
+      begin
+        if HandleErrors then
+          HandleErrorAndDisconnect;
+      end
+  else
+    if HandleErrors then
+      HandleErrorAndDisconnect
+  end;
+end;
+
+procedure TLccBaseEthernetThread.TryReceiveTCPProtocol(HandleErrors: Boolean);
+var
+  RcvByte: Byte;
+begin
+  RcvByte := Socket.RecvByte(1);
+  case Socket.LastError of
+    0 :
+      begin
+        if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
+        begin
+          if UseSynchronize then
+            Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+          else begin
+            Owner.IncomingCircularArray.LockArray;
+            try
+              Owner.IncomingCircularArray.AddChunk(FEthernetRec.MessageArray);
+            finally
+              Owner.IncomingCircularArray.UnLockArray;
+            end;
+          end
+        end;
+      end;
+    WSAETIMEDOUT :
+      begin
+
+      end;
+    WSAECONNRESET   :
+      begin
+        if HandleErrors then
+          HandleErrorAndDisconnect;
+      end
+  else
+    if HandleErrors then
+      HandleErrorAndDisconnect
+  end;
+end;
 
 { TLccTimerThread }
 

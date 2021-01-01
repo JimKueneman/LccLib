@@ -48,10 +48,9 @@ uses
   lcc_node_manager,
   lcc_node_messages,
   lcc_ethernet_client,
-  lcc_ethernet_tcp,
   lcc_app_common_settings,
-  lcc_common_classes,
-  lcc_node_messages_can_assembler_disassembler;
+  lcc_node_messages_can_assembler_disassembler,
+  lcc_common_classes;
 
 type
   TLccEthernetServerThread = class;     // Forward
@@ -59,47 +58,24 @@ type
 
   { TLccEthernetServerThread }
 
-  TLccEthernetServerThread =  class(TLccConnectionThread)
+  TLccEthernetServerThread =  class(TLccBaseEthernetThread)
     private
-      FEthernetRec: TLccEthernetRec;
-      FGridConnectMessageAssembler: TLccGridConnectMessageAssembler;
       FOnClientDisconnect: TOnEthernetRecFunc;
-      FOnErrorMessage: TOnEthernetRecFunc;
-      FOnConnectionStateChange: TOnEthernetRecFunc;
-      FOnReceiveMessage: TOnEthernetReceiveFunc;
-      FOnSendMessage: TOnMessageEvent;
-      FOwner: TLccEthernetServer;
       {$IFDEF ULTIBO}
       {$ELSE}
-      FSocket: TTCPBlockSocket;
       FSocketHandleForListener: TSocket;
       {$ENDIF}
     protected
-      procedure DoConnectionState;
-      procedure DoErrorMessage;
-      procedure DoReceiveMessage;
+      procedure DoReceiveMessage; override;
       procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
-      procedure HandleErrorAndDisconnect;
-      procedure HandleSendConnectionNotification(NewConnectionState: TConnectionState);
-      procedure SendMessage(AMessage: TLccMessage);
+      procedure SendMessage(AMessage: TLccMessage); override;
 
-      property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
       {$IFDEF ULTIBO}
       {$ELSE}
-      property Socket: TTCPBlockSocket read FSocket write FSocket;
       property SocketHandleForListener: TSocket read FSocketHandleForListener write FSocketHandleForListener;
       {$ENDIF}
-      property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
       property OnClientDisconnect: TOnEthernetRecFunc read FOnClientDisconnect write FOnClientDisconnect;
-      property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
-      property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-      property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-      property Owner: TLccEthernetServer read FOwner write FOwner;
-      property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
-    public
-      constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec); reintroduce;
-      destructor Destroy; override;
   end;
 
   { TLccWebSocketServerThread }
@@ -124,19 +100,6 @@ type
    TLccHTTPServerThread = class(TLccEthernetServerThread)
      procedure Execute; override;
    end;
-
-  { TLccEthernetThreadList }
-
-  TLccEthernetThreadList = class(TThreadList)      // Contains TLccEthernetServerThread and decendent objects
-  private
-    function GetCount: Integer;
-  public
-    destructor Destroy; override;
-    procedure CloseEthernetPorts;
-    procedure CloseEthernetPort(EthernetThread: TLccEthernetServerThread);
-
-    property Count: Integer read GetCount;
-  end;
 
   { TLccEthernetListener }
 
@@ -216,64 +179,36 @@ type
 
   { TLccEthernetServer }
 
-  TLccEthernetServer = class(TLccHardwareConnectionManager)
+  TLccEthernetServer = class(TLccEthernetHardwareConnectionManager)
   private
-    FEthernetThreads: TLccEthernetThreadList;
-    FGridConnect: Boolean;
     FHub: Boolean;
-    FLccSettings: TLccSettings;
-    FListenerThread: TLccEthernetListener;
-    {$IFDEF LOGGING}FLoggingFrame: TFrameLccLogging;{$ENDIF}
-    FNodeManager: TLccNodeManager;
-    FOnErrorMessage: TOnEthernetRecFunc;
-    FOnConnectionStateChange: TOnEthernetRecFunc;
-    FOnReceiveMessage: TOnEthernetReceiveFunc;
-    FOnSendMessage: TOnMessageEvent;
     FSiblingEthernetThreads: TThreadList;
-    FSleepCount: Integer;
-    FUseSynchronize: Boolean;    // If set the threads will call back on a Syncronize call else incoming messages are put in the IncomingGridConnect or IncomingCircularArray buffers and the app needs to poll this buffer
-    function GetConnected: Boolean;
-    procedure SetGridConnect(AValue: Boolean);
-    procedure SetSleepCount(AValue: Integer);
+    FListenerThread: TLccEthernetListener;
     { Private declarations }
   protected
     { Protected declarations }
-    procedure UpdateThreadEvents(EthernetThread: TLccEthernetServerThread);
-    procedure UpdateThreadsEvents;
-    procedure UpdateListenerEvents(AListenerThread: TLccEthernetListener);
+    function GetConnected: Boolean; override;
+
+    function CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener; virtual;
+    procedure UpdateAllThreadProperites; override;
+    procedure UpdateListenerThreadProperites(AListenerThread: TLccEthernetListener);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
-    function OpenConnectionWithLccSettings: TLccEthernetListener;
-    function CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener; virtual;
-    procedure CloseConnection( EthernetThread: TLccEthernetServerThread);
-    procedure SendMessage(AMessage: TLccMessage);  override;
-    procedure SendMessageRawGridConnect(GridConnectStr: String); override;
+    function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; override;
+    procedure CloseConnection(EthernetThread: TLccBaseEthernetThread);  override;
 
     procedure RegisterSiblingEthernetServer(AnEthenetServer: TLccEthernetServer);
     procedure UnRegisterSiblingEthernetServer(AnEthernetServer: TLccEthernetServer);
 
-    property Connected: Boolean read GetConnected;
-    property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
-    {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
     property SiblingEthernetThreads: TThreadList read FSiblingEthernetThreads write FSiblingEthernetThreads;
 
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
-    property Gridconnect: Boolean read FGridConnect write SetGridConnect;
-    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
-    property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
-    property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
-    property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-    property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property SleepCount: Integer read FSleepCount write SetSleepCount;
-    property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
   end;
 
   TLccWebsocketServer = class(TLccEthernetServer)
@@ -1056,94 +991,22 @@ begin
   Result := Terminated;
 end;
 
-{ TLccEthernetThreadList }
-
-function TLccEthernetThreadList.GetCount: Integer;
-var
-  L: TList;
-begin
-  L := LockList;
-  try
-    Result := L.Count
-  finally
-    UnlockList;
-  end;
-end;
-
-destructor TLccEthernetThreadList.Destroy;
-begin
-  CloseEthernetPorts;
-  inherited Destroy;
-end;
-
-procedure TLccEthernetThreadList.CloseEthernetPorts;
-var
-  L: TList;
-  Thread: TLccEthernetServerThread;
-begin
-  while Count > 0 do
-  begin
-    L := LockList;
-    try
-      Thread := TLccEthernetServerThread( L[0]);
-      L.Delete(0);
-    finally
-      UnlockList;
-    end;
-    CloseEthernetPort(Thread);
-  end;
-end;
-
-procedure TLccEthernetThreadList.CloseEthernetPort( EthernetThread: TLccEthernetServerThread);
-var
-  TimeCount: Cardinal;
-begin
-  EthernetThread.Terminate;
-  TimeCount := 0;
-//  TimeCount := GetTickCount;            DON"T LINK OCLB_UTILITES, it causes issues with linking to different packages
-  while (EthernetThread.Running) do
-  begin
-    {$IFNDEF FPC_CONSOLE_APP}
-    Application.ProcessMessages;
-    {$ELSE}
-    CheckSynchronize();  // Pump the timers
-    {$ENDIF}
-    Inc(TimeCount);
-    Sleep(100);
-    if TimeCount = 10 then
-    begin
-      {$IFDEF ULTIBO}
-      {$ELSE}
-      if Assigned(EthernetThread.Socket) then
-        EthernetThread.Socket.CloseSocket
-      else
-        Break // Something went really wrong
-      {$ENDIF}
-    end;
-  end;
-  {$IFDEF ULTIBO}
-  {$ELSE}
-  FreeAndNil( EthernetThread);
-  {$ENDIF}
-end;
-
 { TLccEthernetServer }
 
-procedure TLccEthernetServer.CloseConnection(EthernetThread: TLccEthernetServerThread);
+procedure TLccEthernetServer.CloseConnection(
+  EthernetThread: TLccBaseEthernetThread);
 var
   TimeCount: Integer;
 begin
-  if Assigned(EthernetThread) then
-  begin
-    EthernetThreads.Remove(EthernetThread);
-    EthernetThreads.CloseEthernetPort(EthernetThread);
-  end else
-    EthernetThreads.CloseEthernetPorts;
+  inherited CloseConnection(EthernetThread);
+
+
   if Assigned(ListenerThread) then
   begin
     TimeCount := 0;
     ListenerThread.Terminate;
     {$IFDEF ULTIBO}
+      // TODO
     {$ELSE}
     if Assigned(ListenerThread.Socket) then
       ListenerThread.Socket.CloseSocket;  // Force out of wait state with an error
@@ -1172,17 +1035,7 @@ begin
   end;
 end;
 
-procedure TLccEthernetServer.SetSleepCount(AValue: Integer);
-begin
-    if AValue <> FSleepCount then
-  begin
-    FSleepCount := AValue;
-    UpdateThreadsEvents;
-    UpdateListenerEvents(ListenerThread);
-  end;
-end;
-
-procedure TLccEthernetServer.UpdateListenerEvents( AListenerThread: TLccEthernetListener);
+procedure TLccEthernetServer.UpdateListenerThreadProperites( AListenerThread: TLccEthernetListener);
 begin
   if Assigned(AListenerThread) then
   begin
@@ -1190,36 +1043,24 @@ begin
     AListenerThread.OnErrorMessage := OnErrorMessage;
     AListenerThread.OnReceiveMessage := OnReceiveMessage;
     AListenerThread.OnSendMessage := OnSendMessage;
-    AListenerThread.GridConnect := FGridConnect;
+    AListenerThread.GridConnect := GridConnect;
   end;
 end;
 
-procedure TLccEthernetServer.UpdateThreadEvents(EthernetThread: TLccEthernetServerThread);
+function TLccEthernetServer.GetConnected: Boolean;
 begin
-  EthernetThread.OnSendMessage := OnSendMessage;
-  EthernetThread.SleepCount := SleepCount;
-  EthernetThread.GridConnect := FGridConnect;
+  Result := Assigned(ListenerThread)
 end;
 
-procedure TLccEthernetServer.UpdateThreadsEvents;
-var
-  i: Integer;
-  L: TList;
+procedure TLccEthernetServer.UpdateAllThreadProperites;
 begin
-  L := EthernetThreads.LockList;
-  try
-    for i := 0 to L.Count - 1 do
-      UpdateThreadEvents(TLccEthernetServerThread( L[i]));
-  finally
-    EthernetThreads.UnlockList;
-  end;
+  inherited UpdateAllThreadProperites;
+  UpdateListenerThreadProperites(ListenerThread);
 end;
 
 constructor TLccEthernetServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FUseSynchronize := True;
-  FEthernetThreads := TLccEthernetThreadList.Create;
   FSiblingEthernetThreads := TThreadList.Create;
   SiblingEthernetThreads.Duplicates := dupIgnore;
   FHub := False;
@@ -1227,80 +1068,23 @@ end;
 
 destructor TLccEthernetServer.Destroy;
 begin
-  FreeAndNil( FEthernetThreads);
   FreeAndNil( FSiblingEthernetThreads);
   inherited Destroy;
 end;
 
-function TLccEthernetServer.OpenConnection(const AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
+function TLccEthernetServer.OpenConnection(AnEthernetRec: TLccEthernetRec
+  ): TThread;
 begin
   Result := CreateListenerObject(AnEthernetRec);
-  Result.Owner := Self;
-  UpdateListenerEvents(Result);
-  Result.Suspended := False;
-  ListenerThread := Result;
-end;
-
-function TLccEthernetServer.OpenConnectionWithLccSettings: TLccEthernetListener;
-var
-  AnEthernetRec: TLccEthernetRec;
-begin
-  Result := nil;
-  if Assigned(LccSettings) then
-  begin
-    AnEthernetRec.ConnectionState := ccsListenerDisconnected;
-    AnEthernetRec.SuppressNotification := False;
-    AnEthernetRec.Thread := nil;
-    AnEthernetRec.MessageStr := '';
-    AnEthernetRec.ListenerPort := LccSettings.Ethernet.LocalListenerPort;
-    AnEthernetRec.ListenerIP := LccSettings.Ethernet.LocalListenerIP;
-    AnEthernetRec.ClientIP := '';
-    AnEthernetRec.ClientPort := 0;
-    AnEthernetRec.HeartbeatRate := 0;
-    AnEthernetRec.ErrorCode := 0;
-    AnEthernetRec.MessageArray := nil;
-    AnEthernetRec.AutoResolveIP := LccSettings.Ethernet.AutoResolveListenerIP;
-    Result := OpenConnection(AnEthernetRec);
-  end;
+  (Result as TLccEthernetListener).Owner := Self;
+  UpdateListenerThreadProperites((Result as TLccEthernetListener));
+  (Result as TLccEthernetListener).Suspended := False;
+  ListenerThread := (Result as TLccEthernetListener);
 end;
 
 function TLccEthernetServer.CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
-end;
-
-procedure TLccEthernetServer.SendMessage(AMessage: TLccMessage);
-var
-  i: Integer;
-  L: TList;
-  EthernetThread: TLccEthernetServerThread;
-begin
-  L := EthernetThreads.LockList;
-  try
-    for i := 0 to L.Count - 1 do
-    begin
-      EthernetThread := TLccEthernetServerThread( L[i]);
-      if not EthernetThread.IsTerminated then
-        EthernetThread.SendMessage(AMessage);
-    end;
-  finally
-    EthernetThreads.UnlockList;
-  end;
-end;
-
-procedure TLccEthernetServer.SendMessageRawGridConnect(GridConnectStr: String);
-//var
- // List: TList;
- // i: Integer;
-begin
-  GridConnectStr := GridConnectStr; // Keep Hint quiet
- // List := EthernetThreads.LockList;
-  try            // TODO
- //   for i := 0 to List.Count - 1 do
- //     TLccEthernetClientThread(List[i]).OutgoingGridConnect.Add(GridConnectStr);
-  finally
- //   EthernetThreads.UnlockList;
-  end;
 end;
 
 procedure TLccEthernetServer.RegisterSiblingEthernetServer(AnEthenetServer: TLccEthernetServer);
@@ -1316,22 +1100,6 @@ begin
     SiblingEthernetThreads.Clear;
 end;
 
-procedure TLccEthernetServer.SetGridConnect(AValue: Boolean);
-begin
-  if AValue <> FGridConnect then
-  begin
-    FGridConnect:=AValue;
-    UpdateThreadsEvents;
-    UpdateListenerEvents(ListenerThread);
-  end;
-
-end;
-
-function TLccEthernetServer.GetConnected: Boolean;
-begin
-  Result := Assigned(ListenerThread);
-end;
-
 { TLccEthernetServerThread }
 
 {$IFDEF ULTIBO}
@@ -1342,12 +1110,8 @@ end;
 {$ELSE}
 procedure TLccEthernetServerThread.Execute;
 var
-  TxStr: String;
   RcvByte: Byte;
-  GridConnectStrPtr: PGridConnectString;
   GridConnectHelper: TGridConnectHelper;
-  TxList, RxList: TStringList;
-  DynamicByteArray: TDynamicByteArray;
   LocalSleepCount: Integer;
 begin
   FRunning := True;
@@ -1389,136 +1153,35 @@ begin
         try
           LocalSleepCount := 0;
           while not IsTerminated and (FEthernetRec.ConnectionState = ccsListenerClientConnected) do
-          begin
-
-            // Handle the Socket using GridConnect
+          begin  // Handle the Socket using GridConnect
             if Gridconnect then
             begin
               if LocalSleepCount >= SleepCount then
               begin
-                TxStr := '';
-                TxList := OutgoingGridConnect.LockList;
-                try
-                  if TxList.Count > 0 then
-                  begin
-                    TxStr := TxList[0];
-                    TxList.Delete(0);
-                  end;
-                finally
-                  OutgoingGridConnect.UnlockList;
-                end;
-
-                if TxStr <> '' then
-                begin
-                  Socket.SendString(String( TxStr) + LF);
-                  if Socket.LastError <> 0 then
-                    HandleErrorAndDisconnect;
-                end;
+                TryTransmitGridConnect(True);
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-
-              RcvByte := Socket.RecvByte(1);
-              case Socket.LastError of
-                0 :
-                  begin
-                    GridConnectStrPtr := nil;
-                    if GridConnectHelper.GridConnect_DecodeMachine(RcvByte, GridConnectStrPtr) then
-                    begin
-                      FEthernetRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
-                      FEthernetRec.LccMessage.LoadByGridConnectStr(FEthernetRec.MessageStr);
-
-                      case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
-                        imgcr_True :
-                          begin
-                            if UseSynchronize then
-                              Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
-                            else begin
-                              RxList := Owner.IncomingGridConnect.LockList;
-                              try
-                                RxList.Add(FEthernetRec.LccMessage.ConvertToGridConnectStr('', False));
-                              finally
-                                Owner.IncomingGridConnect.UnlockList;
-                              end;
-                            end;
-                          end;
-                        imgcr_False,
-                        imgcr_ErrorToSend,
-                        imgcr_UnknownError : begin end;
-                      end;
-                    end;
-                  end;
-                WSAETIMEDOUT :
-                  begin
-
-                  end;
-                WSAECONNRESET   :
-                  begin
-                    HandleErrorAndDisconnect;
-                  end
-              else
-                HandleErrorAndDisconnect
-              end;
+              TryReceiveGridConnect(GridConnectHelper, True);
             end else
             begin    // Handle the Socket with LCC TCP Protocol
               if LocalSleepCount >= SleepCount then
               begin
-                DynamicByteArray := nil;
-                OutgoingCircularArray.LockArray;
-                try
-                  if OutgoingCircularArray.Count > 0 then
-                    OutgoingCircularArray.PullArray(DynamicByteArray);
-                finally
-                  OutgoingCircularArray.UnLockArray;
-                end;
-
-                if Length(DynamicByteArray) > 0 then
-                begin
-                  Socket.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
-                  if Socket.LastError <> 0 then
-                    HandleErrorAndDisconnect;
-                  DynamicByteArray := nil;
-                end;
+                TryTransmitTCPProtocol(True);
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-              RcvByte := Socket.RecvByte(1);
-              case Socket.LastError of
-                0 :
-                  begin
-                    DynamicByteArray := nil;
-                    if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
-                    begin
-                      if UseSynchronize then
-                        Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
-                      else begin
-                        DynamicByteArray := nil;
-                        Owner.IncomingCircularArray.LockArray;
-                        try
-                          Owner.IncomingCircularArray.AddChunk(FEthernetRec.MessageArray);
-                        finally
-                          Owner.IncomingCircularArray.UnLockArray;
-                        end;
-                      end
-                    end;
-                  end;
-                WSAETIMEDOUT :
-                  begin
-
-                  end;
-                WSAECONNRESET   :
-                  begin
-                    HandleErrorAndDisconnect;
-                  end
-              else
-                HandleErrorAndDisconnect
-              end;
+              TryReceiveTCPProtocol(True);
             end;
           end;
         finally
           HandleSendConnectionNotification(ccsListenerClientDisconnecting);
+          if Gridconnect then
+            TryTransmitGridConnect(False) // Flush it
+          else
+            TryTransmitTCPProtocol(False);
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;
@@ -1531,24 +1194,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TLccEthernetServerThread.HandleErrorAndDisconnect;
-begin
-  Owner.EthernetThreads.Remove(Self);
-  FEthernetRec.ErrorCode := Socket.LastError;
-  FEthernetRec.MessageStr := Socket.LastErrorDesc;
-  if not FEthernetRec.SuppressNotification and (FEthernetRec.ErrorCode <> 0) then
-    Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
-  HandleSendConnectionNotification(ccsListenerClientDisconnected);
-  Terminate;
-end;
-
-procedure TLccEthernetServerThread.HandleSendConnectionNotification(NewConnectionState: TConnectionState);
-begin
-   FEthernetRec.ConnectionState := NewConnectionState;
-  if not FEthernetRec.SuppressNotification then
-    Synchronize({$IFDEF FPC}@{$ENDIF}DoConnectionState);
 end;
 
 {$ENDIF}
@@ -1575,44 +1220,6 @@ begin
   end;
 end;
 
-constructor TLccEthernetServerThread.Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; const AnEthernetRec: TLccEthernetRec);
-begin
-  inherited Create(CreateSuspended);
-  FOwner := AnOwner;
-  FEthernetRec := AnEthernetRec;
-  FEthernetRec.Thread := Self;
-  FEthernetRec.LccMessage := TLccMessage.Create;
-  GridConnectMessageAssembler := TLccGridConnectMessageAssembler.Create;
-end;
-
-destructor TLccEthernetServerThread.Destroy;
-begin
-  {$IFDEF DWSCRIPT}
-  FEthernetRec.LccMessage.Free;
-  FTcpDecodeStateMachine.Free;
-  FGridConnectMessageAssembler.Free;
-  {$ELSE}
-  FreeAndNil(FEthernetRec.LccMessage);
-  FreeAndNil(FGridConnectMessageAssembler);
-  {$ENDIF}
-  inherited Destroy;
-end;
-
-procedure TLccEthernetServerThread.DoConnectionState;
-begin
-  if Assigned(OnConnectionStateChange) then
-    OnConnectionStateChange(Self, FEthernetRec)
-end;
-
-procedure TLccEthernetServerThread.DoErrorMessage;
-begin
-  if not IsTerminated then
-  begin
-    if Assigned(OnErrorMessage) then
-      OnErrorMessage(Self, FEthernetRec)
-  end;
-end;
-
 procedure TLccEthernetServerThread.DoReceiveMessage;
 var
   L, LSibling: TList;
@@ -1630,7 +1237,8 @@ begin
       if Owner.NodeManager <> nil then
         Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-      if Owner.Hub then
+      // If we are a hub then transfer to all other threads (except back to ourselves)
+      if (Owner as TLccEthernetServer).Hub then
       begin
         L := Owner.EthernetThreads.LockList;
         try
@@ -1645,7 +1253,7 @@ begin
       end;
 
       // Now run all the threads in each sibling server that is registered
-      LSibling := Owner.SiblingEthernetThreads.LockList;
+      LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
       try
         for j := 0 to LSibling.Count - 1 do
         begin
@@ -1662,7 +1270,7 @@ begin
           end
         end;
       finally
-        Owner.SiblingEthernetThreads.UnlockList;
+        (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
       end;
 
     end else
@@ -1672,7 +1280,9 @@ begin
         if (Owner.NodeManager <> nil) then
           Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
-        if Owner.Hub then
+        // If we are a hub then transfer to all other threads (except back to ourselves)
+
+        if (Owner as TLccEthernetServer).Hub then
         begin
           L := Owner.EthernetThreads.LockList;
           try
@@ -1687,7 +1297,7 @@ begin
         end;
 
         // Now run all the threads in each sibling server that is registered
-        LSibling := Owner.SiblingEthernetThreads.LockList;
+        LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
         try
           for j := 0 to LSibling.Count - 1 do
           begin
@@ -1704,7 +1314,7 @@ begin
             end
           end;
         finally
-          Owner.SiblingEthernetThreads.UnlockList;
+          (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
         end;
       end
     end;

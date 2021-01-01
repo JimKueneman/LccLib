@@ -309,8 +309,8 @@ begin
   FreeAndNil(FNodeIDSortedMap);  // Free first the AliasSortedMap owns the objects in non-SMS
   FreeAndNil(FAliasSortedMap);
   {$ELSE}
-  FAliasMapping.Free;
-  FMappedAliases.Free;
+  FNodeIDSortedMap.Free;
+  FAliasSortedMap.Free;
   {$ENDIF}
   inherited Destroy;
 end;

@@ -873,6 +873,7 @@ var
 
   HeaderStr, DataStr, ByteStr: string;
   i, i_X, i_N, i_SemiColon, i_Data, len_Data, i_Data_Count: Integer;
+  TempNodeID: TNodeID;
 begin
   Result := False;
 
@@ -966,7 +967,11 @@ begin
     if IsCAN then
     begin
       case CAN.MTI of
-        MTI_CAN_AMD : ExtractDataBytesAsNodeID(0, FSourceID);
+        MTI_CAN_AMD :
+          begin
+            ExtractDataBytesAsNodeID(0, TempNodeID);   // SMS issue
+            FSourceID := TempNodeID;
+          end;
       end;
     end;
     Result := True
