@@ -94,8 +94,6 @@ type
     {$ENDIF}
     destructor Destroy; override;
 
-    procedure UpdateAliasServer(LccMessage: TLccMessage);
-
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
     property MsgStringList: TStringList read FMsgStringList write FMsgStringList;
     property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
@@ -112,9 +110,6 @@ type
   TLccBaseEthernetThread = class(TLccConnectionThread)
   private
     FGridConnectMessageAssembler: TLccGridConnectMessageAssembler;
-    FOnConnectionStateChange: TOnEthernetRecFunc;
-    FOnErrorMessage: TOnEthernetRecFunc;
-    FOnReceiveMessage: TOnEthernetReceiveFunc;
     FOnSendMessage: TOnMessageEvent;
     FOwner: TLccEthernetHardwareConnectionManager;
     {$IFDEF ULTIBO}
@@ -138,8 +133,11 @@ type
     procedure DoConnectionState; virtual;
     procedure DoErrorMessage; virtual;
     procedure DoReceiveMessage; virtual;
+    procedure DoSendMessage(AMessage: TLccMessage);
+
     procedure HandleErrorAndDisconnect;
     procedure HandleSendConnectionNotification(NewConnectionState: TConnectionState);
+    procedure SendMessage(AMessage: TLccMessage); override;
 
     procedure TryTransmitGridConnect(HandleErrors: Boolean);
     procedure TryTransmitTCPProtocol(HandleErrors: Boolean);
@@ -147,9 +145,6 @@ type
     procedure TryReceiveTCPProtocol(HandleErrors: Boolean);
 
   public
-    property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
-    property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
     property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
 
     constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetHardwareConnectionManager; const AnEthernetRec: TLccEthernetRec); reintroduce; virtual;
@@ -174,12 +169,15 @@ type
   { TLccHardwareConnectionManager }
 
   TLccHardwareConnectionManager = class(TComponent)
+  private
+    FAliasServer: TLccAliasServer;
   protected
     FIncomingCircularArray: TThreadedCirularArray;
     FIncomingGridConnect: TThreadStringList;
   public
     property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
     property IncomingCircularArray: TThreadedCirularArray read FIncomingCircularArray;
+    property AliasServer: TLccAliasServer read FAliasServer write FAliasServer;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -205,6 +203,12 @@ type
     procedure SetSleepCount(AValue: Integer);
   protected
     function GetConnected: Boolean; virtual; abstract;
+
+    procedure DoConnectionState(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec); virtual;
+    procedure DoErrorMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec); virtual;
+    procedure DoReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec); virtual;
+    procedure DoSendMessage(Thread: TLccBaseEthernetThread; AMessage: TLccMessage); virtual;
+
     procedure UpdateAllThreadProperites; virtual;
     procedure UpdateThreadProperties(EthernetThread: TLccBaseEthernetThread); virtual;
   public
@@ -214,7 +218,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; virtual; abstract;
+    function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; virtual;
     procedure CloseConnection(EthernetThread: TLccBaseEthernetThread); virtual;
     function OpenConnectionWithLccSettings: TThread; virtual;
     procedure SendMessage(AMessage: TLccMessage);  override;
@@ -253,6 +257,36 @@ begin
   end;
 end;
 
+procedure TLccEthernetHardwareConnectionManager.DoConnectionState(
+  Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
+begin
+  if Assigned(OnConnectionStateChange) then
+    OnConnectionStateChange(Thread, EthernetRec)
+end;
+
+procedure TLccEthernetHardwareConnectionManager.DoErrorMessage(
+  Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
+begin
+  if Assigned(OnErrorMessage) then
+    OnErrorMessage(Thread, EthernetRec)
+end;
+
+procedure TLccEthernetHardwareConnectionManager.DoReceiveMessage(
+  Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
+begin
+  case EthernetRec.LccMessage.CAN.MTI of
+    MTI_CAN_AMR : AliasServer.RemoveMapping(EthernetRec.LccMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : AliasServer.ForceMapping(EthernetRec.LccMessage.SourceID, EthernetRec.LccMessage.CAN.SourceAlias)
+  end;
+  if Assigned(OnReceiveMessage) then
+    OnReceiveMessage(Thread, EthernetRec);
+end;
+
+procedure TLccEthernetHardwareConnectionManager.DoSendMessage(Thread: TLccBaseEthernetThread; AMessage: TLccMessage);
+begin
+
+end;
+
 procedure TLccEthernetHardwareConnectionManager.UpdateAllThreadProperites;
 var
   i: Integer;
@@ -273,9 +307,6 @@ begin
   EthernetThread.OnSendMessage := OnSendMessage;
   EthernetThread.SleepCount := SleepCount;
   EthernetThread.GridConnect := FGridConnect;
-  EthernetThread.OnErrorMessage := OnErrorMessage;
-  EthernetThread.OnReceiveMessage := OnReceiveMessage;
-  EthernetThread.OnConnectionStateChange := OnConnectionStateChange;
 end;
 
 constructor TLccEthernetHardwareConnectionManager.Create(AOwner: TComponent);
@@ -289,6 +320,12 @@ destructor TLccEthernetHardwareConnectionManager.Destroy;
 begin
   FreeAndNil( FEthernetThreads);
   inherited Destroy;
+end;
+
+function TLccEthernetHardwareConnectionManager.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;
+begin
+  Result := nil;
+  AliasServer.Clear;
 end;
 
 procedure TLccEthernetHardwareConnectionManager.CloseConnection(EthernetThread: TLccBaseEthernetThread);
@@ -452,23 +489,31 @@ end;
 
 procedure TLccBaseEthernetThread.DoConnectionState;
 begin
-  if Assigned(OnConnectionStateChange) then
-    OnConnectionStateChange(Self, FEthernetRec)
+  Owner.DoConnectionState(Self, FEthernetRec);
 end;
 
 procedure TLccBaseEthernetThread.DoErrorMessage;
 begin
-  if not IsTerminated then
-  begin
-    if Assigned(OnErrorMessage) then
-      OnErrorMessage(Self, FEthernetRec)
-  end;
+  Owner.DoErrorMessage(Self, FEthernetRec);
 end;
 
 procedure TLccBaseEthernetThread.DoReceiveMessage;
 begin
-  if Assigned(OnReceiveMessage) then
-    OnReceiveMessage(Self, FEthernetRec);
+  case FEthernetRec.LccMessage.CAN.MTI of
+    MTI_CAN_AMR : (Owner as TLccHardwareConnectionManager).AliasServer.RemoveMapping(FEthernetRec.LccMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : (Owner as TLccHardwareConnectionManager).AliasServer.ForceMapping(FEthernetRec.LccMessage.SourceID, FEthernetRec.LccMessage.CAN.SourceAlias)
+  end;
+  Owner.DoReceiveMessage(Self, FEthernetRec);
+end;
+
+procedure TLccBaseEthernetThread.DoSendMessage(AMessage: TLccMessage);
+begin
+  case AMessage.CAN.MTI of
+    MTI_CAN_AMR : (Owner as TLccHardwareConnectionManager).AliasServer.RemoveMapping(AMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : (Owner as TLccHardwareConnectionManager).AliasServer.ForceMapping(AMessage.SourceID, AMessage.CAN.SourceAlias)
+  end;
+  if Assigned(OnSendMessage) then
+    OnSendMessage(Self, AMessage);
 end;
 
 procedure TLccBaseEthernetThread.HandleErrorAndDisconnect;
@@ -495,6 +540,26 @@ begin
   FEthernetRec.ConnectionState := NewConnectionState;
   if not FEthernetRec.SuppressNotification then
     Synchronize({$IFDEF FPC}@{$ENDIF}DoConnectionState);
+end;
+
+procedure TLccBaseEthernetThread.SendMessage(AMessage: TLccMessage);
+var
+  ByteArray: TDynamicByteArray;
+  i: Integer;
+begin
+  if Gridconnect then
+  begin
+ //   UpdateAliasServer(AMessage);
+    MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
+    for i := 0 to MsgStringList.Count - 1 do
+      OutgoingGridConnect.Add(MsgStringList[i]);
+  end else
+  begin
+    ByteArray := nil;
+    if AMessage.ConvertToLccTcp(ByteArray) then
+      OutgoingCircularArray.AddChunk(ByteArray);
+  end;
+  DoSendMessage(AMessage);
 end;
 
 procedure TLccBaseEthernetThread.TryTransmitGridConnect(HandleErrors: Boolean);
@@ -670,12 +735,20 @@ begin
   inherited Create(AOwner);
   FIncomingGridConnect := TThreadStringList.Create;
   FIncomingCircularArray := TThreadedCirularArray.Create;
+  FAliasServer := TLccAliasServer.Create;
 end;
 
 destructor TLccHardwareConnectionManager.Destroy;
 begin
+  {$IFDEF DWSCRIPT}
+  FIncomingCircularArray.Free;
+  FIncomingGridConnect.Free;
+  FAliasServer.Free;
+  {$ELSE}
   FreeAndNil(FIncomingCircularArray);
   FreeAndNil(FIncomingGridConnect);
+  FreeAndNil(FAliasServer);
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -719,13 +792,6 @@ begin
   Result := Terminated;
 end;
 
-procedure TLccConnectionThread.UpdateAliasServer(LccMessage: TLccMessage);
-begin
-  case LccMessage.CAN.MTI of
-    MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
-    MTI_CAN_AMD : AliasServer.ForceMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
-  end;
-end;
 
 end.
 

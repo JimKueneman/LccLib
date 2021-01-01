@@ -67,9 +67,7 @@ type
       {$ENDIF}
     protected
       procedure DoReceiveMessage; override;
-      procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
-      procedure SendMessage(AMessage: TLccMessage); override;
 
       {$IFDEF ULTIBO}
       {$ELSE}
@@ -1072,9 +1070,9 @@ begin
   inherited Destroy;
 end;
 
-function TLccEthernetServer.OpenConnection(AnEthernetRec: TLccEthernetRec
-  ): TThread;
+function TLccEthernetServer.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;
 begin
+  Result := inherited OpenConnection(AnEthernetRec);
   Result := CreateListenerObject(AnEthernetRec);
   (Result as TLccEthernetListener).Owner := Self;
   UpdateListenerThreadProperites((Result as TLccEthernetListener));
@@ -1198,40 +1196,17 @@ end;
 
 {$ENDIF}
 
-procedure TLccEthernetServerThread.SendMessage(AMessage: TLccMessage);
-var
-  ByteArray: TDynamicByteArray;
-  i: Integer;
-begin
-  if not IsTerminated then
-  begin
-    if Gridconnect then
-    begin
-      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
-      for i := 0 to MsgStringList.Count - 1 do
-        OutgoingGridConnect.Add(MsgStringList[i]);
-    end else
-    begin
-      ByteArray := nil;
-      if AMessage.ConvertToLccTcp(ByteArray) then
-        OutgoingCircularArray.AddChunk(ByteArray);
-    end;
-    DoSendMessage(AMessage);
-  end;
-end;
-
 procedure TLccEthernetServerThread.DoReceiveMessage;
 var
   L, LSibling: TList;
   SiblingServer: TLccEthernetServer;
   i, j: Integer;
 begin
+  // Called in the content of the main thread through Syncronize
+  inherited DoReceiveMessage; // Do first so we get notified before any response is sent in ProcessMessage
+
   if not IsTerminated then
   begin
-    // Called in the content of the main thread through Syncronize
-    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
-      OnReceiveMessage(Self, FEthernetRec);
-
     if Gridconnect then
     begin
       if Owner.NodeManager <> nil then
@@ -1319,12 +1294,6 @@ begin
       end
     end;
   end
-end;
-
-procedure TLccEthernetServerThread.DoSendMessage(AMessage: TLccMessage);
-begin
-  if Assigned(OnSendMessage) then
-    OnSendMessage(Self, AMessage);
 end;
 
 initialization

@@ -83,9 +83,7 @@ type
   TLccEthernetClientThread =  class(TLccBaseEthernetThread)
     protected
       procedure DoReceiveMessage; override;
-      procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
-      procedure SendMessage(AMessage: TLccMessage); override;
   end;
 
 
@@ -175,10 +173,11 @@ end;
 
 function TLccEthernetClient.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;
 begin
+  Result := inherited OpenConnection(AnEthernetRec);
   Result := TLccEthernetClientThread.Create(True, Self, AnEthernetRec);
-  (Result as TLccEthernetClientThread).OnConnectionStateChange := OnConnectionStateChange;
-  (Result as TLccEthernetClientThread).OnErrorMessage := OnErrorMessage;
-  (Result as TLccEthernetClientThread).OnReceiveMessage := OnReceiveMessage;
+  OnConnectionStateChange := OnConnectionStateChange;
+  OnErrorMessage := OnErrorMessage;
+  OnReceiveMessage := OnReceiveMessage;
   (Result as TLccEthernetClientThread).OnSendMessage := OnSendMessage;
   (Result as TLccEthernetClientThread).GridConnect := Gridconnect;
   (Result as TLccEthernetClientThread).UseSynchronize := UseSynchronize;
@@ -394,45 +393,16 @@ begin
 end;
 {$ENDIF}
 
-procedure TLccEthernetClientThread.SendMessage(AMessage: TLccMessage);
-var
-  ByteArray: TDynamicByteArray;
-  i: Integer;
-begin
-//  if Socket.SocksOpen then
-  begin
-    if Gridconnect then
-    begin
-      UpdateAliasServer(AMessage);
-      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
-      for i := 0 to MsgStringList.Count - 1 do
-        OutgoingGridConnect.Add(MsgStringList[i]);
-    end else
-    begin
-      ByteArray := nil;
-      if AMessage.ConvertToLccTcp(ByteArray) then
-        OutgoingCircularArray.AddChunk(ByteArray);
-    end;
-    DoSendMessage(AMessage);
-  end;
-end;
-
-
 procedure TLccEthernetClientThread.DoReceiveMessage;
 begin
+  inherited DoReceiveMessage;
   // Called in the content of the main thread through Syncronize
   if not IsTerminated then
   begin
-    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
-      OnReceiveMessage(Self, FEthernetRec);
-
     if Gridconnect then
     begin
       if Owner.NodeManager <> nil then
-      begin
-        UpdateAliasServer(EthernetRec.LccMessage);
         Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);
-      end;
     end else
     begin
       // Called in the content of the main thread through Syncronize
@@ -443,11 +413,6 @@ begin
   end
 end;
 
-procedure TLccEthernetClientThread.DoSendMessage(AMessage: TLccMessage);
-begin
-  if Assigned(OnSendMessage) then
-    OnSendMessage(Self, AMessage);
-end;
 
 initialization
   RegisterClass(TLccEthernetClient);

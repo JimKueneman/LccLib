@@ -491,17 +491,33 @@ object Form1: TForm1
     object Label10: TLabel
       Left = 436
       Height = 16
-      Top = 10
-      Width = 129
-      Caption = 'Alias Mapping Count:'
+      Top = 8
+      Width = 138
+      Caption = 'Alias Mapping Count 1:'
       ParentColor = False
     end
-    object LabelAliasMappingCount: TLabel
+    object LabelAliasMappingCount1: TLabel
       Left = 584
       Height = 16
-      Top = 10
+      Top = 8
       Width = 8
       Caption = '0'
+      ParentColor = False
+    end
+    object LabelAliasMappingCount2: TLabel
+      Left = 584
+      Height = 16
+      Top = 24
+      Width = 8
+      Caption = '0'
+      ParentColor = False
+    end
+    object Label11: TLabel
+      Left = 436
+      Height = 16
+      Top = 24
+      Width = 140
+      Caption = 'Alias Mapping Count 2:'
       ParentColor = False
     end
   end

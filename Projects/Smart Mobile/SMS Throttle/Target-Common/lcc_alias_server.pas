@@ -102,25 +102,16 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure Clear;
     procedure ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
     procedure RemoveMapping(AnAliasID: Word);
 
 
   end;
 
-  function AliasServer: TLccAliasServer;
 
 implementation
 
-var
-  FAliasServer: TLccAliasServer = nil;
-
-function AliasServer: TLccAliasServer;
-begin
-  if not Assigned(FAliasServer) then
-    FAliasServer := TLccAliasServer.Create;
-  Result := FAliasServer;
-end;
 
 { TLccAliasMap }
 
@@ -315,6 +306,15 @@ begin
   inherited Destroy;
 end;
 
+procedure TLccAliasServer.Clear;
+begin
+  NodeIDSortedMap.Clear;
+  AliasSortedMap.Clear; // Owns the object in non-SMS
+  FIsDirty := False;
+  FNetworkRefreshed := False;
+  DoDeleteMapping;
+end;
+
 procedure TLccAliasServer.DoAddMapping;
 begin
   if Assigned(OnAddMapping) then
@@ -359,10 +359,6 @@ begin
     {$ENDIF}
   end;
 end;
-
-finalization
-  if Assigned(FAliasServer) then
-    FAliasServer.Free;
 
 end.
 
