@@ -45,6 +45,8 @@ type
     EditConsistAddress1: TEdit;
     ImageList: TImageList;
     Label1: TLabel;
+    Label10: TLabel;
+    LabelAliasMappingCount: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -143,7 +145,6 @@ type
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
-    procedure TreeViewConsistWizard1NodeChanged(Sender: TObject; Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
     procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
     procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
@@ -186,6 +187,8 @@ type
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
+
+    procedure OnAliasServerChange(Sender: TObject);
 
   public
     NodeManager1: TLccCanNodeManager;
@@ -251,6 +254,9 @@ var
 begin
   if ClientServer1.Connected then
   begin
+    NodeManager1.Clear;  // Logout do it here so the AMR will be sent before thread is killed
+    ControllerNode1 := nil;
+    Sleep(500);
     ClientServer1.CloseConnection(nil);
   end else
   begin
@@ -270,6 +276,9 @@ var
 begin
   if ClientServer2.Connected then
   begin
+    NodeManager2.Clear;   // Logout do it here so the AMR will be sent before thread is killed
+    ControllerNode2 := nil;
+    Sleep(500);
     ClientServer2.CloseConnection(nil);
   end else
   begin
@@ -320,10 +329,18 @@ begin
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
 
+  AliasServer.OnDeleteMapping := @OnAliasServerChange;
+  AliasServer.OnAddMapping := @OnAliasServerChange;
+
   PanelThrottleFace1.Enabled := False;
   PanelThrottleFace2.Enabled := False;
   PanelThrottleKeypad1.Enabled := False;
   PanelThrottleKeypad2.Enabled := False;
+end;
+
+procedure TForm1.OnAliasServerChange(Sender: TObject);
+begin
+  LabelAliasMappingCount.Caption := IntToStr(AliasServer.Count);
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);
@@ -482,12 +499,6 @@ begin
   FreeAndNil(ConsistItem);
 end;
 
-procedure TForm1.TreeViewConsistWizard1NodeChanged(Sender: TObject;
-  Node: TTreeNode; ChangeReason: TTreeNodeChangeReason);
-begin
-
-end;
-
 procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
@@ -553,8 +564,6 @@ begin
       end;
     ccsClientDisconnecting :
       begin
-        NodeManager1.Clear;   // Logout
-        ControllerNode1 := nil;
         StatusBarThrottle1.Panels[0].Text := 'Disconnecting';
       end;
     ccsClientDisconnected :
@@ -595,8 +604,6 @@ begin
       end;
     ccsClientDisconnecting :
       begin
-        NodeManager2.Clear;   // Logout
-        ControllerNode2 := nil;
         StatusBarThrottle2.Panels[0].Text := 'Disconnecting';
       end;
     ccsClientDisconnected :
@@ -890,6 +897,7 @@ begin
     (LccSourceNode as TLccCanNode).SendGlobalAME;
     AliasServer.NetworkRefreshed := True;
   end;
+  (LccSourceNode as TLccCanNode).SendAMD; // for the Alias Server to update with our nodes
 end;
 
 procedure TForm1.OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -914,6 +922,7 @@ begin
     (LccSourceNode as TLccCanNode).SendGlobalAME;
     AliasServer.NetworkRefreshed := True;
   end;
+  (LccSourceNode as TLccCanNode).SendAMD; // for the Alias Server to update with our nodes
 end;
 
 end.

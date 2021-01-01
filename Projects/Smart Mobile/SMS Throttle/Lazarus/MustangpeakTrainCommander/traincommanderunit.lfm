@@ -59,7 +59,7 @@ object FormTrainCommander: TFormTrainCommander
       Left = 16
       Height = 16
       Top = 72
-      Width = 86
+      Width = 66
       AutoSize = False
       Caption = 'NodeID'
       ParentColor = False
@@ -68,23 +68,23 @@ object FormTrainCommander: TFormTrainCommander
       Left = 17
       Height = 16
       Top = 96
-      Width = 87
+      Width = 65
       AutoSize = False
       Caption = 'AliasID'
       ParentColor = False
     end
     object LabelNodeID: TLabel
-      Left = 376
+      Left = 96
       Height = 16
-      Top = 200
+      Top = 72
       Width = 143
       AutoSize = False
       ParentColor = False
     end
     object LabelAliasID: TLabel
-      Left = 113
+      Left = 96
       Height = 16
-      Top = 71
+      Top = 93
       Width = 147
       AutoSize = False
       ParentColor = False
@@ -1335,7 +1335,7 @@ object FormTrainCommander: TFormTrainCommander
   object TimerIncomingMessagePump: TTimer
     Interval = 1
     OnTimer = TimerIncomingMessagePumpTimer
-    Left = 200
-    Top = 56
+    Left = 696
+    Top = 40
   end
 end

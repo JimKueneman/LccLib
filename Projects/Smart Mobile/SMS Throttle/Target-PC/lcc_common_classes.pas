@@ -18,7 +18,9 @@ uses
   lcc_node_messages,
   lcc_threaded_circulararray,
   lcc_ethernet_tcp,
-  lcc_threaded_stringlist;
+  lcc_threaded_stringlist,
+  lcc_alias_server,
+  lcc_defines;
 
 type
   { TLccConnectionThread }
@@ -36,6 +38,8 @@ type
     function GetIsTerminated: Boolean;
   protected
     FRunning: Boolean;
+
+    procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
   public
     {$IFDEF FPC}
     constructor Create(CreateSuspended: Boolean; const StackSize: SizeUInt = DefaultStackSize); reintroduce;
@@ -43,6 +47,9 @@ type
     constructor Create(CreateSuspended: Boolean); reintroduce;
     {$ENDIF}
     destructor Destroy; override;
+
+    procedure UpdateAliasServer(LccMessage: TLccMessage);
+
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
     property MsgStringList: TStringList read FMsgStringList write FMsgStringList;
     property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
@@ -120,6 +127,14 @@ end;
 function TLccConnectionThread.GetIsTerminated: Boolean;
 begin
   Result := Terminated;
+end;
+
+procedure TLccConnectionThread.UpdateAliasServer(LccMessage: TLccMessage);
+begin
+  case LccMessage.CAN.MTI of
+    MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : AliasServer.ForceMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
+  end;
 end;
 
 end.

@@ -358,8 +358,6 @@ type
     function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
     procedure On_800msTimer(Sender: TObject); override;
     procedure Relogin;
-    procedure SendAMD;
-    procedure SendAMR;
   public
      property AliasID: Word read FAliasID;
      property AliasIDStr: String read GetAliasIDStr;
@@ -372,6 +370,8 @@ type
      procedure Logout; override;
      function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
      procedure SendGlobalAME;
+     procedure SendAMD;
+     procedure SendAMR;
   end;
 
   TLccCanNodeClass = class of TLccCanNode;

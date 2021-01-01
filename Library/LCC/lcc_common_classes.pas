@@ -18,7 +18,8 @@ uses
   lcc_messages,
   lcc_can_message_assembler_disassembler,
   lcc_threadedcirculararray,
-  lcc_threaded_stringlist;
+  lcc_threaded_stringlist,
+  lcc_alias_server;
 
 type
   { TLccConnectionThread }

@@ -69,6 +69,9 @@ type
     FIsDirty: Boolean;
     FNetworkRefreshed: Boolean;  // Users sets this to indicate globally that a AME global has been sent and the mapping should include everything on the network
     FNodeIDSortedMap: TObjectList;
+    FOnAddMapping: TNotifyEvent;
+    FOnDeleteMapping: TNotifyEvent;
+    function GetCount: Integer;
    {$ENDIF}
   protected
     property IsDirty: Boolean read FIsDirty;
@@ -82,13 +85,19 @@ type
     {$ENDIF}
 
     function AddMapping(ANodeID: TNodeID; AliasID: Word): TLccAliasMap;
+    procedure DoAddMapping; virtual;
+    procedure DoDeleteMapping; virtual;
     function RemoveMappingByNodeID(ANodeID: TNodeID): Boolean;
     function RemoveMappingByAliasID(AnAliasID: Word): Boolean;
     function FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer): TLccAliasMap;
     function FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer): TLccAliasMap;
     procedure SortMaps;
   public
+    property Count: Integer read GetCount;
     property NetworkRefreshed: Boolean read FNetworkRefreshed write FNetworkRefreshed;
+
+    property OnDeleteMapping: TNotifyEvent read FOnDeleteMapping write FOnDeleteMapping;
+    property OnAddMapping: TNotifyEvent read FOnAddMapping write FOnAddMapping;
 
     constructor Create;
     destructor Destroy; override;
@@ -194,6 +203,7 @@ begin
   AliasSortedMap.Add(Result);  // Owns the object in non-SMS
   NodeIDSortedMap.Add(Result);
   FIsDirty := True;
+  DoAddMapping;
 end;
 
 function TLccAliasServer.RemoveMappingByNodeID(ANodeID: TNodeID): Boolean;
@@ -212,6 +222,7 @@ begin
     NodeIDSortedMap.Delete(MapIndex);
     AliasSortedMap.Delete(MapIndex); // Owns the object in non-SMS
     {$ENDIF}
+    DoDeleteMapping;
     Result := True;
   end;
 end;
@@ -232,6 +243,7 @@ begin
     NodeIDSortedMap.Delete(MapIndex);
     AliasSortedMap.Delete(MapIndex); // Owns the object in non-SMS
     {$ENDIF}
+    DoDeleteMapping;
     Result := True;
   end;
 end;
@@ -303,6 +315,18 @@ begin
   inherited Destroy;
 end;
 
+procedure TLccAliasServer.DoAddMapping;
+begin
+  if Assigned(OnAddMapping) then
+    OnAddMapping(Self);
+end;
+
+procedure TLccAliasServer.DoDeleteMapping;
+begin
+  if Assigned(OnDeleteMapping) then
+    OnDeleteMapping(Self);
+end;
+
 procedure TLccAliasServer.ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
 var
   MapIndex: Integer;
@@ -310,6 +334,11 @@ begin
   MapIndex := -1;
   if not Assigned(FindInAliasSortedMap(AnAliasID, MapIndex)) then
     AddMapping(ANodeID, AnAliasID);
+end;
+
+function TLccAliasServer.GetCount: Integer;
+begin
+  Result := AliasSortedMap.Count;
 end;
 
 procedure TLccAliasServer.RemoveMapping(AnAliasID: Word);

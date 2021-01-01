@@ -128,7 +128,7 @@ type
       procedure DoReceiveMessage;
       procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
-      procedure SendMessage(AMessage: TLccMessage);
+      procedure SendMessage(AMessage: TLccMessage); override;
 
       property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
       {$IFDEF ULTIBO}
@@ -834,6 +834,7 @@ begin
   begin
     if Gridconnect then
     begin
+      UpdateAliasServer(AMessage);
       MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
       for i := 0 to MsgStringList.Count - 1 do
         OutgoingGridConnect.Add(MsgStringList[i]);
@@ -907,10 +908,7 @@ begin
     begin
       if Owner.NodeManager <> nil then
       begin
-        case EthernetRec.LccMessage.CAN.MTI of
-          MTI_CAN_AMR : AliasServer.RemoveMapping(EthernetRec.LccMessage.CAN.SourceAlias);
-          MTI_CAN_AMD : AliasServer.ForceMapping(EthernetRec.LccMessage.SourceID, EthernetRec.LccMessage.CAN.SourceAlias)
-        end;
+        UpdateAliasServer(EthernetRec.LccMessage);
         Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);
       end;
     end else

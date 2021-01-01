@@ -963,6 +963,12 @@ begin
       Inc(i_Data, 2);
       Inc(FDataCount);
     end;
+    if IsCAN then
+    begin
+      case CAN.MTI of
+        MTI_CAN_AMD : ExtractDataBytesAsNodeID(0, FSourceID);
+      end;
+    end;
     Result := True
   end;
 end;
@@ -1315,7 +1321,7 @@ begin
   SourceID := ASourceID;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
-  CAN.MTI := MTI_CAN_RID or ASourceAlias;
+  CAN.MTI := MTI_CAN_RID; // or ASourceAlias;
 end;
 
 procedure TLccMessage.LoadAMD(ASourceID: TNodeID; ASourceAlias: Word);
@@ -1323,7 +1329,7 @@ begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
-  CAN.MTI := MTI_CAN_AMD or ASourceAlias;
+  CAN.MTI := MTI_CAN_AMD;// or ASourceAlias;
   SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
   DataCount := 6;
@@ -1335,7 +1341,7 @@ begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
-  CAN.MTI := MTI_CAN_AME or ASourceAlias;
+  CAN.MTI := MTI_CAN_AME;// or ASourceAlias;
   SourceID := ASourceID;
   if NullNodeID(TargetNodeID) then
   begin
@@ -1352,7 +1358,7 @@ begin
   ZeroFields;
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
-  CAN.MTI := MTI_CAN_AMR or ASourceAlias;
+  CAN.MTI := MTI_CAN_AMR;// or ASourceAlias;
   SourceID := ASourceID;
   InsertNodeID(0, ASourceID);
   DataCount := 6;

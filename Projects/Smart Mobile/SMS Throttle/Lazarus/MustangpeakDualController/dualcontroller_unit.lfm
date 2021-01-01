@@ -2,11 +2,11 @@ object Form1: TForm1
   Left = 245
   Height = 633
   Top = 112
-  Width = 703
+  Width = 733
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 633
-  ClientWidth = 703
+  ClientWidth = 733
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   LCLVersion = '2.0.11.0'
@@ -376,7 +376,6 @@ object Form1: TForm1
           Images = ImageList
           TabOrder = 0
           OnDeletion = TreeViewConsistWizard1Deletion
-          OnNodeChanged = TreeViewConsistWizard1NodeChanged
           OnSelectionChanged = TreeViewConsistWizard1SelectionChanged
           Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         end
@@ -468,10 +467,10 @@ object Form1: TForm1
     Left = 0
     Height = 50
     Top = 0
-    Width = 703
+    Width = 733
     Align = alTop
     ClientHeight = 50
-    ClientWidth = 703
+    ClientWidth = 733
     TabOrder = 1
     object EditCommandStationIPAddress: TEdit
       Left = 232
@@ -479,7 +478,7 @@ object Form1: TForm1
       Top = 9
       Width = 136
       TabOrder = 0
-      Text = '10.0.3.141'
+      Text = '10.0.3.136'
     end
     object Label1: TLabel
       Left = 32
@@ -489,24 +488,40 @@ object Form1: TForm1
       Caption = 'Command Station IP Address'
       ParentColor = False
     end
+    object Label10: TLabel
+      Left = 436
+      Height = 16
+      Top = 10
+      Width = 129
+      Caption = 'Alias Mapping Count:'
+      ParentColor = False
+    end
+    object LabelAliasMappingCount: TLabel
+      Left = 584
+      Height = 16
+      Top = 10
+      Width = 8
+      Caption = '0'
+      ParentColor = False
+    end
   end
   object PanelThrottle2: TPanel
     Left = 352
     Height = 583
     Top = 50
-    Width = 352
+    Width = 368
     Align = alLeft
     ClientHeight = 583
-    ClientWidth = 352
+    ClientWidth = 368
     TabOrder = 2
     object PanelThrottleEthernet1: TPanel
       Left = 1
       Height = 48
       Top = 1
-      Width = 350
+      Width = 366
       Align = alTop
       ClientHeight = 48
-      ClientWidth = 350
+      ClientWidth = 366
       TabOrder = 0
       object ButtonConnect2: TButton
         Left = 8
@@ -537,7 +552,7 @@ object Form1: TForm1
         Left = 184
         Height = 16
         Top = 6
-        Width = 154
+        Width = 178
         AutoSize = False
         Caption = 'None'
         ParentColor = False
@@ -546,7 +561,7 @@ object Form1: TForm1
         Left = 184
         Height = 16
         Top = 28
-        Width = 154
+        Width = 178
         AutoSize = False
         Caption = 'None'
         ParentColor = False
@@ -556,7 +571,7 @@ object Form1: TForm1
       Left = 1
       Height = 18
       Top = 564
-      Width = 350
+      Width = 366
       Panels = <      
         item
           Text = 'Disconnected'
@@ -568,19 +583,19 @@ object Form1: TForm1
       Left = 1
       Height = 515
       Top = 49
-      Width = 350
+      Width = 366
       Align = alClient
       ClientHeight = 515
-      ClientWidth = 350
+      ClientWidth = 366
       TabOrder = 2
       object PanelThrottleAssign2: TPanel
         Left = 1
         Height = 95
         Top = 1
-        Width = 348
+        Width = 364
         Align = alTop
         ClientHeight = 95
-        ClientWidth = 348
+        ClientWidth = 364
         TabOrder = 0
         object EditThrottleAddress2: TEdit
           Left = 120
@@ -651,10 +666,10 @@ object Form1: TForm1
         Left = 1
         Height = 210
         Top = 304
-        Width = 348
+        Width = 364
         Align = alClient
         ClientHeight = 210
-        ClientWidth = 348
+        ClientWidth = 364
         TabOrder = 1
         object SpeedButtonFunction12: TSpeedButton
           Left = 10
@@ -832,13 +847,13 @@ object Form1: TForm1
         Left = 1
         Height = 208
         Top = 96
-        Width = 348
+        Width = 364
         Align = alTop
         ClientHeight = 208
-        ClientWidth = 348
+        ClientWidth = 364
         TabOrder = 2
         object TreeViewConsistWizard2: TTreeView
-          Left = 152
+          Left = 168
           Height = 206
           Top = 1
           Width = 195

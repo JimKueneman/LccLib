@@ -35,7 +35,7 @@ uses
   blcksock,
   synsock,
   Synautil,
-    {$IFDEF DELPHI}
+    {$IFNDEF DELPHI}
     Base64,
     sha1,
     {$ENDIF}
