@@ -64,10 +64,10 @@ type
     FLccHTTPServer: TLccHTTPServer;
     FLccWebsocketServer: TLccWebsocketServer;
     FNodeManager: TLccCanNodeManager;
-    FWorkerMsg: TLccMessage;
+    FWorkerMessage: TLccMessage;
     FLccServer: TLccEthernetServer;
   protected
-    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
     function ConnectServer: Boolean;
     procedure DisconnectServer;
@@ -308,7 +308,7 @@ begin
   LccServer.NodeManager := NodeManager;
   LccWebsocketServer.NodeManager := NodeManager;
 
-  FWorkerMsg := TLccMessage.Create;
+  FWorkerMessage := TLccMessage.Create;
 end;
 
 procedure TFormTrainCommander.FormDestroy(Sender: TObject);
@@ -317,7 +317,7 @@ begin
   FreeAndNil(FNodeManager);
   FreeAndNil(FLccServer);
   FreeAndNil(FLccWebsocketServer);
-  FreeAndNil(FWorkerMsg);
+  FreeAndNil(FWorkerMessage);
   FreeAndNil(FComPort);
 end;
 
@@ -511,6 +511,19 @@ var
   Item: TListItem;
   SpeedStep: string;
 begin
+
+  if LccSourceNode is TLccCommandStationNode then
+  begin
+    LccServer.AliasServer.NetworkRefreshed := True;
+    LccWebsocketServer.AliasServer.NetworkRefreshed := True; // <<<<<<  NEED TO THINK ABOUT DEALING WITH BOTH IF I CAN START THEM A DIFFERENT TIMES
+
+    WorkerMessage.LoadAME(LccSourceNode.NodeID, (LccSourceNode as TLccCanNode).AliasID, NULL_NODE_ID);
+
+    LccServer.SendMessage(WorkerMessage);
+    LccWebsocketServer.SendMessage(WorkerMessage);
+  end;
+
+
   if LccSourceNode is TLccTrainCanNode then
   begin
     TrainNode := LccSourceNode as TLccTrainCanNode;

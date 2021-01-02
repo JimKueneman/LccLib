@@ -830,9 +830,9 @@ function TLccEthernetListener.CreateServerThread(ASocketHandle: TSocket): TLccEt
 begin
   Result := CreateThreadObject;
   Result.SocketHandleForListener := ASocketHandle;    // Back create the sockets with this handle
-  Result.OnConnectionStateChange := OnConnectionStateChange;
-  Result.OnErrorMessage := OnErrorMessage;
-  Result.OnReceiveMessage := OnReceiveMessage;
+  OnConnectionStateChange := OnConnectionStateChange;
+  OnErrorMessage := OnErrorMessage;
+  OnReceiveMessage := OnReceiveMessage;
   Result.OnSendMessage := OnSendMessage;
   Result.SleepCount := FSleepCount;
   Result.GridConnect := FGridConnect;
