@@ -45,9 +45,14 @@ uses
   lcc_node_messages,
   lcc_alias_server;
 
+
+const
+  MAX_HARDWARE_CONNECTIONS = 10;  // Lazy here to make it dynamic to use with SMS should never ever need more than 10
+
 type
 
-  IHardwareConnectionManager = interface['{CE6D75A4-1AD3-438C-B984-FEF2C6135272}']
+  IHardwareConnectionManagerLink = interface
+    ['{619C8E64-69C3-94A6-B6FE-B16B6CB57A45}']
     procedure SendMessage(AMessage: TLccMessage);
   end;
 
@@ -116,7 +121,6 @@ type
 
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
-    FHardwareConnectionManager: IHardwareConnectionManager;  // link back to the connection manager this node manage is associated with to move messages to/from the wire
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -161,6 +165,9 @@ type
     {$ENDIF}
     function GetNode(Index: Integer): TLccNode;
   protected
+    HardwareConnectionLinkArray: array[0..MAX_HARDWARE_CONNECTIONS] of IHardwareConnectionManagerLink;
+    HardwareConnectionLinkIndex: Integer;
+
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;               //*
     procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;             //*
     procedure DoCDIRead(LccNode: TLccNode); virtual;
@@ -203,7 +210,6 @@ type
 
   public
     // Connection Manager
-    property HardwareConnectionManager: IHardwareConnectionManager read FHardwareConnectionManager write FHardwareConnectionManager;
 
     {$IFDEF DELPHI}
     property Nodes: TOBjectList<TLccNode> read FNodes write FNodes;
@@ -229,6 +235,9 @@ type
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
+
+    procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+    procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
   published
 
@@ -718,7 +727,10 @@ var
   i: Integer;
 begin
   // Send the message to the wire
-  HardwareConnectionManager.SendMessage(LccMessage);
+
+  // Emumerate all Hardware Connections and pass on the message to send
+  for i := 0 to HardwareConnectionLinkIndex - 1 do
+    HardwareConnectionLinkArray[i].SendMessage(LccMessage);
 
   // Send the messages to all the other virtual nodes.
   if Sender is TLccNode then
@@ -742,6 +754,27 @@ end;
 procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage);
 begin
   SendMessage(Sender, LccMessage);
+end;
+
+procedure TLccNodeManager.RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+begin
+  HardwareConnectionLinkArray[HardwareConnectionLinkIndex] := AConnectionManagerLink;
+  Inc(HardwareConnectionLinkIndex);
+end;
+
+procedure TLccNodeManager.UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+var
+  i, j: Integer;
+begin
+  for i := 0 to HardwareConnectionLinkIndex - 1 do
+  begin  // Find the index of the link
+    if HardwareConnectionLinkArray[i] = AConnectionManagerLink then
+    begin  // remove it by sliding the rest of the links down in the array then decrementing the index
+      for j := i to HardwareConnectionLinkIndex - 1 do
+        HardwareConnectionLinkArray[j] := HardwareConnectionLinkArray[j+1];
+      Dec(HardwareConnectionLinkIndex);
+    end;
+  end;
 end;
 
 

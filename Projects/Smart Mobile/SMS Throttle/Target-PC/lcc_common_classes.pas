@@ -172,7 +172,7 @@ type
 
   { TLccHardwareConnectionManager }
 
-  TLccHardwareConnectionManager = class(TComponent, IHardwareConnectionManager)
+  TLccHardwareConnectionManager = class(TComponent, IHardwareConnectionManagerLink)
   private
     FAliasServer: TLccAliasServer;
     FNodeManager: TLccNodeManager;
@@ -321,7 +321,6 @@ constructor TLccEthernetHardwareConnectionManager.Create(AOwner: TComponent; ANo
 begin
   inherited Create(AOwner, ANodeManager);
   FEthernetThreads := TLccEthernetThreadList.Create;
-  FNodeManager := ANodeManager;
   FUseSynchronize := True;
 end;
 
@@ -757,12 +756,12 @@ begin
     OnReceiveMessage(Thread, EthernetRec);
 end;
 
-constructor TLccHardwareConnectionManager.Create(AOwner: TComponent;
-  ANodeManager: TLccNodeManager);
+constructor TLccHardwareConnectionManager.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
 begin
   inherited Create(AOwner);
-  Assert(ANodeManager <> nil, 'Connection Manager must have a valid TLccNodeManager assigned');
-  ANodeManager.HardwareConnectionManager := Self as IHardwareConnectionManager;
+  FNodeManager := ANodeManager;
+  if Assigned(NodeManager) then
+    NodeManager.RegisterHardwareConnectionLink(Self as IHardwareConnectionManagerLink);
   FIncomingGridConnect := TThreadStringList.Create;
   FIncomingCircularArray := TThreadedCirularArray.Create;
   FAliasServer := TLccAliasServer.Create;
@@ -770,6 +769,8 @@ end;
 
 destructor TLccHardwareConnectionManager.Destroy;
 begin
+  if Assigned(NodeManager) then
+    NodeManager.UnRegisterHardwareConnectionLink(Self as IHardwareConnectionManagerLink);
   FreeAndNil(FIncomingCircularArray);
   FreeAndNil(FIncomingGridConnect);
   FreeAndNil(FAliasServer);

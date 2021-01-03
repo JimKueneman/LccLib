@@ -251,13 +251,13 @@ begin
      MTI_INITIALIZATION_COMPLETE :
       begin  // Need to wait for new trains to fully initalize before returning from the Traction Search Event........
         ANodeID := NULL_NODE_ID;
-          ATrain := FindTrainByLccNodeID(SourceMessage.SourceID);
-          if Assigned(ATrain) then
-          begin
-            ReturnEvent := ATrain.SearchEvent;
-            WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, ReturnEvent, evs_Valid);
-            SendMessageFunc(ATrain, WorkerMessage);
-          end
+        ATrain := FindTrainByLccNodeID(SourceMessage.SourceID);
+        if Assigned(ATrain) then
+        begin
+          ReturnEvent := ATrain.SearchEvent;
+          WorkerMessage.LoadProducerIdentified(ATrain.NodeID, ATrain.AliasID, ReturnEvent, evs_Valid);
+          SendMessageFunc(ATrain, WorkerMessage);
+        end
       end;
     MTI_PRODUCER_IDENDIFY :
       begin

@@ -180,7 +180,6 @@ type
   TLccEthernetServer = class(TLccEthernetHardwareConnectionManager)
   private
     FHub: Boolean;
-    FSiblingEthernetThreads: TThreadList;
     FListenerThread: TLccEthernetListener;
     { Private declarations }
   protected
@@ -198,11 +197,7 @@ type
     function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; override;
     procedure CloseConnection(EthernetThread: TLccBaseEthernetThread);  override;
 
-    procedure RegisterSiblingEthernetServer(AnEthenetServer: TLccEthernetServer);
-    procedure UnRegisterSiblingEthernetServer(AnEthernetServer: TLccEthernetServer);
-
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
-    property SiblingEthernetThreads: TThreadList read FSiblingEthernetThreads write FSiblingEthernetThreads;
 
   published
     { Published declarations }
@@ -1056,18 +1051,14 @@ begin
   UpdateListenerThreadProperites(ListenerThread);
 end;
 
-constructor TLccEthernetServer.Create(AOwner: TComponent;
-  ANodeManager: TLccNodeManager);
+constructor TLccEthernetServer.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
 begin
   inherited;
-  FSiblingEthernetThreads := TThreadList.Create;
-  SiblingEthernetThreads.Duplicates := dupIgnore;
   FHub := False;
 end;
 
 destructor TLccEthernetServer.Destroy;
 begin
-  FreeAndNil( FSiblingEthernetThreads);
   inherited Destroy;
 end;
 
@@ -1084,19 +1075,6 @@ end;
 function TLccEthernetServer.CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccEthernetListener.Create(True, Self, AnEthernetRec);
-end;
-
-procedure TLccEthernetServer.RegisterSiblingEthernetServer(AnEthenetServer: TLccEthernetServer);
-begin
-  SiblingEthernetThreads.Add(AnEthenetServer);
-end;
-
-procedure TLccEthernetServer.UnRegisterSiblingEthernetServer(AnEthernetServer: TLccEthernetServer);
-begin
-  if Assigned(AnEthernetServer) then
-    SiblingEthernetThreads.Remove(AnEthernetServer)
-  else
-    SiblingEthernetThreads.Clear;
 end;
 
 { TLccEthernetServerThread }
@@ -1199,8 +1177,7 @@ end;
 
 procedure TLccEthernetServerThread.OnReceiveMessage;
 var
-  L, LSibling: TList;
-  SiblingServer: TLccEthernetServer;
+  L: TList;
   i, j: Integer;
 begin
   // Called in the content of the main thread through Syncronize
@@ -1220,27 +1197,6 @@ begin
       (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.UnlockList;
     end
   end;
-
-  // Now run all the threads in each sibling server that is registered
-  LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
-  try
-    for j := 0 to LSibling.Count - 1 do
-    begin
-      SiblingServer := TLccEthernetServer( LSibling[j]);
-      L := SiblingServer.EthernetThreads.LockList;
-      try
-        for i := 0 to L.Count - 1 do
-        begin
-          if TLccEthernetServerThread(L[i]) <> Self then
-            TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
-        end;
-      finally
-        SiblingServer.EthernetThreads.UnlockList;
-      end
-    end;
-  finally
-    (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
-  end
 end;
 
 initialization

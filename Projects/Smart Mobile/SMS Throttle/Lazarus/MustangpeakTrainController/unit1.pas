@@ -119,8 +119,6 @@ type
 
     procedure OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
   end;
 
 
@@ -239,8 +237,6 @@ begin
   NodeManager := TLccCanNodeManager.Create(nil);
   NodeManager.OnLccNodeAliasIDChanged := @OnNodeManagerAliasChange;
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChange;
-  NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
-  NodeManager.OnLccMessageReceive := @OnNodeManagerReceiveMessage;
 
   EthernetClient := TLccEthernetClient.Create(nil, NodeManager);
   EthernetClient.Gridconnect := True;
@@ -348,11 +344,6 @@ begin
   LabelThrottleAliasID.Caption := 'AliasID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
 end;
 
-procedure TFormTrainController.OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  EthernetClient.SendMessage(LccMessage);
-end;
-
 procedure TFormTrainController.ToggleBoxThrottleForwardChange(Sender: TObject);
 begin
   ControllerNode.Direction := tdForward;
@@ -366,10 +357,6 @@ end;
 procedure TFormTrainController.TrackBarThrottleSpeedChange(Sender: TObject);
 begin
   ControllerNode.Speed := TrackBarThrottleSpeed.Position;
-end;
-
-procedure TFormTrainController.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
 end;
 
 end.

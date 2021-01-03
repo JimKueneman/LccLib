@@ -263,8 +263,6 @@ begin
   CanClose := CanClose; // Keep Hints quiet
   NodeManager.Clear;
   ComPort.CloseComPort(nil);
-  LccServer.UnRegisterSiblingEthernetServer(nil);
-  LccWebsocketServer.UnRegisterSiblingEthernetServer(nil);
   LccServer.CloseConnection(nil);
   LccWebsocketServer.CloseConnection(nil);
   LccHTTPServer.CloseConnection(nil);
@@ -292,10 +290,7 @@ begin
   LccWebsocketServer.Gridconnect := True;
   LccWebsocketServer.Hub := True;
 
-  LccServer.RegisterSiblingEthernetServer(LccWebsocketServer);
-  LccWebsocketServer.RegisterSiblingEthernetServer(LccServer);
-
-  FLccHTTPServer := TLccHTTPServer.Create(nil, NodeManager);
+  FLccHTTPServer := TLccHTTPServer.Create(nil, nil); // OpenLCB messages do not move on this interface
   LccHTTPServer.OnConnectionStateChange := @OnCommandStationHTTPConnectionState;
   LccHTTPServer.OnErrorMessage := @OnCommandStationHTTPErrorMessage;
 
@@ -313,9 +308,9 @@ begin
   FreeAndNil(FLccHTTPServer);
   FreeAndNil(FLccServer);
   FreeAndNil(FLccWebsocketServer);
+  FreeAndNil(FComPort);
   FreeAndNil(FNodeManager);   // after the servers are destroyed
   FreeAndNil(FWorkerMessage);
-  FreeAndNil(FComPort);
 end;
 
 procedure TFormTrainCommander.FormShow(Sender: TObject);
@@ -508,19 +503,6 @@ var
   Item: TListItem;
   SpeedStep: string;
 begin
-
-  if LccSourceNode is TLccCommandStationNode then
-  begin
-    LccServer.AliasServer.NetworkRefreshed := True;
-    LccWebsocketServer.AliasServer.NetworkRefreshed := True; // <<<<<<  NEED TO THINK ABOUT DEALING WITH BOTH IF I CAN START THEM A DIFFERENT TIMES
-
-    WorkerMessage.LoadAME(LccSourceNode.NodeID, (LccSourceNode as TLccCanNode).AliasID, NULL_NODE_ID);
-
-    LccServer.SendMessage(WorkerMessage);
-    LccWebsocketServer.SendMessage(WorkerMessage);
-  end;
-
-
   if LccSourceNode is TLccTrainCanNode then
   begin
     TrainNode := LccSourceNode as TLccTrainCanNode;
@@ -629,9 +611,6 @@ end;
 
 procedure TFormTrainCommander.OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
 begin
-  LccServer.SendMessage(LccMessage);
-  LccWebsocketServer.SendMessage(LccMessage);
-
   if CheckBoxLogMessages.Checked then
   begin
     MemoLog.Lines.BeginUpdate;
