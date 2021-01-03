@@ -150,10 +150,12 @@ type
     procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
     procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
+    FAliasServer: TLccAliasServer;
     FWorkerMessage: TLccMessage;
 
   protected
 
+    property AliasServer: TLccAliasServer read FAliasServer write FAliasServer;
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
     procedure OnNodeManager1IDChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -310,13 +312,16 @@ begin
   ClientServer2.NodeManager := nil;
   FreeAndNil(NodeManager2);
 
+  FreeAndNil(FAliasServer);
   FreeAndNil(FWorkerMessage);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  AliasServer := TLccAliasServer.Create;
+
   NodeManager1 := TLccCanNodeManager.Create(nil);
-  ClientServer1 := TLccEthernetClient.Create(nil);
+  ClientServer1 := TLccEthernetClient.Create(nil, AliasServer);
 
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
   NodeManager1.OnLccNodeIDChanged := @OnNodeManager1IDChange;
@@ -329,7 +334,7 @@ begin
   ClientServer1.AliasServer.OnAddMapping := @OnAliasServerChange1;
 
   NodeManager2 := TLccCanNodeManager.Create(nil);
-  ClientServer2 := TLccEthernetClient.Create(nil);
+  ClientServer2 := TLccEthernetClient.Create(nil, AliasServer);
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
@@ -351,12 +356,12 @@ end;
 
 procedure TForm1.OnAliasServerChange1(Sender: TObject);
 begin
-  LabelAliasMappingCount1.Caption := IntToStr(ClientServer1.AliasServer.Count);
+  LabelAliasMappingCount1.Caption := IntToStr(AliasServer.Count);
 end;
 
 procedure TForm1.OnAliasServerChange2(Sender: TObject);
 begin
-  LabelAliasMappingCount2.Caption := IntToStr(ClientServer2.AliasServer.Count);
+  LabelAliasMappingCount2.Caption := IntToStr(AliasServer.Count);
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);
@@ -591,6 +596,9 @@ begin
         LabelAlias1.Caption := 'None';
         LabelNodeID1.Caption := 'None';
         PanelThrottleFace1.Enabled := False;
+
+        if NodeManager2.;
+        if both are disconnected then set the AliasServer to Needs Refreshing so it will refresh when reconnected....
       end;
   end;
 end;
@@ -912,9 +920,9 @@ end;
 
 procedure TForm1.OnNodeManager1NodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  if LccSourceNode is TLccTrainController then
+  if (LccSourceNode is TLccTrainController) and not AliasServer.NetworkRefreshed then
   begin
-    ClientServer1.AliasServer.NetworkRefreshed := True;
+    AliasServer.NetworkRefreshed := True;
     WorkerMessage.LoadAME(LccSourceNode.NodeID, (LccSourceNode as TLccCanNode).AliasID, NULL_NODE_ID);
     ClientServer1.SendMessage(WorkerMessage);
   end;
@@ -936,10 +944,9 @@ begin
   ClientServer2.SendMessage(LccMessage);
 end;
 
-procedure TForm1.OnNodeManager2NodeLogin(Sender: TObject;
-  LccSourceNode: TLccNode);
+procedure TForm1.OnNodeManager2NodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  if LccSourceNode is TLccTrainController then
+  if (LccSourceNode is TLccTrainController) and not AliasServer.NetworkRefreshed then
   begin
     ClientServer1.AliasServer.NetworkRefreshed := True;
     WorkerMessage.LoadAME(LccSourceNode.NodeID, (LccSourceNode as TLccCanNode).AliasID, NULL_NODE_ID);
