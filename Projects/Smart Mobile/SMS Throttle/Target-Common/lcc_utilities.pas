@@ -82,12 +82,13 @@ uses
   {$IFDEF DWSCRIPT}
   function Lo(Data: Word): Byte;
   function Hi(Data: Word): Byte;
+  procedure FreeAndNil(AnObject: TObject);
   {$ENDIF}
 
   function StreamReadByte(AStream: TStream): Byte;
   procedure StreamWriteByte(AStream: TStream; AByte: Byte);
 
-function GridConnectToDetailedGridConnect(MessageString: string): string;
+  function GridConnectToDetailedGridConnect(MessageString: string): string;
 
 
 implementation
@@ -582,6 +583,11 @@ end;
 function Hi(Data: Word): Byte;
 begin
   Result := Byte((Data shr 8) and $00FF);
+end;
+
+procedure FreeAndNil(AnObject: TObject);
+begin
+  AnObject.Free;
 end;
 {$ENDIF}
 

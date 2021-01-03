@@ -160,12 +160,10 @@ type
 
     procedure OnNodeManager1IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnNodeManager1SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeManager1NodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 
     procedure OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnNodeManager2SendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure OnNodeManager2NodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 
     procedure OnClientServer1ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
@@ -274,7 +272,6 @@ begin
     EthernetRec.AutoResolveIP := True;
     EthernetRec.ListenerPort := 12021;
     ClientServer1.Gridconnect := True;
-    ClientServer1.NodeManager := NodeManager1;
     ClientServer1.OpenConnection(EthernetRec);
   end;
 end;
@@ -295,7 +292,6 @@ begin
     EthernetRec.AutoResolveIP := True;
     EthernetRec.ListenerPort := 12021;
     ClientServer2.Gridconnect := True;
-    ClientServer2.NodeManager := NodeManager2;
     ClientServer2.OpenConnection(EthernetRec);
   end;
 end;
@@ -304,12 +300,10 @@ procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   NodeManager1.Clear;
   ClientServer1.CloseConnection(nil);
-  ClientServer1.NodeManager := nil;
   FreeAndNil(NodeManager1);
 
   NodeManager2.Clear;
   ClientServer2.CloseConnection(nil);
-  ClientServer2.NodeManager := nil;
   FreeAndNil(NodeManager2);
 
   FreeAndNil(FAliasServer);
@@ -321,11 +315,10 @@ begin
   AliasServer := TLccAliasServer.Create;
 
   NodeManager1 := TLccCanNodeManager.Create(nil);
-  ClientServer1 := TLccEthernetClient.Create(nil, AliasServer);
+  ClientServer1 := TLccEthernetClient.Create(nil, NodeManager1);
 
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
   NodeManager1.OnLccNodeIDChanged := @OnNodeManager1IDChange;
-  NodeManager1.OnLccMessageSend := @OnNodeManager1SendMessage;
   NodeManager1.OnLccNodeLogin := @OnNodeManager1NodeLogin;
 
   ClientServer1.OnConnectionStateChange := @OnClientServer1ConnectionChange;
@@ -334,11 +327,10 @@ begin
   ClientServer1.AliasServer.OnAddMapping := @OnAliasServerChange1;
 
   NodeManager2 := TLccCanNodeManager.Create(nil);
-  ClientServer2 := TLccEthernetClient.Create(nil, AliasServer);
+  ClientServer2 := TLccEthernetClient.Create(nil, NodeManager2);
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
-  NodeManager2.OnLccMessageSend := @OnNodeManager2SendMessage;
   NodeManager2.OnLccNodeLogin := @OnNodeManager2NodeLogin;
 
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
@@ -596,9 +588,6 @@ begin
         LabelAlias1.Caption := 'None';
         LabelNodeID1.Caption := 'None';
         PanelThrottleFace1.Enabled := False;
-
-        if NodeManager2.;
-        if both are disconnected then set the AliasServer to Needs Refreshing so it will refresh when reconnected....
       end;
   end;
 end;
@@ -913,11 +902,6 @@ begin
   LabelNodeID1.Caption := 'NodeID: ' + LccSourceNode.NodeIDStr;
 end;
 
-procedure TForm1.OnNodeManager1SendMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  ClientServer1.SendMessage(LccMessage);
-end;
-
 procedure TForm1.OnNodeManager1NodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 begin
   if (LccSourceNode is TLccTrainController) and not AliasServer.NetworkRefreshed then
@@ -937,11 +921,6 @@ end;
 procedure TForm1.OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   LabelNodeID2.Caption := 'NodeID: ' + LccSourceNode.NodeIDStr;
-end;
-
-procedure TForm1.OnNodeManager2SendMessage(Sender: TObject; LccMessage: TLccMessage);
-begin
-  ClientServer2.SendMessage(LccMessage);
 end;
 
 procedure TForm1.OnNodeManager2NodeLogin(Sender: TObject; LccSourceNode: TLccNode);

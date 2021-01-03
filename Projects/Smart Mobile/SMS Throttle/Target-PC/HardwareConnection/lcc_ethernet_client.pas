@@ -82,7 +82,6 @@ type
 
   TLccEthernetClientThread =  class(TLccBaseEthernetThread)
     protected
-      procedure DoReceiveMessage; override;
       procedure Execute; override;
   end;
 
@@ -385,33 +384,13 @@ begin
         end;
       finally
         HandleSendConnectionNotification(ccsClientDisconnected);
-        Owner.EthernetThreads.Remove(Self);
+        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
         FRunning := False;
       end;
     end;
   end;
 end;
 {$ENDIF}
-
-procedure TLccEthernetClientThread.DoReceiveMessage;
-begin
-  inherited DoReceiveMessage;
-  // Called in the content of the main thread through Syncronize
-  if not IsTerminated then
-  begin
-    if Gridconnect then
-    begin
-      if Owner.NodeManager <> nil then
-        Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);
-    end else
-    begin
-      // Called in the content of the main thread through Syncronize
-      if Owner.NodeManager <> nil then
-        if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
-          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is
-    end;
-  end
-end;
 
 
 initialization

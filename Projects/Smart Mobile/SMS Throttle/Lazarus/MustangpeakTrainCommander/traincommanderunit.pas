@@ -272,25 +272,6 @@ end;
 
 procedure TFormTrainCommander.FormCreate(Sender: TObject);
 begin
-  FLccServer := TLccEthernetServer.Create(nil);
-  LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
-  LccServer.OnErrorMessage := @OnCommandStationServerErrorMessage;
-  LccServer.Gridconnect := True;
-  LccServer.Hub := True;
-
-  FLccWebsocketServer := TLccWebsocketServer.Create(nil);
-  LccWebsocketServer.OnConnectionStateChange := @OnCommandStationWebsocketConnectionState;
-  LccWebsocketServer.OnErrorMessage := @OnCommandStationWebsocketErrorMessage;
-  LccWebsocketServer.Gridconnect := True;
-  LccWebsocketServer.Hub := True;
-
-  LccServer.RegisterSiblingEthernetServer(LccWebsocketServer);
-  LccWebsocketServer.RegisterSiblingEthernetServer(LccServer);
-
-  FLccHTTPServer := TLccHTTPServer.Create(nil);
-  LccHTTPServer.OnConnectionStateChange := @OnCommandStationHTTPConnectionState;
-  LccHTTPServer.OnErrorMessage := @OnCommandStationHTTPErrorMessage;
-
   NodeManager := TLccCanNodeManager.Create(nil);
   NodeManager.OnLccNodeAliasIDChanged := @OnNodeManagerAliasIDChanged;
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChanged;
@@ -299,14 +280,30 @@ begin
   NodeManager.OnLccNodeLogin := @OnNodeManagerNodeLogin;
   NodeManager.OnLccNodeLogout := @OnNodeManagerNodeLogout;
 
-  ComPort := TLccComPort.Create(nil);
+  FLccServer := TLccEthernetServer.Create(nil, NodeManager);
+  LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
+  LccServer.OnErrorMessage := @OnCommandStationServerErrorMessage;
+  LccServer.Gridconnect := True;
+  LccServer.Hub := True;
+
+  FLccWebsocketServer := TLccWebsocketServer.Create(nil, NodeManager);
+  LccWebsocketServer.OnConnectionStateChange := @OnCommandStationWebsocketConnectionState;
+  LccWebsocketServer.OnErrorMessage := @OnCommandStationWebsocketErrorMessage;
+  LccWebsocketServer.Gridconnect := True;
+  LccWebsocketServer.Hub := True;
+
+  LccServer.RegisterSiblingEthernetServer(LccWebsocketServer);
+  LccWebsocketServer.RegisterSiblingEthernetServer(LccServer);
+
+  FLccHTTPServer := TLccHTTPServer.Create(nil, NodeManager);
+  LccHTTPServer.OnConnectionStateChange := @OnCommandStationHTTPConnectionState;
+  LccHTTPServer.OnErrorMessage := @OnCommandStationHTTPErrorMessage;
+
+  ComPort := TLccComPort.Create(nil, NodeManager);
   ComPort.OnConnectionStateChange := @OnComPortConnectionStateChange;
   ComPort.OnErrorMessage := @OnComPortErrorMessage;
   ComPort.OnReceiveMessage := @OnComPortReceiveMessage;
   ComPort.RawData := True;
-
-  LccServer.NodeManager := NodeManager;
-  LccWebsocketServer.NodeManager := NodeManager;
 
   FWorkerMessage := TLccMessage.Create;
 end;
@@ -314,9 +311,9 @@ end;
 procedure TFormTrainCommander.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FLccHTTPServer);
-  FreeAndNil(FNodeManager);
   FreeAndNil(FLccServer);
   FreeAndNil(FLccWebsocketServer);
+  FreeAndNil(FNodeManager);   // after the servers are destroyed
   FreeAndNil(FWorkerMessage);
   FreeAndNil(FComPort);
 end;

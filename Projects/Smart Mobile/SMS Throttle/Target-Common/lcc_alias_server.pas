@@ -296,13 +296,8 @@ end;
 
 destructor TLccAliasServer.Destroy;
 begin
-  {$IFNDEF DWSCRIPT}
   FreeAndNil(FNodeIDSortedMap);  // Free first the AliasSortedMap owns the objects in non-SMS
   FreeAndNil(FAliasSortedMap);
-  {$ELSE}
-  FNodeIDSortedMap.Free;
-  FAliasSortedMap.Free;
-  {$ENDIF}
   inherited Destroy;
 end;
 

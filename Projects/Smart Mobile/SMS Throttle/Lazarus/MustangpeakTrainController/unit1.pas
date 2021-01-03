@@ -24,7 +24,8 @@ uses
   lcc_protocol_memory_configurationdefinitioninfo,
   lcc_node_commandstation,
   lcc_node_controller,
-  lcc_node_train;
+  lcc_node_train,
+  lcc_common_classes;
 
 type
 
@@ -241,9 +242,8 @@ begin
   NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
   NodeManager.OnLccMessageReceive := @OnNodeManagerReceiveMessage;
 
-  EthernetClient := TLccEthernetClient.Create(nil);
+  EthernetClient := TLccEthernetClient.Create(nil, NodeManager);
   EthernetClient.Gridconnect := True;
-  EthernetClient.NodeManager := NodeManager;
   EthernetClient.OnConnectionStateChange := @OnClientServerConnectionChange;
   EthernetClient.OnErrorMessage := @OnClientServerErrorMessage;
 end;

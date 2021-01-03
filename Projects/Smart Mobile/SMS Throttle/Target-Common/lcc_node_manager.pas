@@ -46,6 +46,11 @@ uses
   lcc_alias_server;
 
 type
+
+  IHardwareConnectionManager = interface['{CE6D75A4-1AD3-438C-B984-FEF2C6135272}']
+    procedure SendMessage(AMessage: TLccMessage);
+  end;
+
   INodeManager = interface
     ['{0FE72011-CBDB-9EDC-0C36-C5031A63F27F}']
     procedure Clear;
@@ -111,6 +116,7 @@ type
 
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
+    FHardwareConnectionManager: IHardwareConnectionManager;  // link back to the connection manager this node manage is associated with to move messages to/from the wire
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -196,6 +202,9 @@ type
     procedure LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage); //  The Callback function for all Nodes use to reply to message they can automaticallly
 
   public
+    // Connection Manager
+    property HardwareConnectionManager: IHardwareConnectionManager read FHardwareConnectionManager write FHardwareConnectionManager;
+
     {$IFDEF DELPHI}
     property Nodes: TOBjectList<TLccNode> read FNodes write FNodes;
     {$ELSE}
@@ -211,6 +220,7 @@ type
     function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
     function GetNodeCount: Integer;
     function ExtractNode(Index: Integer): TLccNode;
+    function GetAValidNodeAlias: Word;
 
     procedure LogoutAll;
 
@@ -221,6 +231,7 @@ type
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
 
   published
+
     // Node Management
     property OnLccNodeCreate: TOnLccNodeMessage read FOnLccNodeCreate write FOnLccNodeCreate;
     property OnLccNodeDestroy: TOnLccNodeMessage read FOnLccNodeDestroy write FOnLccNodeDestroy;
@@ -565,6 +576,14 @@ begin
   end;
 end;
 
+function TLccNodeManager.GetAValidNodeAlias: Word;
+begin
+  Result := 0;
+  if Nodes.Count > 0 then
+    if ExtractNode(0) is TLccCanNode then
+      Result := (ExtractNode(0) as TLccCanNode).AliasID
+end;
+
 constructor TLccNodeManager.Create(AnOwner: TComponent);
 begin
   {$IFDEF DWSCRIPT}
@@ -698,7 +717,8 @@ procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
   i: Integer;
 begin
-  DoLccMessageSend(Sender, LccMessage);
+  // Send the message to the wire
+  HardwareConnectionManager.SendMessage(LccMessage);
 
   // Send the messages to all the other virtual nodes.
   if Sender is TLccNode then
@@ -714,6 +734,9 @@ begin
         Node[i].ProcessMessage(LccMessage);
     end;
   end;
+
+  // Allow app to see it
+  DoLccMessageSend(Sender, LccMessage);
 end;
 
 procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage);

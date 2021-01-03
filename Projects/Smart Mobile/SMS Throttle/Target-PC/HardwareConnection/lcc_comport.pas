@@ -137,7 +137,7 @@ type
     property Connected: Boolean read FConnected;
     property RawData: Boolean read FRawData write FRawData;
 
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
     destructor Destroy; override;
 
     function FormatComPortString(ComPort: string): string;
@@ -265,9 +265,9 @@ begin
   end;
 end;
 
-constructor TLccComPort.Create(AOwner: TComponent);
+constructor TLccComPort.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
 begin
-  inherited Create(AOwner);
+  inherited;
   FComPortThreads := TLccComPortThreadList.Create;
   FHub := False;
 end;
@@ -638,8 +638,7 @@ end;
 
 constructor TLccComPortThread.Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec);
 begin
-  inherited Create(CreateSuspended);
-  FOwner := AnOwner;
+  inherited Create(CreateSuspended, AnOwner);
   FComPortRec := AComPortRec;
   FComPortRec.Thread := Self;
   FComPortRec.LccMessage := TLccMessage.Create;

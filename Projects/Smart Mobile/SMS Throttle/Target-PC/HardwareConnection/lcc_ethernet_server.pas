@@ -66,7 +66,7 @@ type
       FSocketHandleForListener: TSocket;
       {$ENDIF}
     protected
-      procedure DoReceiveMessage; override;
+      procedure OnReceiveMessage; override;
       procedure Execute; override;
 
       {$IFDEF ULTIBO}
@@ -192,7 +192,7 @@ type
     procedure UpdateListenerThreadProperites(AListenerThread: TLccEthernetListener);
   public
     { Public declarations }
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
     destructor Destroy; override;
 
     function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; override;
@@ -411,7 +411,7 @@ begin
         end;
       finally
         HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        Owner.EthernetThreads.Remove(Self);
+        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
         FRunning := False;
       end;
     end;
@@ -587,7 +587,7 @@ begin
                             imgcr_True :
                               begin
                                 if UseSynchronize then
-                                  Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
+                                  Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
                                 else begin
                                   RxList := Owner.IncomingGridConnect.LockList;
                                   try
@@ -661,7 +661,7 @@ begin
         end;
       finally
         HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        Owner.EthernetThreads.Remove(Self);
+        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
         FRunning := False;
       end;
     end;
@@ -1056,9 +1056,10 @@ begin
   UpdateListenerThreadProperites(ListenerThread);
 end;
 
-constructor TLccEthernetServer.Create(AOwner: TComponent);
+constructor TLccEthernetServer.Create(AOwner: TComponent;
+  ANodeManager: TLccNodeManager);
 begin
-  inherited Create(AOwner);
+  inherited;
   FSiblingEthernetThreads := TThreadList.Create;
   SiblingEthernetThreads.Duplicates := dupIgnore;
   FHub := False;
@@ -1187,7 +1188,7 @@ begin
         end;
       finally
         HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        Owner.EthernetThreads.Remove(Self);
+        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
         FRunning := False;
       end;
     end;
@@ -1196,103 +1197,49 @@ end;
 
 {$ENDIF}
 
-procedure TLccEthernetServerThread.DoReceiveMessage;
+procedure TLccEthernetServerThread.OnReceiveMessage;
 var
   L, LSibling: TList;
   SiblingServer: TLccEthernetServer;
   i, j: Integer;
 begin
   // Called in the content of the main thread through Syncronize
-  inherited DoReceiveMessage; // Do first so we get notified before any response is sent in ProcessMessage
+  inherited OnReceiveMessage;
 
-  if not IsTerminated then
+  // If we are a hub then transfer to all other threads (except back to ourselves)
+  if (Owner as TLccEthernetServer).Hub then
   begin
-    if Gridconnect then
-    begin
-      if Owner.NodeManager <> nil then
-        Owner.NodeManager.ProcessMessage(EthernetRec.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-
-      // If we are a hub then transfer to all other threads (except back to ourselves)
-      if (Owner as TLccEthernetServer).Hub then
+    L := (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.LockList;
+    try
+      for i := 0 to L.Count - 1 do
       begin
-        L := Owner.EthernetThreads.LockList;
-        try
-          for i := 0 to L.Count - 1 do
-          begin
-            if TLccEthernetServerThread(L[i]) <> Self then
-              TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
-          end;
-        finally
-          Owner.EthernetThreads.UnlockList;
-        end
+        if TLccEthernetServerThread(L[i]) <> Self then
+          TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
       end;
+    finally
+      (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.UnlockList;
+    end
+  end;
 
-      // Now run all the threads in each sibling server that is registered
-      LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
+  // Now run all the threads in each sibling server that is registered
+  LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
+  try
+    for j := 0 to LSibling.Count - 1 do
+    begin
+      SiblingServer := TLccEthernetServer( LSibling[j]);
+      L := SiblingServer.EthernetThreads.LockList;
       try
-        for j := 0 to LSibling.Count - 1 do
+        for i := 0 to L.Count - 1 do
         begin
-          SiblingServer := TLccEthernetServer( LSibling[j]);
-          L := SiblingServer.EthernetThreads.LockList;
-          try
-            for i := 0 to L.Count - 1 do
-            begin
-              if TLccEthernetServerThread(L[i]) <> Self then
-                TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
-            end;
-          finally
-            SiblingServer.EthernetThreads.UnlockList;
-          end
+          if TLccEthernetServerThread(L[i]) <> Self then
+            TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
         end;
       finally
-        (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
-      end;
-
-    end else
-    begin   // TCP Protocol
-      if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
-      begin
-        if (Owner.NodeManager <> nil) then
-          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-
-        // If we are a hub then transfer to all other threads (except back to ourselves)
-
-        if (Owner as TLccEthernetServer).Hub then
-        begin
-          L := Owner.EthernetThreads.LockList;
-          try
-            for i := 0 to L.Count - 1 do
-            begin
-              if TLccEthernetServerThread(L[i]) <> Self then
-                TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
-            end;
-          finally
-            Owner.EthernetThreads.UnlockList;
-          end
-        end;
-
-        // Now run all the threads in each sibling server that is registered
-        LSibling := (Owner as TLccEthernetServer).SiblingEthernetThreads.LockList;
-        try
-          for j := 0 to LSibling.Count - 1 do
-          begin
-            SiblingServer := TLccEthernetServer( LSibling[j]);
-            L := SiblingServer.EthernetThreads.LockList;
-            try
-              for i := 0 to L.Count - 1 do
-              begin
-                if TLccEthernetServerThread(L[i]) <> Self then
-                  TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
-              end;
-            finally
-              SiblingServer.EthernetThreads.UnlockList;
-            end
-          end;
-        finally
-          (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
-        end;
+        SiblingServer.EthernetThreads.UnlockList;
       end
     end;
+  finally
+    (Owner as TLccEthernetServer).SiblingEthernetThreads.UnlockList;
   end
 end;
 
