@@ -169,7 +169,6 @@ type
 
   TLccHardwareConnectionManager = class(TComponent, IHardwareConnectionManagerLink)
   private
-    FAliasServer: TLccAliasServer;
     FGridConnect: Boolean;
     FNodeManager: TLccNodeManager;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
@@ -186,7 +185,6 @@ type
     function IsLccLink: Boolean; virtual; abstract;
 
   public
-    property AliasServer: TLccAliasServer read FAliasServer;
     property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
     property IncomingCircularArray: TThreadedCirularArray read FIncomingCircularArray;
     property NodeManager: TLccNodeManager read FNodeManager;
@@ -288,8 +286,8 @@ begin
 
     // Received a message, see if it is an alias we need to save (eventually for now save them all)
   case EthernetRec.LccMessage.CAN.MTI of
-    MTI_CAN_AMR : AliasServer.RemoveMapping(EthernetRec.LccMessage.CAN.SourceAlias);
-    MTI_CAN_AMD : AliasServer.ForceMapping(EthernetRec.LccMessage.SourceID, EthernetRec.LccMessage.CAN.SourceAlias)
+    MTI_CAN_AMR : NodeManager.AliasServer.RemoveMapping(EthernetRec.LccMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : NodeManager.AliasServer.ForceMapping(EthernetRec.LccMessage.SourceID, EthernetRec.LccMessage.CAN.SourceAlias)
   end;
 end;
 
@@ -335,7 +333,6 @@ end;
 function TLccEthernetHardwareConnectionManager.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;
 begin
   Result := nil;
-  AliasServer.Clear;
 end;
 
 procedure TLccEthernetHardwareConnectionManager.CloseConnection(EthernetThread: TLccBaseEthernetThread);
@@ -765,7 +762,6 @@ begin
     NodeManager.RegisterHardwareConnectionLink(Self as IHardwareConnectionManagerLink);
   FIncomingGridConnect := TThreadStringList.Create;
   FIncomingCircularArray := TThreadedCirularArray.Create;
-  FAliasServer := TLccAliasServer.Create;
   FWorkerMessage := TLccMessage.Create;
 end;
 
@@ -775,7 +771,6 @@ begin
     NodeManager.UnRegisterHardwareConnectionLink(Self as IHardwareConnectionManagerLink);
   FreeAndNil(FIncomingCircularArray);
   FreeAndNil(FIncomingGridConnect);
-  FreeAndNil(FAliasServer);
   FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;

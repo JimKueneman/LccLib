@@ -232,12 +232,13 @@ type
     function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
     function GetNodeCount: Integer;
     function ExtractNode(Index: Integer): TLccNode;
-    function GetAValidNodeAlias: Word;
 
     procedure LogoutAll;
 
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
+    function FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
+    function FindPermittedCanNode: TLccCanNode;
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -592,12 +593,25 @@ begin
   end;
 end;
 
-function TLccNodeManager.GetAValidNodeAlias: Word;
+function TLccNodeManager.FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
+var
+  i: Integer;
 begin
-  Result := 0;
-  if Nodes.Count > 0 then
-    if ExtractNode(0) is TLccCanNode then
-      Result := (ExtractNode(0) as TLccCanNode).AliasID
+  Result := nil;
+  i := 0;     // Cheap, slow linear search for now
+
+  while i < Nodes.Count do
+  begin
+    if Nodes[i] is TLccCanNode then
+    begin
+      if TLccCanNode(Nodes[i]).AliasID = AnAlias then
+      begin
+        Result := TLccNode(Nodes[i]);
+        Break;
+      end;
+      Inc(i)
+    end
+  end;
 end;
 
 constructor TLccNodeManager.Create(AnOwner: TComponent);
@@ -700,6 +714,27 @@ begin
   end;
 end;
 
+function TLccNodeManager.FindPermittedCanNode: TLccCanNode;
+var
+  i: Integer;
+begin
+  Result := nil;
+  i := 0;     // Cheap, slow linear search for now
+
+  while i < Nodes.Count do
+  begin
+    if Nodes[i] is TLccCanNode then
+    begin
+      if TLccCanNode(Nodes[i]).Permitted then
+      begin
+        Result := TLccCanNode(Nodes[i]);
+        Break;
+      end;
+      Inc(i)
+    end
+  end;
+end;
+
 function TLccNodeManager.GetNode(Index: Integer): TLccNode;
 begin
   if Index < Nodes.Count then
@@ -737,7 +772,7 @@ procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
   i, MapIndex: Integer;
   Map: TLccAliasMap;
-  WorkerAlias: Word;
+  WorkerCanNode: TLccCanNode;
 begin
   // Send the message to the wire
 
@@ -745,29 +780,54 @@ begin
   // Here is where we should look for matches in the Alias Server and queue the messages if not found
   // then send a AME to that node.  Once the AMR comes back we can resend it.
   // Begs the question who owns the Alias Server????
-  Map := AliasServer.FindInNodeIDSortedMap(LccMessage.DestID, MapIndex);
-  if not Assigned(Map) then
-  begin
-  {   WorkerAlias := GetAValidNodeAlias;
-     if WorkerAlias > 0 then
-     begin
-        WorkerMessage.LoadAME(NULL_NODE_ID, WorkerAlias, LccMessage.DestID);
-        SendMessage(Self, WorkerMessage);
 
-        // Need to store the original message and send it later after the AMD returns
-     end;  }
-  end;
-  Map := AliasServer.FindInNodeIDSortedMap(LccMessage.SourceID, MapIndex);
-  if not Assigned(Map) then
-  begin
- {   WorkerAlias := GetAValidNodeAlias;
-     if WorkerAlias > 0 then
-     begin
-        WorkerMessage.LoadAME(NULL_NODE_ID, WorkerAlias, LccMessage.SourceID);
-        SendMessage(Self, WorkerMessage);
+  // Received a message, see if it is an alias we need to save (eventually for now save them all)
+  // The underlying assumption in this is that we have our own nodes and any incoming nodes under control
+  // through the first if statement.
 
-        // Need to store the original message and send it later after the AMD returns
-     end; }
+  if LccMessage.IsCAN then
+  begin
+    case LccMessage.CAN.MTI of
+      MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
+      MTI_CAN_AMD : AliasServer.ForceMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
+    end;
+  end else
+  begin
+    if LccMessage.HasDestination then
+    begin
+      // Assumption is we have our own nodes covered
+      if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.SourceAlias)) then
+      begin
+        Map := AliasServer.FindInNodeIDSortedMap(LccMessage.SourceID, MapIndex);
+        if not Assigned(Map) then
+        begin
+           WorkerCanNode := FindPermittedCanNode;
+           if Assigned(WorkerCanNode) then
+           begin
+              WorkerMessage.LoadAME(WorkerCanNode.NodeID, WorkerCanNode.AliasID, LccMessage.SourceID);
+              SendMessage(Self, WorkerMessage);
+
+              // Need to store the original message and send it later after the AMD returns
+           end;
+        end;
+      end;
+      // Assumption is we have our own nodes covered
+      if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.DestAlias)) then
+      begin
+        Map := AliasServer.FindInNodeIDSortedMap(LccMessage.DestID, MapIndex);
+        if not Assigned(Map) then
+        begin
+           WorkerCanNode := FindPermittedCanNode;
+           if Assigned(WorkerCanNode) then
+           begin
+              WorkerMessage.LoadAME(WorkerCanNode.NodeID, WorkerCanNode.AliasID, LccMessage.DestID);
+              SendMessage(Self, WorkerMessage);
+
+              // Need to store the original message and send it later after the AMD returns
+           end;
+        end;
+      end;
+    end
   end;
 
   // Emumerate all Hardware Connections and pass on the message to send
