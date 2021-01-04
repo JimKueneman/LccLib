@@ -89,7 +89,7 @@ type
     property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
 
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
-    procedure OnReceiveMessage; virtual; abstract;
+    procedure ReceiveMessage; virtual; abstract;
 
   public
     constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager); reintroduce; virtual;
@@ -133,9 +133,9 @@ type
 
     procedure HandleErrorAndDisconnect;
     procedure HandleSendConnectionNotification(NewConnectionState: TConnectionState);
-    procedure OnReceiveMessage; override;
     procedure OnConnectionStateChange; virtual;
     procedure OnErrorMessageReceive; virtual;
+    procedure ReceiveMessage; override;
     procedure SendMessage(AMessage: TLccMessage); override;
 
     procedure TryTransmitGridConnect(HandleErrors: Boolean);
@@ -529,7 +529,7 @@ begin
     Synchronize({$IFDEF FPC}@{$ENDIF}OnConnectionStateChange);
 end;
 
-procedure TLccBaseEthernetThread.OnReceiveMessage;
+procedure TLccBaseEthernetThread.ReceiveMessage;
 begin
   // Called in context of main thread through Syncronize
   Owner.ReceiveMessage(Self, FEthernetRec);
@@ -632,7 +632,7 @@ begin
             imgcr_True :
               begin
                 if UseSynchronize then
-                  Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
+                  Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
                 else begin
                   // DANGER: This method do not allow for the AliasServer update to be
                   // called automatically.  The program is responsible for pumping the messages
@@ -677,7 +677,7 @@ begin
         if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FEthernetRec.MessageArray) then
         begin
           if UseSynchronize then
-            Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
+            Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
           else begin
              // DANGER: This method do not allow for the AliasServer update to be
              // called automatically.  The program is responsible for pumping the messages

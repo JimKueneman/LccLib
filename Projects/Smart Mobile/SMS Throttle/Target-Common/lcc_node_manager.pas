@@ -122,6 +122,7 @@ type
 
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
+    FAliasServer: TLccAliasServer;
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -163,6 +164,7 @@ type
     FNodes: TObjectList<TLccNode>;
     {$ELSE}
     FNodes: TObjectList;
+    FWorkerMessage: TLccMessage;
     {$ENDIF}
     function GetNode(Index: Integer): TLccNode;
   protected
@@ -218,6 +220,9 @@ type
     property Nodes: TOBjectList read FNodes write FNodes;
     {$ENDIF}
     property Node[Index: Integer]: TLccNode read GetNode;
+
+    property AliasServer: TLccAliasServer read FAliasServer write FAliasServer;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
     destructor Destroy; override;
@@ -610,6 +615,8 @@ begin
     FNodes.OwnsObjects := False;
   {$ENDIF}
 
+  FAliasServer := TLccAliasServer.Create;
+  FWorkerMessage := TLccMessage.Create;
 
 end;
 
@@ -641,6 +648,8 @@ begin
   LogoutAll;
   Clear;
   FNodes.Free;
+  FreeAndNil(FAliasServer);
+  FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
@@ -726,7 +735,9 @@ end;
 
 procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
-  i: Integer;
+  i, MapIndex: Integer;
+  Map: TLccAliasMap;
+  WorkerAlias: Word;
 begin
   // Send the message to the wire
 
@@ -734,6 +745,30 @@ begin
   // Here is where we should look for matches in the Alias Server and queue the messages if not found
   // then send a AME to that node.  Once the AMR comes back we can resend it.
   // Begs the question who owns the Alias Server????
+  Map := AliasServer.FindInNodeIDSortedMap(LccMessage.DestID, MapIndex);
+  if not Assigned(Map) then
+  begin
+  {   WorkerAlias := GetAValidNodeAlias;
+     if WorkerAlias > 0 then
+     begin
+        WorkerMessage.LoadAME(NULL_NODE_ID, WorkerAlias, LccMessage.DestID);
+        SendMessage(Self, WorkerMessage);
+
+        // Need to store the original message and send it later after the AMD returns
+     end;  }
+  end;
+  Map := AliasServer.FindInNodeIDSortedMap(LccMessage.SourceID, MapIndex);
+  if not Assigned(Map) then
+  begin
+ {   WorkerAlias := GetAValidNodeAlias;
+     if WorkerAlias > 0 then
+     begin
+        WorkerMessage.LoadAME(NULL_NODE_ID, WorkerAlias, LccMessage.SourceID);
+        SendMessage(Self, WorkerMessage);
+
+        // Need to store the original message and send it later after the AMD returns
+     end; }
+  end;
 
   // Emumerate all Hardware Connections and pass on the message to send
   for i := 0 to HardwareConnectionLinkIndex - 1 do

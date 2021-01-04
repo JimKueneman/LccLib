@@ -80,6 +80,7 @@ type
       procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
       procedure SendMessage(AMessage: TLccMessage); override;
+      procedure ReceiveMessage; override;
 
       property ComPortRec: TLccComPortRec read FComPortRec write FComPortRec;
       property Serial: TBlockSerial read FSerial write FSerial;
@@ -618,6 +619,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TLccComPortThread.ReceiveMessage;
+begin
+
 end;
 
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);

@@ -89,8 +89,6 @@ type
     procedure DoDeleteMapping; virtual;
     function RemoveMappingByNodeID(ANodeID: TNodeID): Boolean;
     function RemoveMappingByAliasID(AnAliasID: Word): Boolean;
-    function FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer): TLccAliasMap;
-    function FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer): TLccAliasMap;
     procedure SortMaps;
   public
     property Count: Integer read GetCount;
@@ -103,6 +101,8 @@ type
     destructor Destroy; override;
 
     procedure Clear;
+    function FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer): TLccAliasMap;
+    function FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer): TLccAliasMap;
     procedure ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
     procedure RemoveMapping(AnAliasID: Word);
 

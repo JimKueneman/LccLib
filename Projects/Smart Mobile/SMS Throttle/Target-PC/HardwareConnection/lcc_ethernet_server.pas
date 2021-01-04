@@ -66,7 +66,7 @@ type
       FSocketHandleForListener: TSocket;
       {$ENDIF}
     protected
-      procedure OnReceiveMessage; override;
+      procedure ReceiveMessage; override;
       procedure Execute; override;
 
       {$IFDEF ULTIBO}
@@ -601,7 +601,7 @@ begin
                             imgcr_True :
                               begin
                                 if UseSynchronize then
-                                  Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
+                                  Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
                                 else begin
                                   RxList := Owner.IncomingGridConnect.LockList;
                                   try
@@ -1199,7 +1199,7 @@ end;
 
 {$ENDIF}
 
-procedure TLccEthernetServerThread.OnReceiveMessage;
+procedure TLccEthernetServerThread.ReceiveMessage;
 var
   L: TList;
   i, j: Integer;
@@ -1211,7 +1211,7 @@ begin
   // the message to its nodes plus then stars back out to any other Connection Managers
   // that are registered (as we are registered).  The Manager decendant must override
   // IsLccLink and return TRUE in order to be included in this system
-  inherited OnReceiveMessage;
+  inherited ReceiveMessage;
 
   // Now we look upwards into any thread we have that depend on use to pass on messages
   // assuming we are a Hub.
