@@ -54,6 +54,7 @@ type
   IHardwareConnectionManagerLink = interface
     ['{619C8E64-69C3-94A6-B6FE-B16B6CB57A45}']
     procedure SendMessage(AMessage: TLccMessage);
+    function IsLccLink: Boolean;
   end;
 
   INodeManager = interface
@@ -238,6 +239,7 @@ type
 
     procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+    procedure RelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
 
   published
 
@@ -775,6 +777,19 @@ begin
       Dec(HardwareConnectionLinkIndex);
     end;
   end;
+end;
+
+procedure TLccNodeManager.RelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+var
+  i: Integer;
+begin
+  for i := 0 to HardwareConnectionLinkIndex - 1 do
+  begin
+    if (HardwareConnectionLinkArray[i].IsLccLink) and (HardwareConnectionLinkArray[i] <> Source)  then
+      HardwareConnectionLinkArray[i].SendMessage(ALccMessage);
+  end;
+
+  ProcessMessage(ALccMessage);
 end;
 
 

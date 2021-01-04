@@ -185,10 +185,10 @@ type
   protected
     { Protected declarations }
     function GetConnected: Boolean; override;
-
     function CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener; virtual;
     procedure UpdateAllThreadProperites; override;
     procedure UpdateListenerThreadProperites(AListenerThread: TLccEthernetListener);
+    function IsLccLink: Boolean; override;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
@@ -207,11 +207,15 @@ type
   TLccWebsocketServer = class(TLccEthernetServer)
   protected
     function CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener; override;
+    function IsLccLink: Boolean; override;
   end;
 
   TLccHTTPServer = class(TLccEthernetServer)
   protected
     function CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener; override;
+    function IsLccLink: Boolean; override;
+  public
+    procedure SendMessage(AMessage: TLccMessage); override;
   end;
 
 procedure Register;
@@ -246,6 +250,16 @@ end;
 function TLccHTTPServer.CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccHTTPListener.Create(True, Self, AnEthernetRec);
+end;
+
+procedure TLccHTTPServer.SendMessage(AMessage: TLccMessage);
+begin
+  // don't do anything with the LccMessage as this is an HTTP server
+end;
+
+function TLccHTTPServer.IsLccLink: Boolean;
+begin
+  Result := False
 end;
 
 { TLccHTTPServerThread }
@@ -425,6 +439,11 @@ end;
 function TLccWebsocketServer.CreateListenerObject(AnEthernetRec: TLccEthernetRec): TLccEthernetListener;
 begin
   Result := TLccWebSocketListener.Create(True, Self, AnEthernetRec)
+end;
+
+function TLccWebsocketServer.IsLccLink: Boolean;
+begin
+  Result := True;
 end;
 
 { TLccWebSocketListener }
@@ -1040,6 +1059,11 @@ begin
   end;
 end;
 
+function TLccEthernetServer.IsLccLink: Boolean;
+begin
+  Result := True;
+end;
+
 function TLccEthernetServer.GetConnected: Boolean;
 begin
   Result := Assigned(ListenerThread)
@@ -1191,7 +1215,7 @@ begin
       for i := 0 to L.Count - 1 do
       begin
         if TLccEthernetServerThread(L[i]) <> Self then
-          TLccEthernetServerThread(L[i]).SendMessage(WorkerMsg);
+          TLccEthernetServerThread(L[i]).SendMessage(EthernetRec.LccMessage);
       end;
     finally
       (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.UnlockList;

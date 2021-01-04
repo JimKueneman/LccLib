@@ -90,7 +90,7 @@ procedure TTabMainForm.OnControllerRequestTakeover(Sender: TLccNode; var Allow: 
 begin
   Allow := True;
   if W3CheckBoxQueryRelease.Checked then
-    Allow := Prompt('Allow another throttle to take over the train');
+    Allow := Confirm('Allow another throttle to take over the train');
   if Allow and Assigned(ControllerManager.ControllerNode) then
     ControllerManager.ControllerNode.ReleaseTrain;
 end;
@@ -222,6 +222,8 @@ begin
   W3ButtonForward.Enabled := True;
   W3ButtonReverse.Enabled := True;
   W3SliderSpeed.Enabled := True;
+  W3ButtonAssignTrain.Enabled := False;
+  W3ButtonReleaseTrain.Enabled := True;
 end;
 
 
@@ -234,6 +236,8 @@ begin
   W3ButtonForward.Enabled := False;
   W3ButtonReverse.Enabled := False;
   W3SliderSpeed.Enabled := False;
+  W3ButtonAssignTrain.Enabled := True;
+  W3ButtonReleaseTrain.Enabled := False;
 end;
 
 procedure TTabMainForm.AssignCallbacks;

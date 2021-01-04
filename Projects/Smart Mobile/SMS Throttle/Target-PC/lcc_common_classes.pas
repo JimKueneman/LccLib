@@ -80,7 +80,7 @@ type
     FSleepCount: Integer;
     FTcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine;
     FUseSynchronize: Boolean;
-    FWorkerMsg: TLccMessage;
+    FWorkerMessage: TLccMessage;
     function GetIsTerminated: Boolean;
   protected
     FRunning: Boolean;
@@ -92,11 +92,7 @@ type
     procedure OnReceiveMessage; virtual; abstract;
 
   public
-//    {$IFDEF FPC}
     constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager); reintroduce; virtual;
-//    {$ELSE}
-//    constructor Create(CreateSuspended: Boolean); reintroduce;
- //   {$ENDIF}
     destructor Destroy; override;
 
     property GridConnect: Boolean read FGridConnect write FGridConnect;    // Ethernet Only
@@ -106,7 +102,7 @@ type
     property Running: Boolean read FRunning write FRunning;
     property IsTerminated: Boolean read GetIsTerminated;
     property SleepCount: Integer read FSleepCount write FSleepCount;
-    property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
   end;
 
@@ -133,7 +129,6 @@ type
     property EthernetRec: TLccEthernetRec read FEthernetRec write FEthernetRec;
     property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
 
-    procedure DoReceiveMessage(AnEthernetRec: TLccEthernetRec); virtual;
     procedure DoSendMessage(AMessage: TLccMessage);
 
     procedure HandleErrorAndDisconnect;
@@ -175,13 +170,21 @@ type
   TLccHardwareConnectionManager = class(TComponent, IHardwareConnectionManagerLink)
   private
     FAliasServer: TLccAliasServer;
+    FGridConnect: Boolean;
     FNodeManager: TLccNodeManager;
     FOnReceiveMessage: TOnEthernetReceiveFunc;
+    FWorkerMessage: TLccMessage;
+    procedure SetGridConnect(AValue: Boolean); virtual;
   protected
     FIncomingCircularArray: TThreadedCirularArray;
     FIncomingGridConnect: TThreadStringList;
 
     procedure DoReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec); virtual;
+
+    procedure ReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
+
+    function IsLccLink: Boolean; virtual; abstract;
+
   public
     property AliasServer: TLccAliasServer read FAliasServer;
     property IncomingGridConnect: TThreadStringList read FIncomingGridConnect;
@@ -194,7 +197,9 @@ type
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual; abstract;
 
   published
+    property Gridconnect: Boolean read FGridConnect write SetGridConnect;
     property OnReceiveMessage: TOnEthernetReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
   end;
 
   { TLccEthernetHardwareConnectionManager }
@@ -202,14 +207,13 @@ type
   TLccEthernetHardwareConnectionManager = class(TLccHardwareConnectionManager)
   private
     FEthernetThreads: TLccEthernetThreadList;
-    FGridConnect: Boolean;
     FLccSettings: TLccSettings;
     FOnErrorMessage: TOnEthernetRecFunc;
     FOnConnectionStateChange: TOnEthernetRecFunc;
     FOnSendMessage: TOnMessageEvent;
     FSleepCount: Integer;
     FUseSynchronize: Boolean;    // If set the threads will call back on a Syncronize call else incoming messages are put in the IncomingGridConnect or IncomingCircularArray buffers and the app needs to poll this buffer
-    procedure SetGridConnect(AValue: Boolean);
+    procedure SetGridConnect(AValue: Boolean); override;
     procedure SetSleepCount(AValue: Integer);
   protected
     function GetConnected: Boolean; virtual; abstract;
@@ -220,7 +224,7 @@ type
     procedure DoSendMessage(Thread: TLccBaseEthernetThread; AMessage: TLccMessage); virtual;
 
     procedure UpdateAllThreadProperites; virtual;
-    procedure UpdateThreadProperties(EthernetThread: TLccBaseEthernetThread); virtual;
+    procedure UpdateThreadProperties(AThread: TLccConnectionThread); virtual;
   public
     property Connected: Boolean read GetConnected;
     property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
@@ -234,7 +238,6 @@ type
     procedure SendMessage(AMessage: TLccMessage);  override;
     procedure SendMessageRawGridConnect(GridConnectStr: String); override;
   published
-    property Gridconnect: Boolean read FGridConnect write SetGridConnect;
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
     property OnConnectionStateChange: TOnEthernetRecFunc read FOnConnectionStateChange write FOnConnectionStateChange;
     property OnErrorMessage: TOnEthernetRecFunc read FOnErrorMessage write FOnErrorMessage;
@@ -251,7 +254,7 @@ procedure TLccEthernetHardwareConnectionManager.SetGridConnect(AValue: Boolean);
 begin
   if AValue <> FGridConnect then
   begin
-    FGridConnect:=AValue;
+    FGridConnect := AValue;
     UpdateAllThreadProperites;
   end;
 end;
@@ -292,7 +295,7 @@ end;
 
 procedure TLccEthernetHardwareConnectionManager.DoSendMessage(Thread: TLccBaseEthernetThread; AMessage: TLccMessage);
 begin
-
+  inherited;
 end;
 
 procedure TLccEthernetHardwareConnectionManager.UpdateAllThreadProperites;
@@ -306,15 +309,14 @@ begin
       UpdateThreadProperties(TLccBaseEthernetThread( L[i]));
   finally
     EthernetThreads.UnlockList;
-  end;
+  end
 end;
 
-procedure TLccEthernetHardwareConnectionManager.UpdateThreadProperties(
-  EthernetThread: TLccBaseEthernetThread);
+procedure TLccEthernetHardwareConnectionManager.UpdateThreadProperties(AThread: TLccConnectionThread);
 begin
-  EthernetThread.OnSendMessage := OnSendMessage;
-  EthernetThread.SleepCount := SleepCount;
-  EthernetThread.GridConnect := FGridConnect;
+  inherited;
+  (AThread as TLccBaseEthernetThread).OnSendMessage := OnSendMessage;
+  (AThread as TLccBaseEthernetThread).SleepCount := SleepCount;
 end;
 
 constructor TLccEthernetHardwareConnectionManager.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
@@ -495,11 +497,6 @@ end;
 
 { TLccBaseEthernetThread }
 
-procedure TLccBaseEthernetThread.DoReceiveMessage(AnEthernetRec: TLccEthernetRec);
-begin
-  Owner.DoReceiveMessage(Self, AnEthernetRec);
-end;
-
 procedure TLccBaseEthernetThread.DoSendMessage(AMessage: TLccMessage);
 begin
   if Assigned(OnSendMessage) then
@@ -535,21 +532,7 @@ end;
 procedure TLccBaseEthernetThread.OnReceiveMessage;
 begin
   // Called in context of main thread through Syncronize
-
-  // Now send the message to the NodeManager to fan out to all the nodes it owns
-  if Gridconnect then
-  begin
-    if Owner.NodeManager <> nil then
-      Owner.NodeManager.ProcessMessage(FEthernetRec.LccMessage);
-  end else
-  begin
-    // Called in the content of the main thread through Syncronize
-    if Owner.NodeManager <> nil then
-      if WorkerMsg.LoadByLccTcp(FEthernetRec.MessageArray) then // In goes a raw message
-        Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is
-  end;
-
-  DoReceiveMessage(FEthernetRec);
+  Owner.ReceiveMessage(Self, FEthernetRec);
 end;
 
 procedure TLccBaseEthernetThread.OnConnectionStateChange;
@@ -634,6 +617,8 @@ var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   RxList: TStringList;
+
+  s: string;
 begin
   RcvByte := Socket.RecvByte(1);
   case Socket.LastError of
@@ -648,6 +633,7 @@ begin
           case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
             imgcr_True :
               begin
+                s := FEthernetRec.LccMessage.ConvertToGridConnectStr('', False);
                 if UseSynchronize then
                   Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
                 else begin
@@ -750,10 +736,28 @@ end;
 
 { TLccHardwareConnectionManager }
 
+procedure TLccHardwareConnectionManager.SetGridConnect(AValue: Boolean);
+begin
+  if AValue <> FGridConnect then
+    FGridConnect:=AValue;
+end;
+
 procedure TLccHardwareConnectionManager.DoReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
 begin
   if Assigned(OnReceiveMessage) then
     OnReceiveMessage(Thread, EthernetRec);
+end;
+
+procedure TLccHardwareConnectionManager.ReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
+begin
+  // Now send the message to the NodeManager to fan out to all the nodes it owns
+  if Gridconnect then
+    NodeManager.RelayMessage(Self as IHardwareConnectionManagerLink, EthernetRec.LccMessage)
+  else begin
+    if WorkerMessage.LoadByLccTcp(EthernetRec.MessageArray) then // In goes a raw message
+      NodeManager.RelayMessage(Self as IHardwareConnectionManagerLink, WorkerMessage);
+  end;
+  DoReceiveMessage(Thread, EthernetRec);
 end;
 
 constructor TLccHardwareConnectionManager.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
@@ -765,6 +769,7 @@ begin
   FIncomingGridConnect := TThreadStringList.Create;
   FIncomingCircularArray := TThreadedCirularArray.Create;
   FAliasServer := TLccAliasServer.Create;
+  FWorkerMessage := TLccMessage.Create;
 end;
 
 destructor TLccHardwareConnectionManager.Destroy;
@@ -774,21 +779,17 @@ begin
   FreeAndNil(FIncomingCircularArray);
   FreeAndNil(FIncomingGridConnect);
   FreeAndNil(FAliasServer);
+  FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
 { TLccConnectionThread }
 
-//{$IFDEF FPC}
-constructor TLccConnectionThread.Create(CreateSuspended: Boolean;
-  AnOwner: TLccHardwareConnectionManager);
-//{$ELSE}
-//constructor TLccConnectionThread.Create(CreateSuspended: Boolean);
-//{$ENDIF}
+constructor TLccConnectionThread.Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager);
 begin
   inherited Create(CreateSuspended);
   FOwner := AnOwner;
-  FWorkerMsg := TLccMessage.Create;
+  FWorkerMessage := TLccMessage.Create;
   FMsgStringList := TStringList.Create;
   FOutgoingCircularArray := TThreadedCirularArray.Create;
   FOutgoingGridConnect := TThreadStringList.Create;
@@ -798,7 +799,7 @@ end;
 
 destructor TLccConnectionThread.Destroy;
 begin
-  FreeAndNil(FWorkerMsg);
+  FreeAndNil(FWorkerMessage);
   FreeAndNil(FMsgStringList);
   FreeAndNil(FOutgoingCircularArray);
   FreeAndNil(FOutgoingGridConnect);

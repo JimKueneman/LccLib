@@ -52,11 +52,9 @@ uses
   lcc_defines,
   lcc_node_manager,
   lcc_node_messages,
-  lcc_threaded_circulararray,
   lcc_utilities,
   lcc_app_common_settings,
-  lcc_common_classes,
-  lcc_alias_server;
+  lcc_common_classes;
 
 type
   TLccEthernetClient = class;   // Forward
@@ -94,6 +92,7 @@ type
   protected
     { Protected declarations }
     function GetConnected: Boolean; override;
+    function IsLccLink: Boolean; override;
   public
     { Public declarations }
     function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; override;
@@ -168,6 +167,11 @@ begin
   List := EthernetThreads.LockList;
   Result := List.Count > 0;
   EthernetThreads.UnlockList;
+end;
+
+function TLccEthernetClient.IsLccLink: Boolean;
+begin
+  Result := True;
 end;
 
 function TLccEthernetClient.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;

@@ -2,7 +2,7 @@
   <Project version="3" subversion="9">
     <Name>Throttle</Name>
     <Created>T00:00:00.000</Created>
-    <Modified>2020-12-31T09:38:59.035</Modified>
+    <Modified>2021-01-03T14:30:21.992</Modified>
     <Author>Jim Kueneman</Author>
     <Company>Mustangpeak</Company>
     <Description>Lcc Javascript Throttle</Description>
@@ -125,7 +125,7 @@ geo:*</AllowIntent>
       <File type="form">
         <Name>TabMainForm</Name>
         <Created>2019-11-25T18:45:05.525Z</Created>
-        <Modified>2020-12-31T09:38:59.018</Modified>
+        <Modified>2021-01-03T14:30:21.979</Modified>
         <Filename>TabMainForm.pas</Filename>
         <AutoCreate>
           <IsAutoCreate>1</IsAutoCreate>

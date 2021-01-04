@@ -130,6 +130,8 @@ type
     { Protected declarations }
     procedure UpdateThreadEvents(ComPortThread: TLccComPortThread);
     procedure UpdateThreadsEvents;
+
+    function IsLccLink: Boolean; override;
   public
     { Public declarations }
     property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
@@ -263,6 +265,11 @@ begin
   finally
     ComPortThreads.UnlockList;
   end;
+end;
+
+function TLccComPort.IsLccLink: Boolean;
+begin
+  Result := False;
 end;
 
 constructor TLccComPort.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
@@ -699,10 +706,10 @@ begin
       end;
     end else
     begin   // TCP Protocol
-      if WorkerMsg.LoadByLccTcp(FComPortRec.MessageArray) then // In goes a raw message
+      if WorkerMessage.LoadByLccTcp(FComPortRec.MessageArray) then // In goes a raw message
       begin
         if (Owner.NodeManager <> nil) then
-          Owner.NodeManager.ProcessMessage(WorkerMsg);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+          Owner.NodeManager.ProcessMessage(WorkerMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
         if Owner.Hub then
         begin
@@ -711,7 +718,7 @@ begin
             for i := 0 to L.Count - 1 do
             begin
               if TLccComPortThread(L[i]) <> Self then
-                TLccComPortThread(L[i]).SendMessage(WorkerMsg);
+                TLccComPortThread(L[i]).SendMessage(WorkerMessage);
             end;
           finally
             Owner.ComPortThreads.UnlockList;
