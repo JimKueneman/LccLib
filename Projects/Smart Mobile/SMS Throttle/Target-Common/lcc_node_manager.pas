@@ -239,7 +239,7 @@ type
 
     procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
-    procedure RelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+    procedure HardwareConnectionRelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
 
   published
 
@@ -730,6 +730,11 @@ var
 begin
   // Send the message to the wire
 
+  // TODO......
+  // Here is where we should look for matches in the Alias Server and queue the messages if not found
+  // then send a AME to that node.  Once the AMR comes back we can resend it.
+  // Begs the question who owns the Alias Server????
+
   // Emumerate all Hardware Connections and pass on the message to send
   for i := 0 to HardwareConnectionLinkIndex - 1 do
     HardwareConnectionLinkArray[i].SendMessage(LccMessage);
@@ -779,7 +784,7 @@ begin
   end;
 end;
 
-procedure TLccNodeManager.RelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+procedure TLccNodeManager.HardwareConnectionRelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
 var
   i: Integer;
 begin

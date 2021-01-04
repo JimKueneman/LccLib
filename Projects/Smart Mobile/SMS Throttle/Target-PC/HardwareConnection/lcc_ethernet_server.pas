@@ -1205,9 +1205,16 @@ var
   i, j: Integer;
 begin
   // Called in the content of the main thread through Syncronize
+
+  // here is where we call backwards into the Connection Manager that owns this thread.
+  // The Connection Manager then call back into the Node Manager.  The Node Manager passes
+  // the message to its nodes plus then stars back out to any other Connection Managers
+  // that are registered (as we are registered).  The Manager decendant must override
+  // IsLccLink and return TRUE in order to be included in this system
   inherited OnReceiveMessage;
 
-  // If we are a hub then transfer to all other threads (except back to ourselves)
+  // Now we look upwards into any thread we have that depend on use to pass on messages
+  // assuming we are a Hub.
   if (Owner as TLccEthernetServer).Hub then
   begin
     L := (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.LockList;

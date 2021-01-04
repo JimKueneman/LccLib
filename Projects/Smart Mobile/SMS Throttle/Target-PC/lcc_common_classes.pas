@@ -617,8 +617,6 @@ var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   RxList: TStringList;
-
-  s: string;
 begin
   RcvByte := Socket.RecvByte(1);
   case Socket.LastError of
@@ -633,7 +631,6 @@ begin
           case GridConnectMessageAssembler.IncomingMessageGridConnect(FEthernetRec.LccMessage) of
             imgcr_True :
               begin
-                s := FEthernetRec.LccMessage.ConvertToGridConnectStr('', False);
                 if UseSynchronize then
                   Synchronize({$IFDEF FPC}@{$ENDIF}OnReceiveMessage)
                 else begin
@@ -750,12 +747,12 @@ end;
 
 procedure TLccHardwareConnectionManager.ReceiveMessage(Thread: TLccBaseEthernetThread; EthernetRec: TLccEthernetRec);
 begin
-  // Now send the message to the NodeManager to fan out to all the nodes it owns
+  // Now send the message to the NodeManager to fan out to all the nodes and other Hardware Connection Managers it owns
   if Gridconnect then
-    NodeManager.RelayMessage(Self as IHardwareConnectionManagerLink, EthernetRec.LccMessage)
+    NodeManager.HardwareConnectionRelayMessage(Self as IHardwareConnectionManagerLink, EthernetRec.LccMessage)
   else begin
     if WorkerMessage.LoadByLccTcp(EthernetRec.MessageArray) then // In goes a raw message
-      NodeManager.RelayMessage(Self as IHardwareConnectionManagerLink, WorkerMessage);
+      NodeManager.HardwareConnectionRelayMessage(Self as IHardwareConnectionManagerLink, WorkerMessage);
   end;
   DoReceiveMessage(Thread, EthernetRec);
 end;
