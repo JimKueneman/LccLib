@@ -44,127 +44,133 @@ uses
 
 type
 
-TLccBaseEthernetThread = class;
-TLccEthernetConnectionInfo = class;
+  TLccBaseEthernetThread = class;
+  TLccEthernetConnectionInfo = class;
 
-TOnEthernetEvent = procedure(Sender: TObject; ConnectionInfo: TLccHardwareConnectionInfo) of object;
+  TOnEthernetEvent = procedure(Sender: TObject; ConnectionInfo: TLccHardwareConnectionInfo) of object;
 
-{ TLccEthernetConnectionInfo }
+  { TLccEthernetConnectionInfo }
 
-TLccEthernetConnectionInfo = class(TLccHardwareConnectionInfo)
-private
-  FAutoResolve: Boolean;
-  FClientIP: string;
-  FClientPort: word;
-  FConnectionState: TConnectionState;
-  FHeartbeat: Integer;
-  FListenerIP: string;
-  FListenerPort: word;
-  FWebSocket: Boolean;
-public
-  property AutoResolveIP: Boolean read FAutoResolve write FAutoResolve;                     // Tries to autoresolve the local unique netword IP of the machine
-  property ClientIP: string read FClientIP write FClientIP;
-  property ClientPort: word read FClientPort write FClientPort;
-  property ConnectionState: TConnectionState read FConnectionState write FConnectionState;  // Current State of the connection
-  property HeartbeatRate: Integer read FHeartbeat write FHeartbeat;
-  property ListenerIP: string read FListenerIP write FListenerIP;
-  property ListenerPort: word read FListenerPort write FListenerPort;
-  property WebSocket: Boolean read FWebSocket write FWebSocket;                            // Create A Websocket thread vs a basic TCP thread
+  TLccEthernetConnectionInfo = class(TLccHardwareConnectionInfo)
+  private
+    FAutoResolve: Boolean;
+    FClientIP: string;
+    FClientPort: word;
+    FConnectionState: TConnectionState;
+    FHeartbeat: Integer;
+    FListenerIP: string;
+    FListenerPort: word;
+    FWebSocket: Boolean;
+  public
+    property AutoResolveIP: Boolean read FAutoResolve write FAutoResolve;                     // Tries to autoresolve the local unique netword IP of the machine
+    property ClientIP: string read FClientIP write FClientIP;
+    property ClientPort: word read FClientPort write FClientPort;
+    property ConnectionState: TConnectionState read FConnectionState write FConnectionState;  // Current State of the connection
+    property HeartbeatRate: Integer read FHeartbeat write FHeartbeat;
+    property ListenerIP: string read FListenerIP write FListenerIP;
+    property ListenerPort: word read FListenerPort write FListenerPort;
+    property WebSocket: Boolean read FWebSocket write FWebSocket;                            // Create A Websocket thread vs a basic TCP thread
 
-  function Clone: TLccHardwareConnectionInfo; override;
-end;
+    function Clone: TLccHardwareConnectionInfo; override;
+  end;
 
-{ TLccBaseEthernetThread }
+  { TLccBaseEthernetThread }
 
-TLccBaseEthernetThread = class(TLccConnectionThread)
-private
-  FGridConnectMessageAssembler: TLccGridConnectMessageAssembler;
-  {$IFDEF ULTIBO}
-   FStringList: TThreadStringList;
-   FTcpClient: TWinsock2TCPClient;
-  {$ELSE}
-  FSocket: TTCPBlockSocket;
-  {$ENDIF}
-protected
-  FConnectionInfo: TLccEthernetConnectionInfo;
-  {$IFDEF ULTIBO}
-  property StringList: TThreadStringList read FStringList write FStringList;
-  property TcpClient: TWinsock2TCPClient read FTcpClient write FTcpClient;
-  {$ELSE}
-  property Socket: TTCPBlockSocket read FSocket write FSocket;
-  {$ENDIF}
-  property ConnectionInfo: TLccEthernetConnectionInfo read FConnectionInfo write FConnectionInfo;
-  property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
+  TLccBaseEthernetThread = class(TLccConnectionThread)
+  private
+    FGridConnectMessageAssembler: TLccGridConnectMessageAssembler;
+    {$IFDEF ULTIBO}
+     FStringList: TThreadStringList;
+     FTcpClient: TWinsock2TCPClient;
+    {$ELSE}
+    FSocket: TTCPBlockSocket;
+    {$ENDIF}
+  protected
+    FConnectionInfo: TLccEthernetConnectionInfo;
+    {$IFDEF ULTIBO}
+    property StringList: TThreadStringList read FStringList write FStringList;
+    property TcpClient: TWinsock2TCPClient read FTcpClient write FTcpClient;
+    {$ELSE}
+    property Socket: TTCPBlockSocket read FSocket write FSocket;
+    {$ENDIF}
+    property ConnectionInfo: TLccEthernetConnectionInfo read FConnectionInfo write FConnectionInfo;
+    property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
 
-  procedure HandleErrorAndDisconnect;
-  procedure HandleSendConnectionNotification(NewConnectionState: TConnectionState);
-  procedure OnConnectionStateChange; virtual;
-  procedure OnErrorMessageReceive; virtual;
-  procedure ReceiveMessage; override;
-  procedure SendMessage(AMessage: TLccMessage); override;
+    procedure HandleErrorAndDisconnect;
+    procedure HandleSendConnectionNotification(NewConnectionState: TConnectionState);
+    procedure OnConnectionStateChange; virtual;
+    procedure OnErrorMessageReceive; virtual;
+    procedure ReceiveMessage; override;
+    procedure SendMessage(AMessage: TLccMessage); override;
 
-  procedure TryTransmitGridConnect(HandleErrors: Boolean);
-  procedure TryTransmitTCPProtocol(HandleErrors: Boolean);
-  procedure TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
-  procedure TryReceiveTCPProtocol(HandleErrors: Boolean);
+    procedure TryTransmitGridConnect(HandleErrors: Boolean);
+    procedure TryTransmitTCPProtocol(HandleErrors: Boolean);
+    procedure TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
+    procedure TryReceiveTCPProtocol(HandleErrors: Boolean);
 
-public
-  constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager; AConnectionInfo: TLccEthernetConnectionInfo); reintroduce; virtual;
-  destructor Destroy; override;
-end;
+  public
+    constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager; AConnectionInfo: TLccEthernetConnectionInfo); reintroduce; virtual;
+    destructor Destroy; override;
+  end;
+
+  TLccEthernetHardwareConnectionListener = class(TThread)
+  public
+    // Must override and create an object of the decentant type
+    function CreateThreadObject: TLccEthernetHardwareConnectionListener; virtual; abstract;
+  end;
 
 
-{ TLccEthernetThreadList }
+  { TLccEthernetThreadList }
 
-TLccEthernetThreadList = class(TThreadList)      // Contains TLccBaseEthernetThread and decendent objects
-private
-  function GetCount: Integer;
-public
-  destructor Destroy; override;
-  procedure CloseEthernetPorts;
-  procedure CloseEthernetPort(EthernetThread: TLccBaseEthernetThread);
+  TLccEthernetThreadList = class(TThreadList)      // Contains TLccBaseEthernetThread and decendent objects
+  private
+    function GetCount: Integer;
+  public
+    destructor Destroy; override;
+    procedure CloseEthernetPorts;
+    procedure CloseEthernetPort(EthernetThread: TLccBaseEthernetThread);
 
-  property Count: Integer read GetCount;
-end;
+    property Count: Integer read GetCount;
+  end;
 
-{ TLccEthernetHardwareConnectionManager }
+  { TLccEthernetHardwareConnectionManager }
 
- TLccEthernetHardwareConnectionManager = class(TLccHardwareConnectionManager)
- private
-   FEthernetThreads: TLccEthernetThreadList;
-   FLccSettings: TLccSettings;
-   FOnErrorMessage: TOnEthernetEvent;
-   FOnConnectionStateChange: TOnEthernetEvent;
-   FSleepCount: Integer;
-   FUseSynchronize: Boolean;    // If set the threads will call back on a Syncronize call else incoming messages are put in the IncomingGridConnect or IncomingCircularArray buffers and the app needs to poll this buffer
-   procedure SetSleepCount(AValue: Integer);
- protected
+  TLccEthernetHardwareConnectionManager = class(TLccHardwareConnectionManager)
+  private
+    FEthernetThreads: TLccEthernetThreadList;
+    FLccSettings: TLccSettings;
+    FOnErrorMessage: TOnEthernetEvent;
+    FOnConnectionStateChange: TOnEthernetEvent;
+    FSleepCount: Integer;
+    FUseSynchronize: Boolean;    // If set the threads will call back on a Syncronize call else incoming messages are put in the IncomingGridConnect or IncomingCircularArray buffers and the app needs to poll this buffer
+    procedure SetSleepCount(AValue: Integer);
+  protected
 
-   procedure DoConnectionState(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;
-   procedure DoErrorMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;
-   procedure DoReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); override;
+    procedure DoConnectionState(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;
+    procedure DoErrorMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;
+    procedure DoReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); override;
 
-   procedure UpdateAllThreadProperites; virtual;
-   procedure UpdateThreadProperties(AThread: TLccConnectionThread); virtual;
- public
-   property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
+    procedure UpdateAllThreadProperites; virtual;
+    procedure UpdateThreadProperties(AThread: TLccConnectionThread); virtual;
+  public
+    property EthernetThreads: TLccEthernetThreadList read FEthernetThreads write FEthernetThreads;
 
-   constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
-   destructor Destroy; override;
+    constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
+    destructor Destroy; override;
 
-   function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TThread; virtual;
-   procedure CloseConnection(EthernetThread: TLccConnectionThread); virtual;
+    function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TThread; virtual;
+    procedure CloseConnection(EthernetThread: TLccConnectionThread); virtual;
 
-   function OpenConnectionWithLccSettings: TThread; virtual;
-   procedure SendMessage(AMessage: TLccMessage);  override;
-   procedure SendMessageRawGridConnect(GridConnectStr: String); override;
- published
-   property LccSettings: TLccSettings read FLccSettings write FLccSettings;
-   property OnConnectionStateChange: TOnEthernetEvent read FOnConnectionStateChange write FOnConnectionStateChange;
-   property OnErrorMessage: TOnEthernetEvent read FOnErrorMessage write FOnErrorMessage;
-   property SleepCount: Integer read FSleepCount write SetSleepCount;
-   property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
- end;
+    function OpenConnectionWithLccSettings: TThread; virtual;
+    procedure SendMessage(AMessage: TLccMessage);  override;
+    procedure SendMessageRawGridConnect(GridConnectStr: String); override;
+  published
+    property LccSettings: TLccSettings read FLccSettings write FLccSettings;
+    property OnConnectionStateChange: TOnEthernetEvent read FOnConnectionStateChange write FOnConnectionStateChange;
+    property OnErrorMessage: TOnEthernetEvent read FOnErrorMessage write FOnErrorMessage;
+    property SleepCount: Integer read FSleepCount write SetSleepCount;
+    property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
+  end;
 
 implementation
 

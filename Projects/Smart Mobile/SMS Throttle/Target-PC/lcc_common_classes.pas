@@ -75,6 +75,10 @@ type
   TLccConnectionThread = class(TThread)
   private
     FGridConnect: Boolean;
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    FListenerSocketHandle: TSocket;
+    {$ENDIF}
     FMsgStringList: TStringList;
     FOutgoingCircularArray: TThreadedCirularArray;
     FOutgoingGridConnect: TThreadStringList;
@@ -97,7 +101,15 @@ type
     constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager); reintroduce; virtual;
     destructor Destroy; override;
 
+    // Must override and create an object of type "self"
+    function CreateThreadObject: TLccConnectionThread; virtual; abstract;
+
     property GridConnect: Boolean read FGridConnect write FGridConnect;
+    {$IFDEF ULTIBO}
+    {$ELSE}
+    // If the thread was created by a Listener (server) this is socket the listener created.  You will need this to assign a socket to the new thread
+    property ListenerSocketHandle: TSocket read FListenerSocketHandle write FListenerSocketHandle;
+    {$ENDIF}
     property MsgStringList: TStringList read FMsgStringList write FMsgStringList;
     property OutgoingGridConnect: TThreadStringList read FOutgoingGridConnect write FOutgoingGridConnect;
     property OutgoingCircularArray: TThreadedCirularArray read FOutgoingCircularArray write FOutgoingCircularArray;
@@ -107,7 +119,6 @@ type
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property UseSynchronize: Boolean read FUseSynchronize write FUseSynchronize;
   end;
-
 
   { TLccHardwareConnectionManager }
 

@@ -9,7 +9,8 @@ uses
   StdCtrls, lcc_ethernet_server, lcc_defines, lcc_node,
   lcc_node_manager, lcc_ethernet_client, lcc_node_messages,
   lcc_node_commandstation, lcc_node_controller, lcc_node_train,
-  lcc_comport, synaser, lcc_common_classes, lcc_ethernet_common;
+  lcc_comport, synaser, lcc_common_classes, lcc_ethernet_common,
+  lcc_ethernet_websocket, lcc_ethernet_http;
 
 type
 
@@ -393,8 +394,7 @@ begin
   end;
 end;
 
-procedure TFormTrainCommander.OnCommandStationServerErrorMessage(
-  Sender: TObject; Info: TLccHardwareConnectionInfo);
+procedure TFormTrainCommander.OnCommandStationServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
  // ShowMessage('TCP Server: ' + EthernetRec.MessageStr);
 
