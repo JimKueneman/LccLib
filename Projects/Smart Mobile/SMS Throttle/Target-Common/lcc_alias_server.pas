@@ -245,16 +245,19 @@ var
 begin
   // TODO Will make this a Binary Search eventually....
   Result := nil;
-  SortMaps;
-
-  MapIndex := -1;
-  for i := 0 to NodeIDSortedMap.Count - 1 do
+  if not EqualNodeID(NULL_NODE_ID, ANodeID, True) then
   begin
-    if EqualNodeID(ANodeID, TLccAliasMap( NodeIDSortedMap[i]).NodeID, False) then
+    SortMaps;
+
+    MapIndex := -1;
+    for i := 0 to NodeIDSortedMap.Count - 1 do
     begin
-      Result := TLccAliasMap( NodeIDSortedMap[i]);
-      MapIndex := i;
-      Break;
+      if EqualNodeID(ANodeID, TLccAliasMap( NodeIDSortedMap[i]).NodeID, False) then
+      begin
+        Result := TLccAliasMap( NodeIDSortedMap[i]);
+        MapIndex := i;
+        Break;
+      end;
     end;
   end;
 end;
@@ -265,16 +268,19 @@ var
 begin
   // TODO Will make this a Binary Search eventually....
   Result := nil;
-  SortMaps;
-
-  MapIndex := -1;
-  for i := 0 to AliasSortedMap.Count - 1 do
+  if AnAliasID > 0 then
   begin
-    if AnAliasID = TLccAliasMap( AliasSortedMap[i]).AliasID then
+    SortMaps;
+
+    MapIndex := -1;
+    for i := 0 to AliasSortedMap.Count - 1 do
     begin
-      Result := TLccAliasMap( AliasSortedMap[i]);
-      MapIndex := i;
-      Break;
+      if AnAliasID = TLccAliasMap( AliasSortedMap[i]).AliasID then
+      begin
+        Result := TLccAliasMap( AliasSortedMap[i]);
+        MapIndex := i;
+        Break;
+      end;
     end;
   end;
 end;
@@ -352,6 +358,7 @@ begin
     AliasSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncAlias);
     NodeIDSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncNodeID);
     {$ENDIF}
+    FIsDirty := False;
   end;
 end;
 

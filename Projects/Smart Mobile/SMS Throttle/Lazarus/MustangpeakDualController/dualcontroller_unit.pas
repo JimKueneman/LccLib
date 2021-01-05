@@ -312,22 +312,22 @@ begin
 
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
   NodeManager1.OnLccNodeIDChanged := @OnNodeManager1IDChange;
+  NodeManager1.AliasServer.OnDeleteMapping := @OnAliasServerChange1;
+  NodeManager1.AliasServer.OnAddMapping := @OnAliasServerChange1;
 
   ClientServer1.OnConnectionStateChange := @OnClientServer1ConnectionChange;
   ClientServer1.OnErrorMessage := @OnClientServer1ErrorMessage;
-  ClientServer1.AliasServer.OnDeleteMapping := @OnAliasServerChange1;
-  ClientServer1.AliasServer.OnAddMapping := @OnAliasServerChange1;
 
   NodeManager2 := TLccCanNodeManager.Create(nil);
   ClientServer2 := TLccEthernetClient.Create(nil, NodeManager2);
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
+  NodeManager2.AliasServer.OnDeleteMapping := @OnAliasServerChange2;
+  NodeManager2.AliasServer.OnAddMapping := @OnAliasServerChange2;
 
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
-  ClientServer2.AliasServer.OnDeleteMapping := @OnAliasServerChange2;
-  ClientServer2.AliasServer.OnAddMapping := @OnAliasServerChange2;
 
   PanelThrottleFace1.Enabled := False;
   PanelThrottleFace2.Enabled := False;
@@ -339,12 +339,12 @@ end;
 
 procedure TForm1.OnAliasServerChange1(Sender: TObject);
 begin
-  LabelAliasMappingCount1.Caption := IntToStr(ClientServer1.AliasServer.Count);
+  LabelAliasMappingCount1.Caption := IntToStr(NodeManager1.AliasServer.Count);
 end;
 
 procedure TForm1.OnAliasServerChange2(Sender: TObject);
 begin
-  LabelAliasMappingCount2.Caption := IntToStr(ClientServer2.AliasServer.Count);
+  LabelAliasMappingCount2.Caption := IntToStr(NodeManager1.AliasServer.Count);
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);

@@ -169,7 +169,8 @@ type
     function GetNode(Index: Integer): TLccNode;
   protected
     HardwareConnectionLinkArray: array[0..MAX_HARDWARE_CONNECTIONS] of IHardwareConnectionManagerLink;
-    HardwareConnectionLinkIndex: Integer;
+    HardwareConnectionLinkCount: Integer;
+    HardwareConnectionConnectedCount: Integer;
 
     procedure DoAliasIDChanged(LccNode: TLccNode); virtual;               //*
     procedure DoCANAliasMapReset(LccNode: TLccNode); virtual;             //*
@@ -246,6 +247,8 @@ type
     procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure HardwareConnectionRelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+    procedure HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
+    procedure HardwareConnectionDisConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
   published
 
@@ -798,7 +801,7 @@ begin
       // Assumption is we have our own nodes covered
       if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.SourceAlias)) then
       begin
-        Map := AliasServer.FindInNodeIDSortedMap(LccMessage.SourceID, MapIndex);
+        Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.SourceAlias, MapIndex);
         if not Assigned(Map) then
         begin
            WorkerCanNode := FindPermittedCanNode;
@@ -814,7 +817,7 @@ begin
       // Assumption is we have our own nodes covered
       if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.DestAlias)) then
       begin
-        Map := AliasServer.FindInNodeIDSortedMap(LccMessage.DestID, MapIndex);
+        Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.DestAlias, MapIndex);
         if not Assigned(Map) then
         begin
            WorkerCanNode := FindPermittedCanNode;
@@ -831,7 +834,7 @@ begin
   end;
 
   // Emumerate all Hardware Connections and pass on the message to send
-  for i := 0 to HardwareConnectionLinkIndex - 1 do
+  for i := 0 to HardwareConnectionLinkCount - 1 do
     HardwareConnectionLinkArray[i].SendMessage(LccMessage);
 
   // Send the messages to all the other virtual nodes.
@@ -860,21 +863,21 @@ end;
 
 procedure TLccNodeManager.RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
 begin
-  HardwareConnectionLinkArray[HardwareConnectionLinkIndex] := AConnectionManagerLink;
-  Inc(HardwareConnectionLinkIndex);
+  HardwareConnectionLinkArray[HardwareConnectionLinkCount] := AConnectionManagerLink;
+  Inc(HardwareConnectionLinkCount);
 end;
 
 procedure TLccNodeManager.UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
 var
   i, j: Integer;
 begin
-  for i := 0 to HardwareConnectionLinkIndex - 1 do
+  for i := 0 to HardwareConnectionLinkCount - 1 do
   begin  // Find the index of the link
     if HardwareConnectionLinkArray[i] = AConnectionManagerLink then
     begin  // remove it by sliding the rest of the links down in the array then decrementing the index
-      for j := i to HardwareConnectionLinkIndex - 1 do
+      for j := i to HardwareConnectionLinkCount - 1 do
         HardwareConnectionLinkArray[j] := HardwareConnectionLinkArray[j+1];
-      Dec(HardwareConnectionLinkIndex);
+      Dec(HardwareConnectionLinkCount);
     end;
   end;
 end;
@@ -883,13 +886,23 @@ procedure TLccNodeManager.HardwareConnectionRelayMessage(Source: IHardwareConnec
 var
   i: Integer;
 begin
-  for i := 0 to HardwareConnectionLinkIndex - 1 do
+  for i := 0 to HardwareConnectionLinkCount - 1 do
   begin
     if (HardwareConnectionLinkArray[i].IsLccLink) and (HardwareConnectionLinkArray[i] <> Source)  then
       HardwareConnectionLinkArray[i].SendMessage(ALccMessage);
   end;
 
   ProcessMessage(ALccMessage);
+end;
+
+procedure TLccNodeManager.HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
+begin
+  Inc(HardwareConnectionConnectedCount);
+end;
+
+procedure TLccNodeManager.HardwareConnectionDisConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
+begin
+  Dec(HardwareConnectionConnectedCount);
 end;
 
 
