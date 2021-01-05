@@ -31,7 +31,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="TrainCommander.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -49,6 +49,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrainDatabaseUnit"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="..\..\Target-PC\HardwareConnection\lcc_ethernet_common.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

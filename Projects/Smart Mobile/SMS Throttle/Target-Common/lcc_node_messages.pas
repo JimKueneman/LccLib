@@ -118,11 +118,11 @@ public
   function DestinationMatchs(TestAliasID: Word; TestNodeID: TNodeID): Boolean;
 
   function LoadByGridConnectStr(GridConnectStr: String): Boolean;
-  function LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
+  function LoadByLccTcp(var ByteArray: TLccDynamicByteArray): Boolean;
   function ConvertToGridConnectStr(Delimiter: String; Details: Boolean): String;
-  function ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
+  function ConvertToLccTcp(var ByteArray: TLccDynamicByteArray): Boolean;
   procedure CopyToTarget(TargetMessage: TLccMessage);
-  class function ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
+  class function ConvertToLccTcpString(var ByteArray: TLccDynamicByteArray): String;
   procedure ZeroFields;
 
   // CAN
@@ -204,7 +204,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
   procedure LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure ExtractSimpleTrainNodeIdentInfoReply(var Version: Byte; var RoadName: string; var TrainClass: string; var RoadNumber: string; var TrainName: string; var Manufacturer: string; var Owner: string);
   // Node Ident (SNIP)
-  procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray);
+  procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   // FDI
   procedure LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -978,7 +978,7 @@ begin
   end;
 end;
 
-function TLccMessage.LoadByLccTcp(var ByteArray: TDynamicByteArray): Boolean;
+function TLccMessage.LoadByLccTcp(var ByteArray: TLccDynamicByteArray): Boolean;
 var
   Flags: Word;
   Size, Offset: DWord;
@@ -1164,7 +1164,7 @@ begin
   Result := UpperCase(Result);
 end;
 
-function TLccMessage.ConvertToLccTcp(var ByteArray: TDynamicByteArray): Boolean;
+function TLccMessage.ConvertToLccTcp(var ByteArray: TLccDynamicByteArray): Boolean;
 var
   Flags: Word;
   Size: DWord;
@@ -1249,7 +1249,7 @@ begin
   end
 end;
 
-class function TLccMessage.ConvertToLccTcpString(var ByteArray: TDynamicByteArray): String;
+class function TLccMessage.ConvertToLccTcpString(var ByteArray: TLccDynamicByteArray): String;
 const
   LF = #13#10;
 var
@@ -2323,8 +2323,7 @@ begin
   MTI := MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST;
 end;
 
-procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word;
-  ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray);
+procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray);
 var
   i: Integer;
 begin
@@ -2339,8 +2338,7 @@ begin
   MTI := MTI_SIMPLE_NODE_INFO_REPLY;
 end;
 
-procedure TLccMessage.LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word;
-  ADestID: TNodeID; ADestAlias: Word);
+procedure TLccMessage.LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
 begin
   ZeroFields;
   SourceID := ASourceID;

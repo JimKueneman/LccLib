@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
-  throttle_takeover_request_form, lcc_alias_server, lcc_common_classes;
+  throttle_takeover_request_form, lcc_alias_server, lcc_common_classes, lcc_ethernet_common;
 
 type
 
@@ -161,11 +161,11 @@ type
     procedure OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
 
-    procedure OnClientServer1ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnClientServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnClientServer1ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+    procedure OnClientServer1ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 
-    procedure OnClientServer2ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnClientServer2ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnClientServer2ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+    procedure OnClientServer2ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 
     // The Controller is the Controller Node created in the NodeManager
     procedure ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
@@ -252,7 +252,7 @@ end;
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 var
-  EthernetRec: TLccEthernetRec;
+  LocalInfo: TLccEthernetConnectionInfo;
   i: Integer;
 begin
   if ClientServer1.Connected then
@@ -262,18 +262,22 @@ begin
     ClientServer1.CloseConnection(nil)
   end else
   begin
-    FillChar(EthernetRec, SizeOf(EthernetRec), #0);
-    EthernetRec.ListenerIP := EditCommandStationIPAddress.Text;
-    EthernetRec.AutoResolveIP := True;
-    EthernetRec.ListenerPort := 12021;
+    LocalInfo := TLccEthernetConnectionInfo.Create;
+    try
+    LocalInfo.ListenerIP := EditCommandStationIPAddress.Text;
+    LocalInfo.AutoResolveIP := True;
+    LocalInfo.ListenerPort := 12021;
     ClientServer1.Gridconnect := True;
-    ClientServer1.OpenConnection(EthernetRec);
+    ClientServer1.OpenConnection(LocalInfo);
+    finally
+      LocalInfo.Free;
+    end
   end;
 end;
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
 var
-  EthernetRec: TLccEthernetRec;
+  LocalInfo: TLccEthernetConnectionInfo;
 begin
   if ClientServer2.Connected then
   begin
@@ -282,12 +286,16 @@ begin
     ClientServer2.CloseConnection(nil)
   end else
   begin
-    FillChar(EthernetRec, SizeOf(EthernetRec), #0);
-    EthernetRec.ListenerIP := EditCommandStationIPAddress.Text;
-    EthernetRec.AutoResolveIP := True;
-    EthernetRec.ListenerPort := 12021;
+    LocalInfo := TLccEthernetConnectionInfo.Create;
+    try
+    LocalInfo.ListenerIP := EditCommandStationIPAddress.Text;
+    LocalInfo.AutoResolveIP := True;
+    LocalInfo.ListenerPort := 12021;
     ClientServer2.Gridconnect := True;
-    ClientServer2.OpenConnection(EthernetRec);
+    ClientServer2.OpenConnection(LocalInfo);
+    finally
+      LocalInfo.Free;
+    end;
   end;
 end;
 
@@ -549,14 +557,14 @@ begin
   end;
 end;
 
-procedure TForm1.OnClientServer1ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnClientServer1ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  case EthernetRec.ConnectionState of
+  case (Info as TLccEthernetConnectionInfo).ConnectionState of
     ccsClientConnecting : StatusBarThrottle1.Panels[0].Text    := 'Connecting';
     ccsClientConnected  :
       begin
         ButtonConnect1.Caption := 'Disconnect';
-        StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
         ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode1.OnTrainAssigned := @ControllerTrainAssigned1;
         ControllerNode1.OnTrainReleased := @ControllerTrainReleased1;
@@ -583,22 +591,22 @@ begin
   end;
 end;
 
-procedure TForm1.OnClientServer1ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnClientServer1ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  ShowMessage(EthernetRec.MessageStr);
+  ShowMessage(Info.MessageStr);
   NodeManager1.Clear;
   StatusBarThrottle1.Panels[0].Text := 'Disconnected';
   ButtonConnect1.Caption := 'Connect';
 end;
 
-procedure TForm1.OnClientServer2ConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnClientServer2ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  case EthernetRec.ConnectionState of
+  case (Info as TLccEthernetConnectionInfo).ConnectionState of
     ccsClientConnecting : StatusBarThrottle2.Panels[0].Text    := 'Connecting';
     ccsClientConnected  :
       begin
         ButtonConnect2.Caption := 'Disconnect';
-        StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + EthernetRec.ClientIP + ':' + IntToStr(EthernetRec.ClientPort);
+        StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
         ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
         ControllerNode2.OnTrainAssigned := @ControllerTrainAssigned2;
         ControllerNode2.OnTrainReleased := @ControllerTrainReleased2;
@@ -625,9 +633,10 @@ begin
   end;
 end;
 
-procedure TForm1.OnClientServer2ErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnClientServer2ErrorMessage(Sender: TObject;
+  Info: TLccHardwareConnectionInfo);
 begin
-  ShowMessage(EthernetRec.MessageStr);
+  ShowMessage(Info.MessageStr);
   NodeManager2.Clear;
   StatusBarThrottle2.Panels[0].Text := 'Disconnected';
   ButtonConnect2.Caption := 'Connect';

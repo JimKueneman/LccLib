@@ -36,15 +36,15 @@ type
     destructor Destroy; override;
     procedure LockArray;
     procedure UnLockArray;
-    procedure AddChunk(AChunk: TDynamicByteArray);
-    procedure PullArray(var AChunk: TDynamicByteArray);
+    procedure AddChunk(AChunk: TLccDynamicByteArray);
+    procedure PullArray(var AChunk: TLccDynamicByteArray);
   end;
 
 implementation
 
 { TThreadedCirularArray }
 
-procedure TThreadedCirularArray.AddChunk(AChunk: TDynamicByteArray);
+procedure TThreadedCirularArray.AddChunk(AChunk: TLccDynamicByteArray);
 var
   i: Integer;
 begin
@@ -84,7 +84,7 @@ begin
   FLock.Enter;
 end;
 
-procedure TThreadedCirularArray.PullArray(var AChunk: TDynamicByteArray);
+procedure TThreadedCirularArray.PullArray(var AChunk: TLccDynamicByteArray);
 var
   i: Integer;
   LocalCount: Word;

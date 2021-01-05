@@ -50,7 +50,7 @@ uses
   function EqualEventID(EventID1, EventID2: TEventID): Boolean;
   procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
   function NullNodeID(ANodeID: TNodeID): Boolean;
-  procedure StringToNullArray(AString: String; var ANullArray: TDynamicByteArray; var iIndex: Integer);
+  procedure StringToNullArray(AString: String; var ANullArray: TLccDynamicByteArray; var iIndex: Integer);
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
   {$IFNDEF DWSCRIPT}
@@ -363,7 +363,7 @@ end;
 
 procedure NodeIDToEventID(NodeID: TNodeID; LowBytes: Word; var EventID: TEventID);
 begin
-  EventID[0]     := _Higher( NodeID[1]); // But these all need the 48 Bit Full ID in the Byte Fields
+  EventID[0] := _Higher( NodeID[1]); // But these all need the 48 Bit Full ID in the Byte Fields
   EventID[1] := _Hi(     NodeID[1]);
   EventID[2] := _Lo(     NodeID[1]);
   EventID[3] := _Higher( NodeID[0]);
@@ -373,7 +373,7 @@ begin
   EventID[7] := _Lo(LowBytes);
 end;
 
-procedure StringToNullArray(AString: String; var ANullArray: TDynamicByteArray; var iIndex: Integer);
+procedure StringToNullArray(AString: String; var ANullArray: TLccDynamicByteArray; var iIndex: Integer);
 var
   Len, i: Integer;
 begin

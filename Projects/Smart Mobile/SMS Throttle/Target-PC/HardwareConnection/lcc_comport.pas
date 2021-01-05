@@ -38,38 +38,43 @@ uses
 type
   TLccComPortThread = class;             // Forward
   TLccComPort = class;
+  TLccComPortConnectionInfo = class;
 
-  TLccComPortRec = record
-    Thread: TLccComPortThread;           // Thread owing the Record
-    ComPort: String;                     // Comport
-    Baud: Integer;                       // Define connection speed. Baud rate can be from 50 to 4000000 bits per second. (it depends on your hardware!))
-    Bits: Integer;                       // Number of bits in communication.
-    Parity: Char;                        // Define communication parity (N - None, O - Odd, E - Even, M - Mark or S - Space)
-    StopBits: Integer;                   // Use constants SB1, SB1andHalf, SB2
-    SoftwareHandshake: Boolean;          // Enable XON/XOFF handshake.
-    HardwareHandShake: Boolean;          // Enable CTS/RTS handshake
-    ConnectionState: TConnectionState;   // Current State of the connection
-    MessageStr: String;                  // Contains the string for the resuting message from the thread
-    MessageArray: lcc_defines.TDynamicByteArray;   // Contains the TCP Protocol message bytes of not using GridConnect
-    LccMessage: TLccMessage;
-    SuppressNotification: Boolean;       // True to stop any Syncronoize() call being called
+  TOnComPortEvent = procedure(Sender: TObject; ComPortConnection: TLccHardwareConnectionInfo) of object;
+
+  TComPortConnectionState = (ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);
+
+  { TComPortConnectionInfo }
+
+  TLccComPortConnectionInfo = class(TLccHardwareConnectionInfo)
+  private
+    FBaud: Integer;
+    FBits: Integer;
+    FComPort: String;
+    FConnectionState: TComPortConnectionState;
+    FHardwareHandshake: Boolean;
+    FParity: Char;
+    FSoftwareHandshake: Boolean;
+    FStopBits: Integer;
+  public
+    property ComPort: String read FComPort write FComPort;                     // Comport
+    property Baud: Integer read FBaud write FBaud;                      // Define connection speed. Baud rate can be from 50 to 4000000 bits per second. (it depends on your hardware!))
+    property Bits: Integer read FBits write FBits;                      // Number of bits in communication.
+    property Parity: Char read FParity write FParity;                        // Define communication parity (N - None, O - Odd, E - Even, M - Mark or S - Space)
+    property StopBits: Integer read FStopBits write FStopBits;                   // Use constants SB1, SB1andHalf, SB2
+    property SoftwareHandshake: Boolean read FSoftwareHandshake write FSoftwareHandshake;          // Enable XON/XOFF handshake.
+    property HardwareHandShake: Boolean read FHardwareHandshake write FHardwareHandshake;         // Enable CTS/RTS handshake
+    property ConnectionState: TComPortConnectionState read FConnectionState write FConnectionState;  // Current State of the connection
   end;
-
-
-  TOnComChangeFunc = procedure(Sender: TObject; ComPortRec: TLccComPortRec) of object;
-  TOnComReceiveFunc = procedure(Sender: TObject; ComPortRec: TLccComPortRec) of object;
-
 
 
   { TLccComPortThread }
 
   TLccComPortThread =  class(TLccConnectionThread)
     private
-      FComPortRec: TLccComPortRec;
-      FOnComErrorMessage: TOnComChangeFunc;
-      FOnConnectionStateChange: TOnComChangeFunc;
-      FOnReceiveMessage: TOnComReceiveFunc;
-      FOnSendMessage: TOnMessageEvent;
+      FComPortConnectionInfo: TLccComPortConnectionInfo;
+      FOnComErrorMessage: TOnComPortEvent;
+      FOnConnectionStateChange: TOnComPortEvent;
       FOwner: TLccComPort;
       FRawData: Boolean;
       FSerial: TBlockSerial;                                                      // Serial object
@@ -77,22 +82,19 @@ type
       procedure DoConnectionState;
       procedure DoErrorMessage;
       procedure DoReceiveMessage;
-      procedure DoSendMessage(AMessage: TLccMessage);
       procedure Execute; override;
       procedure SendMessage(AMessage: TLccMessage); override;
       procedure ReceiveMessage; override;
 
-      property ComPortRec: TLccComPortRec read FComPortRec write FComPortRec;
+      property ComPortConnectionInfo: TLccComPortConnectionInfo read FComPortConnectionInfo write FComPortConnectionInfo;
       property Serial: TBlockSerial read FSerial write FSerial;
-      property OnConnectionStateChange: TOnComChangeFunc read FOnConnectionStateChange write FOnConnectionStateChange;
-      property OnErrorMessage: TOnComChangeFunc read FOnComErrorMessage write FOnComErrorMessage;
-      property OnReceiveMessage: TOnComReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-      property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
+      property OnConnectionStateChange: TOnComPortEvent read FOnConnectionStateChange write FOnConnectionStateChange;
+      property OnErrorMessage: TOnComPortEvent read FOnComErrorMessage write FOnComErrorMessage;
       property Owner: TLccComPort read FOwner write FOwner;
     public
       property RawData: Boolean read FRawData write FRawData;
 
-      constructor Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec); reintroduce;
+      constructor Create(CreateSuspended: Boolean; AnOwner: TLccComPort; AComPortConnectionInfo: TLccComPortConnectionInfo); reintroduce;
       destructor Destroy; override;
   end;
 
@@ -114,21 +116,20 @@ type
   TLccComPort = class(TLccHardwareConnectionManager)
   private
     FComPortThreads: TLccComPortThreadList;
-    FConnected: Boolean;
     FHub: Boolean;
     FLccSettings: TLccSettings;
     FNodeManager: TLccNodeManager;
-    FOnErrorMessage: TOnComChangeFunc;
-    FOnConnectionStateChange: TOnComChangeFunc;
-    FOnReceiveMessage: TOnComReceiveFunc;
-    FOnSendMessage: TOnMessageEvent;
+    FOnErrorMessage: TOnComPortEvent;
+    FOnConnectionStateChange: TOnComPortEvent;
     FRawData: Boolean;
     FSleepCount: Integer;
-    procedure SetOnSendMessage(AValue: TOnMessageEvent);
     procedure SetSleepCount(AValue: Integer);
     { Private declarations }
   protected
     { Protected declarations }
+      // Property getter must override and make definition based on connection type
+    function GetConnected: Boolean; override;
+
     procedure UpdateThreadEvents(ComPortThread: TLccComPortThread);
     procedure UpdateThreadsEvents;
 
@@ -137,14 +138,13 @@ type
     { Public declarations }
     property ComPortThreads: TLccComPortThreadList read FComPortThreads write FComPortThreads;
     {$IFDEF LOGGING}property LoggingFrame: TFrameLccLogging read FLoggingFrame write FLoggingFrame;{$ENDIF}     // Designtime can't find Frames to assign in Object Inspector
-    property Connected: Boolean read FConnected;
     property RawData: Boolean read FRawData write FRawData;
 
     constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
     destructor Destroy; override;
 
     function FormatComPortString(ComPort: string): string;
-    function OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
+    function OpenComPort(ComPortConnectionInfo: TLccComPortConnectionInfo): TLccComPortThread;
     function OpenComPortWithLccSettings: TLccComPortThread;
     procedure CloseComPort( ComPortThread: TLccComPortThread);
     procedure SendMessage(AMessage: TLccMessage); override;
@@ -155,10 +155,8 @@ type
     property LccSettings: TLccSettings read FLccSettings write FLccSettings;
 
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
-    property OnConnectionStateChange: TOnComChangeFunc read FOnConnectionStateChange write FOnConnectionStateChange;
-    property OnErrorMessage: TOnComChangeFunc read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnComReceiveFunc read FOnReceiveMessage write FOnReceiveMessage;
-    property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
+    property OnConnectionStateChange: TOnComPortEvent read FOnConnectionStateChange write FOnConnectionStateChange;
+    property OnErrorMessage: TOnComPortEvent read FOnErrorMessage write FOnErrorMessage;
     property SleepCount: Integer read FSleepCount write SetSleepCount;
   end;
 
@@ -251,7 +249,7 @@ end;
 
 procedure TLccComPort.UpdateThreadEvents(ComPortThread: TLccComPortThread);
 begin
-  ComPortThread.OnSendMessage := OnSendMessage;
+
 end;
 
 procedure TLccComPort.UpdateThreadsEvents;
@@ -299,20 +297,23 @@ begin
   {$ENDIF}
 end;
 
-function TLccComPort.OpenComPort(const AComPortRec: TLccComPortRec): TLccComPortThread;
+function TLccComPort.GetConnected: Boolean;
 begin
-  Result := TLccComPortThread.Create(True, Self, AComPortRec);
+  Result := FConnected;
+end;
+
+function TLccComPort.OpenComPort(ComPortConnectionInfo: TLccComPortConnectionInfo): TLccComPortThread;
+begin
+  Result := TLccComPortThread.Create(True, Self, ComPortConnectionInfo);
   Result.OnConnectionStateChange := OnConnectionStateChange;
   Result.OnErrorMessage := OnErrorMessage;
-  Result.OnReceiveMessage := OnReceiveMessage;
-  Result.OnSendMessage := OnSendMessage;
   Result.SleepCount := SleepCount;
   Result.RawData := RawData;
   {$IFDEF MSWINDOWS}
 
   {$ELSE}
     {$IFDEF DARWIN}
-    Result.FComPortRec.ComPort := PATH_OSX_DEV + Result.ComPortRec.ComPort;
+    Result.ComPortConnectionInfo.ComPort := PATH_OSX_DEV + Result.ComPortConnectionInfo.ComPort;
     {$ELSE}
     Result.FComPortRec.ComPort := PATH_LINUX_DEV + Result.ComPortRec.ComPort;
     {$ENDIF}
@@ -324,58 +325,62 @@ end;
 
 function TLccComPort.OpenComPortWithLccSettings: TLccComPortThread;
 var
-  AComPortRec: TLccComPortRec;
+  AComPortConnectionInfo: TLccComPortConnectionInfo;
 begin
   if Assigned(LccSettings) then
   begin
-    AComPortRec.Baud := LccSettings.ComPort.BaudRate;
-    AComPortRec.ComPort := FormatComPortString(LccSettings.ComPort.Port);
+    AComPortConnectionInfo := TLccComPortConnectionInfo.Create;
+    try
+      AComPortConnectionInfo.Baud := LccSettings.ComPort.BaudRate;
+      AComPortConnectionInfo.ComPort := FormatComPortString(LccSettings.ComPort.Port);
 
-    case LccSettings.ComPort.StopBits of
-      cpsb_1_StopBit   : AComPortRec.StopBits := SB1;
-      cpsb_1_5_StopBit : AComPortRec.StopBits := SB1andHalf;
-      cpsb_2_StopBit   : AComPortRec.StopBits := SB2;
+      case LccSettings.ComPort.StopBits of
+        cpsb_1_StopBit   : AComPortConnectionInfo.StopBits := SB1;
+        cpsb_1_5_StopBit : AComPortConnectionInfo.StopBits := SB1andHalf;
+        cpsb_2_StopBit   : AComPortConnectionInfo.StopBits := SB2;
+      end;
+
+      case LccSettings.ComPort.DataBits of
+        cpdb_8_Bits : AComPortConnectionInfo.Bits :=  8;
+        cpdb_9_Bits : AComPortConnectionInfo.Bits :=  9;
+      end;
+
+      case LccSettings.ComPort.FlowControl of
+        cpf_None      :
+          begin
+            AComPortConnectionInfo.HardwareHandShake := False;
+            AComPortConnectionInfo.SoftwareHandshake := False;
+          end;
+        cpf_CTS_RTS,                // Hardware with CTS/RTS
+        cpf_DTR_DSR :              // Hardware with DTR/DSR
+          begin
+            AComPortConnectionInfo.HardwareHandShake := True;
+            AComPortConnectionInfo.SoftwareHandshake := False;
+          end;
+        cpf_XON_XOFF :            // Software;
+          begin
+            AComPortConnectionInfo.HardwareHandShake := False;
+            AComPortConnectionInfo.SoftwareHandshake := True;
+          end;
+      end;
+
+      case LccSettings.ComPort.Parity of
+        cpp_None    : AComPortConnectionInfo.Parity := 'N';
+        cpp_Even    : AComPortConnectionInfo.Parity := 'E';
+        cpp_Odd     : AComPortConnectionInfo.Parity := 'O';
+        cpp_Mark    : AComPortConnectionInfo.Parity := 'M';
+        cpp_Space   : AComPortConnectionInfo.Parity := 'S';
+      end;
+
+      AComPortConnectionInfo.LccMessage := nil;
+      AComPortConnectionInfo.MessageStr := '';
+      AComPortConnectionInfo.Thread := nil;
+      AComPortConnectionInfo.ConnectionState := ccsPortDisconnected;
+
+      Result := OpenComPort(AComPortConnectionInfo);
+    finally
+      AComPortConnectionInfo.Free;
     end;
-
-    case LccSettings.ComPort.DataBits of
-      cpdb_8_Bits : AComPortRec.Bits :=  8;
-      cpdb_9_Bits : AComPortRec.Bits :=  9;
-    end;
-
-    case LccSettings.ComPort.FlowControl of
-      cpf_None      :
-        begin
-          AComPortRec.HardwareHandShake := False;
-          AComPortRec.SoftwareHandshake := False;
-        end;
-      cpf_CTS_RTS,                // Hardware with CTS/RTS
-      cpf_DTR_DSR :              // Hardware with DTR/DSR
-        begin
-          AComPortRec.HardwareHandShake := True;
-          AComPortRec.SoftwareHandshake := False;
-        end;
-      cpf_XON_XOFF :            // Software;
-        begin
-          AComPortRec.HardwareHandShake := False;
-          AComPortRec.SoftwareHandshake := True;
-        end;
-    end;
-
-    case LccSettings.ComPort.Parity of
-      cpp_None    : AComPortRec.Parity := 'N';
-      cpp_Even    : AComPortRec.Parity := 'E';
-      cpp_Odd     : AComPortRec.Parity := 'O';
-      cpp_Mark    : AComPortRec.Parity := 'M';
-      cpp_Space   : AComPortRec.Parity := 'S';
-    end;
-
-    AComPortRec.LccMessage := nil;
-    AComPortRec.MessageStr := '';
-    AComPortRec.Thread := nil;
-    AComPortRec.SuppressNotification := False;
-    AComPortRec.ConnectionState := ccsPortDisconnected;
-
-    Result := OpenComPort(AComPortRec);
   end;
 end;
 
@@ -385,6 +390,8 @@ var
   ComPortThread: TLccComPortThread;
   i: Integer;
 begin
+  inherited;
+
   L := ComPortThreads.LockList;
   try
     for i := 0 to L.Count - 1 do
@@ -429,33 +436,21 @@ begin
   end;
 end;
 
-procedure TLccComPort.SetOnSendMessage(AValue: TOnMessageEvent);
-begin
-  if FOnSendMessage <> AValue then
-  begin
-    FOnSendMessage:=AValue;
-    if not (csDesigning in ComponentState) then
-      UpdateThreadsEvents;
-  end;
-end;
-
 { TLccComPortThread }
 
 procedure TLccComPortThread.Execute;
 
-  procedure SendConnectionNotification(NewConnectionState: TConnectionState);
+  procedure SendConnectionNotification(NewConnectionState: TComPortConnectionState);
   begin
-    FComPortRec.ConnectionState := NewConnectionState;
-    if not FComPortRec.SuppressNotification then
-      Synchronize(@DoConnectionState);
+    ComPortConnectionInfo.ConnectionState := NewConnectionState;
+    Synchronize(@DoConnectionState);
   end;
 
   procedure HandleErrorAndDisconnect;
   begin
     Owner.ComPortThreads.Remove(Self);
-    FComPortRec.MessageStr := Serial.LastErrorDesc;
-    if not FComPortRec.SuppressNotification then
-      Synchronize(@DoErrorMessage);
+    ComPortConnectionInfo.MessageStr := Serial.LastErrorDesc;
+    Synchronize(@DoErrorMessage);
     SendConnectionNotification(ccsPortDisconnected);
     Terminate;
   end;
@@ -467,7 +462,7 @@ var
   GridConnectHelper: TGridConnectHelper;
   TxList: TStringList;
   LocalSleepCount: Integer;
-  DynamicByteArray: TDynamicByteArray;
+  DynamicByteArray: TLccDynamicByteArray;
   RcvByte: Byte;
 begin
   FRunning := True;
@@ -477,14 +472,14 @@ begin
   Serial := TBlockSerial.Create;                                                // Create the Serial object in the context of the thread
   Serial.LinuxLock:=False;
   Serial.RaiseExcept:=False;
-  Serial.Connect(FComPortRec.ComPort);
+  Serial.Connect(ComPortConnectionInfo.ComPort);
   if Serial.LastError <> 0 then
   begin
     HandleErrorAndDisconnect;
     Running := False;
   end
   else begin
-    Serial.Config(FComPortRec.Baud, FComPortRec.Bits, FComPortRec.Parity, FComPortRec.StopBits, FComPortRec.SoftwareHandshake, FComPortRec.HardwareHandShake);
+    Serial.Config(ComPortConnectionInfo.Baud, ComPortConnectionInfo.Bits, ComPortConnectionInfo.Parity, ComPortConnectionInfo.StopBits, ComPortConnectionInfo.SoftwareHandshake, ComPortConnectionInfo.HardwareHandShake);
     if Serial.LastError <> 0 then
     begin
       HandleErrorAndDisconnect;
@@ -498,7 +493,7 @@ begin
       try
         try
           LocalSleepCount := 0;
-          while not IsTerminated and (FComPortRec.ConnectionState = ccsPortConnected) do
+          while not IsTerminated and (ComPortConnectionInfo.ConnectionState = ccsPortConnected) do
           begin
             if Gridconnect then              // Handle the ComPort using GridConnect
             begin
@@ -538,9 +533,9 @@ begin
 
                 if GridConnectHelper.GridConnect_DecodeMachine(Ord( RcvStr[i]), GridConnectStrPtr) then
                 begin
-                  FComPortRec.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
+                  ComPortConnectionInfo.MessageStr := GridConnectBufferToString(GridConnectStrPtr^);
                   if not RawData then
-                    FComPortRec.LccMessage.LoadByGridConnectStr(FComPortRec.MessageStr);
+                    ComPortConnectionInfo.LccMessage.LoadByGridConnectStr(ComPortConnectionInfo.MessageStr);
                   Synchronize(@DoReceiveMessage);
                 end;
               end;
@@ -573,7 +568,7 @@ begin
                 0 :
                   begin
                     DynamicByteArray := nil;
-                    if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, FComPortRec.MessageArray) then
+                    if TcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(RcvByte, ComPortConnectionInfo.MessageArray) then
                     begin
                       if UseSynchronize then
                         Synchronize({$IFDEF FPC}@{$ENDIF}DoReceiveMessage)
@@ -581,7 +576,7 @@ begin
                         DynamicByteArray := nil;
                         Owner.IncomingCircularArray.LockArray;
                         try
-                          Owner.IncomingCircularArray.AddChunk(FComPortRec.MessageArray);
+                          Owner.IncomingCircularArray.AddChunk(ComPortConnectionInfo.MessageArray);
                         finally
                           Owner.IncomingCircularArray.UnLockArray;
                         end;
@@ -594,9 +589,9 @@ begin
                   end;
                 WSAECONNRESET   :
                   begin
-                    FComPortRec.MessageStr := Serial.LastErrorDesc;
+                    ComPortConnectionInfo.MessageStr := Serial.LastErrorDesc;
           //          Synchronize({$IFDEF FPC}@{$ENDIF}DoClientDisconnect);
-                    FComPortRec.MessageStr := '';
+                    ComPortConnectionInfo.MessageStr := '';
                     Terminate;
                   end
               else
@@ -623,12 +618,13 @@ end;
 
 procedure TLccComPortThread.ReceiveMessage;
 begin
-
+  // Called in context of main thread through Syncronize
+  Owner.ReceiveMessage(Self, ComPortConnectionInfo);
 end;
 
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
 var
-  ByteArray: TDynamicByteArray;
+  ByteArray: TLccDynamicByteArray;
   i: Integer;
 begin
   if not IsTerminated then
@@ -644,32 +640,31 @@ begin
       if AMessage.ConvertToLccTcp(ByteArray) then
         OutgoingCircularArray.AddChunk(ByteArray);
     end;
-    DoSendMessage(AMessage);
   end;
 end;
 
 
-constructor TLccComPortThread.Create(CreateSuspended: Boolean; AnOwner: TLccComPort; const AComPortRec: TLccComPortRec);
+constructor TLccComPortThread.Create(CreateSuspended: Boolean;
+  AnOwner: TLccComPort; AComPortConnectionInfo: TLccComPortConnectionInfo);
 begin
   inherited Create(CreateSuspended, AnOwner);
-  FComPortRec := AComPortRec;
-  FComPortRec.Thread := Self;
-  FComPortRec.LccMessage := TLccMessage.Create;
+  FComPortConnectionInfo := AComPortConnectionInfo.Clone as TLccComPortConnectionInfo;
+  ComPortConnectionInfo.Thread := Self;
   GridConnect := True;
 end;
 
 destructor TLccComPortThread.Destroy;
 begin
-  FreeAndNil(FComPortRec.LccMessage);
+  FreeAndNil(FComPortConnectionInfo);
   inherited Destroy;
 end;
 
 procedure TLccComPortThread.DoConnectionState;
 begin
-  Owner.FConnected := FComPortRec.ConnectionState = ccsPortConnected;
+  Owner.FConnected := ComPortConnectionInfo.ConnectionState = ccsPortConnected;
 
   if Assigned(OnConnectionStateChange) then
-    OnConnectionStateChange(Self, FComPortRec)
+    OnConnectionStateChange(Self, ComPortConnectionInfo)
 end;
 
 procedure TLccComPortThread.DoErrorMessage;
@@ -677,7 +672,7 @@ begin
   if not IsTerminated then
   begin
     if Assigned(OnErrorMessage) then
-      OnErrorMessage(Self, FComPortRec)
+      OnErrorMessage(Self, ComPortConnectionInfo)
   end;
 end;
 
@@ -686,16 +681,33 @@ var
   L: TList;
   i: Integer;
 begin
-  if not IsTerminated then
-  begin
-    // Called in the content of the main thread through Syncronize
-    if Assigned(OnReceiveMessage) then    // Do first so we get notified before any response is sent in ProcessMessage
-      OnReceiveMessage(Self, FComPortRec);
+  inherited;
 
-    if Gridconnect then
+  // Called in the content of the main thread through Syncronize
+  if Gridconnect then
+  begin
+    if Owner.NodeManager <> nil then
+      Owner.NodeManager.ProcessMessage(ComPortConnectionInfo.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+
+    if Owner.Hub then
     begin
-      if Owner.NodeManager <> nil then
-        Owner.NodeManager.ProcessMessage(FComPortRec.LccMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
+      L := Owner.ComPortThreads.LockList;
+      try
+        for i := 0 to L.Count - 1 do
+        begin
+          if TLccComPortThread(L[i]) <> Self then
+            TLccComPortThread(L[i]).SendMessage(ComPortConnectionInfo.LccMessage);
+        end;
+      finally
+        Owner.ComPortThreads.UnlockList;
+      end
+    end;
+  end else
+  begin   // TCP Protocol
+    if WorkerMessage.LoadByLccTcp(ComPortConnectionInfo.MessageArray) then // In goes a raw message
+    begin
+      if (Owner.NodeManager <> nil) then
+        Owner.NodeManager.ProcessMessage(WorkerMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
 
       if Owner.Hub then
       begin
@@ -704,41 +716,14 @@ begin
           for i := 0 to L.Count - 1 do
           begin
             if TLccComPortThread(L[i]) <> Self then
-              TLccComPortThread(L[i]).SendMessage(FComPortRec.LccMessage);
+              TLccComPortThread(L[i]).SendMessage(WorkerMessage);
           end;
         finally
           Owner.ComPortThreads.UnlockList;
         end
-      end;
-    end else
-    begin   // TCP Protocol
-      if WorkerMessage.LoadByLccTcp(FComPortRec.MessageArray) then // In goes a raw message
-      begin
-        if (Owner.NodeManager <> nil) then
-          Owner.NodeManager.ProcessMessage(WorkerMessage);  // What comes out is a fully assembled message that can be passed on to the NodeManager, NodeManager does not seem to pieces of multiple frame messages
-
-        if Owner.Hub then
-        begin
-          L := Owner.ComPortThreads.LockList;
-          try
-            for i := 0 to L.Count - 1 do
-            begin
-              if TLccComPortThread(L[i]) <> Self then
-                TLccComPortThread(L[i]).SendMessage(WorkerMessage);
-            end;
-          finally
-            Owner.ComPortThreads.UnlockList;
-          end
-        end
       end
-    end;
+    end
   end
-end;
-
-procedure TLccComPortThread.DoSendMessage(AMessage: TLccMessage);
-begin
-  if Assigned(OnSendMessage) then
-    OnSendMessage(Self, AMessage);
 end;
 
 initialization

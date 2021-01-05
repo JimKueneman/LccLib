@@ -104,7 +104,7 @@ type
   {$ENDIF}
 
   TFunctionStatesArray = array[0..28] of Word;
-  TDynamicByteArray = array of Byte;
+  TLccDynamicByteArray = array of Byte;
 
 type
   TDatagramArray = array[0..MAX_DATAGRAM_LENGTH-1] of Byte;
@@ -125,8 +125,7 @@ type
 
   TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,      // TEthernetClient States
                   ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,  // TEthernetSever States
-                  ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected,
-                  ccsPortConnecting, ccsPortConnected, ccsPortDisconnecting, ccsPortDisconnected);                 // TComPort States
+                  ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected);
 
 {$IFNDEF DWSCRIPT}
 // Solves circular reference as the parser need to know about lcc_nodemanager and vice versa

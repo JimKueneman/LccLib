@@ -54,7 +54,8 @@ uses
   lcc_node_messages,
   lcc_utilities,
   lcc_app_common_settings,
-  lcc_common_classes;
+  lcc_common_classes,
+  lcc_ethernet_common;
 
 type
   TLccEthernetClient = class;   // Forward
@@ -95,7 +96,7 @@ type
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
-    function OpenConnection(AnEthernetRec: TLccEthernetRec): TThread; override;
+    function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TThread; override;
   published
     { Published declarations }
   end;
@@ -174,14 +175,14 @@ begin
   Result := True;
 end;
 
-function TLccEthernetClient.OpenConnection(AnEthernetRec: TLccEthernetRec): TThread;
+function TLccEthernetClient.OpenConnection(
+  ConnectionInfo: TLccHardwareConnectionInfo): TThread;
 begin
-  Result := inherited OpenConnection(AnEthernetRec);
-  Result := TLccEthernetClientThread.Create(True, Self, AnEthernetRec);
+  Result := inherited OpenConnection(ConnectionInfo as TLccEthernetConnectionInfo);
+  Result := TLccEthernetClientThread.Create(True, Self, ConnectionInfo as TLccEthernetConnectionInfo);
   OnConnectionStateChange := OnConnectionStateChange;
   OnErrorMessage := OnErrorMessage;
   OnReceiveMessage := OnReceiveMessage;
-  (Result as TLccEthernetClientThread).OnSendMessage := OnSendMessage;
   (Result as TLccEthernetClientThread).GridConnect := Gridconnect;
   (Result as TLccEthernetClientThread).UseSynchronize := UseSynchronize;
   EthernetThreads.Add(Result);
@@ -290,7 +291,7 @@ var
   TxList, RxList: TStringList;
   RetryCount: Integer;
   Peer: TVarSin;
-  DynamicByteArray: TDynamicByteArray;
+  DynamicByteArray: TLccDynamicByteArray;
   RcvByte: Byte;
   LocalSleepCount: Integer;
 begin
@@ -302,7 +303,7 @@ begin
   Socket.Family := SF_IP4;                  // IP4
   if Gridconnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-  Socket.HeartbeatRate := EthernetRec.HeartbeatRate;
+  Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
   Socket.SetTimeout(0);
   if Socket.LastError <> 0 then
   begin
@@ -316,16 +317,16 @@ begin
   begin
     RetryCount := 0;
 
-    if FEthernetRec.AutoResolveIP then
+    if ConnectionInfo.AutoResolveIP then
     begin
       {$IFDEF LCC_WINDOWS}
-      FEthernetRec.ClientIP := ResolveWindowsIp(Socket);
+      ConnectionInfo.ClientIP := ResolveWindowsIp(Socket);
       {$ELSE}
-      FEthernetRec.ClientIP := ResolveUnixIp;
+      ConnectionInfo.ClientIP := ResolveUnixIp;
       {$ENDIF}
     end;
 
-    Socket.Connect(String( EthernetRec.ListenerIP), String( IntToStr(EthernetRec.ListenerPort)));
+    Socket.Connect(String( ConnectionInfo.ListenerIP), String( IntToStr(ConnectionInfo.ListenerPort)));
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin
       Socket.ResetLastError;
@@ -350,7 +351,7 @@ begin
       try
         LocalSleepCount := 0;
         try
-          while not IsTerminated and (FEthernetRec.ConnectionState = ccsClientConnected) do
+          while not IsTerminated and (ConnectionInfo.ConnectionState = ccsClientConnected) do
 
           begin  // Handle the Socket using GridConnect
             if Gridconnect then

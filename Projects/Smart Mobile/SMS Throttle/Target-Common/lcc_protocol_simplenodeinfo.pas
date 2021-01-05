@@ -33,14 +33,14 @@ type
 
   TProtocolSimpleNodeInfo = class(TNodeProtocolBase)
   public
-    function PackedFormat(StreamManufacturerInfo, StreamConfiguration: TStream): TDynamicByteArray;
+    function PackedFormat(StreamManufacturerInfo, StreamConfiguration: TStream): TLccDynamicByteArray;
   end;
 
 implementation
 
 { TProtocolSimpleNodeInfo }
 
-function TProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerInfo, StreamConfiguration: TStream): TDynamicByteArray;
+function TProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerInfo, StreamConfiguration: TStream): TLccDynamicByteArray;
 var
   Len, i: Integer;
   AByte: Byte;

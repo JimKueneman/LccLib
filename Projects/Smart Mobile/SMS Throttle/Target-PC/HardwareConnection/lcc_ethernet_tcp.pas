@@ -41,7 +41,7 @@ type
 
   TOPStackcoreTcpDecodeStateMachine = class
   private
-    FDecodeTcpMessage: TDynamicByteArray;
+    FDecodeTcpMessage: TLccDynamicByteArray;
     FiMessage: Word;
     FMessageFlags: Word;
     FMessageSize: DWord;
@@ -49,12 +49,12 @@ type
   protected
     property TcpReceiveState: Word read FTcpReceiveState write FTcpReceiveState;
     property MessageFlags: Word read FMessageFlags write FMessageFlags;
-    property DecodeTcpMessage: TDynamicByteArray read FDecodeTcpMessage write FDecodeTcpMessage;
+    property DecodeTcpMessage: TLccDynamicByteArray read FDecodeTcpMessage write FDecodeTcpMessage;
     property MessageSize: DWord read FMessageSize write FMessageSize;
     property iMessage: Word read FiMessage write FiMessage;
   public
     constructor Create;
-    function OPStackcoreTcp_DecodeMachine(NextByte: Byte; var TcpMessage: TDynamicByteArray): Boolean;
+    function OPStackcoreTcp_DecodeMachine(NextByte: Byte; var TcpMessage: TLccDynamicByteArray): Boolean;
     procedure Reset;
   end;
 
@@ -69,7 +69,7 @@ begin
   Reset;
 end;
 
-function TOPStackcoreTcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(NextByte: Byte; var TcpMessage: TDynamicByteArray): Boolean;
+function TOPStackcoreTcpDecodeStateMachine.OPStackcoreTcp_DecodeMachine(NextByte: Byte; var TcpMessage: TLccDynamicByteArray): Boolean;
 begin
   Result := False;
   case TcpReceiveState of
