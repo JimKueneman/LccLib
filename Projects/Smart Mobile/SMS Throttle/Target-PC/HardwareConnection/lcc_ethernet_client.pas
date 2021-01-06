@@ -96,7 +96,7 @@ type
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
-    function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TThread; override;
+    function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread; override;
   published
     { Published declarations }
   end;
@@ -158,16 +158,8 @@ end;
 { TLccEthernetClient }
 
 function TLccEthernetClient.GetConnected: Boolean;
-var
- // {$IFDEF DELPHI}
- // List: TList<TLccEthernetClientThread>;
- // {$ELSE}
-  List: TList;
- // {$ENDIF}
 begin
-  List := EthernetThreads.LockList;
-  Result := List.Count > 0;
-  EthernetThreads.UnlockList;
+  //TODO
 end;
 
 function TLccEthernetClient.IsLccLink: Boolean;
@@ -176,16 +168,14 @@ begin
 end;
 
 function TLccEthernetClient.OpenConnection(
-  ConnectionInfo: TLccHardwareConnectionInfo): TThread;
+  ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := inherited OpenConnection(ConnectionInfo as TLccEthernetConnectionInfo);
-  Result := TLccEthernetClientThread.Create(True, Self, ConnectionInfo as TLccEthernetConnectionInfo);
+  Result := TLccEthernetClientThread.Create(True, Self, ConnectionInfo);
   OnConnectionStateChange := OnConnectionStateChange;
   OnErrorMessage := OnErrorMessage;
   OnReceiveMessage := OnReceiveMessage;
-  (Result as TLccEthernetClientThread).GridConnect := Gridconnect;
-  (Result as TLccEthernetClientThread).UseSynchronize := UseSynchronize;
-  EthernetThreads.Add(Result);
+  ConnectionThreads.Add(Result);
   (Result as TLccEthernetClientThread).Start
 end;
 
@@ -297,11 +287,11 @@ var
 begin
   FRunning := True;
 
-  HandleSendConnectionNotification(ccsClientConnecting);
+  HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
-  if Gridconnect then
+  if ConnectionInfo.GridConnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
   Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
   Socket.SetTimeout(0);
@@ -347,16 +337,16 @@ begin
       FRunning := False
     end else
     begin
-      HandleSendConnectionNotification(ccsClientConnected);
+      HandleSendConnectionNotification(lcsConnected);
       try
         LocalSleepCount := 0;
         try
-          while not IsTerminated and (ConnectionInfo.ConnectionState = ccsClientConnected) do
+          while not IsTerminated and (ConnectionInfo.ConnectionState = lcsConnected) do
 
           begin  // Handle the Socket using GridConnect
-            if Gridconnect then
+            if ConnectionInfo.Gridconnect then
             begin
-              if LocalSleepCount >= SleepCount then
+              if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
                 TryTransmitGridConnect(True);
                 LocalSleepCount := 0;
@@ -366,7 +356,7 @@ begin
               TryReceiveGridConnect(GridConnectHelper, True);
             end else
             begin    // Handle the Socket with LCC TCP Protocol
-              if LocalSleepCount >= SleepCount then
+              if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
                 TryTransmitTCPProtocol(True);
                 LocalSleepCount := 0;
@@ -377,8 +367,8 @@ begin
             end;
           end;
         finally
-          HandleSendConnectionNotification(ccsClientDisconnecting);
-          if Gridconnect then
+          HandleSendConnectionNotification(lcsDisconnecting);
+          if ConnectionInfo.Gridconnect then
             TryTransmitGridConnect(False) // Flush it
           else
             TryTransmitTCPProtocol(False);
@@ -388,8 +378,8 @@ begin
           GridConnectHelper.Free;
         end;
       finally
-        HandleSendConnectionNotification(ccsClientDisconnected);
-        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
+        HandleSendConnectionNotification(lcsDisconnected);
+        Owner.ConnectionThreads.Remove(Self);
         FRunning := False;
       end;
     end;

@@ -36,7 +36,6 @@ uses
   synsock,
   Synautil,
   {$ENDIF}
-  lcc_threaded_stringlist,
   lcc_gridconnect,
   lcc_utilities,
   lcc_defines,
@@ -62,18 +61,8 @@ type
 
   { TLccEthernetListener }
 
-  TLccEthernetListener = class(TThread)
+  TLccEthernetListener = class(TLccConnectionThread)
   private
-    FConnectionInfo: TLccEthernetConnectionInfo;
-    FGridConnect: Boolean;
-    FOnClientDisconnect: TOnEthernetEvent;
-    FOnConnectionStateChange: TOnEthernetEvent;
-    FOnErrorMessage: TOnEthernetEvent;
-    FOnReceiveMessage: TOnConnectionReceiveEvent;
-    FOnSendMessage: TOnMessageEvent;
-    FOwner: TLccEthernetServer;
-    FRunning: Boolean;
-    FSleepCount: Integer;
     {$IFDEF ULTIBO}
     FStringList: TThreadStringList;
     FTcpServer: TWinsock2TCPServer;
@@ -82,8 +71,6 @@ type
     {$ENDIF}
     function GetIsTerminated: Boolean;
   protected
-    property ConnectionInfo: TLccEthernetConnectionInfo read FConnectionInfo write FConnectionInfo;
-    property Owner: TLccEthernetServer read FOwner write FOwner;
     property Running: Boolean read FRunning write FRunning;
     {$IFDEF ULTIBO}
     property StringList: TThreadStringList read FStringList write FStringList;
@@ -98,21 +85,10 @@ type
     function CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
     function CreateThreadObject: TLccEthernetServerThread; virtual;
     {$ENDIF}
-    procedure DoConnectionState;
-    procedure DoErrorMessage;
-    procedure DoReceiveMessage;
     procedure Execute; override;
+    procedure SendMessage(AMessage: TLccMessage); override;
+    procedure ReceiveMessage; override;
   public
-    constructor Create(CreateSuspended: Boolean; AnOwner: TLccEthernetServer; AConnectionInfo: TLccEthernetConnectionInfo); reintroduce; virtual;
-    destructor Destroy; override;
-
-    property Gridconnect: Boolean read FGridConnect write FGridConnect;
-    property OnClientDisconnect: TOnEthernetEvent read FOnClientDisconnect write FOnClientDisconnect;
-    property OnConnectionStateChange: TOnEthernetEvent read FOnConnectionStateChange write FOnConnectionStateChange;
-    property OnErrorMessage: TOnEthernetEvent read FOnErrorMessage write FOnErrorMessage;
-    property OnReceiveMessage: TOnConnectionReceiveEvent read FOnReceiveMessage write FOnReceiveMessage;
-    property OnSendMessage: TOnMessageEvent read FOnSendMessage write FOnSendMessage;
-    property SleepCount: Integer read FSleepCount write FSleepCount;
   end;
 
   { TLccEthernetServer }
@@ -126,15 +102,13 @@ type
     { Protected declarations }
     function GetConnected: Boolean; override;
     function CreateListenerObject(AConnectionInfo: TLccEthernetConnectionInfo): TLccEthernetListener; virtual;
-    procedure UpdateAllThreadProperites; override;
-    procedure UpdateListenerThreadProperites(AListenerThread: TLccEthernetListener);
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
     destructor Destroy; override;
 
-    function OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TThread; override;
+    function OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread; override;
     procedure CloseConnection(EthernetThread: TLccConnectionThread);  override;
 
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
@@ -162,28 +136,12 @@ end;
 
 { TLccEthernetListener }
 
-constructor TLccEthernetListener.Create(CreateSuspended: Boolean;
-  AnOwner: TLccEthernetServer; AConnectionInfo: TLccEthernetConnectionInfo);
-begin
-  inherited Create(CreateSuspended);
-  FOwner := AnOwner;
-  FConnectionInfo := AConnectionInfo.Clone as TLccEthernetConnectionInfo;
-  ConnectionInfo.Thread := nil;
-  ConnectionInfo.LccMessage := TLccMessage.Create;
-end;
-
 {$IFDEF ULTIBO}
 {$ELSE}
 function TLccEthernetListener.CreateServerThread(ASocketHandle: TSocket): TLccEthernetServerThread;
 begin
   Result := CreateThreadObject;
   Result.ListenerSocketHandle := ASocketHandle;    // Back create the sockets with this handle
-  OnConnectionStateChange := OnConnectionStateChange;
-  OnErrorMessage := OnErrorMessage;
-  OnReceiveMessage := OnReceiveMessage;
-  Result.SleepCount := FSleepCount;
-  Result.GridConnect := FGridConnect;
-  Result.UseSynchronize := Owner.UseSynchronize;
   Result.Start;
 end;
 
@@ -194,37 +152,6 @@ end;
 
 {$ENDIF}
 
-destructor TLccEthernetListener.Destroy;
-begin
-  FreeAndNil(FConnectionInfo);
-  inherited Destroy;
-end;
-
-procedure TLccEthernetListener.DoConnectionState;
-begin
-  if Assigned(OnConnectionStateChange) then
-    OnConnectionStateChange(Self, ConnectionInfo)
-end;
-
-procedure TLccEthernetListener.DoErrorMessage;
-begin
-  if not IsTerminated then
-  begin
-    if Assigned(OnErrorMessage) then
-      OnErrorMessage(Self, ConnectionInfo)
-  end;
-end;
-
-procedure TLccEthernetListener.DoReceiveMessage;
-begin
-  if not IsTerminated then
-  begin
-    // Called in the content of the main thread through Syncronize
-    // Send all raw GridConnect Messages to the event
-    if Assigned(OnReceiveMessage) then
-      OnReceiveMessage(Self, ConnectionInfo);
-  end
-end;
 
 {$IFDEF ULTIBO}
 procedure TLccEthernetListener.Execute;
@@ -234,19 +161,20 @@ end;
 {$ELSE}
 procedure TLccEthernetListener.Execute;
 
-  procedure SendConnectionNotification(NewConnectionState: TConnectionState);
+
+  procedure SendConnectionNotification(NewConnectionState: TLccConnectionState);
   begin
     ConnectionInfo.ConnectionState := NewConnectionState;
-    Synchronize({$IFDEF FPC}@{$ENDIF}DoConnectionState);
+    Synchronize({$IFDEF FPC}@{$ENDIF}ConnectionStateChange);
   end;
 
   procedure HandleErrorAndDisconnect;
   begin
-    Owner.EthernetThreads.Remove(Self);
+    Owner.ConnectionThreads.Remove(Self);
     ConnectionInfo.ErrorCode := Socket.LastError;
     ConnectionInfo.MessageStr := Socket.LastErrorDesc;
-    Synchronize({$IFDEF FPC}@{$ENDIF}DoErrorMessage);
-    SendConnectionNotification(ccsListenerDisconnected);
+    Synchronize({$IFDEF FPC}@{$ENDIF}ErrorMessage);
+    SendConnectionNotification(lcsDisconnected);
     Terminate
   end;
 
@@ -258,20 +186,20 @@ begin
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-  Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
+  Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
   Socket.SetTimeout(0);
-  SendConnectionNotification(ccsListenerConnecting);
+  SendConnectionNotification(lcsConnecting);
 
-  if ConnectionInfo.AutoResolveIP then
+  if (ConnectionInfo as TLccEthernetConnectionInfo).AutoResolveIP then
   begin
     {$IFDEF LCC_WINDOWS}
-    ConnectionInfo.ListenerIP := ResolveWindowsIp(Socket);
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP := ResolveWindowsIp(Socket);
     {$ELSE}
-    ConnectionInfo.ListenerIP := ResolveUnixIp;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP := ResolveUnixIp;
     {$ENDIF}
   end;
 
-  Socket.Bind(String( ConnectionInfo.ListenerIP), String( IntToStr(ConnectionInfo.ListenerPort)));
+  Socket.Bind(String( (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP), String( IntToStr((ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort)));
   if Socket.LastError <> 0 then
   begin
     HandleErrorAndDisconnect;
@@ -291,10 +219,10 @@ begin
       FRunning := False
     end else
     begin
-      SendConnectionNotification(ccsListenerConnected);
+      SendConnectionNotification(lcsConnected);
       try
         try
-          while not Terminated and (ConnectionInfo.ConnectionState = ccsListenerConnected) do
+          while not Terminated and (ConnectionInfo.ConnectionState = lcsConnected) do
           begin
             if Socket.CanRead(1000) then
             begin
@@ -304,25 +232,36 @@ begin
                 begin
                   NewLink := CreateServerThread(Socket.Accept);
                   if Assigned(NewLink) then
-                    Owner.EthernetThreads.Add(NewLink);
+                    Owner.ConnectionThreads.Add(NewLink);
                 end else
                   Terminate;
               end
             end
           end;
         finally
-          SendConnectionNotification(ccsListenerDisconnecting);
+          SendConnectionNotification(lcsDisconnecting);
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;
         end;
       finally
-        SendConnectionNotification(ccsListenerDisconnected);
+        SendConnectionNotification(lcsDisconnected);
         FRunning := False;
       end;
     end;
   end;
 end;
+
+procedure TLccEthernetListener.SendMessage(AMessage: TLccMessage);
+begin
+  // must override abstract methods
+end;
+
+procedure TLccEthernetListener.ReceiveMessage;
+begin
+  // must override abstract methods
+end;
+
 {$ENDIF}
 
 function TLccEthernetListener.GetIsTerminated: Boolean;
@@ -332,8 +271,7 @@ end;
 
 { TLccEthernetServer }
 
-procedure TLccEthernetServer.CloseConnection(
-  EthernetThread: TLccConnectionThread);
+procedure TLccEthernetServer.CloseConnection(EthernetThread: TLccConnectionThread);
 var
   TimeCount: Integer;
 begin
@@ -374,18 +312,6 @@ begin
   end;
 end;
 
-procedure TLccEthernetServer.UpdateListenerThreadProperites( AListenerThread: TLccEthernetListener);
-begin
-  if Assigned(AListenerThread) then
-  begin
-    AListenerThread.OnConnectionStateChange := OnConnectionStateChange;
-    AListenerThread.OnErrorMessage := OnErrorMessage;
-    AListenerThread.OnReceiveMessage := OnReceiveMessage;
-    AListenerThread.OnSendMessage := OnSendMessage;
-    AListenerThread.GridConnect := GridConnect;
-  end;
-end;
-
 function TLccEthernetServer.IsLccLink: Boolean;
 begin
   Result := True;
@@ -394,12 +320,6 @@ end;
 function TLccEthernetServer.GetConnected: Boolean;
 begin
   Result := Assigned(ListenerThread)
-end;
-
-procedure TLccEthernetServer.UpdateAllThreadProperites;
-begin
-  inherited UpdateAllThreadProperites;
-  UpdateListenerThreadProperites(ListenerThread);
 end;
 
 constructor TLccEthernetServer.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
@@ -413,12 +333,10 @@ begin
   inherited Destroy;
 end;
 
-function TLccEthernetServer.OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TThread;
+function TLccEthernetServer.OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := inherited OpenConnection(AConnectionInfo);
   Result := CreateListenerObject(AConnectionInfo as TLccEthernetConnectionInfo);
-  (Result as TLccEthernetListener).Owner := Self;
-  UpdateListenerThreadProperites((Result as TLccEthernetListener));
   (Result as TLccEthernetListener).Suspended := False;
   ListenerThread := (Result as TLccEthernetListener);
 end;
@@ -443,11 +361,12 @@ var
 begin
   FRunning := True;
 
-  HandleSendConnectionNotification(ccsListenerClientConnecting);
+  HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
-  Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
+  if ConnectionInfo.GridConnect then
+    Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
   Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
   Socket.SetTimeout(0);
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
@@ -475,15 +394,15 @@ begin
       FRunning := False
     end else
     begin
-      HandleSendConnectionNotification(ccsListenerClientConnected);
+      HandleSendConnectionNotification(lcsConnected);
       try
         try
           LocalSleepCount := 0;
-          while not IsTerminated and (ConnectionInfo.ConnectionState = ccsListenerClientConnected) do
+          while not IsTerminated and (ConnectionInfo.ConnectionState = lcsConnected) do
           begin  // Handle the Socket using GridConnect
-            if Gridconnect then
+            if ConnectionInfo.Gridconnect then
             begin
-              if LocalSleepCount >= SleepCount then
+              if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
                 TryTransmitGridConnect(True);
                 LocalSleepCount := 0;
@@ -493,7 +412,7 @@ begin
               TryReceiveGridConnect(GridConnectHelper, True);
             end else
             begin    // Handle the Socket with LCC TCP Protocol
-              if LocalSleepCount >= SleepCount then
+              if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
                 TryTransmitTCPProtocol(True);
                 LocalSleepCount := 0;
@@ -504,8 +423,8 @@ begin
             end;
           end;
         finally
-          HandleSendConnectionNotification(ccsListenerClientDisconnecting);
-          if Gridconnect then
+          HandleSendConnectionNotification(lcsDisconnecting);
+          if ConnectionInfo.Gridconnect then
             TryTransmitGridConnect(False) // Flush it
           else
             TryTransmitTCPProtocol(False);
@@ -515,8 +434,8 @@ begin
           GridConnectHelper.Free;
         end;
       finally
-        HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
+        HandleSendConnectionNotification(lcsDisconnected);
+        Owner.ConnectionThreads.Remove(Self);
         FRunning := False;
       end;
     end;
@@ -543,7 +462,7 @@ begin
   // assuming we are a Hub.
   if (Owner as TLccEthernetServer).Hub then
   begin
-    L := (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.LockList;
+    L := Owner.ConnectionThreads.LockList;
     try
       for i := 0 to L.Count - 1 do
       begin
@@ -551,7 +470,7 @@ begin
           TLccEthernetServerThread(L[i]).SendMessage(ConnectionInfo.LccMessage);
       end;
     finally
-      (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.UnlockList;
+      Owner.ConnectionThreads.UnlockList;
     end
   end;
 end;

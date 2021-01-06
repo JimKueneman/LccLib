@@ -1,7 +1,7 @@
 object FormTrainCommander: TFormTrainCommander
   Left = 225
   Height = 565
-  Top = 134
+  Top = 133
   Width = 965
   Align = alBottom
   Caption = 'Train Commander'

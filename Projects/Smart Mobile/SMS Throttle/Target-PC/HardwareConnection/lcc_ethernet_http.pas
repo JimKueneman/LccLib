@@ -109,7 +109,7 @@ var
 begin
   FRunning := True;
 
-  HandleSendConnectionNotification(ccsListenerClientConnecting);
+  HandleSendConnectionNotification(lcsConnecting);
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
@@ -138,12 +138,12 @@ begin
       FRunning := False
     end else
     begin
-      HandleSendConnectionNotification(ccsListenerClientConnected);
+      HandleSendConnectionNotification(lcsConnected);
       try
         InHeader := TStringList.Create;
         OutHeader := TStringList.Create;
         try
-          while not IsTerminated and (ConnectionInfo.ConnectionState = ccsListenerClientConnected) do
+          while not IsTerminated and (ConnectionInfo.ConnectionState = lcsConnected) do
           begin
             RxStr := Socket.RecvString(1000);
 
@@ -237,14 +237,14 @@ begin
         finally
           FreeAndNil(InHeader);
           FreeAndNil(OutHeader);
-          HandleSendConnectionNotification(ccsListenerClientDisconnecting);
+          HandleSendConnectionNotification(lcsDisconnecting);
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;
         end;
       finally
-        HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
+        HandleSendConnectionNotification(lcsDisconnected);
+        Owner.ConnectionThreads.Remove(Self);
         FRunning := False;
       end;
     end;

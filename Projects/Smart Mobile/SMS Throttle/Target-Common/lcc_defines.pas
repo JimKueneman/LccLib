@@ -123,9 +123,7 @@ type
   TIsNodeTestType = (ntt_Dest, ntt_Source);
   TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
 
-  TConnectionState = (ccsClientConnecting, ccsClientConnected, ccsClientDisconnecting, ccsClientDisconnected,      // TEthernetClient States
-                  ccsListenerConnecting, ccsListenerConnected, ccsListenerDisconnecting, ccsListenerDisconnected,  // TEthernetSever States
-                  ccsListenerClientConnecting, ccsListenerClientConnected, ccsListenerClientDisconnecting, ccsListenerClientDisconnected);
+  TLccConnectionState = (lcsConnecting, lcsConnected, lcsDisconnecting, lcsDisconnected);
 
 {$IFNDEF DWSCRIPT}
 // Solves circular reference as the parser need to know about lcc_nodemanager and vice versa

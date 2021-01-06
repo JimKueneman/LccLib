@@ -42,7 +42,6 @@ uses
   {$ENDIF}
   lcc_threaded_stringlist,
   lcc_gridconnect,
-  lcc_utilities,
   lcc_defines,
   lcc_node_manager,
   lcc_node_messages,
@@ -166,7 +165,7 @@ var
 begin
   FRunning := True;
 
-  HandleSendConnectionNotification(ccsListenerClientConnecting);
+  HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
@@ -198,11 +197,11 @@ begin
       FRunning := False
     end else
     begin
-      HandleSendConnectionNotification(ccsListenerClientConnected);
+      HandleSendConnectionNotification(lcsConnected);
       try
         try
           LocalSleepCount := 0;
-          while not IsTerminated and (ConnectionInfo.ConnectionState = ccsListenerClientConnected) do
+          while not IsTerminated and (ConnectionInfo.ConnectionState = lcsConnected) do
           begin
 
             if not WebSocketInitialized then
@@ -227,9 +226,9 @@ begin
             if not Terminated then
             begin
               // Handle the Socket using GridConnect
-              if Gridconnect then
+              if ConnectionInfo.Gridconnect then
               begin
-                if LocalSleepCount >= SleepCount then
+                if LocalSleepCount >= ConnectionInfo.SleepCount then
                 begin
                   TxStr := '';
                   TxList := OutgoingGridConnect.LockList;
@@ -265,7 +264,7 @@ begin
                         case GridConnectMessageAssembler.IncomingMessageGridConnect(ConnectionInfo.LccMessage) of
                             imgcr_True :
                               begin
-                                if UseSynchronize then
+                                if ConnectionInfo.UseSyncronize  then
                                   Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
                                 else begin
                                   RxList := Owner.IncomingGridConnect.LockList;
@@ -332,15 +331,15 @@ begin
             end;
           end;
         finally
-          HandleSendConnectionNotification(ccsListenerClientDisconnecting);
+          HandleSendConnectionNotification(lcsDisconnecting);
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;
           GridConnectHelper.Free;
         end;
       finally
-        HandleSendConnectionNotification(ccsListenerClientDisconnected);
-        (Owner as TLccEthernetHardwareConnectionManager).EthernetThreads.Remove(Self);
+        HandleSendConnectionNotification(lcsDisconnected);
+        (Owner as TLccEthernetHardwareConnectionManager).ConnectionThreads.Remove(Self);
         FRunning := False;
       end;
     end;
