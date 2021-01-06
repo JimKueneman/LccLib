@@ -293,7 +293,7 @@ begin
   Socket.Family := SF_IP4;                  // IP4
   if ConnectionInfo.GridConnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-  Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
+  Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
   Socket.SetTimeout(0);
   if Socket.LastError <> 0 then
   begin
@@ -307,16 +307,16 @@ begin
   begin
     RetryCount := 0;
 
-    if ConnectionInfo.AutoResolveIP then
+    if (ConnectionInfo as TLccEthernetConnectionInfo).AutoResolveIP then
     begin
       {$IFDEF LCC_WINDOWS}
-      ConnectionInfo.ClientIP := ResolveWindowsIp(Socket);
+      (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := ResolveWindowsIp(Socket);
       {$ELSE}
-      ConnectionInfo.ClientIP := ResolveUnixIp;
+      (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := ResolveUnixIp;
       {$ENDIF}
     end;
 
-    Socket.Connect(String( ConnectionInfo.ListenerIP), String( IntToStr(ConnectionInfo.ListenerPort)));
+    Socket.Connect(String( (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP), String( IntToStr((ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort)));
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin
       Socket.ResetLastError;

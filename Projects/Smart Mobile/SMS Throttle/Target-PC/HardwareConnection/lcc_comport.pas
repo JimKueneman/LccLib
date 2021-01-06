@@ -75,6 +75,7 @@ type
     protected
       procedure Execute; override;
       procedure SendMessage(AMessage: TLccMessage); override;
+      procedure ReceiveMessage; override;
 
       property Serial: TBlockSerial read FSerial write FSerial;
     public
@@ -123,7 +124,7 @@ type
 
     function FormatComPortString(ComPort: string): string;
     function OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread; override;
-    function OpenConnectionWithLccSettings: TLccConnectionThread;
+    function OpenConnectionWithLccSettings: TLccConnectionThread; override;
   published
     { Published declarations }
     property Hub: Boolean read FHub write FHub;
@@ -467,6 +468,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TLccComPortThread.ReceiveMessage;
+begin
+  Owner.ReceiveMessage(Self, ConnectionInfo);
 end;
 
 procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);

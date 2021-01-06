@@ -248,19 +248,18 @@ end;
 procedure TLccConnectionThreadList.CloseConnections;
 var
   L: TList;
-  Thread: TLccConnectionThread;
+  ConnectionThread: TLccConnectionThread;
 begin
   while Count > 0 do
   begin
     L := LockList;
     try
-      Thread := TLccConnectionThread( L[0]);
+      ConnectionThread := TLccConnectionThread( L[0]);
       L.Delete(0);
     finally
       UnlockList;
     end;
-    CloseConnection(Thread);
-    FreeAndNil( Thread);
+    CloseConnection(ConnectionThread);
   end;
 end;
 
@@ -545,6 +544,9 @@ begin
   FOwner := AnOwner;
   FConnectionInfo := AConnectionInfo.Clone;
   FConnectionInfo.Thread := Self;
+  FConnectionInfo.ConnectionState := lcsDisconnected;
+  FConnectionInfo.ErrorCode := 0;
+  FConnectionInfo.FMessageStr := '';
   FWorkerMessage := TLccMessage.Create;
   FMsgStringList := TStringList.Create;
   FOutgoingCircularArray := TThreadedCirularArray.Create;
@@ -570,6 +572,7 @@ end;
 
 procedure TLccConnectionThread.HandleErrorAndDisconnect;
 begin
+  Owner.ConnectionThreads.Remove(Self);
   if (ConnectionInfo.ErrorCode <> 0) then
     Synchronize({$IFDEF FPC}@{$ENDIF}ErrorMessage);
   HandleSendConnectionNotification(lcsDisconnected);

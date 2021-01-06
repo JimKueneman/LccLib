@@ -147,7 +147,7 @@ end;
 
 function TLccEthernetListener.CreateThreadObject: TLccEthernetServerThread;
 begin
-   Result := TLccEthernetServerThread.Create(True, Owner, ConnectionInfo);
+  Result := TLccEthernetServerThread.Create(True, Owner, ConnectionInfo);
 end;
 
 {$ENDIF}
@@ -277,7 +277,6 @@ var
 begin
   inherited CloseConnection(EthernetThread);
 
-
   if Assigned(ListenerThread) then
   begin
     TimeCount := 0;
@@ -336,7 +335,7 @@ end;
 function TLccEthernetServer.OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := inherited OpenConnection(AConnectionInfo);
-  Result := CreateListenerObject(AConnectionInfo as TLccEthernetConnectionInfo);
+  Result := CreateListenerObject(AConnectionInfo.Clone as TLccEthernetConnectionInfo);
   (Result as TLccEthernetListener).Suspended := False;
   ListenerThread := (Result as TLccEthernetListener);
 end;
@@ -367,7 +366,7 @@ begin
   Socket.Family := SF_IP4;                  // IP4
   if ConnectionInfo.GridConnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-  Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
+  Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
   Socket.SetTimeout(0);
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
   if Socket.LastError <> 0 then
@@ -380,10 +379,10 @@ begin
     FRunning := False
   end else
   begin
-    ConnectionInfo.ClientIP := Socket.GetRemoteSinIP;
-    ConnectionInfo.ClientPort := Socket.GetRemoteSinPort;
-    ConnectionInfo.ListenerIP := Socket.GetLocalSinIP;
-    ConnectionInfo.ListenerPort := Socket.GetLocalSinPort;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := Socket.GetRemoteSinIP;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientPort := Socket.GetRemoteSinPort;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP := Socket.GetLocalSinIP;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
       HandleErrorAndDisconnect;

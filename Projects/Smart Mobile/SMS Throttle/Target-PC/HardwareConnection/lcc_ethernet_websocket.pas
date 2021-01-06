@@ -170,7 +170,7 @@ begin
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
-  Socket.HeartbeatRate := ConnectionInfo.HeartbeatRate;
+  Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
   Socket.SetTimeout(0);
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
   if Socket.LastError <> 0 then
@@ -183,10 +183,10 @@ begin
     FRunning := False
   end else
   begin
-    ConnectionInfo.ClientIP := Socket.GetRemoteSinIP;
-    ConnectionInfo.ClientPort := Socket.GetRemoteSinPort;
-    ConnectionInfo.ListenerIP := Socket.GetLocalSinIP;
-    ConnectionInfo.ListenerPort := Socket.GetLocalSinPort;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := Socket.GetRemoteSinIP;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientPort := Socket.GetRemoteSinPort;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerIP := Socket.GetLocalSinIP;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
       HandleErrorAndDisconnect;

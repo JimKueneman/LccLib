@@ -82,14 +82,12 @@ type
     FSocket: TTCPBlockSocket;
     {$ENDIF}
   protected
-    FConnectionInfo: TLccEthernetConnectionInfo;
     {$IFDEF ULTIBO}
     property StringList: TThreadStringList read FStringList write FStringList;
     property TcpClient: TWinsock2TCPClient read FTcpClient write FTcpClient;
     {$ELSE}
     property Socket: TTCPBlockSocket read FSocket write FSocket;
     {$ENDIF}
-    property ConnectionInfo: TLccEthernetConnectionInfo read FConnectionInfo write FConnectionInfo;
     property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
 
     procedure HandleErrorAndDisconnect; override;
@@ -196,24 +194,21 @@ end;
 
 procedure TLccBaseEthernetThread.HandleErrorAndDisconnect;
 begin
-  inherited HandleErrorAndDisconnect;
-  (Owner as TLccEthernetHardwareConnectionManager).ConnectionThreads.Remove(Self);
   ConnectionInfo.ErrorCode := Socket.LastError;
   ConnectionInfo.MessageStr := Socket.LastErrorDesc;
+  inherited HandleErrorAndDisconnect;
 end;
 
-procedure TLccBaseEthernetThread.HandleSendConnectionNotification(
-  NewConnectionState: TLccConnectionState);
+procedure TLccBaseEthernetThread.HandleSendConnectionNotification(NewConnectionState: TLccConnectionState);
 begin
-  inherited HandleSendConnectionNotification(NewConnectionState);
-
   // Taken from the ethernet_client file... not sure if it is useful....
   if Assigned(Socket) then
   begin
     Socket.GetSinLocal;
-    ConnectionInfo.ClientIP := Socket.GetLocalSinIP;
-    ConnectionInfo.ClientPort := Socket.GetLocalSinPort;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := Socket.GetLocalSinIP;
+    (ConnectionInfo as TLccEthernetConnectionInfo).ClientPort := Socket.GetLocalSinPort;
   end;
+  inherited HandleSendConnectionNotification(NewConnectionState);
 end;
 
 procedure TLccBaseEthernetThread.ReceiveMessage;
@@ -311,6 +306,7 @@ var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   RxList: TStringList;
+  i: Integer;
 begin
   RcvByte := Socket.RecvByte(1);
   case Socket.LastError of
@@ -416,7 +412,6 @@ begin
   FreeAndNil(FStringList);
   FreeAndNil(FTcpClient);
   {$ENDIF}
-  FreeAndNil(FConnectionInfo);
   FreeAndNil(FGridConnectMessageAssembler);
   inherited Destroy;
 end;

@@ -414,7 +414,7 @@ end;
 
 procedure TFormTrainCommander.OnCommandStationServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
- // ShowMessage('TCP Server: ' + EthernetRec.MessageStr);
+  ShowMessage('TCP Server: ' + Info.MessageStr);
 
 end;
 
@@ -543,7 +543,7 @@ end;
 
 procedure TFormTrainCommander.OnCommandStationHTTPErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  Info := Info; // Keep Hints quiet
+  ShowMessage('HTTP Server: ' + Info.MessageStr);
 end;
 
 procedure TFormTrainCommander.OnNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
