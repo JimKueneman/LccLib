@@ -107,8 +107,8 @@ type
     procedure HandleErrorAndDisconnect(SuppressMessage: Boolean); virtual;
     procedure HandleSendConnectionNotification(NewConnectionState: TLccConnectionState); virtual;
 
-    procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
-    procedure ReceiveMessage; virtual; abstract;
+    procedure SendMessage(AMessage: TLccMessage); virtual;
+    procedure ReceiveMessage; virtual;
     procedure ErrorMessage; virtual;
     procedure ConnectionStateChange; virtual;
     procedure ForceTerminate; virtual;  // Override to implement something to force a thread loop to terminate if it is in an infinate wait state or something
@@ -297,6 +297,7 @@ end;
 
 constructor TLccHardwareConnectionInfo.Create;
 begin
+  inherited;
   FLccMessage := TLccMessage.Create;
   FConnectionState := lcsDisconnected;
   FUseSyncronize := True;
@@ -605,6 +606,29 @@ procedure TLccConnectionThread.HandleSendConnectionNotification(NewConnectionSta
 begin
   ConnectionInfo.ConnectionState := NewConnectionState;
   Synchronize({$IFDEF FPC}@{$ENDIF}ConnectionStateChange);
+end;
+
+procedure TLccConnectionThread.SendMessage(AMessage: TLccMessage);
+var
+  ByteArray: TLccDynamicByteArray;
+  i: Integer;
+begin
+  if ConnectionInfo.GridConnect then
+  begin
+    MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
+    for i := 0 to MsgStringList.Count - 1 do
+      OutgoingGridConnect.Add(MsgStringList[i]);
+  end else
+  begin
+    ByteArray := nil;
+    if AMessage.ConvertToLccTcp(ByteArray) then
+      OutgoingCircularArray.AddChunk(ByteArray);
+  end;
+end;
+
+procedure TLccConnectionThread.ReceiveMessage;
+begin
+  Owner.ReceiveMessage(Self, ConnectionInfo);
 end;
 
 procedure TLccConnectionThread.ErrorMessage;

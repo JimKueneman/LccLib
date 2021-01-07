@@ -99,8 +99,6 @@ type
     procedure HandleSendConnectionNotification(NewConnectionState: TLccConnectionState); override;
     procedure OnConnectionStateChange; virtual;
     procedure OnErrorMessageReceive; virtual;
-    procedure ReceiveMessage; override;
-    procedure SendMessage(AMessage: TLccMessage); override;
     procedure ForceTerminate; override;
 
     procedure TryTransmitGridConnect;
@@ -225,12 +223,6 @@ begin
   inherited HandleSendConnectionNotification(NewConnectionState);
 end;
 
-procedure TLccBaseEthernetThread.ReceiveMessage;
-begin
-  // Called in context of main thread through Syncronize
-  Owner.ReceiveMessage(Self, ConnectionInfo);
-end;
-
 procedure TLccBaseEthernetThread.OnConnectionStateChange;
 begin
   inherited;
@@ -241,24 +233,6 @@ procedure TLccBaseEthernetThread.OnErrorMessageReceive;
 begin
   inherited;
   (Owner as TLccEthernetHardwareConnectionManager).DoErrorMessage(Self, ConnectionInfo);
-end;
-
-procedure TLccBaseEthernetThread.SendMessage(AMessage: TLccMessage);
-var
-  ByteArray: TLccDynamicByteArray;
-  i: Integer;
-begin
-  if ConnectionInfo.GridConnect then
-  begin
-    MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
-    for i := 0 to MsgStringList.Count - 1 do
-      OutgoingGridConnect.Add(MsgStringList[i]);
-  end else
-  begin
-    ByteArray := nil;
-    if AMessage.ConvertToLccTcp(ByteArray) then
-      OutgoingCircularArray.AddChunk(ByteArray);
-  end;
 end;
 
 procedure TLccBaseEthernetThread.ForceTerminate;

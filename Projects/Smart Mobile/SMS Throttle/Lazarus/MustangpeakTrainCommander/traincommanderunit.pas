@@ -279,6 +279,7 @@ begin
     LocalInfo.Baud := 9600;
     LocalInfo.StopBits := 8;
     LocalInfo.Parity := 'N';
+    LocalInfo.GridConnect := True;
     Result := Assigned(ComPort.OpenConnection(LocalInfo))
   finally
     LocalInfo.Free;
@@ -594,17 +595,17 @@ begin
   if Sender is TLccConnectionThread then
   begin
     case (Info as TLccComPortConnectionInfo).ConnectionState of
-      lcsConnecting :    StatusBarMain.Panels[2].Text := 'ComPort Connecting';
+      lcsConnecting :    StatusBarMain.Panels[3].Text := 'ComPort Connecting';
       lcsConnected :
         begin
-          StatusBarMain.Panels[2].Text := 'ComPort: ' + (Info as TLccComPortConnectionInfo).ComPort;
+          StatusBarMain.Panels[3].Text := 'ComPort: ' + (Info as TLccComPortConnectionInfo).ComPort;
           ButtonManualConnectComPort.Caption := 'Close ComPort';
         end;
-      lcsDisConnecting : StatusBarMain.Panels[2].Text := 'ComPort Disconnectiong';
+      lcsDisConnecting : StatusBarMain.Panels[3].Text := 'ComPort Disconnectiong';
       lcsDisconnected :
         begin
           ButtonManualConnectComPort.Caption := 'Open ComPort';
-          StatusBarMain.Panels[2].Text := 'ComPort Disconnected';
+          StatusBarMain.Panels[3].Text := 'ComPort Disconnected';
         end;
     end;
   end;

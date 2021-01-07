@@ -74,28 +74,10 @@ type
       FSerial: TBlockSerial;                                                      // Serial object
     protected
       procedure Execute; override;
-      procedure SendMessage(AMessage: TLccMessage); override;
-      procedure ReceiveMessage; override;
 
       property Serial: TBlockSerial read FSerial write FSerial;
     public
       property RawData: Boolean read FRawData write FRawData;
-
-      constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager; AConnectionInfo: TLccHardwareConnectionInfo); override;
-      destructor Destroy; override;
-  end;
-
-  { TLccComPortThreadList }
-
-  TLccComPortThreadList = class(TThreadList)      // Contains TClientSocketThread objects
-  private
-    function GetCount: Integer;
-  public
-    destructor Destroy; override;
-    procedure CloseComPorts;
-    procedure CloseComPort(ComPortThread: TLccComPortThread);
-
-    property Count: Integer read GetCount;
   end;
 
   { TLccComPort }
@@ -146,62 +128,6 @@ begin
   (Result as TLccComPortConnectionInfo).SoftwareHandshake := SoftwareHandshake;
   (Result as TLccComPortConnectionInfo).HardwareHandShake := HardwareHandShake;
   (Result as TLccComPortConnectionInfo).ConnectionState := ConnectionState;
-end;
-
-{ TLccComPortThreadList }
-
-function TLccComPortThreadList.GetCount: Integer;
-var
-  L: TList;
-begin
-  L := LockList;
-  try
-    Result := L.Count
-  finally
-    UnlockList;
-  end;
-end;
-
-destructor TLccComPortThreadList.Destroy;
-begin
-  CloseComPorts;
-  inherited Destroy;
-end;
-
-procedure TLccComPortThreadList.CloseComPorts;
-var
-  L: TList;
-  Thread: TLccComPortThread;
-begin
-  while Count > 0 do
-  begin
-    L := LockList;
-    try
-      Thread := TLccComPortThread( L[0]);
-      L.Delete(0);
-    finally
-      UnlockList;
-    end;
-    CloseComPort(Thread);
-  end;
-end;
-
-procedure TLccComPortThreadList.CloseComPort( ComPortThread: TLccComPortThread);
-//var
-//  TimeCount: Cardinal;
-begin
-  ComPortThread.Terminate;
-//  TimeCount := GetTickCount;            DON"T LINK OCLB_UTILITES, it causes issues with linking to different packages
-  while (ComPortThread.Running) do
-  begin
- //   if (GetTickCount - TimeCount < 5000) then
-      Application.ProcessMessages
- //   else begin
-  //    KillThread(ComPortThread.Handle);
-  //    ComPortThread.Running := False;
-  //  end;
-  end;
-  FreeAndNil( ComPortThread);
 end;
 
 { TLccComPort }
@@ -462,44 +388,6 @@ begin
   end;
 end;
 
-procedure TLccComPortThread.ReceiveMessage;
-begin
-  Owner.ReceiveMessage(Self, ConnectionInfo);
-end;
-
-procedure TLccComPortThread.SendMessage(AMessage: TLccMessage);
-var
-  ByteArray: TLccDynamicByteArray;
-  i: Integer;
-begin
-  if not IsTerminated then
-  begin
-    if ConnectionInfo.Gridconnect then
-    begin
-      MsgStringList.Text := AMessage.ConvertToGridConnectStr(#10, False);
-      for i := 0 to MsgStringList.Count - 1 do
-        OutgoingGridConnect.Add(MsgStringList[i]);
-    end else
-    begin
-      ByteArray := nil;
-      if AMessage.ConvertToLccTcp(ByteArray) then
-        OutgoingCircularArray.AddChunk(ByteArray);
-    end;
-  end;
-end;
-
-
-constructor TLccComPortThread.Create(CreateSuspended: Boolean;
-  AnOwner: TLccHardwareConnectionManager;
-  AConnectionInfo: TLccHardwareConnectionInfo);
-begin
-  inherited Create(CreateSuspended, AnOwner, AConnectionInfo);
-end;
-
-destructor TLccComPortThread.Destroy;
-begin
-  inherited Destroy;
-end;
 
 initialization
   RegisterClass(TLccComPort);

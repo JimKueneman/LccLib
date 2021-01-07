@@ -2,11 +2,11 @@ object FormTrainCommander: TFormTrainCommander
   Left = 225
   Height = 565
   Top = 133
-  Width = 965
+  Width = 1181
   Align = alBottom
   Caption = 'Train Commander'
   ClientHeight = 565
-  ClientWidth = 965
+  ClientWidth = 1181
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -16,10 +16,10 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 120
     Top = 0
-    Width = 965
+    Width = 1181
     Align = alTop
     ClientHeight = 120
-    ClientWidth = 965
+    ClientWidth = 1181
     TabOrder = 0
     object CheckBoxAutoConnect: TCheckBox
       Left = 192
@@ -186,16 +186,16 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 102
     Top = 445
-    Width = 965
+    Width = 1181
     Align = alBottom
     ClientHeight = 102
-    ClientWidth = 965
+    ClientWidth = 1181
     TabOrder = 1
     object ListviewConnections: TListView
       Left = 1
       Height = 100
       Top = 1
-      Width = 963
+      Width = 1179
       Align = alClient
       Columns = <      
         item
@@ -214,7 +214,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 9
     Top = 337
-    Width = 965
+    Width = 1181
     Align = alBottom
     ResizeAnchor = akBottom
   end
@@ -228,7 +228,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 18
     Top = 547
-    Width = 965
+    Width = 1181
     Panels = <    
       item
         Width = 350
@@ -237,7 +237,10 @@ object FormTrainCommander: TFormTrainCommander
         Width = 350
       end    
       item
-        Width = 400
+        Width = 350
+      end    
+      item
+        Width = 350
       end>
     SimplePanel = False
   end
@@ -290,7 +293,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 216
     Height = 217
     Top = 120
-    Width = 749
+    Width = 965
     Align = alClient
     Lines.Strings = (    )
     ScrollBars = ssVertical
@@ -300,7 +303,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 90
     Top = 346
-    Width = 965
+    Width = 1181
     Align = alBottom
     Lines.Strings = (
       'MemoComPort'
@@ -313,7 +316,7 @@ object FormTrainCommander: TFormTrainCommander
     Left = 0
     Height = 9
     Top = 436
-    Width = 965
+    Width = 1181
     Align = alBottom
     ResizeAnchor = akBottom
   end
