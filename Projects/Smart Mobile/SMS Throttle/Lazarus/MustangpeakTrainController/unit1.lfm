@@ -9,11 +9,11 @@ object FormTrainController: TFormTrainController
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  LCLVersion = '2.0.11.0'
+  LCLVersion = '2.0.10.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 18
-    Top = 694
+    Height = 23
+    Top = 689
     Width = 435
     Panels = <    
       item
@@ -26,11 +26,11 @@ object FormTrainController: TFormTrainController
   end
   object PanelThrottleNode: TPanel
     Left = 10
-    Height = 694
+    Height = 689
     Top = 0
     Width = 425
     Align = alClient
-    ClientHeight = 694
+    ClientHeight = 689
     ClientWidth = 425
     TabOrder = 1
     object PanelThrottleHeader: TPanel
@@ -53,41 +53,41 @@ object FormTrainController: TFormTrainController
       end
       object CheckBoxThrottleLocalIP: TCheckBox
         Left = 176
-        Height = 18
+        Height = 19
         Top = 12
-        Width = 67
+        Width = 61
         Caption = 'Local IP'
         TabOrder = 1
       end
       object LabelThrottleNodeID: TLabel
         Left = 16
-        Height = 16
+        Height = 15
         Top = 56
-        Width = 85
+        Width = 75
         Caption = 'NodeID: None'
         ParentColor = False
       end
       object LabelThrottleAliasID: TLabel
         Left = 16
-        Height = 16
+        Height = 15
         Top = 72
-        Width = 81
+        Width = 71
         Caption = 'AliasID: None'
         ParentColor = False
       end
       object LabelThrottleIPAddress: TLabel
         Left = 17
-        Height = 16
+        Height = 15
         Top = 40
-        Width = 156
+        Width = 133
         Caption = 'IP Address: Disconnected'
         ParentColor = False
       end
       object Label1: TLabel
         Left = 272
-        Height = 16
+        Height = 15
         Top = 9
-        Width = 87
+        Width = 75
         Caption = 'My IP Address'
         ParentColor = False
       end
@@ -101,17 +101,17 @@ object FormTrainController: TFormTrainController
       end
       object Edit1: TEdit
         Left = 264
-        Height = 22
+        Height = 23
         Top = 64
         Width = 110
         TabOrder = 2
-        Text = '10.0.3.141'
+        Text = '10.0.3.151'
       end
       object Label2: TLabel
         Left = 232
-        Height = 16
+        Height = 15
         Top = 48
-        Width = 177
+        Width = 155
         Caption = 'Command Station IP Address'
         ParentColor = False
       end
@@ -132,20 +132,20 @@ object FormTrainController: TFormTrainController
     end
     object PanelThrottleBackground: TPanel
       Left = 1
-      Height = 566
+      Height = 561
       Top = 127
       Width = 423
       Align = alClient
-      ClientHeight = 566
+      ClientHeight = 561
       ClientWidth = 423
       TabOrder = 2
       object EditThrottleAddress: TLabeledEdit
         Left = 7
-        Height = 22
+        Height = 23
         Top = 24
         Width = 408
         Anchors = [akTop, akLeft, akRight]
-        EditLabel.Height = 16
+        EditLabel.Height = 15
         EditLabel.Width = 408
         EditLabel.Caption = 'Search String (6 bytes, "0..9" with "F" separator/padding)'
         EditLabel.ParentColor = False
@@ -163,7 +163,7 @@ object FormTrainController: TFormTrainController
       object PanelThrottleControls: TPanel
         Left = 1
         Height = 192
-        Top = 373
+        Top = 368
         Width = 421
         Align = alBottom
         Anchors = [akRight, akBottom]
@@ -310,8 +310,8 @@ object FormTrainController: TFormTrainController
         TabOrder = 3
         object PageControlThrottleTechnology: TPageControl
           Left = 1
-          Height = 160
-          Top = 17
+          Height = 161
+          Top = 16
           Width = 408
           ActivePage = TabSheetThrottleTechnologyDCC
           Align = alClient
@@ -320,13 +320,13 @@ object FormTrainController: TFormTrainController
           TabOrder = 0
           object TabSheetThrottleTechnologyDCC: TTabSheet
             Caption = 'DCC'
-            ClientHeight = 130
-            ClientWidth = 402
+            ClientHeight = 133
+            ClientWidth = 400
             object RadioGroupThrottleTechnologySpeedSteps: TRadioGroup
               Left = 0
-              Height = 36
+              Height = 39
               Top = 0
-              Width = 386
+              Width = 384
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
               AutoSize = True
@@ -338,8 +338,8 @@ object FormTrainController: TFormTrainController
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 4
-              ClientHeight = 18
-              ClientWidth = 378
+              ClientHeight = 19
+              ClientWidth = 380
               Columns = 4
               ItemIndex = 0
               Items.Strings = (
@@ -352,9 +352,9 @@ object FormTrainController: TFormTrainController
             end
             object RadioGroupThrottleTechnologyAddress: TRadioGroup
               Left = 0
-              Height = 36
+              Height = 39
               Top = 40
-              Width = 393
+              Width = 391
               Anchors = [akTop, akLeft, akRight]
               AutoFill = True
               AutoSize = True
@@ -366,8 +366,8 @@ object FormTrainController: TFormTrainController
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 2
-              ClientHeight = 18
-              ClientWidth = 385
+              ClientHeight = 19
+              ClientWidth = 387
               Columns = 2
               ItemIndex = 0
               Items.Strings = (
@@ -396,8 +396,8 @@ object FormTrainController: TFormTrainController
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 94
-              ClientWidth = 350
+              ClientHeight = 92
+              ClientWidth = 354
               ItemIndex = 0
               Items.Strings = (
                 'Any/Default Version'
@@ -426,8 +426,8 @@ object FormTrainController: TFormTrainController
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 1
-              ClientHeight = 71
-              ClientWidth = 353
+              ClientHeight = 69
+              ClientWidth = 357
               ItemIndex = 0
               Items.Strings = (
                 'Any / Default track protocol '
@@ -440,7 +440,7 @@ object FormTrainController: TFormTrainController
         end
         object LabelThrottleTechnologyTitle: TLabel
           Left = 1
-          Height = 16
+          Height = 15
           Top = 1
           Width = 408
           Align = alTop
@@ -463,8 +463,8 @@ object FormTrainController: TFormTrainController
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 20
-        ClientWidth = 401
+        ClientHeight = 18
+        ClientWidth = 405
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -488,8 +488,8 @@ object FormTrainController: TFormTrainController
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 20
-        ClientWidth = 400
+        ClientHeight = 18
+        ClientWidth = 404
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -513,8 +513,8 @@ object FormTrainController: TFormTrainController
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 20
-        ClientWidth = 403
+        ClientHeight = 18
+        ClientWidth = 407
         Columns = 2
         ItemIndex = 0
         Items.Strings = (
@@ -525,7 +525,7 @@ object FormTrainController: TFormTrainController
       end
       object EditHammerTest: TEdit
         Left = 232
-        Height = 22
+        Height = 23
         Top = 48
         Width = 80
         TabOrder = 7
@@ -552,13 +552,13 @@ object FormTrainController: TFormTrainController
   end
   object Splitter1: TSplitter
     Left = 0
-    Height = 694
+    Height = 689
     Top = 0
     Width = 5
   end
   object Splitter2: TSplitter
     Left = 5
-    Height = 694
+    Height = 689
     Top = 0
     Width = 5
   end

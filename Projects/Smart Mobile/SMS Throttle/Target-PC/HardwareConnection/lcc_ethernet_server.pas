@@ -95,7 +95,6 @@ type
 
   TLccEthernetServer = class(TLccEthernetHardwareConnectionManager)
   private
-    FHub: Boolean;
     FListenerThread: TLccEthernetListener;
     { Private declarations }
   protected
@@ -105,17 +104,11 @@ type
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
-    constructor Create(AOwner: TComponent; ANodeManager: TLccNodeManager); override;
-    destructor Destroy; override;
 
     function OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread; override;
     procedure CloseConnection(EthernetThread: TLccConnectionThread);  override;
 
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
-
-  published
-    { Published declarations }
-    property Hub: Boolean read FHub write FHub;
   end;
 
 
@@ -316,28 +309,19 @@ begin
   Result := True;
 end;
 
-function TLccEthernetServer.GetConnected: Boolean;
-begin
-  Result := Assigned(ListenerThread)
-end;
-
-constructor TLccEthernetServer.Create(AOwner: TComponent; ANodeManager: TLccNodeManager);
-begin
-  inherited;
-  FHub := False;
-end;
-
-destructor TLccEthernetServer.Destroy;
-begin
-  inherited Destroy;
-end;
-
 function TLccEthernetServer.OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := inherited OpenConnection(AConnectionInfo);
   Result := CreateListenerObject(AConnectionInfo.Clone as TLccEthernetConnectionInfo);
   (Result as TLccEthernetListener).Suspended := False;
   ListenerThread := (Result as TLccEthernetListener);
+end;
+
+function TLccEthernetServer.GetConnected: Boolean;
+begin
+  Result := False;
+  if Assigned(ListenerThread) then
+    Result := ListenerThread.ConnectionInfo.ConnectionState = lcsConnected;
 end;
 
 function TLccEthernetServer.CreateListenerObject(AConnectionInfo: TLccEthernetConnectionInfo): TLccEthernetListener;
@@ -363,6 +347,8 @@ begin
   HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+  if (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime > 0 then
+    Socket.SetLinger(True, (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime);
   Socket.Family := SF_IP4;                  // IP4
   if ConnectionInfo.GridConnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
@@ -371,7 +357,7 @@ begin
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
   if Socket.LastError <> 0 then
   begin
-    HandleErrorAndDisconnect;
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
     Socket.CloseSocket;
     Socket.Free;
     Socket := nil;
@@ -385,7 +371,7 @@ begin
     (ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
-      HandleErrorAndDisconnect;
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
       Socket.CloseSocket;
       Socket.Free;
       Socket := nil;
@@ -403,30 +389,30 @@ begin
             begin
               if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
-                TryTransmitGridConnect(True);
+                TryTransmitGridConnect;
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-              TryReceiveGridConnect(GridConnectHelper, True);
+              TryReceiveGridConnect(GridConnectHelper);
             end else
             begin    // Handle the Socket with LCC TCP Protocol
               if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
-                TryTransmitTCPProtocol(True);
+                TryTransmitTCPProtocol;
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-              TryReceiveTCPProtocol(True);
+              TryReceiveTCPProtocol;
             end;
           end;
         finally
           HandleSendConnectionNotification(lcsDisconnecting);
           if ConnectionInfo.Gridconnect then
-            TryTransmitGridConnect(False) // Flush it
+            TryTransmitGridConnect // Flush it
           else
-            TryTransmitTCPProtocol(False);
+            TryTransmitTCPProtocol;
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;
@@ -459,7 +445,7 @@ begin
 
   // Now we look upwards into any thread we have that depend on use to pass on messages
   // assuming we are a Hub.
-  if (Owner as TLccEthernetServer).Hub then
+ { if (Owner as TLccEthernetServer).Hub then
   begin
     L := Owner.ConnectionThreads.LockList;
     try
@@ -471,7 +457,7 @@ begin
     finally
       Owner.ConnectionThreads.UnlockList;
     end
-  end;
+  end;   }
 end;
 
 initialization

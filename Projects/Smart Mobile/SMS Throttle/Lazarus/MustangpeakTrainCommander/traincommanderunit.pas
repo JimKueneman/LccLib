@@ -315,12 +315,12 @@ begin
   FLccServer := TLccEthernetServer.Create(nil, NodeManager);
   LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
   LccServer.OnErrorMessage := @OnCommandStationServerErrorMessage;
-  LccServer.Hub := True;
+//  LccServer.Hub := True;
 
   FLccWebsocketServer := TLccWebsocketServer.Create(nil, NodeManager);
   LccWebsocketServer.OnConnectionStateChange := @OnCommandStationWebsocketConnectionState;
   LccWebsocketServer.OnErrorMessage := @OnCommandStationWebsocketErrorMessage;
-  LccWebsocketServer.Hub := True;
+//  LccWebsocketServer.Hub := True;
 
   FLccHTTPServer := TLccHTTPServer.Create(nil, NodeManager); // OpenLCB messages do not move on this interface
   LccHTTPServer.OnConnectionStateChange := @OnCommandStationHTTPConnectionState;
@@ -374,13 +374,14 @@ begin
         end;
       lcsDisconnecting :
         begin
+          ButtonEthernetConnect.Enabled := False;
           ButtonEthernetConnect.Caption := 'Command Station Disconnecting from Ethernet';
           if not LccWebsocketServer.Connected then
             NodeManager.Clear;
         end;
       lcsDisconnected :
         begin
-          ButtonEthernetConnect.Enabled := LccServer.Connected;
+          ButtonEthernetConnect.Enabled := True;
           ButtonEthernetConnect.Caption := 'Connect Ethernet';
           StatusBarMain.Panels[0].Text := 'Command Station Disconnected from Ethernet';
         end;
@@ -404,12 +405,12 @@ begin
         end;
       lcsDisconnected :
         begin
-          ListItem := ListviewConnections.FindCaption(0, 'Throttle disconnected via Ethernet: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort), True, True, True, True);
+          ListItem := ListviewConnections.FindCaption(0, 'Throttle connected via Ethernet: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort), True, True, True, True);
           if Assigned(ListItem) then
             ListviewConnections.Items.Delete(ListItem.Index);
         end;
     end;
-  end;
+  end
 end;
 
 procedure TFormTrainCommander.OnCommandStationServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
@@ -440,15 +441,17 @@ begin
           end;
       lcsDisconnecting :
         begin
-          ButtonWebserverConnect.Enabled := LccWebsocketServer.Connected;
+          ButtonWebserverConnect.Enabled := False;
           ButtonWebserverConnect.Caption := 'Connect Websocket';
           StatusBarMain.Panels[1].Text := 'Command Station Disconnected from Websocket';
+          if not LccServer.Connected then
+            NodeManager.Clear;
         end;
       lcsDisconnected :
         begin
-          ButtonEthernetConnect.Enabled := LccServer.Connected;
-          ButtonEthernetConnect.Caption := 'Connect Ethernet';
-          StatusBarMain.Panels[0].Text := 'Command Station Disconnected from Ethernet';
+          ButtonWebserverConnect.Enabled := True;
+          ButtonWebserverConnect.Caption := 'Connect Ethernet';
+          StatusBarMain.Panels[1].Text := 'Command Station Disconnected from Websocket';
         end;
     end;
 
@@ -525,7 +528,7 @@ begin
       lcsConnected :
         begin
           ListItem := ListviewConnections.Items.Add;
-          Listitem.Caption := 'Device Connected HTTP: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
+          Listitem.Caption := 'Device connected HTTP: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
           ListItem.ImageIndex := 3;
         end;
       lcsDisconnecting :
@@ -533,7 +536,7 @@ begin
         end;
       lcsDisconnected :
         begin
-          ListItem := ListviewConnections.FindCaption(1, 'Device Connected HTTP: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort), True, True, True, True);
+          ListItem := ListviewConnections.FindCaption(1, 'Device connected HTTP: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort), True, True, True, True);
           if Assigned(ListItem) then
             ListviewConnections.Items.Delete(ListItem.Index);
         end;

@@ -17439,12 +17439,12 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
-   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
-   ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
+   IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
    ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
    ,IBinaryDataImport:[TBinaryData.FromBase64]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
 }
@@ -31438,10 +31438,10 @@ TW3Slider.$Intf={
    ,IW3OwnedObjectAccess:[TW3OwnedObject.AcceptOwner,TW3OwnedObject.SetOwner,TW3OwnedObject.GetOwner]
 }
 /// TLccMarklinProtocolVersion enumeration
-///  [line: 468, column: 3, file: lcc_defines]
+///  [line: 465, column: 3, file: lcc_defines]
 var TLccMarklinProtocolVersion = [ "lmpvDefault", "lmvpVer1", "lmvpVer2", "lmvpVer2ExtFunction" ];
 /// TLccDccSpeedStep enumeration
-///  [line: 467, column: 3, file: lcc_defines]
+///  [line: 464, column: 3, file: lcc_defines]
 var TLccDccSpeedStep = [ "ldssDefault", "ldss14", "ldss28", "ldss128" ];
 /// TIsNodeTestType enumeration
 ///  [line: 123, column: 3, file: lcc_defines]
@@ -31929,7 +31929,7 @@ var TLccMessage = {
       Self.FMTI = 7240;
    }
    /// procedure TLccMessage.LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean; TimeOutValueN: Byte)
-   ///  [line: 2444, column: 23, file: lcc_node_messages]
+   ///  [line: 2442, column: 23, file: lcc_node_messages]
    ,LoadDatagramAck:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Ok, ReplyPending, TimeOutValueN) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -31949,7 +31949,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word)
-   ///  [line: 2464, column: 23, file: lcc_node_messages]
+   ///  [line: 2462, column: 23, file: lcc_node_messages]
    ,LoadDatagramRejected:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Reason) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -32033,7 +32033,7 @@ var TLccMessage = {
       Self.FIsCAN = true;
       Self.FCAN.FMTI$1 = 7340032;
    }
-   /// procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TDynamicByteArray)
+   /// procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray)
    ///  [line: 2326, column: 23, file: lcc_node_messages]
    ,LoadSimpleNodeIdentInfoReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, SimplePackedArray) {
       var i$7 = 0;
@@ -32979,7 +32979,7 @@ var TLccNode = {
    $ClassName:"TLccNode",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
-      $.FACDIMfg = $.FACDIUser = $.FDatagramResendQueue = $.FLccActions = $.FNodeManager = $.FProtocolEventConsumed = $.FProtocolEventsProduced = $.FProtocolMemoryConfiguration = $.FProtocolMemoryInfo = $.FProtocolMemoryOptions = $.FProtocolSimpleNodeInfo = $.FProtocolSupportedProtocols = $.FProtocolTraction = $.FProtocolTractionFunctionDefinitionInfo = $.FProtocolTractionMemoryFunctionConfiguration = $.FProtocolTractionSimpleTrainNodeInfo = $.FSendMessageFunc$1 = $.FStreamCdi = $.FStreamConfig = $.FStreamManufacturerData = $.FStreamTractionConfig = $.FStreamTractionFdi = $.FTProtocolMemoryConfigurationDefinitionInfo = $.FWorkerMessage$1 = $.FWorkerMessageDatagram = null;
+      $.FACDIMfg = $.FACDIUser = $.FDatagramResendQueue = $.FLccActions = $.FNodeManager = $.FProtocolEventConsumed = $.FProtocolEventsProduced = $.FProtocolMemoryConfiguration = $.FProtocolMemoryInfo = $.FProtocolMemoryOptions = $.FProtocolSimpleNodeInfo = $.FProtocolSupportedProtocols = $.FProtocolTraction = $.FProtocolTractionFunctionDefinitionInfo = $.FProtocolTractionMemoryFunctionConfiguration = $.FProtocolTractionSimpleTrainNodeInfo = $.FSendMessageFunc$1 = $.FStreamCdi = $.FStreamConfig = $.FStreamManufacturerData = $.FStreamTractionConfig = $.FStreamTractionFdi = $.FTProtocolMemoryConfigurationDefinitionInfo = $.FWorkerMessage$2 = $.FWorkerMessageDatagram = null;
       $.FInitialized$2 = false;
       $.FNodeID$1 = [0,0];
       $.F_800msTimer = null;
@@ -33072,7 +33072,7 @@ var TLccNode = {
       Self.FStreamTractionFdi = TMemoryStream.Create$72($New(TMemoryStream));
       Self.FDatagramResendQueue = TDatagramQueue.Create$209($New(TDatagramQueue),ASendMessageFunc);
       Self.FWorkerMessageDatagram = TLccMessage.Create$197($New(TLccMessage));
-      Self.FWorkerMessage$1 = TLccMessage.Create$197($New(TLccMessage));
+      Self.FWorkerMessage$2 = TLccMessage.Create$197($New(TLccMessage));
       Self.FSendMessageFunc$1 = ASendMessageFunc;
       Self.FNodeManager = ANodeManager;
       Self.F_800msTimer = TW3OwnedObject.Create$11$($New(TW3Timer),null);
@@ -33131,7 +33131,7 @@ var TLccNode = {
       TObject.Free(Self.FProtocolMemoryConfiguration);
       TObject.Free(Self.FDatagramResendQueue);
       TObject.Free(Self.FWorkerMessageDatagram);
-      TObject.Free(Self.FWorkerMessage$1);
+      TObject.Free(Self.FWorkerMessage$2);
       TObject.Free(Self.FStreamCdi);
       TObject.Free(Self.FStreamConfig);
       TObject.Free(Self.FStreamManufacturerData);
@@ -33338,34 +33338,34 @@ break;
             if (SourceMessage.FDataCount == 6) {
                TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,0,TestNodeID);
                if (EqualNodeID(TestNodeID.v.slice(0),Self.FNodeID$1.slice(0),false)) {
-                  TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
-                  Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                  TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+                  Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                }
             } else {
-               TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
-               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+               TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             }
             Result = true;
             break;
          case 1160 :
-            TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
          case 368 :
             /* null */
 break;
          case 3560 :
-            TLccMessage.LoadSimpleNodeIdentInfoReply(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSimpleNodeInfo.PackedFormat(Self.FProtocolSimpleNodeInfo,Self.FStreamManufacturerData,Self.FStreamConfig));
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadSimpleNodeIdentInfoReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSimpleNodeInfo.PackedFormat(Self.FProtocolSimpleNodeInfo,Self.FStreamManufacturerData,Self.FStreamConfig));
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
          case 2568 :
             Result = true;
             break;
          case 2088 :
-            TLccMessage.LoadProtocolIdentifyReply(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSupportedProtocols.EncodeFlags$1(Self.FProtocolSupportedProtocols));
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadProtocolIdentifyReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSupportedProtocols.EncodeFlags$1(Self.FProtocolSupportedProtocols));
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
          case 1640 :
@@ -33539,42 +33539,42 @@ break;
                      case 64 :
                         switch (AddressSpace$2) {
                            case 255 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$1,Self.FStreamCdi);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$2,Self.FStreamCdi);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 254 :
                               TLccNode.SendDatagramAckReply(Self,SourceMessage,false,0);
                               break;
                            case 253 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$1,Self.FStreamConfig);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$2,Self.FStreamConfig);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 252 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FACDIMfg,SourceMessage,Self.FWorkerMessage$1,Self.FStreamManufacturerData);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FACDIMfg,SourceMessage,Self.FWorkerMessage$2,Self.FStreamManufacturerData);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 251 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FACDIUser,SourceMessage,Self.FWorkerMessage$1,Self.FStreamConfig);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FACDIUser,SourceMessage,Self.FWorkerMessage$2,Self.FStreamConfig);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 250 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$1,Self.FStreamTractionFdi);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$2,Self.FStreamTractionFdi);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 249 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$1,Self.FStreamTractionConfig);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$2,Self.FStreamTractionConfig);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                         }
@@ -33589,15 +33589,15 @@ break;
                         OperationType = TLccMessage.GetDataArrayIndexer(SourceMessage,1);
                         switch (OperationType) {
                            case 128 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TProtocolMemoryOptions.LoadReply(Self.FProtocolMemoryOptions,Self.FWorkerMessage$1);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TProtocolMemoryOptions.LoadReply(Self.FProtocolMemoryOptions,Self.FWorkerMessage$2);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 132 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
-                              TProtocolMemoryInfo.LoadReply$1(Self.FProtocolMemoryInfo,SourceMessage,Self.FWorkerMessage$1);
-                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$1);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TProtocolMemoryInfo.LoadReply$1(Self.FProtocolMemoryInfo,SourceMessage,Self.FWorkerMessage$2);
+                              TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 136 :
@@ -33620,15 +33620,15 @@ break;
                   }
                   break;
                default :
-                  TLccMessage.LoadDatagramRejected(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4162);
-                  Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                  TLccMessage.LoadDatagramRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4162);
+                  Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                   Result = true;
             }
             break;
          default :
             if (TLccMessage.GetHasDestination(SourceMessage)) {
-               TLccMessage.LoadOptionalInteractionRejected(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4163,SourceMessage.FMTI);
-               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+               TLccMessage.LoadOptionalInteractionRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4163,SourceMessage.FMTI);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                Result = true;
             }
       }
@@ -33642,8 +33642,8 @@ break;
       var $temp164;
       for(i$7=0,$temp164=TProtocolEvents.GetCount$9(Self.FProtocolEventConsumed);i$7<$temp164;i$7++) {
          Temp$1.v = TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FID.slice(0);
-         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FState$1);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FState$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendConsumerIdentify(var Event: TEventID)
@@ -33654,8 +33654,8 @@ break;
       EventObj = TProtocolEvents.Supports(Self.FProtocolEventConsumed,Event$3.v.slice(0));
       if (EventObj) {
          Temp$1.v = EventObj.FID.slice(0);
-         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte)
@@ -33689,8 +33689,8 @@ break;
    /// procedure TLccNode.SendInitializeComplete()
    ///  [line: 1813, column: 20, file: lcc_node]
    ,SendInitializeComplete:function(Self) {
-      TLccMessage.LoadInitializationComplete(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+      TLccMessage.LoadInitializationComplete(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[16](Self);
    }
    /// procedure TLccNode.SendProducedEvents()
@@ -33701,8 +33701,8 @@ break;
       var $temp165;
       for(i$7=0,$temp165=TProtocolEvents.GetCount$9(Self.FProtocolEventsProduced);i$7<$temp165;i$7++) {
          Temp$1.v = TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FID.slice(0);
-         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FState$1);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FState$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendProducerIdentify(var Event: TEventID)
@@ -33713,8 +33713,8 @@ break;
       EventObj = TProtocolEvents.Supports(Self.FProtocolEventsProduced,Event$3.v.slice(0));
       if (EventObj) {
          Temp$1.v = EventObj.FID.slice(0);
-         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
@@ -33849,14 +33849,14 @@ var TLccCanNode = {
       Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
       Self.FNodeID$1 = ANodeID.v.slice(0);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       TW3Timer.SetEnabled(Self.F_800msTimer,true);
    }
    /// procedure TLccCanNode.Logout()
@@ -33879,20 +33879,20 @@ var TLccCanNode = {
             TLccCanNode.GenerateNewSeed(Self,Temp$1);
             Self.FSeedNodeID = Temp$1.v.slice(0);
             Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
-            TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-            TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-            TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-            TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
          } else {
             Self.FPermitted = true;
-            TLccMessage.LoadRID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-            TLccMessage.LoadAMD(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[0](Self);
             TLccNode.Login(Self,Self.FNodeID$1.slice(0));
          }
@@ -33909,8 +33909,8 @@ var TLccCanNode = {
       Result = false;
       if ((Self.FAliasID!=0) && SourceMessage.FCAN.FSourceAlias == Self.FAliasID) {
          if ((SourceMessage.FCAN.FMTI$1&251658240) >= 16777216 && (SourceMessage.FCAN.FMTI$1&251658240) <= 117440512) {
-            TLccMessage.LoadRID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
          } else if (Self.FPermitted) {
             TLccNode.Logout$(Self);
@@ -33927,12 +33927,12 @@ var TLccCanNode = {
                   if (SourceMessage.FDataCount == 6) {
                      TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,0,TestNodeID);
                      if (EqualNodeID(TestNodeID.v.slice(0),Self.FNodeID$1.slice(0),false)) {
-                        TLccMessage.LoadAMD(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                        TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                      }
                   } else {
-                     TLccMessage.LoadAMD(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-                     Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                     TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+                     Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                   }
                   Result = true;
                   break;
@@ -33960,14 +33960,14 @@ var TLccCanNode = {
       TLccCanNode.GenerateNewSeed(Self,Temp$1);
       Self.FSeedNodeID = Temp$1.v.slice(0);
       Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       TW3Timer.SetEnabled(Self.F_800msTimer,true);
    }
    /// procedure TLccCanNode.SendAMR()
@@ -33975,8 +33975,8 @@ var TLccCanNode = {
    ,SendAMR:function(Self) {
       if (Self.FPermitted) {
          Self.FPermitted = false;
-         TLccMessage.LoadAMR(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         TLccMessage.LoadAMR(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
          $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[1](Self);
       }
    }
@@ -33999,7 +33999,7 @@ var TLccActionHub = {
    $ClassName:"TLccActionHub",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
-      $.FLccActiveActions = $.FLccCompletedActions = $.FOwner$6 = $.FSendMessageFunc$2 = $.FWorkerMessage$3 = null;
+      $.FLccActiveActions = $.FLccCompletedActions = $.FOwner$6 = $.FSendMessageFunc$2 = $.FWorkerMessage$4 = null;
    }
    /// procedure TLccActionHub.ClearCompletedActions()
    ///  [line: 539, column: 25, file: lcc_node]
@@ -34019,7 +34019,7 @@ var TLccActionHub = {
    ,Create$205:function(Self, AnOwner, ASendMessageFunc) {
       Self.FLccActiveActions = TObjectList.Create$127($New(TObjectList));
       Self.FLccCompletedActions = TObjectList.Create$127($New(TObjectList));
-      Self.FWorkerMessage$3 = TLccMessage.Create$197($New(TLccMessage));
+      Self.FWorkerMessage$4 = TLccMessage.Create$197($New(TLccMessage));
       Self.FOwner$6 = AnOwner;
       Self.FSendMessageFunc$2 = ASendMessageFunc;
       return Self
@@ -34030,7 +34030,7 @@ var TLccActionHub = {
       TLccActionHub.ClearCompletedActions(Self);
       TObject.Free(Self.FLccActiveActions);
       TObject.Free(Self.FLccCompletedActions);
-      TObject.Free(Self.FWorkerMessage$3);
+      TObject.Free(Self.FWorkerMessage$4);
    }
    /// function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage) : Boolean
    ///  [line: 566, column: 24, file: lcc_node]
@@ -34093,7 +34093,7 @@ var TLccAction = {
    $ClassName:"TLccAction",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
-      $.FActionHub = $.FOwner$5 = $.FSendMessage = $.FWorkerMessage$2 = null;
+      $.FActionHub = $.FOwner$5 = $.FSendMessage = $.FWorkerMessage$3 = null;
       $.FActionStateIndex = $.FTimeoutCounts = $.FTimeoutCountThreshold = 0;
       $.FAliasID$1 = 0;
       $.FCancel = $.FIgnoreTimer = false;
@@ -34121,7 +34121,7 @@ var TLccAction = {
    ,Create$204:function(Self, AnOwner, ANodeID, AnAliasID) {
       ++ActionObjectsAllocated;
       Self.FOwner$5 = AnOwner;
-      Self.FWorkerMessage$2 = TLccMessage.Create$197($New(TLccMessage));
+      Self.FWorkerMessage$3 = TLccMessage.Create$197($New(TLccMessage));
       Self.FNodeID$2 = ANodeID.slice(0);
       Self.FAliasID$1 = AnAliasID;
       TLccAction.SetTimoutCountThreshold(Self,5000,true);
@@ -34132,7 +34132,7 @@ var TLccAction = {
    ///  [line: 410, column: 23, file: lcc_node]
    ,Destroy:function(Self) {
       --ActionObjectsAllocated;
-      TObject.Free(Self.FWorkerMessage$2);
+      TObject.Free(Self.FWorkerMessage$3);
       TObject.Destroy(Self);
    }
    /// procedure TLccAction.LoadStateArray()
@@ -34587,7 +34587,7 @@ var TProtocolSimpleNodeInfo = {
    ,$Init:function ($) {
       TNodeProtocolBase.$Init($);
    }
-   /// function TProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerInfo: TStream; StreamConfiguration: TStream) : TDynamicByteArray
+   /// function TProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerInfo: TStream; StreamConfiguration: TStream) : TLccDynamicByteArray
    ///  [line: 43, column: 34, file: lcc_protocol_simplenodeinfo]
    ,PackedFormat:function(Self, StreamManufacturerInfo, StreamConfiguration) {
       var Result = [];
@@ -35490,8 +35490,8 @@ var TLccTrainCanNode = {
                case 64 :
                   switch (SourceMessage.FDataArray[1]) {
                      case 1 :
-                        TLccMessage.LoadTractionManageReply(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
-                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                        TLccMessage.LoadTractionManageReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
+                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                         break;
                      case 2 :
                         /* null */
@@ -35677,8 +35677,8 @@ var TLccTractionQuerySpeedReplyAction = {
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
       $Assert(SourceMessage !== null,"SourceMessage is NIL, unexpected, single state statemachine","");
       OwnerTrain = $As(Self.FOwner$5,TLccTrainCanNode);
-      TLccMessage.LoadTractionQuerySpeedReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,OwnerTrain.FSpeed,0,65535,65535);
-      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionQuerySpeedReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,OwnerTrain.FSpeed,0,65535,65535);
+      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       return Result
    }
@@ -35704,17 +35704,17 @@ var TLccTractionQueryListenerReplyAction = {
       $Assert(SourceMessage !== null,"SourceMessage is NIL, unexpected, single state statemachine","");
       OwnerTrain = $As(Self.FOwner$5,TLccTrainCanNode);
       if (SourceMessage.FDataCount == 2) {
-         TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0);
+         TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0);
       } else {
          RequestedIndex = SourceMessage.FDataArray[2];
          if (RequestedIndex < TListenerList.GetCount$7(OwnerTrain.FListeners)) {
             Listener = TListenerList.FindByIndex(OwnerTrain.FListeners,RequestedIndex);
-            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),RequestedIndex,Listener.FNodeID.slice(0),TListenerNode.EncodeFlags(Listener));
+            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),RequestedIndex,Listener.FNodeID.slice(0),TListenerNode.EncodeFlags(Listener));
          } else {
-            TLccMessage.LoadTractionListenerQueryReply_NoInfo(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID);
+            TLccMessage.LoadTractionListenerQueryReply_NoInfo(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID);
          }
       }
-      Self.FSendMessage(Self,Self.FWorkerMessage$2);
+      Self.FSendMessage(Self,Self.FWorkerMessage$3);
       TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       return Result
    }
@@ -35737,8 +35737,8 @@ var TLccTractionQueryFunctionReplyAction = {
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
       $Assert(SourceMessage !== null,"SourceMessage is NIL, unexpected, single state statemachine","");
       FunctionAddress = TLccMessage.TractionExtractFunctionAddress(SourceMessage);
-      TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,FunctionAddress,TLccTrainCanNode.GetFunctions($As(Self.FOwner$5,TLccTrainCanNode),FunctionAddress));
-      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,FunctionAddress,TLccTrainCanNode.GetFunctions($As(Self.FOwner$5,TLccTrainCanNode),FunctionAddress));
+      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       return Result
    }
@@ -35762,11 +35762,11 @@ var TLccTractionQueryControllerAction = {
       $Assert(SourceMessage !== null,"SourceMessage is NIL, unexpected, single state statemachine","");
       Copy$TAttachedController($As(Self.FOwner$5,TLccTrainCanNode).FAttachedController,AttachedController$1);
       if ((AttachedController$1.NodeID$4[0]==0) && (AttachedController$1.NodeID$4[1]==0) && (AttachedController$1.AliasID$2==0)) {
-         TLccMessage.LoadTractionControllerQueryReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,NULL_NODE_ID.slice(0),0);
+         TLccMessage.LoadTractionControllerQueryReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,NULL_NODE_ID.slice(0),0);
       } else {
-         TLccMessage.LoadTractionControllerQueryReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,AttachedController$1.NodeID$4.slice(0),AttachedController$1.AliasID$2);
+         TLccMessage.LoadTractionControllerQueryReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,AttachedController$1.NodeID$4.slice(0),AttachedController$1.AliasID$2);
       }
-      Self.FSendMessage(Self,Self.FWorkerMessage$2);
+      Self.FSendMessage(Self,Self.FWorkerMessage$3);
       TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       return Result
    }
@@ -35821,8 +35821,8 @@ var TLccTractionDetachListenerReplyAction = {
       } else {
          ReplyCode = 4144;
       }
-      TLccMessage.LoadTractionListenerDetachReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,ListenerNodeID$2.v.slice(0),ReplyCode);
-      Self.FSendMessage(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionListenerDetachReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,ListenerNodeID$2.v.slice(0),ReplyCode);
+      Self.FSendMessage(Self,Self.FWorkerMessage$3);
       TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       return Result
    }
@@ -35871,18 +35871,18 @@ var TLccTractionAttachListenerReplyAction = {
          NewListenerNode = TListenerList.FindNode(OwnerTrain.FListeners,Self.FListenerNodeID.slice(0));
          if (NewListenerNode) {
             TListenerNode.DecodeFlags(NewListenerNode,Self.FAttachFlags);
-            TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
-            Self.FSendMessage(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
+            Self.FSendMessage(Self,Self.FWorkerMessage$3);
             TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
          } else {
-            TLccMessage.LoadAME(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FListenerNodeID.slice(0));
-            Self.FSendMessage(Self,Self.FWorkerMessage$2);
+            TLccMessage.LoadAME(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FListenerNodeID.slice(0));
+            Self.FSendMessage(Self,Self.FWorkerMessage$3);
             TLccAction.SetTimoutCountThreshold(Self,1000,true);
             TLccAction.AdvanceToNextState(Self,1);
          }
       } else {
-         TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
-         Self.FSendMessage(Self,Self.FWorkerMessage$2);
+         TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
+         Self.FSendMessage(Self,Self.FWorkerMessage$3);
          TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       }
       return Result
@@ -35905,8 +35905,8 @@ var TLccTractionAttachListenerReplyAction = {
       }
       if (TLccAction.TimeoutExpired(Self)) {
          ReplyCode = 4144;
-         TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
-         Self.FSendMessage(Self,Self.FWorkerMessage$2);
+         TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
+         Self.FSendMessage(Self,Self.FWorkerMessage$3);
          TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
       }
       return Result
@@ -35926,7 +35926,7 @@ var TLccTractionAttachListenerReplyAction = {
       } else {
          ReplyCode = 8224;
       }
-      TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
+      TLccMessage.LoadTractionListenerAttachReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FListenerNodeID.slice(0),ReplyCode);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
@@ -35971,8 +35971,8 @@ switch (SourceMessage.FDataArray[1]) {
                            Self.FRequestingControllerNodeID$1 = SourceMessage.FSourceID.slice(0);
                            Self.FRequestingControllerAliasID$1 = SourceMessage.FCAN.FSourceAlias;
                            if (TLccTrainCanNode.ControllerAssigned(OwnerTrain) && (!(TLccTrainCanNode.ControllerEquals(OwnerTrain,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias)))) {
-                              TLccMessage.LoadTractionControllerChangingNotify(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,OwnerTrain.FAttachedController.NodeID$4.slice(0),OwnerTrain.FAttachedController.AliasID$2,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1);
-                              Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+                              TLccMessage.LoadTractionControllerChangingNotify(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,OwnerTrain.FAttachedController.NodeID$4.slice(0),OwnerTrain.FAttachedController.AliasID$2,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1);
+                              Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
                               TLccAction.AdvanceToNextState(Self,1);
                            } else {
                               Self.FAssignResult$1 = 0;
@@ -36017,8 +36017,8 @@ switch (SourceMessage.FDataArray[1]) {
                   case 64 :
                      switch (SourceMessage.FDataArray[1]) {
                         case 1 :
-                           TLccMessage.LoadTractionManageReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
-                           Self.FSendMessage(Self,Self.FWorkerMessage$2);
+                           TLccMessage.LoadTractionManageReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
+                           Self.FSendMessage(Self,Self.FWorkerMessage$3);
                            break;
                         case 2 :
                            /* null */
@@ -36032,7 +36032,7 @@ break;
       if (TLccAction.TimeoutExpired(Self)) {
          Self.FAssignResult$1 = 0;
          TLccAction.AdvanceToNextState(Self,1);
-         TLccTractionAssignControllerReplyAction._2SendAssignReply(Self,Sender,Self.FWorkerMessage$2);
+         TLccTractionAssignControllerReplyAction._2SendAssignReply(Self,Sender,Self.FWorkerMessage$3);
       }
       return Result
    }
@@ -36046,8 +36046,8 @@ break;
          $As(Self.FOwner$5,TLccTrainCanNode).FAttachedController.NodeID$4 = Self.FRequestingControllerNodeID$1.slice(0);
          $As(Self.FOwner$5,TLccTrainCanNode).FAttachedController.AliasID$2 = Self.FRequestingControllerAliasID$1;
       }
-      TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1,Self.FAssignResult$1);
-      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1,Self.FAssignResult$1);
+      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
@@ -36150,7 +36150,7 @@ var TLccTrainController = {
       Self.FAssignedTrain.RepliedSearchData = 0;
       Self.FAssignedTrain.RequestedSearchData$1 = 0;
       LocalSearchData.v = 0;
-      TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$1.ClassType,SearchString$1,TrackProtocolFlags,LocalSearchData);
+      TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$2.ClassType,SearchString$1,TrackProtocolFlags,LocalSearchData);
       Self.FAssignedTrain.RequestedSearchData$1 = LocalSearchData.v;
       LccAssignTrainAction = TLccAction.Create$204($New(TLccTractionAssignTrainAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID);
       LccAssignTrainAction.FRequestedSearchData = LocalSearchData.v;
@@ -36265,12 +36265,12 @@ var TLccTrainController = {
                            TLccTrainController.DoControllerTakeOver(Self,AllowTakeOver);
                            if (AllowTakeOver.v) {
                               TLccTrainController.ClearAssignedTrain(Self);
-                              TLccMessage.LoadTractionControllerChangedReply(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
-                              Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                              TLccMessage.LoadTractionControllerChangedReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true);
+                              Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                               TLccTrainController.DoTrainReleased(Self);
                            } else {
-                              TLccMessage.LoadTractionControllerChangedReply(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,false);
-                              Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+                              TLccMessage.LoadTractionControllerChangedReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,false);
+                              Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                            }
                            break;
                      }
@@ -36304,11 +36304,11 @@ var TLccTrainController = {
       Self.FDirection$3 = AValue;
       if (TLccTrainController.IsTrainAssigned(Self)) {
          if (!Self.FDirection$3) {
-            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,Self.FSpeed$1);
+            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,Self.FSpeed$1);
          } else {
-            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,-Self.FSpeed$1);
+            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,-Self.FSpeed$1);
          }
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccTrainController.SetFunctions(Index: Integer; AValue: Word)
@@ -36317,8 +36317,8 @@ var TLccTrainController = {
       if (Index$6 >= 0 && Index$6 <= 28) {
          Self.FFunctionArray[Index$6] = AValue;
          if (TLccTrainController.IsTrainAssigned(Self)) {
-            TLccMessage.LoadTractionSetFunction(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,Index$6,AValue);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+            TLccMessage.LoadTractionSetFunction(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,Index$6,AValue);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
          }
       }
    }
@@ -36328,11 +36328,11 @@ var TLccTrainController = {
       Self.FSpeed$1 = Math.abs(AValue);
       if (TLccTrainController.IsTrainAssigned(Self)) {
          if (!Self.FDirection$3) {
-            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,AValue);
+            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,AValue);
          } else {
-            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,-AValue);
+            TLccMessage.LoadTractionSetSpeed(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,-AValue);
          }
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    ,Destroy:TLccCanNode.Destroy
@@ -36364,8 +36364,8 @@ var TLccTractionReleaseTrainAction = {
       ControllerNode$1 = $As(Self.FOwner$5,TLccTrainController);
       if (ControllerNode$1) {
          if (TLccTrainController.IsTrainAssigned(ControllerNode$1)) {
-            TLccMessage.LoadTractionControllerRelease(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,ControllerNode$1.FAssignedTrain.NodeID$6.slice(0),ControllerNode$1.FAssignedTrain.AliasID$3,Self.FNodeID$2.slice(0),Self.FAliasID$1);
-            Self.FSendMessage(ControllerNode$1,Self.FWorkerMessage$2);
+            TLccMessage.LoadTractionControllerRelease(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,ControllerNode$1.FAssignedTrain.NodeID$6.slice(0),ControllerNode$1.FAssignedTrain.AliasID$3,Self.FNodeID$2.slice(0),Self.FAliasID$1);
+            Self.FSendMessage(ControllerNode$1,Self.FWorkerMessage$3);
             TLccTrainController.ClearAssignedTrain(ControllerNode$1);
          }
          TLccTrainController.DoTrainReleased(ControllerNode$1);
@@ -36403,8 +36403,8 @@ var TLccTractionQueryFunctionAction = {
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      TLccMessage.LoadTractionQueryFunction(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FAddress);
-      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionQueryFunction(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FTargetNodeID.slice(0),Self.FTargetAliasID,Self.FAddress);
+      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
@@ -36504,8 +36504,8 @@ var TLccTractionAssignTrainAction = {
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
       Self.FSelectedSearchResultIndex = 0;
       Self.FRepliedSearchCriterialCount = 0;
-      TLccMessage.LoadTractionSearch(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRequestedSearchData);
-      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+      TLccMessage.LoadTractionSearch(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRequestedSearchData);
+      Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.SetTimoutCountThreshold(Self,1000,true);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
@@ -36528,8 +36528,8 @@ var TLccTractionAssignTrainAction = {
             case 1349 :
             case 1348 :
             case 1351 :
-               TLccMessage.LoadTractionSearch(Self.FWorkerMessage$2,NULL_NODE_ID.slice(0),0,Self.FRequestedSearchData);
-               if (TLccMessage.TractionSearchDecodeSearchString(SourceMessage) == TLccMessage.TractionSearchDecodeSearchString(Self.FWorkerMessage$2)) {
+               TLccMessage.LoadTractionSearch(Self.FWorkerMessage$3,NULL_NODE_ID.slice(0),0,Self.FRequestedSearchData);
+               if (TLccMessage.TractionSearchDecodeSearchString(SourceMessage) == TLccMessage.TractionSearchDecodeSearchString(Self.FWorkerMessage$3)) {
                   if (Self.FRepliedSearchCriterialCount < Self.FRepliedSearchCriteria.length) {
                      Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeID$5 = SourceMessage.FSourceID.slice(0);
                      Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeAlias = SourceMessage.FCAN.FSourceAlias;
@@ -36542,8 +36542,8 @@ var TLccTractionAssignTrainAction = {
                      Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].STNIP.TrainClass$1 = "";
                      Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].STNIP.TrainName$1 = "";
                      Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].STNIP.Version$1 = 0;
-                     TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeAlias);
-                     Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+                     TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FRepliedSearchCriterialCount].NodeAlias);
+                     Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
                      ++Self.FRepliedSearchCriterialCount;
                   } else {
                      TLccAction.AdvanceToNextState(Self,1);
@@ -36585,8 +36585,8 @@ var TLccTractionAssignTrainAction = {
             if (Self.FRepliedSearchCriterialCount == 1) {
                TLccTractionAssignTrainAction.DoSearchResults(Self);
                Self.FSelectedSearchResultIndex = 0;
-               TLccMessage.LoadTractionControllerAssign(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
-               Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+               TLccMessage.LoadTractionControllerAssign(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
+               Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
                TLccAction.SetTimoutCountThreshold(Self,5000,true);
                TLccAction.AdvanceToNextState(Self,1);
             } else {
@@ -36594,8 +36594,8 @@ var TLccTractionAssignTrainAction = {
                if (Self.FSelectedSearchResultIndex < 0 || Self.FSelectedSearchResultIndex >= Self.FRepliedSearchCriteria.length) {
                   TLccAction._NFinalStateCleanup(Self,Sender,SourceMessage);
                } else {
-                  TLccMessage.LoadTractionControllerAssign(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
-                  Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+                  TLccMessage.LoadTractionControllerAssign(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
+                  Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
                   TLccAction.SetTimoutCountThreshold(Self,5000,true);
                   TLccAction.AdvanceToNextState(Self,1);
                }
@@ -36654,8 +36654,8 @@ var TLccTractionAssignTrainAction = {
       }
       if (TLccAction.TimeoutExpired(Self) || Self.FCancel) {
          if (Self.FSelectedSearchResultIndex > -1 && Self.FSelectedSearchResultIndex < Self.FRepliedSearchCriteria.length) {
-            TLccMessage.LoadTractionControllerRelease(Self.FWorkerMessage$2,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
-            Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$2);
+            TLccMessage.LoadTractionControllerRelease(Self.FWorkerMessage$3,Self.FNodeID$2.slice(0),Self.FAliasID$1,Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeID$5.slice(0),Self.FRepliedSearchCriteria[Self.FSelectedSearchResultIndex].NodeAlias,Self.FNodeID$2.slice(0),Self.FAliasID$1);
+            Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
          }
          TLccAction._NFinalStateCleanup(Self,Self,SourceMessage);
       }
@@ -36785,12 +36785,12 @@ var TLccNodeManager = {
    $ClassName:"TLccNodeManager",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
-      $.FNodes = $.FOnLccCANAliasMapReset = $.FOnLccMessageReceive = $.FOnLccMessageSend = $.FOnLccNodeAliasIDChanged = $.FOnLccNodeCDI = $.FOnLccNodeConfigMemAddressSpaceInfoReply = $.FOnLccNodeConfigMemOptionsReply = $.FOnLccNodeConfigMemReadReply = $.FOnLccNodeConfigMemWriteReply = $.FOnLccNodeConsumerIdentified = $.FOnLccNodeConsumerIdentify = $.FOnLccNodeCreate = $.FOnLccNodeDatagramReply = $.FOnLccNodeDestroy = $.FOnLccNodeFDI = $.FOnLccNodeFunctionConfiguration = $.FOnLccNodeIDChanged = $.FOnLccNodeInitializationComplete = $.FOnLccNodeLogin = $.FOnLccNodeLogout = $.FOnLccNodeOptionalInteractionRejected = $.FOnLccNodeProducerIdentified = $.FOnLccNodeProducerIdentify = $.FOnLccNodeProtocolIdentifyReply = $.FOnLccNodeRemoteButtonReply = $.FOnLccNodeSimpleNodeIdentReply = $.FOnLccNodeSimpleTrainNodeIdentReply = $.FOnLccNodeTractionControllerConfig = $.FOnLccNodeTractionEmergencyStop = $.FOnLccNodeTractionFunctionSet = $.FOnLccNodeTractionListenerConfig = $.FOnLccNodeTractionManage = $.FOnLccNodeTractionQueryFunction = $.FOnLccNodeTractionQuerySpeed = $.FOnLccNodeTractionSpeedSet = $.FOnLccNodeVerifiedNodeID = null;
+      $.FAliasServer = $.FNodes = $.FOnLccCANAliasMapReset = $.FOnLccMessageReceive = $.FOnLccMessageSend = $.FOnLccNodeAliasIDChanged = $.FOnLccNodeCDI = $.FOnLccNodeConfigMemAddressSpaceInfoReply = $.FOnLccNodeConfigMemOptionsReply = $.FOnLccNodeConfigMemReadReply = $.FOnLccNodeConfigMemWriteReply = $.FOnLccNodeConsumerIdentified = $.FOnLccNodeConsumerIdentify = $.FOnLccNodeCreate = $.FOnLccNodeDatagramReply = $.FOnLccNodeDestroy = $.FOnLccNodeFDI = $.FOnLccNodeFunctionConfiguration = $.FOnLccNodeIDChanged = $.FOnLccNodeInitializationComplete = $.FOnLccNodeLogin = $.FOnLccNodeLogout = $.FOnLccNodeOptionalInteractionRejected = $.FOnLccNodeProducerIdentified = $.FOnLccNodeProducerIdentify = $.FOnLccNodeProtocolIdentifyReply = $.FOnLccNodeRemoteButtonReply = $.FOnLccNodeSimpleNodeIdentReply = $.FOnLccNodeSimpleTrainNodeIdentReply = $.FOnLccNodeTractionControllerConfig = $.FOnLccNodeTractionEmergencyStop = $.FOnLccNodeTractionFunctionSet = $.FOnLccNodeTractionListenerConfig = $.FOnLccNodeTractionManage = $.FOnLccNodeTractionQueryFunction = $.FOnLccNodeTractionQuerySpeed = $.FOnLccNodeTractionSpeedSet = $.FOnLccNodeVerifiedNodeID = $.FWorkerMessage$1 = null;
       $.HardwareConnectionLinkArray = [null,null,null,null,null,null,null,null,null,null,null];
-      $.HardwareConnectionLinkIndex = 0;
+      $.HardwareConnectionLinkCount = 0;
    }
    /// function TLccNodeManager.AddNode(CdiXML: String; AutoLogin: Boolean) : TLccNode
-   ///  [line: 616, column: 26, file: lcc_node_manager]
+   ///  [line: 640, column: 26, file: lcc_node_manager]
    ,AddNode:function(Self, CdiXML, AutoLogin) {
       var Result = null;
       Result = TLccNode.Create$201$($New(TLccNode),$Event2(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML);
@@ -36802,7 +36802,7 @@ var TLccNodeManager = {
       return Result
    }
    /// function TLccNodeManager.AddNodeByClass(CdiXML: String; NodeClass: TLccNodeClass; AutoLogin: Boolean) : TLccNode
-   ///  [line: 625, column: 26, file: lcc_node_manager]
+   ///  [line: 649, column: 26, file: lcc_node_manager]
    ,AddNodeByClass:function(Self, CdiXML, NodeClass, AutoLogin) {
       var Result = null;
       Result = null;
@@ -36817,7 +36817,7 @@ var TLccNodeManager = {
       return Result
    }
    /// procedure TLccNodeManager.Clear()
-   ///  [line: 647, column: 27, file: lcc_node_manager]
+   ///  [line: 673, column: 27, file: lcc_node_manager]
    ,Clear$30:function(Self) {
       var i$7 = 0;
       try {
@@ -36831,266 +36831,270 @@ var TLccNodeManager = {
       }
    }
    /// constructor TLccNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 598, column: 29, file: lcc_node_manager]
+   ///  [line: 620, column: 29, file: lcc_node_manager]
    ,Create$198:function(Self, AnOwner) {
       TObject.Create(Self);
       Self.FNodes = TObjectList.Create$127($New(TObjectList));
+      Self.FAliasServer = TLccAliasServer.Create$210($New(TLccAliasServer));
+      Self.FWorkerMessage$1 = TLccMessage.Create$197($New(TLccMessage));
       return Self
    }
    /// destructor TLccNodeManager.Destroy()
-   ///  [line: 639, column: 28, file: lcc_node_manager]
+   ///  [line: 663, column: 28, file: lcc_node_manager]
    ,Destroy:function(Self) {
       TLccNodeManager.LogoutAll(Self);
       TLccNodeManager.Clear$30(Self);
       TObject.Free(Self.FNodes);
+      FreeAndNil(Self.FAliasServer);
+      FreeAndNil(Self.FWorkerMessage$1);
       TObject.Destroy(Self);
    }
    /// procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode)
-   ///  [line: 351, column: 27, file: lcc_node_manager]
+   ///  [line: 360, column: 27, file: lcc_node_manager]
    ,DoAliasIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeAliasIDChanged) {
          Self.FOnLccNodeAliasIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCANAliasMapReset(LccNode: TLccNode)
-   ///  [line: 357, column: 27, file: lcc_node_manager]
+   ///  [line: 366, column: 27, file: lcc_node_manager]
    ,DoCANAliasMapReset:function(Self, LccNode) {
       if (Self.FOnLccCANAliasMapReset) {
          Self.FOnLccCANAliasMapReset(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCDIRead(LccNode: TLccNode)
-   ///  [line: 363, column: 27, file: lcc_node_manager]
+   ///  [line: 372, column: 27, file: lcc_node_manager]
    ,DoCDIRead:function(Self, LccNode) {
       if (Self.FOnLccNodeCDI) {
          Self.FOnLccNodeCDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemAddressSpaceInfoReply(LccNode: TLccNode; AddressSpace: Byte)
-   ///  [line: 369, column: 27, file: lcc_node_manager]
+   ///  [line: 378, column: 27, file: lcc_node_manager]
    ,DoConfigMemAddressSpaceInfoReply:function(Self, LccNode, AddressSpace$2) {
       if (Self.FOnLccNodeConfigMemAddressSpaceInfoReply) {
          Self.FOnLccNodeConfigMemAddressSpaceInfoReply(Self,LccNode,AddressSpace$2);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemOptionsReply(LccNode: TLccNode)
-   ///  [line: 376, column: 27, file: lcc_node_manager]
+   ///  [line: 385, column: 27, file: lcc_node_manager]
    ,DoConfigMemOptionsReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemOptionsReply) {
          Self.FOnLccNodeConfigMemOptionsReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemReadReply(LccNode: TLccNode)
-   ///  [line: 382, column: 27, file: lcc_node_manager]
+   ///  [line: 391, column: 27, file: lcc_node_manager]
    ,DoConfigMemReadReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemReadReply) {
          Self.FOnLccNodeConfigMemReadReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemWriteReply(LccNode: TLccNode)
-   ///  [line: 388, column: 27, file: lcc_node_manager]
+   ///  [line: 397, column: 27, file: lcc_node_manager]
    ,DoConfigMemWriteReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemWriteReply) {
          Self.FOnLccNodeConfigMemWriteReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 400, column: 27, file: lcc_node_manager]
+   ///  [line: 409, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeConsumerIdentified) {
          Self.FOnLccNodeConsumerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 407, column: 27, file: lcc_node_manager]
+   ///  [line: 416, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeConsumerIdentify) {
          Self.FOnLccNodeConsumerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoCreateLccNode(LccNode: TLccNode)
-   ///  [line: 394, column: 27, file: lcc_node_manager]
+   ///  [line: 403, column: 27, file: lcc_node_manager]
    ,DoCreateLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeCreate) {
          Self.FOnLccNodeCreate(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDatagramReply(LccNode: TLccNode)
-   ///  [line: 414, column: 27, file: lcc_node_manager]
+   ///  [line: 423, column: 27, file: lcc_node_manager]
    ,DoDatagramReply:function(Self, LccNode) {
       if (Self.FOnLccNodeDatagramReply) {
          Self.FOnLccNodeDatagramReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode)
-   ///  [line: 420, column: 27, file: lcc_node_manager]
+   ///  [line: 429, column: 27, file: lcc_node_manager]
    ,DoDestroyLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeDestroy) {
          Self.FOnLccNodeDestroy(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFDI(LccNode: TLccNode)
-   ///  [line: 426, column: 27, file: lcc_node_manager]
+   ///  [line: 435, column: 27, file: lcc_node_manager]
    ,DoFDI:function(Self, LccNode) {
       if (Self.FOnLccNodeFDI) {
          Self.FOnLccNodeFDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFunctionConfiguration(LccNode: TLccNode)
-   ///  [line: 432, column: 27, file: lcc_node_manager]
+   ///  [line: 441, column: 27, file: lcc_node_manager]
    ,DoFunctionConfiguration:function(Self, LccNode) {
       if (Self.FOnLccNodeFunctionConfiguration) {
          Self.FOnLccNodeFunctionConfiguration(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoInitializationComplete(LccNode: TLccNode)
-   ///  [line: 438, column: 27, file: lcc_node_manager]
+   ///  [line: 447, column: 27, file: lcc_node_manager]
    ,DoInitializationComplete:function(Self, LccNode) {
       if (Self.FOnLccNodeInitializationComplete) {
          Self.FOnLccNodeInitializationComplete(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageReceive(Message: TLccMessage)
-   ///  [line: 444, column: 27, file: lcc_node_manager]
+   ///  [line: 453, column: 27, file: lcc_node_manager]
    ,DoLccMessageReceive:function(Self, Message$2) {
       if (Self.FOnLccMessageReceive) {
          Self.FOnLccMessageReceive(Self,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageSend(Sender: TObject; Message: TLccMessage)
-   ///  [line: 450, column: 27, file: lcc_node_manager]
+   ///  [line: 459, column: 27, file: lcc_node_manager]
    ,DoLccMessageSend:function(Self, Sender, Message$2) {
       if (Self.FOnLccMessageSend) {
          Self.FOnLccMessageSend(Sender,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoLogInNode(LccNode: TLccNode)
-   ///  [line: 456, column: 27, file: lcc_node_manager]
+   ///  [line: 465, column: 27, file: lcc_node_manager]
    ,DoLogInNode:function(Self, LccNode) {
       if (Self.FOnLccNodeLogin) {
          Self.FOnLccNodeLogin(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoLogOutNode(LccNode: TLccNode)
-   ///  [line: 462, column: 27, file: lcc_node_manager]
+   ///  [line: 471, column: 27, file: lcc_node_manager]
    ,DoLogOutNode:function(Self, LccNode) {
       if (Self.FOnLccNodeLogout) {
          Self.FOnLccNodeLogout(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode)
-   ///  [line: 468, column: 27, file: lcc_node_manager]
+   ///  [line: 477, column: 27, file: lcc_node_manager]
    ,DoNodeIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeIDChanged) {
          Self.FOnLccNodeIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoOptionalInteractionRejected(LccNode: TLccNode)
-   ///  [line: 474, column: 27, file: lcc_node_manager]
+   ///  [line: 483, column: 27, file: lcc_node_manager]
    ,DoOptionalInteractionRejected:function(Self, LccNode) {
       if (Self.FOnLccNodeOptionalInteractionRejected) {
          Self.FOnLccNodeOptionalInteractionRejected(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 480, column: 27, file: lcc_node_manager]
+   ///  [line: 489, column: 27, file: lcc_node_manager]
    ,DoProducerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeProducerIdentified) {
          Self.FOnLccNodeProducerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 487, column: 27, file: lcc_node_manager]
+   ///  [line: 496, column: 27, file: lcc_node_manager]
    ,DoProducerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeProducerIdentify) {
          Self.FOnLccNodeProducerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoProtocolIdentifyReply(LccNode: TLccNode)
-   ///  [line: 494, column: 27, file: lcc_node_manager]
+   ///  [line: 503, column: 27, file: lcc_node_manager]
    ,DoProtocolIdentifyReply:function(Self, LccNode) {
       if (Self.FOnLccNodeProtocolIdentifyReply) {
          Self.FOnLccNodeProtocolIdentifyReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoRemoteButtonReply(LccNode: TLccNode)
-   ///  [line: 500, column: 27, file: lcc_node_manager]
+   ///  [line: 509, column: 27, file: lcc_node_manager]
    ,DoRemoteButtonReply:function(Self, LccNode) {
       if (Self.FOnLccNodeRemoteButtonReply) {
          Self.FOnLccNodeRemoteButtonReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 506, column: 27, file: lcc_node_manager]
+   ///  [line: 515, column: 27, file: lcc_node_manager]
    ,DoSimpleNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleNodeIdentReply) {
          Self.FOnLccNodeSimpleNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleTrainNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 512, column: 27, file: lcc_node_manager]
+   ///  [line: 521, column: 27, file: lcc_node_manager]
    ,DoSimpleTrainNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleTrainNodeIdentReply) {
          Self.FOnLccNodeSimpleTrainNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 538, column: 27, file: lcc_node_manager]
+   ///  [line: 547, column: 27, file: lcc_node_manager]
    ,DoTractionControllerConfig:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionControllerConfig) {
          Self.FOnLccNodeTractionControllerConfig(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionEmergencyStop(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 545, column: 27, file: lcc_node_manager]
+   ///  [line: 554, column: 27, file: lcc_node_manager]
    ,DoTractionEmergencyStop:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionFunctionSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 551, column: 27, file: lcc_node_manager]
+   ///  [line: 560, column: 27, file: lcc_node_manager]
    ,DoTractionFunctionSet:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionListenerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 557, column: 27, file: lcc_node_manager]
+   ///  [line: 566, column: 27, file: lcc_node_manager]
    ,DoTractionListenerConfig:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 563, column: 27, file: lcc_node_manager]
+   ///  [line: 572, column: 27, file: lcc_node_manager]
    ,DoTractionManage:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionManage) {
          Self.FOnLccNodeTractionManage(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 531, column: 27, file: lcc_node_manager]
+   ///  [line: 540, column: 27, file: lcc_node_manager]
    ,DoTractionQueryFunction:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQueryFunction) {
          Self.FOnLccNodeTractionQueryFunction(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 518, column: 27, file: lcc_node_manager]
+   ///  [line: 527, column: 27, file: lcc_node_manager]
    ,DoTractionQuerySpeed:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQuerySpeed) {
          Self.FOnLccNodeTractionQuerySpeed(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionSpeedSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 525, column: 27, file: lcc_node_manager]
+   ///  [line: 534, column: 27, file: lcc_node_manager]
    ,DoTractionSpeedSet:function(Self, LccNode, LccMessage, IsReply) {
       /* null */
    }
    /// procedure TLccNodeManager.DoVerifiedNodeID(LccNode: TLccNode)
-   ///  [line: 570, column: 27, file: lcc_node_manager]
+   ///  [line: 579, column: 27, file: lcc_node_manager]
    ,DoVerifiedNodeID:function(Self, LccNode) {
       if (Self.FOnLccNodeVerifiedNodeID) {
          Self.FOnLccNodeVerifiedNodeID(Self,LccNode);
       }
    }
    /// function TLccNodeManager.ExtractNode(Index: Integer) : TLccNode
-   ///  [line: 576, column: 26, file: lcc_node_manager]
+   ///  [line: 585, column: 26, file: lcc_node_manager]
    ,ExtractNode:function(Self, Index$6) {
       var Result = null;
       Result = null;
@@ -37100,8 +37104,44 @@ var TLccNodeManager = {
       }
       return Result
    }
+   /// function TLccNodeManager.FindOwnedNodeByAlias(AnAlias: Word) : TLccNode
+   ///  [line: 599, column: 26, file: lcc_node_manager]
+   ,FindOwnedNodeByAlias:function(Self, AnAlias) {
+      var Result = null;
+      var i$7 = 0;
+      Result = null;
+      i$7 = 0;
+      while (i$7 < TObjectList.GetCount$1(Self.FNodes)) {
+         if ($Is(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode)) {
+            if ($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode).FAliasID == AnAlias) {
+               Result = $As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccNode);
+               break;
+            }
+            ++i$7;
+         }
+      }
+      return Result
+   }
+   /// function TLccNodeManager.FindPermittedCanNode() : TLccCanNode
+   ///  [line: 720, column: 26, file: lcc_node_manager]
+   ,FindPermittedCanNode:function(Self) {
+      var Result = null;
+      var i$7 = 0;
+      Result = null;
+      i$7 = 0;
+      while (i$7 < TObjectList.GetCount$1(Self.FNodes)) {
+         if ($Is(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode)) {
+            if ($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode).FPermitted) {
+               Result = $As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode);
+               break;
+            }
+            ++i$7;
+         }
+      }
+      return Result
+   }
    /// function TLccNodeManager.GetNode(Index: Integer) : TLccNode
-   ///  [line: 694, column: 26, file: lcc_node_manager]
+   ///  [line: 741, column: 26, file: lcc_node_manager]
    ,GetNode:function(Self, Index$6) {
       var Result = null;
       if (Index$6 < TObjectList.GetCount$1(Self.FNodes)) {
@@ -37112,17 +37152,17 @@ var TLccNodeManager = {
       return Result
    }
    /// function TLccNodeManager.GetNodeCount() : Integer
-   ///  [line: 702, column: 26, file: lcc_node_manager]
+   ///  [line: 749, column: 26, file: lcc_node_manager]
    ,GetNodeCount:function(Self) {
       return TObjectList.GetCount$1(Self.FNodes);
    }
    /// procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage)
-   ///  [line: 756, column: 27, file: lcc_node_manager]
+   ///  [line: 859, column: 27, file: lcc_node_manager]
    ,LccMessageSendCallback:function(Self, Sender, LccMessage) {
       TLccNodeManager.SendMessage(Self,Sender,LccMessage);
    }
    /// procedure TLccNodeManager.LogoutAll()
-   ///  [line: 707, column: 27, file: lcc_node_manager]
+   ///  [line: 754, column: 27, file: lcc_node_manager]
    ,LogoutAll:function(Self) {
       var i$7 = 0;
       var $temp172;
@@ -37131,7 +37171,7 @@ var TLccNodeManager = {
       }
    }
    /// procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage)
-   ///  [line: 718, column: 27, file: lcc_node_manager]
+   ///  [line: 765, column: 27, file: lcc_node_manager]
    ,ProcessMessage:function(Self, LccMessage) {
       var i$7 = 0;
       TLccNodeManager.DoLccMessageReceive(Self,LccMessage);
@@ -37141,11 +37181,47 @@ var TLccNodeManager = {
       }
    }
    /// procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage)
-   ///  [line: 727, column: 27, file: lcc_node_manager]
+   ///  [line: 774, column: 27, file: lcc_node_manager]
    ,SendMessage:function(Self, Sender, LccMessage) {
-      var i$7 = 0;
+      var i$7 = 0,
+         MapIndex = { v : 0 },
+         Map = null,
+         WorkerCanNode = null;
+      if (LccMessage.FIsCAN) {
+         switch (LccMessage.FCAN.FMTI$1) {
+            case 7352320 :
+               TLccAliasServer.RemoveMapping(Self.FAliasServer,LccMessage.FCAN.FSourceAlias);
+               break;
+            case 7344128 :
+               TLccAliasServer.ForceMapping(Self.FAliasServer,LccMessage.FSourceID.slice(0),LccMessage.FCAN.FSourceAlias);
+               break;
+         }
+      } else {
+         if (TLccMessage.GetHasDestination(LccMessage)) {
+            if (!TLccNodeManager.FindOwnedNodeByAlias(Self,LccMessage.FCAN.FSourceAlias)) {
+               Map = TLccAliasServer.FindInAliasSortedMap(Self.FAliasServer,LccMessage.FCAN.FSourceAlias,MapIndex);
+               if (!Map) {
+                  WorkerCanNode = TLccNodeManager.FindPermittedCanNode(Self);
+                  if (WorkerCanNode) {
+                     TLccMessage.LoadAME(Self.FWorkerMessage$1,WorkerCanNode.FNodeID$1.slice(0),WorkerCanNode.FAliasID,LccMessage.FSourceID.slice(0));
+                     TLccNodeManager.SendMessage(Self,Self,Self.FWorkerMessage$1);
+                  }
+               }
+            }
+            if (!TLccNodeManager.FindOwnedNodeByAlias(Self,LccMessage.FCAN.FDestAlias)) {
+               Map = TLccAliasServer.FindInAliasSortedMap(Self.FAliasServer,LccMessage.FCAN.FDestAlias,MapIndex);
+               if (!Map) {
+                  WorkerCanNode = TLccNodeManager.FindPermittedCanNode(Self);
+                  if (WorkerCanNode) {
+                     TLccMessage.LoadAME(Self.FWorkerMessage$1,WorkerCanNode.FNodeID$1.slice(0),WorkerCanNode.FAliasID,LccMessage.FDestID.slice(0));
+                     TLccNodeManager.SendMessage(Self,Self,Self.FWorkerMessage$1);
+                  }
+               }
+            }
+         }
+      }
       var $temp174;
-      for(i$7=0,$temp174=Self.HardwareConnectionLinkIndex;i$7<$temp174;i$7++) {
+      for(i$7=0,$temp174=Self.HardwareConnectionLinkCount;i$7<$temp174;i$7++) {
          Self.HardwareConnectionLinkArray[i$7][0](LccMessage);
       }
       if ($Is(Sender,TLccNode)) {
@@ -37163,32 +37239,32 @@ var TLccNodeManager = {
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
 TLccNodeManager.$Intf={
-   INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
-   ,INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   ,INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
 }
 /// TLccCanNodeManager = class (TLccNodeManager)
-///  [line: 309, column: 3, file: lcc_node_manager]
+///  [line: 318, column: 3, file: lcc_node_manager]
 var TLccCanNodeManager = {
    $ClassName:"TLccCanNodeManager",$Parent:TLccNodeManager
    ,$Init:function ($) {
       TLccNodeManager.$Init($);
    }
    /// constructor TLccCanNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 331, column: 32, file: lcc_node_manager]
+   ///  [line: 340, column: 32, file: lcc_node_manager]
    ,Create$199:function(Self, AnOwner) {
       TLccNodeManager.Create$198(Self,AnOwner);
       return Self
    }
    /// destructor TLccCanNodeManager.Destroy()
-   ///  [line: 336, column: 31, file: lcc_node_manager]
+   ///  [line: 345, column: 31, file: lcc_node_manager]
    ,Destroy:function(Self) {
       TLccNodeManager.Destroy(Self);
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
 TLccCanNodeManager.$Intf={
-   INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
-   ,INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   ,INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
 }
 /// TLccCommandStationNode = class (TLccCanNode)
 ///  [line: 79, column: 3, file: lcc_node_commandstation]
@@ -37325,8 +37401,8 @@ var TLccCommandStationNode = {
             ATrain = TLccCommandStationNode.FindTrainByLccNodeID(Self,SourceMessage.FSourceID.slice(0));
             if (ATrain) {
                ReturnEvent.v = ATrain.FSearchEvent.slice(0);
-               TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$1,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
-               Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$1);
+               TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
+               Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$2);
             }
             break;
          case 2324 :
@@ -37353,9 +37429,9 @@ var TLccCommandStationNode = {
                      ExactMatchOnly = TLccMessage.TractionSearchIsExactMatchOnly(SourceMessage);
                      MatchAddressOnly = TLccMessage.TractionSearchIsAddressMatchOnly(SourceMessage);
                      TrackProtocolFlags = TLccMessage.TractionSearchEncodeNMRA(SourceMessage.ClassType,LongAddressOnly.v,NMRA_SpeedStep.v,ForceAllocate,ExactMatchOnly,MatchAddressOnly);
-                     TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$1.ClassType,SearchStr,TrackProtocolFlags,SearchData$1);
-                     TLccMessage.LoadTractionSearch(Self.FWorkerMessage$1,Self.FNodeID$1.slice(0),Self.FAliasID,SearchData$1.v);
-                     ReturnEvent.v = TLccMessage.ExtractDataBytesAsEventID(Self.FWorkerMessage$1,0);
+                     TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$2.ClassType,SearchStr,TrackProtocolFlags,SearchData$1);
+                     TLccMessage.LoadTractionSearch(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,SearchData$1.v);
+                     ReturnEvent.v = TLccMessage.ExtractDataBytesAsEventID(Self.FWorkerMessage$2,0);
                      ATrain = TLccCommandStationNode.FindTrainByDccAddress(Self,SearchDccAddress,LongAddressOnly.v);
                      if (ATrain === null && ForceAllocate) {
                         ATrain = TLccCommandStationNode.AddTrain(Self,"New ATrain",SearchStr,SearchDccAddress,LongAddressOnly.v,NMRA_SpeedStep.v);
@@ -37363,8 +37439,8 @@ var TLccCommandStationNode = {
                         TLccNode.Login$(ATrain,NULL_NODE_ID.slice(0));
                      } else {
                         if (ATrain) {
-                           TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$1,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
-                           Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$1);
+                           TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
+                           Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$2);
                         }
                      }
                   }
@@ -37386,6 +37462,168 @@ var TLccCommandStationNode = {
    ,On_800msTimer:TLccCanNode.On_800msTimer
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
    ,Creating$:function($){return $.ClassType.Creating($)}
+};
+/// TLccAliasServer = class (TObject)
+///  [line: 62, column: 3, file: lcc_alias_server]
+var TLccAliasServer = {
+   $ClassName:"TLccAliasServer",$Parent:TObject
+   ,$Init:function ($) {
+      TObject.$Init($);
+      $.FAliasSortedMap = $.FNodeIDSortedMap = $.FOnAddMapping = $.FOnDeleteMapping = null;
+      $.FIsDirty = false;
+   }
+   /// function TLccAliasServer.AddMapping(ANodeID: TNodeID; AliasID: Word) : TLccAliasMap
+   ///  [line: 191, column: 26, file: lcc_alias_server]
+   ,AddMapping:function(Self, ANodeID, AliasID$5) {
+      var Result = null;
+      Result = TLccAliasMap.Create$211($New(TLccAliasMap),ANodeID.slice(0),AliasID$5);
+      TObjectList.Add$1(Self.FAliasSortedMap,Result);
+      TObjectList.Add$1(Self.FNodeIDSortedMap,Result);
+      Self.FIsDirty = true;
+      TLccAliasServer.DoAddMapping(Self);
+      return Result
+   }
+   /// constructor TLccAliasServer.Create()
+   ///  [line: 288, column: 29, file: lcc_alias_server]
+   ,Create$210:function(Self) {
+      Self.FAliasSortedMap = TObjectList.Create$127($New(TObjectList));
+      Self.FNodeIDSortedMap = TObjectList.Create$127($New(TObjectList));
+      return Self
+   }
+   /// destructor TLccAliasServer.Destroy()
+   ///  [line: 303, column: 28, file: lcc_alias_server]
+   ,Destroy:function(Self) {
+      FreeAndNil(Self.FNodeIDSortedMap);
+      FreeAndNil(Self.FAliasSortedMap);
+      TObject.Destroy(Self);
+   }
+   /// procedure TLccAliasServer.DoAddMapping()
+   ///  [line: 319, column: 27, file: lcc_alias_server]
+   ,DoAddMapping:function(Self) {
+      if (Self.FOnAddMapping) {
+         Self.FOnAddMapping(Self);
+      }
+   }
+   /// procedure TLccAliasServer.DoDeleteMapping()
+   ///  [line: 325, column: 27, file: lcc_alias_server]
+   ,DoDeleteMapping:function(Self) {
+      if (Self.FOnDeleteMapping) {
+         Self.FOnDeleteMapping(Self);
+      }
+   }
+   /// function TLccAliasServer.FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer) : TLccAliasMap
+   ///  [line: 265, column: 26, file: lcc_alias_server]
+   ,FindInAliasSortedMap:function(Self, AnAliasID, MapIndex) {
+      var Result = null;
+      var i$7 = 0;
+      Result = null;
+      if (AnAliasID > 0) {
+         TLccAliasServer.SortMaps(Self);
+         MapIndex.v = -1;
+         var $temp178;
+         for(i$7=0,$temp178=TObjectList.GetCount$1(Self.FAliasSortedMap);i$7<$temp178;i$7++) {
+            if (AnAliasID == $As(TObjectList.GetItem$14(Self.FAliasSortedMap,i$7),TLccAliasMap).FAliasID$2) {
+               Result = $As(TObjectList.GetItem$14(Self.FAliasSortedMap,i$7),TLccAliasMap);
+               MapIndex.v = i$7;
+               break;
+            }
+         }
+      }
+      return Result
+   }
+   /// procedure TLccAliasServer.ForceMapping(ANodeID: TNodeID; AnAliasID: Word)
+   ///  [line: 331, column: 27, file: lcc_alias_server]
+   ,ForceMapping:function(Self, ANodeID, AnAliasID) {
+      var MapIndex = { v : 0 };
+      MapIndex.v = -1;
+      if (!TLccAliasServer.FindInAliasSortedMap(Self,AnAliasID,MapIndex)) {
+         TLccAliasServer.AddMapping(Self,ANodeID.slice(0),AnAliasID);
+      }
+   }
+   /// procedure TLccAliasServer.RemoveMapping(AnAliasID: Word)
+   ///  [line: 345, column: 27, file: lcc_alias_server]
+   ,RemoveMapping:function(Self, AnAliasID) {
+      TLccAliasServer.RemoveMappingByAliasID(Self,AnAliasID);
+   }
+   /// function TLccAliasServer.RemoveMappingByAliasID(AnAliasID: Word) : Boolean
+   ///  [line: 221, column: 26, file: lcc_alias_server]
+   ,RemoveMappingByAliasID:function(Self, AnAliasID) {
+      var Result = false;
+      var MapIndex = { v : 0 };
+      Result = false;
+      MapIndex.v = -1;
+      TLccAliasServer.FindInAliasSortedMap(Self,AnAliasID,MapIndex);
+      if (MapIndex.v > -1) {
+         TObjectList.Remove$1(Self.FNodeIDSortedMap,MapIndex.v);
+         TObjectList.Remove$1(Self.FAliasSortedMap,MapIndex.v);
+         TLccAliasServer.DoDeleteMapping(Self);
+         Result = true;
+      }
+      return Result
+   }
+   /// procedure TLccAliasServer.SortMaps()
+   ///  [line: 351, column: 27, file: lcc_alias_server]
+   ,SortMaps:function(Self) {
+      if (Self.FIsDirty) {
+         TObjectList.Sort$4(Self.FAliasSortedMap,SortFuncAlias);
+         TObjectList.Sort$4(Self.FNodeIDSortedMap,SortFuncNodeID);
+         Self.FIsDirty = false;
+      }
+   }
+   ,Destroy$:function($){return $.ClassType.Destroy($)}
+};
+/// TLccAliasMap = class (TObject)
+///  [line: 49, column: 3, file: lcc_alias_server]
+var TLccAliasMap = {
+   $ClassName:"TLccAliasMap",$Parent:TObject
+   ,$Init:function ($) {
+      TObject.$Init($);
+      $.FAliasID$2 = 0;
+      $.FNodeID$3 = [0,0];
+   }
+   /// constructor TLccAliasMap.Create(ANodeID: TNodeID; AnAliasID: Word)
+   ///  [line: 118, column: 26, file: lcc_alias_server]
+   ,Create$211:function(Self, ANodeID, AnAliasID) {
+      Self.FAliasID$2 = AnAliasID;
+      Self.FNodeID$3[0] = ANodeID[0];
+      Self.FNodeID$3[1] = ANodeID[1];
+      return Self
+   }
+   ,Destroy:TObject.Destroy
+};
+function SortFuncAlias(Item1, Item2) {
+   var Result = 0;
+   var Mapping1 = null,
+      Mapping2 = null;
+   Mapping1 = $As(Item1,TLccAliasMap);
+   Mapping2 = $As(Item2,TLccAliasMap);
+   if (Mapping1.FAliasID$2 > Mapping2.FAliasID$2) {
+      Result = 1;
+   } else if (Mapping1.FAliasID$2 < Mapping2.FAliasID$2) {
+      Result = -1;
+   } else {
+      Result = 0;
+   }
+   return Result
+};
+function SortFuncNodeID(Item1, Item2) {
+   var Result = 0;
+   var Mapping1$1 = null,
+      Mapping2$1 = null;
+   Mapping1$1 = $As(Item1,TLccAliasMap);
+   Mapping2$1 = $As(Item2,TLccAliasMap);
+   if (Mapping1$1.FNodeID$3[1] > Mapping2$1.FNodeID$3[1]) {
+      Result = 1;
+   } else if (Mapping1$1.FNodeID$3[1] < Mapping2$1.FNodeID$3[1]) {
+      Result = -1;
+   } else if (Mapping1$1.FNodeID$3[0] > Mapping2$1.FNodeID$3[0]) {
+      Result = 1;
+   } else if (Mapping1$1.FNodeID$3[0] < Mapping2$1.FNodeID$3[0]) {
+      Result = -1;
+   } else {
+      Result = 0;
+   }
+   return Result
 };
 /// TTabSettingsForm = class (TW3Form)
 ///  [line: 48, column: 3, file: TabSettingsForm]
@@ -37559,8 +37797,8 @@ var TTabSettingsForm = {
       Self.ControllerManager.NodeManager$1.FOnLccMessageSend = function (Sender$1, LccMessage) {
          var i$7 = 0;
          TStringList.SetText(Self.MessageList,TLccMessage.ConvertToGridConnectStr(LccMessage,"\n",false));
-         var $temp178;
-         for(i$7=0,$temp178=TStringList.GetCount(Self.MessageList);i$7<$temp178;i$7++) {
+         var $temp179;
+         for(i$7=0,$temp179=TStringList.GetCount(Self.MessageList);i$7<$temp179;i$7++) {
             if (TW3CheckBox.GetChecked(Self.W3CheckBoxLogging)) {
                TW3ListBox.Add$16(Self.W3ListBoxLog,"S: " + Trim$_String_(TStringList.GetItem$13(Self.MessageList,i$7)));
             }
@@ -37792,8 +38030,8 @@ var TW3WebSocket = {
          return;
       }
       try {
-         var $temp179;
-         for(x$42=0,$temp179=Self.FDisconnectStack.length;x$42<$temp179;x$42++) {
+         var $temp180;
+         for(x$42=0,$temp180=Self.FDisconnectStack.length;x$42<$temp180;x$42++) {
             try {
                Self.FDisconnectStack[x$42](Self,true);
             } catch ($e) {
@@ -37866,8 +38104,8 @@ var TW3WebSocket = {
    ,HandleOpened:function(Self, Ev) {
       var x$42 = 0;
       try {
-         var $temp180;
-         for(x$42=0,$temp180=Self.FConnectStack.length;x$42<$temp180;x$42++) {
+         var $temp181;
+         for(x$42=0,$temp181=Self.FConnectStack.length;x$42<$temp181;x$42++) {
             try {
                Self.FConnectStack[x$42](Self,true);
             } catch ($e) {

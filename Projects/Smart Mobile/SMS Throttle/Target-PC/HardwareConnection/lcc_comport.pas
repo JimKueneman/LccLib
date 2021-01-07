@@ -110,9 +110,6 @@ type
     { Private declarations }
   protected
     { Protected declarations }
-      // Property getter must override and make definition based on connection type
-    function GetConnected: Boolean; override;
-
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
@@ -233,11 +230,6 @@ begin
   {$ENDIF}
 end;
 
-function TLccComPort.GetConnected: Boolean;
-begin
- // TODO Result := CurrentConnectionState = ccsClientConnected;
-end;
-
 function TLccComPort.OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := nil;
@@ -335,7 +327,7 @@ begin
   Serial.Connect((ConnectionInfo as TLccComPortConnectionInfo).ComPort);
   if Serial.LastError <> 0 then
   begin
-    HandleErrorAndDisconnect;
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
     Running := False;
   end
   else begin
@@ -343,7 +335,7 @@ begin
       Serial.Config(Baud, Bits, Parity, StopBits, SoftwareHandshake, HardwareHandShake);
     if Serial.LastError <> 0 then
     begin
-      HandleErrorAndDisconnect;
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
       Serial.CloseSocket;
       Serial.Free;
       Serial := nil;
@@ -376,7 +368,7 @@ begin
                 begin
                   Serial.SendString(TxStr);
                   if Serial.LastError <> 0 then
-                    HandleErrorAndDisconnect;
+                    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
                 end;
                 LocalSleepCount := 0;
               end;
@@ -386,7 +378,7 @@ begin
               case Serial.LastError of
                 0, ErrTimeout : begin end;
               else
-                HandleErrorAndDisconnect
+                HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages)
               end;
               for i := 1 to Length(RcvStr) do
               begin
@@ -417,7 +409,7 @@ begin
                 begin
                   Serial.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
                   if Serial.LastError <> 0 then
-                    HandleErrorAndDisconnect;
+                    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
                   DynamicByteArray := nil;
                 end;
                 LocalSleepCount := 0;
@@ -449,7 +441,7 @@ begin
 
                   end;
               else
-                HandleErrorAndDisconnect
+                HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages)
               end;
             end;
           end;

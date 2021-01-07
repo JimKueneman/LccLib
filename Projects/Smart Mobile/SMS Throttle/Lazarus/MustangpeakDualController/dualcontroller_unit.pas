@@ -267,7 +267,7 @@ begin
     LocalInfo.ListenerIP := EditCommandStationIPAddress.Text;
     LocalInfo.AutoResolveIP := True;
     LocalInfo.ListenerPort := 12021;
-    ClientServer1.Gridconnect := True;
+    LocalInfo.Gridconnect := True;
     ClientServer1.OpenConnection(LocalInfo);
     finally
       LocalInfo.Free;
@@ -291,7 +291,7 @@ begin
     LocalInfo.ListenerIP := EditCommandStationIPAddress.Text;
     LocalInfo.AutoResolveIP := True;
     LocalInfo.ListenerPort := 12021;
-    ClientServer2.Gridconnect := True;
+    LocalInfo.Gridconnect := True;
     ClientServer2.OpenConnection(LocalInfo);
     finally
       LocalInfo.Free;
@@ -559,36 +559,39 @@ end;
 
 procedure TForm1.OnClientServer1ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  case (Info as TLccEthernetConnectionInfo).ConnectionState of
-    ccsClientConnecting : StatusBarThrottle1.Panels[0].Text    := 'Connecting';
-    ccsClientConnected  :
-      begin
-        ButtonConnect1.Caption := 'Disconnect';
-        StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
-        ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-        ControllerNode1.OnTrainAssigned := @ControllerTrainAssigned1;
-        ControllerNode1.OnTrainReleased := @ControllerTrainReleased1;
-        ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
-        ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
-        ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
-        ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
-        PanelThrottleFace1.Enabled := True;
-      end;
-    ccsClientDisconnecting :
-      begin
-        StatusBarThrottle1.Panels[0].Text := 'Disconnecting';
-        NodeManager1.Clear;
-        ControllerNode1 := nil;
-      end;
-    ccsClientDisconnected :
-      begin
-        StatusBarThrottle1.Panels[0].Text := 'Disconnected';
-        ButtonConnect1.Caption := 'Connect';
-        LabelAlias1.Caption := 'None';
-        LabelNodeID1.Caption := 'None';
-        PanelThrottleFace1.Enabled := False;
-      end;
-  end;
+  if Sender is TLccConnectionThread then
+  begin
+    case (Info as TLccEthernetConnectionInfo).ConnectionState of
+      lcsConnecting : StatusBarThrottle1.Panels[0].Text    := 'Connecting';
+      lcsConnected  :
+        begin
+          ButtonConnect1.Caption := 'Disconnect';
+          StatusBarThrottle1.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
+          ControllerNode1 := NodeManager1.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+          ControllerNode1.OnTrainAssigned := @ControllerTrainAssigned1;
+          ControllerNode1.OnTrainReleased := @ControllerTrainReleased1;
+          ControllerNode1.OnControllerRequestTakeover := @OnControllerReqestTakeover1;
+          ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
+          ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
+          ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
+          PanelThrottleFace1.Enabled := True;
+        end;
+      lcsDisconnecting :
+        begin
+          StatusBarThrottle1.Panels[0].Text := 'Disconnecting';
+          NodeManager1.Clear;
+          ControllerNode1 := nil;
+        end;
+      lcsDisconnected :
+        begin
+          StatusBarThrottle1.Panels[0].Text := 'Disconnected';
+          ButtonConnect1.Caption := 'Connect';
+          LabelAlias1.Caption := 'None';
+          LabelNodeID1.Caption := 'None';
+          PanelThrottleFace1.Enabled := False;
+        end;
+    end;
+  end
 end;
 
 procedure TForm1.OnClientServer1ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
@@ -601,35 +604,38 @@ end;
 
 procedure TForm1.OnClientServer2ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  case (Info as TLccEthernetConnectionInfo).ConnectionState of
-    ccsClientConnecting : StatusBarThrottle2.Panels[0].Text    := 'Connecting';
-    ccsClientConnected  :
-      begin
-        ButtonConnect2.Caption := 'Disconnect';
-        StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
-        ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-        ControllerNode2.OnTrainAssigned := @ControllerTrainAssigned2;
-        ControllerNode2.OnTrainReleased := @ControllerTrainReleased2;
-        ControllerNode2.OnControllerRequestTakeover := @OnControllerReqestTakeover2;
-        ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
-        ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
-        ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
-        PanelThrottleFace2.Enabled := True;
-      end;
-    ccsClientDisconnecting :
-      begin
-        StatusBarThrottle2.Panels[0].Text := 'Disconnecting';
-        NodeManager2.Clear;
-        ControllerNode2 := nil;
-      end;
-    ccsClientDisconnected :
-      begin
-        StatusBarThrottle2.Panels[0].Text := 'Disconnected';
-        ButtonConnect2.Caption := 'Connect';
-        LabelAlias2.Caption := 'None';
-        LabelNodeID2.Caption := 'None';
-        PanelThrottleFace2.Enabled := False;
-      end;
+  if Sender is TLccConnectionThread then
+  begin
+    case (Info as TLccEthernetConnectionInfo).ConnectionState of
+      lcsConnecting : StatusBarThrottle2.Panels[0].Text    := 'Connecting';
+      lcsConnected  :
+        begin
+          ButtonConnect2.Caption := 'Disconnect';
+          StatusBarThrottle2.Panels[0].Text := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
+          ControllerNode2 := NodeManager2.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+          ControllerNode2.OnTrainAssigned := @ControllerTrainAssigned2;
+          ControllerNode2.OnTrainReleased := @ControllerTrainReleased2;
+          ControllerNode2.OnControllerRequestTakeover := @OnControllerReqestTakeover2;
+          ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
+          ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
+          ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
+          PanelThrottleFace2.Enabled := True;
+        end;
+      lcsDisconnecting :
+        begin
+          StatusBarThrottle2.Panels[0].Text := 'Disconnecting';
+          NodeManager2.Clear;
+          ControllerNode2 := nil;
+        end;
+      lcsDisconnected :
+        begin
+          StatusBarThrottle2.Panels[0].Text := 'Disconnected';
+          ButtonConnect2.Caption := 'Connect';
+          LabelAlias2.Caption := 'None';
+          LabelNodeID2.Caption := 'None';
+          PanelThrottleFace2.Enabled := False;
+        end;
+    end;
   end;
 end;
 

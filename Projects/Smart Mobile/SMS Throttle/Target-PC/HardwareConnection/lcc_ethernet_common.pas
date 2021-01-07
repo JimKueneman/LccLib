@@ -57,8 +57,10 @@ type
     FClientIP: string;
     FClientPort: word;
     FHeartbeat: Integer;
+    FLingerTime: Integer;
     FListenerIP: string;
     FListenerPort: word;
+    FSuppressConnectionResetError: Boolean;
   public
     property AutoResolveIP: Boolean read FAutoResolve write FAutoResolve;                     // Tries to autoresolve the local unique netword IP of the machine
     property ClientIP: string read FClientIP write FClientIP;
@@ -66,7 +68,10 @@ type
     property HeartbeatRate: Integer read FHeartbeat write FHeartbeat;
     property ListenerIP: string read FListenerIP write FListenerIP;
     property ListenerPort: word read FListenerPort write FListenerPort;
+    property LingerTime: Integer read FLingerTime write FLingerTime;
+    property SuppressConnectionResetError: Boolean read FSuppressConnectionResetError write FSuppressConnectionResetError;
 
+    constructor Create;
     function Clone: TLccHardwareConnectionInfo; override;
   end;
 
@@ -90,7 +95,7 @@ type
     {$ENDIF}
     property GridConnectMessageAssembler: TLccGridConnectMessageAssembler read FGridConnectMessageAssembler write FGridConnectMessageAssembler;
 
-    procedure HandleErrorAndDisconnect; override;
+    procedure HandleErrorAndDisconnect(SuppressMessage: Boolean); override;
     procedure HandleSendConnectionNotification(NewConnectionState: TLccConnectionState); override;
     procedure OnConnectionStateChange; virtual;
     procedure OnErrorMessageReceive; virtual;
@@ -98,10 +103,10 @@ type
     procedure SendMessage(AMessage: TLccMessage); override;
     procedure ForceTerminate; override;
 
-    procedure TryTransmitGridConnect(HandleErrors: Boolean);
-    procedure TryTransmitTCPProtocol(HandleErrors: Boolean);
-    procedure TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
-    procedure TryReceiveTCPProtocol(HandleErrors: Boolean);
+    procedure TryTransmitGridConnect;
+    procedure TryTransmitTCPProtocol;
+    procedure TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper);
+    procedure TryReceiveTCPProtocol;
 
   public
     constructor Create(CreateSuspended: Boolean; AnOwner: TLccHardwareConnectionManager; AConnectionInfo: TLccHardwareConnectionInfo); override;
@@ -133,6 +138,12 @@ implementation
 
 { TLccEthernetConnectionInfo }
 
+constructor TLccEthernetConnectionInfo.Create;
+begin
+  inherited;
+  FSuppressConnectionResetError := True;
+end;
+
 function TLccEthernetConnectionInfo.Clone: TLccHardwareConnectionInfo;
 begin
   Result := inherited Clone;
@@ -142,7 +153,10 @@ begin
   (Result as TLccEthernetConnectionInfo).ListenerIP := (Self as TLccEthernetConnectionInfo).ListenerIP;
   (Result as TLccEthernetConnectionInfo).ListenerPort := (Self as TLccEthernetConnectionInfo).ListenerPort;
   (Result as TLccEthernetConnectionInfo).HeartbeatRate := (Self as TLccEthernetConnectionInfo).HeartbeatRate;
+  (Result as TLccEthernetConnectionInfo).LingerTime := (Self as TLccEthernetConnectionInfo).LingerTime;
+  (Result as TLccEthernetConnectionInfo).SuppressConnectionResetError := (Self as TLccEthernetConnectionInfo).SuppressConnectionResetError;
 end;
+
 
 { TLccEthernetHardwareConnectionManager }
 
@@ -192,11 +206,11 @@ end;
 
 { TLccBaseEthernetThread }
 
-procedure TLccBaseEthernetThread.HandleErrorAndDisconnect;
+procedure TLccBaseEthernetThread.HandleErrorAndDisconnect(SuppressMessage: Boolean);
 begin
   ConnectionInfo.ErrorCode := Socket.LastError;
   ConnectionInfo.MessageStr := Socket.LastErrorDesc;
-  inherited HandleErrorAndDisconnect;
+  inherited HandleErrorAndDisconnect(SuppressMessage);
 end;
 
 procedure TLccBaseEthernetThread.HandleSendConnectionNotification(NewConnectionState: TLccConnectionState);
@@ -255,7 +269,7 @@ begin
    Socket.CloseSocket;
 end;
 
-procedure TLccBaseEthernetThread.TryTransmitGridConnect(HandleErrors: Boolean);
+procedure TLccBaseEthernetThread.TryTransmitGridConnect;
 var
   TxStr: string;
   TxList: TStringList;
@@ -273,13 +287,13 @@ begin
 
   if TxStr <> '' then
   begin
-    Socket.SendString(String( TxStr) + #10);
-    if (Socket.LastError <> 0) and HandleErrors then
-      HandleErrorAndDisconnect;
+    Socket.SendString(String( TxStr));
+    if Socket.LastError <> 0 then
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
   end;
 end;
 
-procedure TLccBaseEthernetThread.TryTransmitTCPProtocol(HandleErrors: Boolean);
+procedure TLccBaseEthernetThread.TryTransmitTCPProtocol;
 var
   DynamicByteArray: TLccDynamicByteArray;
 begin
@@ -295,18 +309,17 @@ begin
   if Length(DynamicByteArray) > 0 then
   begin
     Socket.SendBuffer(@DynamicByteArray[0], Length(DynamicByteArray));
-    if (Socket.LastError <> 0) and HandleErrors then
-      HandleErrorAndDisconnect;
+    if (Socket.LastError <> 0) then
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
   end;
 end;
 
 procedure TLccBaseEthernetThread.TryReceiveGridConnect(
-  AGridConnectHelper: TGridConnectHelper; HandleErrors: Boolean);
+  AGridConnectHelper: TGridConnectHelper);
 var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
   RxList: TStringList;
-  i: Integer;
 begin
   RcvByte := Socket.RecvByte(1);
   case Socket.LastError of
@@ -347,16 +360,14 @@ begin
       end;
     WSAECONNRESET   :
       begin
-        if HandleErrors then
-          HandleErrorAndDisconnect;
+        HandleErrorAndDisconnect((ConnectionInfo.SuppressErrorMessages or ((ConnectionInfo as TLccEthernetConnectionInfo).SuppressConnectionResetError)));
       end
   else
-    if HandleErrors then
-      HandleErrorAndDisconnect
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages)
   end;
 end;
 
-procedure TLccBaseEthernetThread.TryReceiveTCPProtocol(HandleErrors: Boolean);
+procedure TLccBaseEthernetThread.TryReceiveTCPProtocol;
 var
   RcvByte: Byte;
 begin
@@ -387,12 +398,10 @@ begin
       end;
     WSAECONNRESET   :
       begin
-        if HandleErrors then
-          HandleErrorAndDisconnect;
+        HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages or ((ConnectionInfo as TLccEthernetConnectionInfo).SuppressConnectionResetError))
       end
   else
-    if HandleErrors then
-      HandleErrorAndDisconnect
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
   end;
 end;
 

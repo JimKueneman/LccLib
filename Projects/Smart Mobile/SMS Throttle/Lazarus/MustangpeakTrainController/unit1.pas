@@ -201,7 +201,6 @@ var
 begin
   LocalInfo := TLccEthernetConnectionInfo.Create;
   try
-    LocalInfo.ListenerPort := 12021;
     if EthernetClient.Connected then
     begin
       NodeManager.LogoutAll;
@@ -211,10 +210,13 @@ begin
     end else
     begin
       LocalInfo.AutoResolveIP := False;
+
+      LocalInfo.ListenerPort := 12021;
       if CheckBoxThrottleLocalIP.Checked then
         LocalInfo.ListenerIP := '127.0.0.1'
       else
         LocalInfo.ListenerIP := Edit1.Text;
+      LocalInfo.GridConnect := True;
 
       EthernetClient.OpenConnection(LocalInfo);
       ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
@@ -244,7 +246,6 @@ begin
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChange;
 
   EthernetClient := TLccEthernetClient.Create(nil, NodeManager);
-  EthernetClient.Gridconnect := True;
   EthernetClient.OnConnectionStateChange := @OnClientServerConnectionChange;
   EthernetClient.OnErrorMessage := @OnClientServerErrorMessage;
 end;
@@ -315,20 +316,29 @@ end;
 
 procedure TFormTrainController.OnClientServerConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-  case (Info as TLccEthernetConnectionInfo).ConnectionState of
-    ccsClientConnecting : LabelThrottleIPAddress.Caption    := 'IP Address: Connecting';
-    ccsClientConnected  :
-      begin
-        LabelThrottleIPAddress.Caption    := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
-        ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
-      end;
-    ccsClientDisconnecting :
-      begin
-        NodeManager.Clear;   // Logout
-        ControllerNode := nil;
-        LabelThrottleIPAddress.Caption := 'IP Address: Disconnecting';
-      end;
-    ccsClientDisconnected : LabelThrottleIPAddress.Caption  := 'IP Address: Disconnected';
+  if Sender is TLccConnectionThread then
+  begin
+    case Info.ConnectionState of
+      lcsConnecting :
+        begin
+          LabelThrottleIPAddress.Caption    := 'IP Address: Connecting';
+        end;
+     lcsConnected :
+        begin
+          LabelThrottleIPAddress.Caption    := 'IP Address: ' + (Info as TLccEthernetConnectionInfo).ClientIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ClientPort);
+          ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True) as TLccTrainController;
+        end;
+      lcsDisconnecting :
+        begin
+          NodeManager.Clear;   // Logout
+          ControllerNode := nil;
+          LabelThrottleIPAddress.Caption := 'IP Address: Disconnecting';
+        end;
+      lcsDisconnected :
+        begin
+          LabelThrottleIPAddress.Caption  := 'IP Address: Disconnected';
+        end;
+    end;
   end;
 end;
 

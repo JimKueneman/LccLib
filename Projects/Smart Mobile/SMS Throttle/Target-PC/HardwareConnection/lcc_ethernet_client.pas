@@ -92,7 +92,6 @@ type
     { Private declarations }
   protected
     { Protected declarations }
-    function GetConnected: Boolean; override;
     function IsLccLink: Boolean; override;
   public
     { Public declarations }
@@ -157,18 +156,12 @@ end;
 
 { TLccEthernetClient }
 
-function TLccEthernetClient.GetConnected: Boolean;
-begin
-  //TODO
-end;
-
 function TLccEthernetClient.IsLccLink: Boolean;
 begin
   Result := True;
 end;
 
-function TLccEthernetClient.OpenConnection(
-  ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
+function TLccEthernetClient.OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
   Result := inherited OpenConnection(ConnectionInfo as TLccEthernetConnectionInfo);
   Result := TLccEthernetClientThread.Create(True, Self, ConnectionInfo);
@@ -273,16 +266,9 @@ end;
 
 procedure TLccEthernetClientThread.Execute;
 var
-  TxStr: String;
-  i: Integer;
-  GridConnectStrPtr: PGridConnectString;
-  GridConnectStr: TGridConnectString;
   GridConnectHelper: TGridConnectHelper;
-  TxList, RxList: TStringList;
   RetryCount: Integer;
   Peer: TVarSin;
-  DynamicByteArray: TLccDynamicByteArray;
-  RcvByte: Byte;
   LocalSleepCount: Integer;
 begin
   FRunning := True;
@@ -290,6 +276,8 @@ begin
   HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+  if (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime > 0 then
+    Socket.SetLinger(True, (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime);
   Socket.Family := SF_IP4;                  // IP4
   if ConnectionInfo.GridConnect then
     Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
@@ -297,7 +285,7 @@ begin
   Socket.SetTimeout(0);
   if Socket.LastError <> 0 then
   begin
-    HandleErrorAndDisconnect;
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
     Socket.CloseSocket;
     Socket.Free;
     Socket := nil;
@@ -329,7 +317,7 @@ begin
 
     if Socket.LastError <> 0 then
     begin
-      HandleErrorAndDisconnect;
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
       Socket.CloseSocket;
       Socket.Free;
       Socket := nil;
@@ -348,30 +336,30 @@ begin
             begin
               if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
-                TryTransmitGridConnect(True);
+                TryTransmitGridConnect;
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-              TryReceiveGridConnect(GridConnectHelper, True);
+              TryReceiveGridConnect(GridConnectHelper);
             end else
             begin    // Handle the Socket with LCC TCP Protocol
               if LocalSleepCount >= ConnectionInfo.SleepCount then
               begin
-                TryTransmitTCPProtocol(True);
+                TryTransmitTCPProtocol;
                 LocalSleepCount := 0;
               end;
               Inc(LocalSleepCount);
 
-              TryReceiveTCPProtocol(True);
+              TryReceiveTCPProtocol;
             end;
           end;
         finally
           HandleSendConnectionNotification(lcsDisconnecting);
           if ConnectionInfo.Gridconnect then
-            TryTransmitGridConnect(False) // Flush it
+            TryTransmitGridConnect // Flush it
           else
-            TryTransmitTCPProtocol(False);
+            TryTransmitTCPProtocol;
           Socket.CloseSocket;
           Socket.Free;
           Socket := nil;

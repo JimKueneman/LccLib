@@ -110,6 +110,8 @@ begin
 
   HandleSendConnectionNotification(lcsConnecting);
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+  if (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime > 0 then
+    Socket.SetLinger(True, (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime);
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
   Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
@@ -117,7 +119,7 @@ begin
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
   if Socket.LastError <> 0 then
   begin
-    HandleErrorAndDisconnect;
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
     Socket.CloseSocket;
     Socket.Free;
     Socket := nil;
@@ -130,7 +132,7 @@ begin
     (ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
-      HandleErrorAndDisconnect;
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
       Socket.CloseSocket;
       Socket.Free;
       Socket := nil;
@@ -222,14 +224,13 @@ begin
                 end;
               WSAETIMEDOUT :
                 begin
-           //       HandleErrorAndDisconnect;
                 end;
               WSAECONNRESET   :
                 begin
-                  HandleErrorAndDisconnect;
+                  HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages or (ConnectionInfo as TLccEthernetConnectionInfo).SuppressConnectionResetError)
                 end
             else
-              HandleErrorAndDisconnect
+              HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages)
             end;
 
         end;

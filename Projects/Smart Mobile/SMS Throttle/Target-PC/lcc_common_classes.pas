@@ -57,7 +57,9 @@ type
     FHub: Boolean;
     FLccMessage: TLccMessage;
     FMessageStr: String;
+    FSleepCofunt: Integer;
     FSleepCount: Integer;
+    FSuppressErrorMessages: Boolean;
     FThread: TLccConnectionThread;
     FUseSyncronize: Boolean;
   public
@@ -75,7 +77,8 @@ type
     property LccMessage: TLccMessage read FLccMessage write FLccMessage;
     property ErrorCode: Integer read FErrorCode write FErrorCode;
     property MessageStr: String read FMessageStr write FMessageStr;             // Contains the string for the resulting message from the thread
-    property SleepCount: Integer read FSleepCount write FSleepCount;
+    property SleepCount: Integer read FSleepCount write FSleepCofunt;
+    property SuppressErrorMessages: Boolean read FSuppressErrorMessages write FSuppressErrorMessages;
     property UseSyncronize: Boolean read FUseSyncronize write FUseSyncronize;
   end;
 
@@ -101,7 +104,7 @@ type
     property Owner: TLccHardwareConnectionManager read FOwner write FOwner;
     property TcpDecodeStateMachine: TOPStackcoreTcpDecodeStateMachine read FTcpDecodeStateMachine write FTcpDecodeStateMachine;
 
-    procedure HandleErrorAndDisconnect; virtual;
+    procedure HandleErrorAndDisconnect(SuppressMessage: Boolean); virtual;
     procedure HandleSendConnectionNotification(NewConnectionState: TLccConnectionState); virtual;
 
     procedure SendMessage(AMessage: TLccMessage); virtual; abstract;
@@ -161,8 +164,8 @@ type
     // useful in decendants, GetConnected could just return this with the object setting FConnected correctly
     FConnected: Boolean;
 
-    // Property getter must override and make definition based on connection type
-    function GetConnected: Boolean; virtual; abstract;
+    // May need to override if the default behavior is not correct for connection.
+    function GetConnected: Boolean; virtual;
 
     property Hub: Boolean read FHub write FHub;
 
@@ -254,8 +257,7 @@ begin
   begin
     L := LockList;
     try
-      ConnectionThread := TLccConnectionThread( L[0]);
-      L.Delete(0);
+      ConnectionThread := TLccConnectionThread( L[0]); // Thread takes itself out of the list when done
     finally
       UnlockList;
     end;
@@ -313,6 +315,7 @@ begin
   Result.SleepCount := SleepCount;
   Result.UseSyncronize := UseSyncronize;
   Result.FLccMessage := TLccMessage.Create;
+  Result.SuppressErrorMessages := SuppressErrorMessages;
 end;
 
 destructor TLccHardwareConnectionInfo.Destroy;
@@ -323,6 +326,25 @@ end;
 
 
 { TLccHardwareConnectionManager }
+
+function TLccHardwareConnectionManager.GetConnected: Boolean;
+var
+  LocalThreads: TList;
+  i: Integer;
+begin
+  Result := False;
+  LocalThreads := ConnectionThreads.LockList;
+  try
+    i := 0;
+    while (i < LocalThreads.Count) and not Result do
+    begin
+      Result := TLccConnectionThread(LocalThreads[i]).ConnectionInfo.ConnectionState = lcsConnected;
+      Inc(i);
+    end;
+  finally
+    ConnectionThreads.UnlockList;
+  end;
+end;
 
 procedure TLccHardwareConnectionManager.DoReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo);
 begin
@@ -570,10 +592,10 @@ begin
   Result := Terminated;
 end;
 
-procedure TLccConnectionThread.HandleErrorAndDisconnect;
+procedure TLccConnectionThread.HandleErrorAndDisconnect(SuppressMessage: Boolean);
 begin
   Owner.ConnectionThreads.Remove(Self);
-  if (ConnectionInfo.ErrorCode <> 0) then
+  if not SuppressMessage and (ConnectionInfo.ErrorCode <> 0) then
     Synchronize({$IFDEF FPC}@{$ENDIF}ErrorMessage);
   HandleSendConnectionNotification(lcsDisconnected);
   Terminate;

@@ -168,6 +168,8 @@ begin
   HandleSendConnectionNotification(lcsConnecting);
   GridConnectHelper := TGridConnectHelper.Create;
   Socket := TTCPBlockSocket.Create;          // Created in context of the thread
+  if (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime > 0 then
+    Socket.SetLinger(True, (ConnectionInfo as TLccEthernetConnectionInfo).LingerTime);
   Socket.Family := SF_IP4;                  // IP4
   Socket.ConvertLineEnd := True;            // Use #10, #13, or both to be a "string"
   Socket.HeartbeatRate := (ConnectionInfo as TLccEthernetConnectionInfo).HeartbeatRate;
@@ -175,7 +177,7 @@ begin
   Socket.Socket := ListenerSocketHandle;    // Read back the handle
   if Socket.LastError <> 0 then
   begin
-    HandleErrorAndDisconnect;
+    HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
     Socket.CloseSocket;
     Socket.Free;
     Socket := nil;
@@ -189,7 +191,7 @@ begin
     (ConnectionInfo as TLccEthernetConnectionInfo).ListenerPort := Socket.GetLocalSinPort;
     if Socket.LastError <> 0 then
     begin
-      HandleErrorAndDisconnect;
+      HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
       Socket.CloseSocket;
       Socket.Free;
       Socket := nil;
@@ -216,7 +218,7 @@ begin
                 BuildAndSendInitializeSuccessReply(Socket, HeaderStrings.Values['Sec-WebSocket-Key:'])
               else begin
                 BuildAndSendInitializeFailureReply(Socket);
-                HandleErrorAndDisconnect;
+                HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
               end;
 
               FreeAndNil(HeaderStrings);
@@ -322,7 +324,8 @@ begin
                     end;
                   WSAECONNRESET   :
                     begin
-                      HandleErrorAndDisconnect;
+                      if not (ConnectionInfo as TLccEthernetConnectionInfo).SuppressConnectionResetError then
+                        HandleErrorAndDisconnect
                     end
                 else
                   HandleErrorAndDisconnect
@@ -445,7 +448,7 @@ begin
           ASocket.ResetLastError;
           for iHeader := 0 to LCC_WEBSOCKET_CLOSE_HEADER_SERVER_LEN - 1 do
             ASocket.SendByte(LCC_WEBSOCKET_CLOSE_HEADER_SERVER[iHeader]);
-          HandleErrorAndDisconnect
+          HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages)
         end else
         if IsPing then
         begin
@@ -462,8 +465,7 @@ begin
       end;
     WSAECONNRESET   :
       begin
-        ASocket.ResetLastError;
-        HandleErrorAndDisconnect
+        HandleErrorAndDisconnect((ConnectionInfo.SuppressErrorMessages) or (ConnectionInfo as TLccEthernetConnectionInfo).SuppressConnectionResetError)
       end
   end;
 end;
@@ -484,7 +486,7 @@ begin
   {$ENDIF}
 
  if ASocket.LastError <> 0 then
-   HandleErrorAndDisconnect;
+   HandleErrorAndDisconnect(ConnectionInfo.SuppressErrorMessages);
 end;
 
 { TLccWebsocketServer }
