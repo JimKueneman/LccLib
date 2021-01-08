@@ -628,6 +628,11 @@ end;
 
 procedure TLccConnectionThread.ReceiveMessage;
 begin
+  // here is where we call backwards into the Connection Manager that owns this thread.
+  // The Connection Manager then call back into the Node Manager.  The Node Manager passes
+  // the message to its nodes plus then back out to any other Connection Managers
+  // that are registered.  The Manager decendant must override
+  // IsLccLink and return TRUE in order to be included in this system
   Owner.ReceiveMessage(Self, ConnectionInfo);
 end;
 

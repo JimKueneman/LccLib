@@ -55,7 +55,6 @@ type
 
   TLccEthernetServerThread =  class(TLccBaseEthernetThread)
   protected
-    procedure ReceiveMessage; override;
     procedure Execute; override;
   end;
 
@@ -428,37 +427,6 @@ begin
 end;
 
 {$ENDIF}
-
-procedure TLccEthernetServerThread.ReceiveMessage;
-var
-  L: TList;
-  i: Integer;
-begin
-  // Called in the content of the main thread through Syncronize
-
-  // here is where we call backwards into the Connection Manager that owns this thread.
-  // The Connection Manager then call back into the Node Manager.  The Node Manager passes
-  // the message to its nodes plus then stars back out to any other Connection Managers
-  // that are registered (as we are registered).  The Manager decendant must override
-  // IsLccLink and return TRUE in order to be included in this system
-  inherited ReceiveMessage;
-
-  // Now we look upwards into any thread we have that depend on use to pass on messages
-  // assuming we are a Hub.
- { if (Owner as TLccEthernetServer).Hub then
-  begin
-    L := Owner.ConnectionThreads.LockList;
-    try
-      for i := 0 to L.Count - 1 do
-      begin
-        if TLccEthernetServerThread(L[i]) <> Self then
-          TLccEthernetServerThread(L[i]).SendMessage(ConnectionInfo.LccMessage);
-      end;
-    finally
-      Owner.ConnectionThreads.UnlockList;
-    end
-  end;   }
-end;
 
 initialization
   RegisterClass(TLccEthernetServer);

@@ -51,10 +51,15 @@ const
 
 type
 
+  // This is how the Node Manager has access to the Connection Links with needing
+  // to have access the objects associated with the Links.  The Links have a
+  // pointer to TLccNodeManager so this allows us to not have to have a single unit
+  // to have visibility back and forth.
   IHardwareConnectionManagerLink = interface
     ['{619C8E64-69C3-94A6-B6FE-B16B6CB57A45}']
     procedure SendMessage(AMessage: TLccMessage);
     function IsLccLink: Boolean;
+//    if the node manager has no more active threads in its links then it should free all nodes and alias maps since it is no longer connected to any LCC networks and everythinbg is stale.
   end;
 
   INodeManager = interface
