@@ -866,6 +866,8 @@ procedure TLccNodeManager.ReceiveMessage(ConnectionManager: IHardwareConnectionM
 var
   i: Integer;
 begin
+  // Need to think about do I carry the Alias in the message anymore after all this?  Seems
+  // like the point is to remove it from the TLccMessage struture
   if not AliasServer.ValidateAlias(ALccMessage.CAN.SourceAlias) then
     SendAliasMappingEnquiry(ALccMessage.CAN.SourceAlias);
   if not AliasServer.ValidateAlias(ALccMessage.CAN.DestAlias) then

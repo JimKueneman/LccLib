@@ -95,10 +95,10 @@ type
   TLccEthernetServer = class(TLccEthernetHardwareConnectionManager)
   private
     FListenerThread: TLccEthernetListener;
+    function GetListenerConnected: Boolean;
     { Private declarations }
   protected
     { Protected declarations }
-    function GetConnected: Boolean; override;
     function CreateListenerObject(AConnectionInfo: TLccEthernetConnectionInfo): TLccEthernetListener; virtual;
     function IsLccLink: Boolean; override;
   public
@@ -107,6 +107,7 @@ type
     function OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread; override;
     procedure CloseConnection(EthernetThread: TLccConnectionThread);  override;
 
+    property ListenerConnected: Boolean read GetListenerConnected;
     property ListenerThread: TLccEthernetListener read FListenerThread write FListenerThread;
   end;
 
@@ -316,7 +317,7 @@ begin
   ListenerThread := (Result as TLccEthernetListener);
 end;
 
-function TLccEthernetServer.GetConnected: Boolean;
+function TLccEthernetServer.GetListenerConnected: Boolean;
 begin
   Result := False;
   if Assigned(ListenerThread) then
