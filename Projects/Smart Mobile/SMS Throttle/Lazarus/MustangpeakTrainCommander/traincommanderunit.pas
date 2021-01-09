@@ -174,7 +174,7 @@ end;
 
 procedure TFormTrainCommander.ButtonEthernetConnectClick(Sender: TObject);
 begin
-  if LccServer.Connected then
+  if LccServer.ListenerConnected then
     DisconnectServer
   else
     ConnectServer;
