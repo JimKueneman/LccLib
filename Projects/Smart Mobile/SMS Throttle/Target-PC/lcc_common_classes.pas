@@ -435,15 +435,17 @@ end;
 
 procedure TLccHardwareConnectionManager.ReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo);
 begin
+
   // Now send the message to the NodeManager to fan out to all the nodes and other Hardware Connection Managers it owns
   if ConnectionInfo.GridConnect then
-    NodeManager.HardwareConnectionRelayMessage(Self as IHardwareConnectionManagerLink, ConnectionInfo.LccMessage)
+    NodeManager.ReceiveMessage(Self as IHardwareConnectionManagerLink, ConnectionInfo.LccMessage)
   else begin
     if WorkerMessage.LoadByLccTcp(ConnectionInfo.MessageArray) then // In goes a raw message
-      NodeManager.HardwareConnectionRelayMessage(Self as IHardwareConnectionManagerLink, WorkerMessage);
+      NodeManager.ReceiveMessage(Self as IHardwareConnectionManagerLink, WorkerMessage);
   end;
 
-  // Act as a Hub
+
+  // Act as a Hub and fan out the message to all other threads that this Connection Manager owns
   if Hub then
     RelayMessageToOtherThreads(Thread, Connectioninfo.LccMessage);
 

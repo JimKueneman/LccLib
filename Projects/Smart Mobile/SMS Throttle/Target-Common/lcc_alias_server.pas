@@ -105,6 +105,7 @@ type
     function FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer): TLccAliasMap;
     procedure ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
     procedure RemoveMapping(AnAliasID: Word);
+    function ValidateAlias(AnAlias: Word): Boolean;
 
 
   end;
@@ -345,6 +346,15 @@ end;
 procedure TLccAliasServer.RemoveMapping(AnAliasID: Word);
 begin
   RemoveMappingByAliasID(AnAliasID);
+end;
+
+function TLccAliasServer.ValidateAlias(AnAlias: Word): Boolean;
+begin
+  Result := True;
+  if AnAlias <> 0 then
+  begin
+
+  end;
 end;
 
 

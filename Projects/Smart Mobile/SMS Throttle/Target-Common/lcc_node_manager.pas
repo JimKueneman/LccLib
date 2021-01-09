@@ -245,13 +245,14 @@ type
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
     function FindPermittedCanNode: TLccCanNode;
+    procedure SendAliasMappingEnquiry(AnAlias: Word);
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure ReceiveMessage(ConnectionManager: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
 
     procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
-    procedure HardwareConnectionRelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
     procedure HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure HardwareConnectionDisConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
@@ -743,6 +744,11 @@ begin
   end;
 end;
 
+procedure TLccNodeManager.SendAliasMappingEnquiry(AnAlias: Word);
+begin
+ // WorkerMessage.LoadAME();
+end;
+
 function TLccNodeManager.GetNode(Index: Integer): TLccNode;
 begin
   if Index < Nodes.Count then
@@ -856,6 +862,24 @@ begin
   DoLccMessageSend(Sender, LccMessage);
 end;
 
+procedure TLccNodeManager.ReceiveMessage(ConnectionManager: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+var
+  i: Integer;
+begin
+  if not AliasServer.ValidateAlias(ALccMessage.CAN.SourceAlias) then
+    SendAliasMappingEnquiry(ALccMessage.CAN.SourceAlias);
+  if not AliasServer.ValidateAlias(ALccMessage.CAN.DestAlias) then
+    SendAliasMappingEnquiry(ALccMessage.CAN.DestAlias);
+
+  for i := 0 to HardwareConnectionLinkCount - 1 do
+  begin
+    if (HardwareConnectionLinkArray[i].IsLccLink) and (HardwareConnectionLinkArray[i] <> ConnectionManager)  then
+      HardwareConnectionLinkArray[i].SendMessage(ALccMessage);
+  end;
+
+  ProcessMessage(ALccMessage);
+end;
+
 procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage);
 begin
   SendMessage(Sender, LccMessage);
@@ -880,19 +904,6 @@ begin
       Dec(HardwareConnectionLinkCount);
     end;
   end;
-end;
-
-procedure TLccNodeManager.HardwareConnectionRelayMessage(Source: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
-var
-  i: Integer;
-begin
-  for i := 0 to HardwareConnectionLinkCount - 1 do
-  begin
-    if (HardwareConnectionLinkArray[i].IsLccLink) and (HardwareConnectionLinkArray[i] <> Source)  then
-      HardwareConnectionLinkArray[i].SendMessage(ALccMessage);
-  end;
-
-  ProcessMessage(ALccMessage);
 end;
 
 procedure TLccNodeManager.HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
