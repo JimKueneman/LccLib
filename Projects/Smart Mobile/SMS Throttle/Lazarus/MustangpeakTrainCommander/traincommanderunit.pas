@@ -486,6 +486,7 @@ procedure TFormTrainCommander.OnCommandStationWebsocketErrorMessage(
   Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
  //  ShowMessage('Websocket Server: ' + EthernetRec.MessageStr);
+  Info := Info;
 end;
 
 procedure TFormTrainCommander.OnCommandStationHTTPConnectionState(Sender: TObject; Info: TLccHardwareConnectionInfo);

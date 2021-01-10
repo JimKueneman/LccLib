@@ -150,6 +150,7 @@ end;
 procedure TLccWebSocketServerThread.BuildAndSendInitializeFailureReply(ASocket: TTCPBlockSocket);
 begin
   // TODO
+  ASocket := ASocket;
 end;
 
 procedure TLccWebSocketServerThread.Execute;

@@ -549,6 +549,7 @@ end;
 
 function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word): TListenerNode;
 begin
+  AliasID := AliasID;
   Result := TListenerNode.Create;
   Result.NodeID := NodeID;
   Result.DecodeFlags(Flags);
@@ -694,6 +695,7 @@ var
   TempNodeID: TNodeID;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+  TempNodeID := NULL_NODE_ID;
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
@@ -777,6 +779,7 @@ var
   ReplyCode: Word;
 begin
   Result := False;
+  SourceMessage := SourceMessage;
 
   OwnerTrain := Owner as TLccTrainCanNode;
   NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
@@ -1043,6 +1046,7 @@ end;
 function TLccTractionAssignControllerReplyAction._2SendAssignReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
+  SourceMessage := SourceMessage;
 
   if AssignResult = S_OK then
   begin

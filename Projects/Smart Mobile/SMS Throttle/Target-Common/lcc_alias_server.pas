@@ -84,7 +84,6 @@ type
     property NodeIDSortedMap: TObjectList read FNodeIDSortedMap write FNodeIDSortedMap;
     {$ENDIF}
 
-    function AddMapping(ANodeID: TNodeID; AliasID: Word): TLccAliasMap;
     procedure DoAddMapping; virtual;
     procedure DoDeleteMapping; virtual;
     function RemoveMappingByNodeID(ANodeID: TNodeID): Boolean;
@@ -100,10 +99,10 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    function AddMapping(ANodeID: TNodeID; AnAliasID: Word): TLccAliasMap;
     procedure Clear;
     function FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer): TLccAliasMap;
     function FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer): TLccAliasMap;
-    procedure ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
     procedure RemoveMapping(AnAliasID: Word);
     function ValidateAlias(AnAlias: Word): Boolean;
 
@@ -189,13 +188,33 @@ end;   }
 
 { TLccAliasServer }
 
-function TLccAliasServer.AddMapping(ANodeID: TNodeID; AliasID: Word): TLccAliasMap;
+function TLccAliasServer.AddMapping(ANodeID: TNodeID; AnAliasID: Word): TLccAliasMap;
+var
+  MapIndex: Integer;
 begin
-  Result := TLccAliasMap.Create(ANodeID, AliasID);
-  AliasSortedMap.Add(Result);  // Owns the object in non-SMS
-  NodeIDSortedMap.Add(Result);
-  FIsDirty := True;
-  DoAddMapping;
+  MapIndex := -1;
+
+  // See if that Alias is Mapped
+  Result := FindInAliasSortedMap(AnAliasID, MapIndex);
+
+  if Assigned(Result) then
+  begin
+    // Check if our mapping is correct
+    if not EqualNodeID(ANodeID, Result.NodeID, False) then
+    begin // Not correct so dump it and then create a new one below
+      RemoveMappingByAliasID(AnAliasID);
+      Result := nil;
+    end;
+  end;
+
+  if not Assigned(Result) then
+  begin
+    Result := TLccAliasMap.Create(ANodeID, AnAliasID);
+    AliasSortedMap.Add(Result);  // Owns the object in non-SMS
+    NodeIDSortedMap.Add(Result);
+    FIsDirty := True;
+    DoAddMapping;
+  end;
 end;
 
 function TLccAliasServer.RemoveMappingByNodeID(ANodeID: TNodeID): Boolean;
@@ -329,15 +348,6 @@ begin
     OnDeleteMapping(Self);
 end;
 
-procedure TLccAliasServer.ForceMapping(ANodeID: TNodeID; AnAliasID: Word);
-var
-  MapIndex: Integer;
-begin
-  MapIndex := -1;
-  if not Assigned(FindInAliasSortedMap(AnAliasID, MapIndex)) then
-    AddMapping(ANodeID, AnAliasID);
-end;
-
 function TLccAliasServer.GetCount: Integer;
 begin
   Result := AliasSortedMap.Count;
@@ -349,11 +359,14 @@ begin
 end;
 
 function TLccAliasServer.ValidateAlias(AnAlias: Word): Boolean;
+var
+  MapIndex: Integer;
 begin
   Result := True;
   if AnAlias <> 0 then
   begin
-
+    MapIndex := -1;
+    Result := Assigned(FindInAliasSortedMap(AnAlias, MapIndex));
   end;
 end;
 

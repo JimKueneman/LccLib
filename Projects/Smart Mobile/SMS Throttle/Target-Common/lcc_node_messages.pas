@@ -407,17 +407,17 @@ begin
 
   if AMessage.IsCAN then
   begin
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID0 then Result := Result + 'CAN Check ID 0' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID1 then Result := Result + 'CAN Check ID 1' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID2 then Result := Result + 'CAN Check ID 2' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK)  = MTI_CAN_CID3 then Result := Result + 'CAN Check ID 3' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID4 then Result := Result + 'CAN Check ID 4' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID5 then Result := Result + 'CAN Check ID 5' else
-    if (AMessage.CAN.MTI and MTI_CAN_CIDX_MASK) = MTI_CAN_CID6 then Result := Result + 'CAN Check ID 6' else
-    if (AMessage.CAN.MTI and MTI_CAN_MASK)  = MTI_CAN_RID then Result := Result + 'CAN Reserve ID' else
-    if (AMessage.CAN.MTI and MTI_CAN_MASK) = MTI_CAN_AMD then Result := Result + 'CAN Alias Map Definition' else
-    if (AMessage.CAN.MTI and MTI_CAN_MASK) = MTI_CAN_AME then Result := Result + 'CAN Alias Mapping Enquiry' else
-    if (AMessage.CAN.MTI and MTI_CAN_MASK) = MTI_CAN_AMR then Result := Result + 'CAN Alias Map Reset';
+    if AMessage.CAN.MTI = MTI_CAN_CID0 then Result := Result + 'CAN Check ID 0' else
+    if AMessage.CAN.MTI = MTI_CAN_CID1 then Result := Result + 'CAN Check ID 1' else
+    if AMessage.CAN.MTI = MTI_CAN_CID2 then Result := Result + 'CAN Check ID 2' else
+    if AMessage.CAN.MTI = MTI_CAN_CID3 then Result := Result + 'CAN Check ID 3' else
+    if AMessage.CAN.MTI = MTI_CAN_CID4 then Result := Result + 'CAN Check ID 4' else
+    if AMessage.CAN.MTI = MTI_CAN_CID5 then Result := Result + 'CAN Check ID 5' else
+    if AMessage.CAN.MTI = MTI_CAN_CID6 then Result := Result + 'CAN Check ID 6' else
+    if AMessage.CAN.MTI = MTI_CAN_RID then Result := Result + 'CAN Reserve ID' else
+    if AMessage.CAN.MTI = MTI_CAN_AMD then Result := Result + 'CAN Alias Map Definition' else
+    if AMessage.CAN.MTI = MTI_CAN_AME then Result := Result + 'CAN Alias Mapping Enquiry' else
+    if AMessage.CAN.MTI = MTI_CAN_AMR then Result := Result + 'CAN Alias Map Reset';
     Exit
   end;
 
@@ -874,6 +874,7 @@ var
   HeaderStr, DataStr, ByteStr: string;
   i, i_X, i_N, i_SemiColon, i_Data, len_Data, i_Data_Count: Integer;
   TempNodeID: TNodeID;
+  CANFrameType: DWord;
 begin
   Result := False;
 
@@ -922,12 +923,16 @@ begin
     // Extract the General OpenLCB message if possible
     if IsCAN then                                                       // IsCAN means CAN Frames OR OpenLCB message that are only on CAN (Datagrams frames and Stream Send)
     begin
-      if CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY then
+      CANFrameType := CAN.MTI and MTI_CAN_FRAME_TYPE_MASK;
+
+      if CANFrameType = MTI_CAN_CAN then
+        CAN.MTI := CAN.MTI and $0FFFF000
+      else
+      if CANFrameType <= MTI_CAN_CID0 then
+        CAN.MTI := CANFrameType
+      else
+      if (CANFrameType >= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_ONLY) and (CANFrameType <= MTI_CAN_FRAME_TYPE_DATAGRAM_FRAME_END) then
       begin
-        CAN.MTI := CAN.MTI and MTI_CAN_CID_MASK;
-        MTI := 0;
-      end
-      else begin
         CAN.DestAlias := (CAN.MTI and $00FFF000) shr 12;
         CAN.MTI := CAN.MTI and $0F000000; // $FF000FFF;
         MTI := MTI_DATAGRAM
@@ -1085,8 +1090,15 @@ begin
   end else
   begin
     if IsCAN then
-      LocalMTI := CAN.MTI or CAN.SourceAlias or $10000000
-    else
+    begin
+      LocalMTI := CAN.MTI or CAN.SourceAlias or $10000000;
+      case CAN.MTI of
+        MTI_CAN_CID0 : LocalMTI := LocalMTI or (SourceID[1] and $00FFF000);
+        MTI_CAN_CID1 : LocalMTI := LocalMTI or ((SourceID[1] shl 12) and $00FFF000);
+        MTI_CAN_CID2 : LocalMTI := LocalMTI or (SourceID[0] and $00FFF000);
+        MTI_CAN_CID3 : LocalMTI := LocalMTI or ((SourceID[0] shl 12) and $00FFF000);
+      end;
+    end else
       LocalMTI := DWord(( MTI shl 12) or CAN.SourceAlias or MTI_CAN_FRAME_TYPE_GENERAL or $10000000);
 
     if LocalMTI and MTI_CAN_FRAME_TYPE_MASK > MTI_CAN_FRAME_TYPE_GENERAL then
@@ -1312,11 +1324,12 @@ begin
   CAN.SourceAlias := ASourceAlias;
   IsCAN := True;
   SourceID := ASourceID;
+  // The NodeID bits will be added when converting to a gridconnect string
   case ACID of
-    0 : CAN.MTI := MTI_CAN_CID0 or DWord(ASourceAlias) or (ASourceID[1] and $00FFF000);
-    1 : CAN.MTI := MTI_CAN_CID1 or DWord(ASourceAlias) or ((ASourceID[1] shl 12) and $00FFF000);
-    2 : CAN.MTI := MTI_CAN_CID2 or DWord(ASourceAlias) or (ASourceID[0] and $00FFF000);
-    3 : CAN.MTI := MTI_CAN_CID3 or DWord(ASourceAlias) or ((ASourceID[0] shl 12) and $00FFF000);
+    0 : CAN.MTI := MTI_CAN_CID0;
+    1 : CAN.MTI := MTI_CAN_CID1;
+    2 : CAN.MTI := MTI_CAN_CID2;
+    3 : CAN.MTI := MTI_CAN_CID3;
   end;
 end;
 

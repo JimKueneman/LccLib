@@ -2428,8 +2428,8 @@ end;
 {$IFNDEF MSWINDOWS}
 function GetSerialPortNames: string;
 var
-  Index: Integer;
-  Data: string;
+//  Index: Integer;
+//  Data: string;
   TmpPorts: String;
   sr : TSearchRec;
 begin

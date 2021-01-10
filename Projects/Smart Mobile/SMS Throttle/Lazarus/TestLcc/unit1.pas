@@ -22,7 +22,6 @@ uses
   lcc_ethernet_server,
   lcc_ethernet_client,
   lcc_protocol_memory_configurationdefinitioninfo,
-  lcc_protocol_traction,
   lcc_protocol_traction_configuration_functions,
   lcc_protocol_traction_configuation_functiondefinitioninfo,
   lcc_protocol_traction_simpletrainnodeinfo,

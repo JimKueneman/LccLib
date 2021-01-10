@@ -164,8 +164,8 @@ type
     // useful in decendants, GetConnected could just return this with the object setting FConnected correctly
     FConnected: Boolean;
 
-    // May need to override if the default behavior is not correct for connection.
-    function GetConnected: Boolean; virtual;
+    // IHardwareConnectionManagerLink
+    function GetConnected: Boolean;
 
     property Hub: Boolean read FHub write FHub;
 
@@ -180,7 +180,8 @@ type
 
 
     // Decendants override this to tell the Node Manager if this Connection is used to move Lcc packets or not (HTTP server, ComPort with custom protocol server are examples on "no")
-    function IsLccLink: Boolean; virtual; abstract;
+    // IHardwareConnectionManagerLink
+    function IsLccLink: Boolean; virtual; abstract;  // IHardwareConnectionManagerLink
     // Call to implement a Hub
     procedure RelayMessageToOtherThreads(SourceThread: TLccConnectionThread; ALccMessage: TLccMessage);
 
@@ -206,6 +207,7 @@ type
     // Decendant must override this.  The Node Manager calls this when its nodes needs to send a message to the "wire".
     procedure SendMessage(ALccMessage: TLccMessage); virtual;
     // Puts a GridConnect string in the buffer to be sent without needing to deal with a TLccMessage
+    // IHardwareConnectionManagerLink
     procedure SendMessageRawGridConnect(GridConnectStr: String); virtual;
     // When a thread owned by the manager receives a message it will call this centraized method
     procedure ConnectionStateChange(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;

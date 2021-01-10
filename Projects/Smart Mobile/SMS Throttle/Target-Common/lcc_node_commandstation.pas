@@ -236,9 +236,10 @@ var
   ReturnEvent: TEventID;
   TrackProtocolFlags: Byte;
   SearchData: DWORD;
-  ANodeID: TNodeID;
 begin
   Result := inherited ProcessMessage(SourceMessage);
+
+  SearchData := 0;
 
    // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
@@ -250,7 +251,6 @@ begin
   case SourceMessage.MTI of
      MTI_INITIALIZATION_COMPLETE :
       begin  // Need to wait for new trains to fully initalize before returning from the Traction Search Event........
-        ANodeID := NULL_NODE_ID;
         ATrain := FindTrainByLccNodeID(SourceMessage.SourceID);
         if Assigned(ATrain) then
         begin

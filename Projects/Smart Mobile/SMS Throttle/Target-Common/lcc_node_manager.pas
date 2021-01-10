@@ -59,6 +59,7 @@ type
     ['{619C8E64-69C3-94A6-B6FE-B16B6CB57A45}']
     procedure SendMessage(AMessage: TLccMessage);
     function IsLccLink: Boolean;
+    function GetConnected: Boolean;
 //    if the node manager has no more active threads in its links then it should free all nodes and alias maps since it is no longer connected to any LCC networks and everythinbg is stale.
   end;
 
@@ -241,11 +242,13 @@ type
 
     procedure LogoutAll;
 
+    function FindConnectedLink: IHardwareConnectionManagerLink;
     function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
     function FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
     function FindPermittedCanNode: TLccCanNode;
-    procedure SendAliasMappingEnquiry(AnAlias: Word);
+    function SendGlobalAliasMappingEnquiry: Boolean;
+    procedure ValidateAliasIDs(SourceAliasID, DestAliasID: Word);
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -253,8 +256,6 @@ type
 
     procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
-    procedure HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
-    procedure HardwareConnectionDisConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
   published
 
@@ -540,7 +541,8 @@ end;
 procedure TLccNodeManager.DoTractionSpeedSet(LccNode: TLccNode;
   LccMessage: TLccMessage; IsReply: Boolean);
 begin
-
+  if Assigned(OnLccNodeTractionSpeedSet) then
+    OnLccNodeTractionSpeedSet(Self, LccNode, LccMessage, IsReply);
 end;
 
 procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode;
@@ -560,19 +562,22 @@ end;
 procedure TLccNodeManager.DoTractionEmergencyStop(LccNode: TLccNode;
   LccMessage: TLccMessage; IsReply: Boolean);
 begin
-
+  if Assigned(OnLccNodeTractionEmergencyStop) then
+    OnLccNodeTractionEmergencyStop(Self, LccNode, LccMessage, IsReply);
 end;
 
 procedure TLccNodeManager.DoTractionFunctionSet(LccNode: TLccNode;
   LccMessage: TLccMessage; IsReply: Boolean);
 begin
-
+  if Assigned(OnLccNodeTractionFunctionSet) then
+    OnLccNodeTractionFunctionSet(Self, LccNode, LccMessage, IsReply);
 end;
 
 procedure TLccNodeManager.DoTractionListenerConfig(LccNode: TLccNode;
   LccMessage: TLccMessage; IsReply: Boolean);
 begin
-
+  if Assigned(OnLccNodeTractionListenerConfig) then
+    OnLccNodeTractionListenerConfig(Self, LccNode, LccMessage, IsReply);
 end;
 
 procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode;
@@ -744,9 +749,32 @@ begin
   end;
 end;
 
-procedure TLccNodeManager.SendAliasMappingEnquiry(AnAlias: Word);
+function TLccNodeManager.SendGlobalAliasMappingEnquiry: Boolean;
+var
+  CanNode: TLccCanNode;
 begin
- // WorkerMessage.LoadAME();
+  CanNode := FindPermittedCanNode;
+  if Assigned(CanNode) then
+  begin   // Gotta make them all reply unfortunately.
+    WorkerMessage.LoadAME(CanNode.NodeID, CanNode.AliasID, NULL_NODE_ID);
+    CanNode.SendMessageFunc(Cannode, WorkerMessage);
+    Result := True;
+  end;
+end;
+
+procedure TLccNodeManager.ValidateAliasIDs(SourceAliasID, DestAliasID: Word);
+var
+  SourceAliasNeeded, DestAliasNeeded: Boolean;
+begin
+  SourceAliasNeeded := False;
+  DestAliasNeeded := False;
+  if SourceAliasID <> 0 then
+     SourceAliasNeeded := not AliasServer.ValidateAlias(SourceAliasID);
+  if DestAliasID <> 0 then
+     SourceAliasNeeded := not AliasServer.ValidateAlias(DestAliasID);
+
+  if SourceAliasNeeded or DestAliasNeeded then
+    SendGlobalAliasMappingEnquiry;
 end;
 
 function TLccNodeManager.GetNode(Index: Integer): TLccNode;
@@ -773,6 +801,20 @@ begin
   end;
 end;
 
+function TLccNodeManager.FindConnectedLink: IHardwareConnectionManagerLink;
+var
+  i: Integer;
+begin
+  Result := nil;
+  i := 0;
+  while (i < HardwareConnectionConnectedCount) and not Assigned(Result) do
+  begin
+    if HardwareConnectionLinkArray[i].IsLccLink and HardwareConnectionLinkArray[i].GetConnected then
+      Result := HardwareConnectionLinkArray[i];
+    Inc(i);
+  end;
+end;
+
 procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage);
 var
   i: Integer;
@@ -788,6 +830,7 @@ var
   Map: TLccAliasMap;
   WorkerCanNode: TLccCanNode;
 begin
+  Mapindex := -1;
   // Send the message to the wire
 
   // Received a message, see if it is an alias we need to save (eventually for now save them all)
@@ -798,10 +841,11 @@ begin
   begin
     case LccMessage.CAN.MTI of
       MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
-      MTI_CAN_AMD : AliasServer.ForceMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
+      MTI_CAN_AMD : AliasServer.AddMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
     end;
   end else
   begin
+
     if LccMessage.HasDestination then
     begin
       // Assumption is we have our own nodes covered
@@ -810,14 +854,8 @@ begin
         Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.SourceAlias, MapIndex);
         if not Assigned(Map) then
         begin
-           WorkerCanNode := FindPermittedCanNode;
-           if Assigned(WorkerCanNode) then
-           begin
-              WorkerMessage.LoadAME(WorkerCanNode.NodeID, WorkerCanNode.AliasID, LccMessage.SourceID);
-              SendMessage(Self, WorkerMessage);
-
-              // Need to store the original message and send it later after the AMD returns
-           end;
+          SendGlobalAliasMappingEnquiry;
+          // Need to store the original message and send it later after the AMD returns
         end;
       end;
       // Assumption is we have our own nodes covered
@@ -829,9 +867,7 @@ begin
            WorkerCanNode := FindPermittedCanNode;
            if Assigned(WorkerCanNode) then
            begin
-              WorkerMessage.LoadAME(WorkerCanNode.NodeID, WorkerCanNode.AliasID, LccMessage.DestID);
-              SendMessage(Self, WorkerMessage);
-
+              SendGlobalAliasMappingEnquiry;
               // Need to store the original message and send it later after the AMD returns
            end;
         end;
@@ -868,10 +904,21 @@ var
 begin
   // Need to think about do I carry the Alias in the message anymore after all this?  Seems
   // like the point is to remove it from the TLccMessage struture
-  if not AliasServer.ValidateAlias(ALccMessage.CAN.SourceAlias) then
-    SendAliasMappingEnquiry(ALccMessage.CAN.SourceAlias);
-  if not AliasServer.ValidateAlias(ALccMessage.CAN.DestAlias) then
-    SendAliasMappingEnquiry(ALccMessage.CAN.DestAlias);
+
+  case ALccMessage.CAN.MTI of
+    MTI_CAN_AMR : AliasServer.RemoveMapping(ALccMessage.CAN.SourceAlias);
+    MTI_CAN_AMD : AliasServer.AddMapping(ALccMessage.SourceID, ALccMessage.CAN.SourceAlias);
+    MTI_CAN_CID0,
+    MTI_CAN_CID1,
+    MTI_CAN_CID2,
+    MTI_CAN_CID3,
+    MTI_CAN_CID4,
+    MTI_CAN_CID5,
+    MTI_CAN_CID6,
+    MTI_CAN_RID : begin end;  // Ignore these login messages.... only care about AMD during login
+  else
+    ValidateAliasIDs(ALccMessage.CAN.SourceAlias, ALccMessage.CAN.DestAlias)
+  end;
 
   for i := 0 to HardwareConnectionLinkCount - 1 do
   begin
@@ -906,16 +953,6 @@ begin
       Dec(HardwareConnectionLinkCount);
     end;
   end;
-end;
-
-procedure TLccNodeManager.HardwareConnectionConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
-begin
-  Inc(HardwareConnectionConnectedCount);
-end;
-
-procedure TLccNodeManager.HardwareConnectionDisConnect(AConnectionManagerLink: IHardwareConnectionManagerLink);
-begin
-  Dec(HardwareConnectionConnectedCount);
 end;
 
 

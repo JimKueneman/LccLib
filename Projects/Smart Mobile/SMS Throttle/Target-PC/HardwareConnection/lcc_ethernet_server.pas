@@ -247,7 +247,8 @@ end;
 
 procedure TLccEthernetListener.SendMessage(AMessage: TLccMessage);
 begin
-  // must override abstract methods
+  AMessage := AMessage;
+
 end;
 
 procedure TLccEthernetListener.ReceiveMessage;

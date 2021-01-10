@@ -22,8 +22,7 @@ uses
 {$ENDIF}
   lcc_protocol_base,
   lcc_defines,
-  lcc_node_messages,
-  lcc_utilities;
+  lcc_node_messages;
 
 type
 

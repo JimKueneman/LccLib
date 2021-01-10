@@ -125,7 +125,6 @@ type
   protected
     procedure DoConnectionState(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); virtual;
     procedure DoErrorMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); override;
-    procedure DoReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo); override;
   public
     function OpenConnectionWithLccSettings: TLccConnectionThread; override;
   published
@@ -168,17 +167,6 @@ procedure TLccEthernetHardwareConnectionManager.DoErrorMessage(Thread: TLccConne
 begin
   if Assigned(OnErrorMessage) then
     OnErrorMessage(Thread, ConnectionInfo)
-end;
-
-procedure TLccEthernetHardwareConnectionManager.DoReceiveMessage(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo);
-begin
-  inherited;
-
-    // Received a message, see if it is an alias we need to save (eventually for now save them all)
-  case ConnectionInfo.LccMessage.CAN.MTI of
-    MTI_CAN_AMR : NodeManager.AliasServer.RemoveMapping(ConnectionInfo.LccMessage.CAN.SourceAlias);
-    MTI_CAN_AMD : NodeManager.AliasServer.ForceMapping(ConnectionInfo.LccMessage.SourceID, ConnectionInfo.LccMessage.CAN.SourceAlias)
-  end;
 end;
 
 function TLccEthernetHardwareConnectionManager.OpenConnectionWithLccSettings: TLccConnectionThread;

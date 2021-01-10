@@ -435,6 +435,7 @@ end;
 function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
+  SourceMessage := SourceMessage;
   FActionStateIndex := Length(FStates) - 1;
   UnRegisterSelf;
 end;
@@ -1110,7 +1111,7 @@ begin
     CdiXML := GetCdiFile;
 
   // Setup the Cdi Stream
-  StreamCdi.Size := Int64( Length(CdiXML) + 1);   // Need the null
+  StreamCdi.Size := Int64( Length(CdiXML)) + 1;   // Need the null
   i := Low(CdiXML);
   for Counter := 0 to Length(CdiXML) - 1 do       // ios/android compatible
   begin
