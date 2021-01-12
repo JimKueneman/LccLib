@@ -895,7 +895,7 @@ begin
             Result := True;
           end;
         MTI_CAN_AMR : InProcessMessageFlushBySourceAlias(SourceMessage); // If the Alias is being reset flush all messages associated with it
-        MTI_CAN_AMD : InProcessMessageFlushBySourceAlias(SourceMessage); // If the Alias now coming on line, any old messages for this Alias are out dated
+        MTI_CAN_AMD : begin end; // InProcessMessageFlushBySourceAlias(SourceMessage); // If the Alias now coming on line, any old messages for this Alias are out dated  1/20/21:  Not true an AME can be called any time forcing and AMD to be sent anytime
       end
     end;
     if not Result then

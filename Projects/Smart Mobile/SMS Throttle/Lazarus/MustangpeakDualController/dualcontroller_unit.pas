@@ -352,7 +352,7 @@ end;
 
 procedure TForm1.OnAliasServerChange2(Sender: TObject);
 begin
-  LabelAliasMappingCount2.Caption := IntToStr(NodeManager1.AliasServer.Count);
+  LabelAliasMappingCount2.Caption := IntToStr(NodeManager2.AliasServer.Count);
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);

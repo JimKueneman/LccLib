@@ -187,7 +187,7 @@ type
     procedure DoConfigMemWriteReply(LccNode: TLccNode); virtual;
     procedure DoCreateLccNode(LccNode: TLccNode); virtual;     //*
     procedure DoLogInNode(LccNode: TLccNode); virtual;         //*
-    procedure DoLogOutNode(LccNode: TLccNode);
+    procedure DoLogOutNode(LccNode: TLccNode); virtual;
     procedure DoConsumerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean);
     procedure DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState); virtual;
     procedure DoDatagramReply(LccNode: TLccNode); virtual;
@@ -251,11 +251,12 @@ type
     procedure ValidateAliasIDs(SourceAliasID, DestAliasID: Word);
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
-    procedure SendMessage(Sender: TObject; LccMessage: TLccMessage);
-    procedure ReceiveMessage(ConnectionManager: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);
+    procedure SendMessage(Sender: TObject; LccMessage: TLccMessage); // Outgoing messages are passed through this method, its address is given to Nodes and other objects that need to send messages
+    procedure ReceiveMessage(ConnectionManager: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);  // Takes all incoming messages from all Connection object and dispatches them to the nodes and dispaches them to other Connections that are registered
 
-    procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+    procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink); // Any Connection that needs to send/receive OpenLCB message must register with the NodeManage here
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
+    procedure HardwareConnectionLinkNotifyConnectionChange(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
   published
 
@@ -325,6 +326,9 @@ type
   TLccCanNodeManager = class(TLccNodeManager)
   private
     function GetCanNode(Index: Integer): TLccCanNode;
+  protected
+    procedure DoLogInNode(LccNode: TLccNode); override;         //*
+    procedure DoLogOutNode(LccNode: TLccNode); override;
   public
     property CanNode[Index: Integer]: TLccCanNode read GetCanNode;
 
@@ -360,6 +364,18 @@ begin
     Result := Nodes[Index] as TLccCanNode
   else
     Result := nil;
+end;
+
+procedure TLccCanNodeManager.DoLogInNode(LccNode: TLccNode);
+begin
+  inherited DoLogInNode(LccNode);
+  AliasServer.AddMapping(LccNode.NodeID, (LccNode as TLccCanNode).AliasID);
+end;
+
+procedure TLccCanNodeManager.DoLogOutNode(LccNode: TLccNode);
+begin
+  inherited DoLogOutNode(LccNode);
+  AliasServer.RemoveMapping((LccNode as TLccCanNode).AliasID);
 end;
 
 { TLccNodeManager }
@@ -771,7 +787,7 @@ begin
   if SourceAliasID <> 0 then
      SourceAliasNeeded := not AliasServer.ValidateAlias(SourceAliasID);
   if DestAliasID <> 0 then
-     SourceAliasNeeded := not AliasServer.ValidateAlias(DestAliasID);
+     DestAliasNeeded := not AliasServer.ValidateAlias(DestAliasID);
 
   if SourceAliasNeeded or DestAliasNeeded then
     SendGlobalAliasMappingEnquiry;
@@ -839,10 +855,10 @@ begin
 
   if LccMessage.IsCAN then
   begin
-    case LccMessage.CAN.MTI of
-      MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
-      MTI_CAN_AMD : AliasServer.AddMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
-    end;
+ //   case LccMessage.CAN.MTI of
+ //     MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
+ //     MTI_CAN_AMD : AliasServer.AddMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
+ //   end;
   end else
   begin
 
@@ -908,6 +924,8 @@ begin
   case ALccMessage.CAN.MTI of
     MTI_CAN_AMR : AliasServer.RemoveMapping(ALccMessage.CAN.SourceAlias);
     MTI_CAN_AMD : AliasServer.AddMapping(ALccMessage.SourceID, ALccMessage.CAN.SourceAlias);
+    MTI_CAN_CAN,
+    MTI_CAN_AME,
     MTI_CAN_CID0,
     MTI_CAN_CID1,
     MTI_CAN_CID2,
@@ -955,6 +973,21 @@ begin
   end;
 end;
 
+procedure TLccNodeManager.HardwareConnectionLinkNotifyConnectionChange(AConnectionManagerLink: IHardwareConnectionManagerLink);
+var
+  i: Integer;
+  StillAConnection: Boolean;
+begin
+  i := 0;
+  StillAConnection := False;
+  while not StillAConnection and (i < HardwareConnectionLinkCount) do
+  begin
+    StillAConnection := HardwareConnectionLinkArray[i].GetConnected;
+    Inc(i);
+  end;
+  if not StillAConnection then
+    AliasServer.Clear;   ERROR // Does not work right... we clear our own nodes......
+end;
 
 
 initialization

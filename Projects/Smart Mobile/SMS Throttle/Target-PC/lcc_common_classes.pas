@@ -180,13 +180,12 @@ type
 
 
     // Decendants override this to tell the Node Manager if this Connection is used to move Lcc packets or not (HTTP server, ComPort with custom protocol server are examples on "no")
-    // IHardwareConnectionManagerLink
     function IsLccLink: Boolean; virtual; abstract;  // IHardwareConnectionManagerLink
     // Call to implement a Hub
     procedure RelayMessageToOtherThreads(SourceThread: TLccConnectionThread; ALccMessage: TLccMessage);
 
   public
-    // Thread running with connections
+    // Threads running with connections
     property ConnectionThreads: TLccConnectionThreadList read FConnectionThreads write FConnectionThreads;
     // True if the Manager is capabable of receiveing/sending messages on the wire... getter must be overridden
     property Connected: Boolean read GetConnected;
@@ -476,6 +475,7 @@ end;
 
 procedure TLccHardwareConnectionManager.ConnectionStateChange(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo);
 begin
+  NodeManager.HardwareConnectionLinkNotifyConnectionChange(Self);
   DoConnectionStateChange(Thread, ConnectionInfo);
 end;
 

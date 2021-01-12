@@ -1,5 +1,5 @@
 object FormTrainCommander: TFormTrainCommander
-  Left = 225
+  Left = 224
   Height = 565
   Top = 133
   Width = 1181

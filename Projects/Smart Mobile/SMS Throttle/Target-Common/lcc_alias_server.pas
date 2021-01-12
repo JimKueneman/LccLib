@@ -67,7 +67,6 @@ type
    {$ELSE}
     FAliasSortedMap: TObjectList;
     FIsDirty: Boolean;
-    FNetworkRefreshed: Boolean;  // Users sets this to indicate globally that a AME global has been sent and the mapping should include everything on the network
     FNodeIDSortedMap: TObjectList;
     FOnAddMapping: TNotifyEvent;
     FOnDeleteMapping: TNotifyEvent;
@@ -91,7 +90,6 @@ type
     procedure SortMaps;
   public
     property Count: Integer read GetCount;
-    property NetworkRefreshed: Boolean read FNetworkRefreshed write FNetworkRefreshed;
 
     property OnDeleteMapping: TNotifyEvent read FOnDeleteMapping write FOnDeleteMapping;
     property OnAddMapping: TNotifyEvent read FOnAddMapping write FOnAddMapping;
@@ -240,20 +238,34 @@ end;
 
 function TLccAliasServer.RemoveMappingByAliasID(AnAliasID: Word): Boolean;
 var
-  MapIndex: Integer;
+  MapIndexInAliasSortedMap, MapIndexInNodeIDSortedMap: Integer;
+  AliasMap: TLccAliasMap;
 begin
   Result := False;
-  MapIndex := -1;
-  FindInAliasSortedMap(AnAliasID, MapIndex);
-  if MapIndex > -1 then
+  MapIndexInAliasSortedMap := -1;
+  MapIndexInNodeIDSortedMap := -1;
+  AliasMap := FindInAliasSortedMap(AnAliasID, MapIndexInAliasSortedMap);
+  if Assigned(AliasMap) then
   begin
-    {$IFDEF DWSCRIPT}
-    NodeIDSortedMap.Remove(MapIndex);
-    AliasSortedMap.Remove(MapIndex);
-    {$ELSE}
-    NodeIDSortedMap.Delete(MapIndex);
-    AliasSortedMap.Delete(MapIndex); // Owns the object in non-SMS
-    {$ENDIF}
+    FindInNodeIDSortedMap(AliasMap.NodeID, MapIndexInNodeIDSortedMap);
+    if  MapIndexInNodeIDSortedMap > -1 then
+    begin
+      {$IFDEF DWSCRIPT}
+      NodeIDSortedMap.Remove(MapIndexInNodeIDSortedMap);
+      {$ELSE}
+      NodeIDSortedMap.Delete(MapIndexInNodeIDSortedMap);
+      {$ENDIF}
+    end;
+
+    if  MapIndexInAliasSortedMap > -1 then
+    begin
+      {$IFDEF DWSCRIPT}
+      AliasSortedMap.Remove(MapIndexInAliasSortedMap); // Owns the object in non-SMS
+      {$ELSE}
+      AliasSortedMap.Delete(MapIndexInAliasSortedMap);  // Owns the object in non-SMS
+      {$ENDIF}
+    end;
+
     DoDeleteMapping;
     Result := True;
   end;
@@ -332,7 +344,6 @@ begin
   NodeIDSortedMap.Clear;
   AliasSortedMap.Clear; // Owns the object in non-SMS
   FIsDirty := False;
-  FNetworkRefreshed := False;
   DoDeleteMapping;
 end;
 
