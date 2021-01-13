@@ -986,7 +986,15 @@ begin
     Inc(i);
   end;
   if not StillAConnection then
-    AliasServer.Clear;   ERROR // Does not work right... we clear our own nodes......
+  begin
+    // This is simpler they trying to find them in the list and not remove them...
+    AliasServer.Clear;
+    for i := 0 to Nodes.Count - 1 do
+    begin
+      if Nodes[i] is TLccCanNode then
+        AliasServer.AddMapping((Nodes[i] as TLccCanNode).NodeID, (Nodes[i] as TLccCanNode).AliasID);
+    end;
+  end;
 end;
 
 
