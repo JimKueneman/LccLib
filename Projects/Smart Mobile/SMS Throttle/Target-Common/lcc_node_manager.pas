@@ -855,10 +855,19 @@ begin
 
   if LccMessage.IsCAN then
   begin
- //   case LccMessage.CAN.MTI of
- //     MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
- //     MTI_CAN_AMD : AliasServer.AddMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
- //   end;
+    if LccMessage.CAN.MTI and MTI_CAN_FRAME_TYPE_MASK < $09000000 then
+    begin
+      case LccMessage.CAN.MTI of
+        MTI_CAN_AMR : AliasServer.RemoveMapping(LccMessage.CAN.SourceAlias);
+        MTI_CAN_AMD : AliasServer.AddMapping(LccMessage.SourceID, LccMessage.CAN.SourceAlias)
+      end;
+    end else
+    begin
+      if LccMessage.HasDestination then
+      begin
+        // See if the Aliases are in the Database and if no stash the message and send aquire the message
+      end
+    end;
   end else
   begin
 
