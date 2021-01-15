@@ -70,7 +70,6 @@ private
   FSourceID: TNodeID;
   FMTI: Word;
   FRetryAttempts: Integer;
-  FUserString: string;  // Allows info to be passed in a message for non OpenLCBMessages (DCC Strings for the ComPort for instance)
   function GetHasDestination: Boolean;
   function GetHasDestNodeID: Boolean;
   function GetHasSourceNodeID: Boolean;
@@ -97,7 +96,6 @@ public
   property MTI: Word read FMTI write FMTI;
   property RetryAttempts: Integer read FRetryAttempts write FRetryAttempts;
   property SourceID: TNodeID read FSourceID write FSourceID;
-  property UserString: string read FUserString write FUserString;
 
   constructor Create;
   destructor Destroy; override;

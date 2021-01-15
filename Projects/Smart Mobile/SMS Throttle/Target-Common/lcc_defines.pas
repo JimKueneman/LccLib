@@ -120,7 +120,6 @@ type
 
 type
   TEventState = (evs_Unknown, evs_Valid, evs_InValid);
-  TIsNodeTestType = (ntt_Dest, ntt_Source);
   TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
 
   TLccConnectionState = (lcsConnecting, lcsConnected, lcsDisconnecting, lcsDisconnected);

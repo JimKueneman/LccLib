@@ -243,9 +243,6 @@ type
     procedure LogoutAll;
 
     function FindConnectedLink: IHardwareConnectionManagerLink;
-    function FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
-    function FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
-    function FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
     function FindPermittedCanNode: TLccCanNode;
     function SendGlobalAliasMappingEnquiry: Boolean;
     procedure ValidateAliasIDs(SourceAliasID, DestAliasID: Word);
@@ -623,27 +620,6 @@ begin
   end;
 end;
 
-function TLccNodeManager.FindOwnedNodeByAlias(AnAlias: Word): TLccNode;
-var
-  i: Integer;
-begin
-  Result := nil;
-  i := 0;     // Cheap, slow linear search for now
-
-  while i < Nodes.Count do
-  begin
-    if Nodes[i] is TLccCanNode then
-    begin
-      if TLccCanNode(Nodes[i]).AliasID = AnAlias then
-      begin
-        Result := TLccNode(Nodes[i]);
-        Break;
-      end;
-      Inc(i)
-    end
-  end;
-end;
-
 constructor TLccNodeManager.Create(AnOwner: TComponent);
 begin
   {$IFDEF DWSCRIPT}
@@ -707,40 +683,6 @@ begin
       TObject( FNodes[i]).Free;
   finally
     Nodes.Clear;
-  end;
-end;
-
-function TLccNodeManager.FindOwnedNodeByDestID(LccMessage: TLccMessage): TLccNode;
-var
-  i: Integer;
-begin
-  Result := nil;
-  i := 0;     // Cheap, slow linear search for now
-  while i < Nodes.Count do
-  begin
-    if TLccNode(Nodes[i]).IsNode(LccMessage, ntt_Dest) then
-    begin
-      Result := TLccNode(Nodes[i]);
-      Break;
-    end;
-    Inc(i)
-  end;
-end;
-
-function TLccNodeManager.FindOwnedNodeBySourceID(LccMessage: TLccMessage): TLccNode;
-var
-  i: Integer;
-begin
-  Result := nil;
-  i := 0;     // Cheap, slow linear search for now
-  while i < Nodes.Count do
-  begin
-    if TLccNode(Nodes[i]).IsNode(LccMessage, ntt_Source) then
-    begin
-      Result := TLccNode(Nodes[i]);
-      Break;
-    end;
-    Inc(i)
   end;
 end;
 
@@ -870,32 +812,23 @@ begin
     end;
   end else
   begin
-
     if LccMessage.HasDestination then
     begin
-      // Assumption is we have our own nodes covered
-      if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.SourceAlias)) then
+      Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.SourceAlias, MapIndex);
+      if not Assigned(Map) then
       begin
-        Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.SourceAlias, MapIndex);
-        if not Assigned(Map) then
-        begin
-          SendGlobalAliasMappingEnquiry;
-          // Need to store the original message and send it later after the AMD returns
-        end;
+        SendGlobalAliasMappingEnquiry;
+        // Need to store the original message and send it later after the AMD returns
       end;
-      // Assumption is we have our own nodes covered
-      if not Assigned(FindOwnedNodeByAlias(LccMessage.CAN.DestAlias)) then
+      Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.DestAlias, MapIndex);
+      if not Assigned(Map) then
       begin
-        Map := AliasServer.FindInAliasSortedMap(LccMessage.CAN.DestAlias, MapIndex);
-        if not Assigned(Map) then
-        begin
-           WorkerCanNode := FindPermittedCanNode;
-           if Assigned(WorkerCanNode) then
-           begin
-              SendGlobalAliasMappingEnquiry;
-              // Need to store the original message and send it later after the AMD returns
-           end;
-        end;
+         WorkerCanNode := FindPermittedCanNode;
+         if Assigned(WorkerCanNode) then
+         begin
+            SendGlobalAliasMappingEnquiry;
+            // Need to store the original message and send it later after the AMD returns
+         end;
       end;
     end
   end;

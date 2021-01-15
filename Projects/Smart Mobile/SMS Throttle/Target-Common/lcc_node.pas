@@ -307,7 +307,6 @@ type
     constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
     destructor Destroy; override;
 
-    function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; virtual;
     procedure Login(ANodeID: TNodeID); virtual;
     procedure Logout; virtual;
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; virtual;
@@ -365,7 +364,6 @@ type
 
      constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
      destructor Destroy; override;
-     function IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean; override;
      procedure Login(ANodeID: TNodeID); override;
      procedure Logout; override;
      function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
@@ -373,7 +371,6 @@ type
      procedure SendAMD;
      procedure SendAMR;
   end;
-
   TLccCanNodeClass = class of TLccCanNode;
 
 
@@ -753,21 +750,6 @@ begin
   Result := AliasID = LccMessage.CAN.DestAlias;
 end;
 
-function TLccCanNode.IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
-begin
-  Result := False;
-  if TestType = ntt_Dest then
-  begin
-    if (AliasID <> 0) and (ALccMessage.CAN.DestAlias <> 0) then
-      Result := AliasID = ALccMessage.CAN.DestAlias
-  end else
-  if TestType = ntt_Source then
-  begin
-    if (AliasID <> 0) and (ALccMessage.CAN.SourceAlias <> 0) then
-      Result := AliasID = ALccMessage.CAN.SourceAlias
-  end;
-end;
-
 procedure TLccCanNode.Login(ANodeID: TNodeID);
 var
   Temp: TNodeID;
@@ -992,21 +974,6 @@ end;
 function TLccNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
 begin
   Result := EqualNodeID(NodeID, LccMessage.DestID, False);
-end;
-
-function TLccNode.IsNode(ALccMessage: TLccMessage; TestType: TIsNodeTestType): Boolean;
-begin
-  Result := False;
-  if TestType = ntt_Dest then
-  begin
-    if ALccMessage.HasDestNodeID and not NullNodeID(NodeID) then
-      Result := ((NodeID[0] = ALccMessage.DestID[0]) and (NodeID[1] = ALccMessage.DestID[1]))
-  end else
-  if TestType = ntt_Source then
-  begin
-    if ALccMessage.HasSourceNodeID and not NullNodeID(NodeID) then
-      Result := ((NodeID[0] = ALccMessage.SourceID[0]) and (NodeID[1] = ALccMessage.SourceID[1]))
-  end;
 end;
 
 function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;
