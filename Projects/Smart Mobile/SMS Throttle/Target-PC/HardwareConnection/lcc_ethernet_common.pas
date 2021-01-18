@@ -31,6 +31,8 @@ uses
   {$ENDIF}
   lcc_node_messages,
   lcc_node_manager,
+  lcc_node,
+  lcc_utilities,
   lcc_app_common_settings,
   lcc_threaded_circulararray,
   lcc_ethernet_tcp,
@@ -99,6 +101,7 @@ type
     procedure HandleSendConnectionNotification(NewConnectionState: TLccConnectionState); override;
     procedure OnConnectionStateChange; virtual;
     procedure OnErrorMessageReceive; virtual;
+    procedure RequestErrorMessageSent; override;
     procedure ForceTerminate; override;
 
     procedure TryTransmitGridConnect;
@@ -223,6 +226,36 @@ begin
   (Owner as TLccEthernetHardwareConnectionManager).DoErrorMessage(Self, ConnectionInfo);
 end;
 
+procedure TLccBaseEthernetThread.RequestErrorMessageSent;
+var
+  i: Integer;
+begin
+  inherited RequestErrorMessageSent;
+
+  // WE DONT KNOW IF THIS WAS ADDRESSED US SO WE CANT JUST BLINDLY SEND THE ERROR RESULT.....
+
+  i := 0;
+  while i < Owner.NodeManager.Nodes.Count do
+  begin
+    if Owner.NodeManager.Node[i] is TLccCanNode then
+    begin  // Need to look at the Source Alias as the message is in the format to transmit back out already
+      if (Owner.NodeManager.Node[i] as TLccCanNode).AliasID = WorkerMessage.CAN.SourceAlias then
+      begin
+        Owner.NodeManager.SendMessage(Self, WorkerMessage);
+        Break;
+      end;
+    end else
+    begin // Need to look at the Source ID as the message is in the format to transmit back out already
+      if EqualNodeID( (Owner.NodeManager.Node[i] as TLccNode).NodeID, WorkerMessage.SourceID, False) then
+      begin
+        Owner.NodeManager.SendMessage(Self, WorkerMessage);
+        Break;
+      end;
+    end;
+    Inc(i);
+  end;
+end;
+
 procedure TLccBaseEthernetThread.ForceTerminate;
 begin
   inherited;
@@ -276,8 +309,7 @@ begin
   end;
 end;
 
-procedure TLccBaseEthernetThread.TryReceiveGridConnect(
-  AGridConnectHelper: TGridConnectHelper);
+procedure TLccBaseEthernetThread.TryReceiveGridConnect(AGridConnectHelper: TGridConnectHelper);
 var
   RcvByte: Byte;
   GridConnectStrPtr: PGridConnectString;
@@ -310,8 +342,12 @@ begin
                   end;
                 end;
               end;
+            imgcr_ErrorToSend :
+              begin
+                ConnectionInfo.LccMessage.CopyToTarget(WorkerMessage);
+                Synchronize({$IFDEF FPC}@{$ENDIF}RequestErrorMessageSent);
+              end;
             imgcr_False,
-            imgcr_ErrorToSend,
             imgcr_UnknownError : begin end;
           end;
         end;

@@ -24,6 +24,7 @@ type
     ButtonTrainsClear: TButton;
     ButtonClear: TButton;
     ButtonEthernetConnect: TButton;
+    CheckBox1: TCheckBox;
     CheckBoxDetailedLog: TCheckBox;
     CheckBoxUseSyncronize: TCheckBox;
     CheckBoxLogMessages: TCheckBox;
@@ -57,6 +58,7 @@ type
     procedure ButtonClearClick(Sender: TObject);
     procedure ButtonEthernetConnectClick(Sender: TObject);
     procedure ButtonTrainsClearClick(Sender: TObject);
+    procedure CheckBox1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -195,6 +197,19 @@ begin
     end;
   end;
   ListViewTrains.Clear;
+end;
+
+procedure TFormTrainCommander.CheckBox1Change(Sender: TObject);
+begin
+  if CheckBox1.Checked then
+  begin
+    Max_Allowed_Buffers := 1;
+    NodeManager.AliasServerEnabled := False;
+  end else
+  begin
+    Max_Allowed_Buffers := 2048;
+    NodeManager.AliasServerEnabled := True;
+  end;
 end;
 
 function TFormTrainCommander.ConnectServer: Boolean;

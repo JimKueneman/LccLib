@@ -129,6 +129,7 @@ type
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
     FAliasServer: TLccAliasServer;
+    FAliasServerEnabled: Boolean;
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -229,6 +230,7 @@ type
     property Node[Index: Integer]: TLccNode read GetNode;
 
     property AliasServer: TLccAliasServer read FAliasServer write FAliasServer;
+    property AliasServerEnabled: Boolean read FAliasServerEnabled write FAliasServerEnabled;
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
     constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
@@ -711,12 +713,15 @@ function TLccNodeManager.SendGlobalAliasMappingEnquiry: Boolean;
 var
   CanNode: TLccCanNode;
 begin
-  CanNode := FindPermittedCanNode;
-  if Assigned(CanNode) then
-  begin   // Gotta make them all reply unfortunately.
-    WorkerMessage.LoadAME(CanNode.NodeID, CanNode.AliasID, NULL_NODE_ID);
-    CanNode.SendMessageFunc(Cannode, WorkerMessage);
-    Result := True;
+  if AliasServerEnabled then
+  begin
+    CanNode := FindPermittedCanNode;
+    if Assigned(CanNode) then
+    begin   // Gotta make them all reply unfortunately.
+      WorkerMessage.LoadAME(CanNode.NodeID, CanNode.AliasID, NULL_NODE_ID);
+      CanNode.SendMessageFunc(Cannode, WorkerMessage);
+      Result := True;
+    end;
   end;
 end;
 

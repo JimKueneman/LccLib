@@ -749,12 +749,12 @@ begin
       else
         Result := Result + '0x' + IntToHex( Message.CAN.SourceAlias, 4);
 
-      if Message.IsDatagram then
+      if Message.MTI = MTI_DATAGRAM then
         Result := Result + RawHelperDataToStr(Message, True) + ' MTI: ' + MTI_ToString(Message.MTI)
       else
         Result := Result + '   MTI: ' + MTI_ToString(Message.MTI) + ' - ';
 
-      if Message.IsStream then
+      if Message.MTI = MTI_STREAM_SEND then
       begin
         case Message.MTI of
           MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((Message.DataArray[2] shl 8) or Message.DataArray[3]) + ' Flags: 0x' + IntToHex(Message.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(Message.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(Message.DataArray[6]);

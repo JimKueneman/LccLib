@@ -89,7 +89,6 @@ public
 end;
 
 var
-  Max_Allowed_Datagrams: Integer;
   AllocatedDatagrams: Integer;
 
 
@@ -244,14 +243,13 @@ begin                                                                           
             if Assigned(InProcessMessage) then
               Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
             else begin
-              if AllocatedDatagrams < Max_Allowed_Datagrams then
+              if AllocatedDatagrams < Max_Allowed_Buffers then
               begin
                 LccMessage.IsCAN := False;
                 LccMessage.MTI := MTI_DATAGRAM;
                 Result := imgcr_True
               end else
               begin
-                // don't swap the Node IDs
                 LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE);
                 Result := imgcr_ErrorToSend
               end;
@@ -267,7 +265,7 @@ begin                                                                           
               Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
             end
             else begin
-              if AllocatedDatagrams < Max_Allowed_Datagrams then
+              if AllocatedDatagrams < Max_Allowed_Buffers then
               begin
                 InProcessMessage := TLccMessage.Create;
                 InProcessMessage.MTI := MTI_DATAGRAM;
@@ -299,9 +297,7 @@ begin                                                                           
               Dec(AllocatedDatagrams);
               Result := imgcr_True
             end else
-            begin
-              // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
-              // Don't swap the IDs, need to find the right target node first
+            begin  // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
               LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_NOT_EXPECTED or ERROR_NO_START_FRAME);
               Result := imgcr_ErrorToSend
             end;
@@ -385,7 +381,6 @@ end;
 
 initialization
   AllocatedDatagrams := 0;
-  Max_Allowed_Datagrams := 4096;   // crazy large by default
 
 end.
 

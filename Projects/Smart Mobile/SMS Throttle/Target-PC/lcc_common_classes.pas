@@ -110,6 +110,7 @@ type
     procedure SendMessage(AMessage: TLccMessage); virtual;
     procedure ReceiveMessage; virtual;
     procedure ErrorMessage; virtual;
+    procedure RequestErrorMessageSent; virtual;
     procedure ConnectionStateChange; virtual;
     procedure ForceTerminate; virtual;  // Override to implement something to force a thread loop to terminate if it is in an infinate wait state or something
 
@@ -651,6 +652,11 @@ begin
   finally
     LocalConnectionInfo.Free
   end;
+end;
+
+procedure TLccConnectionThread.RequestErrorMessageSent;
+begin
+
 end;
 
 procedure TLccConnectionThread.ConnectionStateChange;

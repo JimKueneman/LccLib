@@ -59,20 +59,18 @@ type
 
 TLccMessage = class
 private
-  FAbandonTimeout: Integer;
-  FIsCAN: Boolean;                                                          // True if only The CAN_Message MTI is valid
+  FAbandonTimeout: Integer;                 // If the message is being held for some reason (CAN multi frame assembly, waiting for AME to aquire the Alias, etc) this is used to see how long it has been alive and when to decide it has been abandon and should be freed
+  FIsCAN: Boolean;                          // The message is a CAN link message which typically needs special handling
   FCAN: TLccCANMessage;
-  FDataArray: TLccByteArray;
-  FDataCount: Integer;
-  FDestID: TNodeID;
-  FSourceID: TNodeID;
-  FMTI: Word;
-  FRetryAttempts: Integer;
+  FDataArray: TLccByteArray;                // The payload of the message (if there is a payload).  This is the full payload that has been already been assembled if we are on a CAN link
+  FDataCount: Integer;                      // How many bytes in the DataArray are valid
+  FDestID: TNodeID;                         // NodeID of the Destination of a message (typically a node in our NodeManager)
+  FSourceID: TNodeID;                       // NodeID of the Source of a message (AliasServer will ensure this is populated)
+  FMTI: Word;                               // The Actual MTI of the message IF it is not a CAN frame message
+  FRetryAttempts: Integer;                  // If a message returned "Temporary" (like no buffers) this holds how many time it has been retried and defines a give up time to stop resending
   function GetHasDestination: Boolean;
   function GetHasDestNodeID: Boolean;
   function GetHasSourceNodeID: Boolean;
-  function GetIsDatagram: Boolean;
-  function GetIsStream: Boolean;
   function GetDataArrayIndexer(iIndex: DWord): Byte;
 
   procedure SetDataArrayIndexer(iIndex: DWord; const Value: Byte);
@@ -89,8 +87,6 @@ public
   property HasDestNodeID: Boolean read GetHasDestNodeID;
   property HasSourceNodeID: Boolean read GetHasSourceNodeID;
   property IsCAN: Boolean read FIsCAN write FIsCAN;
-  property IsDatagram: Boolean read GetIsDatagram;
-  property IsStream: Boolean read GetIsStream;
   property MTI: Word read FMTI write FMTI;
   property RetryAttempts: Integer read FRetryAttempts write FRetryAttempts;
   property SourceID: TNodeID read FSourceID write FSourceID;
@@ -240,7 +236,7 @@ var
 {$IFDEF FPC}
 function IsPrintableChar(C: Char): Boolean;
 begin
-  Result := ((Ord( C) >= 32) and (Ord( C) <= 126))  or ((Ord( C) >= 128) and (Ord( C) <= 255))
+  Result := ((Ord( C) >= 32) and (Ord( C) <= 126)) { or ((Ord( C) >= 128) and (Ord( C) <= 255)) }
 end;
 
 function MTI_ToString(MTI: DWord): String;
@@ -422,12 +418,12 @@ begin
   else
     Result := Result + '0x' + IntToHex( AMessage.CAN.SourceAlias, 4);
 
-  if AMessage.IsDatagram then
+  if AMessage.MTI = MTI_DATAGRAM then
     Result := Result + RawHelperDataToStr(AMessage, True) + ' MTI: ' + MTI_ToString(AMessage.MTI)
   else
     Result := Result + '   MTI: ' + MTI_ToString(AMessage.MTI) + ' - ';
 
-  if AMessage.IsStream then
+  if AMessage.MTI = MTI_STREAM_SEND then
   begin
     case AMessage.MTI of
       MTI_STREAM_INIT_REQUEST            : Result := Result + ' Suggested Bufer Size: ' + IntToStr((AMessage.DataArray[2] shl 8) or AMessage.DataArray[3]) + ' Flags: 0x' + IntToHex(AMessage.DataArray[4], 2) + ' Additional Flags: 0x' + IntToHex(AMessage.DataArray[5], 2) + ' Source Stream ID: ' + IntToStr(AMessage.DataArray[6]);
@@ -739,16 +735,6 @@ begin
   Result := (FSourceID[0] <> 0) and (FSourceID[1] <> 0)
 end;
 
-function TLccMessage.GetIsDatagram: Boolean;
-begin
-  Result := MTI = MTI_DATAGRAM;
-end;
-
-function TLccMessage.GetIsStream: Boolean;
-begin
-  Result := MTI = MTI_STREAM_SEND;
-end;
-
 constructor TLccMessage.Create;
 begin
   inherited Create;
@@ -913,7 +899,7 @@ begin
     begin
       CANFrameType := CAN.MTI and MTI_CAN_FRAME_TYPE_MASK;
 
-      if CANFrameType = MTI_CAN_CAN then
+      if CANFrameType = MTI_CAN_CAN then     // the get the AME, AMD, AMR, RID, Error messages $007xx000
         CAN.MTI := CAN.MTI and $0FFFF000
       else
       if CANFrameType <= MTI_CAN_CID0 then
@@ -933,9 +919,15 @@ begin
         Assert(Length(DataStr) >= 4, 'Malformed message.  Address Present bit set but not enough bytes in the payload');
 
         ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-        {$IFDEF DWSCRIPT}DestHi := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestHi := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
+        {$IFDEF DWSCRIPT}
+        DestHi := TDatatype.HexStrToInt('0x' + ByteStr);
         ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
-        {$IFDEF DWSCRIPT}DestLo := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}DestLo := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
+        DestLo := TDatatype.HexStrToInt('0x' + ByteStr);
+        {$ELSE}
+        DestHi := StrToInt( FormatStrToInt(ByteStr));
+        ByteStr := DataStr[i_Data+2] + DataStr[i_Data+3];
+        DestLo := StrToInt( FormatStrToInt(ByteStr));
+        {$ENDIF}
         Inc(i_Data, 4);            // First 4 in the Data where the MTI, move to the real payload (if it exisits)
         Dec(Len_Data, 4);
         CAN.FramingBits := DestHi and $30;
@@ -953,7 +945,11 @@ begin
     while i_Data < i_Data_Count do
     begin
       ByteStr := DataStr[i_Data] + DataStr[i_Data+1];
-      {$IFDEF DWSCRIPT}FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);{$ELSE}FDataArray[FDataCount] := StrToInt( FormatStrToInt(ByteStr));{$ENDIF}
+      {$IFDEF DWSCRIPT}
+      FDataArray[FDataCount] := TDatatype.HexStrToInt('0x' + ByteStr);
+      {$ELSE}
+      FDataArray[FDataCount] := StrToInt( FormatStrToInt(ByteStr));
+      {$ENDIF}
       Inc(i_Data, 2);
       Inc(FDataCount);
     end;
@@ -962,7 +958,8 @@ begin
       case CAN.MTI of
         MTI_CAN_AMD :
           begin
-            ExtractDataBytesAsNodeID(0, TempNodeID);   // SMS issue
+            TempNodeID := NULL_NODE_ID;
+            ExtractDataBytesAsNodeID(0, TempNodeID);   // SMS workaround
             FSourceID := TempNodeID;
           end;
       end;

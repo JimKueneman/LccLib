@@ -1074,11 +1074,13 @@ begin
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
   ProtocolSupportedProtocols.SimpleNodeInfo := True;
-  ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.TractionControl := True;
   ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
   ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
   ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+
+  ProtocolEventsProduced.Add(EVENT_IS_TRAIN, evs_Valid);
+  ProtocolEventConsumed.Add(EVENT_EMERGENCY_STOP, evs_InValid);
 
   ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
   ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);

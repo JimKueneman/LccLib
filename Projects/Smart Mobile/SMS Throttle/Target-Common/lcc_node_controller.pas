@@ -890,19 +890,15 @@ begin
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
   ProtocolSupportedProtocols.SimpleNodeInfo := True;
-  ProtocolSupportedProtocols.AbbreviatedConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.TractionControl := True;
-  ProtocolSupportedProtocols.TractionSimpleTrainNodeInfo := True;
-  ProtocolSupportedProtocols.TractionFunctionDefinitionInfo := True;
-  ProtocolSupportedProtocols.TractionFunctionConfiguration := True;
+
+  ProtocolEventsProduced.Add(EVENT_EMERGENCY_STOP, evs_InValid);
 
   ProtocolMemoryInfo.Add(MSI_CDI, True, True, True, 0, $FFFFFFFF);
   ProtocolMemoryInfo.Add(MSI_ALL, True, True, True, 0, $FFFFFFFF);
   ProtocolMemoryInfo.Add(MSI_CONFIG, True, False, True, 0, $FFFFFFFF);
   ProtocolMemoryInfo.Add(MSI_ACDI_MFG, True, True, True, 0, $FFFFFFFF);
   ProtocolMemoryInfo.Add(MSI_ACDI_USER, True, False, True, 0, $FFFFFFFF);
-  ProtocolMemoryInfo.Add(MSI_TRACTION_FDI, True, True, True, 0, $FFFFFFFF);
-  ProtocolMemoryInfo.Add(MSI_TRACTION_FUNCTION_CONFIG, True, False, True, 0, $FFFFFFFF);
 
   ProtocolMemoryOptions.WriteUnderMask := True;
   ProtocolMemoryOptions.UnAlignedReads := True;

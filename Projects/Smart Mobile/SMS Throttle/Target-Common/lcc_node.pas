@@ -1563,6 +1563,10 @@ begin
      MTI_DATAGRAM :
        begin
          case SourceMessage.DataArrayIndexer[0] of
+           DATAGRAM_PROTOCOL_LOGREQUEST : {0x01}  // Makes the Python Script Happy
+             begin
+               SendDatagramAckReply(SourceMessage, False, 0);
+             end;
            DATAGRAM_PROTOCOL_CONFIGURATION :     {0x20}
              begin
                AddressSpace := 0;
