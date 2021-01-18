@@ -171,8 +171,8 @@ type
     FNodes: TObjectList<TLccNode>;
     {$ELSE}
     FNodes: TObjectList;
-    FWorkerMessage: TLccMessage;
     {$ENDIF}
+    FWorkerMessage: TLccMessage;
     function GetNode(Index: Integer): TLccNode;
   protected
     HardwareConnectionLinkArray: array[0..MAX_HARDWARE_CONNECTIONS] of IHardwareConnectionManagerLink;

@@ -66,12 +66,12 @@ type
     FNodeIDSortedMap: TObjectList<TLccAliasMap>;
    {$ELSE}
     FAliasSortedMap: TObjectList;
-    FIsDirty: Boolean;
     FNodeIDSortedMap: TObjectList;
+   {$ENDIF}
     FOnAddMapping: TNotifyEvent;
     FOnDeleteMapping: TNotifyEvent;
+    FIsDirty: Boolean;
     function GetCount: Integer;
-   {$ENDIF}
   protected
     property IsDirty: Boolean read FIsDirty;
 
@@ -387,7 +387,9 @@ begin
   if IsDirty then
   begin
     {$IFDEF DELPHI}
-    AliasMapping.Sort;
+    AliasSortedMap.Comparer .....
+    AliasSortedMap.Sort(;
+    NodeIDSortedMap.Sort;
     {$ELSE}
     AliasSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncAlias);
     NodeIDSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncNodeID);

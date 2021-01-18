@@ -99,7 +99,7 @@ uses
 {$IFDEF DWSCRIPT}
 var
   FBinaryData: TBinaryData;
-  FOneByteArray: TDynamicByteArray;
+  FOneByteArray: TLccDynamicByteArray;
 {$ENDIF}
 
 
