@@ -663,11 +663,6 @@ end;
 
 procedure TOpenLcbThrottleForm.OnNodeManagerSendMessage(Sender: TObject;LccMessage: TLccMessage);
 begin
-  if EthernetClient.Connected then
-    EthernetClient.SendMessage(LccMessage);
-  if EthernetServer.Connected then
-    EthernetServer.SendMessage(LccMessage);
-
   if OpenLcbSettings.Log then
   begin
     MemoOpenLCB.BeginUpdate;
