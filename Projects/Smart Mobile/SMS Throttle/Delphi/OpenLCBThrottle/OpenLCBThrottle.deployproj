@@ -6,9 +6,9 @@
     <PropertyGroup>
         <DeviceId Condition="'$(Platform)'=='Android'"/>
         <DeviceId Condition="'$(Platform)'=='Android64'"/>
-        <DeviceId Condition="'$(Platform)'=='iOSDevice32'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
-        <DeviceId Condition="'$(Platform)'=='iOSDevice64'">b3211ae9f3ed7e4ab9fa04988e9d265cceef4dcd</DeviceId>
-        <DeviceId Condition="'$(Platform)'=='iOSSimulator'">CDC0E966-0485-4967-AE4F-2F589BA5F507</DeviceId>
+        <DeviceId Condition="'$(Platform)'=='iOSDevice32'"/>
+        <DeviceId Condition="'$(Platform)'=='iOSDevice64'"/>
+        <DeviceId Condition="'$(Platform)'=='iOSSimulator'">iPhone5</DeviceId>
     </PropertyGroup>
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'">
         <DeployFile Include="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_57x57.png" Condition="'$(Config)'=='Debug'">

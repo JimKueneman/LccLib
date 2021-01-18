@@ -46,6 +46,7 @@ uses
 type
   TLccAliasMap = class;  // forward
 
+  {$IFDEF DELPHI}
   TLccAliasSorter = class(TInterfacedObject, IComparer<TLccAliasMap>)
   public
     function Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
@@ -55,6 +56,7 @@ type
   public
     function Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
   end;
+  {$ENDIF}
 
   { TLccAliasMap }
 
@@ -191,6 +193,7 @@ begin
     Result := 0; /// THIS IS A BAD ERROR.... Duplicate Alias
 end;
 
+{$IFDEF DELPHI}
 { TLccAliasSorter }
 
 function TLccAliasSorter.Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
@@ -222,6 +225,8 @@ begin
   else
     Result := 0; /// THIS IS A BAD ERROR.... Duplicate NodeIDs
 end;
+
+{$ENDIF}
 
 
 { TLccAliasMap }
