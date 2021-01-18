@@ -36,6 +36,7 @@ uses
         contnrs,
       {$ELSE}
         System.Generics.Collections,
+        System.Generics.Defaults,
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -43,6 +44,17 @@ uses
   lcc_utilities;
 
 type
+  TLccAliasMap = class;  // forward
+
+  TLccAliasSorter = class(TInterfacedObject, IComparer<TLccAliasMap>)
+  public
+    function Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
+  end;
+
+  TLccNodeIDSorter = class(TInterfacedObject, IComparer<TLccAliasMap>)
+  public
+    function Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
+  end;
 
   { TLccAliasMap }
 
@@ -64,6 +76,8 @@ type
     {$IFDEF DELPHI}
     FAliasSortedMap: TObjectList<TLccAliasMap>;
     FNodeIDSortedMap: TObjectList<TLccAliasMap>;
+    FAliasSorter: IComparer<TLccAliasMap>;
+    FNodeIDSorter: IComparer<TLccAliasMap>;
    {$ELSE}
     FAliasSortedMap: TObjectList;
     FNodeIDSortedMap: TObjectList;
@@ -78,6 +92,8 @@ type
     {$IFDEF DELPHI}
     property AliasSortedMap: TObjectList<TLccAliasMap> read FAliasSortedMap write FAliasSortedMap;
     property NodeIDSortedMap: TObjectList<TLccAliasMap> read FNodeIDSortedMap write FNodeIDSortedMap;
+    property AliasSorter: IComparer<TLccAliasMap> read FAliasSorter write FAliasSorter;
+    property NodeIDSorter: IComparer<TLccAliasMap> read FNodeIDSorter write FNodeIDSorter;
     {$ELSE}
     property AliasSortedMap: TObjectList read FAliasSortedMap write FAliasSortedMap;
     property NodeIDSortedMap: TObjectList read FNodeIDSortedMap write FNodeIDSortedMap;
@@ -111,14 +127,33 @@ type
 implementation
 
 
-{ TLccAliasMap }
-
-constructor TLccAliasMap.Create(ANodeID: TNodeID; AnAliasID: Word);
+ {
+procedure BinarySearchAlias(SearchNum : integer);
+var
+  Found, Failed: Boolean;
+  Last, First, MidPoint: integer;
 begin
-  FAliasID := AnAliasID;
-  FNodeID[0] := ANodeID[0];
-  FNodeID[1] := ANodeID[1];
-end;
+  Found := False;
+  Failed:= False;
+  Last := UPPER_BOUND;
+  First := 1;
+  repeat
+    Midpoint := (First + Last) DIV 2;
+    if Nums[MidPoint] = SearchNum then
+      begin
+        Found := True;
+        writeln('Found at position ' ,MidPoint);
+      end
+    else if (First > Last) then
+      Failed := true;
+    else if Nums[MidPoint] < SearchNum then
+      First := MidPoint + 1;
+    else
+      Last := MidPoint - 1;
+  until Found or Failed;
+  if Failed then
+    writeln('Not found.');
+end;   }
 
 function SortFuncNodeID(Item1, Item2: {$IFDEF DWSCRIPT}TObject{$ELSE}Pointer{$ENDIF}): Integer;
 var
@@ -156,33 +191,47 @@ begin
     Result := 0; /// THIS IS A BAD ERROR.... Duplicate Alias
 end;
 
- {
-procedure BinarySearchAlias(SearchNum : integer);
-var
-  Found, Failed: Boolean;
-  Last, First, MidPoint: integer;
+{ TLccAliasSorter }
+
+function TLccAliasSorter.Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
 begin
-  Found := False;
-  Failed:= False;
-  Last := UPPER_BOUND;
-  First := 1;
-  repeat
-    Midpoint := (First + Last) DIV 2;
-    if Nums[MidPoint] = SearchNum then
-      begin
-        Found := True;
-        writeln('Found at position ' ,MidPoint);
-      end
-    else if (First > Last) then
-      Failed := true;
-    else if Nums[MidPoint] < SearchNum then
-      First := MidPoint + 1;
-    else
-      Last := MidPoint - 1;
-  until Found or Failed;
-  if Failed then
-    writeln('Not found.');
-end;   }
+  if Mapping1.AliasID > Mapping2.AliasID then
+    Result := 1
+  else
+  if Mapping1.AliasID < Mapping2.AliasID then
+    Result := -1
+  else
+    Result := 0; /// THIS IS A BAD ERROR.... Duplicate Alias
+end;
+
+{ TLccNodeIDSorter }
+
+function TLccNodeIDSorter.Compare(const Mapping1, Mapping2: TLccAliasMap): Integer;
+begin
+  if Mapping1.NodeID[1] > Mapping2.NodeID[1] then
+    Result := 1
+  else
+  if Mapping1.NodeID[1] < Mapping2.NodeID[1] then
+    Result := -1
+  else
+  if Mapping1.NodeID[0] > Mapping2.NodeID[0] then
+    Result := 1
+  else
+  if Mapping1.NodeID[0] < Mapping2.NodeID[0] then
+    Result := -1
+  else
+    Result := 0; /// THIS IS A BAD ERROR.... Duplicate NodeIDs
+end;
+
+
+{ TLccAliasMap }
+
+constructor TLccAliasMap.Create(ANodeID: TNodeID; AnAliasID: Word);
+begin
+  FAliasID := AnAliasID;
+  FNodeID[0] := ANodeID[0];
+  FNodeID[1] := ANodeID[1];
+end;
 
 { TLccAliasServer }
 
@@ -322,6 +371,8 @@ begin
   {$IFDEF DELPHI}
     FAliasSortedMap := TObjectList<TLccAliasMap>.Create(False);
     FNodeIDSortedMap := TObjectList<TLccAliasMap>.Create(True);
+    FAliasSorter := TLccAliasSorter.Create as IComparer<TLccAliasMap>;
+    FNodeIDSorter := TLccNodeIDSorter.Create as IComparer<TLccAliasMap>;
   {$ELSE}
     FAliasSortedMap := TObjectList.Create;
     FNodeIDSortedMap := TObjectList.Create;
@@ -387,9 +438,8 @@ begin
   if IsDirty then
   begin
     {$IFDEF DELPHI}
-    AliasSortedMap.Comparer .....
-    AliasSortedMap.Sort(;
-    NodeIDSortedMap.Sort;
+    AliasSortedMap.Sort(AliasSorter);
+    NodeIDSortedMap.Sort(NodeIDSorter);
     {$ELSE}
     AliasSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncAlias);
     NodeIDSortedMap.Sort({$IFNDEF DELPHI}@{$ENDIF}SortFuncNodeID);
