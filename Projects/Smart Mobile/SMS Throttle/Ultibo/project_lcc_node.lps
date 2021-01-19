@@ -9,8 +9,8 @@
         <Filename Value="project_lcc_node.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="18"/>
-        <CursorPos X="12" Y="31"/>
+        <TopLine Value="17"/>
+        <CursorPos X="13" Y="25"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -32,8 +32,8 @@
       <Unit3>
         <Filename Value="..\Target-Common\lcc_node_manager.pas"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="16"/>
-        <CursorPos X="28" Y="23"/>
+        <TopLine Value="274"/>
+        <CursorPos X="32" Y="43"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit3>
@@ -132,7 +132,6 @@
       <Unit19>
         <Filename Value="..\Target-Common\lcc_utilities.pas"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="19"/>
         <CursorPos X="11" Y="24"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -159,7 +158,7 @@
         <UsageCount Value="10"/>
       </Unit22>
     </Units>
-    <JumpHistory Count="23" HistoryIndex="22">
+    <JumpHistory Count="24" HistoryIndex="23">
       <Position1>
         <Filename Value="..\Target-Common\lcc_utilities.pas"/>
         <Caret Column="19"/>
@@ -252,6 +251,10 @@
         <Filename Value="..\Target-Common\lcc_node.pas"/>
         <Caret Line="37" Column="12" TopLine="25"/>
       </Position23>
+      <Position24>
+        <Filename Value="project_lcc_node.lpr"/>
+        <Caret Line="25" Column="13" TopLine="17"/>
+      </Position24>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

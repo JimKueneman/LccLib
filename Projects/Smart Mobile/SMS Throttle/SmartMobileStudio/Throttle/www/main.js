@@ -17412,12 +17412,12 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
-   ,IBinaryDataImport:[TBinaryData.FromBase64]
-   ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
+   IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
+   ,IBinaryDataImport:[TBinaryData.FromBase64]
+   ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
@@ -29261,8 +29261,8 @@ var TW3VirtualFileSystem = {
    ,WriteFileObjectData:TW3VirtualFileSystemFolder.WriteFileObjectData
 };
 TW3VirtualFileSystem.$Intf={
-   IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
-   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
+   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
+   ,IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
@@ -37181,8 +37181,8 @@ var TLccNodeManager = {
    ,DoLogOutNode$:function($){return $.ClassType.DoLogOutNode.apply($.ClassType, arguments)}
 };
 TLccNodeManager.$Intf={
-   INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
-   ,INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
+   INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
+   ,INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
 }
 /// TLccCanNodeManager = class (TLccNodeManager)
 ///  [line: 325, column: 3, file: lcc_node_manager]
@@ -37419,7 +37419,7 @@ var TLccCommandStationNode = {
    ,Creating$:function($){return $.ClassType.Creating($)}
 };
 /// TLccAliasServer = class (TObject)
-///  [line: 62, column: 3, file: lcc_alias_server]
+///  [line: 76, column: 3, file: lcc_alias_server]
 var TLccAliasServer = {
    $ClassName:"TLccAliasServer",$Parent:TObject
    ,$Init:function ($) {
@@ -37428,7 +37428,7 @@ var TLccAliasServer = {
       $.FIsDirty = false;
    }
    /// function TLccAliasServer.AddMapping(ANodeID: TNodeID; AnAliasID: Word) : TLccAliasMap
-   ///  [line: 189, column: 26, file: lcc_alias_server]
+   ///  [line: 243, column: 26, file: lcc_alias_server]
    ,AddMapping:function(Self, ANodeID, AnAliasID) {
       var Result = null;
       var MapIndex = { v : 0 };
@@ -37450,7 +37450,7 @@ var TLccAliasServer = {
       return Result
    }
    /// procedure TLccAliasServer.Clear()
-   ///  [line: 342, column: 27, file: lcc_alias_server]
+   ///  [line: 398, column: 27, file: lcc_alias_server]
    ,Clear$34:function(Self) {
       TObjectList.Clear$8(Self.FNodeIDSortedMap);
       TObjectList.Clear$8(Self.FAliasSortedMap);
@@ -37458,35 +37458,35 @@ var TLccAliasServer = {
       TLccAliasServer.DoDeleteMapping(Self);
    }
    /// constructor TLccAliasServer.Create()
-   ///  [line: 320, column: 29, file: lcc_alias_server]
+   ///  [line: 374, column: 29, file: lcc_alias_server]
    ,Create$210:function(Self) {
       Self.FAliasSortedMap = TObjectList.Create$127($New(TObjectList));
       Self.FNodeIDSortedMap = TObjectList.Create$127($New(TObjectList));
       return Self
    }
    /// destructor TLccAliasServer.Destroy()
-   ///  [line: 335, column: 28, file: lcc_alias_server]
+   ///  [line: 391, column: 28, file: lcc_alias_server]
    ,Destroy:function(Self) {
       FreeAndNil(Self.FNodeIDSortedMap);
       FreeAndNil(Self.FAliasSortedMap);
       TObject.Destroy(Self);
    }
    /// procedure TLccAliasServer.DoAddMapping()
-   ///  [line: 350, column: 27, file: lcc_alias_server]
+   ///  [line: 406, column: 27, file: lcc_alias_server]
    ,DoAddMapping:function(Self) {
       if (Self.FOnAddMapping) {
          Self.FOnAddMapping(Self);
       }
    }
    /// procedure TLccAliasServer.DoDeleteMapping()
-   ///  [line: 356, column: 27, file: lcc_alias_server]
+   ///  [line: 412, column: 27, file: lcc_alias_server]
    ,DoDeleteMapping:function(Self) {
       if (Self.FOnDeleteMapping) {
          Self.FOnDeleteMapping(Self);
       }
    }
    /// function TLccAliasServer.FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer) : TLccAliasMap
-   ///  [line: 297, column: 26, file: lcc_alias_server]
+   ///  [line: 351, column: 26, file: lcc_alias_server]
    ,FindInAliasSortedMap:function(Self, AnAliasID, MapIndex) {
       var Result = null;
       var i$7 = 0;
@@ -37506,7 +37506,7 @@ var TLccAliasServer = {
       return Result
    }
    /// function TLccAliasServer.FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer) : TLccAliasMap
-   ///  [line: 274, column: 26, file: lcc_alias_server]
+   ///  [line: 328, column: 26, file: lcc_alias_server]
    ,FindInNodeIDSortedMap:function(Self, ANodeID, MapIndex) {
       var Result = null;
       var i$7 = 0;
@@ -37526,12 +37526,12 @@ var TLccAliasServer = {
       return Result
    }
    /// procedure TLccAliasServer.RemoveMapping(AnAliasID: Word)
-   ///  [line: 367, column: 27, file: lcc_alias_server]
+   ///  [line: 423, column: 27, file: lcc_alias_server]
    ,RemoveMapping:function(Self, AnAliasID) {
       TLccAliasServer.RemoveMappingByAliasID(Self,AnAliasID);
    }
    /// function TLccAliasServer.RemoveMappingByAliasID(AnAliasID: Word) : Boolean
-   ///  [line: 239, column: 26, file: lcc_alias_server]
+   ///  [line: 293, column: 26, file: lcc_alias_server]
    ,RemoveMappingByAliasID:function(Self, AnAliasID) {
       var Result = false;
       var MapIndexInAliasSortedMap = { v : 0 },
@@ -37555,7 +37555,7 @@ var TLccAliasServer = {
       return Result
    }
    /// procedure TLccAliasServer.SortMaps()
-   ///  [line: 385, column: 27, file: lcc_alias_server]
+   ///  [line: 441, column: 27, file: lcc_alias_server]
    ,SortMaps:function(Self) {
       if (Self.FIsDirty) {
          TObjectList.Sort$4(Self.FAliasSortedMap,SortFuncAlias);
@@ -37564,7 +37564,7 @@ var TLccAliasServer = {
       }
    }
    /// function TLccAliasServer.ValidateAlias(AnAlias: Word) : Boolean
-   ///  [line: 372, column: 26, file: lcc_alias_server]
+   ///  [line: 428, column: 26, file: lcc_alias_server]
    ,ValidateAlias:function(Self, AnAlias) {
       var Result = false;
       var MapIndex = { v : 0 };
@@ -37578,7 +37578,7 @@ var TLccAliasServer = {
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
 /// TLccAliasMap = class (TObject)
-///  [line: 49, column: 3, file: lcc_alias_server]
+///  [line: 63, column: 3, file: lcc_alias_server]
 var TLccAliasMap = {
    $ClassName:"TLccAliasMap",$Parent:TObject
    ,$Init:function ($) {
@@ -37587,7 +37587,7 @@ var TLccAliasMap = {
       $.FNodeID$3 = [0,0];
    }
    /// constructor TLccAliasMap.Create(ANodeID: TNodeID; AnAliasID: Word)
-   ///  [line: 116, column: 26, file: lcc_alias_server]
+   ///  [line: 234, column: 26, file: lcc_alias_server]
    ,Create$211:function(Self, ANodeID, AnAliasID) {
       Self.FAliasID$2 = AnAliasID;
       Self.FNodeID$3[0] = ANodeID[0];
