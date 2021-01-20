@@ -47,7 +47,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\Target-Common;..\Target-PC"/>
+      <OtherUnitFiles Value="..\Target-Common;..\Target-PC;..\Target-PC\HardwareConnection;..\Target-PC\Synapse_LCC"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
@@ -67,6 +67,12 @@
       </Debugging>
       <LinkSmart Value="True"/>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dFPC_CONSOLE_APP"/>
+      <OtherDefines Count="1">
+        <Define0 Value="FPC_CONSOLE_APP"/>
+      </OtherDefines>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

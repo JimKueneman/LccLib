@@ -885,6 +885,7 @@ begin
     ValidateAliasIDs(ALccMessage.CAN.SourceAlias, ALccMessage.CAN.DestAlias)
   end;
 
+  // This message came in through a hardware connection so relay it out to the other connections
   for i := 0 to HardwareConnectionLinkCount - 1 do
   begin
     if (HardwareConnectionLinkArray[i].IsLccLink) and (HardwareConnectionLinkArray[i] <> ConnectionManager)  then

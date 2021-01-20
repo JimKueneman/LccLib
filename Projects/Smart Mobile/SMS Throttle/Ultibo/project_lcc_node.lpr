@@ -33,7 +33,10 @@ uses
   lcc_protocol_memory_information,
   lcc_protocol_memory_options,
   lcc_protocol_simplenodeinfo,
-  lcc_protocol_supportedprotocols;
+  lcc_protocol_supportedprotocols,
+  lcc_ethernet_server,
+  lcc_common_classes,
+  lcc_ethernet_common;
 
 begin
   { Add your program code here }

@@ -22,7 +22,6 @@ uses
     System.Generics.Collections,
   {$ENDIF}
   {$IFDEF ULTIBO}
-  lcc_threaded_stringlist,
   Winsock2,
   Console,
   {$ELSE}

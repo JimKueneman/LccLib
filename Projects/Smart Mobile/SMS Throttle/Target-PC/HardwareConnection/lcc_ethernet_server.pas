@@ -18,7 +18,7 @@ uses
   Classes,
   SysUtils,
   {$IFDEF FPC}
-    {$IFNDEF FPC_CONSOLE_APP} LResources, Forms, Controls, Graphics, Dialogs, {$ENDIF}
+    {$IFNDEF FPC_CONSOLE_APP} Forms, {$ENDIF}
   {$ELSE}
   FMX.Forms, Types, System.Generics.Collections,
   {$ENDIF}
