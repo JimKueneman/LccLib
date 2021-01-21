@@ -171,7 +171,9 @@ object FormTrainCommander: TFormTrainCommander
       Top = 24
       Width = 175
       Caption = 'Allow Python Script To Run'
+      Checked = True
       OnChange = CheckBox1Change
+      State = cbChecked
       TabOrder = 12
     end
   end

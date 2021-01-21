@@ -326,34 +326,18 @@ type
   private
     FAliasID: Word;
     FDuplicateAliasDetected: Boolean;
-    {$IFDEF DELPHI}
-    FInProcessMultiFrameMessage: TObjectList<TLccMessage>;
-    {$ELSE}
-    FInProcessMultiFrameMessage: TObjectList;
-    {$ENDIF}
     FSeedNodeID: TNodeID;
     FPermitted: Boolean;
 
     function GetAliasIDStr: String;
   protected
     property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
-    {$IFDEF DELPHI}
-    property InProcessMultiFrameMessage: TObjectList<TLccMessage> read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
-    {$ELSE}
-    property InProcessMultiFrameMessage: TObjectList read FInProcessMultiFrameMessage write FInProcessMultiFrameMessage;
-    {$ENDIF}
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
     procedure Creating; virtual;
     function GetAlias: Word; override;
     function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
     procedure GenerateNewSeed(var Seed: TNodeID);
-    procedure InProcessMessageClear;
-    procedure InProcessMessageAddMessage(NewMessage: TLccMessage);
-    procedure InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
-    function InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
-    function InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
-    function InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
     function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
     procedure On_800msTimer(Sender: TObject); override;
     procedure Relogin;
@@ -367,9 +351,6 @@ type
      procedure Login(ANodeID: TNodeID); override;
      procedure Logout; override;
      function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
-     procedure SendGlobalAME;
-     procedure SendAMD;
-     procedure SendAMR;
   end;
   TLccCanNodeClass = class of TLccCanNode;
 
@@ -622,14 +603,6 @@ end;
 constructor TLccCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
-  {$IFDEF DELPHI}
-  FInProcessMultiFrameMessage := TObjectList<TLccMessage>.Create;
-  {$ELSE}
-  FInProcessMultiFrameMessage := TObjectList.Create;
-  {$ENDIF}
-  {$IFNDEF DWSCRIPT}
-  InProcessMultiFrameMessage.OwnsObjects := False
-  {$ENDIF};
   Creating;
 end;
 
@@ -640,8 +613,6 @@ end;
 
 destructor TLccCanNode.Destroy;
 begin
-  InProcessMessageClear;
-  InProcessMultiFrameMessage.Free;
   FAliasID := 0;
   (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
   inherited Destroy;
@@ -650,99 +621,6 @@ end;
 function TLccCanNode.GetAliasIDStr: String;
 begin
    Result := '0x' + IntToHex(FAliasID, 4);
-end;
-
-procedure TLccCanNode.InProcessMessageClear;
-var
-  i: Integer;
-  AMessage: TLccMessage;
-begin
-  for i := InProcessMultiFrameMessage.Count - 1 downto 0 do
-  begin
-    AMessage := TLccMessage(InProcessMultiFrameMessage[i]);
-    {$IFDEF DWSCRIPT}
-    InProcessMultiFrameMessage.Remove(i);
-    {$ELSE}
-    InProcessMultiFrameMessage.Delete(i);
-    {$ENDIF}
-    Dec(InprocessMessageAllocated);
-    AMessage.Free
-  end;
-end;
-
-procedure TLccCanNode.InProcessMessageAddMessage(NewMessage: TLccMessage);
-begin
-   InProcessMultiFrameMessage.Add(NewMessage);
-   Inc(InprocessMessageAllocated);
-end;
-
-function TLccCanNode.InProcessMessageFindAndFreeByAliasAndMTI(TestMessage: TLccMessage): Boolean;
-begin
-  Result := InProcessMessageRemoveAndFree(InProcessMessageFindByAliasAndMTI(TestMessage));
-end;
-
-function TLccCanNode.InProcessMessageFindByAliasAndMTI(TestMessage: TLccMessage): TLccMessage;
-var
-  i: Integer;
-  LccMessage: TLccMessage;
-begin
-  Result := nil;
-  for i := 0 to InProcessMultiFrameMessage.Count - 1 do
-  begin
-    LccMessage := TLccMessage(InProcessMultiFrameMessage[i]);
-    if (TestMessage.CAN.SourceAlias = LccMessage.CAN.SourceAlias) and (TestMessage.CAN.DestAlias = LccMessage.CAN.DestAlias) and (TestMessage.MTI = LccMessage.MTI) then
-    begin
-      Result := LccMessage;
-      Break
-    end;
-  end;
-
-end;
-
-procedure TLccCanNode.InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage);
-var
-  i: Integer;
-  AMessage: TLccMessage;
-begin
-  for i := InProcessMultiFrameMessage.Count - 1 downto 0  do
-  begin
-    AMessage := TLccMessage(InProcessMultiFrameMessage[i]);
-    if (AMessage.CAN.SourceAlias = TestMessage.CAN.SourceAlias) {or (AMessage.CAN.DestAlias = TestMessage.CAN.SourceAlias)} then
-    begin
-      {$IFDEF DWSCRIPT}
-      InProcessMultiFrameMessage.Remove(i);
-      {$ELSE}
-      InProcessMultiFrameMessage.Delete(i);
-      {$ENDIF}
-      Dec(InprocessMessageAllocated);
-      AMessage.Free
-    end;
-  end;
-end;
-
-function TLccCanNode.InProcessMessageRemoveAndFree(AMessage: TLccMessage): Boolean;
-{$IFDEF DWSCRIPT}
-var
-  i: Integer;
-{$ENDIF}
-begin
-  Result := False;
-  if Assigned(AMessage) then
-  begin
-   {$IFDEF DWSCRIPT}
-    i := InProcessMultiFrameMessage.IndexOf(AMessage);
-    if i > -1 then
-    begin
-      InProcessMultiFrameMessage.Remove(i);
-      Result := True;
-    end;
-    {$ELSE}
-    if InProcessMultiFrameMessage.Remove(AMessage) > -1 then
-      Result := True;
-    {$ENDIF}
-    AMessage.Free;
-    Dec(InprocessMessageAllocated);
-  end;
 end;
 
 function TLccCanNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
@@ -777,9 +655,10 @@ end;
 procedure TLccCanNode.Logout;
 begin
   (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
-  SendAMR;
   FPermitted := False;
-  InProcessMessageClear;
+  WorkerMessage.LoadAMR(NodeID, AliasID);
+  SendMessageFunc(Self, WorkerMessage);
+  (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
   inherited Logout;
 end;
 
@@ -876,21 +755,10 @@ begin
             end;
             Result := True;
           end;
-        MTI_CAN_AMR : InProcessMessageFlushBySourceAlias(SourceMessage); // If the Alias is being reset flush all messages associated with it
-        MTI_CAN_AMD : begin end; // InProcessMessageFlushBySourceAlias(SourceMessage); // If the Alias now coming on line, any old messages for this Alias are out dated  1/20/21:  Not true an AME can be called any time forcing and AMD to be sent anytime
       end
     end;
     if not Result then
       Result := inherited ProcessMessage(SourceMessage);
-  end;
-end;
-
-procedure TLccCanNode.SendGlobalAME;
-begin
-  if Permitted then
-  begin
-    WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
-    SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
@@ -938,26 +806,6 @@ end;
 function TLccCanNode.GetAlias: Word;
 begin
   Result := AliasID;
-end;
-
-procedure TLccCanNode.SendAMD;
-begin
-  if Permitted then
-  begin
-    WorkerMessage.LoadAMD(NodeID, AliasID);
-    SendMessageFunc(Self, WorkerMessage);
-  end;
-end;
-
-procedure TLccCanNode.SendAMR;
-begin
-  if Permitted then
-  begin
-    FPermitted := False;
-    WorkerMessage.LoadAMR(NodeID, AliasID);
-    SendMessageFunc(Self, WorkerMessage);
-    (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
-  end;
 end;
 
 
