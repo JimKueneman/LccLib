@@ -80,13 +80,11 @@ type
   TLccCommandStationNode = class(TLccCanNode)
   protected
 
-    procedure Creating; override;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
 
   public
 
-    destructor Destroy; override;
     function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
     procedure ClearTrains;
     function FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainCanNode;
@@ -164,16 +162,6 @@ begin
        LocalNode.Free;
      end;
    end;
-end;
-
-procedure TLccCommandStationNode.Creating;
-begin
-  inherited Creating;
-end;
-
-destructor TLccCommandStationNode.Destroy;
-begin
-  inherited Destroy;
 end;
 
 function TLccCommandStationNode.FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainCanNode;

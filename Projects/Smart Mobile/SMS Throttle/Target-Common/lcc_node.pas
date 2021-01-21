@@ -334,7 +334,6 @@ type
     property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
 
-    procedure Creating; virtual;
     function GetAlias: Word; override;
     function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
     procedure GenerateNewSeed(var Seed: TNodeID);
@@ -346,7 +345,6 @@ type
      property AliasIDStr: String read GetAliasIDStr;
      property Permitted: Boolean read FPermitted;
 
-     constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
      destructor Destroy; override;
      procedure Login(ANodeID: TNodeID); override;
      procedure Logout; override;
@@ -599,17 +597,6 @@ begin
 end;
 
 { TLccCanNode }
-
-constructor TLccCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
-begin
-  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
-  Creating;
-end;
-
-procedure TLccCanNode.Creating;
-begin
-
-end;
 
 destructor TLccCanNode.Destroy;
 begin
