@@ -21,13 +21,13 @@ uses
   {$ELSE}
     System.Generics.Collections,
   {$ENDIF}
-  {$IFDEF ULTIBO}
-  Winsock2,
-  Console,
-  {$ELSE}
+ // {$IFDEF ULTIBO}
+//  Winsock2,
+//  Console,
+//  {$ELSE}
   blcksock,
   synsock,
-  {$ENDIF}
+//  {$ENDIF}
   lcc_node_messages,
   lcc_node_manager,
   lcc_app_common_settings,
@@ -475,7 +475,6 @@ end;
 
 procedure TLccHardwareConnectionManager.ConnectionStateChange(Thread: TLccConnectionThread; ConnectionInfo: TLccHardwareConnectionInfo);
 begin
-  NodeManager.HardwareConnectionLinkNotifyConnectionChange(Self);
   DoConnectionStateChange(Thread, ConnectionInfo);
 end;
 

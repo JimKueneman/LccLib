@@ -165,22 +165,6 @@ object FormTrainCommander: TFormTrainCommander
       OnClick = ButtonHTTPServerClick
       TabOrder = 11
     end
-    object Label1: TLabel
-      Left = 686
-      Height = 16
-      Top = 49
-      Width = 112
-      Caption = 'AliasServer Count:'
-      ParentColor = False
-    end
-    object LabelAliasServerCount: TLabel
-      Left = 808
-      Height = 16
-      Top = 48
-      Width = 8
-      Caption = '0'
-      ParentColor = False
-    end
     object CheckBox1: TCheckBox
       Left = 384
       Height = 18

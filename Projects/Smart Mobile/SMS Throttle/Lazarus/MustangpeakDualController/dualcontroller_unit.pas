@@ -45,9 +45,6 @@ type
     EditConsistAddress1: TEdit;
     ImageList: TImageList;
     Label1: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
-    LabelAliasMappingCount1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -60,7 +57,6 @@ type
     Label8: TLabel;
     Label9: TLabel;
     LabelAlias2: TLabel;
-    LabelAliasMappingCount2: TLabel;
     LabelNodeID2: TLabel;
     LabelNodeID1: TLabel;
     LabelAlias1: TLabel;
@@ -188,9 +184,6 @@ type
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
-
-    procedure OnAliasServerChange1(Sender: TObject);
-    procedure OnAliasServerChange2(Sender: TObject);
 
 
   public
@@ -320,8 +313,6 @@ begin
 
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
   NodeManager1.OnLccNodeIDChanged := @OnNodeManager1IDChange;
-  NodeManager1.AliasServer.OnDeleteMapping := @OnAliasServerChange1;
-  NodeManager1.AliasServer.OnAddMapping := @OnAliasServerChange1;
 
   ClientServer1.OnConnectionStateChange := @OnClientServer1ConnectionChange;
   ClientServer1.OnErrorMessage := @OnClientServer1ErrorMessage;
@@ -331,8 +322,6 @@ begin
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
-  NodeManager2.AliasServer.OnDeleteMapping := @OnAliasServerChange2;
-  NodeManager2.AliasServer.OnAddMapping := @OnAliasServerChange2;
 
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
@@ -343,16 +332,6 @@ begin
   PanelThrottleKeypad2.Enabled := False;
 
   WorkerMessage := TLccMessage.Create;
-end;
-
-procedure TForm1.OnAliasServerChange1(Sender: TObject);
-begin
-  LabelAliasMappingCount1.Caption := IntToStr(NodeManager1.AliasServer.Count);
-end;
-
-procedure TForm1.OnAliasServerChange2(Sender: TObject);
-begin
-  LabelAliasMappingCount2.Caption := IntToStr(NodeManager2.AliasServer.Count);
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);

@@ -32,8 +32,6 @@ type
     CheckBoxAutoConnect: TCheckBox;
     ComboBoxComPorts: TComboBox;
     ImageListMain: TImageList;
-    Label1: TLabel;
-    LabelAliasServerCount: TLabel;
     LabelNodeID: TLabel;
     LabelAliasID: TLabel;
     LabelAliasIDCaption: TLabel;
@@ -109,7 +107,6 @@ type
     procedure OnNodeManagerIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
-    procedure OnNodeAliasServerChange(Sender: TObject);
 
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
@@ -204,11 +201,9 @@ begin
   if CheckBox1.Checked then
   begin
     Max_Allowed_Buffers := 1;
-    NodeManager.AliasServerEnabled := False;
   end else
   begin
     Max_Allowed_Buffers := 2048;
-    NodeManager.AliasServerEnabled := True;
   end;
 end;
 
@@ -325,8 +320,6 @@ begin
   NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
   NodeManager.OnLccNodeLogin := @OnNodeManagerNodeLogin;
   NodeManager.OnLccNodeLogout := @OnNodeManagerNodeLogout;
-  NodeManager.AliasServer.OnAddMapping := @OnNodeAliasServerChange;
-  NodeManager.AliasServer.OnDeleteMapping := @OnNodeAliasServerChange;
 
   FLccServer := TLccEthernetServer.Create(nil, NodeManager);
   LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
@@ -347,6 +340,8 @@ begin
   ComPort.OnErrorMessage := @OnComPortErrorMessage;
   ComPort.OnReceiveMessage := @OnComPortReceiveMessage;
   ComPort.RawData := True;
+
+  Max_Allowed_Buffers := 1;
 
   FWorkerMessage := TLccMessage.Create;
 end;
@@ -655,11 +650,6 @@ begin
   finally
     MemoComPort.Lines.EndUpdate;
   end;
-end;
-
-procedure TFormTrainCommander.OnNodeAliasServerChange(Sender: TObject);
-begin
-  LabelAliasServerCount.Caption := IntToStr(NodeManager.AliasServer.Count);
 end;
 
 procedure TFormTrainCommander.OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);

@@ -218,7 +218,6 @@ type
     procedure SpeedButtonEditTrainClick(Sender: TObject);
   private
     FNodeManager: TLccCanNodeManager;
-    FEthernetServer: TLccEthernetServer;
     FEthernetClient: TLccEthernetClient;
     FOpenLcbSettings: TOpenLcbSettings;
     FNodeID: string;
@@ -257,7 +256,6 @@ type
   public
     { Public declarations }
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
-    property EthernetServer: TLccEthernetServer read FEthernetServer write FEthernetServer;
     property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
     property ControllerNode: TLccTrainController read FControllerNode write FControllerNode; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
 
@@ -281,7 +279,7 @@ begin
   inherited;
   FMaxLoggingLines := 100;
 //  FIpServerAddress := '127.0.0.1';
-  FIpServerAddress := '10.0.3.154';
+  FIpServerAddress := '10.0.3.151';
   FPort := 12021;
   FGridConnect := True;
 end;
@@ -506,8 +504,6 @@ procedure TOpenLcbThrottleForm.FormCloseQuery(Sender: TObject; var CanClose: Boo
 begin
   EthernetClient.CloseConnection(nil);
   FreeAndNil(FEthernetClient);
-  EthernetServer.CloseConnection(nil);
-  FreeAndNil(FEthernetServer);
   NodeManager.Clear;
   FreeAndNil(FNodeManager);
 end;
@@ -529,10 +525,9 @@ begin
   NodeManager.OnLccMessageSend := OnNodeManagerSendMessage;
   NodeManager.OnLccMessageReceive := OnNodeManagerReceiveMessage;
 
-
   FEthernetClient := TLccEthernetClient.Create(nil, NodeManager);
-  FEthernetServer := TLccEthernetServer.Create(nil, NodeManager);
   EthernetClient.OnConnectionStateChange := OnClientConnectionStateChange;
+  EthernetClient.OnErrorMessage := OnClientErrorMessage;
 end;
 
 procedure TOpenLcbThrottleForm.FormGesture(Sender: TObject;
@@ -733,7 +728,7 @@ end;
 
 procedure TOpenLcbThrottleForm.OnClientErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
-
+  ShowMessage('Error Code: ' + IntToStr(Info.ErrorCode) + ' ' + Info.MessageStr);
 end;
 
 procedure TOpenLcbThrottleForm.OnControllerQueryFunctionReply(Sender: TLccNode;

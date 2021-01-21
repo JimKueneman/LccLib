@@ -1,4 +1,10 @@
 
+{$IFNDEF DWSCRIPT}
+  {$IFNDEF FPC}
+    {$DEFINE DELPHI}
+  {$ENDIF}
+{$ENDIF}
+
 
 {$IFDEF WINDOWS}   // Lazarus
   {$DEFINE LCC_WINDOWS}
