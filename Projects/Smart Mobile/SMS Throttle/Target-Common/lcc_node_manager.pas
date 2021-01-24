@@ -229,7 +229,7 @@ type
 
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
-    constructor Create(AnOwner: TComponent; GridConnectLink: Boolean); reintroduce; virtual;
+    constructor Create(AnOwner: TComponent; GridConnectLink: Boolean); {$IFNDEF DWSCRIPT} reintroduce; virtual; {$ENDIF}
     destructor Destroy; override;
 
     procedure Clear;

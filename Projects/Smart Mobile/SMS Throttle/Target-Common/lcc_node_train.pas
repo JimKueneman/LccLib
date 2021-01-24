@@ -754,6 +754,7 @@ begin
   case SourceMessage.CAN.MTI of
      MTI_CAN_AMD :
        begin
+         TempNodeID := NULL_NODE_ID;
          SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID); // Make SMS happy
          if EqualNodeID(TempNodeID, FListenerNodeID, False) then
          begin
@@ -1350,8 +1351,53 @@ begin
 end;
 
 function TLccTrainCanNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+{var
+  SearchData: DWORD;
+  SearchStr: string;
+  SearchDccAddress: Word;
+  IsMatch: Boolean;
+  IsForceLongAddress: Boolean;
+  IsSpeedStep: TLccDccSpeedStep;   }
 begin
   Result := inherited ProcessMessage(SourceMessage);
+
+  case SourceMessage.MTI of
+    MTI_PRODUCER_IDENDIFY :
+      begin
+        if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
+        begin
+      {    SearchData := SourceMessage.TractionSearchExtractSearchData;
+
+          SearchStr := SourceMessage.TractionSearchDecodeSearchString;
+
+          if SearchStr <> '' then                       // Gaurd against an empty string
+          begin
+            SearchDccAddress := StrToInt(SearchStr);
+
+            if SourceMessage.TractionSearchIsExactMatchOnly then
+              IsMatch := SearchDccAddress = DccAddress
+            else
+              IsMatch := Pos(SearchStr, IntToStr(DccAddress)) > 0;
+
+            if IsMatch then
+            begin
+              IsForceLongAddress := False;
+              IsSpeedStep := ldss14;
+              if SourceMessage.TractionSearchIsProtocolDCC(IsForceLongAddress, IsSpeedStep) then
+              begin
+                if ((SpeedStep = IsSpeedStep) or
+                   ((IsSpeedStep = ldssDefault) and (SpeedStep = ldss14))) and
+                   (IsForceLongAddress = DccLongAddress)
+                then begin // Send back the same SearchData as recevied
+                  WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
+                  SendMessageFunc(Self, WorkerMessage);
+                end
+              end
+            end
+          end  }
+        end
+      end
+  end;
 
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then

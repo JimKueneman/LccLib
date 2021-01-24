@@ -472,14 +472,14 @@ function WriteLnF(Text$10, Values$11) {
 };
 function WriteLn(value$16) {
    var items$2 = [],
-      a$392 = 0,
+      a$393 = 0,
       litem = "";
    if (TW3VariantHelper$Isstring(value$16)) {
       if (((String(value$16)).indexOf("\r")+1) > 0) {
          items$2 = TString.Explode(TString,String(value$16),"\r");
          var $temp1;
-         for(a$392=0,$temp1=items$2.length;a$392<$temp1;a$392++) {
-            litem = items$2[a$392];
+         for(a$393=0,$temp1=items$2.length;a$393<$temp1;a$393++) {
+            litem = items$2[a$393];
             console.log(litem);
          }
          return;
@@ -1607,14 +1607,14 @@ var TVariant = {
    ///  [line: 2334, column: 26, file: System.Types]
    ,ForEachProperty:function(Data$8, CallBack) {
       var Keys$2 = [],
-         a$393 = 0,
+         a$394 = 0,
          LName = "",
          LObj;
       if (CallBack) {
          Keys$2 = TVariant.Properties(Data$8);
          var $temp3;
-         for(a$393=0,$temp3=Keys$2.length;a$393<$temp3;a$393++) {
-            LName = Keys$2[a$393];
+         for(a$394=0,$temp3=Keys$2.length;a$394<$temp3;a$394++) {
+            LName = Keys$2[a$394];
             LObj = Data$8[LName];
             if ((~CallBack(LName,LObj)) == 1) {
                break;
@@ -2807,7 +2807,7 @@ var TW3Dispatch = {
    ///  [line: 1576, column: 29, file: SmartCL.Components]
    ,WaitFor$1:function(Self, Controls, DelayMs, CB) {
       var LReady = 0,
-         a$394 = 0,
+         a$395 = 0,
          LChild = null,
          LElement,
          style$8,
@@ -2815,8 +2815,8 @@ var TW3Dispatch = {
          xvisible = "";
       if (Controls.length > 0) {
          var $temp11;
-         for(a$394=0,$temp11=Controls.length;a$394<$temp11;a$394++) {
-            LChild = Controls[a$394];
+         for(a$395=0,$temp11=Controls.length;a$395<$temp11;a$395++) {
+            LChild = Controls[a$395];
             if (LChild === null) {
                ++LReady;
                continue;
@@ -2877,7 +2877,7 @@ var TW3Dispatch = {
    ///  [line: 1514, column: 29, file: SmartCL.Components]
    ,WaitFor:function(Self, Controls, CB) {
       var LReady = 0,
-         a$395 = 0,
+         a$396 = 0,
          LChild = null,
          LElement,
          Style$5,
@@ -2886,8 +2886,8 @@ var TW3Dispatch = {
       if (Controls.length > 0) {
          LReady = 0;
          var $temp12;
-         for(a$395=0,$temp12=Controls.length;a$395<$temp12;a$395++) {
-            LChild = Controls[a$395];
+         for(a$396=0,$temp12=Controls.length;a$396<$temp12;a$396++) {
+            LChild = Controls[a$396];
             if (LChild === null) {
                ++LReady;
                continue;
@@ -3027,8 +3027,8 @@ var TW3ErrorObject = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3ErrorObject.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// EW3ErrorObject = class (EW3Exception)
 ///  [line: 21, column: 3, file: System.Objects]
@@ -3099,12 +3099,12 @@ var TStream = {
    }
    /// function TStream.Read(const Count: Integer) : TByteArray
    ///  [line: 452, column: 18, file: System.Streams]
-   ,Read:function(Self, Count$25) {
-      return TStream.ReadBuffer$(Self,TStream.GetPosition$(Self),Count$25);
+   ,Read:function(Self, Count$24) {
+      return TStream.ReadBuffer$(Self,TStream.GetPosition$(Self),Count$24);
    }
    /// function TStream.ReadBuffer(Offset: Integer; Count: Integer) : TByteArray
    ///  [line: 509, column: 18, file: System.Streams]
-   ,ReadBuffer:function(Self, Offset$5, Count$25) {
+   ,ReadBuffer:function(Self, Offset$5, Count$24) {
       var Result = [];
       Result.length=0;
       throw Exception.Create($New(EStreamNotImplemented),$R[5]);
@@ -3184,7 +3184,7 @@ var TMemoryStream = {
    }
    /// function TMemoryStream.ReadBuffer(Offset: Integer; Count: Integer) : TByteArray
    ///  [line: 361, column: 24, file: System.Streams]
-   ,ReadBuffer:function(Self, Offset$5, Count$25) {
+   ,ReadBuffer:function(Self, Offset$5, Count$24) {
       var Result = [];
       var mTemp$1 = undefined,
          mLen = 0,
@@ -3196,7 +3196,7 @@ var TMemoryStream = {
       }
       if (mLen > 0) {
          try {
-            LBytesToMove = Count$25;
+            LBytesToMove = Count$24;
             if (LBytesToMove > mLen) {
                LBytesToMove = mLen;
             }
@@ -3852,13 +3852,13 @@ var TDatatype = {
    ,TypeByName:function(Self, TypeName) {
       var Result = 0;
       var x$39 = 0,
-         a$396 = 0,
+         a$397 = 0,
          Name$13 = "";
       TypeName = Trim$_String_((TypeName).toLocaleLowerCase());
       if (TypeName.length > 0) {
          x$39 = 0;
-         for(a$396=0;a$396<=10;a$396++) {
-            Name$13 = _NAMES[a$396];
+         for(a$397=0;a$397<=10;a$397++) {
+            Name$13 = _NAMES[a$397];
             if ((Name$13).toLocaleLowerCase() == TypeName) {
                Result = x$39;
                break;
@@ -4655,7 +4655,7 @@ TAllocation.$Intf={
    IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
-function a$397(Self) {
+function a$398(Self) {
    var Result = false;
    Result = $VarToBool((!Self[0]()));
    return Result
@@ -5600,13 +5600,13 @@ var TW3TagContainer = {
    ///  [line: 3173, column: 26, file: SmartCL.Components]
    ,ChildByHandle:function(Self, ControlHandle) {
       var Result = null;
-      var a$398 = 0,
+      var a$399 = 0,
          LItem$3 = null,
-         a$399 = [];
-      a$399 = Self.FChildren;
+         a$400 = [];
+      a$400 = Self.FChildren;
       var $temp22;
-      for(a$398=0,$temp22=a$399.length;a$398<$temp22;a$398++) {
-         LItem$3 = a$399[a$398];
+      for(a$399=0,$temp22=a$400.length;a$399<$temp22;a$399++) {
+         LItem$3 = a$400[a$399];
          if (LItem$3.FHandle$4 == ControlHandle) {
             Result = LItem$3;
             break;
@@ -5618,14 +5618,14 @@ var TW3TagContainer = {
    ///  [line: 3160, column: 26, file: SmartCL.Components]
    ,ChildByName:function(Self, ComponentName) {
       var Result = null;
-      var a$400 = 0,
+      var a$401 = 0,
          LItem$3 = null,
-         a$401 = [];
+         a$402 = [];
       ComponentName = (Trim$_String_(ComponentName)).toLocaleLowerCase();
-      a$401 = Self.FChildren;
+      a$402 = Self.FChildren;
       var $temp23;
-      for(a$400=0,$temp23=a$401.length;a$400<$temp23;a$400++) {
-         LItem$3 = a$401[a$400];
+      for(a$401=0,$temp23=a$402.length;a$401<$temp23;a$401++) {
+         LItem$3 = a$402[a$401];
          if ((TW3TagContainer.GetComponentName(LItem$3)).toLocaleLowerCase() == ComponentName) {
             Result = LItem$3;
             break;
@@ -5666,14 +5666,14 @@ var TW3TagContainer = {
    /// procedure TW3TagContainer.ForEach(const Process: TW3TagContainerChildEnumProc)
    ///  [line: 3228, column: 27, file: SmartCL.Components]
    ,ForEach$1:function(Self, Process) {
-      var a$402 = 0,
+      var a$403 = 0,
          LChild = null;
       if (Process) {
-         var a$403 = [];
-         a$403 = Self.FChildren;
+         var a$404 = [];
+         a$404 = Self.FChildren;
          var $temp24;
-         for(a$402=0,$temp24=a$403.length;a$402<$temp24;a$402++) {
-            LChild = a$403[a$402];
+         for(a$403=0,$temp24=a$404.length;a$403<$temp24;a$403++) {
+            LChild = a$404[a$403];
             if (Process(LChild) == 16) {
                break;
             }
@@ -5705,15 +5705,15 @@ var TW3TagContainer = {
    ///  [line: 3140, column: 26, file: SmartCL.Components]
    ,GetChildHasFocus:function(Self, Child$1) {
       var Result = false;
-      var a$404 = 0,
+      var a$405 = 0,
          LItem$3 = null,
-         a$405 = [];
+         a$406 = [];
       Result = false;
       Child$1.v = null;
-      a$405 = Self.FChildren;
+      a$406 = Self.FChildren;
       var $temp25;
-      for(a$404=0,$temp25=a$405.length;a$404<$temp25;a$404++) {
-         LItem$3 = a$405[a$404];
+      for(a$405=0,$temp25=a$406.length;a$405<$temp25;a$405++) {
+         LItem$3 = a$406[a$405];
          if (TW3TagContainer.GetHasFocus(LItem$3)) {
             Child$1.v = LItem$3;
             break;
@@ -5760,13 +5760,13 @@ var TW3TagContainer = {
    ///  [line: 3091, column: 26, file: SmartCL.Components]
    ,GetMaxZIndex:function(Self) {
       var Result = 0;
-      var a$406 = 0,
+      var a$407 = 0,
          LChild = null,
-         a$407 = [];
-      a$407 = Self.FChildren;
+         a$408 = [];
+      a$408 = Self.FChildren;
       var $temp26;
-      for(a$406=0,$temp26=a$407.length;a$406<$temp26;a$406++) {
-         LChild = a$407[a$406];
+      for(a$407=0,$temp26=a$408.length;a$407<$temp26;a$407++) {
+         LChild = a$408[a$407];
          if (TW3TagObj.GetZIndex(LChild) > Result) {
             Result = TW3TagObj.GetZIndex(LChild);
          }
@@ -6017,8 +6017,8 @@ var TW3MovableControl = {
       var AChildren = [],
          CRect = {Bottom$1:0,Left$3:0,Right$1:0,Top$3:0},
          i$5 = 0,
-         a$408 = null,
-         a$409 = null;
+         a$409 = null,
+         a$410 = null;
       function AlignControl$1(cc, CRect$1) {
          var EmptyAnchors = [0],
             h = 0,
@@ -7768,7 +7768,7 @@ var TW3CustomControl = {
       dy$3 = eventObj.clientY;
       (dy$3-= sr.Top$3);
       (dy$3+= TW3ScrollInfo.GetScrollTop(TW3CustomControl.GetScrollInfo(Self)));
-      TW3CustomControl.MouseDown$(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
+      TW3CustomControl.MouseDown(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseEnter(eventObj: JMouseEvent)
    ///  [line: 5802, column: 28, file: SmartCL.Components]
@@ -7806,7 +7806,7 @@ var TW3CustomControl = {
       dy$3 = eventObj.clientY;
       (dy$3-= sr.Top$3);
       (dy$3+= TW3ScrollInfo.GetScrollTop(TW3CustomControl.GetScrollInfo(Self)));
-      TW3CustomControl.MouseMove$(Self,shiftState,dx$3,dy$3);
+      TW3CustomControl.MouseMove(Self,shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseUp(eventObj: JMouseEvent)
    ///  [line: 5728, column: 28, file: SmartCL.Components]
@@ -7825,7 +7825,7 @@ var TW3CustomControl = {
       dy$3 = eventObj.clientY;
       (dy$3-= sr.Top$3);
       (dy$3+= TW3ScrollInfo.GetScrollTop(TW3CustomControl.GetScrollInfo(Self)));
-      TW3CustomControl.MouseUp$(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
+      TW3CustomControl.MouseUp(Self,$VarToInt(eventObj.button,""),shiftState,dx$3,dy$3);
    }
    /// procedure TW3CustomControl.CBMouseWheel(eventObj: JMouseWheelEvent)
    ///  [line: 5843, column: 28, file: SmartCL.Components]
@@ -8706,9 +8706,6 @@ var TW3CustomControl = {
    ,CBKeyUp$:function($){return $.ClassType.CBKeyUp.apply($.ClassType, arguments)}
    ,Dispatch$:function($){return $.ClassType.Dispatch.apply($.ClassType, arguments)}
    ,GetEnabled$1$:function($){return $.ClassType.GetEnabled$1($)}
-   ,MouseDown$:function($){return $.ClassType.MouseDown.apply($.ClassType, arguments)}
-   ,MouseMove$:function($){return $.ClassType.MouseMove.apply($.ClassType, arguments)}
-   ,MouseUp$:function($){return $.ClassType.MouseUp.apply($.ClassType, arguments)}
    ,SetEnabled$1$:function($){return $.ClassType.SetEnabled$1.apply($.ClassType, arguments)}
 };
 TW3CustomControl.$Intf={
@@ -8843,9 +8840,6 @@ var TW3DisplayView = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DisplayView.$Intf={
@@ -9002,9 +8996,6 @@ var TW3Display = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Display.$Intf={
@@ -9076,9 +9067,6 @@ var TW3BlockBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3BlockBox.$Intf={
@@ -9125,15 +9113,15 @@ var TApplicationFormsList = {
    /// procedure TApplicationFormsList.AutoCreateForms(owner: TW3TagContainer)
    ///  [line: 1605, column: 33, file: SmartCL.Application]
    ,AutoCreateForms:function(Self, owner) {
-      var a$410 = 0,
+      var a$411 = 0,
          info = null,
-         a$411 = [];
+         a$412 = [];
       Self.FFormOwner = owner;
       Self.FAutoCreatingForm = null;
-      a$411 = Self.FList;
+      a$412 = Self.FList;
       var $temp38;
-      for(a$410=0,$temp38=a$411.length;a$410<$temp38;a$410++) {
-         info = a$411[a$410];
+      for(a$411=0,$temp38=a$412.length;a$411<$temp38;a$411++) {
+         info = a$412[a$411];
          TApplicationFormsList.AutoCreateForm(Self,info);
          if (info.IsMainForm) {
             break;
@@ -9429,100 +9417,100 @@ function Create$105(aCol, aRow) {
 /// TExposure enumeration
 ///  [line: 23, column: 3, file: System.Types.Graphics]
 var TExposure = [ "esVisible", "esPartly", "esNone" ];
-function OffsetPoint(a$392, b$2) {
+function OffsetPoint(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = a$392.X$1+b$2.X$1;
-   Result.Y$1 = a$392.Y$1+b$2.Y$1;
+   Result.X$1 = a$393.X$1+b$2.X$1;
+   Result.Y$1 = a$393.Y$1+b$2.Y$1;
    return Result
 };
-function OffsetPoint$1(a$392, b$2) {
+function OffsetPoint$1(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = a$392.X$1+b$2;
-   Result.Y$1 = a$392.Y$1+b$2;
+   Result.X$1 = a$393.X$1+b$2;
+   Result.Y$1 = a$393.Y$1+b$2;
    return Result
 };
-function OffsetPoint$2(a$392, b$2) {
+function OffsetPoint$2(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X+b$2.X;
-   Result.Y = a$392.Y+b$2.Y;
+   Result.X = a$393.X+b$2.X;
+   Result.Y = a$393.Y+b$2.Y;
    return Result
 };
-function OffsetPoint$3(a$392, b$2) {
+function OffsetPoint$3(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X+b$2;
-   Result.Y = a$392.Y+b$2;
+   Result.X = a$393.X+b$2;
+   Result.Y = a$393.Y+b$2;
    return Result
 };
-function OffsetPoint$4(a$392, b$2) {
+function OffsetPoint$4(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X+b$2;
-   Result.Y = a$392.Y+b$2;
+   Result.X = a$393.X+b$2;
+   Result.Y = a$393.Y+b$2;
    return Result
 };
-function MinusPoint(a$392, b$2) {
+function MinusPoint(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = a$392.X$1-b$2.X$1;
-   Result.Y$1 = a$392.Y$1-b$2.Y$1;
+   Result.X$1 = a$393.X$1-b$2.X$1;
+   Result.Y$1 = a$393.Y$1-b$2.Y$1;
    return Result
 };
-function MinusPoint$1(a$392, b$2) {
+function MinusPoint$1(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = a$392.X$1-b$2;
-   Result.Y$1 = a$392.Y$1-b$2;
+   Result.X$1 = a$393.X$1-b$2;
+   Result.Y$1 = a$393.Y$1-b$2;
    return Result
 };
-function MinusPoint$2(a$392, b$2) {
+function MinusPoint$2(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X-b$2.X;
-   Result.Y = a$392.Y-b$2.Y;
+   Result.X = a$393.X-b$2.X;
+   Result.Y = a$393.Y-b$2.Y;
    return Result
 };
-function MinusPoint$3(a$392, b$2) {
+function MinusPoint$3(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X-b$2;
-   Result.Y = a$392.Y-b$2;
+   Result.X = a$393.X-b$2;
+   Result.Y = a$393.Y-b$2;
    return Result
 };
-function MinusPoint$4(a$392, b$2) {
+function MinusPoint$4(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X-b$2;
-   Result.Y = a$392.Y-b$2;
+   Result.X = a$393.X-b$2;
+   Result.Y = a$393.Y-b$2;
    return Result
 };
-function ExpandPoint(a$392, b$2) {
+function ExpandPoint(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = Math.round(a$392.X$1 * b$2.X$1);
-   Result.Y$1 = Math.round(a$392.Y$1 * b$2.Y$1);
+   Result.X$1 = Math.round(a$393.X$1 * b$2.X$1);
+   Result.Y$1 = Math.round(a$393.Y$1 * b$2.Y$1);
    return Result
 };
-function ExpandPoint$1(a$392, b$2) {
+function ExpandPoint$1(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = Math.round(a$392.X$1 * b$2);
-   Result.Y$1 = Math.round(a$392.Y$1 * b$2);
+   Result.X$1 = Math.round(a$393.X$1 * b$2);
+   Result.Y$1 = Math.round(a$393.Y$1 * b$2);
    return Result
 };
-function ExpandPoint$2(a$392, b$2) {
+function ExpandPoint$2(a$393, b$2) {
    var Result = {X$1:0,Y$1:0};
-   Result.X$1 = Math.round(a$392.X$1 * b$2);
-   Result.Y$1 = Math.round(a$392.Y$1 * b$2);
+   Result.X$1 = Math.round(a$393.X$1 * b$2);
+   Result.Y$1 = Math.round(a$393.Y$1 * b$2);
    return Result
 };
-function ExpandPoint$3(a$392, b$2) {
+function ExpandPoint$3(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X * b$2.X;
-   Result.Y = a$392.Y * b$2.Y;
+   Result.X = a$393.X * b$2.X;
+   Result.Y = a$393.Y * b$2.Y;
    return Result
 };
-function ExpandPoint$4(a$392, b$2) {
+function ExpandPoint$4(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X * b$2;
-   Result.Y = a$392.Y * b$2;
+   Result.X = a$393.X * b$2;
+   Result.Y = a$393.Y * b$2;
    return Result
 };
-function ExpandPoint$5(a$392, b$2) {
+function ExpandPoint$5(a$393, b$2) {
    var Result = {X:0,Y:0};
-   Result.X = a$392.X * b$2;
-   Result.Y = a$392.Y * b$2;
+   Result.X = a$393.X * b$2;
+   Result.Y = a$393.Y * b$2;
    return Result
 };
 /// TW3CustomCSSAnimation = class (TObject)
@@ -10543,14 +10531,14 @@ var TJSONObject = {
       var Result = null;
       var LData = { v : undefined },
          NameList = [],
-         a$412 = 0,
+         a$413 = 0,
          xName = "";
       Result = Self;
       if (Callback$1) {
          NameList = TJSONObject.Keys(Self);
          var $temp43;
-         for(a$412=0,$temp43=NameList.length;a$412<$temp43;a$412++) {
-            xName = NameList[a$412];
+         for(a$413=0,$temp43=NameList.length;a$413<$temp43;a$413++) {
+            xName = NameList[a$413];
             TJSONObject.Read$1(Self,xName,LData);
             if (Callback$1(xName,LData.v) == 1) {
                TJSONObject.Write$1(Self,xName,LData.v);
@@ -11266,9 +11254,6 @@ var TW3GraphicControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,Paint$:function($){return $.ClassType.Paint($)}
 };
@@ -12937,15 +12922,15 @@ var TW3CanvasFont = {
    ///  [line: 604, column: 25, file: SmartCL.Graphics]
    ,ReadFontInfo:function(Self) {
       var LItems = [],
-         a$413 = 0,
+         a$414 = 0,
          LItem$3 = "",
          LCItem = "",
          LItem$4 = "",
          LCItem$1 = "";
       LItems = TString.Explode(TString,TW3Canvas.GetFontStyle(Self.FParent)," ");
       var $temp50;
-      for(a$413=0,$temp50=LItems.length;a$413<$temp50;a$413++) {
-         LItem$3 = LItems[a$413];
+      for(a$414=0,$temp50=LItems.length;a$414<$temp50;a$414++) {
+         LItem$3 = LItems[a$414];
          LCItem = (LItem$3).toLocaleLowerCase();
          if (((LCItem=="bold")||(LCItem=="normal")||(LCItem=="bolder")||(LCItem=="lighter"))) {
             Self.FWeight = LCItem;
@@ -13434,14 +13419,6 @@ var TObjectList = {
    ///  [line: 140, column: 23, file: System.Lists]
    ,SetItem$5:function(Self, index$1, value$16) {
       Self.FData$1[index$1]=value$16;
-   }
-   /// procedure TObjectList.Sort(CompareFunction: TObjectListSortCompare)
-   ///  [line: 158, column: 23, file: System.Lists]
-   ,Sort$4:function(Self, CompareFunction) {
-      var a$414 = null,
-         a$415 = null;
-      Self.FData$1.sort(CompareFunction);
-      ;
    }
    /// procedure TObjectList.Swap(aFirst: Integer; aSecond: Integer)
    ///  [line: 118, column: 23, file: System.Lists]
@@ -14700,9 +14677,6 @@ var TW3FlexControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3FlexControl.$Intf={
@@ -14820,9 +14794,6 @@ var TW3DialogControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogControl.$Intf={
@@ -14883,9 +14854,6 @@ var TW3DialogSeparator = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogSeparator.$Intf={
@@ -15120,9 +15088,6 @@ var TW3HeaderControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3HeaderControl.$Intf={
@@ -15182,9 +15147,6 @@ var TW3DialogHeader = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogHeader.$Intf={
@@ -15366,9 +15328,6 @@ var TW3GlyphContainer = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3GlyphContainer.$Intf={
@@ -15422,9 +15381,6 @@ var TW3DialogGlyph = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogGlyph.$Intf={
@@ -15525,9 +15481,6 @@ var TW3DialogCommonButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogCommonButton.$Intf={
@@ -15663,9 +15616,6 @@ var TW3FlexContainer = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3FlexContainer.$Intf={
@@ -15781,13 +15731,13 @@ var TW3DialogButtonPanel = {
    ,ClearSelectedInGroup:function(Self, GroupIndex$2) {
       var Access = { v : null },
          Children$1 = [],
-         a$416 = 0,
+         a$415 = 0,
          obj = null,
          item$7 = null;
       Children$1 = TW3TagContainer.GetChildren(Self);
       var $temp54;
-      for(a$416=0,$temp54=Children$1.length;a$416<$temp54;a$416++) {
-         obj = Children$1[a$416];
+      for(a$415=0,$temp54=Children$1.length;a$415<$temp54;a$415++) {
+         obj = Children$1[a$415];
          if ($Is(obj,TW3DialogControl)) {
             item$7 = $As(obj,TW3DialogControl);
             if (item$7.FGroupIndex == GroupIndex$2) {
@@ -15890,9 +15840,6 @@ var TW3DialogButtonPanel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogButtonPanel.$Intf={
@@ -15997,9 +15944,6 @@ var TW3DialogButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3DialogButton.$Intf={
@@ -16166,9 +16110,6 @@ var TW3Dialog = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Dialog.$Intf={
@@ -16773,9 +16714,6 @@ var TW3Image = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1$:function($){return $.ClassType.GetEnabled$1($)}
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Image.$Intf={
@@ -17412,12 +17350,12 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
+   IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
-   ,IBinaryDataImport:[TBinaryData.FromBase64]
-   ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
+   ,IBinaryDataImport:[TBinaryData.FromBase64]
    ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
 }
@@ -17787,9 +17725,6 @@ var TW3Label = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1$:function($){return $.ClassType.GetCaption$1($)}
    ,SetCaption$2$:function($){return $.ClassType.SetCaption$2.apply($.ClassType, arguments)}
@@ -17900,9 +17835,6 @@ var TW3ToolbarElement = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ToolbarElement.$Intf={
@@ -17963,9 +17895,6 @@ var TW3ToolbarSeparator = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ToolbarSeparator.$Intf={
@@ -18200,9 +18129,6 @@ var TW3ToolbarButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ToolbarButton.$Intf={
@@ -18522,9 +18448,6 @@ var TW3Toolbar = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Toolbar.$Intf={
@@ -18613,9 +18536,6 @@ var TW3HeaderTitle = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3HeaderTitle.$Intf={
@@ -18707,9 +18627,6 @@ var TW3ToolButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ToolButton.$Intf={
@@ -18799,9 +18716,6 @@ var TW3HeaderButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3HeaderButton.$Intf={
@@ -18959,9 +18873,6 @@ var TW3Button = {
    ,CBKeyUp$:function($){return $.ClassType.CBKeyUp.apply($.ClassType, arguments)}
    ,Dispatch$:function($){return $.ClassType.Dispatch.apply($.ClassType, arguments)}
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,SetCaption$6$:function($){return $.ClassType.SetCaption$6.apply($.ClassType, arguments)}
 };
@@ -19180,9 +19091,6 @@ var TW3CustomForm = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -19237,9 +19145,6 @@ var TW3Form = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,InitializeForm:TW3CustomForm.InitializeForm
 };
@@ -19328,9 +19233,6 @@ var TFormThrottle = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -19575,11 +19477,11 @@ var THttpHeaders = {
    /// procedure THttpHeaders.Assign(Headers: array of String)
    ///  [line: 313, column: 24, file: SmartCL.Net.Http]
    ,Assign$4:function(Self, Headers$1) {
-      var a$417 = 0,
+      var a$416 = 0,
          header = "";
       var $temp72;
-      for(a$417=0,$temp72=Headers$1.length;a$417<$temp72;a$417++) {
-         header = Headers$1[a$417];
+      for(a$416=0,$temp72=Headers$1.length;a$416<$temp72;a$416++) {
+         header = Headers$1[a$416];
          THttpHeaders.Add$9(Self,header);
       }
    }
@@ -19698,9 +19600,6 @@ var TW3CustomPanel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3CustomPanel.$Intf={
@@ -19761,9 +19660,6 @@ var TW3Panel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Panel.$Intf={
@@ -19817,9 +19713,6 @@ var TW3PaintBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,Paint:TW3GraphicControl.Paint
 };
@@ -20000,15 +19893,15 @@ var TControlAnimationList = {
    /// procedure TControlAnimationList.Clear()
    ///  [line: 471, column: 33, file: SmartCL.Animation]
    ,Clear$27:function(Self) {
-      var a$418 = 0,
+      var a$417 = 0,
          Item$3 = null;
       if (Self.FItems$2.length > 0) {
          try {
-            var a$419 = [];
-            a$419 = Self.FItems$2;
+            var a$418 = [];
+            a$418 = Self.FItems$2;
             var $temp74;
-            for(a$418=0,$temp74=a$419.length;a$418<$temp74;a$418++) {
-               Item$3 = a$419[a$418];
+            for(a$417=0,$temp74=a$418.length;a$417<$temp74;a$417++) {
+               Item$3 = a$418[a$417];
                if (TW3Animation.a$386(Item$3)) {
                   TW3Animation.Stop$2(Item$3);
                }
@@ -20263,9 +20156,6 @@ var TW3ListBoxLabel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -20616,9 +20506,6 @@ var TW3CustomScrollControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetContentHeight$:function($){return $.ClassType.GetContentHeight($)}
    ,GetContentWidth$:function($){return $.ClassType.GetContentWidth($)}
@@ -20803,9 +20690,6 @@ var TW3ScrollControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetContentHeight$:function($){return $.ClassType.GetContentHeight($)}
    ,GetContentWidth$:function($){return $.ClassType.GetContentWidth($)}
@@ -21171,16 +21055,16 @@ var TW3ListBox = {
    ///  [line: 567, column: 22, file: SmartCL.Controls.ListBox]
    ,ResizeItems:function(Self) {
       var w = 0,
-         a$392 = 0,
-         Item$3 = null,
          a$393 = 0,
+         Item$3 = null,
+         a$394 = 0,
          Item$4 = null;
       w = TW3MovableControl.ClientWidth(Self.FContent$1);
       if (Self.FFirstPaintedIndex >= 0) {
          var $temp83;
-         for(a$392=Self.FFirstPaintedIndex,$temp83=Self.FLastPaintedIndex;a$392<=$temp83;a$392++) {
-            if (a$392 != -1) {
-               Item$3 = Self.FFilteredItems[a$392];
+         for(a$393=Self.FFirstPaintedIndex,$temp83=Self.FLastPaintedIndex;a$393<=$temp83;a$393++) {
+            if (a$393 != -1) {
+               Item$3 = Self.FFilteredItems[a$393];
                if (Item$3.ItemObject !== null) {
                   TW3MovableControl.SetWidth$(Item$3.ItemObject,w);
                }
@@ -21188,8 +21072,8 @@ var TW3ListBox = {
          }
       }
       var $temp84;
-      for(a$393=0,$temp84=Self.FStash.length;a$393<$temp84;a$393++) {
-         Item$4 = Self.FStash[a$393];
+      for(a$394=0,$temp84=Self.FStash.length;a$394<$temp84;a$394++) {
+         Item$4 = Self.FStash[a$394];
          if (Item$4.ItemObject !== null) {
             TW3MovableControl.SetWidth$(Item$4.ItemObject,w);
          }
@@ -21259,7 +21143,7 @@ var TW3ListBox = {
       var hxtra = 0,
          yMin = 0,
          yMax = 0,
-         a$392 = 0,
+         a$393 = 0,
          Item$3 = null;
       if ((!($SetIn(Self.FComponentState,10,0,11))) && TW3MovableControl.GetIsVisible(Self)) {
          Self.FFirstPaintedIndex = -1;
@@ -21271,14 +21155,14 @@ var TW3ListBox = {
          }
          yMax = yMin+TW3MovableControl.ClientHeight(Self)+hxtra;
          var $temp87;
-         for(a$392=0,$temp87=Self.FFilteredItems.length;a$392<$temp87;a$392++) {
-            Item$3 = Self.FFilteredItems[a$392];
+         for(a$393=0,$temp87=Self.FFilteredItems.length;a$393<$temp87;a$393++) {
+            Item$3 = Self.FFilteredItems[a$393];
             if (Item$3.Top$7 >= yMin && Item$3.Top$7 <= yMax) {
-               if (Self.FFirstPaintedIndex == -1 || a$392 < Self.FFirstPaintedIndex) {
-                  Self.FFirstPaintedIndex = a$392;
+               if (Self.FFirstPaintedIndex == -1 || a$393 < Self.FFirstPaintedIndex) {
+                  Self.FFirstPaintedIndex = a$393;
                }
-               if (Self.FLastPaintedIndex == -1 || a$392 > Self.FLastPaintedIndex) {
-                  Self.FLastPaintedIndex = a$392;
+               if (Self.FLastPaintedIndex == -1 || a$393 > Self.FLastPaintedIndex) {
+                  Self.FLastPaintedIndex = a$393;
                }
                if (Item$3.ItemObject === null || RefreshAll) {
                   if (Self.FWorkList$1.indexOf(Item$3) == -1) {
@@ -21351,9 +21235,6 @@ var TW3ListBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetContentHeight:TW3ScrollControl.GetContentHeight
    ,GetContentWidth:TW3ScrollControl.GetContentWidth
@@ -21857,9 +21738,6 @@ var TW3CustomScrollContentIndicator = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,UpdateIndicator$:function($){return $.ClassType.UpdateIndicator.apply($.ClassType, arguments)}
    ,Show$:function($){return $.ClassType.Show($)}
@@ -22009,9 +21887,6 @@ var TW3ScrollContentIndicator = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,UpdateIndicator$:function($){return $.ClassType.UpdateIndicator.apply($.ClassType, arguments)}
    ,Show$:function($){return $.ClassType.Show($)}
@@ -22123,9 +21998,6 @@ var TW3ScrollContent = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollContent.$Intf={
@@ -22179,9 +22051,6 @@ var TW3ScrollContainer = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollContainer.$Intf={
@@ -22569,9 +22438,6 @@ var TW3CustomScrollBar = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1$:function($){return $.ClassType.SetEnabled$1.apply($.ClassType, arguments)}
    ,CreateHigherButton$:function($){return $.ClassType.CreateHigherButton($)}
    ,CreateLowerButton$:function($){return $.ClassType.CreateLowerButton($)}
@@ -22734,9 +22600,6 @@ var TW3VerticalScrollbar = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomScrollBar.SetEnabled$1
    ,CreateHigherButton$:function($){return $.ClassType.CreateHigherButton($)}
    ,CreateLowerButton$:function($){return $.ClassType.CreateLowerButton($)}
@@ -22806,9 +22669,6 @@ var TW3ScrollbarLowerButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarLowerButton.$Intf={
@@ -22867,9 +22727,6 @@ var TW3ScrollbarTopButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarTopButton.$Intf={
@@ -22936,9 +22793,6 @@ var TW3ScrollbarHigherButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarHigherButton.$Intf={
@@ -22992,9 +22846,6 @@ var TW3ScrollbarRightButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarRightButton.$Intf={
@@ -23048,9 +22899,6 @@ var TW3ScrollbarLeftButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarLeftButton.$Intf={
@@ -23122,9 +22970,6 @@ var TW3ScrollbarHandle = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarHandle.$Intf={
@@ -23178,9 +23023,6 @@ var TW3ScrollbarBottomButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ScrollbarBottomButton.$Intf={
@@ -23340,9 +23182,6 @@ var TW3HorizontalScrollbar = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomScrollBar.SetEnabled$1
    ,CreateHigherButton$:function($){return $.ClassType.CreateHigherButton($)}
    ,CreateLowerButton$:function($){return $.ClassType.CreateLowerButton($)}
@@ -23547,9 +23386,6 @@ var TW3CheckBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1$:function($){return $.ClassType.GetCaption$1($)}
    ,SetCaption$2$:function($){return $.ClassType.SetCaption$2.apply($.ClassType, arguments)}
@@ -23935,9 +23771,6 @@ var TW3EditBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3EditBox.$Intf={
@@ -24053,9 +23886,6 @@ var TW3ListMenuItem = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ListMenuItem.$Intf={
@@ -24132,9 +23962,6 @@ var TW3ListMenuItemText = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ListMenuItemText.$Intf={
@@ -24220,9 +24047,6 @@ var TW3ListMenuItemGlyph = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ListMenuItemGlyph.$Intf={
@@ -24403,9 +24227,6 @@ var TW3ListMenu = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ListMenu.$Intf={
@@ -24607,9 +24428,6 @@ var TW3ToggleSwitch = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1$:function($){return $.ClassType.SetEnabled$1.apply($.ClassType, arguments)}
 };
 TW3ToggleSwitch.$Intf={
@@ -24682,9 +24500,6 @@ var TW3ToggleLabel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -24742,9 +24557,6 @@ var TW3ToggleOnLabel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -24809,9 +24621,6 @@ var TW3ToggleOffLabel = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -24902,9 +24711,6 @@ var TW3ToggleKnob = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ToggleKnob.$Intf={
@@ -25099,9 +24905,6 @@ var TW3TabHeaders = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetContentHeight:TW3ScrollControl.GetContentHeight
    ,GetContentWidth:TW3ScrollControl.GetContentWidth
@@ -25197,9 +25000,6 @@ var TW3TabHeader = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -25257,9 +25057,6 @@ var TW3TabControlBottom = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3TabControlBottom.$Intf={
@@ -25776,9 +25573,6 @@ var TW3TabControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3TabControl.$Intf={
@@ -25890,9 +25684,6 @@ var TW3Tab = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Tab.$Intf={
@@ -25977,9 +25768,6 @@ var TW3CustomArrowButton = {
    ,CBKeyUp:TW3Button.CBKeyUp
    ,Dispatch:TW3Button.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,SetCaption$6$:function($){return $.ClassType.SetCaption$6.apply($.ClassType, arguments)}
 };
@@ -26034,9 +25822,6 @@ var TW3ArrowUpImage = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3ArrowUpImage.$Intf={
@@ -26096,9 +25881,6 @@ var TW3ArrowUpButton = {
    ,CBKeyUp:TW3Button.CBKeyUp
    ,Dispatch:TW3Button.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,SetCaption$6:TW3CustomArrowButton.SetCaption$6
 };
@@ -26159,9 +25941,6 @@ var TW3ArrowDownButton = {
    ,CBKeyUp:TW3Button.CBKeyUp
    ,Dispatch:TW3Button.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,SetCaption$6:TW3CustomArrowButton.SetCaption$6
 };
@@ -26353,8 +26132,8 @@ var TW3StringGridSortOptions = {
    ,Sort$5:function(Self) {
       var CFunc = null,
          i$7 = 0,
-         a$420 = 0,
-         a$421 = 0;
+         a$419 = 0,
+         a$420 = 0;
       Self.SortedGridLines.length=0;
       if (!Self.FSortColumns.length) {
          return;
@@ -26443,9 +26222,6 @@ var TW3StringGridLineControl = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3StringGridLineControl.$Intf={
@@ -26573,9 +26349,6 @@ var TW3StringGridHeaders = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3StringGridHeaders.$Intf={
@@ -26693,9 +26466,6 @@ var TW3StringGridColumnHeader = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -27273,12 +27043,12 @@ var TW3CustomStringGrid = {
    /// procedure TW3CustomStringGrid.SetRowCount(const Value: Integer)
    ///  [line: 377, column: 31, file: SmartCL.Controls.StringGrid]
    ,SetRowCount:function(Self, Value$5) {
-      var a$392 = 0;
+      var a$393 = 0;
       if (Self.FRowCount != Value$5) {
          if (Value$5 < Self.FRowCount) {
-            for(a$392=(Self.FSelectedRows.length-1);a$392>=0;a$392--) {
-               if (Self.FSelectedRows[a$392] >= Value$5) {
-                  Self.FSelectedRows.splice(a$392,1)
+            for(a$393=(Self.FSelectedRows.length-1);a$393>=0;a$393--) {
+               if (Self.FSelectedRows[a$393] >= Value$5) {
+                  Self.FSelectedRows.splice(a$393,1)
                   ;
                }
             }
@@ -27407,9 +27177,6 @@ var TW3CustomStringGrid = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetContentHeight$:function($){return $.ClassType.GetContentHeight($)}
    ,GetContentWidth$:function($){return $.ClassType.GetContentWidth($)}
@@ -27675,9 +27442,6 @@ var TW3RadioButton = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3CheckBox.GetCaption$1
    ,SetCaption$2:TW3CheckBox.SetCaption$2
@@ -27762,9 +27526,6 @@ var TW3GroupBox = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -27950,9 +27711,6 @@ var TW3RadioGroup = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1$:function($){return $.ClassType.SetEnabled$1.apply($.ClassType, arguments)}
    ,GetCaption$1:TW3Label.GetCaption$1
    ,SetCaption$2:TW3Label.SetCaption$2
@@ -28473,8 +28231,8 @@ var TW3VirtualFsParser = {
    ,Create$71:TW3ErrorObject.Create$71
 };
 TW3VirtualFsParser.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemObject = class (TW3ErrorObject)
 ///  [line: 100, column: 3, file: System.FileSystem.Virtual]
@@ -28604,8 +28362,8 @@ var TW3VirtualFileSystemObject = {
 };
 TW3VirtualFileSystemObject.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemObject.WriteFileObjectData,TW3VirtualFileSystemObject.ReadFileObjectData]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFolder = class (TW3VirtualFileSystemObject)
 ///  [line: 142, column: 3, file: System.FileSystem.Virtual]
@@ -28708,16 +28466,16 @@ var TW3VirtualFileSystemFolder = {
    ///  [line: 1434, column: 37, file: System.FileSystem.Virtual]
    ,GetLocalFileObj:function(Self, FileName) {
       var Result = null;
-      var a$422 = 0,
+      var a$421 = 0,
          Child$1 = null;
       TW3ErrorObject.ClearLastError$1(Self);
       FileName = Trim$_String_((FileName).toLocaleLowerCase());
       if (FileName.length > 0) {
-         var a$423 = [];
-         a$423 = Self.FChildren$1;
+         var a$422 = [];
+         a$422 = Self.FChildren$1;
          var $temp127;
-         for(a$422=0,$temp127=a$423.length;a$422<$temp127;a$422++) {
-            Child$1 = a$423[a$422];
+         for(a$421=0,$temp127=a$422.length;a$421<$temp127;a$421++) {
+            Child$1 = a$422[a$421];
             if ((TW3VirtualFileSystemObject.GetName$5(Child$1)).toLocaleLowerCase() == FileName) {
                Result = Child$1;
                break;
@@ -28777,16 +28535,16 @@ var TW3VirtualFileSystemFolder = {
    /// procedure TW3VirtualFileSystemFolder.WriteFileObjectData(const Writer: TStreamWriter)
    ///  [line: 1287, column: 38, file: System.FileSystem.Virtual]
    ,WriteFileObjectData:function(Self, Writer) {
-      var a$424 = 0,
+      var a$423 = 0,
          Child$1 = null;
       TW3VirtualFileSystemObject.WriteFileObjectData(Self,Writer);
       if (!(TW3ErrorObject.GetFailed$1(Self))) {
-         var a$425 = [];
+         var a$424 = [];
          TW3CustomWriter.WriteInteger(Writer,Self.FChildren$1.length);
-         a$425 = Self.FChildren$1;
+         a$424 = Self.FChildren$1;
          var $temp128;
-         for(a$424=0,$temp128=a$425.length;a$424<$temp128;a$424++) {
-            Child$1 = a$425[a$424];
+         for(a$423=0,$temp128=a$424.length;a$423<$temp128;a$423++) {
+            Child$1 = a$424[a$423];
             {var $temp129 = TObject.ClassType(Child$1.ClassType);
                if ($temp129==TW3VirtualFileSystemFolder) {
                   TW3CustomWriter.WriteInteger(Writer,2184)               }
@@ -28806,8 +28564,8 @@ var TW3VirtualFileSystemFolder = {
 TW3VirtualFileSystemFolder.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFile = class (TW3VirtualFileSystemObject)
 ///  [line: 175, column: 3, file: System.FileSystem.Virtual]
@@ -28876,8 +28634,8 @@ var TW3VirtualFileSystemFile = {
 };
 TW3VirtualFileSystemFile.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFile.WriteFileObjectData,TW3VirtualFileSystemFile.ReadFileObjectData]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystem = class (TW3VirtualFileSystemFolder)
 ///  [line: 211, column: 3, file: System.FileSystem.Virtual]
@@ -29261,11 +29019,11 @@ var TW3VirtualFileSystem = {
    ,WriteFileObjectData:TW3VirtualFileSystemFolder.WriteFileObjectData
 };
 TW3VirtualFileSystem.$Intf={
-   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
+   IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
+   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TBTreeNode = class (JObject)
 ///  [line: 24, column: 3, file: System.BTree]
@@ -29536,8 +29294,8 @@ var TW3DirectoryParser = {
 };
 TW3DirectoryParser.$Intf={
    IW3DirectoryParser:[TW3DirectoryParser.GetPathSeparator,TW3DirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3DirectoryParser.IsValidPath,TW3DirectoryParser.HasValidPathChars,TW3DirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3DirectoryParser.GetFileNameWithoutExtension,TW3DirectoryParser.GetPathName,TW3DirectoryParser.GetDevice,TW3DirectoryParser.GetFileName,TW3DirectoryParser.GetExtension,TW3DirectoryParser.GetDirectoryName,TW3DirectoryParser.IncludeTrailingPathDelimiter,TW3DirectoryParser.IncludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeTrailingPathDelimiter,TW3DirectoryParser.ChangeFileExt]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3UnixDirectoryParser = class (TW3DirectoryParser)
 ///  [line: 81, column: 3, file: System.IOUtils]
@@ -29849,7 +29607,7 @@ var TW3UnixDirectoryParser = {
       var Separator = "",
          PathParts = [],
          Index$6 = 0,
-         a$426 = 0,
+         a$425 = 0,
          part = "";
       if (TW3ErrorObject.GetFailed$1(Self)) {
          TW3ErrorObject.ClearLastError$1(Self);
@@ -29862,8 +29620,8 @@ var TW3UnixDirectoryParser = {
             PathParts = FilePath.split(Separator);
             Index$6 = 0;
             var $temp135;
-            for(a$426=0,$temp135=PathParts.length;a$426<$temp135;a$426++) {
-               part = PathParts[a$426];
+            for(a$425=0,$temp135=PathParts.length;a$425<$temp135;a$425++) {
+               part = PathParts[a$425];
                {var $temp136 = part;
                   if ($temp136=="") {
                      TW3ErrorObject.SetLastErrorF$1(Self,"Path has multiple separators (%s) error",[FilePath]);
@@ -29913,8 +29671,8 @@ var TW3UnixDirectoryParser = {
 };
 TW3UnixDirectoryParser.$Intf={
    IW3DirectoryParser:[TW3UnixDirectoryParser.GetPathSeparator,TW3UnixDirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3UnixDirectoryParser.IsValidPath,TW3UnixDirectoryParser.HasValidPathChars,TW3UnixDirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3UnixDirectoryParser.GetFileNameWithoutExtension,TW3UnixDirectoryParser.GetPathName,TW3UnixDirectoryParser.GetDevice,TW3UnixDirectoryParser.GetFileName,TW3UnixDirectoryParser.GetExtension,TW3UnixDirectoryParser.GetDirectoryName,TW3UnixDirectoryParser.IncludeTrailingPathDelimiter,TW3UnixDirectoryParser.IncludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeTrailingPathDelimiter,TW3UnixDirectoryParser.ChangeFileExt]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TPath = class (TObject)
 ///  [line: 107, column: 3, file: System.IOUtils]
@@ -30178,7 +29936,6 @@ var TTabMainForm = {
             Self.W3SliderSpeed = TW3TagContainer.Create$81$($New(TW3Slider),Self.W3Panel1$1);
             TW3OwnedObject.InitAsync$(Self.W3SliderSpeed,function () {
                TW3MovableControl.SetBounds$(Self.W3SliderSpeed,0,352,304,44);
-               TW3Slider.SetMaximum(Self.W3SliderSpeed,100);
                TW3CustomControl.SetBorderRadius(Self.W3SliderSpeed,10);
                TW3TagContainer.SetComponentName(Self.W3SliderSpeed,"W3SliderSpeed");
                Self.W3SliderSpeed.FOnChange = $Event1(Self,TTabMainForm.W3SliderSpeedChange);
@@ -30370,9 +30127,6 @@ var TTabMainForm = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -30600,7 +30354,7 @@ var TLayoutImpl = {
    // IGNORED: TLayoutImpl.Config
    /// constructor TLayoutImpl.Create(align: TAlign; config: TLayoutConfig; controls: TObjectArr)
    ///  [line: 603, column: 25, file: SmartCL.Layout]
-   ,Create$213:function(Self, align$18, config, controls$1) {
+   ,Create$209:function(Self, align$18, config, controls$1) {
       Self.FAlign$1 = align$18;
       Self.FConfig$1 = TLayoutConfigImpl.CreateFrom($New(TLayoutConfigImpl),$As(config,TLayoutConfigImpl));
       Self.FControls = controls$1;
@@ -30976,7 +30730,7 @@ var TLayoutArea = {
    }
    /// constructor TLayoutArea.Create(rect: TRect)
    ///  [line: 228, column: 25, file: SmartCL.Layout]
-   ,Create$214:function(Self, rect$4) {
+   ,Create$210:function(Self, rect$4) {
       TObject.Create(Self);
       Copy$TRect(rect$4,Self.FRect);
       return Self
@@ -31210,7 +30964,7 @@ var TW3Slider = {
       $.FMax = $.FMin = $.FValue$2 = 0;
    }
    /// function TW3Slider.CreationFlags() : TW3CreationFlags
-   ///  [line: 74, column: 20, file: SmartCL.Slider]
+   ///  [line: 75, column: 20, file: SmartCL.Slider]
    ,CreationFlags:function(Self) {
       var Result = [0];
       Result = TW3TagObj.CreationFlags(Self);
@@ -31218,33 +30972,15 @@ var TW3Slider = {
       return Result
    }
    /// procedure TW3Slider.FinalizeObject()
-   ///  [line: 67, column: 21, file: SmartCL.Slider]
+   ///  [line: 68, column: 21, file: SmartCL.Slider]
    ,FinalizeObject:function(Self) {
       TObject.Free(Self.FInner);
       Self.FInner = null;
       TW3CustomControl.FinalizeObject(Self);
    }
-   /// procedure TW3Slider.InitializeObject()
-   ///  [line: 51, column: 21, file: SmartCL.Slider]
-   ,InitializeObject:function(Self) {
-      TW3CustomControl.InitializeObject(Self);
-      TW3ControlBackground.FromColor(TW3MovableControl.GetBackGround(Self),16777215);
-      Self.FInner = TW3TagContainer.Create$81$($New(TW3CustomControl),Self);
-      TW3MovableControl.SetWidth$(Self.FInner,10);
-      TW3CustomControl._setMouseDown(Self,function (_implicit_Sender, _implicit_Button, _implicit_Shift, _implicit_X, _implicit_Y) {
-         /* null */
-      });
-      TW3CustomControl._setMouseUp(Self,function (_implicit_Sender, _implicit_Button, _implicit_Shift, _implicit_X, _implicit_Y) {
-         /* null */
-      });
-      TW3CustomControl._setMouseMove(Self,function (_implicit_Sender, _implicit_Shift, _implicit_X, _implicit_Y) {
-         /* null */
-      });
-      Self.SimulateMouseEvents = true;
-   }
-   /// procedure TW3Slider.MouseDown(Button: TMouseButton; ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 161, column: 21, file: SmartCL.Slider]
-   ,MouseDown:function(Self, Button$1, ShiftState, X$2, Y$2) {
+   /// procedure TW3Slider.HandleMouseDown(Sender: TObject; Button: TMouseButton; ShiftState: TShiftState; X: Integer; Y: Integer)
+   ///  [line: 155, column: 21, file: SmartCL.Slider]
+   ,HandleMouseDown$1:function(Self, Sender, Button$1, ShiftState, X$2, Y$2) {
       var wd = 0;
       Self.FIsLeftButton = (Button$1==0);
       if (Self.FIsLeftButton) {
@@ -31257,11 +30993,10 @@ var TW3Slider = {
             TW3Slider.SetValue$2(Self,Self.FMin+X$2 / wd * (Self.FMax-Self.FMin));
          }
       }
-      TW3CustomControl.MouseDown(Self,Button$1,ShiftState,X$2,Y$2);
    }
-   /// procedure TW3Slider.MouseMove(ShiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 187, column: 21, file: SmartCL.Slider]
-   ,MouseMove:function(Self, ShiftState, X$2, Y$2) {
+   /// procedure TW3Slider.HandleMouseMove(Sender: TObject; ShiftState: TShiftState; X: Integer; Y: Integer)
+   ///  [line: 179, column: 21, file: SmartCL.Slider]
+   ,HandleMouseMove$1:function(Self, Sender, ShiftState, X$2, Y$2) {
       var wd = 0;
       if (Self.FIsLeftButton) {
          X$2-=4;
@@ -31272,17 +31007,28 @@ var TW3Slider = {
             TW3Slider.SetValue$2(Self,Self.FMin+(X$2-4) / (TW3MovableControl.ClientWidth(Self)-8) * (Self.FMax-Self.FMin));
          }
       }
-      TW3CustomControl.MouseMove(Self,ShiftState,X$2,Y$2);
    }
-   /// procedure TW3Slider.MouseUp(Button: TMouseButton; shiftState: TShiftState; X: Integer; Y: Integer)
-   ///  [line: 180, column: 21, file: SmartCL.Slider]
-   ,MouseUp:function(Self, Button$1, shiftState, X$2, Y$2) {
+   /// procedure TW3Slider.HandleMouseUp(Sender: TObject; Button: TMouseButton; shiftState: TShiftState; X: Integer; Y: Integer)
+   ///  [line: 173, column: 21, file: SmartCL.Slider]
+   ,HandleMouseUp$1:function(Self, Sender, Button$1, shiftState, X$2, Y$2) {
       Self.FIsLeftButton = !((Button$1==0));
       TW3CustomControl.ReleaseCapture(Self);
-      TW3CustomControl.MouseUp(Self,Button$1,shiftState,X$2,Y$2);
+   }
+   /// procedure TW3Slider.InitializeObject()
+   ///  [line: 51, column: 21, file: SmartCL.Slider]
+   ,InitializeObject:function(Self) {
+      TW3CustomControl.InitializeObject(Self);
+      Self.FMax = 100;
+      TW3ControlBackground.FromColor(TW3MovableControl.GetBackGround(Self),16777215);
+      Self.FInner = TW3TagContainer.Create$81$($New(TW3CustomControl),Self);
+      TW3MovableControl.SetWidth$(Self.FInner,10);
+      TW3CustomControl._setMouseDown(Self,$Event(Self,TW3Slider.HandleMouseDown$1));
+      TW3CustomControl._setMouseUp(Self,$Event(Self,TW3Slider.HandleMouseUp$1));
+      TW3CustomControl._setMouseMove(Self,$Event(Self,TW3Slider.HandleMouseMove$1));
+      Self.SimulateMouseEvents = true;
    }
    /// procedure TW3Slider.Resize()
-   ///  [line: 80, column: 21, file: SmartCL.Slider]
+   ///  [line: 81, column: 21, file: SmartCL.Slider]
    ,Resize:function(Self) {
       var Scale$2 = 0;
       TW3MovableControl.Resize(Self);
@@ -31298,7 +31044,7 @@ var TW3Slider = {
       }
    }
    /// procedure TW3Slider.SetLogarithmic(NewValue: Boolean)
-   ///  [line: 131, column: 21, file: SmartCL.Slider]
+   ///  [line: 125, column: 21, file: SmartCL.Slider]
    ,SetLogarithmic:function(Self, NewValue) {
       if (Self.FLogarithmic != NewValue) {
          TW3TagObj.BeginUpdate(Self);
@@ -31312,7 +31058,7 @@ var TW3Slider = {
       }
    }
    /// procedure TW3Slider.SetMaximum(NewValue: Float)
-   ///  [line: 146, column: 21, file: SmartCL.Slider]
+   ///  [line: 140, column: 21, file: SmartCL.Slider]
    ,SetMaximum:function(Self, NewValue) {
       if (NewValue != Self.FMax) {
          TW3TagObj.BeginUpdate(Self);
@@ -31326,12 +31072,10 @@ var TW3Slider = {
       }
    }
    /// procedure TW3Slider.SetMinimum(NewValue: Float)
-   ///  [line: 116, column: 21, file: SmartCL.Slider]
+   ///  [line: 112, column: 21, file: SmartCL.Slider]
    ,SetMinimum:function(Self, NewValue) {
       if (NewValue != Self.FMin) {
-         TW3TagObj.BeginUpdate(Self);
          Self.FMin = NewValue;
-         TW3TagObj.EndUpdate(Self);
          if ($SetIn(Self.FComponentState,4,0,11)) {
             if (!($SetIn(Self.FComponentState,10,0,11))) {
                TW3MovableControl.Invalidate$(Self);
@@ -31340,7 +31084,7 @@ var TW3Slider = {
       }
    }
    /// procedure TW3Slider.SetValue(NewValue: Float)
-   ///  [line: 96, column: 21, file: SmartCL.Slider]
+   ///  [line: 97, column: 21, file: SmartCL.Slider]
    ,SetValue$2:function(Self, NewValue) {
       if (NewValue < Self.FMin) {
          NewValue = Self.FMin;
@@ -31349,13 +31093,8 @@ var TW3Slider = {
          NewValue = Self.FMax;
       }
       if (NewValue != Self.FValue$2) {
-         TW3TagObj.BeginUpdate(Self);
-         try {
-            Self.FValue$2 = NewValue;
-         } finally {
-            TW3TagObj.AddToComponentState(Self,[32]);
-            TW3TagObj.EndUpdate(Self);
-         }
+         Self.FValue$2 = NewValue;
+         TW3MovableControl.Invalidate$(Self);
          if (Self.FOnChange) {
             Self.FOnChange(Self);
          }
@@ -31400,9 +31139,6 @@ var TW3Slider = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown$:function($){return $.ClassType.MouseDown.apply($.ClassType, arguments)}
-   ,MouseMove$:function($){return $.ClassType.MouseMove.apply($.ClassType, arguments)}
-   ,MouseUp$:function($){return $.ClassType.MouseUp.apply($.ClassType, arguments)}
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
 };
 TW3Slider.$Intf={
@@ -32554,40 +32290,6 @@ break;
       }
       return Result
    }
-   /// function TLccMessage.TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: TLccDccSpeedStep; ForceAllocate: Boolean; ExactMatchOnly: Boolean; MatchAddressOnly: Boolean) : Byte
-   ///  [line: 1721, column: 28, file: lcc_node_messages]
-   ,TractionSearchEncodeNMRA:function(Self, ForceLongAddress, SpeedStep$1, ForceAllocate, ExactMatchOnly, MatchAddressOnly) {
-      var Result = 0;
-      Result = 0;
-      if (ForceAllocate) {
-         Result = Result|128;
-      }
-      if (ExactMatchOnly) {
-         Result = Result|64;
-      }
-      if (MatchAddressOnly) {
-         Result = Result|32;
-      }
-      Result = Result|8;
-      if (ForceLongAddress) {
-         Result = Result|4;
-      }
-      switch (SpeedStep$1) {
-         case 0 :
-            /* null */
-break;
-         case 1 :
-            Result = Result|1;
-            break;
-         case 2 :
-            Result = Result|2;
-            break;
-         case 3 :
-            Result = Result|3;
-            break;
-      }
-      return Result
-   }
    /// function TLccMessage.TractionSearchEncodeSearchString(SearchString: String; TrackProtocolFlags: Byte; var SearchData: DWord) : TSearchEncodeStringError
    ///  [line: 1539, column: 28, file: lcc_node_messages]
    ,TractionSearchEncodeSearchString:function(Self, SearchString$1, TrackProtocolFlags, SearchData$1) {
@@ -32658,55 +32360,6 @@ break;
    ///  [line: 1617, column: 22, file: lcc_node_messages]
    ,TractionSearchExtractSearchData:function(Self) {
       return TLccMessage.ExtractDataBytesAsInt(Self,4,7);
-   }
-   /// function TLccMessage.TractionSearchIsAddressMatchOnly() : Boolean
-   ///  [line: 1622, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsAddressMatchOnly:function(Self) {
-      return (Self.FDataArray[7]&32) == 32;
-   }
-   /// function TLccMessage.TractionSearchIsEvent() : Boolean
-   ///  [line: 1627, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsEvent:function(Self) {
-      return Self.FDataArray[0] == 9 && (Self.FDataArray[1]==0) && Self.FDataArray[2] == 153 && Self.FDataArray[3] == 255;
-   }
-   /// function TLccMessage.TractionSearchIsExactMatchOnly() : Boolean
-   ///  [line: 1632, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsExactMatchOnly:function(Self) {
-      return (Self.FDataArray[7]&64) == 64;
-   }
-   /// function TLccMessage.TractionSearchIsForceAllocate() : Boolean
-   ///  [line: 1637, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsForceAllocate:function(Self) {
-      return (Self.FDataArray[7]&128) == 128;
-   }
-   /// function TLccMessage.TractionSearchIsProtocolAny() : Boolean
-   ///  [line: 1642, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsProtocolAny:function(Self) {
-      return ((Self.FDataArray[7]&31)==0);
-   }
-   /// function TLccMessage.TractionSearchIsProtocolDCC(var ForceLongAddress: Boolean; var SpeedStep: TLccDccSpeedStep) : Boolean
-   ///  [line: 1647, column: 22, file: lcc_node_messages]
-   ,TractionSearchIsProtocolDCC:function(Self, ForceLongAddress, SpeedStep$1) {
-      var Result = false;
-      Result = (Self.FDataArray[7]&24) == 8;
-      if (Result) {
-         switch ((Self.FDataArray[7]&3)) {
-            case 0 :
-               SpeedStep$1.v = 0;
-               break;
-            case 1 :
-               SpeedStep$1.v = 1;
-               break;
-            case 2 :
-               SpeedStep$1.v = 2;
-               break;
-            case 3 :
-               SpeedStep$1.v = 3;
-               break;
-         }
-         ForceLongAddress.v = (Self.FDataArray[7]&4) == 4;
-      }
-      return Result
    }
    /// procedure TLccMessage.ZeroFields()
    ///  [line: 1292, column: 23, file: lcc_node_messages]
@@ -32888,13 +32541,13 @@ function StreamReadByte(AStream) {
 function NullNodeID(ANodeID) {
    return (ANodeID[0]==0) && (ANodeID[1]==0);
 };
-function NodeIDToEventID(NodeID$8, LowBytes, EventID) {
-   EventID.v[0] = _Higher(NodeID$8[1]);
-   EventID.v[1] = _Hi(NodeID$8[1]);
-   EventID.v[2] = _Lo(NodeID$8[1]);
-   EventID.v[3] = _Higher(NodeID$8[0]);
-   EventID.v[4] = _Hi(NodeID$8[0]);
-   EventID.v[5] = _Lo(NodeID$8[0]);
+function NodeIDToEventID(NodeID$7, LowBytes, EventID) {
+   EventID.v[0] = _Higher(NodeID$7[1]);
+   EventID.v[1] = _Hi(NodeID$7[1]);
+   EventID.v[2] = _Lo(NodeID$7[1]);
+   EventID.v[3] = _Higher(NodeID$7[0]);
+   EventID.v[4] = _Hi(NodeID$7[0]);
+   EventID.v[5] = _Lo(NodeID$7[0]);
    EventID.v[6] = _Hi(LowBytes);
    EventID.v[7] = _Lo(LowBytes);
 };
@@ -32948,12 +32601,14 @@ var TLccNode = {
    ,$Init:function ($) {
       TObject.$Init($);
       $.FACDIMfg = $.FACDIUser = $.FDatagramResendQueue = $.FLccActions = $.FNodeManager = $.FProtocolEventConsumed = $.FProtocolEventsProduced = $.FProtocolMemoryConfiguration = $.FProtocolMemoryInfo = $.FProtocolMemoryOptions = $.FProtocolSimpleNodeInfo = $.FProtocolSupportedProtocols = $.FProtocolTraction = $.FProtocolTractionFunctionDefinitionInfo = $.FProtocolTractionMemoryFunctionConfiguration = $.FProtocolTractionSimpleTrainNodeInfo = $.FSendMessageFunc$1 = $.FStreamCdi = $.FStreamConfig = $.FStreamManufacturerData = $.FStreamTractionConfig = $.FStreamTractionFdi = $.FTProtocolMemoryConfigurationDefinitionInfo = $.FWorkerMessage$2 = $.FWorkerMessageDatagram = null;
-      $.FInitialized$2 = false;
+      $.FAliasID = 0;
+      $.FDuplicateAliasDetected = $.FGridConnect$1 = $.FInitialized$2 = $.FPermitted = false;
       $.FNodeID$1 = [0,0];
+      $.FSeedNodeID = [0,0];
       $.F_800msTimer = null;
    }
    /// procedure TLccNode.AutoGenerateEvents()
-   ///  [line: 1107, column: 20, file: lcc_node]
+   ///  [line: 742, column: 20, file: lcc_node]
    ,AutoGenerateEvents:function(Self) {
       var i$7 = 0,
          TempEventID = {v:[0,0,0,0,0,0,0,0]};
@@ -32976,7 +32631,7 @@ var TLccNode = {
       }
    }
    /// procedure TLccNode.BeforeLogin()
-   ///  [line: 1134, column: 20, file: lcc_node]
+   ///  [line: 769, column: 20, file: lcc_node]
    ,BeforeLogin:function(Self) {
       Self.FProtocolSupportedProtocols.FConfigurationDefinitionInfo = true;
       Self.FProtocolSupportedProtocols.FDatagram = true;
@@ -33013,9 +32668,9 @@ var TLccNode = {
       TLccEventAutoGenerate.SetCount$1(Self.FProtocolEventsProduced.FAutoGenerate,5);
       TLccEventAutoGenerate.SetStartIndex(Self.FProtocolEventsProduced.FAutoGenerate,0);
    }
-   /// constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String)
-   ///  [line: 1033, column: 22, file: lcc_node]
-   ,Create$201:function(Self, ASendMessageFunc, ANodeManager, CdiXML) {
+   /// constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean)
+   ///  [line: 668, column: 22, file: lcc_node]
+   ,Create$200:function(Self, ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink) {
       var i$7 = 0,
          Counter = 0;
       TObject.Create(Self);
@@ -33038,14 +32693,15 @@ var TLccNode = {
       Self.FStreamManufacturerData = TMemoryStream.Create$72($New(TMemoryStream));
       Self.FStreamTractionConfig = TMemoryStream.Create$72($New(TMemoryStream));
       Self.FStreamTractionFdi = TMemoryStream.Create$72($New(TMemoryStream));
-      Self.FDatagramResendQueue = TDatagramQueue.Create$209($New(TDatagramQueue),ASendMessageFunc);
+      Self.FDatagramResendQueue = TDatagramQueue.Create$207($New(TDatagramQueue),ASendMessageFunc);
       Self.FWorkerMessageDatagram = TLccMessage.Create$197($New(TLccMessage));
       Self.FWorkerMessage$2 = TLccMessage.Create$197($New(TLccMessage));
       Self.FSendMessageFunc$1 = ASendMessageFunc;
       Self.FNodeManager = ANodeManager;
+      Self.FGridConnect$1 = GridConnectLink;
       Self.F_800msTimer = TW3OwnedObject.Create$11$($New(TW3Timer),null);
       TW3Timer.SetEnabled(Self.F_800msTimer,false);
-      Self.F_800msTimer.OnTime = $Event1(Self,TLccNode.On_800msTimer$);
+      Self.F_800msTimer.OnTime = $Event1(Self,TLccNode.On_800msTimer);
       TW3Timer.SetDelay(Self.F_800msTimer,800);
       if (CdiXML == "") {
          CdiXML = TLccNode.GetCdiFile$(Self);
@@ -33064,24 +32720,26 @@ var TLccNode = {
       StreamWriteByte(Self.FStreamConfig,1);
       while (TStream.GetPosition$(Self.FStreamConfig) < TStream.GetSize$(Self.FStreamConfig)) {
          StreamWriteByte(Self.FStreamConfig,0)      }
-      Self.FLccActions = TLccActionHub.Create$205($New(TLccActionHub),Self,ASendMessageFunc);
+      Self.FLccActions = TLccActionHub.Create$203($New(TLccActionHub),Self,ASendMessageFunc);
       return Self
    }
    /// procedure TLccNode.CreateNodeID(var Seed: TNodeID)
-   ///  [line: 1176, column: 20, file: lcc_node]
+   ///  [line: 1371, column: 20, file: lcc_node]
    ,CreateNodeID:function(Self, Seed) {
       Seed.v[1] = 131346;
       Seed.v[0] = RandomInt(16777215);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
    }
    /// destructor TLccNode.Destroy()
-   ///  [line: 1187, column: 21, file: lcc_node]
+   ///  [line: 1382, column: 21, file: lcc_node]
    ,Destroy:function(Self) {
+      TW3Timer.SetEnabled(Self.F_800msTimer,false);
+      Self.FAliasID = 0;
+      $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[0](Self);
       Self.FNodeID$1[0] = 0;
       Self.FNodeID$1[1] = 0;
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[11](Self);
-      TW3Timer.SetEnabled(Self.F_800msTimer,false);
       TObject.Free(Self.F_800msTimer);
       TObject.Free(Self.FProtocolSupportedProtocols);
       TObject.Free(Self.FProtocolSimpleNodeInfo);
@@ -33109,7 +32767,7 @@ var TLccNode = {
       TObject.Destroy(Self);
    }
    /// function TLccNode.FindCdiElement(TestXML: String; Element: String; var Offset: Integer; var ALength: Integer) : Boolean
-   ///  [line: 1221, column: 19, file: lcc_node]
+   ///  [line: 1422, column: 19, file: lcc_node]
    ,FindCdiElement:function(Self, TestXML, Element$2, Offset$5, ALength) {
       var Result = false;
       var OffsetEnd = 0;
@@ -33134,18 +32792,40 @@ var TLccNode = {
       }
       return Result
    }
+   /// function TLccNode.GenerateID_Alias_From_Seed(var Seed: TNodeID) : Word
+   ///  [line: 1330, column: 19, file: lcc_node]
+   ,GenerateID_Alias_From_Seed:function(Self, Seed) {
+      return (((Seed.v[0]^Seed.v[1])^(Seed.v[0]>>>12))^(Seed.v[1]>>>12))&4095;
+   }
+   /// procedure TLccNode.GenerateNewSeed(var Seed: TNodeID)
+   ///  [line: 1335, column: 20, file: lcc_node]
+   ,GenerateNewSeed:function(Self, Seed) {
+      var temp1 = 0,
+         temp2 = 0;
+      temp1 = ((Seed.v[1]<<9)|((Seed.v[0]>>>15)&511))&16777215;
+      temp2 = (Seed.v[0]<<9)&16777215;
+      Seed.v[0] = Seed.v[0]+temp2+8014761;
+      Seed.v[1] = Seed.v[1]+temp1+1772707;
+      Seed.v[1] = (Seed.v[1]&16777215)|((Seed.v[0]&4278190080)>>>24);
+      Seed.v[0] = Seed.v[0]&16777215;
+   }
    /// function TLccNode.GetAlias() : Word
-   ///  [line: 1246, column: 19, file: lcc_node]
+   ///  [line: 1447, column: 19, file: lcc_node]
    ,GetAlias:function(Self) {
       return 0;
    }
+   /// function TLccNode.GetAliasIDStr() : String
+   ///  [line: 601, column: 19, file: lcc_node]
+   ,GetAliasIDStr:function(Self) {
+      return "0x" + IntToHex(Self.FAliasID,4);
+   }
    /// function TLccNode.GetCdiFile() : String
-   ///  [line: 1251, column: 19, file: lcc_node]
+   ///  [line: 1452, column: 19, file: lcc_node]
    ,GetCdiFile:function(Self) {
       return "<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>TC1000<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>";
    }
    /// function TLccNode.GetNodeIDStr() : String
-   ///  [line: 967, column: 19, file: lcc_node]
+   ///  [line: 594, column: 19, file: lcc_node]
    ,GetNodeIDStr:function(Self) {
       var Result = "";
       Result = IntToHex(Self.FNodeID$1[1],6);
@@ -33154,12 +32834,18 @@ var TLccNode = {
       return Result
    }
    /// function TLccNode.IsDestinationEqual(LccMessage: TLccMessage) : Boolean
-   ///  [line: 974, column: 19, file: lcc_node]
+   ///  [line: 606, column: 19, file: lcc_node]
    ,IsDestinationEqual:function(Self, LccMessage) {
-      return EqualNodeID(Self.FNodeID$1.slice(0),LccMessage.FDestID.slice(0),false);
+      var Result = false;
+      if (Self.FGridConnect$1) {
+         Result = Self.FAliasID == LccMessage.FCAN.FDestAlias;
+      } else {
+         Result = EqualNodeID(Self.FNodeID$1.slice(0),LccMessage.FDestID.slice(0),false);
+      }
+      return Result
    }
    /// function TLccNode.LoadManufacturerDataStream(ACdi: String) : Boolean
-   ///  [line: 979, column: 19, file: lcc_node]
+   ///  [line: 614, column: 19, file: lcc_node]
    ,LoadManufacturerDataStream:function(Self, ACdi) {
       var Result = false;
       var AnOffset = { v : 0 },
@@ -33231,8 +32917,36 @@ var TLccNode = {
       return Result
    }
    /// procedure TLccNode.Login(ANodeID: TNodeID)
-   ///  [line: 1256, column: 20, file: lcc_node]
+   ///  [line: 1457, column: 20, file: lcc_node]
    ,Login:function(Self, ANodeID) {
+      ANodeID = { v : ANodeID };
+      var Temp$1 = {v:[0,0]};
+      if (Self.FGridConnect$1) {
+         TLccNode.BeforeLogin$(Self);
+         if (NullNodeID(ANodeID.v.slice(0))) {
+            TLccNode.CreateNodeID(Self,ANodeID);
+         }
+         Self.FSeedNodeID = ANodeID.v.slice(0);
+         Temp$1.v = Self.FSeedNodeID.slice(0);
+         Self.FAliasID = TLccNode.GenerateID_Alias_From_Seed(Self,Temp$1);
+         $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
+         Self.FNodeID$1 = ANodeID.v.slice(0);
+         TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+         TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+         TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+         TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+         TW3Timer.SetEnabled(Self.F_800msTimer,true);
+      } else {
+         TLccNode.LogInLCC(Self,ANodeID.v.slice(0));
+      }
+   }
+   /// procedure TLccNode.LogInLCC(ANodeID: TNodeID)
+   ///  [line: 811, column: 20, file: lcc_node]
+   ,LogInLCC:function(Self, ANodeID) {
       ANodeID = { v : ANodeID };
       TLccNode.BeforeLogin$(Self);
       if (NullNodeID(ANodeID.v.slice(0))) {
@@ -33247,21 +32961,117 @@ var TLccNode = {
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[12](Self);
    }
    /// procedure TLccNode.Logout()
-   ///  [line: 1270, column: 20, file: lcc_node]
+   ///  [line: 1486, column: 20, file: lcc_node]
    ,Logout:function(Self) {
+      $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[13](Self);
+      if (Self.FGridConnect$1) {
+         Self.FPermitted = false;
+         TLccMessage.LoadAMR(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+         $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[1](Self);
+      }
       Self.FInitialized$2 = false;
       TW3Timer.SetEnabled(Self.F_800msTimer,false);
       TDatagramQueue.Clear$33(Self.FDatagramResendQueue);
    }
    /// procedure TLccNode.On_800msTimer(Sender: TObject)
-   ///  [line: 1277, column: 20, file: lcc_node]
+   ///  [line: 1502, column: 20, file: lcc_node]
    ,On_800msTimer:function(Self, Sender) {
-      TDatagramQueue.TickTimeout(Self.FDatagramResendQueue);
-      TLccActionHub.TimeTick$1(Self.FLccActions);
+      var Temp$1 = {v:[0,0]};
+      if (Self.FGridConnect$1) {
+         if (!(Self.FPermitted)) {
+            if (Self.FDuplicateAliasDetected) {
+               Self.FDuplicateAliasDetected = false;
+               Temp$1.v = Self.FSeedNodeID.slice(0);
+               TLccNode.GenerateNewSeed(Self,Temp$1);
+               Self.FSeedNodeID = Temp$1.v.slice(0);
+               Self.FAliasID = TLccNode.GenerateID_Alias_From_Seed(Self,Temp$1);
+               TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+               TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+               TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+               TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            } else {
+               Self.FPermitted = true;
+               TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+               TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+               Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+               $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[0](Self);
+               TLccNode.LogInLCC(Self,Self.FNodeID$1.slice(0));
+            }
+         }
+         if (Self.FPermitted) {
+            TDatagramQueue.TickTimeout(Self.FDatagramResendQueue);
+            TLccActionHub.TimeTick$1(Self.FLccActions);
+         }
+      } else {
+         TDatagramQueue.TickTimeout(Self.FDatagramResendQueue);
+         TLccActionHub.TimeTick$1(Self.FLccActions);
+      }
    }
    /// function TLccNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1283, column: 19, file: lcc_node]
+   ///  [line: 1549, column: 19, file: lcc_node]
    ,ProcessMessage$1:function(Self, SourceMessage) {
+      var Result = false;
+      if (Self.FGridConnect$1) {
+         Result = TLccNode.ProcessMessageGridConnect(Self,SourceMessage);
+      } else {
+         Result = TLccNode.ProcessMessageLCC(Self,SourceMessage);
+      }
+      return Result
+   }
+   /// function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage) : Boolean
+   ///  [line: 1267, column: 19, file: lcc_node]
+   ,ProcessMessageGridConnect:function(Self, SourceMessage) {
+      var Result = false;
+      var TestNodeID = {v:[0,0]};
+      Result = false;
+      if ((Self.FAliasID!=0) && SourceMessage.FCAN.FSourceAlias == Self.FAliasID) {
+         if ((SourceMessage.FCAN.FMTI$1&251658240) >= 16777216 && (SourceMessage.FCAN.FMTI$1&251658240) <= 117440512) {
+            TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+            Result = true;
+         } else if (Self.FPermitted) {
+            TLccNode.Logout(Self);
+            TLccNode.Relogin(Self);
+            Result = true;
+         }
+      }
+      if (Self.FPermitted) {
+         TestNodeID.v[0] = 0;
+         TestNodeID.v[1] = 0;
+         if (SourceMessage.FIsCAN) {
+            switch (SourceMessage.FCAN.FMTI$1) {
+               case 7348224 :
+                  if (SourceMessage.FDataCount == 6) {
+                     TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,0,TestNodeID);
+                     if (EqualNodeID(TestNodeID.v.slice(0),Self.FNodeID$1.slice(0),false)) {
+                        TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+                     }
+                  } else {
+                     TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
+                     Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+                  }
+                  Result = true;
+                  break;
+            }
+         }
+         if (!(Result)) {
+            Result = TLccNode.ProcessMessageLCC(Self,SourceMessage);
+         }
+      } else if (SourceMessage.FCAN.FSourceAlias == Self.FAliasID) {
+         Self.FDuplicateAliasDetected = true;
+      }
+      return Result
+   }
+   /// function TLccNode.ProcessMessageLCC(SourceMessage: TLccMessage) : Boolean
+   ///  [line: 825, column: 19, file: lcc_node]
+   ,ProcessMessageLCC:function(Self, SourceMessage) {
       var Result = false;
       var TestNodeID = {v:[0,0]},
          Temp$1 = {v:[0,0,0,0,0,0,0,0]},
@@ -33273,12 +33083,12 @@ var TLccNode = {
       TestNodeID.v[0] = 0;
       TestNodeID.v[1] = 0;
       if (EqualNodeID(Self.FNodeID$1.slice(0),SourceMessage.FSourceID.slice(0),false)) {
-         TLccNode.Logout$(Self);
+         TLccNode.Logout(Self);
          return Result;
       }
-      TLccActionHub.ProcessMessage$5(Self.FLccActions,SourceMessage);
+      TLccActionHub.ProcessMessage$4(Self.FLccActions,SourceMessage);
       if (TLccMessage.GetHasDestination(SourceMessage)) {
-         if (!(TLccNode.IsDestinationEqual$(Self,SourceMessage))) {
+         if (!(TLccNode.IsDestinationEqual(Self,SourceMessage))) {
             return Result;
          }
       }
@@ -33290,17 +33100,17 @@ break;
             if (SourceMessage.FDataCount == 6) {
                TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,0,TestNodeID);
                if (EqualNodeID(TestNodeID.v.slice(0),Self.FNodeID$1.slice(0),false)) {
-                  TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+                  TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self));
                   Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                }
             } else {
-               TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+               TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self));
                Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             }
             Result = true;
             break;
          case 1160 :
-            TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+            TLccMessage.LoadVerifiedNodeID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self));
             Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
@@ -33308,7 +33118,7 @@ break;
             /* null */
 break;
          case 3560 :
-            TLccMessage.LoadSimpleNodeIdentInfoReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSimpleNodeInfo.PackedFormat(Self.FProtocolSimpleNodeInfo,Self.FStreamManufacturerData,Self.FStreamConfig));
+            TLccMessage.LoadSimpleNodeIdentInfoReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSimpleNodeInfo.PackedFormat(Self.FProtocolSimpleNodeInfo,Self.FStreamManufacturerData,Self.FStreamConfig));
             Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
@@ -33316,7 +33126,7 @@ break;
             Result = true;
             break;
          case 2088 :
-            TLccMessage.LoadProtocolIdentifyReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSupportedProtocols.EncodeFlags$1(Self.FProtocolSupportedProtocols));
+            TLccMessage.LoadProtocolIdentifyReply(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,TProtocolSupportedProtocols.EncodeFlags$1(Self.FProtocolSupportedProtocols));
             Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
             Result = true;
             break;
@@ -33494,7 +33304,7 @@ break;
                      case 64 :
                         switch (AddressSpace$2) {
                            case 255 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$2,Self.FStreamCdi);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
@@ -33503,31 +33313,31 @@ break;
                               TLccNode.SendDatagramAckReply(Self,SourceMessage,false,0);
                               break;
                            case 253 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$2,Self.FStreamConfig);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 252 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FACDIMfg,SourceMessage,Self.FWorkerMessage$2,Self.FStreamManufacturerData);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 251 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FACDIUser,SourceMessage,Self.FWorkerMessage$2,Self.FStreamConfig);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 250 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FTProtocolMemoryConfigurationDefinitionInfo,SourceMessage,Self.FWorkerMessage$2,Self.FStreamTractionFdi);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 249 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TNodeProtocolBase.DatagramReadRequest(Self.FProtocolMemoryConfiguration,SourceMessage,Self.FWorkerMessage$2,Self.FStreamTractionConfig);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
@@ -33544,13 +33354,13 @@ break;
                         OperationType = TLccMessage.GetDataArrayIndexer(SourceMessage,1);
                         switch (OperationType) {
                            case 128 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TProtocolMemoryOptions.LoadReply(Self.FProtocolMemoryOptions,Self.FWorkerMessage$2);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
                               break;
                            case 132 :
-                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
+                              TLccMessage.LoadDatagram(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                               TProtocolMemoryInfo.LoadReply$1(Self.FProtocolMemoryInfo,SourceMessage,Self.FWorkerMessage$2);
                               TLccNode.SendDatagramRequiredReply(Self,SourceMessage,Self.FWorkerMessage$2);
                               Result = true;
@@ -33575,58 +33385,76 @@ break;
                   }
                   break;
                default :
-                  TLccMessage.LoadDatagramRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4162);
+                  TLccMessage.LoadDatagramRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4162);
                   Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                   Result = true;
             }
             break;
          default :
             if (TLccMessage.GetHasDestination(SourceMessage)) {
-               TLccMessage.LoadOptionalInteractionRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4163,SourceMessage.FMTI);
+               TLccMessage.LoadOptionalInteractionRejected(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,4163,SourceMessage.FMTI);
                Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
                Result = true;
             }
       }
       return Result
    }
+   /// procedure TLccNode.Relogin()
+   ///  [line: 1350, column: 20, file: lcc_node]
+   ,Relogin:function(Self) {
+      var Temp$1 = {v:[0,0]};
+      Temp$1.v = Self.FSeedNodeID.slice(0);
+      TLccNode.GenerateNewSeed(Self,Temp$1);
+      Self.FSeedNodeID = Temp$1.v.slice(0);
+      Self.FAliasID = TLccNode.GenerateID_Alias_From_Seed(Self,Temp$1);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
+      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
+      TW3Timer.SetEnabled(Self.F_800msTimer,true);
+   }
    /// procedure TLccNode.SendConsumedEvents()
-   ///  [line: 1734, column: 20, file: lcc_node]
+   ///  [line: 1566, column: 20, file: lcc_node]
    ,SendConsumedEvents:function(Self) {
       var i$7 = 0,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
       var $temp164;
       for(i$7=0,$temp164=TProtocolEvents.GetCount$9(Self.FProtocolEventConsumed);i$7<$temp164;i$7++) {
          Temp$1.v = TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FID.slice(0);
-         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FState$1);
+         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventConsumed,i$7).FState$1);
          Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendConsumerIdentify(var Event: TEventID)
-   ///  [line: 1747, column: 20, file: lcc_node]
+   ///  [line: 1579, column: 20, file: lcc_node]
    ,SendConsumerIdentify:function(Self, Event$3) {
       var EventObj = null,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
       EventObj = TProtocolEvents.Supports(Self.FProtocolEventConsumed,Event$3.v.slice(0));
       if (EventObj) {
          Temp$1.v = EventObj.FID.slice(0);
-         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
+         TLccMessage.LoadConsumerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),Temp$1,EventObj.FState$1);
          Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte)
-   ///  [line: 1725, column: 20, file: lcc_node]
+   ///  [line: 1557, column: 20, file: lcc_node]
    ,SendDatagramAckReply:function(Self, SourceMessage, ReplyPending, TimeOutValueN) {
-      TLccMessage.LoadDatagramAck(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true,ReplyPending,TimeOutValueN);
+      TLccMessage.LoadDatagramAck(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true,ReplyPending,TimeOutValueN);
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessageDatagram);
    }
    /// procedure TLccNode.SendDatagramRejectedReply(SourceMessage: TLccMessage; Reason: Word)
-   ///  [line: 1761, column: 20, file: lcc_node]
+   ///  [line: 1593, column: 20, file: lcc_node]
    ,SendDatagramRejectedReply:function(Self, SourceMessage, Reason) {
-      TLccMessage.LoadDatagramRejected(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,Reason);
+      TLccMessage.LoadDatagramRejected(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,Reason);
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessageDatagram);
    }
    /// procedure TLccNode.SendDatagramRequiredReply(SourceMessage: TLccMessage; ReplyLccMessage: TLccMessage)
-   ///  [line: 1769, column: 20, file: lcc_node]
+   ///  [line: 1601, column: 20, file: lcc_node]
    ,SendDatagramRequiredReply:function(Self, SourceMessage, ReplyLccMessage) {
       if (TDatagramQueue.Add$23(Self.FDatagramResendQueue,TLccMessage.Clone$2(ReplyLccMessage))) {
          TLccNode.SendDatagramAckReply(Self,SourceMessage,false,0);
@@ -33636,299 +33464,47 @@ break;
       }
    }
    /// procedure TLccNode.SendEvents()
-   ///  [line: 1779, column: 20, file: lcc_node]
+   ///  [line: 1611, column: 20, file: lcc_node]
    ,SendEvents:function(Self) {
       TLccNode.SendConsumedEvents(Self);
       TLccNode.SendProducedEvents(Self);
    }
    /// procedure TLccNode.SendInitializeComplete()
-   ///  [line: 1785, column: 20, file: lcc_node]
+   ///  [line: 1617, column: 20, file: lcc_node]
    ,SendInitializeComplete:function(Self) {
-      TLccMessage.LoadInitializationComplete(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self));
+      TLccMessage.LoadInitializationComplete(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self));
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[16](Self);
    }
    /// procedure TLccNode.SendProducedEvents()
-   ///  [line: 1792, column: 20, file: lcc_node]
+   ///  [line: 1624, column: 20, file: lcc_node]
    ,SendProducedEvents:function(Self) {
       var i$7 = 0,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
       var $temp165;
       for(i$7=0,$temp165=TProtocolEvents.GetCount$9(Self.FProtocolEventsProduced);i$7<$temp165;i$7++) {
          Temp$1.v = TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FID.slice(0);
-         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FState$1);
+         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),Temp$1,TProtocolEvents.GetEvent(Self.FProtocolEventsProduced,i$7).FState$1);
          Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    /// procedure TLccNode.SendProducerIdentify(var Event: TEventID)
-   ///  [line: 1805, column: 20, file: lcc_node]
+   ///  [line: 1637, column: 20, file: lcc_node]
    ,SendProducerIdentify:function(Self, Event$3) {
       var EventObj = null,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
       EventObj = TProtocolEvents.Supports(Self.FProtocolEventsProduced,Event$3.v.slice(0));
       if (EventObj) {
          Temp$1.v = EventObj.FID.slice(0);
-         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias$(Self),Temp$1,EventObj.FState$1);
+         TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),TLccNode.GetAlias(Self),Temp$1,EventObj.FState$1);
          Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
    ,BeforeLogin$:function($){return $.ClassType.BeforeLogin($)}
-   ,Create$201$:function($){return $.ClassType.Create$201.apply($.ClassType, arguments)}
-   ,GetAlias$:function($){return $.ClassType.GetAlias($)}
+   ,Create$200$:function($){return $.ClassType.Create$200.apply($.ClassType, arguments)}
    ,GetCdiFile$:function($){return $.ClassType.GetCdiFile($)}
-   ,IsDestinationEqual$:function($){return $.ClassType.IsDestinationEqual.apply($.ClassType, arguments)}
-   ,Login$:function($){return $.ClassType.Login.apply($.ClassType, arguments)}
-   ,Logout$:function($){return $.ClassType.Logout($)}
-   ,On_800msTimer$:function($){return $.ClassType.On_800msTimer.apply($.ClassType, arguments)}
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
-};
-/// TLccCanNode = class (TLccNode)
-///  [line: 325, column: 3, file: lcc_node]
-var TLccCanNode = {
-   $ClassName:"TLccCanNode",$Parent:TLccNode
-   ,$Init:function ($) {
-      TLccNode.$Init($);
-      $.FAliasID = 0;
-      $.FDuplicateAliasDetected = $.FPermitted = false;
-      $.FInProcessMultiFrameMessage = null;
-      $.FSeedNodeID = [0,0];
-   }
-   /// constructor TLccCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String)
-   ///  [line: 622, column: 25, file: lcc_node]
-   ,Create$201:function(Self, ASendMessageFunc, ANodeManager, CdiXML) {
-      TLccNode.Create$201(Self,ASendMessageFunc,ANodeManager,CdiXML);
-      Self.FInProcessMultiFrameMessage = TObjectList.Create$127($New(TObjectList));
-      TLccCanNode.Creating$(Self);
-      return Self
-   }
-   /// procedure TLccCanNode.Creating()
-   ///  [line: 636, column: 23, file: lcc_node]
-   ,Creating:function(Self) {
-      /* null */
-   }
-   /// destructor TLccCanNode.Destroy()
-   ///  [line: 641, column: 24, file: lcc_node]
-   ,Destroy:function(Self) {
-      TLccCanNode.InProcessMessageClear(Self);
-      TObject.Free(Self.FInProcessMultiFrameMessage);
-      Self.FAliasID = 0;
-      $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[0](Self);
-      TLccNode.Destroy(Self);
-   }
-   /// function TLccCanNode.GenerateID_Alias_From_Seed(var Seed: TNodeID) : Word
-   ///  [line: 918, column: 22, file: lcc_node]
-   ,GenerateID_Alias_From_Seed:function(Self, Seed) {
-      return (((Seed.v[0]^Seed.v[1])^(Seed.v[0]>>>12))^(Seed.v[1]>>>12))&4095;
-   }
-   /// procedure TLccCanNode.GenerateNewSeed(var Seed: TNodeID)
-   ///  [line: 923, column: 23, file: lcc_node]
-   ,GenerateNewSeed:function(Self, Seed) {
-      var temp1 = 0,
-         temp2 = 0;
-      temp1 = ((Seed.v[1]<<9)|((Seed.v[0]>>>15)&511))&16777215;
-      temp2 = (Seed.v[0]<<9)&16777215;
-      Seed.v[0] = Seed.v[0]+temp2+8014761;
-      Seed.v[1] = Seed.v[1]+temp1+1772707;
-      Seed.v[1] = (Seed.v[1]&16777215)|((Seed.v[0]&4278190080)>>>24);
-      Seed.v[0] = Seed.v[0]&16777215;
-   }
-   /// function TLccCanNode.GetAlias() : Word
-   ///  [line: 938, column: 22, file: lcc_node]
-   ,GetAlias:function(Self) {
-      return Self.FAliasID;
-   }
-   /// function TLccCanNode.GetAliasIDStr() : String
-   ///  [line: 650, column: 22, file: lcc_node]
-   ,GetAliasIDStr:function(Self) {
-      return "0x" + IntToHex(Self.FAliasID,4);
-   }
-   /// procedure TLccCanNode.InProcessMessageClear()
-   ///  [line: 655, column: 23, file: lcc_node]
-   ,InProcessMessageClear:function(Self) {
-      var i$7 = 0,
-         AMessage = null;
-      for(i$7=TObjectList.GetCount$1(Self.FInProcessMultiFrameMessage)-1;i$7>=0;i$7--) {
-         AMessage = $As(TObjectList.GetItem$14(Self.FInProcessMultiFrameMessage,i$7),TLccMessage);
-         TObjectList.Remove$1(Self.FInProcessMultiFrameMessage,i$7);
-         --InprocessMessageAllocated;
-         TObject.Free(AMessage);
-      }
-   }
-   /// procedure TLccCanNode.InProcessMessageFlushBySourceAlias(TestMessage: TLccMessage)
-   ///  [line: 702, column: 23, file: lcc_node]
-   ,InProcessMessageFlushBySourceAlias:function(Self, TestMessage) {
-      var i$7 = 0,
-         AMessage = null;
-      for(i$7=TObjectList.GetCount$1(Self.FInProcessMultiFrameMessage)-1;i$7>=0;i$7--) {
-         AMessage = $As(TObjectList.GetItem$14(Self.FInProcessMultiFrameMessage,i$7),TLccMessage);
-         if (AMessage.FCAN.FSourceAlias == TestMessage.FCAN.FSourceAlias) {
-            TObjectList.Remove$1(Self.FInProcessMultiFrameMessage,i$7);
-            --InprocessMessageAllocated;
-            TObject.Free(AMessage);
-         }
-      }
-   }
-   /// function TLccCanNode.IsDestinationEqual(LccMessage: TLccMessage) : Boolean
-   ///  [line: 748, column: 22, file: lcc_node]
-   ,IsDestinationEqual:function(Self, LccMessage) {
-      return Self.FAliasID == LccMessage.FCAN.FDestAlias;
-   }
-   /// procedure TLccCanNode.Login(ANodeID: TNodeID)
-   ///  [line: 753, column: 23, file: lcc_node]
-   ,Login:function(Self, ANodeID) {
-      ANodeID = { v : ANodeID };
-      var Temp$1 = {v:[0,0]};
-      if (NullNodeID(ANodeID.v.slice(0))) {
-         TLccNode.CreateNodeID(Self,ANodeID);
-      }
-      Self.FSeedNodeID = ANodeID.v.slice(0);
-      Temp$1.v = Self.FSeedNodeID.slice(0);
-      Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
-      $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
-      Self.FNodeID$1 = ANodeID.v.slice(0);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TW3Timer.SetEnabled(Self.F_800msTimer,true);
-   }
-   /// procedure TLccCanNode.Logout()
-   ///  [line: 777, column: 23, file: lcc_node]
-   ,Logout:function(Self) {
-      $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[13](Self);
-      TLccCanNode.SendAMR(Self);
-      Self.FPermitted = false;
-      TLccCanNode.InProcessMessageClear(Self);
-      TLccNode.Logout(Self);
-   }
-   /// procedure TLccCanNode.On_800msTimer(Sender: TObject)
-   ///  [line: 786, column: 23, file: lcc_node]
-   ,On_800msTimer:function(Self, Sender) {
-      var Temp$1 = {v:[0,0]};
-      if (!(Self.FPermitted)) {
-         if (Self.FDuplicateAliasDetected) {
-            Self.FDuplicateAliasDetected = false;
-            Temp$1.v = Self.FSeedNodeID.slice(0);
-            TLccCanNode.GenerateNewSeed(Self,Temp$1);
-            Self.FSeedNodeID = Temp$1.v.slice(0);
-            Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
-            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-         } else {
-            Self.FPermitted = true;
-            TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[0](Self);
-            TLccNode.Login(Self,Self.FNodeID$1.slice(0));
-         }
-      }
-      if (Self.FPermitted) {
-         TLccNode.On_800msTimer(Self,Sender);
-      }
-   }
-   /// function TLccCanNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 823, column: 22, file: lcc_node]
-   ,ProcessMessage$1:function(Self, SourceMessage) {
-      var Result = false;
-      var TestNodeID = {v:[0,0]};
-      Result = false;
-      if ((Self.FAliasID!=0) && SourceMessage.FCAN.FSourceAlias == Self.FAliasID) {
-         if ((SourceMessage.FCAN.FMTI$1&251658240) >= 16777216 && (SourceMessage.FCAN.FMTI$1&251658240) <= 117440512) {
-            TLccMessage.LoadRID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-            Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-            Result = true;
-         } else if (Self.FPermitted) {
-            TLccNode.Logout$(Self);
-            TLccCanNode.Relogin(Self);
-            Result = true;
-         }
-      }
-      if (Self.FPermitted) {
-         TestNodeID.v[0] = 0;
-         TestNodeID.v[1] = 0;
-         if (SourceMessage.FIsCAN) {
-            switch (SourceMessage.FCAN.FMTI$1) {
-               case 7348224 :
-                  if (SourceMessage.FDataCount == 6) {
-                     TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,0,TestNodeID);
-                     if (EqualNodeID(TestNodeID.v.slice(0),Self.FNodeID$1.slice(0),false)) {
-                        TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-                        Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-                     }
-                  } else {
-                     TLccMessage.LoadAMD(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-                     Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-                  }
-                  Result = true;
-                  break;
-               case 7352320 :
-                  TLccCanNode.InProcessMessageFlushBySourceAlias(Self,SourceMessage);
-                  break;
-               case 7344128 :
-                  /* null */
-break;
-            }
-         }
-         if (!(Result)) {
-            Result = TLccNode.ProcessMessage$1(Self,SourceMessage);
-         }
-      } else if (SourceMessage.FCAN.FSourceAlias == Self.FAliasID) {
-         Self.FDuplicateAliasDetected = true;
-      }
-      return Result
-   }
-   /// procedure TLccCanNode.Relogin()
-   ///  [line: 897, column: 23, file: lcc_node]
-   ,Relogin:function(Self) {
-      var Temp$1 = {v:[0,0]};
-      Temp$1.v = Self.FSeedNodeID.slice(0);
-      TLccCanNode.GenerateNewSeed(Self,Temp$1);
-      Self.FSeedNodeID = Temp$1.v.slice(0);
-      Self.FAliasID = TLccCanNode.GenerateID_Alias_From_Seed(Self,Temp$1);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,0);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,1);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,2);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TLccMessage.LoadCID(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,3);
-      Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-      TW3Timer.SetEnabled(Self.F_800msTimer,true);
-   }
-   /// procedure TLccCanNode.SendAMR()
-   ///  [line: 952, column: 23, file: lcc_node]
-   ,SendAMR:function(Self) {
-      if (Self.FPermitted) {
-         Self.FPermitted = false;
-         TLccMessage.LoadAMR(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
-         Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
-         $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[1](Self);
-      }
-   }
-   ,Destroy$:function($){return $.ClassType.Destroy($)}
-   ,BeforeLogin:TLccNode.BeforeLogin
-   ,Create$201$:function($){return $.ClassType.Create$201.apply($.ClassType, arguments)}
-   ,GetAlias$:function($){return $.ClassType.GetAlias($)}
-   ,GetCdiFile:TLccNode.GetCdiFile
-   ,IsDestinationEqual$:function($){return $.ClassType.IsDestinationEqual.apply($.ClassType, arguments)}
-   ,Login$:function($){return $.ClassType.Login.apply($.ClassType, arguments)}
-   ,Logout$:function($){return $.ClassType.Logout($)}
-   ,On_800msTimer$:function($){return $.ClassType.On_800msTimer.apply($.ClassType, arguments)}
-   ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
-   ,Creating$:function($){return $.ClassType.Creating($)}
 };
 /// TLccActionHub = class (TObject)
 ///  [line: 175, column: 2, file: lcc_node]
@@ -33939,7 +33515,7 @@ var TLccActionHub = {
       $.FLccActiveActions = $.FLccCompletedActions = $.FOwner$6 = $.FSendMessageFunc$2 = $.FWorkerMessage$4 = null;
    }
    /// procedure TLccActionHub.ClearCompletedActions()
-   ///  [line: 537, column: 25, file: lcc_node]
+   ///  [line: 509, column: 25, file: lcc_node]
    ,ClearCompletedActions:function(Self) {
       var i$7 = 0;
       try {
@@ -33952,8 +33528,8 @@ var TLccActionHub = {
       }
    }
    /// constructor TLccActionHub.Create(AnOwner: TLccNode; ASendMessageFunc: TOnMessageEvent)
-   ///  [line: 505, column: 27, file: lcc_node]
-   ,Create$205:function(Self, AnOwner, ASendMessageFunc) {
+   ///  [line: 477, column: 27, file: lcc_node]
+   ,Create$203:function(Self, AnOwner, ASendMessageFunc) {
       Self.FLccActiveActions = TObjectList.Create$127($New(TObjectList));
       Self.FLccCompletedActions = TObjectList.Create$127($New(TObjectList));
       Self.FWorkerMessage$4 = TLccMessage.Create$197($New(TLccMessage));
@@ -33970,18 +33546,18 @@ var TLccActionHub = {
       TObject.Free(Self.FWorkerMessage$4);
    }
    /// function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 564, column: 24, file: lcc_node]
-   ,ProcessMessage$5:function(Self, SourceMessage) {
+   ///  [line: 536, column: 24, file: lcc_node]
+   ,ProcessMessage$4:function(Self, SourceMessage) {
       var Result = false;
       var i$7 = 0;
       Result = false;
       for(i$7=TObjectList.GetCount$1(Self.FLccActiveActions)-1;i$7>=0;i$7--) {
-         Result = TLccAction.ProcessMessage$4($As(TObjectList.GetItem$14(Self.FLccActiveActions,i$7),TLccAction),SourceMessage);
+         Result = TLccAction.ProcessMessage$3($As(TObjectList.GetItem$14(Self.FLccActiveActions,i$7),TLccAction),SourceMessage);
       }
       return Result
    }
    /// function TLccActionHub.RegisterAction(ANode: TLccNode; ATargetNodeID: TNodeID; ATargetAliasID: Word; AnAction: TLccAction) : Boolean
-   ///  [line: 584, column: 24, file: lcc_node]
+   ///  [line: 556, column: 24, file: lcc_node]
    ,RegisterAction$1:function(Self, ANode, ATargetNodeID, ATargetAliasID, AnAction) {
       var Result = false;
       Result = true;
@@ -33991,12 +33567,12 @@ var TLccActionHub = {
       return Result
    }
    /// function TLccActionHub.RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction) : Boolean
-   ///  [line: 573, column: 24, file: lcc_node]
+   ///  [line: 545, column: 24, file: lcc_node]
    ,RegisterAction:function(Self, ANode, SourceMessage, AnAction) {
       var Result = false;
       TObjectList.Add$1(Self.FLccActiveActions,AnAction);
       AnAction.FNodeID$2 = ANode.FNodeID$1.slice(0);
-      AnAction.FAliasID$1 = $As(ANode,TLccCanNode).FAliasID;
+      AnAction.FAliasID$1 = ANode.FAliasID;
       AnAction.FOwner$5 = ANode;
       AnAction.FSendMessage = ANode.FSendMessageFunc$1;
       AnAction.FActionHub = Self;
@@ -34004,7 +33580,7 @@ var TLccActionHub = {
       return Result
    }
    /// procedure TLccActionHub.TimeTick()
-   ///  [line: 593, column: 25, file: lcc_node]
+   ///  [line: 565, column: 25, file: lcc_node]
    ,TimeTick$1:function(Self) {
       var i$7 = 0;
       for(i$7=TObjectList.GetCount$1(Self.FLccActiveActions)-1;i$7>=0;i$7--) {
@@ -34013,7 +33589,7 @@ var TLccActionHub = {
       TLccActionHub.ClearCompletedActions(Self);
    }
    /// procedure TLccActionHub.UnregisterActionAndMarkForFree(AnAction: TLccAction)
-   ///  [line: 602, column: 25, file: lcc_node]
+   ///  [line: 574, column: 25, file: lcc_node]
    ,UnregisterActionAndMarkForFree:function(Self, AnAction) {
       var i$7 = 0;
       i$7 = TObjectList.IndexOf$1(Self.FLccActiveActions,AnAction);
@@ -34040,7 +33616,7 @@ var TLccAction = {
       $.FTargetNodeID = [0,0];
    }
    /// function TLccAction.AdvanceToNextState(JumpCount: Integer = 1) : Integer
-   ///  [line: 401, column: 21, file: lcc_node]
+   ///  [line: 373, column: 21, file: lcc_node]
    ,AdvanceToNextState:function(Self, JumpCount) {
       var Result = 0;
       (Self.FActionStateIndex+= JumpCount);
@@ -34048,14 +33624,14 @@ var TLccAction = {
       return Result
    }
    /// procedure TLccAction.AssignTargetNode(ATargetNodeID: TNodeID; ATargetAliasID: Word)
-   ///  [line: 496, column: 22, file: lcc_node]
+   ///  [line: 468, column: 22, file: lcc_node]
    ,AssignTargetNode:function(Self, ATargetNodeID, ATargetAliasID) {
       Self.FTargetNodeID = ATargetNodeID.slice(0);
       Self.FTargetAliasID = ATargetAliasID;
    }
    /// constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word)
-   ///  [line: 389, column: 24, file: lcc_node]
-   ,Create$204:function(Self, AnOwner, ANodeID, AnAliasID) {
+   ///  [line: 361, column: 24, file: lcc_node]
+   ,Create$202:function(Self, AnOwner, ANodeID, AnAliasID) {
       ++ActionObjectsAllocated;
       Self.FOwner$5 = AnOwner;
       Self.FWorkerMessage$3 = TLccMessage.Create$197($New(TLccMessage));
@@ -34066,22 +33642,22 @@ var TLccAction = {
       return Self
    }
    /// destructor TLccAction.Destroy()
-   ///  [line: 407, column: 23, file: lcc_node]
+   ///  [line: 379, column: 23, file: lcc_node]
    ,Destroy:function(Self) {
       --ActionObjectsAllocated;
       TObject.Free(Self.FWorkerMessage$3);
       TObject.Destroy(Self);
    }
    /// procedure TLccAction.LoadStateArray()
-   ///  [line: 440, column: 22, file: lcc_node]
+   ///  [line: 412, column: 22, file: lcc_node]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,2);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
       Self.FStates[1]=$Event2(Self,TLccAction._NFinalStateCleanup);
    }
    /// function TLccAction.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 447, column: 21, file: lcc_node]
-   ,ProcessMessage$4:function(Self, SourceMessage) {
+   ///  [line: 419, column: 21, file: lcc_node]
+   ,ProcessMessage$3:function(Self, SourceMessage) {
       var Result = false;
       Result = false;
       if (Self.FActionStateIndex > -1 && Self.FActionStateIndex < Self.FStates.length) {
@@ -34090,12 +33666,12 @@ var TLccAction = {
       return Result
    }
    /// procedure TLccAction.SetStateArrayLength(NewLength: Integer)
-   ///  [line: 460, column: 22, file: lcc_node]
+   ///  [line: 432, column: 22, file: lcc_node]
    ,SetStateArrayLength:function(Self, NewLength) {
       $ArraySetLenC(Self.FStates,NewLength,function (){return null});
    }
    /// procedure TLccAction.SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True)
-   ///  [line: 469, column: 22, file: lcc_node]
+   ///  [line: 441, column: 22, file: lcc_node]
    ,SetTimoutCountThreshold:function(Self, NewThreshold_ms, ResetCounter) {
       Self.FTimeoutCountThreshold = Trunc(NewThreshold_ms / 800)+1;
       if (ResetCounter) {
@@ -34103,27 +33679,27 @@ var TLccAction = {
       }
    }
    /// function TLccAction.TimeoutExpired() : Boolean
-   ///  [line: 491, column: 21, file: lcc_node]
+   ///  [line: 463, column: 21, file: lcc_node]
    ,TimeoutExpired:function(Self) {
       return Self.FTimeoutCounts > Self.FTimeoutCountThreshold;
    }
    /// procedure TLccAction.TimeTick()
-   ///  [line: 476, column: 22, file: lcc_node]
+   ///  [line: 448, column: 22, file: lcc_node]
    ,TimeTick:function(Self) {
       if (!(Self.FIgnoreTimer)) {
          ++Self.FTimeoutCounts;
-         TLccAction.ProcessMessage$4(Self,null);
+         TLccAction.ProcessMessage$3(Self,null);
       }
    }
    /// procedure TLccAction.UnRegisterSelf()
-   ///  [line: 485, column: 22, file: lcc_node]
+   ///  [line: 457, column: 22, file: lcc_node]
    ,UnRegisterSelf:function(Self) {
       if (Self.FActionHub) {
          TLccActionHub.UnregisterActionAndMarkForFree(Self.FActionHub,Self);
       }
    }
    /// function TLccAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 424, column: 21, file: lcc_node]
+   ///  [line: 396, column: 21, file: lcc_node]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
@@ -34134,7 +33710,7 @@ var TLccAction = {
       return Result
    }
    /// function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 432, column: 21, file: lcc_node]
+   ///  [line: 404, column: 21, file: lcc_node]
    ,_NFinalStateCleanup:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
@@ -34884,7 +34460,7 @@ var TDatagramQueue = {
    }
    /// constructor TDatagramQueue.Create(ASendMessageFunc: TOnMessageEvent)
    ///  [line: 106, column: 28, file: lcc_protocol_datagram]
-   ,Create$209:function(Self, ASendMessageFunc) {
+   ,Create$207:function(Self, ASendMessageFunc) {
       TObject.Create(Self);
       Self.FSendMessageFunc$3 = ASendMessageFunc;
       Self.FQueue = TObjectList.Create$127($New(TObjectList));
@@ -35013,28 +34589,28 @@ var TListenerList = {
    }
    /// function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word = 0) : TListenerNode
    ///  [line: 550, column: 24, file: lcc_node_train]
-   ,Add$20:function(Self, NodeID$8, Flags$2, AliasID$5) {
+   ,Add$20:function(Self, NodeID$7, Flags$2, AliasID$4) {
       var Result = null;
-      AliasID$5 = AliasID$5;
+      AliasID$4 = AliasID$4;
       Result = TObject.Create($New(TListenerNode));
-      Result.FNodeID = NodeID$8.slice(0);
+      Result.FNodeID = NodeID$7.slice(0);
       TListenerNode.DecodeFlags(Result,Flags$2);
       return Result
    }
    /// constructor TListenerList.Create()
    ///  [line: 537, column: 27, file: lcc_node_train]
-   ,Create$200:function(Self) {
+   ,Create$199:function(Self) {
       TObject.Create(Self);
       Self.FListenerList = TObjectList.Create$127($New(TObjectList));
       return Self
    }
    /// function TListenerList.Delete(NodeID: TNodeID) : Boolean
    ///  [line: 558, column: 24, file: lcc_node_train]
-   ,Delete$8:function(Self, NodeID$8) {
+   ,Delete$8:function(Self, NodeID$7) {
       var Result = false;
       var Index$6 = 0;
       Result = false;
-      Index$6 = TListenerList.FindNodeIndex(Self,NodeID$8.slice(0));
+      Index$6 = TListenerList.FindNodeIndex(Self,NodeID$7.slice(0));
       if (Index$6 > 0) {
          TObjectList.Remove$1(Self.FListenerList,Index$6);
          Result = true;
@@ -35060,7 +34636,7 @@ var TListenerList = {
    }
    /// function TListenerList.FindNode(NodeID: TNodeID) : TListenerNode
    ///  [line: 585, column: 24, file: lcc_node_train]
-   ,FindNode:function(Self, NodeID$8) {
+   ,FindNode:function(Self, NodeID$7) {
       var Result = null;
       var i$7 = 0,
          ListenerNode = null;
@@ -35068,7 +34644,7 @@ var TListenerList = {
       i$7 = 0;
       while (Result === null && i$7 < TObjectList.GetCount$1(Self.FListenerList)) {
          ListenerNode = $As(TObjectList.GetItem$14(Self.FListenerList,i$7),TListenerNode);
-         if (ListenerNode.FNodeID[0] == NodeID$8[0] && ListenerNode.FNodeID[1] == NodeID$8[1]) {
+         if (ListenerNode.FNodeID[0] == NodeID$7[0] && ListenerNode.FNodeID[1] == NodeID$7[1]) {
             Result = ListenerNode;
          }
          ++i$7;
@@ -35077,7 +34653,7 @@ var TListenerList = {
    }
    /// function TListenerList.FindNodeIndex(NodeID: TNodeID) : Integer
    ///  [line: 609, column: 24, file: lcc_node_train]
-   ,FindNodeIndex:function(Self, NodeID$8) {
+   ,FindNodeIndex:function(Self, NodeID$7) {
       var Result = 0;
       var i$7 = 0,
          ListenerNode = null;
@@ -35085,7 +34661,7 @@ var TListenerList = {
       i$7 = 0;
       while (Result < 0 && i$7 < TObjectList.GetCount$1(Self.FListenerList)) {
          ListenerNode = $As(TObjectList.GetItem$14(Self.FListenerList,i$7),TListenerNode);
-         if (ListenerNode.FNodeID[0] == NodeID$8[0] && ListenerNode.FNodeID[1] == NodeID$8[1]) {
+         if (ListenerNode.FNodeID[0] == NodeID$7[0] && ListenerNode.FNodeID[1] == NodeID$7[1]) {
             Result = i$7;
          }
          ++i$7;
@@ -35102,12 +34678,12 @@ var TListenerList = {
 /// TLccTrainDirection enumeration
 ///  [line: 305, column: 3, file: lcc_node_train]
 var TLccTrainDirection = [ "tdForward", "tdReverse" ];
-/// TLccTrainCanNode = class (TLccCanNode)
+/// TLccTrainCanNode = class (TLccNode)
 ///  [line: 366, column: 3, file: lcc_node_train]
 var TLccTrainCanNode = {
-   $ClassName:"TLccTrainCanNode",$Parent:TLccCanNode
+   $ClassName:"TLccTrainCanNode",$Parent:TLccNode
    ,$Init:function ($) {
-      TLccCanNode.$Init($);
+      TLccNode.$Init($);
       $.FAttachedController = {NodeID$4:[0,0],AliasID$2:0,ReservationNodeID:[0,0],ReservationAliasID:0,AttatchNotifyNodeID:[0,0],AttachNotifyAliasID:0};
       $.FDccAddress = 0;
       $.FDccLongAddress = false;
@@ -35116,8 +34692,6 @@ var TLccTrainCanNode = {
          return r
       }();
       $.FListeners = $.FOnSendMessageComPort = null;
-      $.FName$6 = $.FRoadNumber = "";
-      $.FSearchEvent = [0,0,0,0,0,0,0,0];
       $.FSpeed = 0;
       $.FSpeedStep = 0;
    }
@@ -35176,11 +34750,11 @@ var TLccTrainCanNode = {
    ,ControllerEquals:function(Self, ATestNodeID, ATestAlias) {
       return Self.FAttachedController.NodeID$4[0] == ATestNodeID[0] && Self.FAttachedController.NodeID$4[1] == ATestNodeID[1] && ATestAlias == Self.FAttachedController.AliasID$2;
    }
-   /// constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String)
+   /// constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean)
    ///  [line: 1065, column: 30, file: lcc_node_train]
-   ,Create$201:function(Self, ASendMessageFunc, ANodeManager, CdiXML) {
-      TLccCanNode.Create$201(Self,ASendMessageFunc,ANodeManager,CdiXML);
-      Self.FListeners = TListenerList.Create$200($New(TListenerList));
+   ,Create$200:function(Self, ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink) {
+      TLccNode.Create$200(Self,ASendMessageFunc,ANodeManager,CdiXML,GridConnectLink);
+      Self.FListeners = TListenerList.Create$199($New(TListenerList));
       return Self
    }
    /// function TLccTrainCanNode.DccFunctionHandler(DccAddress: Word; LongAddress: Boolean; FunctionAddress: DWord; AllDccFunctionBitsEncoded: DWord) : TDCCPacket
@@ -35311,7 +34885,7 @@ var TLccTrainCanNode = {
    ///  [line: 1273, column: 29, file: lcc_node_train]
    ,Destroy:function(Self) {
       TObject.Free(Self.FListeners);
-      TLccCanNode.Destroy(Self);
+      TLccNode.Destroy(Self);
    }
    /// procedure TLccTrainCanNode.DoSendMessageComPort(GridConnectString: String)
    ///  [line: 1133, column: 28, file: lcc_node_train]
@@ -35375,9 +34949,9 @@ var TLccTrainCanNode = {
    ///  [line: 1352, column: 27, file: lcc_node_train]
    ,ProcessMessage$1:function(Self, SourceMessage) {
       var Result = false;
-      Result = TLccCanNode.ProcessMessage$1(Self,SourceMessage);
+      Result = TLccNode.ProcessMessage$1(Self,SourceMessage);
       if (TLccMessage.GetHasDestination(SourceMessage)) {
-         if (!(TLccNode.IsDestinationEqual$(Self,SourceMessage))) {
+         if (!(TLccNode.IsDestinationEqual(Self,SourceMessage))) {
             return Result;
          }
       }
@@ -35385,30 +34959,30 @@ var TLccTrainCanNode = {
          case 1512 :
             switch (SourceMessage.FDataArray[0]) {
                case 0 :
-                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionSetSpeedAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionSetSpeedAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                   break;
                case 1 :
-                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionSetFunctionAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionSetFunctionAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                   break;
                case 2 :
-                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionEmergencyStopAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionEmergencyStopAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                   break;
                case 16 :
-                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionQuerySpeedReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionQuerySpeedReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                   break;
                case 17 :
-                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionQueryFunctionReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                  Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionQueryFunctionReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                   break;
                case 32 :
                   switch (SourceMessage.FDataArray[1]) {
                      case 1 :
-                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionAssignControllerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionAssignControllerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                         break;
                      case 2 :
-                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionReleaseControllerAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionReleaseControllerAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                         break;
                      case 3 :
-                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionQueryControllerAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                        Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionQueryControllerAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                         break;
                   }
                   break;
@@ -35416,13 +34990,13 @@ var TLccTrainCanNode = {
                   if (TLccTrainCanNode.IsReservedBy(Self,SourceMessage)) {
                      switch (SourceMessage.FDataArray[1]) {
                         case 1 :
-                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionAttachListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionAttachListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                            break;
                         case 2 :
-                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionDetachListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionDetachListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                            break;
                         case 3 :
-                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$204($New(TLccTractionQueryListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+                           Result = TLccActionHub.RegisterAction(Self.FLccActions,Self,SourceMessage,TLccAction.Create$202($New(TLccTractionQueryListenerReplyAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
                            break;
                      }
                   }
@@ -35471,22 +35045,6 @@ break;
          TLccTrainCanNode.DoSendMessageComPort(Self,DccGridConnect);
       }
    }
-   /// procedure TLccTrainCanNode.SetName(AValue: String)
-   ///  [line: 1442, column: 28, file: lcc_node_train]
-   ,SetName$6:function(Self, AValue) {
-      if (Self.FName$6 == AValue) {
-         return;
-      }
-      Self.FName$6 = AValue;
-   }
-   /// procedure TLccTrainCanNode.SetRoadNumber(AValue: String)
-   ///  [line: 1448, column: 28, file: lcc_node_train]
-   ,SetRoadNumber:function(Self, AValue) {
-      if (Self.FRoadNumber == AValue) {
-         return;
-      }
-      Self.FRoadNumber = AValue;
-   }
    /// procedure TLccTrainCanNode.SetSpeed(AValue: THalfFloat)
    ///  [line: 1454, column: 28, file: lcc_node_train]
    ,SetSpeed:function(Self, AValue) {
@@ -35510,15 +35068,9 @@ break;
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
    ,BeforeLogin$:function($){return $.ClassType.BeforeLogin($)}
-   ,Create$201$:function($){return $.ClassType.Create$201.apply($.ClassType, arguments)}
-   ,GetAlias:TLccCanNode.GetAlias
+   ,Create$200$:function($){return $.ClassType.Create$200.apply($.ClassType, arguments)}
    ,GetCdiFile$:function($){return $.ClassType.GetCdiFile($)}
-   ,IsDestinationEqual:TLccCanNode.IsDestinationEqual
-   ,Login:TLccCanNode.Login
-   ,Logout:TLccCanNode.Logout
-   ,On_800msTimer:TLccCanNode.On_800msTimer
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
-   ,Creating:TLccCanNode.Creating
 };
 /// TLccTractionSetSpeedAction = class (TLccAction)
 ///  [line: 257, column: 4, file: lcc_node_train]
@@ -36033,12 +35585,12 @@ function Clone$TAttachedController($) {
 }
 var _28_STEP_TABLE = [0,2,18,3,19,4,20,5,21,6,22,7,23,8,24,9,25,10,26,11,27,12,28,13,29,14,30,15,15],
     _14_STEP_TABLE = [0,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-/// TLccTrainController = class (TLccCanNode)
+/// TLccTrainController = class (TLccNode)
 ///  [line: 220, column: 3, file: lcc_node_controller]
 var TLccTrainController = {
-   $ClassName:"TLccTrainController",$Parent:TLccCanNode
+   $ClassName:"TLccTrainController",$Parent:TLccNode
    ,$Init:function ($) {
-      TLccCanNode.$Init($);
+      TLccNode.$Init($);
       $.FAssignedTrain = {NodeID$6:[0,0],AliasID$3:0,RequestedSearchData$1:0,RepliedSearchData:0,SearchString:"",Listeners$1:[]};
       $.FDirection$3 = 0;
       $.FFunctionArray = function () {
@@ -36094,7 +35646,7 @@ var TLccTrainController = {
       LocalSearchData.v = 0;
       TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$2.ClassType,SearchString$1,TrackProtocolFlags,LocalSearchData);
       Self.FAssignedTrain.RequestedSearchData$1 = LocalSearchData.v;
-      LccAssignTrainAction = TLccAction.Create$204($New(TLccTractionAssignTrainAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID);
+      LccAssignTrainAction = TLccAction.Create$202($New(TLccTractionAssignTrainAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID);
       LccAssignTrainAction.FRequestedSearchData = LocalSearchData.v;
       TLccActionHub.RegisterAction(Self.FLccActions,Self,null,LccAssignTrainAction);
    }
@@ -36185,9 +35737,9 @@ var TLccTrainController = {
    ,ProcessMessage$1:function(Self, SourceMessage) {
       var Result = false;
       var AllowTakeOver = { v : false };
-      Result = TLccCanNode.ProcessMessage$1(Self,SourceMessage);
+      Result = TLccNode.ProcessMessage$1(Self,SourceMessage);
       if (TLccMessage.GetHasDestination(SourceMessage)) {
-         if (!(TLccNode.IsDestinationEqual$(Self,SourceMessage))) {
+         if (!(TLccNode.IsDestinationEqual(Self,SourceMessage))) {
             return Result;
          }
       }
@@ -36223,7 +35775,7 @@ var TLccTrainController = {
    ,QueryFunction:function(Self, Address$1) {
       var LccQueryFunctionAction = null;
       if (TLccTrainController.IsTrainAssigned(Self)) {
-         LccQueryFunctionAction = TLccAction.Create$204($New(TLccTractionQueryFunctionAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID);
+         LccQueryFunctionAction = TLccAction.Create$202($New(TLccTractionQueryFunctionAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID);
          LccQueryFunctionAction.FAddress = Address$1;
          TLccActionHub.RegisterAction$1(Self.FLccActions,Self,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,LccQueryFunctionAction);
       }
@@ -36232,7 +35784,7 @@ var TLccTrainController = {
    ///  [line: 740, column: 31, file: lcc_node_controller]
    ,ReleaseTrain:function(Self) {
       if (TLccTrainController.IsTrainAssigned(Self)) {
-         TLccActionHub.RegisterAction$1(Self.FLccActions,Self,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,TLccAction.Create$204($New(TLccTractionReleaseTrainAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
+         TLccActionHub.RegisterAction$1(Self.FLccActions,Self,Self.FAssignedTrain.NodeID$6.slice(0),Self.FAssignedTrain.AliasID$3,TLccAction.Create$202($New(TLccTractionReleaseTrainAction),Self,Self.FNodeID$1.slice(0),Self.FAliasID));
       }
    }
    /// procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection)
@@ -36272,17 +35824,11 @@ var TLccTrainController = {
          Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       }
    }
-   ,Destroy:TLccCanNode.Destroy
+   ,Destroy:TLccNode.Destroy
    ,BeforeLogin$:function($){return $.ClassType.BeforeLogin($)}
-   ,Create$201:TLccCanNode.Create$201
-   ,GetAlias:TLccCanNode.GetAlias
+   ,Create$200:TLccNode.Create$200
    ,GetCdiFile$:function($){return $.ClassType.GetCdiFile($)}
-   ,IsDestinationEqual:TLccCanNode.IsDestinationEqual
-   ,Login:TLccCanNode.Login
-   ,Logout:TLccCanNode.Logout
-   ,On_800msTimer:TLccCanNode.On_800msTimer
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
-   ,Creating:TLccCanNode.Creating
 };
 /// TLccTractionReleaseTrainAction = class (TLccAction)
 ///  [line: 129, column: 3, file: lcc_node_controller]
@@ -36678,8 +36224,8 @@ var TControllerManager = {
    }
    /// constructor TControllerManager.Create()
    ///  [line: 65, column: 32, file: LccNode]
-   ,Create$212:function(Self) {
-      Self.NodeManager$1 = TLccCanNodeManager.Create$199($New(TLccCanNodeManager),null);
+   ,Create$208:function(Self) {
+      Self.NodeManager$1 = TLccNodeManager.Create$198($New(TLccNodeManager),null,true);
       return Self
    }
    /// procedure TControllerManager.CreateController()
@@ -36710,51 +36256,51 @@ var TControllerManager = {
 function GetControllerManager() {
    var Result = null;
    if (!InternalControllerManager) {
-      InternalControllerManager = TControllerManager.Create$212($New(TControllerManager));
+      InternalControllerManager = TControllerManager.Create$208($New(TControllerManager));
    }
    Result = InternalControllerManager;
    return Result
 };
 /// TLccNodeManager = class (TObject)
-///  [line: 129, column: 3, file: lcc_node_manager]
+///  [line: 127, column: 3, file: lcc_node_manager]
 var TLccNodeManager = {
    $ClassName:"TLccNodeManager",$Parent:TObject
    ,$Init:function ($) {
       TObject.$Init($);
-      $.FAliasServer = $.FNodes = $.FOnLccCANAliasMapReset = $.FOnLccMessageReceive = $.FOnLccMessageSend = $.FOnLccNodeAliasIDChanged = $.FOnLccNodeCDI = $.FOnLccNodeConfigMemAddressSpaceInfoReply = $.FOnLccNodeConfigMemOptionsReply = $.FOnLccNodeConfigMemReadReply = $.FOnLccNodeConfigMemWriteReply = $.FOnLccNodeConsumerIdentified = $.FOnLccNodeConsumerIdentify = $.FOnLccNodeCreate = $.FOnLccNodeDatagramReply = $.FOnLccNodeDestroy = $.FOnLccNodeFDI = $.FOnLccNodeFunctionConfiguration = $.FOnLccNodeIDChanged = $.FOnLccNodeInitializationComplete = $.FOnLccNodeLogin = $.FOnLccNodeLogout = $.FOnLccNodeOptionalInteractionRejected = $.FOnLccNodeProducerIdentified = $.FOnLccNodeProducerIdentify = $.FOnLccNodeProtocolIdentifyReply = $.FOnLccNodeRemoteButtonReply = $.FOnLccNodeSimpleNodeIdentReply = $.FOnLccNodeSimpleTrainNodeIdentReply = $.FOnLccNodeTractionControllerConfig = $.FOnLccNodeTractionEmergencyStop = $.FOnLccNodeTractionFunctionSet = $.FOnLccNodeTractionListenerConfig = $.FOnLccNodeTractionManage = $.FOnLccNodeTractionQueryFunction = $.FOnLccNodeTractionQuerySpeed = $.FOnLccNodeTractionSpeedSet = $.FOnLccNodeVerifiedNodeID = $.FWorkerMessage$1 = null;
-      $.FAliasServerEnabled = false;
+      $.FGridConnect = false;
+      $.FNodes = $.FOnLccCANAliasMapReset = $.FOnLccMessageReceive = $.FOnLccMessageSend = $.FOnLccNodeAliasIDChanged = $.FOnLccNodeCDI = $.FOnLccNodeConfigMemAddressSpaceInfoReply = $.FOnLccNodeConfigMemOptionsReply = $.FOnLccNodeConfigMemReadReply = $.FOnLccNodeConfigMemWriteReply = $.FOnLccNodeConsumerIdentified = $.FOnLccNodeConsumerIdentify = $.FOnLccNodeCreate = $.FOnLccNodeDatagramReply = $.FOnLccNodeDestroy = $.FOnLccNodeFDI = $.FOnLccNodeFunctionConfiguration = $.FOnLccNodeIDChanged = $.FOnLccNodeInitializationComplete = $.FOnLccNodeLogin = $.FOnLccNodeLogout = $.FOnLccNodeOptionalInteractionRejected = $.FOnLccNodeProducerIdentified = $.FOnLccNodeProducerIdentify = $.FOnLccNodeProtocolIdentifyReply = $.FOnLccNodeRemoteButtonReply = $.FOnLccNodeSimpleNodeIdentReply = $.FOnLccNodeSimpleTrainNodeIdentReply = $.FOnLccNodeTractionControllerConfig = $.FOnLccNodeTractionEmergencyStop = $.FOnLccNodeTractionFunctionSet = $.FOnLccNodeTractionListenerConfig = $.FOnLccNodeTractionManage = $.FOnLccNodeTractionQueryFunction = $.FOnLccNodeTractionQuerySpeed = $.FOnLccNodeTractionSpeedSet = $.FOnLccNodeVerifiedNodeID = $.FWorkerMessage$1 = null;
       $.HardwareConnectionLinkArray = [null,null,null,null,null,null,null,null,null,null,null];
       $.HardwareConnectionLinkCount = 0;
    }
    /// function TLccNodeManager.AddNode(CdiXML: String; AutoLogin: Boolean) : TLccNode
-   ///  [line: 645, column: 26, file: lcc_node_manager]
+   ///  [line: 580, column: 26, file: lcc_node_manager]
    ,AddNode:function(Self, CdiXML, AutoLogin) {
       var Result = null;
-      Result = TLccNode.Create$201$($New(TLccNode),$Event2(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML);
+      Result = TLccNode.Create$200$($New(TLccNode),$Event2(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML,Self.FGridConnect);
       TObjectList.Add$1(Self.FNodes,Result);
       TLccNodeManager.DoCreateLccNode(Self,Result);
       if (AutoLogin) {
-         TLccNode.Login$(Result,NULL_NODE_ID.slice(0));
+         TLccNode.Login(Result,NULL_NODE_ID.slice(0));
       }
       return Result
    }
    /// function TLccNodeManager.AddNodeByClass(CdiXML: String; NodeClass: TLccNodeClass; AutoLogin: Boolean) : TLccNode
-   ///  [line: 654, column: 26, file: lcc_node_manager]
+   ///  [line: 589, column: 26, file: lcc_node_manager]
    ,AddNodeByClass:function(Self, CdiXML, NodeClass, AutoLogin) {
       var Result = null;
       Result = null;
       if (NodeClass) {
-         Result = TLccNode.Create$201$($NewDyn(NodeClass,""),$Event2(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML);
+         Result = TLccNode.Create$200$($NewDyn(NodeClass,""),$Event2(Self,TLccNodeManager.LccMessageSendCallback),Self,CdiXML,Self.FGridConnect);
          TObjectList.Add$1(Self.FNodes,Result);
          TLccNodeManager.DoCreateLccNode(Self,Result);
          if (AutoLogin) {
-            TLccNode.Login$(Result,NULL_NODE_ID.slice(0));
+            TLccNode.Login(Result,NULL_NODE_ID.slice(0));
          }
       }
       return Result
    }
    /// procedure TLccNodeManager.Clear()
-   ///  [line: 678, column: 27, file: lcc_node_manager]
+   ///  [line: 611, column: 27, file: lcc_node_manager]
    ,Clear$30:function(Self) {
       var i$7 = 0;
       try {
@@ -36767,279 +36313,278 @@ var TLccNodeManager = {
          TObjectList.Clear$8(Self.FNodes);
       }
    }
-   /// constructor TLccNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 625, column: 29, file: lcc_node_manager]
-   ,Create$198:function(Self, AnOwner) {
+   /// constructor TLccNodeManager.Create(AnOwner: TComponent; GridConnectLink: Boolean)
+   ///  [line: 562, column: 29, file: lcc_node_manager]
+   ,Create$198:function(Self, AnOwner, GridConnectLink) {
       TObject.Create(Self);
       Self.FNodes = TObjectList.Create$127($New(TObjectList));
-      Self.FAliasServer = TLccAliasServer.Create$210($New(TLccAliasServer));
+      Self.FGridConnect = GridConnectLink;
       Self.FWorkerMessage$1 = TLccMessage.Create$197($New(TLccMessage));
       return Self
    }
    /// destructor TLccNodeManager.Destroy()
-   ///  [line: 668, column: 28, file: lcc_node_manager]
+   ///  [line: 602, column: 28, file: lcc_node_manager]
    ,Destroy:function(Self) {
       TLccNodeManager.LogoutAll(Self);
       TLccNodeManager.Clear$30(Self);
       TObject.Free(Self.FNodes);
-      FreeAndNil(Self.FAliasServer);
       FreeAndNil(Self.FWorkerMessage$1);
       TObject.Destroy(Self);
    }
    /// procedure TLccNodeManager.DoAliasIDChanged(LccNode: TLccNode)
-   ///  [line: 382, column: 27, file: lcc_node_manager]
+   ///  [line: 319, column: 27, file: lcc_node_manager]
    ,DoAliasIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeAliasIDChanged) {
          Self.FOnLccNodeAliasIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCANAliasMapReset(LccNode: TLccNode)
-   ///  [line: 388, column: 27, file: lcc_node_manager]
+   ///  [line: 325, column: 27, file: lcc_node_manager]
    ,DoCANAliasMapReset:function(Self, LccNode) {
       if (Self.FOnLccCANAliasMapReset) {
          Self.FOnLccCANAliasMapReset(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoCDIRead(LccNode: TLccNode)
-   ///  [line: 394, column: 27, file: lcc_node_manager]
+   ///  [line: 331, column: 27, file: lcc_node_manager]
    ,DoCDIRead:function(Self, LccNode) {
       if (Self.FOnLccNodeCDI) {
          Self.FOnLccNodeCDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemAddressSpaceInfoReply(LccNode: TLccNode; AddressSpace: Byte)
-   ///  [line: 400, column: 27, file: lcc_node_manager]
+   ///  [line: 337, column: 27, file: lcc_node_manager]
    ,DoConfigMemAddressSpaceInfoReply:function(Self, LccNode, AddressSpace$2) {
       if (Self.FOnLccNodeConfigMemAddressSpaceInfoReply) {
          Self.FOnLccNodeConfigMemAddressSpaceInfoReply(Self,LccNode,AddressSpace$2);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemOptionsReply(LccNode: TLccNode)
-   ///  [line: 407, column: 27, file: lcc_node_manager]
+   ///  [line: 344, column: 27, file: lcc_node_manager]
    ,DoConfigMemOptionsReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemOptionsReply) {
          Self.FOnLccNodeConfigMemOptionsReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemReadReply(LccNode: TLccNode)
-   ///  [line: 413, column: 27, file: lcc_node_manager]
+   ///  [line: 350, column: 27, file: lcc_node_manager]
    ,DoConfigMemReadReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemReadReply) {
          Self.FOnLccNodeConfigMemReadReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConfigMemWriteReply(LccNode: TLccNode)
-   ///  [line: 419, column: 27, file: lcc_node_manager]
+   ///  [line: 356, column: 27, file: lcc_node_manager]
    ,DoConfigMemWriteReply:function(Self, LccNode) {
       if (Self.FOnLccNodeConfigMemWriteReply) {
          Self.FOnLccNodeConfigMemWriteReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 431, column: 27, file: lcc_node_manager]
+   ///  [line: 368, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeConsumerIdentified) {
          Self.FOnLccNodeConsumerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoConsumerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 438, column: 27, file: lcc_node_manager]
+   ///  [line: 375, column: 27, file: lcc_node_manager]
    ,DoConsumerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeConsumerIdentify) {
          Self.FOnLccNodeConsumerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoCreateLccNode(LccNode: TLccNode)
-   ///  [line: 425, column: 27, file: lcc_node_manager]
+   ///  [line: 362, column: 27, file: lcc_node_manager]
    ,DoCreateLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeCreate) {
          Self.FOnLccNodeCreate(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDatagramReply(LccNode: TLccNode)
-   ///  [line: 445, column: 27, file: lcc_node_manager]
+   ///  [line: 382, column: 27, file: lcc_node_manager]
    ,DoDatagramReply:function(Self, LccNode) {
       if (Self.FOnLccNodeDatagramReply) {
          Self.FOnLccNodeDatagramReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoDestroyLccNode(LccNode: TLccNode)
-   ///  [line: 451, column: 27, file: lcc_node_manager]
+   ///  [line: 388, column: 27, file: lcc_node_manager]
    ,DoDestroyLccNode:function(Self, LccNode) {
       if (Self.FOnLccNodeDestroy) {
          Self.FOnLccNodeDestroy(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFDI(LccNode: TLccNode)
-   ///  [line: 457, column: 27, file: lcc_node_manager]
+   ///  [line: 394, column: 27, file: lcc_node_manager]
    ,DoFDI:function(Self, LccNode) {
       if (Self.FOnLccNodeFDI) {
          Self.FOnLccNodeFDI(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoFunctionConfiguration(LccNode: TLccNode)
-   ///  [line: 463, column: 27, file: lcc_node_manager]
+   ///  [line: 400, column: 27, file: lcc_node_manager]
    ,DoFunctionConfiguration:function(Self, LccNode) {
       if (Self.FOnLccNodeFunctionConfiguration) {
          Self.FOnLccNodeFunctionConfiguration(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoInitializationComplete(LccNode: TLccNode)
-   ///  [line: 469, column: 27, file: lcc_node_manager]
+   ///  [line: 406, column: 27, file: lcc_node_manager]
    ,DoInitializationComplete:function(Self, LccNode) {
       if (Self.FOnLccNodeInitializationComplete) {
          Self.FOnLccNodeInitializationComplete(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageReceive(Message: TLccMessage)
-   ///  [line: 475, column: 27, file: lcc_node_manager]
+   ///  [line: 412, column: 27, file: lcc_node_manager]
    ,DoLccMessageReceive:function(Self, Message$2) {
       if (Self.FOnLccMessageReceive) {
          Self.FOnLccMessageReceive(Self,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoLccMessageSend(Sender: TObject; Message: TLccMessage)
-   ///  [line: 481, column: 27, file: lcc_node_manager]
+   ///  [line: 418, column: 27, file: lcc_node_manager]
    ,DoLccMessageSend:function(Self, Sender, Message$2) {
       if (Self.FOnLccMessageSend) {
          Self.FOnLccMessageSend(Sender,Message$2);
       }
    }
    /// procedure TLccNodeManager.DoLogInNode(LccNode: TLccNode)
-   ///  [line: 487, column: 27, file: lcc_node_manager]
+   ///  [line: 424, column: 27, file: lcc_node_manager]
    ,DoLogInNode:function(Self, LccNode) {
       if (Self.FOnLccNodeLogin) {
          Self.FOnLccNodeLogin(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoLogOutNode(LccNode: TLccNode)
-   ///  [line: 493, column: 27, file: lcc_node_manager]
+   ///  [line: 430, column: 27, file: lcc_node_manager]
    ,DoLogOutNode:function(Self, LccNode) {
       if (Self.FOnLccNodeLogout) {
          Self.FOnLccNodeLogout(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoNodeIDChanged(LccNode: TLccNode)
-   ///  [line: 499, column: 27, file: lcc_node_manager]
+   ///  [line: 436, column: 27, file: lcc_node_manager]
    ,DoNodeIDChanged:function(Self, LccNode) {
       if (Self.FOnLccNodeIDChanged) {
          Self.FOnLccNodeIDChanged(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoOptionalInteractionRejected(LccNode: TLccNode)
-   ///  [line: 505, column: 27, file: lcc_node_manager]
+   ///  [line: 442, column: 27, file: lcc_node_manager]
    ,DoOptionalInteractionRejected:function(Self, LccNode) {
       if (Self.FOnLccNodeOptionalInteractionRejected) {
          Self.FOnLccNodeOptionalInteractionRejected(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentified(LccNode: TLccNode; LccMessage: TLccMessage; var Event: TEventID; State: TEventState)
-   ///  [line: 511, column: 27, file: lcc_node_manager]
+   ///  [line: 448, column: 27, file: lcc_node_manager]
    ,DoProducerIdentified:function(Self, LccNode, LccMessage, Event$3, State$2) {
       if (Self.FOnLccNodeProducerIdentified) {
          Self.FOnLccNodeProducerIdentified(Self,LccNode,LccMessage,Event$3,State$2);
       }
    }
    /// procedure TLccNodeManager.DoProducerIdentify(LccNode: TLccNode; LccMessage: TLccMessage; var DoDefault: Boolean)
-   ///  [line: 518, column: 27, file: lcc_node_manager]
+   ///  [line: 455, column: 27, file: lcc_node_manager]
    ,DoProducerIdentify:function(Self, LccNode, LccMessage, DoDefault) {
       if (Self.FOnLccNodeProducerIdentify) {
          Self.FOnLccNodeProducerIdentify(Self,LccNode,LccMessage,DoDefault);
       }
    }
    /// procedure TLccNodeManager.DoProtocolIdentifyReply(LccNode: TLccNode)
-   ///  [line: 525, column: 27, file: lcc_node_manager]
+   ///  [line: 462, column: 27, file: lcc_node_manager]
    ,DoProtocolIdentifyReply:function(Self, LccNode) {
       if (Self.FOnLccNodeProtocolIdentifyReply) {
          Self.FOnLccNodeProtocolIdentifyReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoRemoteButtonReply(LccNode: TLccNode)
-   ///  [line: 531, column: 27, file: lcc_node_manager]
+   ///  [line: 468, column: 27, file: lcc_node_manager]
    ,DoRemoteButtonReply:function(Self, LccNode) {
       if (Self.FOnLccNodeRemoteButtonReply) {
          Self.FOnLccNodeRemoteButtonReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 537, column: 27, file: lcc_node_manager]
+   ///  [line: 474, column: 27, file: lcc_node_manager]
    ,DoSimpleNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleNodeIdentReply) {
          Self.FOnLccNodeSimpleNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoSimpleTrainNodeIdentReply(LccNode: TLccNode)
-   ///  [line: 543, column: 27, file: lcc_node_manager]
+   ///  [line: 480, column: 27, file: lcc_node_manager]
    ,DoSimpleTrainNodeIdentReply:function(Self, LccNode) {
       if (Self.FOnLccNodeSimpleTrainNodeIdentReply) {
          Self.FOnLccNodeSimpleTrainNodeIdentReply(Self,LccNode);
       }
    }
    /// procedure TLccNodeManager.DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 570, column: 27, file: lcc_node_manager]
+   ///  [line: 507, column: 27, file: lcc_node_manager]
    ,DoTractionControllerConfig:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionControllerConfig) {
          Self.FOnLccNodeTractionControllerConfig(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionEmergencyStop(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 577, column: 27, file: lcc_node_manager]
+   ///  [line: 514, column: 27, file: lcc_node_manager]
    ,DoTractionEmergencyStop:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionEmergencyStop) {
          Self.FOnLccNodeTractionEmergencyStop(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionFunctionSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 584, column: 27, file: lcc_node_manager]
+   ///  [line: 521, column: 27, file: lcc_node_manager]
    ,DoTractionFunctionSet:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionFunctionSet) {
          Self.FOnLccNodeTractionFunctionSet(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionListenerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 591, column: 27, file: lcc_node_manager]
+   ///  [line: 528, column: 27, file: lcc_node_manager]
    ,DoTractionListenerConfig:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionListenerConfig) {
          Self.FOnLccNodeTractionListenerConfig(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 598, column: 27, file: lcc_node_manager]
+   ///  [line: 535, column: 27, file: lcc_node_manager]
    ,DoTractionManage:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionManage) {
          Self.FOnLccNodeTractionManage(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 563, column: 27, file: lcc_node_manager]
+   ///  [line: 500, column: 27, file: lcc_node_manager]
    ,DoTractionQueryFunction:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQueryFunction) {
          Self.FOnLccNodeTractionQueryFunction(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 549, column: 27, file: lcc_node_manager]
+   ///  [line: 486, column: 27, file: lcc_node_manager]
    ,DoTractionQuerySpeed:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionQuerySpeed) {
          Self.FOnLccNodeTractionQuerySpeed(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoTractionSpeedSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean)
-   ///  [line: 556, column: 27, file: lcc_node_manager]
+   ///  [line: 493, column: 27, file: lcc_node_manager]
    ,DoTractionSpeedSet:function(Self, LccNode, LccMessage, IsReply) {
       if (Self.FOnLccNodeTractionSpeedSet) {
          Self.FOnLccNodeTractionSpeedSet(Self,LccNode,LccMessage,IsReply);
       }
    }
    /// procedure TLccNodeManager.DoVerifiedNodeID(LccNode: TLccNode)
-   ///  [line: 605, column: 27, file: lcc_node_manager]
+   ///  [line: 542, column: 27, file: lcc_node_manager]
    ,DoVerifiedNodeID:function(Self, LccNode) {
       if (Self.FOnLccNodeVerifiedNodeID) {
          Self.FOnLccNodeVerifiedNodeID(Self,LccNode);
       }
    }
    /// function TLccNodeManager.ExtractNode(Index: Integer) : TLccNode
-   ///  [line: 611, column: 26, file: lcc_node_manager]
+   ///  [line: 548, column: 26, file: lcc_node_manager]
    ,ExtractNode:function(Self, Index$6) {
       var Result = null;
       Result = null;
@@ -37049,26 +36594,8 @@ var TLccNodeManager = {
       }
       return Result
    }
-   /// function TLccNodeManager.FindPermittedCanNode() : TLccCanNode
-   ///  [line: 691, column: 26, file: lcc_node_manager]
-   ,FindPermittedCanNode:function(Self) {
-      var Result = null;
-      var i$7 = 0;
-      Result = null;
-      i$7 = 0;
-      while (i$7 < TObjectList.GetCount$1(Self.FNodes)) {
-         if ($Is(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode)) {
-            if ($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode).FPermitted) {
-               Result = $As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccCanNode);
-               break;
-            }
-            ++i$7;
-         }
-      }
-      return Result
-   }
    /// function TLccNodeManager.GetNode(Index: Integer) : TLccNode
-   ///  [line: 743, column: 26, file: lcc_node_manager]
+   ///  [line: 624, column: 26, file: lcc_node_manager]
    ,GetNode:function(Self, Index$6) {
       var Result = null;
       if (Index$6 < TObjectList.GetCount$1(Self.FNodes)) {
@@ -37079,26 +36606,26 @@ var TLccNodeManager = {
       return Result
    }
    /// function TLccNodeManager.GetNodeCount() : Integer
-   ///  [line: 751, column: 26, file: lcc_node_manager]
+   ///  [line: 632, column: 26, file: lcc_node_manager]
    ,GetNodeCount:function(Self) {
       return TObjectList.GetCount$1(Self.FNodes);
    }
    /// procedure TLccNodeManager.LccMessageSendCallback(Sender: TObject; LccMessage: TLccMessage)
-   ///  [line: 897, column: 27, file: lcc_node_manager]
+   ///  [line: 714, column: 27, file: lcc_node_manager]
    ,LccMessageSendCallback:function(Self, Sender, LccMessage) {
       TLccNodeManager.SendMessage(Self,Sender,LccMessage);
    }
    /// procedure TLccNodeManager.LogoutAll()
-   ///  [line: 756, column: 27, file: lcc_node_manager]
+   ///  [line: 637, column: 27, file: lcc_node_manager]
    ,LogoutAll:function(Self) {
       var i$7 = 0;
       var $temp172;
       for(i$7=0,$temp172=TObjectList.GetCount$1(Self.FNodes);i$7<$temp172;i$7++) {
-         TLccNode.Logout$($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccNode));
+         TLccNode.Logout($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccNode));
       }
    }
    /// procedure TLccNodeManager.ProcessMessage(LccMessage: TLccMessage)
-   ///  [line: 781, column: 27, file: lcc_node_manager]
+   ///  [line: 662, column: 27, file: lcc_node_manager]
    ,ProcessMessage:function(Self, LccMessage) {
       var i$7 = 0;
       TLccNodeManager.DoLccMessageReceive(Self,LccMessage);
@@ -37107,59 +36634,10 @@ var TLccNodeManager = {
          TLccNode.ProcessMessage$1$($As(TObjectList.GetItem$14(Self.FNodes,i$7),TLccNode),LccMessage);
       }
    }
-   /// function TLccNodeManager.SendGlobalAliasMappingEnquiry() : Boolean
-   ///  [line: 712, column: 26, file: lcc_node_manager]
-   ,SendGlobalAliasMappingEnquiry:function(Self) {
-      var Result = false;
-      var CanNode$1 = null;
-      if (Self.FAliasServerEnabled) {
-         CanNode$1 = TLccNodeManager.FindPermittedCanNode(Self);
-         if (CanNode$1) {
-            TLccMessage.LoadAME(Self.FWorkerMessage$1,CanNode$1.FNodeID$1.slice(0),CanNode$1.FAliasID,NULL_NODE_ID.slice(0));
-            CanNode$1.FSendMessageFunc$1(CanNode$1,Self.FWorkerMessage$1);
-            Result = true;
-         }
-      }
-      return Result
-   }
    /// procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage)
-   ///  [line: 790, column: 27, file: lcc_node_manager]
+   ///  [line: 671, column: 27, file: lcc_node_manager]
    ,SendMessage:function(Self, Sender, LccMessage) {
-      var i$7 = 0,
-         MapIndex = { v : 0 },
-         Map = null,
-         WorkerCanNode = null;
-      MapIndex.v = -1;
-      if (LccMessage.FIsCAN) {
-         if ((LccMessage.FCAN.FMTI$1&251658240) < 150994944) {
-            switch (LccMessage.FCAN.FMTI$1) {
-               case 7352320 :
-                  TLccAliasServer.RemoveMapping(Self.FAliasServer,LccMessage.FCAN.FSourceAlias);
-                  break;
-               case 7344128 :
-                  TLccAliasServer.AddMapping(Self.FAliasServer,LccMessage.FSourceID.slice(0),LccMessage.FCAN.FSourceAlias);
-                  break;
-            }
-         } else {
-            if (TLccMessage.GetHasDestination(LccMessage)) {
-               /* null */
-            }
-         }
-      } else {
-         if (TLccMessage.GetHasDestination(LccMessage)) {
-            Map = TLccAliasServer.FindInAliasSortedMap(Self.FAliasServer,LccMessage.FCAN.FSourceAlias,MapIndex);
-            if (!Map) {
-               TLccNodeManager.SendGlobalAliasMappingEnquiry(Self);
-            }
-            Map = TLccAliasServer.FindInAliasSortedMap(Self.FAliasServer,LccMessage.FCAN.FDestAlias,MapIndex);
-            if (!Map) {
-               WorkerCanNode = TLccNodeManager.FindPermittedCanNode(Self);
-               if (WorkerCanNode) {
-                  TLccNodeManager.SendGlobalAliasMappingEnquiry(Self);
-               }
-            }
-         }
-      }
+      var i$7 = 0;
       var $temp174;
       for(i$7=0,$temp174=Self.HardwareConnectionLinkCount;i$7<$temp174;i$7++) {
          Self.HardwareConnectionLinkArray[i$7][0](LccMessage);
@@ -37177,459 +36655,11 @@ var TLccNodeManager = {
       TLccNodeManager.DoLccMessageSend(Self,Sender,LccMessage);
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
-   ,DoLogInNode$:function($){return $.ClassType.DoLogInNode.apply($.ClassType, arguments)}
-   ,DoLogOutNode$:function($){return $.ClassType.DoLogOutNode.apply($.ClassType, arguments)}
 };
 TLccNodeManager.$Intf={
    INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
    ,INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
 }
-/// TLccCanNodeManager = class (TLccNodeManager)
-///  [line: 325, column: 3, file: lcc_node_manager]
-var TLccCanNodeManager = {
-   $ClassName:"TLccCanNodeManager",$Parent:TLccNodeManager
-   ,$Init:function ($) {
-      TLccNodeManager.$Init($);
-   }
-   /// constructor TLccCanNodeManager.Create(AnOwner: TComponent)
-   ///  [line: 350, column: 32, file: lcc_node_manager]
-   ,Create$199:function(Self, AnOwner) {
-      TLccNodeManager.Create$198(Self,AnOwner);
-      return Self
-   }
-   /// destructor TLccCanNodeManager.Destroy()
-   ///  [line: 355, column: 31, file: lcc_node_manager]
-   ,Destroy:function(Self) {
-      TLccNodeManager.Destroy(Self);
-   }
-   /// procedure TLccCanNodeManager.DoLogInNode(LccNode: TLccNode)
-   ///  [line: 368, column: 30, file: lcc_node_manager]
-   ,DoLogInNode:function(Self, LccNode) {
-      TLccNodeManager.DoLogInNode(Self,LccNode);
-      TLccAliasServer.AddMapping(Self.FAliasServer,LccNode.FNodeID$1.slice(0),$As(LccNode,TLccCanNode).FAliasID);
-   }
-   /// procedure TLccCanNodeManager.DoLogOutNode(LccNode: TLccNode)
-   ///  [line: 374, column: 30, file: lcc_node_manager]
-   ,DoLogOutNode:function(Self, LccNode) {
-      TLccNodeManager.DoLogOutNode(Self,LccNode);
-      TLccAliasServer.RemoveMapping(Self.FAliasServer,$As(LccNode,TLccCanNode).FAliasID);
-   }
-   ,Destroy$:function($){return $.ClassType.Destroy($)}
-   ,DoLogInNode$:function($){return $.ClassType.DoLogInNode.apply($.ClassType, arguments)}
-   ,DoLogOutNode$:function($){return $.ClassType.DoLogOutNode.apply($.ClassType, arguments)}
-};
-TLccCanNodeManager.$Intf={
-   INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccCanNodeManager.DoLogInNode,TLccCanNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
-   ,INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
-}
-/// TLccCommandStationNode = class (TLccCanNode)
-///  [line: 80, column: 3, file: lcc_node_commandstation]
-var TLccCommandStationNode = {
-   $ClassName:"TLccCommandStationNode",$Parent:TLccCanNode
-   ,$Init:function ($) {
-      TLccCanNode.$Init($);
-   }
-   /// function TLccCommandStationNode.AddTrain(ARoadName: String; ARoadNumber: String; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep) : TLccTrainCanNode
-   ///  [line: 105, column: 33, file: lcc_node_commandstation]
-   ,AddTrain:function(Self, ARoadName, ARoadNumber, ADccAddress, ALongAddress, ASpeedStep) {
-      var Result = null;
-      Result = $As($AsIntf(Self.FNodeManager,"INodeManager")[2]("",TLccTrainCanNode,false),TLccTrainCanNode);
-      if (Result) {
-         TLccTrainCanNode.SetName$6(Result,ARoadName);
-         TLccTrainCanNode.SetRoadNumber(Result,ARoadNumber);
-         TLccTrainCanNode.SetDccAddress(Result,ADccAddress);
-         TLccTrainCanNode.SetDccLongAddress(Result,ALongAddress);
-         TLccTrainCanNode.SetSpeedStep(Result,ASpeedStep);
-      }
-      return Result
-   }
-   /// procedure TLccCommandStationNode.BeforeLogin()
-   ///  [line: 120, column: 34, file: lcc_node_commandstation]
-   ,BeforeLogin:function(Self) {
-      Self.FProtocolSupportedProtocols.FConfigurationDefinitionInfo = true;
-      Self.FProtocolSupportedProtocols.FDatagram = true;
-      Self.FProtocolSupportedProtocols.FEventExchange = true;
-      Self.FProtocolSupportedProtocols.FSimpleNodeInfo = true;
-      Self.FProtocolSupportedProtocols.FTractionControl = true;
-      TProtocolEvents.Add$22(Self.FProtocolEventConsumed,EVENT_EMERGENCY_STOP.slice(0),2);
-      TProtocolMemoryInfo.Add$21(Self.FProtocolMemoryInfo,255,true,true,true,0,4294967295);
-      TProtocolMemoryInfo.Add$21(Self.FProtocolMemoryInfo,254,true,true,true,0,4294967295);
-      TProtocolMemoryInfo.Add$21(Self.FProtocolMemoryInfo,253,true,false,true,0,4294967295);
-      TProtocolMemoryInfo.Add$21(Self.FProtocolMemoryInfo,252,true,true,true,0,4294967295);
-      TProtocolMemoryInfo.Add$21(Self.FProtocolMemoryInfo,251,true,false,true,0,4294967295);
-      Self.FProtocolMemoryOptions.FWriteUnderMask = true;
-      Self.FProtocolMemoryOptions.FUnAlignedReads = true;
-      Self.FProtocolMemoryOptions.FUnAlignedWrites = true;
-      Self.FProtocolMemoryOptions.FSupportACDIMfgRead = true;
-      Self.FProtocolMemoryOptions.FSupportACDIUserRead = true;
-      Self.FProtocolMemoryOptions.FSupportACDIUserWrite = true;
-      Self.FProtocolMemoryOptions.FWriteLenOneByte = true;
-      Self.FProtocolMemoryOptions.FWriteLenTwoBytes = true;
-      Self.FProtocolMemoryOptions.FWriteLenFourBytes = true;
-      Self.FProtocolMemoryOptions.FWriteLenSixyFourBytes = true;
-      Self.FProtocolMemoryOptions.FWriteArbitraryBytes = true;
-      Self.FProtocolMemoryOptions.FWriteStream = false;
-      Self.FProtocolMemoryOptions.FHighSpace = 255;
-      Self.FProtocolMemoryOptions.FLowSpace = 249;
-   }
-   /// procedure TLccCommandStationNode.Creating()
-   ///  [line: 169, column: 34, file: lcc_node_commandstation]
-   ,Creating:function(Self) {
-      TLccCanNode.Creating(Self);
-   }
-   /// destructor TLccCommandStationNode.Destroy()
-   ///  [line: 174, column: 35, file: lcc_node_commandstation]
-   ,Destroy:function(Self) {
-      TLccCanNode.Destroy(Self);
-   }
-   /// function TLccCommandStationNode.FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean) : TLccTrainCanNode
-   ///  [line: 179, column: 33, file: lcc_node_commandstation]
-   ,FindTrainByDccAddress:function(Self, DccAddress$1, IsLongAddress) {
-      var Result = null;
-      var i$7 = 0,
-         LocalNodeManager = null,
-         TempTrain = null;
-      Result = null;
-      LocalNodeManager = $AsIntf(Self.FNodeManager,"INodeManager");
-      var $temp176;
-      for(i$7=0,$temp176=LocalNodeManager[5]();i$7<$temp176;i$7++) {
-         if ($Is(LocalNodeManager[4](i$7),TLccTrainCanNode)) {
-            TempTrain = $As(LocalNodeManager[4](i$7),TLccTrainCanNode);
-            if (DccAddress$1 == TempTrain.FDccAddress && IsLongAddress == TempTrain.FDccLongAddress) {
-               Result = TempTrain;
-               break;
-            }
-         }
-      }
-      return Result
-   }
-   /// function TLccCommandStationNode.FindTrainByLccNodeID(ANodeID: TNodeID) : TLccTrainCanNode
-   ///  [line: 201, column: 33, file: lcc_node_commandstation]
-   ,FindTrainByLccNodeID:function(Self, ANodeID) {
-      var Result = null;
-      var i$7 = 0,
-         LocalNodeManager = null,
-         LocalTrainNode = null;
-      Result = null;
-      LocalNodeManager = $AsIntf(Self.FNodeManager,"INodeManager");
-      var $temp177;
-      for(i$7=0,$temp177=LocalNodeManager[5]();i$7<$temp177;i$7++) {
-         if ($Is(LocalNodeManager[4](i$7),TLccTrainCanNode)) {
-            LocalTrainNode = $As(LocalNodeManager[4](i$7),TLccTrainCanNode);
-            if (EqualNodeID(ANodeID.slice(0),LocalTrainNode.FNodeID$1.slice(0),false)) {
-               Result = LocalTrainNode;
-               break;
-            }
-         }
-      }
-      return Result
-   }
-   /// function TLccCommandStationNode.GetCdiFile() : String
-   ///  [line: 223, column: 33, file: lcc_node_commandstation]
-   ,GetCdiFile:function(Self) {
-      return "<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>CSN1000<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>";
-   }
-   /// function TLccCommandStationNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 228, column: 33, file: lcc_node_commandstation]
-   ,ProcessMessage$1:function(Self, SourceMessage) {
-      var Result = false;
-      var NMRA_SpeedStep = { v : 0 },
-         SearchStr = "",
-         SearchDccAddress = 0,
-         ForceAllocate = false,
-         ExactMatchOnly = false,
-         MatchAddressOnly = false,
-         LongAddressOnly = { v : false },
-         IsDCC = false,
-         ATrain = null,
-         ReturnEvent = {v:[0,0,0,0,0,0,0,0]},
-         TrackProtocolFlags = 0,
-         SearchData$1 = { v : 0 };
-      Result = TLccCanNode.ProcessMessage$1(Self,SourceMessage);
-      SearchData$1.v = 0;
-      if (TLccMessage.GetHasDestination(SourceMessage)) {
-         if (!(TLccNode.IsDestinationEqual$(Self,SourceMessage))) {
-            return Result;
-         }
-      }
-      switch (SourceMessage.FMTI) {
-         case 256 :
-            ATrain = TLccCommandStationNode.FindTrainByLccNodeID(Self,SourceMessage.FSourceID.slice(0));
-            if (ATrain) {
-               ReturnEvent.v = ATrain.FSearchEvent.slice(0);
-               TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
-               Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$2);
-            }
-            break;
-         case 2324 :
-            if (TLccMessage.TractionSearchIsEvent(SourceMessage)) {
-               SearchStr = TLccMessage.TractionSearchDecodeSearchString(SourceMessage);
-               if (SearchStr != "") {
-                  SearchDccAddress = parseInt(SearchStr,10);
-                  LongAddressOnly.v = false;
-                  NMRA_SpeedStep.v = 1;
-                  if (TLccMessage.TractionSearchIsProtocolAny(SourceMessage)) {
-                     NMRA_SpeedStep.v = 1;
-                     LongAddressOnly.v = false;
-                     IsDCC = true;
-                  } else if (TLccMessage.TractionSearchIsProtocolDCC(SourceMessage,LongAddressOnly,NMRA_SpeedStep)) {
-                     if (!NMRA_SpeedStep.v) {
-                        NMRA_SpeedStep.v = 1;
-                     }
-                     IsDCC = true;
-                  } else {
-                     IsDCC = false;
-                  }
-                  if (IsDCC) {
-                     ForceAllocate = TLccMessage.TractionSearchIsForceAllocate(SourceMessage);
-                     ExactMatchOnly = TLccMessage.TractionSearchIsExactMatchOnly(SourceMessage);
-                     MatchAddressOnly = TLccMessage.TractionSearchIsAddressMatchOnly(SourceMessage);
-                     TrackProtocolFlags = TLccMessage.TractionSearchEncodeNMRA(SourceMessage.ClassType,LongAddressOnly.v,NMRA_SpeedStep.v,ForceAllocate,ExactMatchOnly,MatchAddressOnly);
-                     TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$2.ClassType,SearchStr,TrackProtocolFlags,SearchData$1);
-                     TLccMessage.LoadTractionSearch(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID,SearchData$1.v);
-                     ReturnEvent.v = TLccMessage.ExtractDataBytesAsEventID(Self.FWorkerMessage$2,0);
-                     ATrain = TLccCommandStationNode.FindTrainByDccAddress(Self,SearchDccAddress,LongAddressOnly.v);
-                     if (ATrain === null && ForceAllocate) {
-                        ATrain = TLccCommandStationNode.AddTrain(Self,"New ATrain",SearchStr,SearchDccAddress,LongAddressOnly.v,NMRA_SpeedStep.v);
-                        ATrain.FSearchEvent = ReturnEvent.v.slice(0);
-                        TLccNode.Login$(ATrain,NULL_NODE_ID.slice(0));
-                     } else {
-                        if (ATrain) {
-                           TLccMessage.LoadProducerIdentified(Self.FWorkerMessage$2,ATrain.FNodeID$1.slice(0),ATrain.FAliasID,ReturnEvent,1);
-                           Self.FSendMessageFunc$1(ATrain,Self.FWorkerMessage$2);
-                        }
-                     }
-                  }
-               }
-            }
-            break;
-      }
-      return Result
-   }
-   ,Destroy$:function($){return $.ClassType.Destroy($)}
-   ,BeforeLogin$:function($){return $.ClassType.BeforeLogin($)}
-   ,Create$201:TLccCanNode.Create$201
-   ,GetAlias:TLccCanNode.GetAlias
-   ,GetCdiFile$:function($){return $.ClassType.GetCdiFile($)}
-   ,IsDestinationEqual:TLccCanNode.IsDestinationEqual
-   ,Login:TLccCanNode.Login
-   ,Logout:TLccCanNode.Logout
-   ,On_800msTimer:TLccCanNode.On_800msTimer
-   ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
-   ,Creating$:function($){return $.ClassType.Creating($)}
-};
-/// TLccAliasServer = class (TObject)
-///  [line: 76, column: 3, file: lcc_alias_server]
-var TLccAliasServer = {
-   $ClassName:"TLccAliasServer",$Parent:TObject
-   ,$Init:function ($) {
-      TObject.$Init($);
-      $.FAliasSortedMap = $.FNodeIDSortedMap = $.FOnAddMapping = $.FOnDeleteMapping = null;
-      $.FIsDirty = false;
-   }
-   /// function TLccAliasServer.AddMapping(ANodeID: TNodeID; AnAliasID: Word) : TLccAliasMap
-   ///  [line: 243, column: 26, file: lcc_alias_server]
-   ,AddMapping:function(Self, ANodeID, AnAliasID) {
-      var Result = null;
-      var MapIndex = { v : 0 };
-      MapIndex.v = -1;
-      Result = TLccAliasServer.FindInAliasSortedMap(Self,AnAliasID,MapIndex);
-      if (Result) {
-         if (!(EqualNodeID(ANodeID.slice(0),Result.FNodeID$3.slice(0),false))) {
-            TLccAliasServer.RemoveMappingByAliasID(Self,AnAliasID);
-            Result = null;
-         }
-      }
-      if (!Result) {
-         Result = TLccAliasMap.Create$211($New(TLccAliasMap),ANodeID.slice(0),AnAliasID);
-         TObjectList.Add$1(Self.FAliasSortedMap,Result);
-         TObjectList.Add$1(Self.FNodeIDSortedMap,Result);
-         Self.FIsDirty = true;
-         TLccAliasServer.DoAddMapping(Self);
-      }
-      return Result
-   }
-   /// procedure TLccAliasServer.Clear()
-   ///  [line: 398, column: 27, file: lcc_alias_server]
-   ,Clear$34:function(Self) {
-      TObjectList.Clear$8(Self.FNodeIDSortedMap);
-      TObjectList.Clear$8(Self.FAliasSortedMap);
-      Self.FIsDirty = false;
-      TLccAliasServer.DoDeleteMapping(Self);
-   }
-   /// constructor TLccAliasServer.Create()
-   ///  [line: 374, column: 29, file: lcc_alias_server]
-   ,Create$210:function(Self) {
-      Self.FAliasSortedMap = TObjectList.Create$127($New(TObjectList));
-      Self.FNodeIDSortedMap = TObjectList.Create$127($New(TObjectList));
-      return Self
-   }
-   /// destructor TLccAliasServer.Destroy()
-   ///  [line: 391, column: 28, file: lcc_alias_server]
-   ,Destroy:function(Self) {
-      FreeAndNil(Self.FNodeIDSortedMap);
-      FreeAndNil(Self.FAliasSortedMap);
-      TObject.Destroy(Self);
-   }
-   /// procedure TLccAliasServer.DoAddMapping()
-   ///  [line: 406, column: 27, file: lcc_alias_server]
-   ,DoAddMapping:function(Self) {
-      if (Self.FOnAddMapping) {
-         Self.FOnAddMapping(Self);
-      }
-   }
-   /// procedure TLccAliasServer.DoDeleteMapping()
-   ///  [line: 412, column: 27, file: lcc_alias_server]
-   ,DoDeleteMapping:function(Self) {
-      if (Self.FOnDeleteMapping) {
-         Self.FOnDeleteMapping(Self);
-      }
-   }
-   /// function TLccAliasServer.FindInAliasSortedMap(AnAliasID: Word; var MapIndex: Integer) : TLccAliasMap
-   ///  [line: 351, column: 26, file: lcc_alias_server]
-   ,FindInAliasSortedMap:function(Self, AnAliasID, MapIndex) {
-      var Result = null;
-      var i$7 = 0;
-      Result = null;
-      if (AnAliasID > 0) {
-         TLccAliasServer.SortMaps(Self);
-         MapIndex.v = -1;
-         var $temp178;
-         for(i$7=0,$temp178=TObjectList.GetCount$1(Self.FAliasSortedMap);i$7<$temp178;i$7++) {
-            if (AnAliasID == $As(TObjectList.GetItem$14(Self.FAliasSortedMap,i$7),TLccAliasMap).FAliasID$2) {
-               Result = $As(TObjectList.GetItem$14(Self.FAliasSortedMap,i$7),TLccAliasMap);
-               MapIndex.v = i$7;
-               break;
-            }
-         }
-      }
-      return Result
-   }
-   /// function TLccAliasServer.FindInNodeIDSortedMap(ANodeID: TNodeID; var MapIndex: Integer) : TLccAliasMap
-   ///  [line: 328, column: 26, file: lcc_alias_server]
-   ,FindInNodeIDSortedMap:function(Self, ANodeID, MapIndex) {
-      var Result = null;
-      var i$7 = 0;
-      Result = null;
-      if (!(EqualNodeID(NULL_NODE_ID.slice(0),ANodeID.slice(0),true))) {
-         TLccAliasServer.SortMaps(Self);
-         MapIndex.v = -1;
-         var $temp179;
-         for(i$7=0,$temp179=TObjectList.GetCount$1(Self.FNodeIDSortedMap);i$7<$temp179;i$7++) {
-            if (EqualNodeID(ANodeID.slice(0),$As(TObjectList.GetItem$14(Self.FNodeIDSortedMap,i$7),TLccAliasMap).FNodeID$3.slice(0),false)) {
-               Result = $As(TObjectList.GetItem$14(Self.FNodeIDSortedMap,i$7),TLccAliasMap);
-               MapIndex.v = i$7;
-               break;
-            }
-         }
-      }
-      return Result
-   }
-   /// procedure TLccAliasServer.RemoveMapping(AnAliasID: Word)
-   ///  [line: 423, column: 27, file: lcc_alias_server]
-   ,RemoveMapping:function(Self, AnAliasID) {
-      TLccAliasServer.RemoveMappingByAliasID(Self,AnAliasID);
-   }
-   /// function TLccAliasServer.RemoveMappingByAliasID(AnAliasID: Word) : Boolean
-   ///  [line: 293, column: 26, file: lcc_alias_server]
-   ,RemoveMappingByAliasID:function(Self, AnAliasID) {
-      var Result = false;
-      var MapIndexInAliasSortedMap = { v : 0 },
-         MapIndexInNodeIDSortedMap = { v : 0 },
-         AliasMap = null;
-      Result = false;
-      MapIndexInAliasSortedMap.v = -1;
-      MapIndexInNodeIDSortedMap.v = -1;
-      AliasMap = TLccAliasServer.FindInAliasSortedMap(Self,AnAliasID,MapIndexInAliasSortedMap);
-      if (AliasMap) {
-         TLccAliasServer.FindInNodeIDSortedMap(Self,AliasMap.FNodeID$3.slice(0),MapIndexInNodeIDSortedMap);
-         if (MapIndexInNodeIDSortedMap.v > -1) {
-            TObjectList.Remove$1(Self.FNodeIDSortedMap,MapIndexInNodeIDSortedMap.v);
-         }
-         if (MapIndexInAliasSortedMap.v > -1) {
-            TObjectList.Remove$1(Self.FAliasSortedMap,MapIndexInAliasSortedMap.v);
-         }
-         TLccAliasServer.DoDeleteMapping(Self);
-         Result = true;
-      }
-      return Result
-   }
-   /// procedure TLccAliasServer.SortMaps()
-   ///  [line: 441, column: 27, file: lcc_alias_server]
-   ,SortMaps:function(Self) {
-      if (Self.FIsDirty) {
-         TObjectList.Sort$4(Self.FAliasSortedMap,SortFuncAlias);
-         TObjectList.Sort$4(Self.FNodeIDSortedMap,SortFuncNodeID);
-         Self.FIsDirty = false;
-      }
-   }
-   /// function TLccAliasServer.ValidateAlias(AnAlias: Word) : Boolean
-   ///  [line: 428, column: 26, file: lcc_alias_server]
-   ,ValidateAlias:function(Self, AnAlias) {
-      var Result = false;
-      var MapIndex = { v : 0 };
-      Result = true;
-      if (AnAlias) {
-         MapIndex.v = -1;
-         Result = TLccAliasServer.FindInAliasSortedMap(Self,AnAlias,MapIndex)!==null;
-      }
-      return Result
-   }
-   ,Destroy$:function($){return $.ClassType.Destroy($)}
-};
-/// TLccAliasMap = class (TObject)
-///  [line: 63, column: 3, file: lcc_alias_server]
-var TLccAliasMap = {
-   $ClassName:"TLccAliasMap",$Parent:TObject
-   ,$Init:function ($) {
-      TObject.$Init($);
-      $.FAliasID$2 = 0;
-      $.FNodeID$3 = [0,0];
-   }
-   /// constructor TLccAliasMap.Create(ANodeID: TNodeID; AnAliasID: Word)
-   ///  [line: 234, column: 26, file: lcc_alias_server]
-   ,Create$211:function(Self, ANodeID, AnAliasID) {
-      Self.FAliasID$2 = AnAliasID;
-      Self.FNodeID$3[0] = ANodeID[0];
-      Self.FNodeID$3[1] = ANodeID[1];
-      return Self
-   }
-   ,Destroy:TObject.Destroy
-};
-function SortFuncAlias(Item1, Item2) {
-   var Result = 0;
-   var Mapping1 = null,
-      Mapping2 = null;
-   Mapping1 = $As(Item1,TLccAliasMap);
-   Mapping2 = $As(Item2,TLccAliasMap);
-   if (Mapping1.FAliasID$2 > Mapping2.FAliasID$2) {
-      Result = 1;
-   } else if (Mapping1.FAliasID$2 < Mapping2.FAliasID$2) {
-      Result = -1;
-   } else {
-      Result = 0;
-   }
-   return Result
-};
-function SortFuncNodeID(Item1, Item2) {
-   var Result = 0;
-   var Mapping1$1 = null,
-      Mapping2$1 = null;
-   Mapping1$1 = $As(Item1,TLccAliasMap);
-   Mapping2$1 = $As(Item2,TLccAliasMap);
-   if (Mapping1$1.FNodeID$3[1] > Mapping2$1.FNodeID$3[1]) {
-      Result = 1;
-   } else if (Mapping1$1.FNodeID$3[1] < Mapping2$1.FNodeID$3[1]) {
-      Result = -1;
-   } else if (Mapping1$1.FNodeID$3[0] > Mapping2$1.FNodeID$3[0]) {
-      Result = 1;
-   } else if (Mapping1$1.FNodeID$3[0] < Mapping2$1.FNodeID$3[0]) {
-      Result = -1;
-   } else {
-      Result = 0;
-   }
-   return Result
-};
 /// TTabSettingsForm = class (TW3Form)
 ///  [line: 48, column: 3, file: TabSettingsForm]
 var TTabSettingsForm = {
@@ -37802,8 +36832,8 @@ var TTabSettingsForm = {
       Self.ControllerManager.NodeManager$1.FOnLccMessageSend = function (Sender$1, LccMessage) {
          var i$7 = 0;
          TStringList.SetText(Self.MessageList,TLccMessage.ConvertToGridConnectStr(LccMessage,"\n",false));
-         var $temp180;
-         for(i$7=0,$temp180=TStringList.GetCount(Self.MessageList);i$7<$temp180;i$7++) {
+         var $temp176;
+         for(i$7=0,$temp176=TStringList.GetCount(Self.MessageList);i$7<$temp176;i$7++) {
             if (TW3CheckBox.GetChecked(Self.W3CheckBoxLogging)) {
                TW3ListBox.Add$16(Self.W3ListBoxLog,"S: " + Trim$_String_(TStringList.GetItem$13(Self.MessageList,i$7)));
             }
@@ -37812,7 +36842,7 @@ var TTabSettingsForm = {
          }
       };
       Self.ControllerManager.NodeManager$1.FOnLccNodeAliasIDChanged = function (Sender$1, LccSourceNode) {
-         TW3Label.SetCaption$2$(Self.W3LabelAlias,TLccCanNode.GetAliasIDStr($As(LccSourceNode,TLccCanNode)));
+         TW3Label.SetCaption$2$(Self.W3LabelAlias,TLccNode.GetAliasIDStr(LccSourceNode));
       };
       Self.ControllerManager.NodeManager$1.FOnLccNodeIDChanged = function (Sender$1, LccSourceNode) {
          TW3Label.SetCaption$2$(Self.W3LabelNodeID,TLccNode.GetNodeIDStr(LccSourceNode));
@@ -37898,9 +36928,6 @@ var TTabSettingsForm = {
    ,CBKeyUp:TW3CustomControl.CBKeyUp
    ,Dispatch:TW3CustomControl.Dispatch
    ,GetEnabled$1:TW3CustomControl.GetEnabled$1
-   ,MouseDown:TW3CustomControl.MouseDown
-   ,MouseMove:TW3CustomControl.MouseMove
-   ,MouseUp:TW3CustomControl.MouseUp
    ,SetEnabled$1:TW3CustomControl.SetEnabled$1
    ,InitializeForm$:function($){return $.ClassType.InitializeForm($)}
 };
@@ -38035,8 +37062,8 @@ var TW3WebSocket = {
          return;
       }
       try {
-         var $temp181;
-         for(x$42=0,$temp181=Self.FDisconnectStack.length;x$42<$temp181;x$42++) {
+         var $temp177;
+         for(x$42=0,$temp177=Self.FDisconnectStack.length;x$42<$temp177;x$42++) {
             try {
                Self.FDisconnectStack[x$42](Self,true);
             } catch ($e) {
@@ -38109,8 +37136,8 @@ var TW3WebSocket = {
    ,HandleOpened:function(Self, Ev) {
       var x$42 = 0;
       try {
-         var $temp182;
-         for(x$42=0,$temp182=Self.FConnectStack.length;x$42<$temp182;x$42++) {
+         var $temp178;
+         for(x$42=0,$temp178=Self.FConnectStack.length;x$42<$temp178;x$42++) {
             try {
                Self.FConnectStack[x$42](Self,true);
             } catch ($e) {
@@ -38167,8 +37194,8 @@ var TW3WebSocket = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3WebSocket.$Intf={
-   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3RegEx = class (TObject)
 ///  [line: 31, column: 3, file: System.RegEx]
@@ -38474,13 +37501,13 @@ _Selection_Mode_LUT["text"] = 2;
 _Selection_Mode_LUT["all"] = 3;
 _Selection_Mode_LUT["element"] = 4;
 SetupMouseCursorTable();
-SetupTextBehaviorStyles();
 SetupThemeLookupTables();
+SetupTextBehaviorStyles();
 var Sheet$1 = TW3StyleSheet.GlobalStyleSheet(TW3StyleSheet);
 var StyleCode = ".TW3ToolButtonTable {\r\n  padding: 0px;\r\n  border: 0px;\r\n  margin: 0px;\r\n}";
 TW3StyleSheet.Append$2(Sheet$1,StyleCode);
-TW3StyleSheet.Append$2(TW3StyleSheet.GlobalStyleSheet(TW3StyleSheet),"\r\n.TW3NoAnimation {\r\n  -webkit-animation: none !important;\r\n  -moz-animation: none !important;\r\n  -ms-animation: none !important;\r\n  -o-animation: none !important;\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: BACKSCROLL\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n         -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-moz-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-ms-keyframes BACKSCROLL {\r\n  0%   { -ms-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -ms-transform: translateZ(0); }\r\n}\r\n\r\n@keyframes BACKSCROLL {\r\n  0%   { transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       transform: translateZ(0); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-LEFT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-LEFT {\r\n\t0%   { -webkit-transform: translateX(100%); }\r\n\t100% { -webkit-transform: translateX(0);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -webkit-transform: translateX(0%); }\r\n\t100% { -webkit-transform: translateX(-100%); }\r\n}\r\n\r\n@-moz-keyframes MOVE-LEFT {\r\n\t0%   { -moz-transform: translateX(100%); }\r\n\t100% { -moz-transform: translateX(0);    }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -moz-transform: translateX(0%);    }\r\n\t100% { -moz-transform: translateX(-100%); }\r\n}\r\n\r\n@-ms-keyframes MOVE-LEFT {\r\n\t0%   { -ms-transform: translateX(100%); }\r\n\t100% { -ms-transform: translateX(0);    }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -ms-transform: translateX(0%);    }\r\n\t100% { -ms-transform: translateX(-100%); }\r\n}\r\n\r\n@keyframes MOVE-LEFT {\r\n\t0%   { transform: translateX(100%); }\r\n\t100% { transform: translateX(0);    }\r\n}\r\n\r\n@keyframes MOVE-OUT-LEFT {\r\n\t0%   { transform: translateX(0%);    }\r\n\t100% { transform: translateX(-100%); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-RIGHT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-RIGHT {\r\n\t0%   { -webkit-transform: translateX(-100%); }\r\n\t100% { -webkit-transform: translateX(0%);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -webkit-transform: translateX(0%);    }\r\n\t100% { -webkit-transform: translateX(100%);  }\r\n}\r\n\r\n@-moz-keyframes MOVE-RIGHT {\r\n\t0%   { -moz-transform: translateX(-100%);  }\r\n\t100% { -moz-transform: translateX(0%);     }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -moz-transform: translateX(0%);     }\r\n\t100% { -moz-transform: translateX(100%);   }\r\n}\r\n\r\n@-ms-keyframes MOVE-RIGHT {\r\n\t0%   { -ms-transform: translateX(-100%);  }\r\n\t100% { -ms-transform: translateX(0%);     }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -ms-transform: translateX(0%);     }\r\n\t100% { -ms-transform: translateX(100%);   }\r\n}\r\n\r\n@keyframes MOVE-RIGHT {\r\n\t0%   { transform: translateX(-100%);  }\r\n\t100% { transform: translateX(0%);     }\r\n}\r\n\r\n@keyframes MOVE-OUT-RIGHT {\r\n\t0%   { transform: translateX(0%);     }\r\n\t100% { transform: translateX(100%);   }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: ROTATE-FOREVER\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-FOREVER {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-FOREVER {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-FOREVER {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-FOREVER {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(-360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(-360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(-360deg); }\r\n}\r\n\r\n@keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(-360deg); }\r\n}\r\n");
 InitAnimationFrameShim();
+TW3StyleSheet.Append$2(TW3StyleSheet.GlobalStyleSheet(TW3StyleSheet),"\r\n.TW3NoAnimation {\r\n  -webkit-animation: none !important;\r\n  -moz-animation: none !important;\r\n  -ms-animation: none !important;\r\n  -o-animation: none !important;\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: BACKSCROLL\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n         -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-moz-keyframes BACKSCROLL {\r\n  0%   { -webkit-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -webkit-transform: translateZ(0); }\r\n}\r\n\r\n@-ms-keyframes BACKSCROLL {\r\n  0%   { -ms-transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       -ms-transform: translateZ(0); }\r\n}\r\n\r\n@keyframes BACKSCROLL {\r\n  0%   { transform: translateZ(0);\r\n\t       background-position: 0% 0%;       }\r\n  100% { background-position: -557px 0%;\r\n\t       transform: translateZ(0); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-LEFT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-LEFT {\r\n\t0%   { -webkit-transform: translateX(100%); }\r\n\t100% { -webkit-transform: translateX(0);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -webkit-transform: translateX(0%); }\r\n\t100% { -webkit-transform: translateX(-100%); }\r\n}\r\n\r\n@-moz-keyframes MOVE-LEFT {\r\n\t0%   { -moz-transform: translateX(100%); }\r\n\t100% { -moz-transform: translateX(0);    }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -moz-transform: translateX(0%);    }\r\n\t100% { -moz-transform: translateX(-100%); }\r\n}\r\n\r\n@-ms-keyframes MOVE-LEFT {\r\n\t0%   { -ms-transform: translateX(100%); }\r\n\t100% { -ms-transform: translateX(0);    }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-LEFT {\r\n\t0%   { -ms-transform: translateX(0%);    }\r\n\t100% { -ms-transform: translateX(-100%); }\r\n}\r\n\r\n@keyframes MOVE-LEFT {\r\n\t0%   { transform: translateX(100%); }\r\n\t100% { transform: translateX(0);    }\r\n}\r\n\r\n@keyframes MOVE-OUT-LEFT {\r\n\t0%   { transform: translateX(0%);    }\r\n\t100% { transform: translateX(-100%); }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: MOVE-RIGHT\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes MOVE-RIGHT {\r\n\t0%   { -webkit-transform: translateX(-100%); }\r\n\t100% { -webkit-transform: translateX(0%);    }\r\n}\r\n\r\n@-webkit-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -webkit-transform: translateX(0%);    }\r\n\t100% { -webkit-transform: translateX(100%);  }\r\n}\r\n\r\n@-moz-keyframes MOVE-RIGHT {\r\n\t0%   { -moz-transform: translateX(-100%);  }\r\n\t100% { -moz-transform: translateX(0%);     }\r\n}\r\n\r\n@-moz-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -moz-transform: translateX(0%);     }\r\n\t100% { -moz-transform: translateX(100%);   }\r\n}\r\n\r\n@-ms-keyframes MOVE-RIGHT {\r\n\t0%   { -ms-transform: translateX(-100%);  }\r\n\t100% { -ms-transform: translateX(0%);     }\r\n}\r\n\r\n@-ms-keyframes MOVE-OUT-RIGHT {\r\n\t0%   { -ms-transform: translateX(0%);     }\r\n\t100% { -ms-transform: translateX(100%);   }\r\n}\r\n\r\n@keyframes MOVE-RIGHT {\r\n\t0%   { transform: translateX(-100%);  }\r\n\t100% { transform: translateX(0%);     }\r\n}\r\n\r\n@keyframes MOVE-OUT-RIGHT {\r\n\t0%   { transform: translateX(0%);     }\r\n\t100% { transform: translateX(100%);   }\r\n}\r\n\r\n\/* =============================================\r\n * Page Animation: ROTATE-FOREVER\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-FOREVER {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-FOREVER {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-FOREVER {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-FOREVER {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes ROTATE-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(360deg); }\r\n}\r\n\r\n\/* =============================================\r\n * Control Animation: ROTATE-CLOCKWISE\r\n * ============================================= *\/\r\n\r\n@-webkit-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -webkit-transform: none; }\r\n  to   { -webkit-transform: rotate(-360deg); }\r\n}\r\n\r\n@-moz-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -moz-transform: none; }\r\n  to   { -moz-transform: rotate(-360deg); }\r\n}\r\n\r\n@-ms-keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { -ms-transform: none; }\r\n  to   { -ms-transform: rotate(-360deg); }\r\n}\r\n\r\n@keyframes ROTATE-ANTI-CLOCKWISE {\r\n  from { transform: none; }\r\n  to   { transform: rotate(-360deg); }\r\n}\r\n");
 var Max_Allowed_Buffers = 1;
 NULL_NODE_ID[0] = 0;
 NULL_NODE_ID[1] = 0;
@@ -38533,15 +37560,15 @@ EVENT_DELIVERS_CLOCK[3] = 0;
 EVENT_DELIVERS_CLOCK[4] = 0;
 EVENT_DELIVERS_CLOCK[5] = 5;
 EVENT_DELIVERS_CLOCK[6] = 1;
+var CaptureTime = 0;
 var FBinaryData = TAllocation.Create$79($New(TBinaryData),1);
 var FOneByteArray = TBinaryData.ToBytes(FBinaryData);
-var CaptureTime = 0;
 var InprocessMessageAllocated = 0,
    ActionObjectsAllocated = 0;
 SetupEditTypeLookupTables();
-TApplicationFormsList.RegisterForm(Forms$2(),"FormThrottle",TFormThrottle);
 TApplicationFormsList.RegisterForm(Forms$2(),"TabMainForm",TTabMainForm);
 TApplicationFormsList.RegisterForm(Forms$2(),"TabSettingsForm",TTabSettingsForm);
+TApplicationFormsList.RegisterForm(Forms$2(),"FormThrottle",TFormThrottle);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"FormThrottle",true,true);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabMainForm",true,false);
 TApplicationFormsList.RegisterAutoCreate(Forms$2(),"TabSettingsForm",true,false);

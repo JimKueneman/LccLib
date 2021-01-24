@@ -33,7 +33,7 @@ type
   private
     FControllerCreated: Boolean;
   public
-    NodeManager: TLccCanNodeManager;
+    NodeManager: TLccNodeManager;
     ControllerNode: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
     MessageList: TStringList;
 
@@ -64,7 +64,7 @@ end;
 
 constructor TControllerManager.Create;
 begin
-  NodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager := TLccNodeManager.Create(nil, True);
 end;
 
 destructor TControllerManager.Destroy;

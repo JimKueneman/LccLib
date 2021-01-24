@@ -149,7 +149,7 @@ begin
   ControllerManager.NodeManager.OnLccNodeAliasIDChanged :=
     procedure (Sender: TObject; LccSourceNode: TLccNode)
     begin
-      W3LabelAlias.Caption := (LccSourceNode as TLccCanNode).AliasIDStr
+      W3LabelAlias.Caption := LccSourceNode.AliasIDStr
     end;
 
   ControllerManager.NodeManager.OnLccNodeIDChanged :=

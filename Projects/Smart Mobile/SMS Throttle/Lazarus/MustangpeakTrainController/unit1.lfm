@@ -151,13 +151,14 @@ object FormTrainController: TFormTrainController
         EditLabel.ParentColor = False
         TabOrder = 0
       end
-      object ButtonThrottleAssignAddress: TButton
+      object ButtonAssignTrain: TButton
         Left = 9
         Height = 23
         Top = 48
         Width = 103
         Caption = 'Start Search'
-        OnClick = ButtonThrottleAssignAddressClick
+        Enabled = False
+        OnClick = ButtonAssignTrainClick
         TabOrder = 1
       end
       object PanelThrottleControls: TPanel
@@ -546,6 +547,8 @@ object FormTrainController: TFormTrainController
         Top = 48
         Width = 107
         Caption = 'Release Train'
+        Enabled = False
+        OnClick = ButtonReleaseTrainClick
         TabOrder = 9
       end
     end
