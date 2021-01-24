@@ -66,7 +66,7 @@ type
     FComPort: TLccComPort;
     FLccHTTPServer: TLccHTTPServer;
     FLccWebsocketServer: TLccWebsocketServer;
-    FNodeManager: TLccCanNodeManager;
+    FNodeManager: TLccNodeManager;
     FWorkerMessage: TLccMessage;
     FLccServer: TLccEthernetServer;
   protected
@@ -112,7 +112,7 @@ type
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
     property LccWebsocketServer: TLccWebsocketServer read FLccWebsocketServer write FLccWebsocketServer;
     property LccHTTPServer: TLccHTTPServer read FLccHTTPServer write FLccHTTPServer;
-    property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
+    property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property ComPort: TLccComPort read FComPort write FComPort;
   end;
 
@@ -313,7 +313,7 @@ end;
 
 procedure TFormTrainCommander.FormCreate(Sender: TObject);
 begin
-  NodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager := TLccNodeManager.Create(nil, True);
   NodeManager.OnLccNodeAliasIDChanged := @OnNodeManagerAliasIDChanged;
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChanged;
   NodeManager.OnLccMessageReceive := @OnNodeManagerReceiveMessage;
@@ -563,7 +563,7 @@ end;
 
 procedure TFormTrainCommander.OnNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelAliasID.Caption := ( LccSourceNode as TLccCanNode).AliasIDStr;
+  LabelAliasID.Caption := LccSourceNode.AliasIDStr;
 end;
 
 procedure TFormTrainCommander.OnNodeManagerIDChanged(Sender: TObject;

@@ -217,7 +217,7 @@ type
 
   { TLccTrainController }
 
-  TLccTrainController = class(TLccCanNode)
+  TLccTrainController = class(TLccNode)
   private
     FAssignedTrain: TAttachedTrain;
 

@@ -363,7 +363,7 @@ type
 
   { TLccTrainCanNode }
 
-  TLccTrainCanNode = class(TLccCanNode)
+  TLccTrainCanNode = class(TLccNode)
   private
     FAttachedController: TAttachedController;
     FDccAddress: Word;
@@ -427,7 +427,7 @@ type
     // The Search Event that may have created this Train Node, used as storage for the Command Station to create and wait for Initilization to complete
     property SearchEvent: TEventID read FSearchEvent write FSearchEvent;
 
-    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean); override;
     destructor Destroy; override;
 
     function ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
@@ -1062,9 +1062,9 @@ end;
 
 { TLccTrainCanNode }
 
-constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
+constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean);
 begin
-  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
   FListeners := TListenerList.Create;
 end;
 

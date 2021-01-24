@@ -110,7 +110,7 @@ type
   protected
   public
     EthernetClient: TLccEthernetClient;
-    NodeManager: TLccCanNodeManager;
+    NodeManager: TLccNodeManager;
 
     property ControllerNode: TLccTrainController read FControllerNode write FControllerNode;
 
@@ -241,7 +241,7 @@ end;
 procedure TFormTrainController.FormCreate(Sender: TObject);
 begin
   // throttle node
-  NodeManager := TLccCanNodeManager.Create(nil);
+  NodeManager := TLccNodeManager.Create(nil, True);
   NodeManager.OnLccNodeAliasIDChanged := @OnNodeManagerAliasChange;
   NodeManager.OnLccNodeIDChanged := @OnNodeManagerIDChange;
 
@@ -356,7 +356,7 @@ end;
 
 procedure TFormTrainController.OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelThrottleAliasID.Caption := 'AliasID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
+  LabelThrottleAliasID.Caption := 'AliasID: ' + LccSourceNode.AliasIDStr;
 end;
 
 procedure TFormTrainController.ToggleBoxThrottleForwardChange(Sender: TObject);

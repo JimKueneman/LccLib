@@ -214,7 +214,12 @@ type
 
   TLccNode = class(TObject)
   private
+    FAliasID: Word;
+    FDuplicateAliasDetected: Boolean;
+    FGridConnect: Boolean;
     FLccActions: TLccActionHub;
+    FPermitted: Boolean;
+    FSeedNodeID: TNodeID;
     FWorkerMessageDatagram: TLccMessage;
     FInitialized: Boolean;
     FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
@@ -254,6 +259,7 @@ type
     FWorkerMessage: TLccMessage;
     F_800msTimer: TLccTimer;
 
+    function GetAliasIDStr: String;
     function GetNodeIDStr: String;
   protected
     FNodeID: TNodeID;
@@ -269,6 +275,10 @@ type
     property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
     property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
 
+    // GridConnect Helpers
+    property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
+    property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
+
     procedure CreateNodeID(var Seed: TNodeID);
     function GetAlias: Word; virtual;
     function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
@@ -281,13 +291,29 @@ type
     procedure On_800msTimer(Sender: TObject);  virtual;
     function GetCdiFile: string; virtual;
     procedure BeforeLogin; virtual;
+    procedure LogInLCC(ANodeID: TNodeID);
+
+    function ProcessMessageLCC(SourceMessage: TLccMessage): Boolean;
+    function ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean;
+
+    // GridConnect Helpers
+    function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
+    procedure GenerateNewSeed(var Seed: TNodeID);
+    procedure Relogin;
+
   public
     property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
+    property GridConnect: Boolean read FGridConnect;
     property NodeID: TNodeID read FNodeID;
     property NodeIDStr: String read GetNodeIDStr;
     property Initialized: Boolean read FInitialized;
     property LccActions: TLccActionHub read FLccActions write FLccActions;
     property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
+
+    // GridConnect Helpers
+    property AliasID: Word read FAliasID;
+     property AliasIDStr: String read GetAliasIDStr;
+     property Permitted: Boolean read FPermitted;
 
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
     property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
@@ -304,7 +330,7 @@ type
     property ProtocolTractionMemoryFunctionConfiguration: TTractionFunctionConfiguration read FProtocolTractionMemoryFunctionConfiguration write FProtocolTractionMemoryFunctionConfiguration;
     property ProtocolTractionSimpleTrainNodeInfo: TTractionProtocolSimpleTrainNodeInfo read FProtocolTractionSimpleTrainNodeInfo write FProtocolTractionSimpleTrainNodeInfo;
 
-    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); virtual;
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string; GridConnectLink: Boolean); virtual;
     destructor Destroy; override;
 
     procedure Login(ANodeID: TNodeID); virtual;
@@ -319,41 +345,6 @@ type
   end;
 
   TLccNodeClass = class of TLccNode;
-
-  { TLccCanNode }
-
-  TLccCanNode = class(TLccNode)
-  private
-    FAliasID: Word;
-    FDuplicateAliasDetected: Boolean;
-    FSeedNodeID: TNodeID;
-    FPermitted: Boolean;
-
-    function GetAliasIDStr: String;
-  protected
-    property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
-    property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
-
-    procedure Creating; virtual;
-    function GetAlias: Word; override;
-    function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
-    procedure GenerateNewSeed(var Seed: TNodeID);
-    function IsDestinationEqual(LccMessage: TLccMessage): Boolean; override;
-    procedure On_800msTimer(Sender: TObject); override;
-    procedure Relogin;
-  public
-     property AliasID: Word read FAliasID;
-     property AliasIDStr: String read GetAliasIDStr;
-     property Permitted: Boolean read FPermitted;
-
-     constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
-     destructor Destroy; override;
-     procedure Login(ANodeID: TNodeID); override;
-     procedure Logout; override;
-     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
-  end;
-  TLccCanNodeClass = class of TLccCanNode;
-
 
 
 var
@@ -555,7 +546,7 @@ function TLccActionHub.RegisterAction(ANode: TLccNode; SourceMessage: TLccMessag
 begin
   LccActiveActions.Add(AnAction);
   AnAction.FNodeID := ANode.NodeID;
-  AnAction.FAliasID := (ANode as TLccCanNode).AliasID;
+  AnAction.FAliasID := ANode.AliasID;
   AnAction.FOwner := ANode;
   AnAction.SendMessage := ANode.SendMessageFunc;
   AnAction.ActionHub := Self;
@@ -598,218 +589,6 @@ begin
   end;
 end;
 
-{ TLccCanNode }
-
-constructor TLccCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
-begin
-  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
-  Creating;
-end;
-
-procedure TLccCanNode.Creating;
-begin
-
-end;
-
-destructor TLccCanNode.Destroy;
-begin
-  FAliasID := 0;
-  (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
-  inherited Destroy;
-end;
-
-function TLccCanNode.GetAliasIDStr: String;
-begin
-   Result := '0x' + IntToHex(FAliasID, 4);
-end;
-
-function TLccCanNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
-begin
-  Result := AliasID = LccMessage.CAN.DestAlias;
-end;
-
-procedure TLccCanNode.Login(ANodeID: TNodeID);
-var
-  Temp: TNodeID;
-begin
-  if NullNodeID(ANodeID) then
-    CreateNodeID(ANodeID);
-  SeedNodeID := ANodeID;
-  Temp := FSeedNodeID;
-  FAliasID := GenerateID_Alias_From_Seed(Temp);
-  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
-  FNodeID := ANodeID;
-
-  WorkerMessage.LoadCID(NodeID, AliasID, 0);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 1);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 2);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 3);
-  SendMessageFunc(Self, WorkerMessage);
-
-  _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
-end;
-
-procedure TLccCanNode.Logout;
-begin
-  (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
-  FPermitted := False;
-  WorkerMessage.LoadAMR(NodeID, AliasID);
-  SendMessageFunc(Self, WorkerMessage);
-  (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
-  inherited Logout;
-end;
-
-procedure TLccCanNode.On_800msTimer(Sender: TObject);
-var
-  Temp: TNodeID;
-begin
-  if not Permitted then
-  begin
-     // Did any node object to this Alias through ProcessMessage?
-    if DuplicateAliasDetected then
-    begin
-      DuplicateAliasDetected := False;  // Reset
-      Temp := FSeedNodeID;
-      GenerateNewSeed(Temp);
-      FSeedNodeID := Temp;
-      FAliasID := GenerateID_Alias_From_Seed(Temp);
-      WorkerMessage.LoadCID(NodeID, AliasID, 0);
-      SendMessageFunc(Self, WorkerMessage);
-      WorkerMessage.LoadCID(NodeID, AliasID, 1);
-      SendMessageFunc(Self, WorkerMessage);
-      WorkerMessage.LoadCID(NodeID, AliasID, 2);
-      SendMessageFunc(Self, WorkerMessage);
-      WorkerMessage.LoadCID(NodeID, AliasID, 3);
-      SendMessageFunc(Self, WorkerMessage);
-    end else
-    begin
-      FPermitted := True;
-      WorkerMessage.LoadRID(NodeID, AliasID);
-      SendMessageFunc(Self, WorkerMessage);
-      WorkerMessage.LoadAMD(NodeID, AliasID);
-      SendMessageFunc(Self, WorkerMessage);
-      (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
-      inherited Login(NodeID);
-    end
-  end;
-  if Permitted then
-    inherited On_800msTimer(Sender);
-end;
-
-function TLccCanNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
-var
-  TestNodeID: TNodeID;
-begin
-  Result := False;
-
-  // Check for a message with the Alias equal to our own.
-  if (AliasID <> 0) and (SourceMessage.CAN.SourceAlias = AliasID) then
-  begin
-    // Check if it is a Check ID message for a node trying to use our Alias and if so tell them no.
-    if ((SourceMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((SourceMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
-    begin
-      WorkerMessage.LoadRID(NodeID, AliasID);                   // sorry charlie this is mine
-      SendMessageFunc(Self, WorkerMessage);
-      Result := True;
-    end else
-    if Permitted then
-    begin
-      // Another node used out Alias, stop using this Alias, log out and allocate a new node and relog in
-      Logout;
-      Relogin;
-      Result := True;   // Logout covers any LccNode logoffs, so don't call ancester Process Message
-    end
-  end;
-
-  if not Permitted then
-  begin
-    // We are still trying to allocate a new Alias, someone else is using this alias to try atain
-    if SourceMessage.CAN.SourceAlias = AliasID then
-      DuplicateAliasDetected := True;
-  end else
-  begin
-    // Normal message loop once successfully allocating an Alias
-
-    TestNodeID[0] := 0;
-    TestNodeID[1] := 0;
-    if SourceMessage.IsCAN then
-    begin
-      case SourceMessage.CAN.MTI of
-        MTI_CAN_AME :          // Alias Map Enquiry
-          begin
-            if SourceMessage.DataCount = 6 then
-            begin
-              SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-              if EqualNodeID(TestNodeID, NodeID, False) then
-              begin
-                WorkerMessage.LoadAMD(NodeID, AliasID);
-                SendMessageFunc(Self, WorkerMessage);
-              end
-            end else
-            begin
-              WorkerMessage.LoadAMD(NodeID, AliasID);
-              SendMessageFunc(Self, WorkerMessage);
-            end;
-            Result := True;
-          end;
-      end
-    end;
-    if not Result then
-      Result := inherited ProcessMessage(SourceMessage);
-  end;
-end;
-
-procedure TLccCanNode.Relogin;
-var
-  Temp: TNodeID;
-begin
-  // Typically due to an alias conflict to create a new one
-  Temp := FSeedNodeID;
-  GenerateNewSeed(Temp);
-  FSeedNodeID := Temp;
-  FAliasID := GenerateID_Alias_From_Seed(Temp);
-  WorkerMessage.LoadCID(NodeID, AliasID, 0);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 1);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 2);
-  SendMessageFunc(Self, WorkerMessage);
-  WorkerMessage.LoadCID(NodeID, AliasID, 3);
-  SendMessageFunc(Self, WorkerMessage);
-
-  _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
-end;
-
-function TLccCanNode.GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
-begin
-  Result := (Seed[0] xor Seed[1] xor (Seed[0] shr 12) xor (Seed[1] shr 12)) and $00000FFF;
-end;
-
-procedure TLccCanNode.GenerateNewSeed(var Seed: TNodeID);
-var
-  temp1,              // Upper 24 Bits of temp 48 bit number
-  temp2: DWORD;       // Lower 24 Bits of temp 48 Bit number
-begin
-  temp1 := ((Seed[1] shl 9) or ((Seed[0] shr 15) and $000001FF)) and $00FFFFFF;   // x(i+1)(2^9 + 1)*x(i) + C  = 2^9 * x(i) + x(i) + C
-  temp2 := (Seed[0] shl 9) and $00FFFFFF;                                                                  // Calculate 2^9 * x
-
-  Seed[0] := Seed[0] + temp2 + $7A4BA9;   // Now y = 2^9 * x so all we have left is x(i+1) = y + x + c
-  Seed[1] := Seed[1] + temp1 + $1B0CA3;
-
-  Seed[1] := (Seed[1] and $00FFFFFF) or (Seed[0] and $FF000000) shr 24;   // Handle the carries of the lower 24 bits into the upper
-  Seed[0] := Seed[0] and $00FFFFFF;
-end;
-
-function TLccCanNode.GetAlias: Word;
-begin
-  Result := AliasID;
-end;
-
-
-
 {TLccNode }
 
 function TLccNode.GetNodeIDStr: String;
@@ -819,9 +598,17 @@ begin
  Result := '0x' + Result
 end;
 
+function TLccNode.GetAliasIDStr: String;
+begin
+  Result := '0x' + IntToHex(FAliasID, 4);
+end;
+
 function TLccNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
 begin
-  Result := EqualNodeID(NodeID, LccMessage.DestID, False);
+  if GridConnect then
+    Result := AliasID = LccMessage.CAN.DestAlias
+  else
+    Result := EqualNodeID(NodeID, LccMessage.DestID, False);
 end;
 
 function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;
@@ -878,8 +665,7 @@ begin
   Result := True;
 end;
 
-constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent;
-  ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
+constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string; GridConnectLink: Boolean);
 var
   i, Counter: Integer;
 begin
@@ -911,6 +697,7 @@ begin
   FWorkerMessage := TLccMessage.Create;
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
+  FGridConnect := GridConnectLink;
 
   _800msTimer := TLccTimer.Create(nil);
   _800msTimer.Enabled := False;
@@ -1021,87 +808,7 @@ begin
   ProtocolEventsProduced.AutoGenerate.StartIndex := 0;
 end;
 
-procedure TLccNode.CreateNodeID(var Seed: TNodeID);
-begin
-  Seed[1] := StrToInt('0x020112');
-  {$IFDEF DWSCRIPT}
-  Seed[0] := RandomInt($FFFFFF);
-  {$ELSE}
-  Seed[0] := Random($FFFFFF);
-  {$ENDIF}
-  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
-end;
-
-destructor TLccNode.Destroy;
-begin
-  FNodeID[0] := 0;
-  FNodeID[1] := 0;
-  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
-  (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
-  _800msTimer.Enabled := False;
-  _800msTimer.Free;
-  FProtocolSupportedProtocols.Free;
-  FProtocolSimpleNodeInfo.Free;
-  FTProtocolMemoryConfigurationDefinitionInfo.Free;
-  FProtocolEventConsumed.Free;
-  FProtocolEventsProduced.Free;
-  FProtocolMemoryOptions.Free;
-  FProtocolMemoryInfo.Free;
-  FProtocolTraction.Free;
-  FProtocolTractionFunctionDefinitionInfo.Free;
-  FProtocolTractionMemoryFunctionConfiguration.Free;
-  FProtocolTractionSimpleTrainNodeInfo.Free;
-  FACDIMfg.Free;
-  FACDIUser.Free;
-  FProtocolMemoryConfiguration.Free;
-  FDatagramResendQueue.Free;
-  FWorkerMessageDatagram.Free;
-  FWorkerMessage.Free;
-  FStreamCdi.Free;
-  FStreamConfig.Free;
-  FStreamManufacturerData.Free;
-  FStreamTractionConfig.Free;
-  FStreamTractionFdi.Free;
-  FLccActions.Free;
-  inherited;
-end;
-
-function TLccNode.FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
-var
-  OffsetEnd: Integer;
-begin
-  Result := False;
-  TestXML := LowerCase(TestXML);
-  Element := LowerCase(Element);
-  Offset := Pos(Element, TestXML);
-  if Offset > -1 then
-  begin
-    Inc(Offset, Length(Element));
-    Element := StringReplace(Element, '<', '</', [rfReplaceAll]);
-    OffsetEnd := Pos(Element, TestXML);
-    if (OffsetEnd > -1) and (OffsetEnd > Offset) then
-    begin
-      ALength := OffsetEnd - Offset;
-      Result := True;
-      OffsetEnd := Low(TestXML);  // The "Low" would not work in the following if statement directly in Delphi
-      if OffsetEnd = 0 then   // Mobile
-        Dec(Offset, 1);
-    end else
-    Exit;
-  end
-end;
-
-function TLccNode.GetAlias: Word;
-begin
-  Result := 0;
-end;
-
-function TLccNode.GetCdiFile: string;
-begin
-  Result := CDI_XML;
-end;
-
-procedure TLccNode.Login(ANodeID: TNodeID);
+procedure TLccNode.LogInLCC(ANodeID: TNodeID);
 begin
   BeforeLogin;
   if NullNodeID(ANodeID) then
@@ -1115,20 +822,7 @@ begin
   (NodeManager as INodeManagerCallbacks).DoLogInNode(Self);
 end;
 
-procedure TLccNode.Logout;
-begin
- FInitialized := False;
-  _800msTimer.Enabled := False;
-  DatagramResendQueue.Clear;
-end;
-
-procedure TLccNode.On_800msTimer(Sender: TObject);
-begin
-  DatagramResendQueue.TickTimeout;
-  LccActions.TimeTick;
-end;
-
-function TLccNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+function TLccNode.ProcessMessageLCC(SourceMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
   Temp: TEventID;
@@ -1568,6 +1262,296 @@ begin
       end;
     end;
   end; // case
+end;
+
+function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean;
+var
+  TestNodeID: TNodeID;
+begin
+  Result := False;
+
+  // Check for a message with the Alias equal to our own.
+  if (AliasID <> 0) and (SourceMessage.CAN.SourceAlias = AliasID) then
+  begin
+    // Check if it is a Check ID message for a node trying to use our Alias and if so tell them no.
+    if ((SourceMessage.CAN.MTI and $0F000000) >= MTI_CAN_CID6) and ((SourceMessage.CAN.MTI and $0F000000) <= MTI_CAN_CID0) then
+    begin
+      WorkerMessage.LoadRID(NodeID, AliasID);                   // sorry charlie this is mine
+      SendMessageFunc(Self, WorkerMessage);
+      Result := True;
+    end else
+    if Permitted then
+    begin
+      // Another node used out Alias, stop using this Alias, log out and allocate a new node and relog in
+      Logout;
+      Relogin;
+      Result := True;   // Logout covers any LccNode logoffs, so don't call ancester Process Message
+    end
+  end;
+
+  if not Permitted then
+  begin
+    // We are still trying to allocate a new Alias, someone else is using this alias to try atain
+    if SourceMessage.CAN.SourceAlias = AliasID then
+      DuplicateAliasDetected := True;
+  end else
+  begin
+    // Normal message loop once successfully allocating an Alias
+
+    TestNodeID[0] := 0;
+    TestNodeID[1] := 0;
+    if SourceMessage.IsCAN then
+    begin
+      case SourceMessage.CAN.MTI of
+        MTI_CAN_AME :          // Alias Map Enquiry
+          begin
+            if SourceMessage.DataCount = 6 then
+            begin
+              SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
+              if EqualNodeID(TestNodeID, NodeID, False) then
+              begin
+                WorkerMessage.LoadAMD(NodeID, AliasID);
+                SendMessageFunc(Self, WorkerMessage);
+              end
+            end else
+            begin
+              WorkerMessage.LoadAMD(NodeID, AliasID);
+              SendMessageFunc(Self, WorkerMessage);
+            end;
+            Result := True;
+          end;
+      end
+    end;
+    if not Result then
+      Result := ProcessMessageLCC(SourceMessage);
+  end;
+end;
+
+function TLccNode.GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
+begin
+  Result := (Seed[0] xor Seed[1] xor (Seed[0] shr 12) xor (Seed[1] shr 12)) and $00000FFF;
+end;
+
+procedure TLccNode.GenerateNewSeed(var Seed: TNodeID);
+var
+  temp1,              // Upper 24 Bits of temp 48 bit number
+  temp2: DWORD;       // Lower 24 Bits of temp 48 Bit number
+begin
+  temp1 := ((Seed[1] shl 9) or ((Seed[0] shr 15) and $000001FF)) and $00FFFFFF;   // x(i+1)(2^9 + 1)*x(i) + C  = 2^9 * x(i) + x(i) + C
+  temp2 := (Seed[0] shl 9) and $00FFFFFF;                                                                  // Calculate 2^9 * x
+
+  Seed[0] := Seed[0] + temp2 + $7A4BA9;   // Now y = 2^9 * x so all we have left is x(i+1) = y + x + c
+  Seed[1] := Seed[1] + temp1 + $1B0CA3;
+
+  Seed[1] := (Seed[1] and $00FFFFFF) or (Seed[0] and $FF000000) shr 24;   // Handle the carries of the lower 24 bits into the upper
+  Seed[0] := Seed[0] and $00FFFFFF;
+end;
+
+procedure TLccNode.Relogin;
+var
+  Temp: TNodeID;
+begin
+  // Typically due to an alias conflict to create a new one
+  Temp := FSeedNodeID;
+  GenerateNewSeed(Temp);
+  FSeedNodeID := Temp;
+  FAliasID := GenerateID_Alias_From_Seed(Temp);
+  WorkerMessage.LoadCID(NodeID, AliasID, 0);
+  SendMessageFunc(Self, WorkerMessage);
+  WorkerMessage.LoadCID(NodeID, AliasID, 1);
+  SendMessageFunc(Self, WorkerMessage);
+  WorkerMessage.LoadCID(NodeID, AliasID, 2);
+  SendMessageFunc(Self, WorkerMessage);
+  WorkerMessage.LoadCID(NodeID, AliasID, 3);
+  SendMessageFunc(Self, WorkerMessage);
+
+  _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
+end;
+
+procedure TLccNode.CreateNodeID(var Seed: TNodeID);
+begin
+  Seed[1] := StrToInt('0x020112');
+  {$IFDEF DWSCRIPT}
+  Seed[0] := RandomInt($FFFFFF);
+  {$ELSE}
+  Seed[0] := Random($FFFFFF);
+  {$ENDIF}
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
+end;
+
+destructor TLccNode.Destroy;
+begin
+  _800msTimer.Enabled := False;
+
+  // No reason to check for GridConnect, just do it anyway
+  FAliasID := 0;
+  (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
+
+  FNodeID[0] := 0;
+  FNodeID[1] := 0;
+  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
+
+  (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
+  _800msTimer.Free;
+  FProtocolSupportedProtocols.Free;
+  FProtocolSimpleNodeInfo.Free;
+  FTProtocolMemoryConfigurationDefinitionInfo.Free;
+  FProtocolEventConsumed.Free;
+  FProtocolEventsProduced.Free;
+  FProtocolMemoryOptions.Free;
+  FProtocolMemoryInfo.Free;
+  FProtocolTraction.Free;
+  FProtocolTractionFunctionDefinitionInfo.Free;
+  FProtocolTractionMemoryFunctionConfiguration.Free;
+  FProtocolTractionSimpleTrainNodeInfo.Free;
+  FACDIMfg.Free;
+  FACDIUser.Free;
+  FProtocolMemoryConfiguration.Free;
+  FDatagramResendQueue.Free;
+  FWorkerMessageDatagram.Free;
+  FWorkerMessage.Free;
+  FStreamCdi.Free;
+  FStreamConfig.Free;
+  FStreamManufacturerData.Free;
+  FStreamTractionConfig.Free;
+  FStreamTractionFdi.Free;
+  FLccActions.Free;
+  inherited;
+end;
+
+function TLccNode.FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
+var
+  OffsetEnd: Integer;
+begin
+  Result := False;
+  TestXML := LowerCase(TestXML);
+  Element := LowerCase(Element);
+  Offset := Pos(Element, TestXML);
+  if Offset > -1 then
+  begin
+    Inc(Offset, Length(Element));
+    Element := StringReplace(Element, '<', '</', [rfReplaceAll]);
+    OffsetEnd := Pos(Element, TestXML);
+    if (OffsetEnd > -1) and (OffsetEnd > Offset) then
+    begin
+      ALength := OffsetEnd - Offset;
+      Result := True;
+      OffsetEnd := Low(TestXML);  // The "Low" would not work in the following if statement directly in Delphi
+      if OffsetEnd = 0 then   // Mobile
+        Dec(Offset, 1);
+    end else
+    Exit;
+  end
+end;
+
+function TLccNode.GetAlias: Word;
+begin
+  Result := 0;
+end;
+
+function TLccNode.GetCdiFile: string;
+begin
+  Result := CDI_XML;
+end;
+
+procedure TLccNode.Login(ANodeID: TNodeID);
+var
+  Temp: TNodeID;
+begin
+  if GridConnect then
+  begin
+    BeforeLogin;
+    if NullNodeID(ANodeID) then
+      CreateNodeID(ANodeID);
+    SeedNodeID := ANodeID;
+    Temp := FSeedNodeID;
+    FAliasID := GenerateID_Alias_From_Seed(Temp);
+    (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
+    FNodeID := ANodeID;
+
+    WorkerMessage.LoadCID(NodeID, AliasID, 0);
+    SendMessageFunc(Self, WorkerMessage);
+    WorkerMessage.LoadCID(NodeID, AliasID, 1);
+    SendMessageFunc(Self, WorkerMessage);
+    WorkerMessage.LoadCID(NodeID, AliasID, 2);
+    SendMessageFunc(Self, WorkerMessage);
+    WorkerMessage.LoadCID(NodeID, AliasID, 3);
+    SendMessageFunc(Self, WorkerMessage);
+
+    _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
+  end else
+    LoginLCC(ANodeID);
+end;
+
+procedure TLccNode.Logout;
+begin
+  (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
+  if GridConnect then
+  begin
+    FPermitted := False;
+    WorkerMessage.LoadAMR(NodeID, AliasID);
+    SendMessageFunc(Self, WorkerMessage);
+    (NodeManager as INodeManagerCallbacks).DoCANAliasMapReset(Self);
+  end;
+  // TODO Is there a message to take a non CAN node off line??????
+  FInitialized := False;
+  _800msTimer.Enabled := False;
+  DatagramResendQueue.Clear;
+end;
+
+procedure TLccNode.On_800msTimer(Sender: TObject);
+var
+  Temp: TNodeID;
+begin
+  if GridConnect then
+  begin
+    if not Permitted then
+    begin
+       // Did any node object to this Alias through ProcessMessage?
+      if DuplicateAliasDetected then
+      begin
+        DuplicateAliasDetected := False;  // Reset
+        Temp := FSeedNodeID;
+        GenerateNewSeed(Temp);
+        FSeedNodeID := Temp;
+        FAliasID := GenerateID_Alias_From_Seed(Temp);
+        WorkerMessage.LoadCID(NodeID, AliasID, 0);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadCID(NodeID, AliasID, 1);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadCID(NodeID, AliasID, 2);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadCID(NodeID, AliasID, 3);
+        SendMessageFunc(Self, WorkerMessage);
+      end else
+      begin
+        FPermitted := True;
+        WorkerMessage.LoadRID(NodeID, AliasID);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadAMD(NodeID, AliasID);
+        SendMessageFunc(Self, WorkerMessage);
+        (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
+        LogInLCC(NodeID);
+      end
+    end;
+    if Permitted then
+    begin
+      DatagramResendQueue.TickTimeout;
+      LccActions.TimeTick;
+    end
+  end else
+  begin
+    DatagramResendQueue.TickTimeout;
+    LccActions.TimeTick;
+  end;
+end;
+
+function TLccNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+begin
+  if GridConnect then
+    Result := ProcessMessageGridConnect(SourceMessage)   // When necessary ProcessMessageGridConnect drops the message into ProcessMessageLCC
+  else
+    Result := ProcessMessageLCC(SourceMessage);
 end;
 
 procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);

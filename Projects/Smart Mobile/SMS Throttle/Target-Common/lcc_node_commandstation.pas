@@ -77,10 +77,8 @@ type
 
   { TLccCommandStationNode }
 
-  TLccCommandStationNode = class(TLccCanNode)
+  TLccCommandStationNode = class(TLccNode)
   protected
-
-    procedure Creating; override;
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
 
@@ -164,11 +162,6 @@ begin
        LocalNode.Free;
      end;
    end;
-end;
-
-procedure TLccCommandStationNode.Creating;
-begin
-  inherited Creating;
 end;
 
 destructor TLccCommandStationNode.Destroy;
