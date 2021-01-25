@@ -39,7 +39,6 @@ uses
   lcc_node,
   lcc_node_train,
   lcc_node_controller,
-  lcc_node_commandstation,
   lcc_defines,
   lcc_utilities,
   lcc_node_messages;
@@ -127,6 +126,7 @@ type
 
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
+    FGridConnect: Boolean;
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -219,6 +219,7 @@ type
   public
     // Connection Manager
 
+    property GridConnect: Boolean read FGridConnect;
     {$IFDEF DELPHI}
     property Nodes: TOBjectList<TLccNode> read FNodes write FNodes;
     {$ELSE}
@@ -228,7 +229,7 @@ type
 
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
-    constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
+    constructor Create(AnOwner: TComponent; GridConnectLink: Boolean); {$IFNDEF DWSCRIPT} reintroduce; virtual; {$ENDIF}
     destructor Destroy; override;
 
     procedure Clear;
@@ -240,7 +241,6 @@ type
     procedure LogoutAll;
 
     function FindConnectedLink: IHardwareConnectionManagerLink;
-    function FindPermittedCanNode: TLccCanNode;
 
     procedure ProcessMessage(LccMessage: TLccMessage);  // Takes incoming messages and dispatches them to the nodes
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage); // Outgoing messages are passed through this method, its address is given to Nodes and other objects that need to send messages
@@ -312,47 +312,7 @@ type
   end;
 
 
-  { TLccCanNodeManager }
-
-  TLccCanNodeManager = class(TLccNodeManager)
-  private
-    function GetCanNode(Index: Integer): TLccCanNode;
-  public
-    property CanNode[Index: Integer]: TLccCanNode read GetCanNode;
-
-    constructor Create(AnOwner: TComponent); {$IFNDEF DWSCRIPT} override;  {$ENDIF}
-    destructor Destroy; override;
-
-    function AddNode(CdiXML: string): TLccCanNode; reintroduce;
-  end;
-
 implementation
-
-{ TLccCanNodeManager }
-
-function TLccCanNodeManager.AddNode(CdiXML: string): TLccCanNode;
-begin
-  Result := TLccCanNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
-  Nodes.Add(Result);
-end;
-
-constructor TLccCanNodeManager.Create(AnOwner: TComponent);
-begin
-  inherited Create(AnOwner);
-end;
-
-destructor TLccCanNodeManager.Destroy;
-begin
-  inherited;
-end;
-
-function TLccCanNodeManager.GetCanNode(Index: Integer): TLccCanNode;
-begin
-  if Index < Nodes.Count then
-    Result := Nodes[Index] as TLccCanNode
-  else
-    Result := nil;
-end;
 
 { TLccNodeManager }
 
@@ -599,7 +559,7 @@ begin
   end;
 end;
 
-constructor TLccNodeManager.Create(AnOwner: TComponent);
+constructor TLccNodeManager.Create(AnOwner: TComponent; GridConnectLink: Boolean);
 begin
   {$IFDEF DWSCRIPT}
     inherited Create;
@@ -613,13 +573,13 @@ begin
     {$ENDIF}
     FNodes.OwnsObjects := False;
   {$ENDIF}
-
+  FGridConnect := GridConnectLink;
   FWorkerMessage := TLccMessage.Create;
 end;
 
 function TLccNodeManager.AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode;
 begin
-  Result := TLccNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
+  Result := TLccNode.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML, GridConnect);
   Nodes.Add(Result);
   DoCreateLccNode(Result);
   if AutoLogin then
@@ -631,7 +591,7 @@ begin
   Result := nil;
   if Assigned(NodeClass) then
   begin
-    Result := NodeClass.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML);
+    Result := NodeClass.Create({$IFDEF FPC}@{$ENDIF}LccMessageSendCallback, Self, CdiXML, GridConnect);
     Nodes.Add(Result);
     DoCreateLccNode(Result);
     if AutoLogin then
@@ -658,27 +618,6 @@ begin
       TObject( FNodes[i]).Free;
   finally
     Nodes.Clear;
-  end;
-end;
-
-function TLccNodeManager.FindPermittedCanNode: TLccCanNode;
-var
-  i: Integer;
-begin
-  Result := nil;
-  i := 0;     // Cheap, slow linear search for now
-
-  while i < Nodes.Count do
-  begin
-    if Nodes[i] is TLccCanNode then
-    begin
-      if TLccCanNode(Nodes[i]).Permitted then
-      begin
-        Result := TLccCanNode(Nodes[i]);
-        Break;
-      end;
-      Inc(i)
-    end
   end;
 end;
 
@@ -731,10 +670,8 @@ end;
 
 procedure TLccNodeManager.SendMessage(Sender: TObject; LccMessage: TLccMessage);
 var
-  i, MapIndex: Integer;
-  WorkerCanNode: TLccCanNode;
+  i: Integer;
 begin
-  Mapindex := -1;
   // Send the message to the wire
 
   // Emumerate all Hardware Connections and pass on the message to send

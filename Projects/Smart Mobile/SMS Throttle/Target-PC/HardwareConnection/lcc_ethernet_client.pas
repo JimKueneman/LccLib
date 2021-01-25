@@ -308,6 +308,7 @@ begin
     while (Socket.LastError = WSAEINPROGRESS) or (Socket.LastError = WSAEALREADY) and (RetryCount < 40) do   {20 Second Wait}
     begin
       Socket.ResetLastError;
+      Peer.AddressFamily := 0;  // remove the compiler hint
       FillChar(Peer, Sizeof(TVarSin), #0);
       if GetPeerName(Socket.Socket, Peer) = 0 then
         Break;

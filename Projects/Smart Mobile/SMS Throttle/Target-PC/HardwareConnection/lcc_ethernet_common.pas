@@ -36,7 +36,6 @@ uses
   lcc_threaded_circulararray,
   lcc_ethernet_tcp,
   lcc_threaded_stringlist,
-  lcc_alias_server,
   lcc_defines,
   lcc_gridconnect,
   lcc_common_classes,
@@ -204,12 +203,13 @@ end;
 procedure TLccBaseEthernetThread.HandleSendConnectionNotification(NewConnectionState: TLccConnectionState);
 begin
   // Taken from the ethernet_client file... not sure if it is useful....
-  if Assigned(Socket) then
-  begin
-    Socket.GetSinLocal;
-    (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := Socket.GetLocalSinIP;
-    (ConnectionInfo as TLccEthernetConnectionInfo).ClientPort := Socket.GetLocalSinPort;
-  end;
+  // This breaks a Server, it already has the information
+//  if Assigned(Socket) then
+ // begin
+ //   Socket.GetSinLocal;
+ //   (ConnectionInfo as TLccEthernetConnectionInfo).ClientIP := Socket.GetLocalSinIP;
+ //   (ConnectionInfo as TLccEthernetConnectionInfo).ClientPort := Socket.GetLocalSinPort;
+ // end;
   inherited HandleSendConnectionNotification(NewConnectionState);
 end;
 
@@ -236,16 +236,16 @@ begin
   i := 0;
   while i < Owner.NodeManager.Nodes.Count do
   begin
-    if Owner.NodeManager.Node[i] is TLccCanNode then
+    if Owner.NodeManager.GridConnect then
     begin  // Need to look at the Source Alias as the message is in the format to transmit back out already
-      if (Owner.NodeManager.Node[i] as TLccCanNode).AliasID = WorkerMessage.CAN.SourceAlias then
+      if Owner.NodeManager.Node[i].AliasID = WorkerMessage.CAN.SourceAlias then
       begin
         Owner.NodeManager.SendMessage(Self, WorkerMessage);
         Break;
       end;
     end else
     begin // Need to look at the Source ID as the message is in the format to transmit back out already
-      if EqualNodeID( (Owner.NodeManager.Node[i] as TLccNode).NodeID, WorkerMessage.SourceID, False) then
+      if EqualNodeID(Owner.NodeManager.Node[i].NodeID, WorkerMessage.SourceID, False) then
       begin
         Owner.NodeManager.SendMessage(Self, WorkerMessage);
         Break;

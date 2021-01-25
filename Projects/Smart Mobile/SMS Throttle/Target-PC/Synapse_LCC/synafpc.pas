@@ -62,7 +62,7 @@ interface
 
 uses
 {$IFDEF FPC}
-  dynlibs, sysutils;
+  {$IFNDEF ULTIBO}dynlibs,{$ENDIF} sysutils;
 {$ELSE}
   {$IFDEF MSWINDOWS}
   Windows;
@@ -73,7 +73,7 @@ uses
 
 {$IFDEF FPC}
 type
-  TLibHandle = dynlibs.TLibHandle;
+  TLibHandle = {$IFNDEF ULTIBO}dynlibs.TLibHandle;{$ELSE}THandle;{$ENDIF}
   
 function LoadLibrary(ModuleName: PChar): TLibHandle;
 function FreeLibrary(Module: TLibHandle): LongBool;
@@ -106,21 +106,25 @@ implementation
 {$IFDEF FPC}
 function LoadLibrary(ModuleName: PChar): TLibHandle;
 begin
-  Result := dynlibs.LoadLibrary(Modulename);
+  Result := {$IFNDEF ULTIBO}dynlibs.LoadLibrary(Modulename);{$ELSE}-1;{$ENDIF}
 end;
 
 function FreeLibrary(Module: TLibHandle): LongBool;
 begin
-  Result := dynlibs.UnloadLibrary(Module);
+  Result := {$IFNDEF ULTIBO}dynlibs.UnloadLibrary(Module);{$ELSE}False;{$ENDIF}
 end;
 
 function GetProcAddress(Module: TLibHandle; Proc: PChar): Pointer;
 begin
-{$IFDEF OS2GCC}
-  Result := dynlibs.GetProcedureAddress(Module, '_' + Proc);
-{$ELSE OS2GCC}
-  Result := dynlibs.GetProcedureAddress(Module, Proc);
-{$ENDIF OS2GCC}
+{$IFNDEF ULTIBO}
+  {$IFDEF OS2GCC}
+    Result := dynlibs.GetProcedureAddress(Module, '_' + Proc);
+  {$ELSE OS2GCC}
+    Result := dynlibs.GetProcedureAddress(Module, Proc);
+  {$ENDIF OS2GCC}
+{$ELSE}
+  Result := nil;
+{$ENDIF}
 end;
 
 function GetModuleFileName(Module: TLibHandle; Buffer: PChar; BufLen: Integer): Integer;

@@ -361,9 +361,9 @@ type
 
 type
 
-  { TLccTrainCanNode }
+  { TLccTrainNode }
 
-  TLccTrainCanNode = class(TLccCanNode)
+  TLccTrainNode = class(TLccNode)
   private
     FAttachedController: TAttachedController;
     FDccAddress: Word;
@@ -427,7 +427,7 @@ type
     // The Search Event that may have created this Train Node, used as storage for the Command Station to create and wait for Initilization to complete
     property SearchEvent: TEventID read FSearchEvent write FSearchEvent;
 
-    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string); override;
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean); override;
     destructor Destroy; override;
 
     function ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
@@ -438,7 +438,7 @@ type
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
   end;
 
-  TLccTrainCanNodeClass = class of TLccTrainCanNode;
+  TLccTrainCanNodeClass = class of TLccTrainNode;
 
   function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
   function SpeedStepToIndex(SpeedStep: TLccDccSpeedStep): Integer;
@@ -633,7 +633,7 @@ end;
 
 function TLccTractionQueryListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
   Listener: TListenerNode;
   RequestedIndex: Integer;
 begin
@@ -641,7 +641,7 @@ begin
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
 
   if (SourceMessage.DataCount = 2) then // no query data, just wants the total number of listeners retured
     WorkerMessage.LoadTractionListenerQueryReply(NodeID, AliasID, TargetNodeID, TargetAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0)
@@ -662,7 +662,7 @@ end;
 
 function TLccTractionDetachListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
   ReplyCode: Word;
   ListenerNodeID: TNodeID;
 begin
@@ -670,7 +670,7 @@ begin
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   ListenerNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
 
@@ -689,7 +689,7 @@ end;
 
 function TLccTractionAttachListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
   NewListenerNode: TListenerNode;
   ReplyCode: Word;
   TempNodeID: TNodeID;
@@ -706,7 +706,7 @@ begin
   //   4) The Train must be Reserved by the connected controller
   //   5) Not enough memory to allocate another Listener
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
   FListenerNodeID := TempNodeID;
   AttachFlags := SourceMessage.DataArray[2];
@@ -754,6 +754,7 @@ begin
   case SourceMessage.CAN.MTI of
      MTI_CAN_AMD :
        begin
+         TempNodeID := NULL_NODE_ID;
          SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID); // Make SMS happy
          if EqualNodeID(TempNodeID, FListenerNodeID, False) then
          begin
@@ -774,14 +775,14 @@ end;
 
 function TLccTractionAttachListenerReplyAction._2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
   NewListenerNode: TListenerNode;
   ReplyCode: Word;
 begin
   Result := False;
   SourceMessage := SourceMessage;
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
   if Assigned(NewListenerNode) then
     ReplyCode := S_OK
@@ -812,7 +813,7 @@ begin
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  AttachedController := (Owner as TLccTrainCanNode).AttachedController;
+  AttachedController := (Owner as TLccTrainNode).AttachedController;
 
   if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
     WorkerMessage.LoadTractionControllerQueryReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID, 0)
@@ -827,13 +828,13 @@ end;
 
 function TLccTractionReleaseControllerAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
 
   if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
     OwnerTrain.ClearAttachedController;
@@ -845,13 +846,13 @@ end;
 
 function TLccTractionEmergencyStopAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   OwnerTrain.Speed := 0;
 
    _NFinalStateCleanup(Sender, SourceMessage);
@@ -861,14 +862,14 @@ end;
 
 function TLccTractionSetFunctionAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
   FunctionAddress: DWORD;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
 
   if OwnerTrain.ControllerAssigned then
     if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
@@ -884,13 +885,13 @@ end;
 
 function TLccTractionSetSpeedAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
 begin
  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   if OwnerTrain.ControllerAssigned then
     if OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
       OwnerTrain.Speed := SourceMessage.TractionExtractSetSpeed;
@@ -909,7 +910,7 @@ begin
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
   FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
-  WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, FunctionAddress, (Owner as TLccTrainCanNode).Functions[FunctionAddress]);
+  WorkerMessage.LoadTractionQueryFunctionReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, FunctionAddress, (Owner as TLccTrainNode).Functions[FunctionAddress]);
   SendMessage(Owner, WorkerMessage);
 
   _NFinalStateCleanup(Sender, SourceMessage);
@@ -919,13 +920,13 @@ end;
 
 function TLccTractionQuerySpeedReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(SourceMessage <> nil, 'SourceMessage is NIL, unexpected, single state statemachine');
 
-  OwnerTrain := Owner as TLccTrainCanNode;
+  OwnerTrain := Owner as TLccTrainNode;
   WorkerMessage.LoadTractionQuerySpeedReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, OwnerTrain.Speed, 0, HalfNaN, HalfNaN);
   SendMessage(Owner, WorkerMessage);
 
@@ -945,7 +946,7 @@ end;
 
 function TLccTractionAssignControllerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainCanNode;
+  OwnerTrain: TLccTrainNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -954,7 +955,7 @@ begin
     case SourceMessage.MTI of
        MTI_TRACTION_REQUEST :
          begin
-           OwnerTrain := Owner as TLccTrainCanNode;
+           OwnerTrain := Owner as TLccTrainNode;
 
            case SourceMessage.DataArray[0] of
               TRACTION_CONTROLLER_CONFIG :
@@ -963,8 +964,9 @@ begin
                     TRACTION_CONTROLLER_CONFIG_ASSIGN :
                       begin
                         // No reservation required
-                        RequestingControllerNodeID := SourceMessage.SourceID;
-                        RequestingControllerAliasID := SourceMessage.CAN.SourceAlias;
+                        SourceMessage.ExtractDataBytesAsNodeID(3);
+                        RequestingControllerNodeID := SourceMessage.ExtractDataBytesAsNodeID(3);
+                        RequestingControllerAliasID := SourceMessage.ExtractDataBytesAsWord(9);
 
                         if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias) then
                         begin
@@ -973,8 +975,6 @@ begin
                           AdvanceToNextState;
                         end else
                         begin
-                   //       WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, S_OK);
-                   //       SendMessage(Owner, WorkerMessage);
                           AssignResult := S_OK;
                           AdvanceToNextState(2);  // Jump over the Wait for the Assigned Controller to Reply
                           // Nothing to clock the next state so do it manually
@@ -1050,9 +1050,9 @@ begin
 
   if AssignResult = S_OK then
   begin
-    (Owner as TLccTrainCanNode).ClearAttachedController;
-    (Owner as TLccTrainCanNode).FAttachedController.NodeID := RequestingControllerNodeID;
-    (Owner as TLccTrainCanNode).FAttachedController.AliasID := RequestingControllerAliasID;
+    (Owner as TLccTrainNode).ClearAttachedController;
+    (Owner as TLccTrainNode).FAttachedController.NodeID := RequestingControllerNodeID;
+    (Owner as TLccTrainNode).FAttachedController.AliasID := RequestingControllerAliasID;
   end;
   WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, RequestingControllerNodeID, RequestingControllerAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
@@ -1060,15 +1060,15 @@ begin
   AdvanceToNextState;
 end;
 
-{ TLccTrainCanNode }
+{ TLccTrainNode }
 
-constructor TLccTrainCanNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string);
+constructor TLccTrainNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean);
 begin
-  inherited Create(ASendMessageFunc, ANodeManager, CdiXML);
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
   FListeners := TListenerList.Create;
 end;
 
-procedure TLccTrainCanNode.BeforeLogin;
+procedure TLccTrainNode.BeforeLogin;
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.Datagram := True;
@@ -1106,7 +1106,7 @@ begin
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 end;
 
-function TLccTrainCanNode.EncodeFunctionValuesDccStyle: DWORD;
+function TLccTrainNode.EncodeFunctionValuesDccStyle: DWORD;
 var
   i: Integer;
 begin
@@ -1120,7 +1120,7 @@ begin
   end;
 end;
 
-function TLccTrainCanNode.EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
+function TLccTrainNode.EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
 var
   i: Integer;
 begin
@@ -1130,13 +1130,13 @@ begin
   Result := Result + ';';
 end;
 
-procedure TLccTrainCanNode.DoSendMessageComPort(GridConnectString: string);
+procedure TLccTrainNode.DoSendMessageComPort(GridConnectString: string);
 begin
   if Assigned(OnSendMessageComPort) then
     OnSendMessageComPort(Self, GridConnectString);
 end;
 
-function TLccTrainCanNode.DccFunctionHandler(DccAddress: Word;
+function TLccTrainNode.DccFunctionHandler(DccAddress: Word;
   LongAddress: Boolean; FunctionAddress: DWORD; AllDccFunctionBitsEncoded: DWORD
   ): TDCCPacket;
 var
@@ -1200,7 +1200,7 @@ begin
   end;
 end;
 
-function TLccTrainCanNode.DccSpeedDirHandler(DccAddress: Word;
+function TLccTrainNode.DccSpeedDirHandler(DccAddress: Word;
   LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep
   ): TDCCPacket;
 var
@@ -1270,7 +1270,7 @@ begin
   end;
 end;
 
-destructor TLccTrainCanNode.Destroy;
+destructor TLccTrainNode.Destroy;
 begin
   {$IFDEF DWSCRIPT}
   FListeners.Free;
@@ -1280,7 +1280,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TLccTrainCanNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1,
+procedure TLccTrainNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1,
   Data2, Data3, Data4, Data5, ValidDataByes: Byte);
 begin
   NewMessage.PacketBytes[0] := Data1;
@@ -1291,7 +1291,7 @@ begin
   NewMessage.Flags := ValidDataByes;
 end;
 
-procedure TLccTrainCanNode.ClearAttachedController;
+procedure TLccTrainNode.ClearAttachedController;
 begin
   FAttachedController.NodeID := NULL_NODE_ID;
   FAttachedController.AliasID := 0;
@@ -1301,22 +1301,22 @@ begin
   FAttachedController.AttachNotifyAliasID := 0;
 end;
 
-function TLccTrainCanNode.ControllerAssigned: Boolean;
+function TLccTrainNode.ControllerAssigned: Boolean;
 begin
   Result := ((AttachedController.NodeID[0] <> 0) and (AttachedController.NodeID[1] <> 0) or (AttachedController.AliasID <> 0))
 end;
 
-function TLccTrainCanNode.ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
+function TLccTrainNode.ControllerEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
   Result := (((AttachedController.NodeID[0] = ATestNodeID[0]) and (AttachedController.NodeID[1] = ATestNodeID[1])) and (ATestAlias = AttachedController.AliasID))
 end;
 
-function TLccTrainCanNode.GetCdiFile: string;
+function TLccTrainNode.GetCdiFile: string;
 begin
   Result := CDI_XML_TRAIN_NODE
 end;
 
-function TLccTrainCanNode.GetDirection: TLccTrainDirection;
+function TLccTrainNode.GetDirection: TLccTrainDirection;
 begin
   if HalfIsNegative(Speed) then
     Result := tdReverse
@@ -1324,7 +1324,7 @@ begin
     Result := tdForward;
 end;
 
-function TLccTrainCanNode.GetFunctions(Index: Integer): Word;
+function TLccTrainNode.GetFunctions(Index: Integer): Word;
 begin
   if (Index >= 0) and (Index < Length(FFunctions)) then
     Result := FFunctions[Index]
@@ -1332,26 +1332,71 @@ begin
     Result := $FFFF
 end;
 
-function TLccTrainCanNode.IsReserved: Boolean;
+function TLccTrainNode.IsReserved: Boolean;
 begin
   Result := (AttachedController.ReservationNodeID[0] <> 0) or (AttachedController.ReservationNodeID[1] <> 0) or (AttachedController.ReservationAliasID <> 0);
 end;
 
-function TLccTrainCanNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
+function TLccTrainNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
 begin
   Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.ReservationNodeID, AttachedController.ReservationAliasID);
 end;
 
-procedure TLccTrainCanNode.OnReserveWatchDogTimer(Sender: TObject);
+procedure TLccTrainNode.OnReserveWatchDogTimer(Sender: TObject);
 begin
   ReserveWatchDogTimer.Enabled := False;
   FAttachedController.ReservationAliasID := 0;
   FAttachedController.ReservationNodeID := NULL_NODE_ID;
 end;
 
-function TLccTrainCanNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+function TLccTrainNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+{var
+  SearchData: DWORD;
+  SearchStr: string;
+  SearchDccAddress: Word;
+  IsMatch: Boolean;
+  IsForceLongAddress: Boolean;
+  IsSpeedStep: TLccDccSpeedStep;   }
 begin
   Result := inherited ProcessMessage(SourceMessage);
+
+  case SourceMessage.MTI of
+    MTI_PRODUCER_IDENDIFY :
+      begin
+        if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
+        begin
+      {    SearchData := SourceMessage.TractionSearchExtractSearchData;
+
+          SearchStr := SourceMessage.TractionSearchDecodeSearchString;
+
+          if SearchStr <> '' then                       // Gaurd against an empty string
+          begin
+            SearchDccAddress := StrToInt(SearchStr);
+
+            if SourceMessage.TractionSearchIsExactMatchOnly then
+              IsMatch := SearchDccAddress = DccAddress
+            else
+              IsMatch := Pos(SearchStr, IntToStr(DccAddress)) > 0;
+
+            if IsMatch then
+            begin
+              IsForceLongAddress := False;
+              IsSpeedStep := ldss14;
+              if SourceMessage.TractionSearchIsProtocolDCC(IsForceLongAddress, IsSpeedStep) then
+              begin
+                if ((SpeedStep = IsSpeedStep) or
+                   ((IsSpeedStep = ldssDefault) and (SpeedStep = ldss14))) and
+                   (IsForceLongAddress = DccLongAddress)
+                then begin // Send back the same SearchData as recevied
+                  WorkerMessage.LoadTractionSearch(NodeID, AliasID, SearchData);
+                  SendMessageFunc(Self, WorkerMessage);
+                end
+              end
+            end
+          end  }
+        end
+      end
+  end;
 
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
@@ -1400,24 +1445,24 @@ begin
   end;
 end;
 
-function TLccTrainCanNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
+function TLccTrainNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
   Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
 end;
 
-procedure TLccTrainCanNode.SetDccAddress(AValue: Word);
+procedure TLccTrainNode.SetDccAddress(AValue: Word);
 begin
   if FDccAddress = AValue then Exit;
   FDccAddress := AValue;
 end;
 
-procedure TLccTrainCanNode.SetDccLongAddress(AValue: Boolean);
+procedure TLccTrainNode.SetDccLongAddress(AValue: Boolean);
 begin
   if FDccLongAddress = AValue then Exit;
   FDccLongAddress := AValue;
 end;
 
-procedure TLccTrainCanNode.SetDirection(AValue: TLccTrainDirection);
+procedure TLccTrainNode.SetDirection(AValue: TLccTrainDirection);
 begin
   if AValue = tdReverse then
     Speed := FSpeed or $8000
@@ -1425,7 +1470,7 @@ begin
     Speed := FSpeed and $7FFF;
 end;
 
-procedure TLccTrainCanNode.SetFunctions(Index: Integer; AValue: Word);
+procedure TLccTrainNode.SetFunctions(Index: Integer; AValue: Word);
 var
   DccPacket: TDCCPacket;
   DccGridConnect: string;
@@ -1439,19 +1484,19 @@ begin
   end;
 end;
 
-procedure TLccTrainCanNode.SetName(AValue: string);
+procedure TLccTrainNode.SetName(AValue: string);
 begin
   if FName = AValue then Exit;
   FName := AValue;
 end;
 
-procedure TLccTrainCanNode.SetRoadNumber(AValue: string);
+procedure TLccTrainNode.SetRoadNumber(AValue: string);
 begin
   if FRoadNumber = AValue then Exit;
   FRoadNumber := AValue;
 end;
 
-procedure TLccTrainCanNode.SetSpeed(AValue: THalfFloat);
+procedure TLccTrainNode.SetSpeed(AValue: THalfFloat);
 var
   DccPacket: TDCCPacket;
   DccGridConnect: string;
@@ -1463,7 +1508,7 @@ begin
   DoSendMessageComPort(DccGridConnect);
 end;
 
-procedure TLccTrainCanNode.SetSpeedStep(AValue: TLccDccSpeedStep);
+procedure TLccTrainNode.SetSpeedStep(AValue: TLccDccSpeedStep);
 begin
   if FSpeedStep = AValue then Exit;
   FSpeedStep := AValue;

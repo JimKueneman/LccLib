@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
-  throttle_takeover_request_form, lcc_alias_server, lcc_common_classes, lcc_ethernet_common;
+  throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common;
 
 type
 
@@ -187,9 +187,9 @@ type
 
 
   public
-    NodeManager1: TLccCanNodeManager;
+    NodeManager1: TLccNodeManager;
     ClientServer1: TLccEthernetClient;
-    NodeManager2: TLccCanNodeManager;
+    NodeManager2: TLccNodeManager;
     ClientServer2: TLccEthernetClient;
 
     ControllerNode1: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
@@ -246,7 +246,6 @@ end;
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 var
   LocalInfo: TLccEthernetConnectionInfo;
-  i: Integer;
 begin
   if ClientServer1.Connected then
   begin
@@ -308,7 +307,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 
-  NodeManager1 := TLccCanNodeManager.Create(nil);
+  NodeManager1 := TLccNodeManager.Create(nil, True);
   ClientServer1 := TLccEthernetClient.Create(nil, NodeManager1);
 
   NodeManager1.OnLccNodeAliasIDChanged := @OnNodeManager1AliasChange;
@@ -317,7 +316,7 @@ begin
   ClientServer1.OnConnectionStateChange := @OnClientServer1ConnectionChange;
   ClientServer1.OnErrorMessage := @OnClientServer1ErrorMessage;
 
-  NodeManager2 := TLccCanNodeManager.Create(nil);
+  NodeManager2 := TLccNodeManager.Create(nil, True);
   ClientServer2 := TLccEthernetClient.Create(nil, NodeManager2);
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
@@ -879,7 +878,7 @@ end;
 
 procedure TForm1.OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelAlias1.Caption := 'NodeID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
+  LabelAlias1.Caption := 'NodeID: ' + LccSourceNode.AliasIDStr;
 end;
 
 procedure TForm1.OnNodeManager1IDChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -890,7 +889,7 @@ end;
 
 procedure TForm1.OnNodeManager2AliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelAlias2.Caption := 'NodeID: ' + (LccSourceNode as TLccCanNode).AliasIDStr;
+  LabelAlias2.Caption := 'NodeID: ' + LccSourceNode.AliasIDStr;
 end;
 
 procedure TForm1.OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
