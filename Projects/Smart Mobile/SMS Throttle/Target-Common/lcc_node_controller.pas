@@ -956,17 +956,12 @@ procedure TLccTrainController.ClearAssignedTrain;
 begin
   FAssignedTrain.SearchString := '';
   FAssignedTrain.Listeners := nil;
-  {$IFNDEF DWSCRIPT}
-  FillChar(FAssignedTrain, Sizeof(AssignedTrain), 0);
-  {$ELSE}
-  //   TODO Need to do this manually in SMS
-  FAssignedTrain.NodeID := NULL_NODE_ID;
+  FAssignedTrain.NodeID := NULL_NODE_ID;  //   TODO Need to do this manually in SMS so do it forall
   FAssignedTrain.AliasID := 0;
   FAssignedTrain.RequestedSearchData := 0;
   FAssignedTrain.RepliedSearchData := 0;
   FAssignedTrain.SearchString := '';
   FAssignedTrain.Listeners := nil;
-  {$ENDIF}
 end;
 
 procedure TLccTrainController.DoControllerTakeOver(var Allow: Boolean);

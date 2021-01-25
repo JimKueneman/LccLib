@@ -85,10 +85,10 @@ type
   public
 
     destructor Destroy; override;
-    function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainCanNode;
+    function AddTrain(ARoadName, ARoadNumber: string; ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainNode;
     procedure ClearTrains;
-    function FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainCanNode;
-    function FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainCanNode;
+    function FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainNode;
+    function FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainNode;
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
   end;
 
@@ -102,9 +102,9 @@ uses
 
 function TLccCommandStationNode.AddTrain(ARoadName, ARoadNumber: string;
   ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep
-  ): TLccTrainCanNode;
+  ): TLccTrainNode;
 begin
-  Result := (NodeManager as INodeManager).AddNodeByClass('', TLccTrainCanNode, False) as TLccTrainCanNode;
+  Result := (NodeManager as INodeManager).AddNodeByClass('', TLccTrainNode, False) as TLccTrainNode;
   if Assigned(Result) then
   begin
     Result.Name := ARoadName;
@@ -156,7 +156,7 @@ begin
   LocalNodeManager := NodeManager as INodeManager;
   for i := LocalNodeManager.GetNodeCount - 1 downto 0 do
    begin
-     if LocalNodeManager.GetNode(i) is TLccTrainCanNode then
+     if LocalNodeManager.GetNode(i) is TLccTrainNode then
      begin
        LocalNode := LocalNodeManager.ExtractNode(i);
        LocalNode.Free;
@@ -169,19 +169,19 @@ begin
   inherited Destroy;
 end;
 
-function TLccCommandStationNode.FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainCanNode;
+function TLccCommandStationNode.FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainNode;
 var
   i: Integer;
   LocalNodeManager: INodeManager;
-  TempTrain: TLccTrainCanNode;
+  TempTrain: TLccTrainNode;
 begin
   Result := nil;
   LocalNodeManager := NodeManager as INodeManager;
   for i := 0 to LocalNodeManager.GetNodeCount - 1 do
    begin
-     if LocalNodeManager.GetNode(i) is TLccTrainCanNode then
+     if LocalNodeManager.GetNode(i) is TLccTrainNode then
      begin
-       TempTrain := LocalNodeManager.GetNode(i) as TLccTrainCanNode;
+       TempTrain := LocalNodeManager.GetNode(i) as TLccTrainNode;
        if (DccAddress = TempTrain.DccAddress) and (IsLongAddress = TempTrain.DccLongAddress) then
        begin
          Result := TempTrain;
@@ -191,19 +191,19 @@ begin
    end;
 end;
 
-function TLccCommandStationNode.FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainCanNode;
+function TLccCommandStationNode.FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainNode;
 var
   i: Integer;
   LocalNodeManager: INodeManager;
-  LocalTrainNode: TLccTrainCanNode;
+  LocalTrainNode: TLccTrainNode;
 begin
   Result := nil;
   LocalNodeManager := NodeManager as INodeManager;
   for i := 0 to LocalNodeManager.GetNodeCount - 1 do
    begin
-     if LocalNodeManager.GetNode(i) is TLccTrainCanNode then
+     if LocalNodeManager.GetNode(i) is TLccTrainNode then
      begin
-       LocalTrainNode := LocalNodeManager.GetNode(i) as TLccTrainCanNode;
+       LocalTrainNode := LocalNodeManager.GetNode(i) as TLccTrainNode;
        if EqualNodeID(ANodeID, LocalTrainNode.NodeID, False) then
        begin
          Result := LocalTrainNode;
@@ -228,7 +228,7 @@ var
   SearchDccAddress: LongInt;
   {$ENDIF}
   LongAddressOnly, IsDCC: Boolean;
-  ATrain: TLccTrainCanNode;
+  ATrain: TLccTrainNode;
   ReturnEvent: TEventID;
 begin
   Result := inherited ProcessMessage(SourceMessage);

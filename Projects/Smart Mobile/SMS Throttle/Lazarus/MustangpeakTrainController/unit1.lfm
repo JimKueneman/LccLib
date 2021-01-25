@@ -1,5 +1,5 @@
 object FormTrainController: TFormTrainController
-  Left = 542
+  Left = 541
   Height = 712
   Top = 108
   Width = 435
