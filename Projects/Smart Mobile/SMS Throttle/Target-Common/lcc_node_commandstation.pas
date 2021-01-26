@@ -233,13 +233,6 @@ var
 begin
   Result := inherited ProcessMessage(SourceMessage);
 
-   // We only are dealing with messages with destinations for us from here on
-  if SourceMessage.HasDestination then
-  begin
-    if not IsDestinationEqual(SourceMessage) then
-      Exit;
-  end;
-
   case SourceMessage.MTI of
      MTI_INITIALIZATION_COMPLETE :
       begin  // Need to wait for new trains to fully initalize before returning from the Traction Search Event........

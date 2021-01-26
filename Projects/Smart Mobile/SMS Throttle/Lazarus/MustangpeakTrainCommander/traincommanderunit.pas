@@ -182,13 +182,13 @@ end;
 procedure TFormTrainCommander.ButtonTrainsClearClick(Sender: TObject);
 var
   i: Integer;
-  TrainNode: TLccTrainCanNode;
+  TrainNode: TLccTrainNode;
 begin
   for i := 0 to NodeManager.GetNodeCount - 1 do
   begin
-    if NodeManager.Node[i] is TLccTrainCanNode then
+    if NodeManager.Node[i] is TLccTrainNode then
     begin
-      TrainNode := NodeManager.Node[i] as TLccTrainCanNode;
+      TrainNode := NodeManager.Node[i] as TLccTrainNode;
       TrainNode.Logout;
       NodeManager.Nodes.Delete(i);
     end;
@@ -572,16 +572,15 @@ begin
   LabelNodeID.Caption := LccSourceNode.NodeIDStr;
 end;
 
-procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject;
-  LccSourceNode: TLccNode);
+procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 var
-  TrainNode: TLccTrainCanNode;
+  TrainNode: TLccTrainNode;
   Item: TListItem;
   SpeedStep: string;
 begin
-  if LccSourceNode is TLccTrainCanNode then
+  if LccSourceNode is TLccTrainNode then
   begin
-    TrainNode := LccSourceNode as TLccTrainCanNode;
+    TrainNode := LccSourceNode as TLccTrainNode;
 
     TrainNode.OnSendMessageComPort := @OnComPortSendMessage;
 
@@ -656,7 +655,7 @@ procedure TFormTrainCommander.OnNodeManagerNodeLogout(Sender: TObject; LccSource
 var
   i: Integer;
 begin
-  if LccSourceNode is TLccTrainCanNode then
+  if LccSourceNode is TLccTrainNode then
   begin
     for i := 0 to ListViewTrains.Items.Count - 1 do
     begin

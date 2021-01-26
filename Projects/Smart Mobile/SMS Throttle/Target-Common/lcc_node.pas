@@ -60,7 +60,9 @@ uses
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
 
-  TIMEOUT_CONTROLLER_NOTIFY_WAIT = 2500;
+  TIMEOUT_TIME = 100; // milli seconds
+  TIMEOUT_CONTROLLER_NOTIFY_WAIT = 5000;  // 5 seconds
+  TIMEOUT_NODE_VERIFIED_WAIT = 800;       // 800ms
 
 const
 
@@ -161,7 +163,7 @@ type
    // Each decendant must set the number of state functions it implements
    procedure SetStateArrayLength(NewLength: Integer);
    // Sets the number of ms before any wait state is declared hung or complete
-   procedure SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True);  // 800ms counts
+   procedure SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True);  // 100ms counts
    // set the timer counter that starts counting toward the CountThreshold
    procedure ResetTimeoutCounter;
    // Compares CountThreshold and Counter to see if the timeout timer has expired
@@ -218,6 +220,7 @@ type
     FDuplicateAliasDetected: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
+    FLoginTimoutCounter: Integer;
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
     FWorkerMessageDatagram: TLccMessage;
@@ -257,7 +260,7 @@ type
     FACDIUser: TACDIUser;
     FDatagramResendQueue: TDatagramQueue;
     FWorkerMessage: TLccMessage;
-    F_800msTimer: TLccTimer;
+    F_100msTimer: TLccTimer;
 
     function GetAliasIDStr: String;
     function GetNodeIDStr: String;
@@ -273,11 +276,12 @@ type
 
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property WorkerMessageDatagram: TLccMessage read FWorkerMessageDatagram write FWorkerMessageDatagram;
-    property _800msTimer: TLccTimer read F_800msTimer write F_800msTimer;
+    property _100msTimer: TLccTimer read F_100msTimer write F_100msTimer;
 
     // GridConnect Helpers
     property DuplicateAliasDetected: Boolean read FDuplicateAliasDetected write FDuplicateAliasDetected;
     property SeedNodeID: TNodeID read FSeedNodeID write FSeedNodeID;
+    property LoginTimoutCounter: Integer read FLoginTimoutCounter write FLoginTimoutCounter;
 
     procedure CreateNodeID(var Seed: TNodeID);
     function GetAlias: Word; virtual;
@@ -288,7 +292,7 @@ type
     procedure SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
     procedure SendDatagramRejectedReply(SourceMessage: TLccMessage; Reason: Word);
     procedure SendDatagramRequiredReply(SourceMessage, ReplyLccMessage: TLccMessage);
-    procedure On_800msTimer(Sender: TObject);  virtual;
+    procedure On_100msTimer(Sender: TObject);  virtual;
     function GetCdiFile: string; virtual;
     procedure BeforeLogin; virtual;
     procedure LogInLCC(ANodeID: TNodeID);
@@ -440,7 +444,7 @@ end;
 
 procedure TLccAction.SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean);
 begin
-  TimeoutCountThreshold := Trunc(NewThreshold_ms/800) + 1;
+  TimeoutCountThreshold := Trunc(NewThreshold_ms/TIMEOUT_TIME) + 1;
   if ResetCounter then
     TimeoutCounts := 0;
 end;
@@ -699,14 +703,14 @@ begin
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
 
-  _800msTimer := TLccTimer.Create(nil);
-  _800msTimer.Enabled := False;
+  _100msTimer := TLccTimer.Create(nil);
+  _100msTimer.Enabled := False;
   {$IFDEF DWSCRIPT}
-  _800msTimer.OnTime := @On_800msTimer;
-  _800msTimer.Delay := 800;
+  _100msTimer.OnTime := @On_100msTimer;
+  _100msTimer.Delay := 100;
   {$ELSE}
-  _800msTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}On_800msTimer;
-  _800msTimer.Interval := 800;
+  _100msTimer.OnTimer := {$IFNDEF DELPHI}@{$ENDIF}On_100msTimer;
+  _100msTimer.Interval := 100;
   {$ENDIF}
 
   if CdiXML = '' then
@@ -1365,7 +1369,8 @@ begin
   WorkerMessage.LoadCID(NodeID, AliasID, 3);
   SendMessageFunc(Self, WorkerMessage);
 
-  _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
+  LoginTimoutCounter := 0;
+  _100msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
 end;
 
 procedure TLccNode.CreateNodeID(var Seed: TNodeID);
@@ -1381,7 +1386,7 @@ end;
 
 destructor TLccNode.Destroy;
 begin
-  _800msTimer.Enabled := False;
+  _100msTimer.Enabled := False;
 
   // No reason to check for GridConnect, just do it anyway
   FAliasID := 0;
@@ -1392,7 +1397,7 @@ begin
   (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
 
   (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
-  _800msTimer.Free;
+  _100msTimer.Free;
   FProtocolSupportedProtocols.Free;
   FProtocolSimpleNodeInfo.Free;
   FTProtocolMemoryConfigurationDefinitionInfo.Free;
@@ -1478,7 +1483,8 @@ begin
     WorkerMessage.LoadCID(NodeID, AliasID, 3);
     SendMessageFunc(Self, WorkerMessage);
 
-    _800msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
+    LoginTimoutCounter := 0;
+    _100msTimer.Enabled := True;  //  Next state is in the event handler to see if anyone objects tor our Alias
   end else
     LoginLCC(ANodeID);
 end;
@@ -1495,11 +1501,11 @@ begin
   end;
   // TODO Is there a message to take a non CAN node off line??????
   FInitialized := False;
-  _800msTimer.Enabled := False;
+  _100msTimer.Enabled := False;
   DatagramResendQueue.Clear;
 end;
 
-procedure TLccNode.On_800msTimer(Sender: TObject);
+procedure TLccNode.On_100msTimer(Sender: TObject);
 var
   Temp: TNodeID;
 begin
@@ -1507,6 +1513,7 @@ begin
   begin
     if not Permitted then
     begin
+      Inc(FLoginTimoutCounter);
        // Did any node object to this Alias through ProcessMessage?
       if DuplicateAliasDetected then
       begin
@@ -1523,15 +1530,19 @@ begin
         SendMessageFunc(Self, WorkerMessage);
         WorkerMessage.LoadCID(NodeID, AliasID, 3);
         SendMessageFunc(Self, WorkerMessage);
+        LoginTimoutCounter := 0;
       end else
       begin
-        FPermitted := True;
-        WorkerMessage.LoadRID(NodeID, AliasID);
-        SendMessageFunc(Self, WorkerMessage);
-        WorkerMessage.LoadAMD(NodeID, AliasID);
-        SendMessageFunc(Self, WorkerMessage);
-        (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
-        LogInLCC(NodeID);
+        if LoginTimoutCounter > 7 then
+        begin
+          FPermitted := True;
+          WorkerMessage.LoadRID(NodeID, AliasID);
+          SendMessageFunc(Self, WorkerMessage);
+          WorkerMessage.LoadAMD(NodeID, AliasID);
+          SendMessageFunc(Self, WorkerMessage);
+          (NodeManager as INodeManagerCallbacks).DoAliasIDChanged(Self);
+          LogInLCC(NodeID);
+        end;
       end
     end;
     if Permitted then
