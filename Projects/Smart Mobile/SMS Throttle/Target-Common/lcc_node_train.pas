@@ -990,7 +990,7 @@ begin
 
   if Owner.GridConnect then
   begin
-    if Assigned(SourceMessage) then   // Could be time tick calling
+    if Assigned(SourceMessage) then   // Could be time tick calling and we need to wait for a real message
     begin
       case SourceMessage.MTI of
         MTI_VERIFIED_NODE_ID_NUMBER :
@@ -1024,21 +1024,20 @@ var
   OwnerTrain: TLccTrainNode;
 begin
   Result := False;
-  if Assigned(SourceMessage) then
+
+  // SourceMessage is not used here and this get clocked by the timer pump
+  OwnerTrain := Owner as TLccTrainNode;
+
+  if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(RequestingControllerNodeID) then
   begin
-    OwnerTrain := Owner as TLccTrainNode;
+    WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, OwnerTrain.AttachedController.NodeID, OwnerTrain.AttachedController.AliasID, RequestingControllerNodeID, RequestingControllerAliasID);
+    SendMessage(Owner, WorkerMessage);
+    SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT, True);
+    AssignResult := TRACTION_CONTROLLER_CONFIG_REPLY_PENDING;
+  end else
+    AssignResult := TRACTION_CONTROLLER_CONFIG_REPLY_OK;
 
-    if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(RequestingControllerNodeID) then
-    begin
-      WorkerMessage.LoadTractionControllerChangingNotify(NodeID, AliasID, OwnerTrain.AttachedController.NodeID, OwnerTrain.AttachedController.AliasID, RequestingControllerNodeID, RequestingControllerAliasID);
-      SendMessage(Owner, WorkerMessage);
-      SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT, True);
-      AssignResult := TRACTION_CONTROLLER_CONFIG_REPLY_PENDING;
-    end else
-      AssignResult := TRACTION_CONTROLLER_CONFIG_REPLY_OK;
-
-    AdvanceToNextState;
-  end;
+  AdvanceToNextState;
 end;
 
 function TLccTractionAssignControllerReplyAction._3WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -1047,7 +1046,7 @@ begin
 
   if AssignResult = TRACTION_CONTROLLER_CONFIG_REPLY_PENDING then
   begin
-    if Assigned(SourceMessage) then   // Could be time tick calling
+    if Assigned(SourceMessage) then   // Could be time tick calling and we need to wait for a real message
     begin
       case SourceMessage.MTI of
        MTI_TRACTION_REPLY :
@@ -1085,13 +1084,14 @@ function TLccTractionAssignControllerReplyAction._4SendAssignReply(Sender: TObje
 begin
   Result := False;
 
+  // Don't need the SourceMessage and will get clocked by the timer pump
   if AssignResult = TRACTION_CONTROLLER_CONFIG_REPLY_OK then
   begin
     (Owner as TLccTrainNode).ClearAttachedController;
     (Owner as TLccTrainNode).FAttachedController.NodeID := RequestingControllerNodeID;
     (Owner as TLccTrainNode).FAttachedController.AliasID := RequestingControllerAliasID;
   end;
-  WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignResult);
+  WorkerMessage.LoadTractionControllerAssignReply(NodeID, AliasID, TargetNodeID, TargetAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
 
   AdvanceToNextState;
