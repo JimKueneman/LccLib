@@ -330,8 +330,7 @@ begin
                 if ConnectionInfo.UseSyncronize then
                   Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
                 else begin
-                  // DANGER: This method do not allow for the AliasServer update to be
-                  // called automatically.  The program is responsible for pumping the messages
+                  // The program is responsible for pumping the messages
                   // out of the Owner.IncomingGridConnect
                   RxList := Owner.IncomingGridConnect.LockList;
                   try
@@ -377,8 +376,7 @@ begin
           if ConnectionInfo.UseSyncronize then
             Synchronize({$IFDEF FPC}@{$ENDIF}ReceiveMessage)
           else begin
-             // DANGER: This method do not allow for the AliasServer update to be
-             // called automatically.  The program is responsible for pumping the messages
+             // The program is responsible for pumping the messages
              // out of the Owner.IncomingGridConnect
             Owner.IncomingCircularArray.LockArray;
             try

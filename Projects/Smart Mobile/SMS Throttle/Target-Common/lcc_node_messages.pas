@@ -65,7 +65,7 @@ private
   FDataArray: TLccByteArray;                // The payload of the message (if there is a payload).  This is the full payload that has been already been assembled if we are on a CAN link
   FDataCount: Integer;                      // How many bytes in the DataArray are valid
   FDestID: TNodeID;                         // NodeID of the Destination of a message (typically a node in our NodeManager)
-  FSourceID: TNodeID;                       // NodeID of the Source of a message (AliasServer will ensure this is populated)
+  FSourceID: TNodeID;                       // NodeID of the Source of a message
   FMTI: Word;                               // The Actual MTI of the message IF it is not a CAN frame message
   FRetryAttempts: Integer;                  // If a message returned "Temporary" (like no buffers) this holds how many time it has been retried and defines a give up time to stop resending
   function GetHasDestination: Boolean;
@@ -147,12 +147,12 @@ public
   procedure LoadTractionQuerySpeedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SetSpeed: THalfFloat; Status: Byte; CommandedSpeed, ActualSpeed: THalfFloat);
   procedure LoadTractionQueryFunction(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word);
   procedure LoadTractionQueryFunctionReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Address: Word; Value: Word);
-  procedure LoadTractionControllerAssign(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID; AControllerAlias: Word);
+  procedure LoadTractionControllerAssign(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID);
   procedure LoadTractionControllerAssignReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AResult: Byte);
   procedure LoadTractionControllerRelease(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ANodeID: TNodeID; AnAlias: Word);
   procedure LoadTractionControllerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID; AControllerAlias: Word);
-  procedure LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID; AControllerAlias: Word);
+  procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID);
+  procedure LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID);
   procedure LoadTractionControllerChangedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
   procedure LoadTractionListenerAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
   procedure LoadTractionListenerAttachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID; ReplyCode: Word);
@@ -1989,31 +1989,18 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionControllerAssign(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID;
-  AControllerAlias: Word);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if AControllerAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, AControllerNodeID);
-    FDataArray[9] := Hi( AControllerAlias);
-    FDataArray[10] := Lo( AControllerAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN;
-    FDataArray[2] := 0;
-    InsertNodeID(3, AControllerNodeID);
-  end;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN;
+  FDataArray[2] := 0;
+  InsertNodeID(3, AControllerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
 
@@ -2079,61 +2066,35 @@ end;
 
 procedure TLccMessage.LoadTractionControllerQueryReply(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
-  AControllerID: TNodeID; AControllerAlias: Word);
+  AControllerID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-
-  if AControllerAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, AControllerID);
-    FDataArray[9] := Hi( AControllerAlias);
-    FDataArray[10] := Lo( AControllerAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
-    FDataArray[2] := 0;
-    InsertNodeID(3, AControllerID);
-  end;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
+  FDataArray[2] := 0;
+  InsertNodeID(3, AControllerID);
 
   MTI := MTI_TRACTION_REPLY;
 end;
 
 procedure TLccMessage.LoadTractionControllerChangingNotify(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID;
-  AControllerAlias: Word);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if AControllerAlias <> 0 then
-  begin
-    DataCount := 11;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY;
-    FDataArray[2] := TRACTION_FLAGS_ALIAS_INCLUDED;
-    InsertNodeID(3, AControllerNodeID);
-    FDataArray[9] := Hi( AControllerAlias);
-    FDataArray[10] := Lo( AControllerAlias);
-  end else
-  begin
-    DataCount := 9;
-    FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-    FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY;
-    FDataArray[2] := 0;
-    InsertNodeID(3, AControllerNodeID);
-  end;
+  DataCount := 9;
+  FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY;
+  FDataArray[2] := 0;
+  InsertNodeID(3, AControllerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
 

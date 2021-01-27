@@ -594,9 +594,9 @@ begin
       ldss128     : SpeedStep := '128 Step';
     end;
     if TrainNode.DccLongAddress then
-      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Long ' + SpeedStep
+      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Long ' + SpeedStep + ' [' + TrainNode.AliasIDStr + ']'
     else
-      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Short ' + SpeedStep;
+      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Short ' + SpeedStep + ' [' + TrainNode.AliasIDStr + ']'
   end;
 end;
 

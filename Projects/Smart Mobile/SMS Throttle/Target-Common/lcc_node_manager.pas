@@ -684,8 +684,8 @@ begin
     for i := 0 to Nodes.Count - 1 do
     begin
 
-      Assert(not NullNodeID( (Node[i] as TLccNode).NodeID ));
-      Assert(not NullNodeID( LccMessage.SourceID ));
+ //     Assert(not NullNodeID( (Node[i] as TLccNode).NodeID ));
+ //     Assert(not NullNodeID( LccMessage.SourceID ));
 
       // don't sent it back to itself but deliver it to all the other virtual owned nodes
       if not EqualNodeID(Node[i].NodeID, LccMessage.SourceID, True) then

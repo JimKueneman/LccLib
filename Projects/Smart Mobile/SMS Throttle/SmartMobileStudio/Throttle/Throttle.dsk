@@ -2,11 +2,12 @@
   <state>
     <editor>
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="25" row="51" splitview="0" designview="1" splitter="0.444551587104797" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="214" col="41" row="225" splitview="0" designview="0" splitter="0.508196711540222" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="160" col="40" row="173" splitview="0" designview="0" splitter="0.508196711540222" />
       <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="138" col="31" row="152" splitview="0" designview="0" splitter="0.468659609556198" />
-      <tab filename="System.Lists" fullname="C:\Users\JimKueneman\Desktop\SmartMobileStudio Alpha\RTL\System\System.Lists.pas" topline="88" col="79" row="97" />
       <tab filename="LccNode" fullname="LccNode.pas" topline="53" col="37" row="67" />
-      <activetab>System.Lists</activetab>
+      <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="947" col="55" row="968" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="757" col="55" row="771" />
+      <activetab>lcc_node_controller</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -15,12 +16,12 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>8018</BackgroundCompilations>
-      <EditTime>T05:31:12.331</EditTime>
-      <CompileTime>T00:30:01.505</CompileTime>
-      <TotalTime>1900-03-06T21:37:31.136</TotalTime>
+      <BackgroundCompilations>8019</BackgroundCompilations>
+      <EditTime>T05:32:03.182</EditTime>
+      <CompileTime>T00:30:14.417</CompileTime>
+      <TotalTime>1900-03-06T21:39:56.020</TotalTime>
       <DesigningTime>T10:51:43.017</DesigningTime>
-      <RunningTime>1900-01-16T21:43:06.183</RunningTime>
+      <RunningTime>1900-01-16T21:44:11.293</RunningTime>
       <TotalLinesOfCode>738</TotalLinesOfCode>
     </Statistics>
   </state>

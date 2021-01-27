@@ -108,20 +108,20 @@ type
  private
    FActionHub: TLccActionHub;
    FActionStateIndex: Integer;
-   FAliasID: Word;
-   FCancel: Boolean;       // Cancels the action, mimics a Timeout in a state which jumps to last state to clean up
    FIgnoreTimer: Boolean;
-   FNodeID: TNodeID;
    FOnTimeoutExpired: TOnActionTimoutExpired;
    FOwner: TLccNode;
    FSendMessage: TOnMessageEvent;
    FStates: TOnMessageEventArray;
-   FTargetAliasID: Word;
-   FTargetNodeID: TNodeID;
    FTimeoutCounts: Integer;
    FTimeoutCountThreshold: Integer;
    FWorkerMessage: TLccMessage;
  protected
+   FSourceAliasID: Word;
+   FSourceNodeID: TNodeID;
+   FDestAliasID: Word;
+   FDestNodeID: TNodeID;
+
    property ActionHub: TLccActionHub read FActionHub write FActionHub;
    property ActionStateIndex: Integer read FActionStateIndex write FActionStateIndex;
    property States: TOnMessageEventArray read FStates write FStates;
@@ -140,12 +140,13 @@ type
    procedure UnRegisterSelf;
 
  public
-   property Cancel: Boolean read FCancel write FCancel;
+ //  property Cancel: Boolean read FCancel write FCancel;
 
-   property AliasID: Word read FAliasID;
-   property NodeID: TNodeID read FNodeID;
-   property TargetNodeID: TNodeID read FTargetNodeID write FTargetNodeID;
-   property TargetAliasID: Word read FTargetAliasID write FTargetAliasID;
+   property SourceAliasID: Word read FSourceAliasID;
+   property SourceNodeID: TNodeID read FSourceNodeID;
+   property DestAliasID: Word read FDestAliasID;
+   property DestNodeID: TNodeID read FDestNodeID;
+
 
    property Owner: TLccNode read FOwner;
 
@@ -155,7 +156,7 @@ type
    property IgnoreTimer: Boolean read FIgnoreTimer write FIgnoreTimer;
    property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
 
-   constructor Create(AnOwner: TLccNode; ANodeID: TNodeID; AnAliasID: Word);
+   constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
    destructor Destroy; override;
 
    // Set the index to the next function that will be pointed to in the States array
@@ -168,8 +169,6 @@ type
    procedure ResetTimeoutCounter;
    // Compares CountThreshold and Counter to see if the timeout timer has expired
    function TimeoutExpired: Boolean;
-   // Assign the other end of the communcation this Action has the pipe open to
-   procedure AssignTargetNode(ATargetNodeID: TNodeID; ATargetAliasID: Word);
  end;
 
  { TLccActionHub }
@@ -206,8 +205,7 @@ type
    procedure ClearActions;
    procedure ClearCompletedActions;
    function ProcessMessage(SourceMessage: TLccMessage): Boolean;
-   function RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction): Boolean; overload;
-   function RegisterAction(ANode: TLccNode; ATargetNodeID: TNodeID; ATargetAliasID: Word; AnAction: TLccAction): Boolean; overload;
+   function RegisterAndKickOffAction(AnAction: TLccAction; KickOffMessage: TLccMessage): Boolean;
    procedure UnregisterActionAndMarkForFree(AnAction: TLccAction);
  end;
 
@@ -284,7 +282,6 @@ type
     property LoginTimoutCounter: Integer read FLoginTimoutCounter write FLoginTimoutCounter;
 
     procedure CreateNodeID(var Seed: TNodeID);
-    function GetAlias: Word; virtual;
     function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
     function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
     function LoadManufacturerDataStream(ACdi: string): Boolean;
@@ -362,14 +359,16 @@ uses
 
 { TLccAction }
 
-constructor TLccAction.Create(AnOwner: TLccNode; ANodeID: TNodeID;
-  AnAliasID: Word);
+constructor TLccAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
 begin
   Inc(ActionObjectsAllocated);
   FOwner := AnOwner;;
   WorkerMessage := TLccMessage.Create;
-  FNodeID := ANodeID;
-  FAliasID := AnAliasID;
+  FSourceNodeID := ASourceNodeID;
+  FSourceAliasID := ASourceAliasID;
+  FDestNodeID := ADestNodeID;
+  FDestAliasID := ADestAliasID;
+  FSendMessage := AnOwner.SendMessageFunc;
   SetTimoutCountThreshold(5000);  // Default 5 seconds
   LoadStateArray;
 end;
@@ -401,8 +400,6 @@ function TLccAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMe
 begin
   Result := False;
   FActionStateIndex := 0;
-  if Assigned(SourceMessage) then
-    AssignTargetNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias)
 end;
 
 function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -467,13 +464,6 @@ end;
 function TLccAction.TimeoutExpired: Boolean;
 begin
   Result := TimeoutCounts > TimeoutCountThreshold ;
-end;
-
-procedure TLccAction.AssignTargetNode(ATargetNodeID: TNodeID;
-  ATargetAliasID: Word);
-begin
-  FTargetNodeID := ATargetNodeID;
-  FTargetAliasID := ATargetAliasID;
 end;
 
 { TLccActionHub }
@@ -546,24 +536,11 @@ begin
     Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
 end;
 
-function TLccActionHub.RegisterAction(ANode: TLccNode; SourceMessage: TLccMessage; AnAction: TLccAction): Boolean;
+function TLccActionHub.RegisterAndKickOffAction(AnAction: TLccAction; KickOffMessage: TLccMessage): Boolean;
 begin
-  LccActiveActions.Add(AnAction);
-  AnAction.FNodeID := ANode.NodeID;
-  AnAction.FAliasID := ANode.AliasID;
-  AnAction.FOwner := ANode;
-  AnAction.SendMessage := ANode.SendMessageFunc;
   AnAction.ActionHub := Self;
-  Result := AnAction._0ReceiveFirstMessage(ANode, SourceMessage);
-end;
-
-function TLccActionHub.RegisterAction(ANode: TLccNode; ATargetNodeID: TNodeID; ATargetAliasID: Word; AnAction: TLccAction): Boolean;
-begin
-  Result := True;
-  // Dummy message just to load the NodeIDs
-  AnAction.TargetNodeID := ATargetNodeID;
-  AnAction.TargetAliasID := ATargetAliasID;
-  RegisterAction(ANode, nil, AnAction);
+  LccActiveActions.Add(AnAction);
+  Result := AnAction._0ReceiveFirstMessage(AnAction.Owner, KickOffMessage);
 end;
 
 procedure TLccActionHub.TimeTick;
@@ -877,19 +854,19 @@ begin
             SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
             if EqualNodeID(TestNodeID, NodeID, False) then
             begin
-              WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
+              WorkerMessage.LoadVerifiedNodeID(NodeID, FAliasID);
               SendMessageFunc(Self, WorkerMessage);
             end
           end else
           begin
-            WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
+            WorkerMessage.LoadVerifiedNodeID(NodeID, FAliasID);
             SendMessageFunc(Self, WorkerMessage);
           end;
           Result := True;
         end;
     MTI_VERIFY_NODE_ID_NUMBER_DEST :
         begin
-          WorkerMessage.LoadVerifiedNodeID(NodeID, GetAlias);
+          WorkerMessage.LoadVerifiedNodeID(NodeID, FAliasID);
           SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
@@ -902,7 +879,7 @@ begin
     // *************************************************************************
     MTI_SIMPLE_NODE_INFO_REQUEST :
         begin
-          WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerData, StreamConfig));
+          WorkerMessage.LoadSimpleNodeIdentInfoReply(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ProtocolSimpleNodeInfo.PackedFormat(StreamManufacturerData, StreamConfig));
           SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
@@ -916,7 +893,7 @@ begin
     // *************************************************************************
     MTI_PROTOCOL_SUPPORT_INQUIRY :
         begin
-          WorkerMessage.LoadProtocolIdentifyReply(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
+          WorkerMessage.LoadProtocolIdentifyReply(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ProtocolSupportedProtocols.EncodeFlags);
           SendMessageFunc(Self, WorkerMessage);
           Result := True;
         end;
@@ -1158,7 +1135,7 @@ begin
                      case AddressSpace of
                        MSI_CDI :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ProtocolConfigurationDefinitionInfo.DatagramReadRequest(SourceMessage, WorkerMessage, StreamCdi);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
@@ -1169,35 +1146,35 @@ begin
                            end;
                        MSI_CONFIG :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ProtocolMemoryConfiguration.DatagramReadRequest(SourceMessage, WorkerMessage, StreamConfig);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
                          end;
                        MSI_ACDI_MFG :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ACDIMfg.DatagramReadRequest(SourceMessage, WorkerMessage, StreamManufacturerData);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
                          end;
                        MSI_ACDI_USER :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ACDIUser.DatagramReadRequest(SourceMessage, WorkerMessage, StreamConfig);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
                          end;
                        MSI_TRACTION_FDI :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ProtocolConfigurationDefinitionInfo.DatagramReadRequest(SourceMessage, WorkerMessage, StreamTractionFdi);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
                          end;
                        MSI_TRACTION_FUNCTION_CONFIG :
                          begin
-                           WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                            ProtocolMemoryConfiguration.DatagramReadRequest(SourceMessage, WorkerMessage, StreamTractionConfig);
                            SendDatagramRequiredReply(SourceMessage, WorkerMessage);
                            Result := True;
@@ -1216,7 +1193,7 @@ begin
                      case OperationType of
                        MCP_OP_GET_CONFIG :
                            begin
-                             WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID,
+                             WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID,
                                                         SourceMessage.CAN.SourceAlias);
                              ProtocolMemoryOptions.LoadReply(WorkerMessage);
                              SendDatagramRequiredReply(SourceMessage, WorkerMessage);
@@ -1224,7 +1201,7 @@ begin
                            end;
                        MCP_OP_GET_ADD_SPACE_INFO :
                            begin
-                             WorkerMessage.LoadDatagram(NodeID, GetAlias, SourceMessage.SourceID,
+                             WorkerMessage.LoadDatagram(NodeID, FAliasID, SourceMessage.SourceID,
                                                         SourceMessage.CAN.SourceAlias);
                              ProtocolMemoryInfo.LoadReply(SourceMessage, WorkerMessage);
                              SendDatagramRequiredReply(SourceMessage, WorkerMessage);
@@ -1251,7 +1228,7 @@ begin
              end
          else begin {case else}
              // Unknown Datagram Type
-             WorkerMessage.LoadDatagramRejected(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_TYPE);
+             WorkerMessage.LoadDatagramRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_TYPE);
              SendMessageFunc(Self, WorkerMessage);
              Result := True;
            end;
@@ -1260,7 +1237,7 @@ begin
   else begin
       if SourceMessage.HasDestination then
       begin
-        WorkerMessage.LoadOptionalInteractionRejected(NodeID, GetAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_MTI, SourceMessage.MTI);
+        WorkerMessage.LoadOptionalInteractionRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_MTI, SourceMessage.MTI);
         SendMessageFunc(Self, WorkerMessage);
         Result := True;
       end;
@@ -1449,11 +1426,6 @@ begin
   end
 end;
 
-function TLccNode.GetAlias: Word;
-begin
-  Result := 0;
-end;
-
 function TLccNode.GetCdiFile: string;
 begin
   Result := CDI_XML;
@@ -1568,7 +1540,7 @@ end;
 procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
 begin
   // Only Ack if we accept the datagram
-  WorkerMessageDatagram.LoadDatagramAck(NodeID, GetAlias,
+  WorkerMessageDatagram.LoadDatagramAck(NodeID, FAliasID,
                                         SourceMessage.SourceID, SourceMessage.CAN.SourceAlias,
                                         True, ReplyPending, TimeOutValueN);
   SendMessageFunc(Self, WorkerMessageDatagram);
@@ -1582,7 +1554,7 @@ begin
   for i := 0 to ProtocolEventConsumed.Count - 1 do
   begin
     Temp := ProtocolEventConsumed.Event[i].ID;
-    WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, ProtocolEventConsumed.Event[i].State);
+    WorkerMessage.LoadConsumerIdentified(NodeID, FAliasID, Temp, ProtocolEventConsumed.Event[i].State);
     SendMessageFunc(Self, WorkerMessage);
   end;
 end;
@@ -1596,14 +1568,14 @@ begin
   if Assigned(EventObj) then
   begin
     Temp := EventObj.ID;
-    WorkerMessage.LoadConsumerIdentified(NodeID, GetAlias, Temp, EventObj.State);
+    WorkerMessage.LoadConsumerIdentified(NodeID, FAliasID, Temp, EventObj.State);
     SendMessageFunc(Self, WorkerMessage);
   end;
 end;
 
 procedure TLccNode.SendDatagramRejectedReply(SourceMessage: TLccMessage; Reason: Word);
 begin
-  WorkerMessageDatagram.LoadDatagramRejected(NodeID, GetAlias,
+  WorkerMessageDatagram.LoadDatagramRejected(NodeID, FAliasID,
                                              SourceMessage.SourceID, SourceMessage.CAN.SourceAlias,
                                              Reason);
   SendMessageFunc(Self, WorkerMessageDatagram);
@@ -1627,7 +1599,7 @@ end;
 
 procedure TLccNode.SendInitializeComplete;
 begin
-  WorkerMessage.LoadInitializationComplete(NodeID, GetAlias);
+  WorkerMessage.LoadInitializationComplete(NodeID, FAliasID);
   SendMessageFunc(Self, WorkerMessage);
   (NodeManager as INodeManagerCallbacks).DoInitializationComplete(Self);
 end;
@@ -1640,7 +1612,7 @@ begin
   for i := 0 to ProtocolEventsProduced.Count - 1 do
   begin
     Temp := ProtocolEventsProduced.Event[i].ID;
-    WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, ProtocolEventsProduced.Event[i].State);
+    WorkerMessage.LoadProducerIdentified(NodeID, FAliasID, Temp, ProtocolEventsProduced.Event[i].State);
     SendMessageFunc(Self, WorkerMessage);
   end;
 end;
@@ -1654,7 +1626,7 @@ begin
   if Assigned(EventObj) then
   begin
     Temp := EventObj.ID;
-    WorkerMessage.LoadProducerIdentified(NodeID, GetAlias, Temp, EventObj.State);
+    WorkerMessage.LoadProducerIdentified(NodeID, FAliasID, Temp, EventObj.State);
     SendMessageFunc(Self, WorkerMessage);
   end;
 end;
