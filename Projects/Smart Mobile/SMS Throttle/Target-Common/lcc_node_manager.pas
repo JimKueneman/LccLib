@@ -688,7 +688,7 @@ begin
  //     Assert(not NullNodeID( LccMessage.SourceID ));
 
       // don't sent it back to itself but deliver it to all the other virtual owned nodes
-      if not EqualNodeID(Node[i].NodeID, LccMessage.SourceID, True) then
+      if not EqualNode(Node[i].NodeID, Node[i].AliasID, LccMessage.SourceID, LccMessage.CAN.SourceAlias, True) then
         Node[i].ProcessMessage(LccMessage);
     end;
   end;

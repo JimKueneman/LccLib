@@ -586,10 +586,7 @@ end;
 
 function TLccNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
 begin
-  if GridConnect then
-    Result := AliasID = LccMessage.CAN.DestAlias
-  else
-    Result := EqualNodeID(NodeID, LccMessage.DestID, False);
+  Result := EqualNode(NodeID,  AliasID, LccMessage.DestID, LccMessage.CAN.DestAlias, False);
 end;
 
 function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;

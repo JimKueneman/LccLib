@@ -349,7 +349,7 @@ begin
     if Assigned(ControllerNode) then
     begin
       // Only care if coming from our Assigned Train
-      if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID) then
+      if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
       begin
         case SourceMessage.MTI of
           MTI_TRACTION_REPLY :
@@ -416,7 +416,7 @@ begin
     ControllerNode := Owner as TLccTrainController;
     if Assigned(ControllerNode) then
     begin  // Only care if coming from our Assigned Train
-      if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID) then
+      if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
       begin
         case SourceMessage.MTI of
           MTI_TRACTION_REPLY :
@@ -453,6 +453,8 @@ function TLccTractionAssignTrainAction._0ReceiveFirstMessage(Sender: TObject; So
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  // At this point the Action does not have a Destination Node so DestNodeID and DestAliasID are 0
+
   FSelectedSearchResultIndex := 0;
   FRepliedSearchCriterialCount := 0;
   WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, RequestedSearchData);
@@ -474,6 +476,7 @@ var
   TrainOwner: string;
 begin
   Result := False;
+
 
   if Assigned(SourceMessage) then
   begin
@@ -499,6 +502,7 @@ begin
                  FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainClass := '';
                  FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.TrainName := '';
                  FRepliedSearchCriteria[RepliedSearchCriterialCount].STNIP.Version := 0;
+                 // Send a message back to the Train Node from this controller asking for the SNIP
                  WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(SourceNodeID, SourceAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
                  SendMessage(Owner, WorkerMessage);
                  Inc(FRepliedSearchCriterialCount);
@@ -513,7 +517,7 @@ begin
             // find the right Node that this SNIP belongs to
             while i < RepliedSearchCriterialCount do
             begin  // Expectation is that we recieved the producer identified first because we asked for this above after the slot has been created
-              if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias) then
+              if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeID, RepliedSearchCriteria[RepliedSearchCriterialCount].NodeAlias, True) then
               begin
                 // all this claptrap for SMS and var parameters....
                 TrainVersion := 0;
@@ -553,6 +557,7 @@ begin
 
     if SelectedSearchResultIndex > -1 then
     begin
+      // We now know who our target Train Node is so set the DestNodeID and DestAliasID to that node
       FDestNodeID := RepliedSearchCriteria[SelectedSearchResultIndex].NodeID;
       FDestAliasID := RepliedSearchCriteria[SelectedSearchResultIndex].NodeAlias;
       WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, SourceNodeID);
@@ -573,7 +578,7 @@ begin
 
   if Assigned(SourceMessage) then
   begin // Only care if it is coming from our potental Train
-    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID) then
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
     begin
       case SourceMessage.MTI of
          MTI_TRACTION_REPLY :
@@ -773,7 +778,7 @@ begin
   end;
 
   // Only care if coming from our Assigned Train
-  if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID) then
+  if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID, True) then
   begin
     case SourceMessage.MTI of
       MTI_TRACTION_REQUEST :

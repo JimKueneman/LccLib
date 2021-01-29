@@ -922,36 +922,34 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  if Assigned(SourceMessage) then // Could be from TimeTick
-  begin
-    case SourceMessage.MTI of
-       MTI_TRACTION_REQUEST :
-         begin
-           case SourceMessage.DataArray[0] of
-              TRACTION_CONTROLLER_CONFIG :
-                begin;
-                  case SourceMessage.DataArray[1] of
-                    TRACTION_CONTROLLER_CONFIG_ASSIGN :
+  // Required that SourceMessage be valid
+  case SourceMessage.MTI of
+     MTI_TRACTION_REQUEST :
+       begin
+         case SourceMessage.DataArray[0] of
+            TRACTION_CONTROLLER_CONFIG :
+              begin;
+                case SourceMessage.DataArray[1] of
+                  TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                    begin
+                      // No reservation required
+                      // SMS Quirk
+                      LocalRequestingControllerAlias := FRequestingControllerNodeID;
+                      LocalRequestingControllerAlias := SourceMessage.ExtractDataBytesAsNodeID(3, LocalRequestingControllerAlias);
+                      FRequestingControllerNodeID := LocalRequestingControllerAlias;
+                      RequestingControllerAliasID := 0;
+                      if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
                       begin
-                        // No reservation required
-                        // SMS Quirk
-                        LocalRequestingControllerAlias := FRequestingControllerNodeID;
-                        RequestingControllerNodeID := SourceMessage.ExtractDataBytesAsNodeID(3, LocalRequestingControllerAlias);
-                        FRequestingControllerNodeID := LocalRequestingControllerAlias;
-                        RequestingControllerAliasID := 0;
-                        if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
-                        begin
-                          WorkerMessage.LoadVerifyNodeID(DestNodeID, DestAliasID, RequestingControllerNodeID);
-                          SendMessage(Owner, WorkerMessage);
-                          SetTimoutCountThreshold(TIMEOUT_NODE_VERIFIED_WAIT, True);
-                        end;
-                        AdvanceToNextState; // Wait for the Notify (if needed)
+                        WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, RequestingControllerNodeID);
+                        SendMessage(Owner, WorkerMessage);
+                        SetTimoutCountThreshold(TIMEOUT_NODE_VERIFIED_WAIT, True);
                       end;
-                   end
-                end;
-           end;
+                      AdvanceToNextState; // Wait for the Notify (if needed)
+                    end;
+                 end
+              end;
          end;
-    end;
+       end;
   end;
 end;
 
@@ -1349,7 +1347,7 @@ end;
 
 function TLccTrainNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
 begin
-  Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.ReservationNodeID, AttachedController.ReservationAliasID);
+  Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.ReservationNodeID, AttachedController.ReservationAliasID, True);
 end;
 
 procedure TLccTrainNode.OnReserveWatchDogTimer(Sender: TObject);

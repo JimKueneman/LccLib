@@ -244,18 +244,6 @@ begin
           SendMessageFunc(ATrain, WorkerMessage);
         end
       end;
-    MTI_PRODUCER_IDENTIFIED_CLEAR,
-    MTI_PRODUCER_IDENTIFIED_SET,
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-      begin
-        if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
-        begin
-          // Following the spec to the letter the Train would have responed (if it existed) and
-          // then I would cancel it here.
-          // I see no reason why the CS can't pretend to be the Train as in the code below as
-          // long as it replys with the Trains NodeID and Alias....
-        end;
-      end;
     MTI_PRODUCER_IDENDIFY :
       begin
         if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?

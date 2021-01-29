@@ -236,20 +236,10 @@ begin
   i := 0;
   while i < Owner.NodeManager.Nodes.Count do
   begin
-    if Owner.NodeManager.GridConnect then
-    begin  // Need to look at the Source Alias as the message is in the format to transmit back out already
-      if Owner.NodeManager.Node[i].AliasID = WorkerMessage.CAN.SourceAlias then
-      begin
-        Owner.NodeManager.SendMessage(Self, WorkerMessage);
-        Break;
-      end;
-    end else
-    begin // Need to look at the Source ID as the message is in the format to transmit back out already
-      if EqualNodeID(Owner.NodeManager.Node[i].NodeID, WorkerMessage.SourceID, False) then
-      begin
-        Owner.NodeManager.SendMessage(Self, WorkerMessage);
-        Break;
-      end;
+    if EqualNode(Owner.NodeManager.Node[i].NodeID, Owner.NodeManager.Node[i].AliasID, WorkerMessage.SourceID, WorkerMessage.CAN.SourceAlias, True) then
+    begin
+      Owner.NodeManager.SendMessage(Self, WorkerMessage);
+      Break;
     end;
     Inc(i);
   end;
