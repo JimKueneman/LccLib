@@ -348,8 +348,11 @@ function EqualNode(NodeID1: TNodeID; Node1AliasID: Word; NodeID2: TNodeID; Node2
 begin
   if NodeID_OR_Alias then
     Result := (NodeID1[0] = NodeID2[0]) and (NodeID1[1] = NodeID2[1]) or (Node1AliasID = Node2AliasID)
-  else
+  else begin
+    Assert((Node1AliasID = 0) and (Node2AliasID > 0), 'Node1 AliasID is zero and the other is valid, should not be possible with GridConnect all Aliases should be valid');
+    Assert((Node1AliasID > 0) and (Node2AliasID = 0),  'Node2 AliasID is zero and the other is valid, should not be possible with GridConnect all Aliases should be valid');
     Result := (NodeID1[0] = NodeID2[0]) and (NodeID1[1] = NodeID2[1]) and (Node1AliasID = Node2AliasID)
+  end;
 end;
 
 function EqualEventID(EventID1, EventID2: TEventID): Boolean;
@@ -673,7 +676,7 @@ end;
 
 function IsPrintableChar(C: Char): Boolean;
 begin
-  Result := ((Ord( C) >= 32) and (Ord( C) <= 126))  or ((Ord( C) >= 128) and (Ord( C) <= 255))
+  Result := ((Ord( C) >= 32) and (Ord( C) <= 126)) { or ((Ord( C) >= 128) and (Ord( C) <= 255))}
 end;
 
 function RawHelperDataToStr(Message: TLccMessage; ASCII: Boolean): string;

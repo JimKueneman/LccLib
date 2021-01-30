@@ -329,12 +329,22 @@ end;
 { TLccTractionQueryFunctionAction }
 
 function TLccTractionQueryFunctionAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ControllerNode: TLccTrainController;
 begin
-  Result :=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  WorkerMessage.LoadTractionQueryFunction(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, Address);
-  SendMessage(Owner, WorkerMessage);
+  ControllerNode := Owner as TLccTrainController;
+  if Assigned(ControllerNode) then
+  begin
+    if ControllerNode.IsTrainAssigned then
+    begin
+      WorkerMessage.LoadTractionQueryFunction(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, Address);
+      SendMessage(Owner, WorkerMessage);
+    end;
+  end;
   AdvanceToNextState;
+  SetTimoutCountThreshold(20000);
 end;
 
 function TLccTractionQueryFunctionAction._1ActionWaitForQueryFunctionResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -706,17 +716,26 @@ end;
 
 procedure TLccTrainController.AttachListener(TrainNodeID, ListenerNodeID: TNodeID);
 begin
+  if IsTrainAssigned then
+  begin
 
+  end;
 end;
 
 procedure TLccTrainController.DetachListener(TrainNodeID, ListenerNodeID: TNodeID);
 begin
+  if IsTrainAssigned then
+  begin
 
+  end;
 end;
 
 procedure TLccTrainController.QueryListeners(TrainNodeID: TNodeID);
 begin
+  if IsTrainAssigned then
+  begin
 
+  end;
 end;
 
 procedure TLccTrainController.ReleaseTrain;
@@ -773,7 +792,7 @@ begin
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
-    if not IsDestinationEqual(SourceMessage) then
+    if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
   end;
 
@@ -817,7 +836,7 @@ var
 begin
   if IsTrainAssigned then
   begin
-    LccQueryFunctionAction := TLccTractionQueryFunctionAction.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
+    LccQueryFunctionAction := TLccTractionQueryFunctionAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID);
     LccQueryFunctionAction.Address := Address;
     LccActions.RegisterAndKickOffAction(LccQueryFunctionAction, nil);
   end;
@@ -827,8 +846,11 @@ procedure TLccTrainController.QueryFunctions;
 var
   i: Integer;
 begin
-  for i := 0 to 28 do
-    QueryFunction(i);
+  if IsTrainAssigned then
+  begin
+    for i := 0 to 28 do
+      QueryFunction(i);
+  end;
 end;
 
 procedure TLccTrainController.QuerySpeed;

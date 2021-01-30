@@ -1364,7 +1364,7 @@ begin
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
-    if not IsDestinationEqual(SourceMessage) then
+    if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
   end;
 

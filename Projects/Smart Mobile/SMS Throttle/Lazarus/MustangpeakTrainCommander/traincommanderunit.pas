@@ -563,13 +563,14 @@ end;
 
 procedure TFormTrainCommander.OnNodeManagerAliasIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelAliasID.Caption := LccSourceNode.AliasIDStr;
+  if LccSourceNode is TLccCommandStationNode then
+    LabelAliasID.Caption := LccSourceNode.AliasIDStr;
 end;
 
-procedure TFormTrainCommander.OnNodeManagerIDChanged(Sender: TObject;
-  LccSourceNode: TLccNode);
+procedure TFormTrainCommander.OnNodeManagerIDChanged(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelNodeID.Caption := LccSourceNode.NodeIDStr;
+  if LccSourceNode is TLccCommandStationNode then
+    LabelNodeID.Caption := LccSourceNode.NodeIDStr;
 end;
 
 procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);

@@ -283,7 +283,6 @@ type
 
     procedure CreateNodeID(var Seed: TNodeID);
     function FindCdiElement(TestXML, Element: string; var Offset: Integer; var ALength: Integer): Boolean;
-    function IsDestinationEqual(LccMessage: TLccMessage): Boolean; virtual;
     function LoadManufacturerDataStream(ACdi: string): Boolean;
     procedure AutoGenerateEvents;
     procedure SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte);
@@ -584,11 +583,6 @@ begin
   Result := '0x' + IntToHex(FAliasID, 4);
 end;
 
-function TLccNode.IsDestinationEqual(LccMessage: TLccMessage): Boolean;
-begin
-  Result := EqualNode(NodeID,  AliasID, LccMessage.DestID, LccMessage.CAN.DestAlias, False);
-end;
-
 function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;
 var
   AnOffset, ALength, i: Integer;
@@ -832,7 +826,7 @@ begin
 
   if SourceMessage.HasDestination then
   begin
-    if not IsDestinationEqual(SourceMessage) then
+    if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
   end;
 
