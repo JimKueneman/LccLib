@@ -132,7 +132,7 @@ end;
 
 procedure TFormTrainCommander.ButtonHTTPServerClick(Sender: TObject);
 begin
-  if LccHTTPServer.Connected then
+  if LccHTTPServer.ListenerConnected then
     DisconnectHTTPServer
   else
     ConnectHTTPServer;
@@ -140,7 +140,7 @@ end;
 
 procedure TFormTrainCommander.ButtonWebserverConnectClick(Sender: TObject);
 begin
-  if LccWebsocketServer.Connected then
+  if LccWebsocketServer.ListenerConnected then
     DisconnectWebsocketServer
   else
     ConnectWebsocketServer;
