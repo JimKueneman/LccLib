@@ -234,8 +234,8 @@ begin
 
   ControllerNode1.AssignTrainByDccAddress(123, False, ldss28);
   ControllerNode1.AssignTrainByDccAddress(234, False, ldss28);
-//  ControllerNode1.AssignTrainByDccAddress(567, True, ldss28);
-//  ControllerNode1.AssignTrainByDccAddress(987, True, ldss28);
+  ControllerNode1.AssignTrainByDccAddress(567, True, ldss28);
+  ControllerNode1.AssignTrainByDccAddress(987, True, ldss28);
 end;
 
 procedure TForm1.ButtonBuildConstist2Click(Sender: TObject);

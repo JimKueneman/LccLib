@@ -175,6 +175,7 @@ type
 
  TLccActionHub = class(TObject)
  private
+   FActionInSendMessage: TLccAction;
    {$IFDEF DELPHI}
     FLccActiveActions: TObjectList<TLccAction>;
     FLccCompletedActions: TObjectList<TLccAction>;
@@ -193,6 +194,7 @@ type
    property LccActiveActions: TObjectList read FLccActiveActions write FLccActiveActions;
    property LccCompletedActions: TObjectList read FLccCompletedActions write FLccCompletedActions;
    {$ENDIF}
+   property ActionInSendMessage: TLccAction read FActionInSendMessage write FActionInSendMessage;
    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
    property SendMessageFunc: TOnMessageEvent read FSendMessageFunc write FSendMessageFunc;
    procedure TimeTick;
@@ -532,7 +534,18 @@ var
 begin
   Result := False;
   for i := LccActiveActions.Count - 1 downto 0 do     // May removed some items during the call
-    Result := (LccActiveActions[i] as TLccAction).ProcessMessage(SourceMessage);;
+  begin
+    // Do not allow reentrancy from a SendMessage call from an action that could wind up back here
+    if LccActiveActions[i] <> ActionInSendMessage then
+    begin
+      ActionInSendMessage := (LccActiveActions[i] as TLccAction);
+      try
+        Result := ActionInSendMessage.ProcessMessage(SourceMessage);
+      finally
+        ActionInSendMessage := nil;
+      end;
+    end;
+  end;
 end;
 
 function TLccActionHub.RegisterAndKickOffAction(AnAction: TLccAction; KickOffMessage: TLccMessage): Boolean;
