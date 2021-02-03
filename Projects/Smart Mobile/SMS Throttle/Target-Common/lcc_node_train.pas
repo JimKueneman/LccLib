@@ -285,8 +285,8 @@ type
      property ListenerNodeAliasID: Word read FListenerNodeAliasID write FListenerNodeAliasID;
 
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
-     function _1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-     function _2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _2AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
      procedure LoadStateArray; override;
    end;
@@ -544,7 +544,7 @@ begin
   {$ELSE}
     FListenerList := TObjectList.Create;
     {$IFNDEF DWSCRIPT}
-    FListenerList.OwnsObjects := False;
+    FListenerList.OwnsObjects := True;
     {$ENDIF}
   {$ENDIF}
 end;
@@ -668,7 +668,6 @@ begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   OwnerTrain := Owner as TLccTrainNode;
-  ListenerNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
 
   if OwnerTrain.Listeners.Delete(ListenerNodeID) then
@@ -685,27 +684,77 @@ end;
 
 function TLccTractionAttachListenerReplyAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
-  NewListenerNode: TListenerNode;
-  ReplyCode: Word;
   TempNodeID: TNodeID;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-  TempNodeID := NULL_NODE_ID;
 
-  // Things to concider:
-  //   1) Can't add a Node as its own Listener
-  //   2) Listener could already be in the list, don't add duplicates but may just want to update flags
-  //   3) Only the connected Controller can Attach a Listener
-  //   4) The Train must be Reserved by the connected controller
-  //   5) Not enough memory to allocate another Listener
-
-  OwnerTrain := Owner as TLccTrainNode;
   SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
   FListenerNodeID := TempNodeID;
   AttachFlags := SourceMessage.DataArray[2];
 
+  if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
+  begin
+    WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, ListenerNodeID);
+    SendMessage(Owner, WorkerMessage);
+    SetTimoutCountThreshold(TIMEOUT_NODE_VERIFIED_WAIT, True);
+  end;
+  AdvanceToNextState; // Wait for the Notify (if needed)
+end;
+
+function TLccTractionAttachListenerReplyAction._1WaitForNodeVerified(
+  Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  TempNodeID: TNodeID;
+begin
+  Result := False;
+
+  if Owner.GridConnect then
+  begin
+    if Assigned(SourceMessage) then   // Could be time tick calling and we need to wait for a real message
+    begin
+      case SourceMessage.MTI of
+        MTI_VERIFIED_NODE_ID_NUMBER :
+          begin
+            TempNodeID := NULL_NODE_ID;
+            if EqualNodeID(SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), ListenerNodeID, False) then
+            begin
+              FListenerNodeAliasID := SourceMessage.CAN.SourceAlias;
+              AdvanceToNextState;
+            end;
+          end;
+      end;
+    end;
+
+    if TimeoutExpired then
+    begin
+      // Can't get the Alias...... so just quit
+      FListenerNodeID := NULL_NODE_ID;
+      FListenerNodeAliasID := 0;
+      _NFinalStateCleanup(Sender, SourceMessage);
+    end;
+
+  end else
+  begin // Not GridConnect just move on don't need the Alias
+    AdvanceToNextState;
+  end;
+end;
+
+function TLccTractionAttachListenerReplyAction._2AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainNode;
+  NewListenerNode: TListenerNode;
+  ReplyCode: Word;
+begin
+  Result := False;
   ReplyCode := S_OK;
+  OwnerTrain := Owner as TLccTrainNode;
+
+  // Things to concider:
+  //   1) Can't add a Node as its own Listener
+  //   2) Listener could already be in the list, don't add duplicates but may just want to update flags
+  //   3) Only the connected Controller can Attach a Listener : Balazs does not agree
+  //   4) The Train must be Reserved by the connected controller
+  //   5) Not enough memory to allocate another Listener
 
   if EqualNodeID(SourceNodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
     ReplyCode := ERROR_PERMANENT or ERROR_INVALID_ARGUMENTS;
@@ -721,70 +770,21 @@ begin
       NewListenerNode.DecodeFlags(AttachFlags);
       WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
       SendMessage(Self, WorkerMessage);
-     _NFinalStateCleanup(Sender, SourceMessage);  // Done: clean up and free
     end else
-    begin
-      // TODO need to distinguish if we are running in a CAN enviroment so we can skip this or not
-      WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, ListenerNodeID);
+    begin  // Add The listener to the list
+      NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
+      if Assigned(NewListenerNode) then
+        ReplyCode := S_OK
+      else
+        ReplyCode := ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE;
+      WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
       SendMessage(Self, WorkerMessage);
-      SetTimoutCountThreshold(1000);
-      AdvanceToNextState;
     end;
   end else
-  begin
+  begin // Send the Error Message
     WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
     SendMessage(Self, WorkerMessage);
-    _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
   end;
-end;
-
-function TLccTractionAttachListenerReplyAction._1WaitForAMD(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  ReplyCode: Word;
-  TempNodeID: TNodeID;
-begin
-  Result := False;
-
-  case SourceMessage.CAN.MTI of
-     MTI_CAN_AMD :
-       begin
-         TempNodeID := NULL_NODE_ID;
-         SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID); // Make SMS happy
-         if EqualNodeID(TempNodeID, FListenerNodeID, False) then
-         begin
-           ListenerNodeAliasID := SourceMessage.CAN.SourceAlias;
-           AdvanceToNextState;
-         end;
-       end;
-  end;
-
-  if TimeoutExpired then
-  begin
-    ReplyCode := ERROR_PERMANENT or ERROR_NOT_FOUND;
-    WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
-    SendMessage(Self, WorkerMessage);
-    _NFinalStateCleanup(Sender, SourceMessage); // Done: clean up and free
-  end;
-end;
-
-function TLccTractionAttachListenerReplyAction._2AssignListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  OwnerTrain: TLccTrainNode;
-  NewListenerNode: TListenerNode;
-  ReplyCode: Word;
-begin
-  Result := False;
-  SourceMessage := SourceMessage;
-
-  OwnerTrain := Owner as TLccTrainNode;
-  NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
-  if Assigned(NewListenerNode) then
-    ReplyCode := S_OK
-  else
-    ReplyCode := ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE;
-  WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
-
-  // Cleanup
   AdvanceToNextState;
 end;
 
@@ -792,8 +792,8 @@ procedure TLccTractionAttachListenerReplyAction.LoadStateArray;
 begin
   SetStateArrayLength(4);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
-  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForAMD;
-  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2AssignListener;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForNodeVerified;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2AttachListener;
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 

@@ -171,6 +171,7 @@ type
     FListenerNodeID: TNodeID;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
     procedure LoadStateArray; override;
   public
@@ -180,8 +181,16 @@ type
   { TLccTractionDetachListenerAction }
 
   TLccTractionDetachListenerAction = class(TLccAction)
+  private
+      FListenerNodeID: TNodeID;
+    protected
+      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+      function _1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
-  end;
+      procedure LoadStateArray; override;
+    public
+      property ListenerNodeID: TNodeID read FListenerNodeID write FListenerNodeID;
+    end;
 
   { TLccTractionQueryListenerAction }
 
@@ -265,9 +274,9 @@ type
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
-    procedure AttachListener(TrainNodeID, ListenerNodeID: TNodeID);
-    procedure DetachListener(TrainNodeID, ListenerNodeID: TNodeID);
-    procedure QueryListeners(TrainNodeID: TNodeID);
+    procedure AttachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+    procedure DetachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+    procedure QueryListeners(ATrainNodeID: TNodeID);
     procedure ReleaseTrain;
     procedure QuerySpeed;
     procedure QueryFunction(Address: Word);
@@ -283,6 +292,57 @@ type
 
 implementation
 
+{ TLccTractionDetachListenerAction }
+
+function TLccTractionDetachListenerAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  WorkerMessage.LoadTractionListenerDetach(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID);
+  SendMessage(Self, WorkerMessage);
+  SetTimoutCountThreshold(1000);
+  AdvanceToNextState;
+end;
+
+function TLccTractionDetachListenerAction._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  begin
+    case SourceMessage.MTI of
+       MTI_TRACTION_REPLY :
+         begin
+           case SourceMessage.DataArray[0] of
+             TRACTION_CONTROLLER_CONFIG_REPLY :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_LISTENER_ATTACH :
+                       begin
+
+                       end;
+                   end;
+
+                 end;
+           end;
+         end;
+    end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    AdvanceToNextState;
+  end;
+end;
+
+procedure TLccTractionDetachListenerAction.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitforReply;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
 { TLccTractionAttachListenerAction }
 
 function TLccTractionAttachListenerAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -291,12 +351,47 @@ begin
 
   WorkerMessage.LoadTractionListenerAttach(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID);
   SendMessage(Self, WorkerMessage);
+  SetTimoutCountThreshold(1000);
   AdvanceToNextState;
+end;
+
+function TLccTractionAttachListenerAction._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+
+  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  begin
+    case SourceMessage.MTI of
+       MTI_TRACTION_REPLY :
+         begin
+           case SourceMessage.DataArray[0] of
+             TRACTION_CONTROLLER_CONFIG_REPLY :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_LISTENER_ATTACH :
+                       begin
+
+                       end;
+                   end;
+
+                 end;
+           end;
+         end;
+    end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    AdvanceToNextState;
+  end;
 end;
 
 procedure TLccTractionAttachListenerAction.LoadStateArray;
 begin
-  inherited LoadStateArray;
+  SetStateArrayLength(3);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitforReply;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 end;
 
 { TLccTractionReleaseTrainAction }
@@ -714,24 +809,35 @@ begin
   LccActions.RegisterAndKickOffAction(LccAssignTrainAction, nil);
 end;
 
-procedure TLccTrainController.AttachListener(TrainNodeID, ListenerNodeID: TNodeID);
+procedure TLccTrainController.AttachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+var
+  LccTractionAttachListenerAction: TLccTractionAttachListenerAction;
 begin
   if IsTrainAssigned then
   begin
-
+    LccTractionAttachListenerAction := TLccTractionAttachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID);
+    LccTractionAttachListenerAction.ListenerNodeID := AListenerNodeID;
+    LccActions.RegisterAndKickOffAction(LccTractionAttachListenerAction, nil);
   end;
 end;
 
-procedure TLccTrainController.DetachListener(TrainNodeID, ListenerNodeID: TNodeID);
+procedure TLccTrainController.DetachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+var
+  LccTractionDetachListenerAction: TLccTractionDetachListenerAction;
 begin
   if IsTrainAssigned then
   begin
-
+    LccTractionDetachListenerAction := TLccTractionDetachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID);
+    LccTractionDetachListenerAction.ListenerNodeID := AListenerNodeID;
+    LccActions.RegisterAndKickOffAction(LccTractionDetachListenerAction, nil);
   end;
 end;
 
-procedure TLccTrainController.QueryListeners(TrainNodeID: TNodeID);
+procedure TLccTrainController.QueryListeners(ATrainNodeID: TNodeID);
 begin
+
+ // what is the result here all the listerners in a list? retain all the parent/child relationships like Balazs suggested?  Need to discuss with him the value of that
+
   if IsTrainAssigned then
   begin
 
