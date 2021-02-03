@@ -182,6 +182,18 @@ type
     procedure OnControllerSearchResult1(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
     procedure OnControllerSearchResult2(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
 
+    procedure OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+
+    procedure OnControllerDetachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerDetachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+
+    procedure OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
+    procedure OnControllerQueryListenerGetCount2(Sender: TLccNode; ListenerCount: Byte);
+
+    procedure OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+    procedure OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
 
@@ -552,6 +564,10 @@ begin
           ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
           ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
           ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
+          ControllerNode1.OnAttachListener := @OnControllerAttachListener1;
+          ControllerNode1.OnDetachListener := @OnControllerDetachListener1;
+          ControllerNode1.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount1;
+          ControllerNode1.OnQueryListenerIndex := @OnControllerQueryListenerIndex1;
           PanelThrottleFace1.Enabled := True;
         end;
       lcsDisconnecting :
@@ -597,6 +613,10 @@ begin
           ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
           ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
           ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
+          ControllerNode2.OnAttachListener := @OnControllerAttachListener2;
+          ControllerNode2.OnDetachListener := @OnControllerDetachListener2;
+          ControllerNode2.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount2;
+          ControllerNode2.OnQueryListenerIndex := @OnControllerQueryListenerIndex2;
           PanelThrottleFace2.Enabled := True;
         end;
       lcsDisconnecting :
@@ -778,6 +798,51 @@ begin
   else
     ShowMessage('Multiple Search Results: Please Select');
   end;
+end;
+
+procedure TForm1.OnControllerAttachListener1(Sender: TLccNode;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
+begin
+
+end;
+
+procedure TForm1.OnControllerAttachListener2(Sender: TLccNode;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
+begin
+
+end;
+
+procedure TForm1.OnControllerDetachListener1(Sender: TLccNode;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
+begin
+
+end;
+
+procedure TForm1.OnControllerDetachListener2(Sender: TLccNode;
+  ListenerNodeID: TNodeID; ReplyCode: Word);
+begin
+
+end;
+
+procedure TForm1.OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
+begin
+
+end;
+
+procedure TForm1.OnControllerQueryListenerGetCount2(Sender: TLccNode;
+  ListenerCount: Byte);
+begin
+
+end;
+
+procedure TForm1.OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+begin
+
+end;
+
+procedure TForm1.OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+begin
+
 end;
 
 procedure TForm1.ReleaseTrain1;
