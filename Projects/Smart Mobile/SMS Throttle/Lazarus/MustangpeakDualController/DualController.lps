@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="17">
+    <Units Count="19">
       <Unit0>
         <Filename Value="DualController.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -17,8 +17,9 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="172"/>
-        <CursorPos X="60" Y="187"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="856"/>
+        <CursorPos X="23" Y="881"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -35,7 +36,7 @@
       <Unit3>
         <Filename Value="../../Target-Common/lcc_alias_server.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="331"/>
         <CursorPos Y="345"/>
         <UsageCount Value="282"/>
@@ -43,23 +44,22 @@
       </Unit3>
       <Unit4>
         <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="4"/>
         <CursorPos X="116" Y="13"/>
         <UsageCount Value="101"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="346"/>
-        <CursorPos X="7" Y="360"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="828"/>
+        <CursorPos X="34" Y="838"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="92"/>
         <CursorPos X="12" Y="108"/>
         <UsageCount Value="118"/>
@@ -67,7 +67,7 @@
       </Unit6>
       <Unit7>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="338"/>
         <CursorPos X="27" Y="344"/>
         <UsageCount Value="166"/>
@@ -82,7 +82,7 @@
       </Unit8>
       <Unit9>
         <Filename Value="../../Target-Common/lcc_node.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="352"/>
         <CursorPos Y="373"/>
         <UsageCount Value="106"/>
@@ -97,15 +97,15 @@
       </Unit10>
       <Unit11>
         <Filename Value="../../Target-Common/lcc_defines.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="419"/>
-        <CursorPos X="20" Y="443"/>
-        <UsageCount Value="19"/>
+        <CursorPos X="93" Y="427"/>
+        <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="../../Target-Common/lcc_utilities.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="327"/>
         <CursorPos X="14" Y="341"/>
         <UsageCount Value="116"/>
@@ -113,7 +113,7 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../Target-PC/lcc_common_classes.pas"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="527"/>
         <CursorPos Y="540"/>
         <UsageCount Value="127"/>
@@ -121,7 +121,7 @@
       </Unit13>
       <Unit14>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="45"/>
         <CursorPos X="15" Y="58"/>
         <UsageCount Value="126"/>
@@ -129,7 +129,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_common.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="218"/>
         <CursorPos X="88" Y="236"/>
         <UsageCount Value="118"/>
@@ -142,127 +142,144 @@
         <CursorPos Y="278"/>
         <UsageCount Value="130"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="/Applications/Lazarus/lcl/comctrls.pp"/>
+        <UnitName Value="ComCtrls"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="3031"/>
+        <CursorPos X="14" Y="3049"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="/Applications/Lazarus/lcl/include/treeview.inc"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="1093"/>
+        <CursorPos X="27" Y="1093"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit18>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="764" TopLine="757"/>
+        <Caret Line="392" Column="38" TopLine="371"/>
       </Position1>
       <Position2>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="765" TopLine="757"/>
+        <Filename Value="../../Target-Common/lcc_defines.pas"/>
+        <Caret Line="443" Column="20" TopLine="419"/>
       </Position2>
       <Position3>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="767" TopLine="757"/>
+        <Caret Line="394" Column="81" TopLine="370"/>
       </Position3>
       <Position4>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="768" TopLine="757"/>
+        <Caret Line="396" Column="58" TopLine="369"/>
       </Position4>
       <Position5>
-        <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="677" Column="22" TopLine="672"/>
+        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
+        <Caret Line="397" Column="49" TopLine="380"/>
       </Position5>
       <Position6>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="256" Column="74" TopLine="244"/>
+        <Caret Line="211" Column="101" TopLine="193"/>
       </Position6>
       <Position7>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="236" Column="15" TopLine="225"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="567" Column="58" TopLine="549"/>
       </Position7>
       <Position8>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="779" Column="35" TopLine="758"/>
+        <Caret Line="174" Column="23" TopLine="160"/>
       </Position8>
       <Position9>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="285" Column="42" TopLine="257"/>
+        <Caret Line="375" TopLine="370"/>
       </Position9>
       <Position10>
-        <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="677" Column="22" TopLine="672"/>
+        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
+        <Caret Line="188" Column="21" TopLine="156"/>
       </Position10>
       <Position11>
-        <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="186" Column="43" TopLine="172"/>
+        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
+        <Caret Line="346" Column="67" TopLine="326"/>
       </Position11>
       <Position12>
         <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="831" Column="68" TopLine="811"/>
+        <Caret Line="190" Column="33" TopLine="172"/>
       </Position12>
       <Position13>
         <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="615" Column="95" TopLine="604"/>
+        <Caret Line="237" Column="7" TopLine="222"/>
       </Position13>
       <Position14>
         <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="160" Column="34" TopLine="145"/>
+        <Caret Line="232" Column="42" TopLine="215"/>
       </Position14>
       <Position15>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="174" Column="22" TopLine="162"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="235" Column="51" TopLine="215"/>
       </Position15>
       <Position16>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="389" Column="13" TopLine="374"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="890" Column="28" TopLine="877"/>
       </Position16>
       <Position17>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="158" Column="18" TopLine="156"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="863" Column="3" TopLine="859"/>
       </Position17>
       <Position18>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="443" TopLine="441"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="131" Column="15" TopLine="112"/>
       </Position18>
       <Position19>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="174" Column="21" TopLine="157"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="878" Column="21" TopLine="846"/>
       </Position19>
       <Position20>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="392" Column="38" TopLine="371"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="880" Column="44" TopLine="845"/>
       </Position20>
       <Position21>
-        <Filename Value="../../Target-Common/lcc_defines.pas"/>
-        <Caret Line="443" Column="20" TopLine="419"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="132" Column="15" TopLine="128"/>
       </Position21>
       <Position22>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="394" Column="81" TopLine="370"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="236" Column="34" TopLine="223"/>
       </Position22>
       <Position23>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="396" Column="58" TopLine="369"/>
+        <Caret Line="290" Column="15" TopLine="271"/>
       </Position23>
       <Position24>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="397" Column="49" TopLine="380"/>
+        <Caret Line="1005" Column="3" TopLine="1001"/>
       </Position24>
       <Position25>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="211" Column="101" TopLine="193"/>
+        <Caret Line="292" Column="15" TopLine="271"/>
       </Position25>
       <Position26>
         <Filename Value="dualcontroller_unit.pas"/>
-        <Caret Line="567" Column="58" TopLine="549"/>
+        <Caret Line="228" Column="32" TopLine="214"/>
       </Position26>
       <Position27>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="174" Column="23" TopLine="160"/>
+        <Filename Value="/Applications/Lazarus/lcl/comctrls.pp"/>
+        <Caret Line="3049" Column="14" TopLine="3031"/>
       </Position27>
       <Position28>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="375" TopLine="370"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="802" Column="64" TopLine="784"/>
       </Position28>
       <Position29>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="188" Column="21" TopLine="156"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="185" Column="15" TopLine="124"/>
       </Position29>
       <Position30>
-        <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <Caret Line="346" Column="67" TopLine="326"/>
+        <Filename Value="dualcontroller_unit.pas"/>
+        <Caret Line="228" Column="38" TopLine="223"/>
       </Position30>
     </JumpHistory>
     <RunParams>

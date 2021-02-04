@@ -222,20 +222,20 @@ implementation
 { TForm1 }
 
 procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
-{var
+var
   TreeNode: TTreeNode;
-  ConsistItem: TConsistItem; }
-begin         {
+  ConsistItem: TConsistItem;
+begin
   TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
-  if Assigned(TreeNode) then
-  begin
+  repeat
     Controller1State.BuildingConsist := True;
     Controller1State.LastTreeNode := TreeNode;
-    Controller1State.
+
     ConsistItem := TConsistItem( TreeNode.Data);
     ControllerNode1.AssignTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
-  end;      }
-  ShowMessage('Rethinking the Traction Messages.. not sure if Listeners are really needed.  The Controller can maintain the list and forwrd the information');
+
+    TreeNode := TreeNode.GetNext;
+  until TreeNode = nil;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -800,26 +800,22 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerAttachListener1(Sender: TLccNode;
-  ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerAttachListener2(Sender: TLccNode;
-  ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListener1(Sender: TLccNode;
-  ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListener2(Sender: TLccNode;
-  ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
@@ -860,19 +856,31 @@ end;
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
+  Obj: TObject;
 begin
   TreeNode := TreeViewConsistWizard1.Selected;
   if Assigned(TreeNode) then
+  begin
+    // Free the Data
+    Obj := TObject(TreeNode.Data);
+    FreeAndNil( Obj);
     TreeViewConsistWizard1.Items.Delete(TreeNode);
+  end;
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract2Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
+  Obj: TObject;
 begin
   TreeNode := TreeViewConsistWizard2.Selected;
   if Assigned(TreeNode) then
+  begin
+    // Free the Data
+    Obj := TObject(TreeNode.Data);
+    FreeAndNil( Obj);
     TreeViewConsistWizard2.Items.Delete(TreeNode);
+  end;
 end;
 
 procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
