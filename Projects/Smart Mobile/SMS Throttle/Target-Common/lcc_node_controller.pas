@@ -100,6 +100,20 @@ type
 
   TLccTractionAssignTrainAction = class;
 
+  { TLccTractionSearchTrain }
+
+  TLccTractionSearchTrain = class(TLccAction)
+  private
+    FRequestedSearchData: DWORD;
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure LoadStateArray; override;
+  public
+    property RequestedSearchData: DWORD read FRequestedSearchData write FRequestedSearchData;
+  end;
+
   { TLccTractionAssignTrainAction }
 
   TLccTractionAssignTrainAction = class(TLccAction)
@@ -290,6 +304,7 @@ type
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
+    procedure SearchAndForceCreateTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; var SearchData: DWORD);
     procedure AttachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
     procedure DetachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
     procedure QueryListeners(ATrainNodeID: TNodeID);
@@ -307,6 +322,41 @@ type
 
 
 implementation
+
+{ TLccTractionSearchTrain }
+
+procedure TLccTractionSearchTrain.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionGatherSearchResults;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
+function TLccTractionSearchTrain._0ReceiveFirstMessage(Sender: TObject;
+  SourceMessage: TLccMessage): Boolean;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, RequestedSearchData);
+  SendMessage(Owner, WorkerMessage);
+  SetTimoutCountThreshold(1000); // seconds to collect trains
+  AdvanceToNextState;
+end;
+
+function TLccTractionSearchTrain._1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+
+  IgnoreTimer := True;
+  try
+ //   (Owner as TLccTrainController).DoSearchResult();
+  finally
+    IgnoreTimer := False;
+  end;
+
+  if TimeoutExpired then    // Times up, report out....
+    AdvanceToNextState;
+end;
 
 { TLccTractionDetachListenerAction }
 
@@ -341,10 +391,15 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_ATTACH :
                        begin
-                         SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
-                         ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                         ControllerNode.DoControllerDetachListener(TempNodeID, ReplyCode);
-                         AdvanceToNextState;
+                         IgnoreTimer := True;
+                         try
+                           SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
+                           ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
+                           ControllerNode.DoControllerDetachListener(TempNodeID, ReplyCode);
+                         finally
+                           AdvanceToNextState;
+                           IgnoreTimer := False;;
+                         end;
                        end;
                    end;
 
@@ -401,10 +456,15 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_ATTACH :
                        begin
-                         SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
-                         ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                         ControllerNode.DoControllerAttachListener(TempNodeID, ReplyCode);
-                         AdvanceToNextState;
+                         IgnoreTimer := True;
+                         try
+                          SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
+                          ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
+                          ControllerNode.DoControllerAttachListener(TempNodeID, ReplyCode);
+                         finally
+                           AdvanceToNextState;
+                           IgnoreTimer := False;
+                         end;
                        end;
                    end;
 
@@ -445,9 +505,15 @@ begin
       SendMessage(ControllerNode, WorkerMessage);
       ControllerNode.ClearAssignedTrain;
     end;
-    ControllerNode.DoTrainReleased;
+
+    IgnoreTimer := True;
+    try
+      ControllerNode.DoTrainReleased;
+    finally
+      AdvanceToNextState;
+      IgnoreTimer := False;
+    end;
   end;
-  AdvanceToNextState;
 end;
 
 procedure TLccTractionReleaseTrainAction.LoadStateArray;
@@ -499,9 +565,12 @@ begin
                     if Address = SourceMessage.TractionExtractFunctionAddress then
                     begin
                       IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
-
-                      ControllerNode.DoQueryFunctionReply(Address, SourceMessage.TractionExtractFunctionValue);
-                      AdvanceToNextState;
+                      try
+                        ControllerNode.DoQueryFunctionReply(Address, SourceMessage.TractionExtractFunctionValue);
+                      finally
+                        AdvanceToNextState;
+                        IgnoreTimer := False;
+                      end;
                     end;
                   end;
               end;
@@ -564,8 +633,12 @@ begin
                 TRACTION_QUERY_SPEED_REPLY :
                   begin  // this can be turned into a request/reply action
                     IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
-                    ControllerNode.DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
-                    AdvanceToNextState;
+                    try
+                      ControllerNode.DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
+                    finally
+                      AdvanceToNextState;
+                      IgnoreTimer := False;
+                    end;
                   end;
               end;
             end;
@@ -593,7 +666,6 @@ begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   // At this point the Action does not have a Destination Node so DestNodeID and DestAliasID are 0
-
   FSelectedSearchResultIndex := 0;
   FRepliedSearchCriterialCount := 0;
   WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, RequestedSearchData);
@@ -690,8 +762,8 @@ function TLccTractionAssignTrainAction._2ActionReportSearchResults(Sender: TObje
 begin
   Result := False;
 
+  IgnoreTimer := True;  // Stop reentrancy
   try
-    IgnoreTimer := True;  // Stop reentrancy
     DoSearchResults;
 
     if SelectedSearchResultIndex > -1 then
@@ -703,8 +775,9 @@ begin
       SendMessage(Owner, WorkerMessage);
       SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT * 2); // seconds to assign the train, the command station will give 5 seconds to receive a reply from an existing controller to give it up
     end;
-    AdvanceToNextState;
+
   finally
+    AdvanceToNextState;
     IgnoreTimer := False;
   end;
 end;
@@ -884,6 +957,37 @@ begin
     LccActions.RegisterAndKickOffAction(TLccTractionReleaseTrainAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID), nil);
 end;
 
+procedure TLccTrainController.SearchAndForceCreateTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; var SearchData: DWORD);
+var
+  TrackProtocolFlags: Word;
+  LccSearchTrainAction: TLccTractionSearchTrain;
+begin
+
+  TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_EXACT_MATCH or
+                        TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+
+  if IsLongAddress then
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
+  else
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+
+  case SpeedSteps of
+     ldssDefault : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+     ldss14      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+     ldss28      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+     ldss128     : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+  end;
+
+
+  SearchData := 0;
+  WorkerMessage.TractionSearchEncodeSearchString(IntToStr(DccAddress), TrackProtocolFlags, SearchData);
+
+  LccSearchTrainAction := TLccTractionSearchTrain.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
+  LccSearchTrainAction.RequestedSearchData := SearchData;
+  LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
+
+end;
+
 procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection);
 begin
   FDirection := AValue;
@@ -1010,7 +1114,7 @@ var
   TrackProtocolFlags: Word;
 begin
 
-  TrackProtocolFlags := TRACTION_SEARCH_TARGET_ANY_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_ALL_MATCH or
+  TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or TRACTION_SEARCH_ALLOCATE_FORCE or TRACTION_SEARCH_TYPE_EXACT_MATCH or
                         TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
 
   if IsLongAddress then

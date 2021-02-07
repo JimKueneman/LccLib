@@ -225,6 +225,7 @@ procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
   ConsistItem: TConsistItem;
+  SearchData: DWORD;
 begin
   TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
   repeat
@@ -232,7 +233,8 @@ begin
     Controller1State.LastTreeNode := TreeNode;
 
     ConsistItem := TConsistItem( TreeNode.Data);
-    ControllerNode1.AssignTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
+    SearchData := 0;
+    ControllerNode1.SearchAndForceCreateTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep, SearchData);
 
     TreeNode := TreeNode.GetNext;
   until TreeNode = nil;
