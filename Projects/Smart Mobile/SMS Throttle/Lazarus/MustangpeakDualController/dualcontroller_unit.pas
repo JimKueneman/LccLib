@@ -12,18 +12,6 @@ uses
 
 type
 
-  TControllerState = record
-    BuildingConsist: Boolean;
-    LastTreeNode: TTreeNode;
-  end;
-
-  TConsistItem = class(TObject)
-  public
-    DccAddress: Word;
-    SpeedStep: TLccDccSpeedStep;
-    LongAddress: Boolean;
-  end;
-
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -207,9 +195,6 @@ type
     ControllerNode1: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
     ControllerNode2: TLccTrainController; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
 
-    Controller1State: TControllerState; // Helps deal with the statmachine like series of steps needed to excute a particular use task
-    Controller2State: TControllerState; // Helps deal with the statmachine like series of steps needed to excute a particular use task
-
   end;
 
 var
@@ -224,20 +209,19 @@ implementation
 procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
-  ConsistItem: TConsistItem;
-  SearchData: DWORD;
+  Consist: TDccTrainList;
 begin
-  TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
-  repeat
-    Controller1State.BuildingConsist := True;
-    Controller1State.LastTreeNode := TreeNode;
-
-    ConsistItem := TConsistItem( TreeNode.Data);
-    SearchData := 0;
-    ControllerNode1.SearchAndForceCreateTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep, SearchData);
-
-    TreeNode := TreeNode.GetNext;
-  until TreeNode = nil;
+  Consist := TDccTrainList.Create(False);
+  try
+    TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
+    repeat
+      Consist.Add(TDccTrain( TreeNode.Data));
+      TreeNode := TreeNode.GetNext;
+    until TreeNode = nil;
+  finally
+    ControllerNode1.AssignConsist(Consist);
+    Consist.Free;
+  end;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -497,21 +481,21 @@ end;
 
 procedure TForm1.TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
 var
-  ConsistItem: TConsistItem;
+  ConsistItem: TDccTrain;
 begin
-  ConsistItem := TConsistItem( Node.Data);
+  ConsistItem := TDccTrain( Node.Data);
   FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TConsistItem;
+  ConsistItem: TDccTrain;
 begin
   Node := TreeViewConsistWizard1.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TConsistItem(Node.Data);
+    ConsistItem := TDccTrain(Node.Data);
     if Assigned(ConsistItem) then
     begin
       CheckBoxConsistAddress1.Checked := ConsistItem.LongAddress;
@@ -529,12 +513,12 @@ end;
 procedure TForm1.TreeViewConsistWizard2SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TConsistItem;
+  ConsistItem: TDccTrain;
 begin
   Node := TreeViewConsistWizard1.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TConsistItem(Node.Data);
+    ConsistItem := TDccTrain(Node.Data);
     if Assigned(ConsistItem) then
     begin
       CheckBoxConsistAddress2.Checked := ConsistItem.LongAddress;
@@ -888,10 +872,10 @@ end;
 procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
 var
   SelectedNode, TreeNode: TTreeNode;
-  ConsistItem: TConsistItem;
+  ConsistItem: TDccTrain;
   NodeCaption: string;
 begin
-  ConsistItem := TConsistItem.Create;
+  ConsistItem := TDccTrain.Create;
   ConsistItem.DccAddress := StrToInt(EditConsistAddress1.Text);
   ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
   ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
@@ -921,10 +905,10 @@ end;
 procedure TForm1.SpeedButtonConstistTrainAdd2Click(Sender: TObject);
 var
   SelectedNode, TreeNode: TTreeNode;
-  ConsistItem: TConsistItem;
+  ConsistItem: TDccTrain;
   NodeCaption: string;
 begin
-  ConsistItem := TConsistItem.Create;
+  ConsistItem := TDccTrain.Create;
   ConsistItem.DccAddress := StrToInt(EditConsistAddress2.Text);
   ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
   ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
