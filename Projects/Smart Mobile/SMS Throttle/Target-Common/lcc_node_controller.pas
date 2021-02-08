@@ -454,15 +454,16 @@ begin
                  if RepliedSearchCriteria[i].SearchData = SourceMessage.TractionSearchExtractSearchData then
                  begin
                    if Owner.GridConnect then
-                   begin
+                   begin   // Need to get the NodeID in a GridConnect CAN connection
+                     RepliedSearchCriteria[i].NodeAlias := SourceMessage.CAN.SourceAlias;
                      WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, NULL_NODE_ID);
                      SendMessage(Self, WorkerMessage);
-                   end else
+                   end else // TCP so the NodeID is valid
                      RepliedSearchCriteria[i].NodeID := SourceMessage.SourceID;
-                   RepliedSearchCriteria[i].NodeAlias := SourceMessage.CAN.SourceAlias;
                    i := Length(RepliedSearchCriteria);
                  end;
-                 // Count the number of valid Trains returned
+
+                 // Count the number of Trains that have returned from the Search Reqeust
                  if (RepliedSearchCriteria[i].NodeAlias <> 0) or (not NullNodeID(RepliedSearchCriteria[i].NodeID)) then
                    Inc(ReturnedCount);
                  Inc(i);
@@ -508,6 +509,7 @@ begin
               begin
                 SourceMessage.ExtractDataBytesAsNodeID(0, RepliedSearchCriteria[i].NodeID);
                 i := Length(RepliedSearchCriteria);
+                SetTimoutCountThreshold(1000); // Reset the Wait for the next one
               end;
               // Count the number of valid Trains returned
               if (RepliedSearchCriteria[i].NodeAlias <> 0) and (not NullNodeID(RepliedSearchCriteria[i].NodeID)) then
@@ -515,18 +517,15 @@ begin
               Inc(i);
             end;
 
-            // is every one returned?
+            // is every one returned a Verified Node?
             if ReturnedCount = Length(RepliedSearchCriteria) then
               AdvanceToNextState;
           end;
       end;
     end;
+    if TimeoutExpired then    // Times up, report out....
+      AdvanceToNextState;
   end else
-    AdvanceToNextState;
-
-  //THink out these timeouts.......
-
-  if TimeoutExpired then    // Times up, report out....
     AdvanceToNextState;
 end;
 
