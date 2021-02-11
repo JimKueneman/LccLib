@@ -523,6 +523,7 @@ begin
           end;
       end;
     end;
+
     if TimeoutExpired then    // Times up, report out....
       AdvanceToNextState;
   end else
@@ -1092,7 +1093,7 @@ begin
   WorkerMessage.TractionSearchEncodeSearchString(SearchString, TrackProtocolFlags, LocalSearchData);
   FAssignedTrain.RequestedSearchData := LocalSearchData;
 
-  LccAssignTrainAction := TLccTractionAssignTrainAction.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
+  LccAssignTrainAction := TLccTractionAssignTrainAction.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, nil);
   LccAssignTrainAction.RequestedSearchData := LocalSearchData;
   LccActions.RegisterAndKickOffAction(LccAssignTrainAction, nil);
 end;
@@ -1102,7 +1103,7 @@ var
   LccTractionBuildConsist: TLccTractionBuildConsist;
   i: Integer;
 begin
-  LccTractionBuildConsist := TLccTractionBuildConsist.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
+  LccTractionBuildConsist := TLccTractionBuildConsist.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, nil);
   for i := 0 to TrainList.Count - 1 do
     LccTractionBuildConsist.AddTrainSearchCritera(TrainList.Trains[i].DccAddress, TrainList.Trains[i].LongAddress, TrainList.Trains[i].SpeedStep);
   LccActions.RegisterAndKickOffAction(LccTractionBuildConsist, nil);
@@ -1114,7 +1115,7 @@ var
 begin
   if IsTrainAssigned then
   begin
-    LccTractionAttachListenerAction := TLccTractionAttachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID);
+    LccTractionAttachListenerAction := TLccTractionAttachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID, nil);
     LccTractionAttachListenerAction.ListenerNodeID := AListenerNodeID;
     LccActions.RegisterAndKickOffAction(LccTractionAttachListenerAction, nil);
   end;
@@ -1126,7 +1127,7 @@ var
 begin
   if IsTrainAssigned then
   begin
-    LccTractionDetachListenerAction := TLccTractionDetachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID);
+    LccTractionDetachListenerAction := TLccTractionDetachListenerAction.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID, nil);
     LccTractionDetachListenerAction.ListenerNodeID := AListenerNodeID;
     LccActions.RegisterAndKickOffAction(LccTractionDetachListenerAction, nil);
   end;
@@ -1146,7 +1147,7 @@ end;
 procedure TLccTrainController.ReleaseTrain;
 begin
   if IsTrainAssigned then
-    LccActions.RegisterAndKickOffAction(TLccTractionReleaseTrainAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID), nil);
+    LccActions.RegisterAndKickOffAction(TLccTractionReleaseTrainAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, nil), nil);
 end;
 
 procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection);
@@ -1241,7 +1242,7 @@ var
 begin
   if IsTrainAssigned then
   begin
-    LccQueryFunctionAction := TLccTractionQueryFunctionAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID);
+    LccQueryFunctionAction := TLccTractionQueryFunctionAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, nil);
     LccQueryFunctionAction.Address := Address;
     LccActions.RegisterAndKickOffAction(LccQueryFunctionAction, nil);
   end;
@@ -1261,7 +1262,7 @@ end;
 procedure TLccTrainController.QuerySpeed;
 begin
   if IsTrainAssigned then
-    LccActions.RegisterAndKickOffAction(TLccTractionQuerySpeedAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID), nil);
+    LccActions.RegisterAndKickOffAction(TLccTractionQuerySpeedAction.Create(Self, NodeID, AliasID, AssignedTrain.NodeID, AssignedTrain.AliasID, nil), nil);
 end;
 
 procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word;
