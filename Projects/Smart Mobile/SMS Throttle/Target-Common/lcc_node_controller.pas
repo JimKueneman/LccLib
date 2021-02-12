@@ -119,7 +119,7 @@ type
 
   { TLccTractionBuildConsist }
 
-  TLccTractionBuildConsist = class(TLccAction)
+  TLccTractionBuildConsist = class(TLccTrainAction)
   private
     FRepliedSearchCriteria: TLccSearchResultsArray;
     FRequestedSearchData: DWORD;
@@ -139,7 +139,7 @@ type
 
   { TLccTractionAssignTrainAction }
 
-  TLccTractionAssignTrainAction = class(TLccAction)
+  TLccTractionAssignTrainAction = class(TLccTrainAction)
   private
     FRepliedSearchCriteria: TLccSearchResultsArray;
     FRepliedSearchCriterialCount: Integer;
@@ -164,7 +164,7 @@ type
 
   { TLccTractionReleaseTrainAction }
 
-  TLccTractionReleaseTrainAction = class(TLccAction)
+  TLccTractionReleaseTrainAction = class(TLccTrainAction)
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
 
@@ -173,7 +173,7 @@ type
 
   { TLccTractionQuerySpeedAction }
 
-  TLccTractionQuerySpeedAction = class(TLccAction)
+  TLccTractionQuerySpeedAction = class(TLccTrainAction)
   private
     FSpeed: THalfFloat;
   protected
@@ -187,7 +187,7 @@ type
 
   { TLccTractionQueryFunctionAction }
 
-  TLccTractionQueryFunctionAction = class(TLccAction)
+  TLccTractionQueryFunctionAction = class(TLccTrainAction)
   private
     FAddress: DWORD;
     FValue: Word;
@@ -203,7 +203,7 @@ type
 
   { TLccTractionAttachListenerAction }
 
-  TLccTractionAttachListenerAction = class(TLccAction)
+  TLccTractionAttachListenerAction = class(TLccTrainAction)
   private
     FListenerNodeID: TNodeID;
   protected
@@ -217,7 +217,7 @@ type
 
   { TLccTractionDetachListenerAction }
 
-  TLccTractionDetachListenerAction = class(TLccAction)
+  TLccTractionDetachListenerAction = class(TLccTrainAction)
   private
       FListenerNodeID: TNodeID;
     protected
@@ -231,7 +231,7 @@ type
 
   { TLccTractionQueryListenerAction }
 
-  TLccTractionQueryListenerAction = class(TLccAction)
+  TLccTractionQueryListenerAction = class(TLccTrainAction)
 
   end;
 

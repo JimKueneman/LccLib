@@ -668,6 +668,7 @@ begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   OwnerTrain := Owner as TLccTrainNode;
+  ListenerNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
 
   if OwnerTrain.Listeners.Delete(ListenerNodeID) then
@@ -688,6 +689,7 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  TempNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
   FListenerNodeID := TempNodeID;
   AttachFlags := SourceMessage.DataArray[2];

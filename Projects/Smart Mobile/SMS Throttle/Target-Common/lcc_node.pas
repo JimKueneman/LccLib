@@ -107,7 +107,7 @@ type
 
   { TLccActionTrain }
 
-  TLccActionTrain = object
+  TLccTrainActionInfo = class
   private
     FAlias: Word;
     FAliasID: Word;
@@ -142,9 +142,11 @@ type
   TLccActionTrainList = class
   private
     {$IFDEF DELPHI}
-    FTrainList: TObjectList<TLccActionTrain>;
+    FTrainList: TObjectList<TLccTrainActionInfo>;
     {$ELSE}
     FTrainList: TObjectList;
+    function GetTrains(Index: Integer): TLccTrainActionInfo;
+    procedure SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
     {$ENDIF}
   protected
   {$IFDEF DELPHI}
@@ -153,8 +155,15 @@ type
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}
   public
+    property Trains[Index: Integer]: TLccTrainActionInfo read GetTrains write SetTrains;
+
     constructor Create;
     destructor Destroy; override;
+
+    procedure Add(ATrain: TLccTrainActionInfo);
+    function IndexOf(ATrain: TLccTrainActionInfo): Integer;
+    procedure Remove(ATrain: TLccTrainActionInfo);
+    procedure Clear();
   end;
 
   { TLccAction }
@@ -172,7 +181,6 @@ type
     FTerminated: Boolean;
     FTimeoutCounts: Integer;
     FTimeoutCountThreshold: Integer;
-    FTrains: TLccActionTrainList;
     FWorkerMessage: TLccMessage;
   protected
     FSourceAliasID: Word;
@@ -218,10 +226,8 @@ type
     property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
     // User property that can be used to flag the statemachine should skip through states to the end
     property Terminated: Boolean read FTerminated write FTerminated;
-    // User property hold trains nodes that are being working on in the task
-    property Trains: TLccActionTrainList read FTrains write FTrains;
 
-    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList);
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList); virtual;
     destructor Destroy; override;
 
     // Set the index to the next function that will be pointed to in the States array
@@ -236,6 +242,20 @@ type
     function TimeoutExpired: Boolean;
     // Sets the OnCompleteCallback property to the CompleteCallack method of the passed function
     procedure RegisterCallBack(AnLccAction: TLccAction);
+  end;
+
+
+  { TLccTrainAction }
+
+  TLccTrainAction = class(TLccAction)
+  private
+    FTrains: TLccActionTrainList;
+  public
+    // User property hold trains nodes that are being working on in the task
+    property Trains: TLccActionTrainList read FTrains write FTrains;
+
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList); override;
+    destructor Destroy; override;
   end;
 
  { TLccActionHub }
@@ -425,12 +445,36 @@ implementation
 uses
   lcc_node_manager;
 
+{ TLccTrainAction }
+
+constructor TLccTrainAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList);
+begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, ATrainList);
+  FTrains := ATrainList;
+end;
+
+destructor TLccTrainAction.Destroy;
+begin
+  FreeAndNil(FTrains);
+  inherited Destroy;
+end;
+
 { TLccActionTrainList }
+
+function TLccActionTrainList.GetTrains(Index: Integer): TLccTrainActionInfo;
+begin
+  Result := Trains[Index];
+end;
+
+procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
+begin
+  Trains[Index] := AValue;
+end;
 
 constructor TLccActionTrainList.Create;
 begin
 {$IFDEF DELPHI}
-  FTrainList := TObjectList<TLccActionTrain>.Create(False);
+  FTrainList := TObjectList<TLccTrainActionInfo>.Create(False);
   {$ELSE}
    FTrainList := TObjectList.Create;
    {$IFNDEF DWSCRIPT}
@@ -443,6 +487,26 @@ destructor TLccActionTrainList.Destroy;
 begin
   FreeAndNil(FTrainList);
   inherited Destroy;
+end;
+
+procedure TLccActionTrainList.Add(ATrain: TLccTrainActionInfo);
+begin
+  TrainList.Add(ATrain);
+end;
+
+function TLccActionTrainList.IndexOf(ATrain: TLccTrainActionInfo): Integer;
+begin
+  Result := TrainList.IndexOf(ATrain);
+end;
+
+procedure TLccActionTrainList.Remove(ATrain: TLccTrainActionInfo);
+begin
+  TrainList.Remove(ATrain);
+end;
+
+procedure TLccActionTrainList.Clear();
+begin
+  TrainList.Clear;
 end;
 
 { TLccAction }
@@ -460,7 +524,6 @@ begin
   FDestAliasID := ADestAliasID;
   FSendMessage := AnOwner.SendMessageFunc;
   SetTimoutCountThreshold(5000);  // Default 5 seconds
-  FTrains := ATrainList;
   LoadStateArray;
 end;
 
