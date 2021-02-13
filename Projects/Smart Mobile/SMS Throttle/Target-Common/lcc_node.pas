@@ -107,30 +107,35 @@ type
 
   { TLccActionTrain }
 
+  { TLccTrainActionInfo }
+
   TLccTrainActionInfo = class
   private
-    FAlias: Word;
     FAliasID: Word;
-    FIsReserved: Boolean;
+    FIsReserved: Boolean;            // The Train has its Reserved flag set for our operation (we reserved it)
     FNodeID: TNodeID;
-    FSearchCriteria: DWORD;
-    FSearchCriteriaValid: Boolean;
+    FSearchCriteria: DWORD;          // Search Critera Data
+    FSearchCriteriaFound: Boolean;   // This NodeID/AliasID Train responded that it has this Search Criteria
+    FSearchCriteriaValid: Boolean;   // The Search Critera Data is valid information and can be used
     FSNIP_Manufacturer: string;
     FSNIP_Owner: string;
     FSNIP_RoadName: string;
     FSNIP_RoadNumber: string;
+    FSNIP_TrainClass: string;
     FSNIP_TrainName: string;
     FSNIP_Valid: Boolean;
     FSNIP_Version: Byte;
   public
     property NodeID: TNodeID read FNodeID write FNodeID;
-    property AliasID: Word read FAliasID write FAlias;
+    property AliasID: Word read FAliasID write FAliasID;
     property SearchCriteria: DWORD read FSearchCriteria write FSearchCriteria;
     property SearchCriteriaValid: Boolean read FSearchCriteriaValid write FSearchCriteriaValid;
+    property SearchCriteriaFound: Boolean read FSearchCriteriaFound write FSearchCriteriaFound;
     property SNIP_Manufacturer: string read FSNIP_Manufacturer write FSNIP_Manufacturer;
     property SNIP_Owner: string read FSNIP_Owner write FSNIP_Owner;
     property SNIP_RoadName: string read FSNIP_RoadName write FSNIP_RoadName;
     property SNIP_TrainName: string read FSNIP_TrainName write FSNIP_TrainName;
+    property SNIP_TrainClass: string read FSNIP_TrainClass write FSNIP_TrainClass;
     property SNIP_RoadNumber: string read FSNIP_RoadNumber write FSNIP_RoadNumber;
     property SNIP_Version: Byte read FSNIP_Version write FSNIP_Version;
     property SNIP_Valid: Boolean read FSNIP_Valid write FSNIP_Valid;
@@ -145,17 +150,19 @@ type
     FTrainList: TObjectList<TLccTrainActionInfo>;
     {$ELSE}
     FTrainList: TObjectList;
+    {$ENDIF}
+    function GetCount: Integer;
     function GetTrains(Index: Integer): TLccTrainActionInfo;
     procedure SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
-    {$ENDIF}
   protected
   {$IFDEF DELPHI}
-    property TrainList: TObjectList<TLccActionTrain> read FTrainList write FTrainList;
+    property TrainList: TObjectList<TLccTrainActionInfo> read FTrainList write FTrainList;
     {$ELSE}
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}
   public
     property Trains[Index: Integer]: TLccTrainActionInfo read GetTrains write SetTrains;
+    property Count: Integer read GetCount;
 
     constructor Create;
     destructor Destroy; override;
@@ -164,6 +171,9 @@ type
     function IndexOf(ATrain: TLccTrainActionInfo): Integer;
     procedure Remove(ATrain: TLccTrainActionInfo);
     procedure Clear();
+
+    function MatchingSearchCriteria(TestSearchCriteria: DWord): TLccTrainActionInfo;
+    function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word; TestSearchCriteria: DWord): TLccTrainActionInfo;
   end;
 
   { TLccAction }
@@ -466,6 +476,11 @@ begin
   Result := Trains[Index];
 end;
 
+function TLccActionTrainList.GetCount: Integer;
+begin
+  Result := TrainList.Count;
+end;
+
 procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
 begin
   Trains[Index] := AValue;
@@ -507,6 +522,45 @@ end;
 procedure TLccActionTrainList.Clear();
 begin
   TrainList.Clear;
+end;
+
+function TLccActionTrainList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccTrainActionInfo;
+var
+  i: Integer;
+  LocalTrain: TLccTrainActionInfo;
+begin
+  Result := nil;
+  i := 0;
+  while i < TrainList.Count do
+  begin
+    LocalTrain := Trains[i];
+    if LocalTrain.SearchCriteriaValid then
+      if LocalTrain.SearchCriteria = TestSearchCriteria then
+      begin
+        Result := LocalTrain;
+        i := TrainList.Count;
+      end;
+    Inc(i);
+  end;
+end;
+
+function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word; TestSearchCriteria: DWord): TLccTrainActionInfo;
+var
+  i: Integer;
+  LocalTrain: TLccTrainActionInfo;
+begin
+  Result := nil;
+  i := 0;
+  while i < TrainList.Count do
+  begin
+    LocalTrain := Trains[i];
+    if LocalTrain.SearchCriteriaValid and EqualNode(LocalTrain.NodeID, LocalTrain.AliasID, TestNodeID, TestAliasID, True) then
+    begin
+      Result := LocalTrain;
+      i := TrainList.Count;
+    end;
+    Inc(i);
+  end;
 end;
 
 { TLccAction }

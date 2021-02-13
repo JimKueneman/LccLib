@@ -137,6 +137,20 @@ type
     function AddTrainSearchCritera(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep): TLccSearchReplyRec;
   end;
 
+  { TLccTractionSearchAndGatherTrainsAction }
+
+  TLccTractionSearchAndGatherTrainsAction = class(TLccTrainAction)
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure DoSearchResults; virtual;
+    procedure DoAssigned(ResultCode: TControllerTrainAssignResult); virtual;
+
+    procedure LoadStateArray; override;
+
+  end;
+
   { TLccTractionAssignTrainAction }
 
   TLccTractionAssignTrainAction = class(TLccTrainAction)
@@ -345,6 +359,111 @@ type
 
 
 implementation
+
+{ TLccTractionSearchAndGatherTrainsAction }
+
+function TLccTractionSearchAndGatherTrainsAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  i: Integer;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  for i := 0 to Trains.Count - 1 do
+  begin;
+    if Trains.Trains[i].SearchCriteriaValid then
+    begin
+      WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, Trains.Trains[i].SearchCriteria);
+      SendMessage(Owner, WorkerMessage);
+    end;
+  end;
+  SetTimoutCountThreshold(Round(1000 * Trains.Count)); // seconds to collect trains
+  AdvanceToNextState;
+end;
+
+function TLccTractionSearchAndGatherTrainsAction._1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  TrainVersion: Byte;
+  TrainRoadName,
+  TrainClass,
+  TrainRoadNumber,
+  TrainName,
+  TrainManufacturer,
+  TrainOwner: string;
+  LocalTrain: TLccTrainActionInfo;
+begin
+  Result := False;
+
+
+  if Assigned(SourceMessage) then
+  begin
+    case SourceMessage.MTI of
+       MTI_PRODUCER_IDENTIFIED_CLEAR,
+       MTI_PRODUCER_IDENTIFIED_SET,
+       MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+         begin
+           if SourceMessage.TractionSearchIsEvent then
+           begin
+             LocalTrain := Trains.MatchingSearchCriteria(SourceMessage.TractionSearchExtractSearchData);
+             if Assigned(LocalTrain) then
+             begin
+               LocalTrain.NodeID := SourceMessage.SourceID;
+               LocalTrain.AliasID := SourceMessage.CAN.SourceAlias;
+               LocalTrain.SearchCriteria := SourceMessage.TractionSearchExtractSearchData;
+               LocalTrain.SearchCriteriaFound := True;
+               LocalTrain.SNIP_Valid := False;
+               // Send a message back to the Train Node from this controller asking for the SNIP
+               WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(SourceNodeID, SourceAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+               SendMessage(Owner, WorkerMessage);
+             end
+           end
+        end;
+       MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
+         begin
+            // find the right Node that this SNIP belongs to
+            // Expectation is that we recieved the producer identified first because we asked for this above after the slot has been created
+            LocalTrain := Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, SourceMessage.TractionSearchExtractSearchData);
+            if Assigned(LocalTrain) then
+            begin
+              // all this claptrap for SMS and var parameters....
+              TrainVersion := 0;
+              TrainRoadName := '';
+              TrainClass := '';
+              TrainRoadNumber := '';
+              TrainName := '';
+              TrainManufacturer := '';
+              TrainOwner := '';
+              SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
+              LocalTrain.SNIP_Manufacturer := TrainManufacturer;
+              LocalTrain.SNIP_Owner := TrainOwner;
+              LocalTrain.SNIP_Roadname := TrainRoadName;
+              LocalTrain.SNIP_RoadNumber := TrainRoadNumber;
+              LocalTrain.SNIP_TrainClass := TrainClass;
+              LocalTrain.SNIP_TrainName := TrainName;
+              LocalTrain.SNIP_Version := TrainVersion;
+              LocalTrain.SNIP_Valid := True;
+            end;
+         end;
+    end;
+  end;
+
+  if TimeoutExpired then    // Times up, report out....
+    AdvanceToNextState;
+end;
+
+procedure TLccTractionSearchAndGatherTrainsAction.DoSearchResults;
+begin
+
+end;
+
+procedure TLccTractionSearchAndGatherTrainsAction.DoAssigned(ResultCode: TControllerTrainAssignResult);
+begin
+
+end;
+
+procedure TLccTractionSearchAndGatherTrainsAction.LoadStateArray;
+begin
+  inherited LoadStateArray;
+end;
 
 { TDccTrainList }
 

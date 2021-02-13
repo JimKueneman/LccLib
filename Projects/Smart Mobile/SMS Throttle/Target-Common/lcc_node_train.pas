@@ -1071,7 +1071,7 @@ end;
 
 { TLccTrainNode }
 
-constructor TLccTrainNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean);
+constructor TLccTrainNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
   FListeners := TListenerList.Create;
