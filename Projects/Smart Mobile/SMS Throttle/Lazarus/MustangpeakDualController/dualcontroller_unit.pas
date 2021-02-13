@@ -167,8 +167,8 @@ type
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
 
     procedure OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
     procedure OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
@@ -762,23 +762,21 @@ begin
     ReleaseTrain2;
 end;
 
-procedure TForm1.OnControllerSearchResult1(Sender: TLccTractionAssignTrainAction;
-  Results: TLccSearchResultsArray; SearchResultCount: Integer;
-  var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult1(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
 begin
-  if SearchResultCount = 0 then ShowMessage('No Search Results');
-  if SearchResultCount > 1 then
-  begin
+  SelectedResultIndex := 0;
+  case Sender.Trains.Count of
+   0: ShowMessage('No Search Results');
+   1: SelectedResultIndex := 0;
+  else
     ShowMessage('Multiple Search Results: Please Select');
   end;
 end;
 
-procedure TForm1.OnControllerSearchResult2(Sender: TLccTractionAssignTrainAction;
-  Results: TLccSearchResultsArray; SearchResultCount: Integer;
-  var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult2(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
 begin
-  SelectedResultIndex := -1;
-  case SearchResultCount of
+  SelectedResultIndex := 0;
+  case Sender.Trains.Count of
    0: ShowMessage('No Search Results');
    1: SelectedResultIndex := 0;
   else

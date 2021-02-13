@@ -161,19 +161,20 @@ type
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}
   public
-    property Trains[Index: Integer]: TLccTrainActionInfo read GetTrains write SetTrains;
+    property Trains[Index: Integer]: TLccTrainActionInfo read GetTrains write SetTrains; default;
     property Count: Integer read GetCount;
 
     constructor Create;
     destructor Destroy; override;
 
+    function CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccTrainActionInfo;
     procedure Add(ATrain: TLccTrainActionInfo);
     function IndexOf(ATrain: TLccTrainActionInfo): Integer;
     procedure Remove(ATrain: TLccTrainActionInfo);
     procedure Clear();
 
     function MatchingSearchCriteria(TestSearchCriteria: DWord): TLccTrainActionInfo;
-    function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word; TestSearchCriteria: DWord): TLccTrainActionInfo;
+    function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word): TLccTrainActionInfo;
   end;
 
   { TLccAction }
@@ -504,6 +505,14 @@ begin
   inherited Destroy;
 end;
 
+function TLccActionTrainList.CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccTrainActionInfo;
+begin
+  Result := TLccTrainActionInfo.Create;
+  Add(Result);
+  Result.NodeID := ANodeID;
+  Result.AliasID := AnAliasID;
+end;
+
 procedure TLccActionTrainList.Add(ATrain: TLccTrainActionInfo);
 begin
   TrainList.Add(ATrain);
@@ -544,7 +553,7 @@ begin
   end;
 end;
 
-function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word; TestSearchCriteria: DWord): TLccTrainActionInfo;
+function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID;TestAliasID: Word): TLccTrainActionInfo;
 var
   i: Integer;
   LocalTrain: TLccTrainActionInfo;
@@ -554,7 +563,7 @@ begin
   while i < TrainList.Count do
   begin
     LocalTrain := Trains[i];
-    if LocalTrain.SearchCriteriaValid and EqualNode(LocalTrain.NodeID, LocalTrain.AliasID, TestNodeID, TestAliasID, True) then
+    if EqualNode(LocalTrain.NodeID, LocalTrain.AliasID, TestNodeID, TestAliasID, True) then
     begin
       Result := LocalTrain;
       i := TrainList.Count;
