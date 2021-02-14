@@ -474,7 +474,7 @@ end;
 
 function TLccActionTrainList.GetTrains(Index: Integer): TLccTrainActionInfo;
 begin
-  Result := Trains[Index];
+  Result := TrainList[Index] as TLccTrainActionInfo;
 end;
 
 function TLccActionTrainList.GetCount: Integer;
@@ -484,7 +484,7 @@ end;
 
 procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
 begin
-  Trains[Index] := AValue;
+  TrainList[Index] := AValue;
 end;
 
 constructor TLccActionTrainList.Create;
@@ -599,7 +599,7 @@ end;
 procedure TLccAction.CompleteCallback(SourceAction: TLccAction);
 begin
   if Assigned(SourceAction) then
-   OnCompleteCallback := @CompleteCallback;
+    OnCompleteCallback := @CompleteCallback;
 end;
 
 destructor TLccAction.Destroy;
@@ -652,7 +652,7 @@ end;
 
 procedure TLccAction.RegisterCallBack(AnLccAction: TLccAction);
 begin
-
+  OnCompleteCallback := @AnLccAction.CompleteCallback;
 end;
 
 procedure TLccAction.ResetTimeoutCounter;
