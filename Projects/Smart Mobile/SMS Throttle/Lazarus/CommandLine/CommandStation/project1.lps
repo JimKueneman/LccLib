@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="11"/>
+    <BuildModes Active="Default"/>
+    <Units Count="17">
+      <Unit0>
+        <Filename Value="project1.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="404"/>
+        <CursorPos X="3" Y="433"/>
+        <UsageCount Value="35"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="../../../Target-Common/lcc_defines.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="73"/>
+        <CursorPos X="33" Y="91"/>
+        <UsageCount Value="9"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="1666"/>
+        <CursorPos X="27" Y="1691"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../../Target-Common/lcc_protocol_datagram.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="15"/>
+        <CursorPos X="12" Y="34"/>
+        <UsageCount Value="9"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../../Target-Common/lcc_node_manager.pas"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="563"/>
+        <CursorPos X="28" Y="578"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../../Target-Common/lcc_node_train.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="11"/>
+        <CursorPos X="12" Y="30"/>
+        <UsageCount Value="9"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../../Target-Common/lcc_node_controller.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="10"/>
+        <CursorPos X="11" Y="31"/>
+        <UsageCount Value="9"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../../Target-PC/Synapse_LCC/synaser.pas"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="100"/>
+        <CursorPos X="31" Y="119"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../../Target-Common/lcc_node_commandstation.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="19"/>
+        <CursorPos X="41" Y="28"/>
+        <UsageCount Value="9"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_websocket.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="208"/>
+        <CursorPos X="50" Y="320"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="73"/>
+        <CursorPos X="35" Y="95"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_common.pas"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="98"/>
+        <CursorPos X="56" Y="123"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../../../Target-PC/lcc_common_classes.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="157"/>
+        <CursorPos X="14" Y="168"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../../Target-Common/lcc_utilities.pas"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="403"/>
+        <CursorPos X="3" Y="405"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="839"/>
+        <CursorPos X="15" Y="857"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/types.pp"/>
+        <UnitName Value="Types"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="148"/>
+        <CursorPos X="27" Y="167"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/stringl.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1989"/>
+        <CursorPos X="3" Y="1992"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+    </Units>
+    <OtherDefines Count="2">
+      <Define0 Value="FPC_CONSOLE_APP"/>
+      <Define1 Value="UseCThreads"/>
+    </OtherDefines>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="76" Column="41" TopLine="50"/>
+      </Position1>
+      <Position2>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="41" Column="18" TopLine="22"/>
+      </Position2>
+      <Position3>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="76" Column="26" TopLine="48"/>
+      </Position3>
+      <Position4>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="68" Column="18" TopLine="48"/>
+      </Position4>
+      <Position5>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="409" Column="13" TopLine="394"/>
+      </Position5>
+      <Position6>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="48" Column="17" TopLine="34"/>
+      </Position6>
+      <Position7>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="346" Column="53" TopLine="323"/>
+      </Position7>
+      <Position8>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="71" Column="78" TopLine="61"/>
+      </Position8>
+      <Position9>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="54" Column="23" TopLine="47"/>
+      </Position9>
+      <Position10>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="409" Column="13" TopLine="399"/>
+      </Position10>
+      <Position11>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="51" Column="16" TopLine="34"/>
+      </Position11>
+      <Position12>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="232" Column="49" TopLine="205"/>
+      </Position12>
+      <Position13>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="378" Column="103" TopLine="354"/>
+      </Position13>
+      <Position14>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="71" Column="52" TopLine="57"/>
+      </Position14>
+      <Position15>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="37" Column="28" TopLine="32"/>
+      </Position15>
+      <Position16>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="271" Column="18" TopLine="253"/>
+      </Position16>
+      <Position17>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="140" Column="23" TopLine="130"/>
+      </Position17>
+      <Position18>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
+        <Caret Line="864" Column="32" TopLine="848"/>
+      </Position18>
+      <Position19>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
+        <Caret Line="62" Column="30" TopLine="50"/>
+      </Position19>
+      <Position20>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="307" Column="157" TopLine="290"/>
+      </Position20>
+      <Position21>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="316" Column="48" TopLine="295"/>
+      </Position21>
+      <Position22>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
+        <Caret Line="858" Column="15" TopLine="841"/>
+      </Position22>
+      <Position23>
+        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
+        <Caret Line="857" Column="15" TopLine="839"/>
+      </Position23>
+      <Position24>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="362" Column="44" TopLine="334"/>
+      </Position24>
+      <Position25>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="380" Column="19" TopLine="372"/>
+      </Position25>
+      <Position26>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="399" Column="60" TopLine="380"/>
+      </Position26>
+      <Position27>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="86" Column="51" TopLine="57"/>
+      </Position27>
+      <Position28>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="145" Column="29" TopLine="115"/>
+      </Position28>
+      <Position29>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="65" Column="26" TopLine="43"/>
+      </Position29>
+      <Position30>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="422" Column="5" TopLine="417"/>
+      </Position30>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>
