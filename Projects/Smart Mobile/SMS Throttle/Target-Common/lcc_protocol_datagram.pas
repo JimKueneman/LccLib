@@ -31,7 +31,9 @@ uses
   {$ENDIF}
   {$IFNDEF ULTIBO}
     {$IFDEF FPC}
-      ExtCtrls,
+      {$IFNDEF FPC_CONSOLE_APP}
+        ExtCtrls,
+      {$ENDIF}
     {$ELSE}
       FMX.Types,
     {$ENDIF}

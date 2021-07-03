@@ -116,7 +116,7 @@ uses
   winver,
   {$ENDIF}
 {$ENDIF}
-  Classes, SysUtils, synautil, FileUtil;
+  Classes, SysUtils, synautil{, FileUtil};
 
 const
   CR = #$0d;

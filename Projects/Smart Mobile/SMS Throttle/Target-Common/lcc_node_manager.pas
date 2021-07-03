@@ -30,7 +30,9 @@ uses
   {$ENDIF}
   {$IFNDEF ULTIBO}
     {$IFDEF FPC}
-      ExtCtrls,
+      {$IFNDEF FPC_CONSOLE_APP}
+        ExtCtrls,
+      {$ENDIF}
     {$ELSE}
       FMX.Types,
     {$ENDIF}
@@ -246,7 +248,7 @@ type
     procedure SendMessage(Sender: TObject; LccMessage: TLccMessage); // Outgoing messages are passed through this method, its address is given to Nodes and other objects that need to send messages
     procedure ReceiveMessage(ConnectionManager: IHardwareConnectionManagerLink; ALccMessage: TLccMessage);  // Takes all incoming messages from all Connection object and dispatches them to the nodes and dispaches them to other Connections that are registered
 
-    procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink); // Any Connection that needs to send/receive OpenLCB message must register with the NodeManage here
+    procedure RegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink); // Any Connection that needs to send/receive OpenLCB message must register with the NodeManager here
     procedure UnRegisterHardwareConnectionLink(AConnectionManagerLink: IHardwareConnectionManagerLink);
 
   published

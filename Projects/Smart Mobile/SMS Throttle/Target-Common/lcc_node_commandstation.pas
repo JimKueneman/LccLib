@@ -25,16 +25,16 @@ uses
   SysUtils,
   {$IFNDEF ULTIBO}
     {$IFDEF FPC}
-      ExtCtrls,
+      {$IFNDEF FPC_CONSOLE_APP}
+        ExtCtrls,
+      {$ENDIF}
     {$ELSE}
       System.Types,
       FMX.Types,
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF DWSCRIPT}
-    {$IFDEF FPC}
-      contnrs,
-    {$ELSE}
+    {$IFNDEF FPC}
       System.Generics.Collections,
     {$ENDIF}
   {$ENDIF}

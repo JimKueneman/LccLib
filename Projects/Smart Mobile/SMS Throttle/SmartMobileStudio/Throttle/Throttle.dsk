@@ -2,11 +2,11 @@
   <state>
     <editor>
       <tab filename="FormThrottle" fullname="FormThrottle.pas" topline="28" col="25" row="51" splitview="0" designview="1" splitter="0.444551587104797" />
-      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="160" col="40" row="173" splitview="0" designview="0" splitter="0.508196711540222" />
+      <tab filename="TabMainForm" fullname="TabMainForm.pas" topline="55" col="61" row="62" splitview="0" designview="0" splitter="0.508196711540222" />
       <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="138" col="31" row="152" splitview="0" designview="0" splitter="0.468659609556198" />
       <tab filename="LccNode" fullname="LccNode.pas" topline="53" col="37" row="67" />
       <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="947" col="55" row="968" />
-      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="757" col="55" row="771" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="133" col="18" row="147" />
       <activetab>lcc_node_controller</activetab>
       <breakpoints>
         <bkpt>
@@ -16,9 +16,9 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>8019</BackgroundCompilations>
+      <BackgroundCompilations>8020</BackgroundCompilations>
       <EditTime>T05:32:03.182</EditTime>
-      <CompileTime>T00:30:14.417</CompileTime>
+      <CompileTime>T00:30:15.540</CompileTime>
       <TotalTime>1900-03-06T21:39:56.020</TotalTime>
       <DesigningTime>T10:51:43.017</DesigningTime>
       <RunningTime>1900-01-16T21:44:11.293</RunningTime>

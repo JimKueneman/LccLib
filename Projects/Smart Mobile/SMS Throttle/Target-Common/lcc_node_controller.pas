@@ -26,7 +26,9 @@ uses
   SysUtils,
   {$IFNDEF ULTIBO}
     {$IFDEF FPC}
-      ExtCtrls,
+      {$IFNDEF FPC_CONSOLE_APP}
+        ExtCtrls,
+      {$ENDIF}
     {$ELSE}
       System.Types,
       FMX.Types,
