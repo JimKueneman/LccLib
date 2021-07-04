@@ -15,10 +15,12 @@ uses
   ComCtrls, ExtCtrls, Arrow,
   SynEdit,
   lcc_utilities,
+  lcc_ethernet_common,
   lcc_node,
   lcc_node_manager,
   lcc_node_messages,
   lcc_defines,
+  lcc_common_classes,
   lcc_ethernet_server,
   lcc_ethernet_client,
   lcc_protocol_memory_configurationdefinitioninfo,
@@ -140,34 +142,34 @@ type
   protected
   public
     HubEthernetServer: TLccEthernetServer;
-    HubNodeManager: TLccCanNodeManager;
+    HubNodeManager: TLccNodeManager;
     TrainEthernetClient: TLccEthernetClient;
-    TrainNodeManager: TLccCanNodeManager;
+    TrainNodeManager: TLccNodeManager;
     ThrottleEthernetClient: TLccEthernetClient;
-    ThrottleNodeManager: TLccCanNodeManager;
+    ThrottleNodeManager: TLccNodeManager;
 
     property WorkerMsg: TLccMessage read FWorkerMsg write FWorkerMsg;
 
 
     // Hub
-    procedure OnHubEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnHubEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnHubEthernetConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+    procedure OnHubEthernetErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnHubNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnHubNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure HubSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure HubReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 
     // Train
-    procedure OnTrainEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnTrainEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnTrainEthernetConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+    procedure OnTrainEthernetErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnTrainNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnTrainNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure TrainSendMessage(Sender: TObject; LccMessage: TLccMessage);
     procedure TrainReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 
     // Throttle
-    procedure OnThrottleEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
-    procedure OnThrottleEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+    procedure OnThrottleEthernetConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+    procedure OnThrottleEthernetErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnThrottleNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnThrottleNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure ThrottleSendMessage(Sender: TObject; LccMessage: TLccMessage);
@@ -185,29 +187,33 @@ implementation
 
 procedure TForm1.ButtonHubConnectAndLoginClick(Sender: TObject);
 var
-  EthernetRec: TLccEthernetRec;
+  LocalInfo: TLccEthernetConnectionInfo;
 begin
-  FillChar(EthernetRec, Sizeof(EthernetRec), #0);
-  EthernetRec.ListenerPort := 12021;
-  if HubEthernetServer.Connected then
-  begin
-    HubNodeManager.LogoutAll;
-    HubEthernetServer.CloseConnection(nil);
-    ButtonHubConnectAndLogin.Caption := 'Connect and Login';
-    CheckBoxHubLocalIP.Enabled := True;
-  end else
-  begin
-    if CheckBoxHubLocalIP.Checked then
+  LocalInfo := TLccEthernetConnectionInfo.Create;
+  try
+    LocalInfo.ListenerPort := 12021;
+    if HubEthernetServer.Connected then
     begin
-      EthernetRec.ListenerIP := '127.0.0.1';
-      EthernetRec.AutoResolveIP := False;
+      HubNodeManager.LogoutAll;
+      HubEthernetServer.CloseConnection(nil);
+      ButtonHubConnectAndLogin.Caption := 'Connect and Login';
+      CheckBoxHubLocalIP.Enabled := True;
     end else
     begin
-      EthernetRec.AutoResolveIP := True;
+      if CheckBoxHubLocalIP.Checked then
+      begin
+        LocalInfo.ListenerIP := '127.0.0.1';
+        LocalInfo.AutoResolveIP := False;
+      end else
+      begin
+        LocalInfo.AutoResolveIP := True;
+      end;
+      HubEthernetServer.OpenConnection(LocalInfo);
+      ButtonHubConnectAndLogin.Caption := 'Disconnect';
+      CheckBoxHubLocalIP.Enabled := False;
     end;
-    HubEthernetServer.OpenConnection(EthernetRec);
-    ButtonHubConnectAndLogin.Caption := 'Disconnect';
-    CheckBoxHubLocalIP.Enabled := False;
+  finally
+    LocalInfo.Free;
   end;
 end;
 
@@ -273,8 +279,8 @@ begin
       begin
         if Assigned (ThrottleNodeManager.Node[0]) then
         begin
-          WorkerMsg.LoadTractionSearch(ThrottleNodeManager.Node[0].NodeID, ThrottleNodeManager.CanNode[0].AliasID, SearchData);
-          ThrottleNodeManager.SendMessage(WorkerMsg);
+          WorkerMsg.LoadTractionSearch(ThrottleNodeManager.Node[0].NodeID, ThrottleNodeManager.Node[0].AliasID, SearchData);
+          ThrottleNodeManager.SendMessage(Self, WorkerMsg);
         end;
       end;
     sese_TooLong           : ShowMessage('Search String too long, only 6 characters are available');
@@ -284,57 +290,65 @@ end;
 
 procedure TForm1.ButtonThrottleConnectAndLoginClick(Sender: TObject);
 var
-  EthernetRec: TLccEthernetRec;
+  LocalInfo: TLccEthernetConnectionInfo;
 begin
-  FillChar(EthernetRec, Sizeof(EthernetRec), #0);
-  EthernetRec.ListenerPort := 12021;
-  if ThrottleEthernetClient.Connected then
-  begin
-    ThrottleNodeManager.LogoutAll;
-    ThrottleEthernetClient.CloseConnection(nil);
-    ButtonThrottleConnectAndLogin.Caption := 'Connect and Login';
-    CheckBoxThrottleLocalIP.Enabled := True;
-  end else
-  begin
-    if CheckBoxThrottleLocalIP.Checked then
+  LocalInfo := TLccEthernetConnectionInfo.Create;
+  try
+    LocalInfo.ListenerPort := 12021;
+    if ThrottleEthernetClient.Connected then
     begin
-      EthernetRec.ListenerIP := '127.0.0.1';
-      EthernetRec.AutoResolveIP := False;
+      ThrottleNodeManager.LogoutAll;
+      ThrottleEthernetClient.CloseConnection(nil);
+      ButtonThrottleConnectAndLogin.Caption := 'Connect and Login';
+      CheckBoxThrottleLocalIP.Enabled := True;
     end else
     begin
-      EthernetRec.AutoResolveIP := True;
+      if CheckBoxThrottleLocalIP.Checked then
+      begin
+        LocalInfo.ListenerIP := '127.0.0.1';
+        LocalInfo.AutoResolveIP := False;
+      end else
+      begin
+        LocalInfo.AutoResolveIP := True;
+      end;
+      ThrottleEthernetClient.OpenConnection(LocalInfo);
+      ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
+      CheckBoxThrottleLocalIP.Enabled := False;
     end;
-    ThrottleEthernetClient.OpenConnection(EthernetRec);
-    ButtonThrottleConnectAndLogin.Caption := 'Disconnect';
-    CheckBoxThrottleLocalIP.Enabled := False;
+  finally
+    LocalInfo.Free;
   end;
 end;
 
 procedure TForm1.ButtonTrainConnectAndLoginClick(Sender: TObject);
 var
-  EthernetRec: TLccEthernetRec;
+  LocalInfo: TLccEthernetConnectionInfo;
 begin
-  FillChar(EthernetRec, Sizeof(EthernetRec), #0);
-  EthernetRec.ListenerPort := 12021;
-  if TrainEthernetClient.Connected then
-  begin
-    TrainNodeManager.LogoutAll;
-    TrainEthernetClient.CloseConnection(nil);
-    ButtonTrainConnectAndLogin.Caption := 'Connect and Login';
-    CheckBoxTrainLocalIP.Enabled := True;
-  end else
-  begin
-    if CheckBoxTrainLocalIP.Checked then
+  LocalInfo := TLccEthernetConnectionInfo.Create;
+  try
+    LocalInfo.ListenerPort := 12021;
+    if TrainEthernetClient.Connected then
     begin
-      EthernetRec.ListenerIP := '127.0.0.1';
-      EthernetRec.AutoResolveIP := False;
+      TrainNodeManager.LogoutAll;
+      TrainEthernetClient.CloseConnection(nil);
+      ButtonTrainConnectAndLogin.Caption := 'Connect and Login';
+      CheckBoxTrainLocalIP.Enabled := True;
     end else
     begin
-      EthernetRec.AutoResolveIP := True;
+      if CheckBoxTrainLocalIP.Checked then
+      begin
+        LocalInfo.ListenerIP := '127.0.0.1';
+        LocalInfo.AutoResolveIP := False;
+      end else
+      begin
+        LocalInfo.AutoResolveIP := True;
+      end;
+      TrainEthernetClient.OpenConnection(LocalInfo);
+      ButtonTrainConnectAndLogin.Caption := 'Disconnect';
+      CheckBoxTrainLocalIP.Enabled := False;
     end;
-    TrainEthernetClient.OpenConnection(EthernetRec);
-    ButtonTrainConnectAndLogin.Caption := 'Disconnect';
-    CheckBoxTrainLocalIP.Enabled := False;
+  finally
+    LocalInfo.Free;
   end;
 end;
 
@@ -369,42 +383,35 @@ begin
   FWorkerMsg := TLccMessage.Create;
 
   // Hub node
-  HubNodeManager := TLccCanNodeManager.Create(nil);
+  HubNodeManager := TLccNodeManager.Create(nil, True);
   HubNodeManager.OnLccNodeAliasIDChanged := @OnHubNodeAliasChange;
   HubNodeManager.OnLccNodeIDChanged := @OnHubNodeIDChange;
   HubNodeManager.OnLccMessageSend := @HubSendMessage;
   HubNodeManager.OnLccMessageReceive := @HubReceiveMessage;
 
-  HubEthernetServer := TLccEthernetServer.Create(nil);
-  HubEthernetServer.Gridconnect := True;
-  HubEthernetServer.Hub := True;
-  HubEthernetServer.NodeManager := HubNodeManager;
+  HubEthernetServer := TLccEthernetServer.Create(nil, HubNodeManager);
   HubEthernetServer.OnConnectionStateChange := @OnHubEthernetConnectionChange;
   HubEthernetServer.OnErrorMessage := @OnHubEthernetErrorMessage;
 
   // train node
-  TrainNodeManager := TLccCanNodeManager.Create(nil);
+  TrainNodeManager := TLccNodeManager.Create(nil, True);
   TrainNodeManager.OnLccNodeAliasIDChanged := @OnTrainNodeAliasChange;
   TrainNodeManager.OnLccNodeIDChanged := @OnTrainNodeIDChange;
   TrainNodeManager.OnLccMessageSend := @TrainSendMessage;
   TrainNodeManager.OnLccMessageReceive := @TrainReceiveMessage;
 
-  TrainEthernetClient := TLccEthernetClient.Create(nil);
-  TrainEthernetClient.Gridconnect := True;
-  TrainEthernetClient.NodeManager := TrainNodeManager;
+  TrainEthernetClient := TLccEthernetClient.Create(nil, TrainNodeManager);
   TrainEthernetClient.OnConnectionStateChange := @OnTrainEthernetConnectionChange;
   TrainEthernetClient.OnErrorMessage := @OnTrainEthernetErrorMessage;
 
   // throttle node
-  ThrottleNodeManager := TLccCanNodeManager.Create(nil);
+  ThrottleNodeManager := TLccNodeManager.Create(nil, True);
   ThrottleNodeManager.OnLccNodeAliasIDChanged := @OnThrottleNodeAliasChange;
   ThrottleNodeManager.OnLccNodeIDChanged := @OnThrottleNodeIDChange;
   ThrottleNodeManager.OnLccMessageSend := @ThrottleSendMessage;
   ThrottleNodeManager.OnLccMessageReceive := @ThrottleReceiveMessage;
 
-  ThrottleEthernetClient := TLccEthernetClient.Create(nil);
-  ThrottleEthernetClient.Gridconnect := True;
-  ThrottleEthernetClient.NodeManager := ThrottleNodeManager;
+  ThrottleEthernetClient := TLccEthernetClient.Create(nil, ThrottleNodeManager);
   ThrottleEthernetClient.OnConnectionStateChange := @OnThrottleEthernetConnectionChange;
   ThrottleEthernetClient.OnErrorMessage := @OnThrottleEthernetErrorMessage;
 
@@ -413,7 +420,7 @@ end;
 
 procedure TForm1.OnHubNodeAliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  LabelHubAliasID.Caption := (LccSourceNode as TLccCanNode).AliasIDStr;
+  LabelHubAliasID.Caption := (LccSourceNode as TLccNode).AliasIDStr;
 end;
 
 procedure TForm1.OnHubNodeIDChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -421,17 +428,23 @@ begin
   LabelHubNodeID.Caption := LccSourceNode.NodeIDStr;
 end;
 
-procedure TForm1.OnHubEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnHubEthernetConnectionChange(Sender: TObject; ; Info: TLccHardwareConnectionInfo);
 var
   CanNode: TLccCanNode;
 begin
-  case EthernetRec.ConnectionState of
+  if Sender is TLccConnectionThread then
+  begin
+  end else
+
+
+
+  case (Info as TLccEthernetConnectionInfo).ConnectionState of
     ccsListenerConnecting:          LabelHubIPAddress.Caption := 'Server Connecting';
     ccsListenerConnected:
       begin
         LabelHubIPAddress.Caption := 'Server Connected: ' + EthernetRec.ListenerIP + ':' + IntToStr(EthernetRec.ListenerPort);
 
-        CanNode := HubNodeManager.AddNode(CDI_XML) as TLccCanNode;
+        CanNode := HubNodeManager.AddNode(CDI_XML) as TLccNode;
 
         CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
         CanNode.ProtocolSupportedProtocols.Datagram := True;
@@ -488,7 +501,7 @@ begin
   ButtonHubConnectAndLogin.Caption := 'Connect and Login';
 end;
 
-procedure TForm1.OnTrainEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnTrainEthernetConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 var
   CanNode: TLccCanNode;
 begin
@@ -550,7 +563,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnTrainEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnTrainEthernetErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
   ShowMessage(EthernetRec.MessageStr);
   LabelTrainIPAddress.Caption := 'IP Address Disconnected';
@@ -577,7 +590,7 @@ begin
 
 end;
 
-procedure TForm1.OnThrottleEthernetConnectionChange(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnThrottleEthernetConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 var
   CanNode: TLccCanNode;
 begin
@@ -639,7 +652,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnThrottleEthernetErrorMessage(Sender: TObject; EthernetRec: TLccEthernetRec);
+procedure TForm1.OnThrottleEthernetErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
   ShowMessage(EthernetRec.MessageStr);
   LabelThrottleIPAddress.Caption := 'IP Address Disconnected';

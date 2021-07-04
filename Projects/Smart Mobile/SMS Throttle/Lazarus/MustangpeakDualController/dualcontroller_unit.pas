@@ -167,8 +167,8 @@ type
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
 
     procedure OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
     procedure OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
@@ -762,7 +762,7 @@ begin
     ReleaseTrain2;
 end;
 
-procedure TForm1.OnControllerSearchResult1(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case Sender.Trains.Count of
@@ -773,7 +773,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerSearchResult2(Sender: TLccTrainAction; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult2(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case Sender.Trains.Count of
