@@ -91,7 +91,11 @@ end;
 // https://wiki.freepascal.org/Light_Web_Server
 procedure TLccHTTPServerThread.Execute;
 const
+  {$IFDEF GWSCRIPT}
+  BASE_PATH = '/Home/pi/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
+  {$ELSE}
   BASE_PATH = '/Users/JimKueneman/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
+  {$ENDIF}
   INDEX_PATH = '/INDEX.HTML';
   MANIFEST_PATH = '/APP.MANIFEST';
   CSS_PATH = '/RES/APP.CSS';

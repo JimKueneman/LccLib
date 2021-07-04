@@ -470,8 +470,6 @@ end;
 { TLccActionSearchGatherAndSelectTrain }
 
 function TLccActionSearchGatherAndSelectTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  i: Integer;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -622,7 +620,7 @@ end;
 function TLccActionTractionBuildConsist.AddTrainSearchCritera(DccAddress: Word;
   IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep): TLccSearchReplyRec;
 var
-  TrackProtocolFlags: Word;
+  TrackProtocolFlags: DWord;
 begin
   {$IFDEF DWSCRIPT}
   FRepliedSearchCriteria.SetLength( FRepliedSearchCriteria.Length + 1);
@@ -659,7 +657,11 @@ begin
      ldss128     : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
   end;
 
+  {$IFDEF DWSCRIPT}
+
+  {$ELSE}
   WorkerMessage.TractionSearchEncodeSearchString(IntToStr(DccAddress), TrackProtocolFlags, Result.SearchData);
+  {$ENDIF}
 end;
 
 function TLccActionTractionBuildConsist._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -703,11 +705,19 @@ begin
                  begin
                    if Owner.GridConnect then
                    begin   // Need to get the NodeID in a GridConnect CAN connection
+                     {$IFDEF DWSCRIPT}
+                     FRepliedSearchCriteria[i].NodeAlias := SourceMessage.CAN.SourceAlias;
+                     {$ELSE}
                      RepliedSearchCriteria[i].NodeAlias := SourceMessage.CAN.SourceAlias;
+                     {$ENDIF}
                      WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, NULL_NODE_ID);
                      SendMessage(Self, WorkerMessage);
                    end else // TCP so the NodeID is valid
+                     {$IFDEF DWSCRIPT}
+                     FRepliedSearchCriteria[i].NodeID := SourceMessage.SourceID;
+                     {$ELSE}
                      RepliedSearchCriteria[i].NodeID := SourceMessage.SourceID;
+                     {$ENDIF}
                    i := Length(RepliedSearchCriteria);
                  end;
 
@@ -739,6 +749,9 @@ end;
 function TLccActionTractionBuildConsist._2ActionWaitOnVerifyNodeID(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   i, ReturnedCount: Integer;
+  {$IFDEF DWSCRIPT}
+  TempNodeID: TNodeID;
+  {$ENDIF}
 begin
   Result := False;
 
@@ -755,7 +768,13 @@ begin
             begin
               if RepliedSearchCriteria[i].NodeAlias = SourceMessage.CAN.SourceAlias then
               begin
+                {$IFDEF DWSCRIPT}
+                TempNodeID := NULL_NODE_ID;
+                SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID);
+                FRepliedSearchCriteria[i].NodeID := TempNodeID;
+                {$ELSE}
                 SourceMessage.ExtractDataBytesAsNodeID(0, RepliedSearchCriteria[i].NodeID);
+                {$ENDIF}
                 i := Length(RepliedSearchCriteria);
                 SetTimoutCountThreshold(1000); // Reset the Wait for the next one
               end;

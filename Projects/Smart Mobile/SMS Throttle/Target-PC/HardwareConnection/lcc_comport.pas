@@ -165,7 +165,7 @@ begin
     {$IFDEF DARWIN}
     (ConnectionInfo as TLccComPortConnectionInfo).ComPort := PATH_OSX_DEV + (ConnectionInfo as TLccComPortConnectionInfo).ComPort;
     {$ELSE}
-    ConnectionInfo.ComPort := PATH_LINUX_DEV + ComPortConnectionInfo.ComPort;
+    (ConnectionInfo as TLccComPortConnectionInfo).ComPort := PATH_LINUX_DEV + (ConnectionInfo as TLccComPortConnectionInfo).ComPort;
     {$ENDIF}
   {$ENDIF}
   Result := TLccComPortThread.Create(True, Self, ConnectionInfo);

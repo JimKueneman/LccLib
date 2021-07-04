@@ -549,8 +549,18 @@ begin
 end;
 
 procedure TLccActionTrainList.Remove(ATrain: TLccActionTrainInfo);
+{$IFDEF DWSCRIPT}
+ var
+   i: Integer;
+{$ENDIF}
 begin
+  {$IFDEF DWSCRIPT}
+  i := TrainList.IndexOf(ATrain);
+  if i > -1 then
+    TrainList.Remove(i);
+  {$ELSE}
   TrainList.Remove(ATrain);
+  {$ENDIF}
 end;
 
 procedure TLccActionTrainList.Clear();

@@ -58,8 +58,7 @@ type
     procedure InitializeObject; override;
     procedure Resize; override;
 
-    // The Controller is the Controller Node created in the NodeManager
-    procedure OnControllerSearchResult(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    // The Controller is the Controller Node created in the NodeManage
     procedure OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
     procedure OnControllerTrainReleased(Sender: TLccNode);
     procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
@@ -93,11 +92,6 @@ begin
     Allow := Confirm('Allow another throttle to take over the train');
   if Allow and Assigned(ControllerManager.ControllerNode) then
     ControllerManager.ControllerNode.ReleaseTrain;
-end;
-
-procedure TTabMainForm.OnControllerSearchResult(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
-begin
- // ShowMessage('Search Result');
 end;
 
 procedure TTabMainForm.OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWord; Value: Word);
@@ -247,7 +241,6 @@ begin
   ControllerManager.ControllerNode.OnTrainReleased := @OnControllerTrainReleased;
   ControllerManager.ControllerNode.OnControllerRequestTakeover := @OnControllerRequestTakeover;
   ControllerManager.ControllerNode.OnQueryFunctionReply := @OnControllerQueryFunctionReply;
-  ControllerManager.ControllerNode.OnSearchResult := @OnControllerSearchResult;
 end;
 
 initialization
