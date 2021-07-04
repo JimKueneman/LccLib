@@ -7,8 +7,9 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="66"/>
-        <CursorPos X="20" Y="15"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="207"/>
+        <CursorPos X="24" Y="218"/>
         <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -76,7 +77,6 @@
       </Unit9>
       <Unit10>
         <Filename Value="../../../Library/LCC/lcc_websocketserver.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="826"/>
         <CursorPos X="13" Y="826"/>

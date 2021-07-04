@@ -466,6 +466,7 @@ begin
 
   FIsLoopBackIP := False;
   FIsGridConnect := True;
+  FIsDebugLog := False;
 end;
 
 destructor TLccCommandStationApplication.Destroy;

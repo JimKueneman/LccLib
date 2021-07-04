@@ -109,9 +109,9 @@ type
 
   { TLccActionTrain }
 
-  { TLccTrainActionInfo }
+  { TLccActionTrainInfo }
 
-  TLccTrainActionInfo = class
+  TLccActionTrainInfo = class
   private
     FAliasID: Word;
     FIsReserved: Boolean;            // The Train has its Reserved flag set for our operation (we reserved it)
@@ -142,6 +142,8 @@ type
     property SNIP_Version: Byte read FSNIP_Version write FSNIP_Version;
     property SNIP_Valid: Boolean read FSNIP_Valid write FSNIP_Valid;
     property IsReserved: Boolean read FIsReserved write FIsReserved;
+
+    function Clone: TLccActionTrainInfo;
   end;
 
   { TLccActionTrainList }
@@ -154,8 +156,8 @@ type
     FTrainList: TObjectList;
     {$ENDIF}
     function GetCount: Integer;
-    function GetTrains(Index: Integer): TLccTrainActionInfo;
-    procedure SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
+    function GetTrains(Index: Integer): TLccActionTrainInfo;
+    procedure SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
   protected
   {$IFDEF DELPHI}
     property TrainList: TObjectList<TLccTrainActionInfo> read FTrainList write FTrainList;
@@ -163,20 +165,20 @@ type
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}
   public
-    property Trains[Index: Integer]: TLccTrainActionInfo read GetTrains write SetTrains; default;
+    property Trains[Index: Integer]: TLccActionTrainInfo read GetTrains write SetTrains; default;
     property Count: Integer read GetCount;
 
     constructor Create;
     destructor Destroy; override;
 
-    function CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccTrainActionInfo;
-    procedure Add(ATrain: TLccTrainActionInfo);
-    function IndexOf(ATrain: TLccTrainActionInfo): Integer;
-    procedure Remove(ATrain: TLccTrainActionInfo);
+    function CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccActionTrainInfo;
+    procedure Add(ATrain: TLccActionTrainInfo);
+    function IndexOf(ATrain: TLccActionTrainInfo): Integer;
+    procedure Remove(ATrain: TLccActionTrainInfo);
     procedure Clear();
 
-    function MatchingSearchCriteria(TestSearchCriteria: DWord): TLccTrainActionInfo;
-    function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word): TLccTrainActionInfo;
+    function MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
+    function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word): TLccActionTrainInfo;
   end;
 
   { TLccAction }
@@ -240,7 +242,7 @@ type
     // User property that can be used to flag the statemachine should skip through states to the end
     property Terminated: Boolean read FTerminated write FTerminated;
 
-    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList); virtual;
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); virtual;
     destructor Destroy; override;
 
     // Set the index to the next function that will be pointed to in the States array
@@ -258,16 +260,16 @@ type
   end;
 
 
-  { TLccTrainAction }
+  { TLccActionTrain }
 
-  TLccTrainAction = class(TLccAction)
+  TLccActionTrain = class(TLccAction)
   private
     FTrains: TLccActionTrainList;
   public
     // User property hold trains nodes that are being working on in the task
     property Trains: TLccActionTrainList read FTrains write FTrains;
 
-    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList); override;
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); override;
     destructor Destroy; override;
   end;
 
@@ -458,15 +460,36 @@ implementation
 uses
   lcc_node_manager;
 
-{ TLccTrainAction }
+{ TLccActionTrainInfo }
 
-constructor TLccTrainAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; ATrainList: TLccActionTrainList);
+function TLccActionTrainInfo.Clone: TLccActionTrainInfo;
 begin
-  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, ATrainList);
-  FTrains := ATrainList;
+  Result := TLccActionTrainInfo.Create;
+  Result.NodeID := NodeID;
+  Result.AliasID := AliasID;
+  Result.SearchCriteria := SearchCriteria;
+  Result.SearchCriteriaValid := SearchCriteriaValid;
+  Result.SearchCriteriaFound := SearchCriteriaFound;
+  Result.SNIP_Manufacturer := SNIP_Manufacturer;
+  Result.SNIP_Owner := SNIP_Owner;
+  Result.SNIP_RoadName := SNIP_RoadName;
+  Result.SNIP_TrainName := SNIP_TrainName;
+  Result.SNIP_TrainClass := SNIP_TrainClass;
+  Result.SNIP_RoadNumber := SNIP_RoadNumber;
+  Result.SNIP_Version := SNIP_Version;
+  Result.SNIP_Valid := SNIP_Valid;
+  Result.IsReserved := IsReserved;
 end;
 
-destructor TLccTrainAction.Destroy;
+{ TLccActionTrain }
+
+constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
+begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID);
+  FTrains := TLccActionTrainList.Create;
+end;
+
+destructor TLccActionTrain.Destroy;
 begin
   FreeAndNil(FTrains);
   inherited Destroy;
@@ -474,9 +497,9 @@ end;
 
 { TLccActionTrainList }
 
-function TLccActionTrainList.GetTrains(Index: Integer): TLccTrainActionInfo;
+function TLccActionTrainList.GetTrains(Index: Integer): TLccActionTrainInfo;
 begin
-  Result := TrainList[Index] as TLccTrainActionInfo;
+  Result := TrainList[Index] as TLccActionTrainInfo;
 end;
 
 function TLccActionTrainList.GetCount: Integer;
@@ -484,7 +507,7 @@ begin
   Result := TrainList.Count;
 end;
 
-procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccTrainActionInfo);
+procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
 begin
   TrainList[Index] := AValue;
 end;
@@ -507,25 +530,25 @@ begin
   inherited Destroy;
 end;
 
-function TLccActionTrainList.CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccTrainActionInfo;
+function TLccActionTrainList.CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccActionTrainInfo;
 begin
-  Result := TLccTrainActionInfo.Create;
+  Result := TLccActionTrainInfo.Create;
   Add(Result);
   Result.NodeID := ANodeID;
   Result.AliasID := AnAliasID;
 end;
 
-procedure TLccActionTrainList.Add(ATrain: TLccTrainActionInfo);
+procedure TLccActionTrainList.Add(ATrain: TLccActionTrainInfo);
 begin
   TrainList.Add(ATrain);
 end;
 
-function TLccActionTrainList.IndexOf(ATrain: TLccTrainActionInfo): Integer;
+function TLccActionTrainList.IndexOf(ATrain: TLccActionTrainInfo): Integer;
 begin
   Result := TrainList.IndexOf(ATrain);
 end;
 
-procedure TLccActionTrainList.Remove(ATrain: TLccTrainActionInfo);
+procedure TLccActionTrainList.Remove(ATrain: TLccActionTrainInfo);
 begin
   TrainList.Remove(ATrain);
 end;
@@ -535,10 +558,10 @@ begin
   TrainList.Clear;
 end;
 
-function TLccActionTrainList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccTrainActionInfo;
+function TLccActionTrainList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
 var
   i: Integer;
-  LocalTrain: TLccTrainActionInfo;
+  LocalTrain: TLccActionTrainInfo;
 begin
   Result := nil;
   i := 0;
@@ -555,10 +578,10 @@ begin
   end;
 end;
 
-function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID;TestAliasID: Word): TLccTrainActionInfo;
+function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID;TestAliasID: Word): TLccActionTrainInfo;
 var
   i: Integer;
-  LocalTrain: TLccTrainActionInfo;
+  LocalTrain: TLccActionTrainInfo;
 begin
   Result := nil;
   i := 0;
@@ -577,8 +600,7 @@ end;
 { TLccAction }
 
 constructor TLccAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID;
-  ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word;
-  ATrainList: TLccActionTrainList);
+  ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
 begin
   Inc(ActionObjectsAllocated);
   FOwner := AnOwner;;

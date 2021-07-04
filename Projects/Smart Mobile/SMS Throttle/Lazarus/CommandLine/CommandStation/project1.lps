@@ -7,10 +7,8 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="291"/>
-        <CursorPos X="204" Y="316"/>
-        <UsageCount Value="37"/>
+        <CursorPos X="8" Y="16"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -18,14 +16,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="73"/>
         <CursorPos X="33" Y="91"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="6"/>
       </Unit1>
       <Unit2>
         <Filename Value="../../../Target-Common/lcc_node.pas"/>
-        <EditorIndex Value="9"/>
-        <TopLine Value="1666"/>
-        <CursorPos X="27" Y="1691"/>
-        <UsageCount Value="17"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="249"/>
+        <CursorPos X="3" Y="184"/>
+        <UsageCount Value="29"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -33,108 +31,103 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="15"/>
         <CursorPos X="12" Y="34"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="6"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../../Target-Common/lcc_node_manager.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="563"/>
         <CursorPos X="28" Y="578"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="29"/>
       </Unit4>
       <Unit5>
         <Filename Value="../../../Target-Common/lcc_node_train.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="11"/>
-        <CursorPos X="12" Y="30"/>
-        <UsageCount Value="9"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="512"/>
+        <CursorPos X="87" Y="540"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../../Target-Common/lcc_node_controller.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="10"/>
-        <CursorPos X="11" Y="31"/>
-        <UsageCount Value="9"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="153"/>
+        <CursorPos X="16" Y="124"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../../Target-PC/Synapse_LCC/synaser.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="100"/>
         <CursorPos X="31" Y="119"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="29"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../../Target-Common/lcc_node_commandstation.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="19"/>
-        <CursorPos X="41" Y="28"/>
-        <UsageCount Value="9"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="260"/>
+        <CursorPos X="45" Y="253"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_websocket.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="208"/>
         <CursorPos X="50" Y="320"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="29"/>
       </Unit9>
       <Unit10>
         <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_server.pas"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="73"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="79"/>
         <CursorPos X="35" Y="95"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="29"/>
       </Unit10>
       <Unit11>
         <Filename Value="../../../Target-PC/HardwareConnection/lcc_ethernet_common.pas"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="98"/>
-        <CursorPos X="56" Y="123"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="105"/>
+        <CursorPos X="34" Y="111"/>
+        <UsageCount Value="29"/>
       </Unit11>
       <Unit12>
         <Filename Value="../../../Target-PC/lcc_common_classes.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="157"/>
         <CursorPos X="14" Y="168"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="29"/>
       </Unit12>
       <Unit13>
         <Filename Value="../../../Target-Common/lcc_utilities.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="403"/>
         <CursorPos X="3" Y="405"/>
-        <UsageCount Value="17"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="28"/>
       </Unit13>
       <Unit14>
         <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="839"/>
         <CursorPos X="15" Y="857"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="9"/>
       </Unit14>
       <Unit15>
         <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/types.pp"/>
         <UnitName Value="Types"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="148"/>
         <CursorPos X="27" Y="167"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="9"/>
       </Unit15>
       <Unit16>
         <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/stringl.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1989"/>
         <CursorPos X="3" Y="1992"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="7"/>
       </Unit16>
     </Units>
     <OtherDefines Count="2">
@@ -144,123 +137,122 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="project1.lpr"/>
-        <Caret Line="76" Column="41" TopLine="50"/>
+        <Caret Line="346" Column="53" TopLine="323"/>
       </Position1>
       <Position2>
         <Filename Value="project1.lpr"/>
-        <Caret Line="41" Column="18" TopLine="22"/>
+        <Caret Line="71" Column="78" TopLine="61"/>
       </Position2>
       <Position3>
         <Filename Value="project1.lpr"/>
-        <Caret Line="76" Column="26" TopLine="48"/>
+        <Caret Line="54" Column="23" TopLine="47"/>
       </Position3>
       <Position4>
         <Filename Value="project1.lpr"/>
-        <Caret Line="68" Column="18" TopLine="48"/>
+        <Caret Line="409" Column="13" TopLine="399"/>
       </Position4>
       <Position5>
         <Filename Value="project1.lpr"/>
-        <Caret Line="409" Column="13" TopLine="394"/>
+        <Caret Line="51" Column="16" TopLine="34"/>
       </Position5>
       <Position6>
         <Filename Value="project1.lpr"/>
-        <Caret Line="48" Column="17" TopLine="34"/>
+        <Caret Line="232" Column="49" TopLine="205"/>
       </Position6>
       <Position7>
         <Filename Value="project1.lpr"/>
-        <Caret Line="346" Column="53" TopLine="323"/>
+        <Caret Line="378" Column="103" TopLine="354"/>
       </Position7>
       <Position8>
         <Filename Value="project1.lpr"/>
-        <Caret Line="71" Column="78" TopLine="61"/>
+        <Caret Line="71" Column="52" TopLine="57"/>
       </Position8>
       <Position9>
         <Filename Value="project1.lpr"/>
-        <Caret Line="54" Column="23" TopLine="47"/>
+        <Caret Line="37" Column="28" TopLine="32"/>
       </Position9>
       <Position10>
         <Filename Value="project1.lpr"/>
-        <Caret Line="409" Column="13" TopLine="399"/>
+        <Caret Line="271" Column="18" TopLine="253"/>
       </Position10>
       <Position11>
         <Filename Value="project1.lpr"/>
-        <Caret Line="51" Column="16" TopLine="34"/>
+        <Caret Line="140" Column="23" TopLine="130"/>
       </Position11>
       <Position12>
         <Filename Value="project1.lpr"/>
-        <Caret Line="232" Column="49" TopLine="205"/>
+        <Caret Line="307" Column="157" TopLine="290"/>
       </Position12>
       <Position13>
         <Filename Value="project1.lpr"/>
-        <Caret Line="378" Column="103" TopLine="354"/>
+        <Caret Line="316" Column="48" TopLine="295"/>
       </Position13>
       <Position14>
         <Filename Value="project1.lpr"/>
-        <Caret Line="71" Column="52" TopLine="57"/>
+        <Caret Line="362" Column="44" TopLine="334"/>
       </Position14>
       <Position15>
         <Filename Value="project1.lpr"/>
-        <Caret Line="37" Column="28" TopLine="32"/>
+        <Caret Line="380" Column="19" TopLine="372"/>
       </Position15>
       <Position16>
         <Filename Value="project1.lpr"/>
-        <Caret Line="271" Column="18" TopLine="253"/>
+        <Caret Line="399" Column="60" TopLine="380"/>
       </Position16>
       <Position17>
         <Filename Value="project1.lpr"/>
-        <Caret Line="140" Column="23" TopLine="130"/>
+        <Caret Line="86" Column="51" TopLine="57"/>
       </Position17>
       <Position18>
-        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
-        <Caret Line="864" Column="32" TopLine="848"/>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="145" Column="29" TopLine="115"/>
       </Position18>
       <Position19>
-        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
-        <Caret Line="62" Column="30" TopLine="50"/>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="65" Column="26" TopLine="43"/>
       </Position19>
       <Position20>
         <Filename Value="project1.lpr"/>
-        <Caret Line="307" Column="157" TopLine="290"/>
+        <Caret Line="422" Column="5" TopLine="417"/>
       </Position20>
       <Position21>
         <Filename Value="project1.lpr"/>
-        <Caret Line="316" Column="48" TopLine="295"/>
+        <Caret Line="20" Column="12"/>
       </Position21>
       <Position22>
-        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
-        <Caret Line="858" Column="15" TopLine="841"/>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="21" Column="15"/>
       </Position22>
       <Position23>
-        <Filename Value="/usr/local/share/fpcsrc/3.2.0/rtl/objpas/classes/classesh.inc"/>
-        <Caret Line="857" Column="15" TopLine="839"/>
+        <Filename Value="../../../Target-Common/lcc_node_controller.pas"/>
       </Position23>
       <Position24>
         <Filename Value="project1.lpr"/>
-        <Caret Line="362" Column="44" TopLine="334"/>
+        <Caret Line="16" Column="8"/>
       </Position24>
       <Position25>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="380" Column="19" TopLine="372"/>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <Caret Line="300" Column="22" TopLine="284"/>
       </Position25>
       <Position26>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="399" Column="60" TopLine="380"/>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <Caret Line="794" Column="44" TopLine="785"/>
       </Position26>
       <Position27>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="86" Column="51" TopLine="57"/>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <Caret Line="217" Column="15" TopLine="217"/>
       </Position27>
       <Position28>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="145" Column="29" TopLine="115"/>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <Caret Line="686" Column="12" TopLine="766"/>
       </Position28>
       <Position29>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="65" Column="26" TopLine="43"/>
+        <Filename Value="../../../Target-Common/lcc_node.pas"/>
+        <Caret Line="317" Column="29" TopLine="313"/>
       </Position29>
       <Position30>
-        <Filename Value="project1.lpr"/>
-        <Caret Line="422" Column="5" TopLine="417"/>
+        <Filename Value="../../../Target-Common/lcc_node_train.pas"/>
+        <Caret Line="177" Column="69" TopLine="166"/>
       </Position30>
     </JumpHistory>
     <RunParams>
