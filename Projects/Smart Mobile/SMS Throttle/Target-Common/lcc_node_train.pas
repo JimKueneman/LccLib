@@ -344,6 +344,7 @@ type
   TListenerList = class
   private
     function GetCount: Integer;
+    function GetListener(Index: Integer): TListenerNode;
   protected
     {$IFDEF DELPHI}
     FListenerList: TObjectList<TListenerNode>;
@@ -354,6 +355,7 @@ type
     function FindNodeIndex(NodeID: TNodeID): Integer;
   public
     property Count: Integer read GetCount;
+    property Listener[Index: Integer]: TListenerNode read GetListener;
 
     constructor Create;
     destructor Destroy; override;
@@ -630,6 +632,11 @@ end;
 function TListenerList.GetCount: Integer;
 begin
   Result := FListenerList.Count;
+end;
+
+function TListenerList.GetListener(Index: Integer): TListenerNode;
+begin
+  Result := FListenerList[Index] as TListenerNode
 end;
 
 

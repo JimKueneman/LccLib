@@ -18,10 +18,16 @@ type
     Button1: TButton;
     ButtonBuildConstist1: TButton;
     ButtonBuildConstist2: TButton;
+    ButtonReleaseConsist1: TButton;
+    ButtonReleaseConsist2: TButton;
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
+    CheckBoxForwardF0_1: TCheckBox;
+    CheckBoxForwardF0_2: TCheckBox;
+    CheckBoxForwardFn_1: TCheckBox;
     CheckBoxConsistAddress1: TCheckBox;
     CheckBoxConsistAddress2: TCheckBox;
+    CheckBoxForwardFn_2: TCheckBox;
     CheckBoxThrottleTakeover1: TCheckBox;
     CheckBoxThrottleLongAddress1: TCheckBox;
     CheckBoxThrottleLongAddress2: TCheckBox;
@@ -132,6 +138,7 @@ type
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
     procedure TreeViewConsistWizard1SelectionChanged(Sender: TObject);
+    procedure TreeViewConsistWizard2Deletion(Sender: TObject; Node: TTreeNode);
     procedure TreeViewConsistWizard2SelectionChanged(Sender: TObject);
   private
     FWorkerMessage: TLccMessage;
@@ -197,6 +204,13 @@ type
 
   end;
 
+
+  TDccTrain = class
+    DccAddress: Word;
+    SpeedStep: TLccDccSpeedStep;
+    LongAddress: Boolean;
+  end;
+
 var
   Form1: TForm1;
 
@@ -209,19 +223,17 @@ implementation
 procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
-  Consist: TDccTrainList;
+  ConsistItem: TDccTrain;
+  SearchCriteria: TSearchCriteriaArray;
 begin
-  Consist := TDccTrainList.Create(False);
-  try
-    TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
-    repeat
-      Consist.Add(TDccTrain( TreeNode.Data));
-      TreeNode := TreeNode.GetNext;
-    until TreeNode = nil;
-  finally
-    ControllerNode1.AssignConsist(Consist);
-    Consist.Free;
-  end;
+  TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
+  repeat
+    ConsistItem := (TDccTrain( TreeNode.Data));
+
+    ControllerNode1.SearchTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
+
+    TreeNode := TreeNode.GetNext;
+  until TreeNode = nil;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -508,6 +520,14 @@ begin
     RadioGroupConstistSpeedStep1.ItemIndex := -1;
     EditConsistAddress1.Text := '';
   end;
+end;
+
+procedure TForm1.TreeViewConsistWizard2Deletion(Sender: TObject; Node: TTreeNode);
+var
+  ConsistItem: TDccTrain;
+begin
+  ConsistItem := TDccTrain( Node.Data);
+  FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard2SelectionChanged(Sender: TObject);
@@ -840,97 +860,69 @@ end;
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
-  Obj: TObject;
 begin
   TreeNode := TreeViewConsistWizard1.Selected;
   if Assigned(TreeNode) then
-  begin
-    // Free the Data
-    Obj := TObject(TreeNode.Data);
-    FreeAndNil( Obj);
-    TreeViewConsistWizard1.Items.Delete(TreeNode);
-  end;
+    TreeViewConsistWizard1.Items.Delete(TreeNode);  // Object in Data will be free in the deletion callback event
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract2Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
-  Obj: TObject;
 begin
   TreeNode := TreeViewConsistWizard2.Selected;
   if Assigned(TreeNode) then
-  begin
-    // Free the Data
-    Obj := TObject(TreeNode.Data);
-    FreeAndNil( Obj);
-    TreeViewConsistWizard2.Items.Delete(TreeNode);
-  end;
+    TreeViewConsistWizard2.Items.Delete(TreeNode); // Object in Data will be free in the deletion callback event
 end;
 
 procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
 var
-  SelectedNode, TreeNode: TTreeNode;
+  SelectedNode: TTreeNode;
   ConsistItem: TDccTrain;
   NodeCaption: string;
+  DccAddress: Integer;
 begin
-  ConsistItem := TDccTrain.Create;
-  ConsistItem.DccAddress := StrToInt(EditConsistAddress1.Text);
-  ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
-  ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
-  NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
-
-  SelectedNode := TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption);
-  if not Assigned(SelectedNode) then
+  if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
-    if not Assigned(TreeViewConsistWizard1.Items.GetFirstNode) then
+    ConsistItem := TDccTrain.Create;
+    ConsistItem.DccAddress := DccAddress;
+    ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
+    ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
+    NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
+
+    if TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates
     begin
-        // Create the Root TODO: Option to rename it
       SelectedNode := TreeViewConsistWizard1.Items.AddChild(nil, NodeCaption);
       TreeViewConsistWizard1.Selected := SelectedNode;
       SelectedNode.Data := ConsistItem;
-    end else
-    begin
-      SelectedNode := TreeViewConsistWizard1.Selected;
-  //    if not Assigned(SelectedNode) then
-   //     SelectedNode := TreeViewConsistWizard1.Items.GetFirstNode;
-      TreeNode := TreeViewConsistWizard1.Items.AddChild(SelectedNode, NodeCaption);
-      TreeNode.Data := ConsistItem;
-      TreeNode.MakeVisible;
     end
-  end
+  end else
+    ShowMessage('Enter a valid DCC Address');
 end;
 
 procedure TForm1.SpeedButtonConstistTrainAdd2Click(Sender: TObject);
 var
-  SelectedNode, TreeNode: TTreeNode;
+  SelectedNode: TTreeNode;
   ConsistItem: TDccTrain;
   NodeCaption: string;
+  DccAddress: Integer;
 begin
-  ConsistItem := TDccTrain.Create;
-  ConsistItem.DccAddress := StrToInt(EditConsistAddress2.Text);
-  ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
-  ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
-  NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
-
-  SelectedNode := TreeViewConsistWizard2.Items.FindNodeWithText(NodeCaption);
-  if not Assigned(SelectedNode) then
+  if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
-    if not Assigned(TreeViewConsistWizard2.Items.GetFirstNode) then
+    ConsistItem := TDccTrain.Create;
+    ConsistItem.DccAddress := DccAddress;
+    ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
+    ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
+    NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
+
+    if TreeViewConsistWizard2.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates
     begin
-        // Create the Root TODO: Option to rename it
       SelectedNode := TreeViewConsistWizard2.Items.AddChild(nil, NodeCaption);
       TreeViewConsistWizard2.Selected := SelectedNode;
       SelectedNode.Data := ConsistItem;
-    end else
-    begin
-      SelectedNode := TreeViewConsistWizard2.Selected;
-   //   if not Assigned(SelectedNode) then
-   //     SelectedNode := TreeViewConsistWizard2.Items.GetFirstNode;
-      TreeNode := TreeViewConsistWizard2.Items.AddChild(SelectedNode, NodeCaption);
-      TreeNode.Data := ConsistItem;
-      TreeNode.MakeVisible;
     end
-  end
+  end else
+    ShowMessage('Enter a valid DCC Address');
 end;
 
 procedure TForm1.OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
