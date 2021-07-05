@@ -79,28 +79,38 @@ const
 
 type
 
-  TLccSTNIP = record
-    Version: Word;
-    Roadname: string;
-    TrainClass: string;
-    RoadNumber: string;
-    TrainName: string;
-    Manufacturer: string;
-    Owner: string;
-  end;
-
-  TLccSearchReplyRec = record
-    SearchData: DWORD;
-    NodeID: TNodeID;
-    NodeAlias: Word;
-    HasSTNIP: Boolean;
-    STNIP: TLccSTNIP;
-  end;
-
-  TLccSearchResultsArray = array of TLccSearchReplyRec;
   TControllerTrainAssignResult = (tarAssigned, tarFailTrainRefused, tarFailControllerRefused);
 
   TLccActionSearchAndAssignTrain = class;
+
+  { TDccSearchCriteria }
+
+  TDccSearchCriteria = class
+  private
+    FAddress: Word;
+    FLongAddress: Boolean;
+    FSearchStr: string;       // Set Address to 0 to use the Search string
+    FSpeedStep: TLccDccSpeedStep;
+  public
+    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
+    property Address: Word read FAddress write FAddress;
+    property SearchStr: string read FSearchStr write FSearchStr;
+    property SpeedStep: TLccDccSpeedStep read FSpeedStep write FSpeedStep;
+    property LongAddress: Boolean read FLongAddress write FLongAddress;
+
+    function Clone: TDccSearchCriteria;
+  end;
+
+  { TLccSearchCriteria }
+
+  TLccSearchCriteria = class
+  private
+    FCriteria: DWORD;
+  public
+    property Criteria: DWORD read FCriteria write FCriteria;
+
+    constructor Create(ACriteria: DWORD);
+  end;
 
   { TLccActionSearchGatherAndSelectTrain }
 
@@ -117,25 +127,26 @@ type
     property SearchCriteria: DWord read FSearchCriteria write FSearchCriteria;
   end;
 
-  TSearchCriteriaArray = array of DWORD;
-
   { TLccActionSearchGatherAndSelectTrains }
 
   TLccActionSearchGatherAndSelectTrains = class(TLccActionTrain)
   private
-    FSearchCriteria: TSearchCriteriaArray;
+    FSearchCriteria: TObjectList;
     FSearchCriteriaIndex: Integer;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
     function _1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-    function _2ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _2ActionWaitForSpawnedAction(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _3ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); override;
+    destructor Destroy; override;
     procedure LoadStateArray; override;
     procedure CompleteCallback(SourceAction: TLccAction); override;
 
     property SearchCriteriaIndex: Integer read FSearchCriteriaIndex write FSearchCriteriaIndex;
   public
-    property SearchCriteria: TSearchCriteriaArray read FSearchCriteria write FSearchCriteria;
+    property SearchCriteria: TObjectList read FSearchCriteria write FSearchCriteria;  // TLccSearchCriteria objects
   end;
 
   { TLccActionAssignTrain }
@@ -243,6 +254,7 @@ type
 type
 
   TOnControllerSearchResult = procedure(Sender: TLccActionTrain; var SelectedResultIndex: Integer) of object;
+  TOnControllerSearchMultiResult = procedure(Sender: TLccActionTrain; Trains: TLccActionTrainList) of object;
   TOnControllerTrainAssigned = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
   TOnControllerTrainReleased = procedure(Sender: TLccNode) of object;
   TOnControllerQuerySpeedReply = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
@@ -285,6 +297,7 @@ type
     FOnQueryListenerGetCount: TOnControllerQueryListenerGetCount;
     FOnQueryListenerIndex: TOnControllerQueryListenerIndex;
     FOnQuerySpeedReply: TOnControllerQuerySpeedReply;
+    FOnSearchMultiResult: TOnControllerSearchMultiResult;
     FOnSearchResult: TOnControllerSearchResult;
     FOnTrainAssigned: TOnControllerTrainAssigned;
     FOnTrainReleased: TOnControllerTrainReleased;
@@ -323,6 +336,7 @@ type
     property OnQueryFunctionReply: TOnControllerQueryFunctionReply read FOnQueryFunctionReply write FOnQueryFunctionReply;
     property OnControllerRequestTakeover: TOnControllerRequestTakeover read FOnControllerRequestTakeover write FOnControllerRequestTakeover;
     property OnSearchResult: TOnControllerSearchResult read FOnSearchResult write FOnSearchResult;
+    property OnSearchMultiResult: TOnControllerSearchMultiResult read FOnSearchMultiResult write FOnSearchMultiResult;
     property OnAttachListener: TOnControllerAttachListener read FOnAttachListener write FOnAttachListener;
     property OnDetachListener: TOnControllerDetachListener read FOnDetachListener write FOnDetachListener;
     property OnQueryListenerGetCount: TOnControllerQueryListenerGetCount read FOnQueryListenerGetCount write FOnQueryListenerGetCount;
@@ -341,6 +355,7 @@ type
     procedure SearchTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure SearchTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure SearchTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
+    procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList);  // Pass TDccSearchCriteria objects
     procedure EmergencyStop;
     function IsTrainAssigned: Boolean;
 
@@ -352,38 +367,105 @@ type
 
 implementation
 
+{ TLccSearchCriteria }
+
+constructor TLccSearchCriteria.Create(ACriteria: DWORD);
+begin
+  FCriteria := ACriteria;
+end;
+
+{ TDccSearchCriteria }
+
+constructor TDccSearchCriteria.Create(ASearchString: string; AnAddress: Word;
+  ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
+begin
+  FSpeedStep := ASpeedStep;
+  FAddress := AnAddress;
+  FLongAddress := IsLongAddress;
+  FSearchStr := ASearchString;
+end;
+
+function TDccSearchCriteria.Clone: TDccSearchCriteria;
+begin
+  Result := TDccSearchCriteria.Create(SearchStr, Address, SpeedStep, LongAddress);
+end;
+
 { TLccActionSearchGatherAndSelectTrains }
 
 function TLccActionSearchGatherAndSelectTrains._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-  SearchCriteriaIndex := 0;
+  SetTimoutCountThreshold(5000);
+  AdvanceToNextState;
 end;
 
 function TLccActionSearchGatherAndSelectTrains._1ActionGatherSearchResults( Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   LccSearchTrainAction: TLccActionSearchGatherAndSelectTrain;
 begin
+  Result := False;
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0);
-  LccSearchTrainAction.SearchCriteria := SearchCriteria[SearchCriteriaIndex];
+  LccSearchTrainAction.SearchCriteria := (SearchCriteria[SearchCriteriaIndex] as TLccSearchCriteria).Criteria;
   LccSearchTrainAction.RegisterCallBack(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
+
+  // Give it plenty of time for the CS to create the Lcc Node if it has to.
+  SetTimoutCountThreshold(10000);
+  AdvanceToNextState;
 end;
 
-function TLccActionSearchGatherAndSelectTrains._2ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionSearchGatherAndSelectTrains._2ActionWaitForSpawnedAction(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
+  Result := False;
+
+  if TimeoutExpired then
+  begin
+    Inc(FSearchCriteriaIndex);
+    if SearchCriteriaIndex < SearchCriteria.Count then
+      AdvanceToNextState(-1)
+    else
+      AdvanceToNextState;   // Done
+  end;
+end;
+
+function TLccActionSearchGatherAndSelectTrains._3ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ControllerNode: TLccTrainController;
+begin
+  Result := False;
   // Report the results
-  AdvanceToNextState;
+  IgnoreTimer := True;  // Stop reentrancy
+  try
+    ControllerNode := Owner as TLccTrainController;
+    if Assigned(ControllerNode.OnSearchMultiResult) then
+     ControllerNode.OnSearchMultiResult(Self, Trains);
+  finally
+    AdvanceToNextState;
+    IgnoreTimer := False;
+  end;
 end;
 
 procedure TLccActionSearchGatherAndSelectTrains.LoadStateArray;
 begin
-  SetStateArrayLength(4);
-   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
-   States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionGatherSearchResults;
-   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionReportSearchResults;
-   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+  SetStateArrayLength(5);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionGatherSearchResults;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionWaitForSpawnedAction;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_3ActionReportSearchResults;
+  States[4] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
+constructor TLccActionSearchGatherAndSelectTrains.Create(AnOwner: TLccNode;
+  ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID;
+  ADestAliasID: Word);
+begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID);
+  FSearchCriteria := TObjectList.Create;
+  {$IFNDEF GWSCRIPT}
+  SearchCriteria.OwnsObjects := True;
+  {$ENDIF}
+  SearchCriteriaIndex := 0;
 end;
 
 procedure TLccActionSearchGatherAndSelectTrains.CompleteCallback(SourceAction: TLccAction);
@@ -392,11 +474,19 @@ var
 begin
   LccSearchTrainAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
   if LccSearchTrainAction.Trains.Count = 1 then
-    Trains.Add(Trains[0].Clone);
+    Trains.Add(LccSearchTrainAction.Trains[0].Clone);
 
   Inc(FSearchCriteriaIndex);
-  if SearchCriteriaIndex < Length(FSearchCriteria) then
-    AdvanceToNextState
+  if SearchCriteriaIndex < SearchCriteria.Count then
+    AdvanceToNextState(-1)
+  else
+    AdvanceToNextState;
+end;
+
+destructor TLccActionSearchGatherAndSelectTrains.Destroy;
+begin
+  FreeAndNil(FSearchCriteria);
+  inherited Destroy;
 end;
 
 { TLccActionAssignTrain }
@@ -1223,6 +1313,60 @@ begin
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
   LccSearchTrainAction.SearchCriteria := LocalSearchCriteria;
   LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
+end;
+
+procedure TLccTrainController.SearchTrainsByDccAddress(TrainCriteria: TObjectList);
+var
+  i: Integer;
+  DccCriteria: TDccSearchCriteria;
+  TrackProtocolFlags: Word;
+  SearchData: DWORD;
+  SearchTrainsAction: TLccActionSearchGatherAndSelectTrains;
+begin
+  if TrainCriteria.Count > 0 then
+  begin
+    SearchTrainsAction := TLccActionSearchGatherAndSelectTrains.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0);
+
+    // Need to translate the DccSearch criteria into LccSearch encoded criteria to launch the search.
+    for i := 0 to TrainCriteria.Count - 1 do
+    begin
+      DccCriteria := TrainCriteria[i] as TDccSearchCriteria;
+
+      if DccCriteria.Address > 0 then
+        TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
+                              TRACTION_SEARCH_ALLOCATE_FORCE or
+                              TRACTION_SEARCH_TYPE_EXACT_MATCH or
+                              TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY
+      else
+        TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
+                              TRACTION_SEARCH_ALLOCATE_FORCE or
+                              TRACTION_SEARCH_TYPE_ALL_MATCH or
+                              TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+
+
+      if DccCriteria.LongAddress then
+        TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
+      else
+        TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+
+      case DccCriteria.SpeedStep of
+         ldssDefault : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+         ldss14      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+         ldss28      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+         ldss128     : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+      end;
+
+      SearchData := 0;
+      if DccCriteria.Address > 0 then
+        WorkerMessage.TractionSearchEncodeSearchString(IntToStr(DccCriteria.Address), TrackProtocolFlags, SearchData)
+      else
+        WorkerMessage.TractionSearchEncodeSearchString(DccCriteria.SearchStr, TrackProtocolFlags, SearchData);
+
+      SearchTrainsAction.SearchCriteria.Add( TLccSearchCriteria.Create(SearchData));
+    end;
+
+    LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);
+  end;
 end;
 
 procedure TLccTrainController.QuerySpeed;

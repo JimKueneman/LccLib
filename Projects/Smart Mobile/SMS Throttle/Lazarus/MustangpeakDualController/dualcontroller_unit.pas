@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
-  throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common;
+  throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common,
+  Contnrs;
 
 type
 
@@ -177,6 +178,9 @@ type
     procedure OnControllerSearchResult1(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
     procedure OnControllerSearchResult2(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
 
+    procedure OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+    procedure OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+
     procedure OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
     procedure OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 
@@ -204,13 +208,6 @@ type
 
   end;
 
-
-  TDccTrain = class
-    DccAddress: Word;
-    SpeedStep: TLccDccSpeedStep;
-    LongAddress: Boolean;
-  end;
-
 var
   Form1: TForm1;
 
@@ -223,17 +220,23 @@ implementation
 procedure TForm1.ButtonBuildConstist1Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
-  ConsistItem: TDccTrain;
-  SearchCriteria: TSearchCriteriaArray;
+  DccSearchCriteria: TObjectList;
+  ConsistItem: TDccSearchCriteria;
 begin
-  TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
-  repeat
-    ConsistItem := (TDccTrain( TreeNode.Data));
-
-    ControllerNode1.SearchTrainByDccAddress(ConsistItem.DccAddress, ConsistItem.LongAddress, ConsistItem.SpeedStep);
-
-    TreeNode := TreeNode.GetNext;
-  until TreeNode = nil;
+  DccSearchCriteria := TObjectList.Create;
+  DccSearchCriteria.OwnsObjects := False;
+  try
+    TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
+    while Assigned(TreeNode) do
+    begin
+      ConsistItem := (TDccSearchCriteria( TreeNode.Data));
+      DccSearchCriteria.Add( ConsistItem);
+      TreeNode := TreeNode.GetNext;
+    end;
+  finally
+    ControllerNode1.SearchTrainsByDccAddress(DccSearchCriteria);
+    FreeAndNil(DccSearchCriteria);
+  end;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -493,26 +496,26 @@ end;
 
 procedure TForm1.TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
 var
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
 begin
-  ConsistItem := TDccTrain( Node.Data);
+  ConsistItem := TDccSearchCriteria( Node.Data);
   FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
 begin
   Node := TreeViewConsistWizard1.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TDccTrain(Node.Data);
+    ConsistItem := TDccSearchCriteria(Node.Data);
     if Assigned(ConsistItem) then
     begin
       CheckBoxConsistAddress1.Checked := ConsistItem.LongAddress;
       RadioGroupConstistSpeedStep1.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
-      EditConsistAddress1.Text := IntToStr(ConsistItem.DccAddress);
+      EditConsistAddress1.Text := IntToStr(ConsistItem.Address);
     end
   end else
   begin
@@ -524,26 +527,26 @@ end;
 
 procedure TForm1.TreeViewConsistWizard2Deletion(Sender: TObject; Node: TTreeNode);
 var
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
 begin
-  ConsistItem := TDccTrain( Node.Data);
+  ConsistItem := TDccSearchCriteria( Node.Data);
   FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard2SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
 begin
   Node := TreeViewConsistWizard1.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TDccTrain(Node.Data);
+    ConsistItem := TDccSearchCriteria(Node.Data);
     if Assigned(ConsistItem) then
     begin
       CheckBoxConsistAddress2.Checked := ConsistItem.LongAddress;
       RadioGroupConstistSpeedStep2.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
-      EditConsistAddress2.Text := IntToStr(ConsistItem.DccAddress);
+      EditConsistAddress2.Text := IntToStr(ConsistItem.Address);
     end
   end else
   begin
@@ -570,6 +573,7 @@ begin
           ControllerNode1.OnQuerySpeedReply := @OnControllerQuerySpeedReply1;
           ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
           ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
+          ControllerNode1.OnSearchMultiResult := @OnControllerSearchMultiResult1;
           ControllerNode1.OnAttachListener := @OnControllerAttachListener1;
           ControllerNode1.OnDetachListener := @OnControllerDetachListener1;
           ControllerNode1.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount1;
@@ -619,6 +623,7 @@ begin
           ControllerNode2.OnQuerySpeedReply := @OnControllerQuerySpeedReply2;
           ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
           ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
+          ControllerNode2.OnSearchMultiResult := @OnControllerSearchMultiResult2;
           ControllerNode2.OnAttachListener := @OnControllerAttachListener2;
           ControllerNode2.OnDetachListener := @OnControllerDetachListener2;
           ControllerNode2.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount2;
@@ -782,6 +787,16 @@ begin
     ReleaseTrain2;
 end;
 
+procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+begin
+  ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
+end;
+
+procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+begin
+
+end;
+
 procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
@@ -878,16 +893,13 @@ end;
 procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
 var
   SelectedNode: TTreeNode;
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
   NodeCaption: string;
   DccAddress: Integer;
 begin
   if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
-    ConsistItem := TDccTrain.Create;
-    ConsistItem.DccAddress := DccAddress;
-    ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
-    ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
+    ConsistItem := TDccSearchCriteria.Create('', DccAddress, IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1), CheckBoxConsistAddress1.Checked);
     NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
 
     if TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates
@@ -903,16 +915,13 @@ end;
 procedure TForm1.SpeedButtonConstistTrainAdd2Click(Sender: TObject);
 var
   SelectedNode: TTreeNode;
-  ConsistItem: TDccTrain;
+  ConsistItem: TDccSearchCriteria;
   NodeCaption: string;
   DccAddress: Integer;
 begin
   if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
-    ConsistItem := TDccTrain.Create;
-    ConsistItem.DccAddress := DccAddress;
-    ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
-    ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
+    ConsistItem := TDccSearchCriteria.Create('', DccAddress, IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1), CheckBoxConsistAddress2.Checked);
     NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
 
     if TreeViewConsistWizard2.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates

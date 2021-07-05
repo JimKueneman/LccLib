@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 508
+  Left = 245
   Height = 633
-  Top = 118
+  Top = 112
   Width = 733
   BorderStyle = bsSingle
   Caption = 'Form1'
@@ -382,7 +382,7 @@ object Form1: TForm1
         object ButtonBuildConstist1: TButton
           Left = 8
           Height = 25
-          Top = 160
+          Top = 176
           Width = 136
           Caption = 'Build Consist'
           OnClick = ButtonBuildConstist1Click
@@ -391,7 +391,7 @@ object Form1: TForm1
         object Label8: TLabel
           Left = 8
           Height = 16
-          Top = 1
+          Top = 8
           Width = 81
           Caption = 'DCC Address'
           ParentColor = False
@@ -399,7 +399,7 @@ object Form1: TForm1
         object EditConsistAddress1: TEdit
           Left = 96
           Height = 22
-          Top = 2
+          Top = 8
           Width = 48
           TabOrder = 2
           Text = '455'
@@ -407,15 +407,15 @@ object Form1: TForm1
         object CheckBoxConsistAddress1: TCheckBox
           Left = 16
           Height = 18
-          Top = 24
+          Top = 32
           Width = 100
           Caption = 'Long Address'
           TabOrder = 3
         end
         object RadioGroupConstistSpeedStep1: TRadioGroup
           Left = 8
-          Height = 72
-          Top = 48
+          Height = 106
+          Top = 64
           Width = 96
           AutoFill = True
           Caption = 'Speed Steps'
@@ -426,7 +426,7 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 54
+          ClientHeight = 88
           ClientWidth = 88
           ItemIndex = 0
           Items.Strings = (
@@ -459,31 +459,6 @@ object Form1: TForm1
           ImageIndex = 4
           OnClick = SpeedButtonConsistSubtract1Click
           ParentFont = False
-        end
-        object CheckBoxForwardF0_1: TCheckBox
-          Left = 8
-          Height = 18
-          Top = 126
-          Width = 86
-          Caption = 'Forward F0'
-          TabOrder = 5
-        end
-        object CheckBoxForwardFn_1: TCheckBox
-          Left = 8
-          Height = 18
-          Top = 144
-          Width = 86
-          Caption = 'Forward Fn'
-          TabOrder = 6
-        end
-        object ButtonReleaseConsist1: TButton
-          Left = 8
-          Height = 25
-          Top = 183
-          Width = 136
-          Caption = 'Release Consist'
-          OnClick = ButtonBuildConstist1Click
-          TabOrder = 7
         end
       end
     end
@@ -868,13 +843,12 @@ object Form1: TForm1
           Width = 195
           Align = alRight
           TabOrder = 0
-          OnDeletion = TreeViewConsistWizard2Deletion
           OnSelectionChanged = TreeViewConsistWizard2SelectionChanged
         end
         object Label9: TLabel
           Left = 5
           Height = 16
-          Top = 2
+          Top = 8
           Width = 81
           Caption = 'DCC Address'
           ParentColor = False
@@ -882,7 +856,7 @@ object Form1: TForm1
         object EditConsistAddress2: TEdit
           Left = 96
           Height = 22
-          Top = 2
+          Top = 8
           Width = 48
           TabOrder = 1
           Text = '455'
@@ -914,15 +888,15 @@ object Form1: TForm1
         object CheckBoxConsistAddress2: TCheckBox
           Left = 16
           Height = 18
-          Top = 24
+          Top = 32
           Width = 100
           Caption = 'Long Address'
           TabOrder = 2
         end
         object RadioGroupConstistSpeedStep2: TRadioGroup
           Left = 5
-          Height = 72
-          Top = 46
+          Height = 106
+          Top = 64
           Width = 97
           AutoFill = True
           Caption = 'Speed Steps'
@@ -933,7 +907,7 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 54
+          ClientHeight = 88
           ClientWidth = 89
           ItemIndex = 0
           Items.Strings = (
@@ -946,36 +920,11 @@ object Form1: TForm1
         object ButtonBuildConstist2: TButton
           Left = 8
           Height = 25
-          Top = 160
+          Top = 176
           Width = 139
           Caption = 'Build Consist'
           OnClick = ButtonBuildConstist2Click
           TabOrder = 4
-        end
-        object CheckBoxForwardFn_2: TCheckBox
-          Left = 8
-          Height = 18
-          Top = 144
-          Width = 86
-          Caption = 'Forward Fn'
-          TabOrder = 5
-        end
-        object CheckBoxForwardF0_2: TCheckBox
-          Left = 8
-          Height = 18
-          Top = 126
-          Width = 86
-          Caption = 'Forward F0'
-          TabOrder = 6
-        end
-        object ButtonReleaseConsist2: TButton
-          Left = 8
-          Height = 25
-          Top = 183
-          Width = 140
-          Caption = 'Release Consist'
-          OnClick = ButtonBuildConstist1Click
-          TabOrder = 7
         end
       end
     end
