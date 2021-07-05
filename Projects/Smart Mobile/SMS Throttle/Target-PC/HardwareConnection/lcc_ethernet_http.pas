@@ -91,18 +91,21 @@ end;
 // https://wiki.freepascal.org/Light_Web_Server
 procedure TLccHTTPServerThread.Execute;
 const
-  {$IFDEF GWSCRIPT}
-  BASE_PATH = '/Home/pi/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
+  // Raspairan is case senstive with file paths
+  {$IFDEF CPUARM}
+  BASE_PATH = '/home/pi/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
   {$ELSE}
   BASE_PATH = '/Users/JimKueneman/Documents/LccLib/Projects/Smart Mobile/SMS Throttle/SmartMobileStudio/Throttle/www';
   {$ENDIF}
-  INDEX_PATH = '/INDEX.HTML';
-  MANIFEST_PATH = '/APP.MANIFEST';
-  CSS_PATH = '/RES/APP.CSS';
-  SHIM_PATH = '/LIB/MUTATION.OBSERVER.SHIM.JS';
-  POLYFILL_PATH = '/LIB/POLYFILL.CUSTOM.EVENTS.JS';
-  MAIN_PATH = '/MAIN.JS';
-  JSON_PATH = '/WEBAPP.JSON';
+
+  // Raspairan is case senstive with file paths
+  INDEX_PATH = '/index.html';
+  MANIFEST_PATH = '/app.manifest';
+  CSS_PATH = '/res/app.css';
+  SHIM_PATH = '/lib/mutation.observer.shim.js';
+  POLYFILL_PATH = '/lib/polyfill.custom.events.js';
+  MAIN_PATH = '/main.js';
+  JSON_PATH = '/webapp.json';
 
 var
   RxStr, FilePath: String;
