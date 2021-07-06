@@ -380,26 +380,26 @@ object Form1: TForm1
           Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         end
         object ButtonBuildConstist1: TButton
-          Left = 8
+          Left = 7
           Height = 25
-          Top = 176
+          Top = 128
           Width = 136
           Caption = 'Build Consist'
           OnClick = ButtonBuildConstist1Click
           TabOrder = 1
         end
         object Label8: TLabel
-          Left = 8
+          Left = 7
           Height = 16
-          Top = 8
+          Top = 1
           Width = 81
           Caption = 'DCC Address'
           ParentColor = False
         end
         object EditConsistAddress1: TEdit
-          Left = 96
+          Left = 95
           Height = 22
-          Top = 8
+          Top = 2
           Width = 48
           TabOrder = 2
           Text = '455'
@@ -407,15 +407,15 @@ object Form1: TForm1
         object CheckBoxConsistAddress1: TCheckBox
           Left = 16
           Height = 18
-          Top = 32
+          Top = 24
           Width = 100
           Caption = 'Long Address'
           TabOrder = 3
         end
         object RadioGroupConstistSpeedStep1: TRadioGroup
-          Left = 8
-          Height = 106
-          Top = 64
+          Left = 7
+          Height = 74
+          Top = 48
           Width = 96
           AutoFill = True
           Caption = 'Speed Steps'
@@ -426,7 +426,7 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 88
+          ClientHeight = 56
           ClientWidth = 88
           ItemIndex = 0
           Items.Strings = (
@@ -451,7 +451,7 @@ object Form1: TForm1
         object SpeedButtonConsistSubtract1: TSpeedButton
           Left = 109
           Height = 34
-          Top = 104
+          Top = 88
           Width = 34
           Font.Height = -27
           Font.Style = [fsBold]
@@ -848,7 +848,7 @@ object Form1: TForm1
         object Label9: TLabel
           Left = 5
           Height = 16
-          Top = 8
+          Top = 2
           Width = 81
           Caption = 'DCC Address'
           ParentColor = False
@@ -856,7 +856,7 @@ object Form1: TForm1
         object EditConsistAddress2: TEdit
           Left = 96
           Height = 22
-          Top = 8
+          Top = 2
           Width = 48
           TabOrder = 1
           Text = '455'
@@ -876,7 +876,7 @@ object Form1: TForm1
         object SpeedButtonConsistSubtract2: TSpeedButton
           Left = 109
           Height = 34
-          Top = 104
+          Top = 88
           Width = 34
           Font.Height = -27
           Font.Style = [fsBold]
@@ -888,15 +888,15 @@ object Form1: TForm1
         object CheckBoxConsistAddress2: TCheckBox
           Left = 16
           Height = 18
-          Top = 32
+          Top = 24
           Width = 100
           Caption = 'Long Address'
           TabOrder = 2
         end
         object RadioGroupConstistSpeedStep2: TRadioGroup
           Left = 5
-          Height = 106
-          Top = 64
+          Height = 74
+          Top = 48
           Width = 97
           AutoFill = True
           Caption = 'Speed Steps'
@@ -907,7 +907,7 @@ object Form1: TForm1
           ChildSizing.ShrinkVertical = crsScaleChilds
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 1
-          ClientHeight = 88
+          ClientHeight = 56
           ClientWidth = 89
           ItemIndex = 0
           Items.Strings = (
@@ -918,9 +918,9 @@ object Form1: TForm1
           TabOrder = 3
         end
         object ButtonBuildConstist2: TButton
-          Left = 8
+          Left = 5
           Height = 25
-          Top = 176
+          Top = 128
           Width = 139
           Caption = 'Build Consist'
           OnClick = ButtonBuildConstist2Click

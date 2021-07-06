@@ -18,7 +18,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="TrainCommanderUnit"/>
-        <IsVisibleTab Value="True"/>
         <CursorPos X="43" Y="11"/>
         <UsageCount Value="245"/>
         <Loaded Value="True"/>
@@ -63,19 +62,21 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="151"/>
         <CursorPos X="12" Y="7"/>
-        <UsageCount Value="23"/>
+        <UsageCount Value="21"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../Target-Common/lcc_node_train.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="278"/>
         <CursorPos X="39" Y="302"/>
-        <UsageCount Value="168"/>
+        <UsageCount Value="166"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="61"/>
+        <CursorPos X="71" Y="75"/>
         <UsageCount Value="112"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -91,7 +92,7 @@
         <Filename Value="../../Target-Common/lcc_node_tasks.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit10>
       <Unit11>
         <Filename Value="../../Target-Common/lcc_node_manager.pas"/>
@@ -106,7 +107,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="296"/>
         <CursorPos Y="319"/>
-        <UsageCount Value="156"/>
+        <UsageCount Value="154"/>
       </Unit12>
       <Unit13>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>
@@ -121,55 +122,55 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="55"/>
         <CursorPos X="17" Y="32"/>
-        <UsageCount Value="145"/>
+        <UsageCount Value="143"/>
       </Unit14>
       <Unit15>
         <Filename Value="../../Target-Common/lcc_node.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="197"/>
         <CursorPos X="53" Y="214"/>
-        <UsageCount Value="113"/>
+        <UsageCount Value="111"/>
       </Unit15>
       <Unit16>
         <Filename Value="../../Target-PC/lcc_node_messages_can_assembler_disassembler.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="242"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit16>
       <Unit17>
         <Filename Value="../../Target-PC/lcc_common_classes.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="195"/>
         <CursorPos X="15" Y="210"/>
-        <UsageCount Value="101"/>
+        <UsageCount Value="99"/>
       </Unit17>
       <Unit18>
         <Filename Value="../../Target-Common/lcc_alias_server.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="236"/>
         <CursorPos X="12" Y="255"/>
-        <UsageCount Value="52"/>
+        <UsageCount Value="50"/>
       </Unit18>
       <Unit19>
         <Filename Value="../../Target-Common/lcc_utilities.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="797"/>
         <CursorPos X="56" Y="815"/>
-        <UsageCount Value="116"/>
+        <UsageCount Value="114"/>
       </Unit19>
       <Unit20>
         <Filename Value="../../Target-Common/lcc_protocol_supportedprotocols.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="55"/>
         <CursorPos X="47" Y="75"/>
-        <UsageCount Value="81"/>
+        <UsageCount Value="79"/>
       </Unit20>
       <Unit21>
         <Filename Value="../../Target-Common/lcc_protocol_events.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="168"/>
         <CursorPos Y="198"/>
-        <UsageCount Value="81"/>
+        <UsageCount Value="79"/>
       </Unit21>
       <Unit22>
         <Filename Value="/usr/local/share/fpcsrc/3.2.0/packages/fcl-base/src/contnrs.pp"/>
@@ -177,14 +178,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="67"/>
         <CursorPos X="14" Y="86"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit22>
       <Unit23>
         <Filename Value="../../Target-PC/Synapse_LCC/synaser.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="219"/>
         <CursorPos X="58" Y="227"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit23>
     </Units>
     <JumpHistory Count="11" HistoryIndex="10">

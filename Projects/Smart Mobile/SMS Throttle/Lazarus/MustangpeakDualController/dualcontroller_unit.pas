@@ -252,8 +252,25 @@ begin
 end;
 
 procedure TForm1.ButtonBuildConstist2Click(Sender: TObject);
+var
+  TreeNode: TTreeNode;
+  DccSearchCriteria: TObjectList;
+  ConsistItem: TDccSearchCriteria;
 begin
-  ShowMessage('Rethinking the Traction Messages.. not sure if Listeners are really needed.  The Controller can maintain the list and forwrd the information');
+  DccSearchCriteria := TObjectList.Create;
+  DccSearchCriteria.OwnsObjects := False;
+  try
+    TreeNode := TreeViewConsistWizard2.Items.GetFirstNode;
+    while Assigned(TreeNode) do
+    begin
+      ConsistItem := (TDccSearchCriteria( TreeNode.Data));
+      DccSearchCriteria.Add( ConsistItem);
+      TreeNode := TreeNode.GetNext;
+    end;
+  finally
+    ControllerNode2.SearchTrainsByDccAddress(DccSearchCriteria);
+    FreeAndNil(DccSearchCriteria);
+  end;
 end;
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
@@ -538,7 +555,7 @@ var
   Node: TTreeNode;
   ConsistItem: TDccSearchCriteria;
 begin
-  Node := TreeViewConsistWizard1.Selected;
+  Node := TreeViewConsistWizard2.Selected;
   if Assigned(Node) then
   begin
     ConsistItem := TDccSearchCriteria(Node.Data);
@@ -794,7 +811,7 @@ end;
 
 procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
 begin
-
+  ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 
 procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
@@ -919,7 +936,7 @@ var
   NodeCaption: string;
   DccAddress: Integer;
 begin
-  if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
+  if TryStrToInt(EditConsistAddress2.Text, DccAddress) then
   begin
     ConsistItem := TDccSearchCriteria.Create('', DccAddress, IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1), CheckBoxConsistAddress2.Checked);
     NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, True);
