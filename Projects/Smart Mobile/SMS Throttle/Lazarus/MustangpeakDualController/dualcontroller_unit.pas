@@ -16,28 +16,27 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TButton;
     ButtonBuildConstist1: TButton;
     ButtonBuildConstist2: TButton;
     ButtonReleaseConsist1: TButton;
     ButtonReleaseConsist2: TButton;
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
+    CheckBoxConsistAddress1: TCheckBox;
+    CheckBoxConsistAddress2: TCheckBox;
     CheckBoxForwardF0_1: TCheckBox;
     CheckBoxForwardF0_2: TCheckBox;
     CheckBoxForwardFn_1: TCheckBox;
-    CheckBoxConsistAddress1: TCheckBox;
-    CheckBoxConsistAddress2: TCheckBox;
     CheckBoxForwardFn_2: TCheckBox;
     CheckBoxThrottleTakeover1: TCheckBox;
     CheckBoxThrottleLongAddress1: TCheckBox;
     CheckBoxThrottleLongAddress2: TCheckBox;
     CheckBoxThrottleTakeover2: TCheckBox;
+    EditConsistAddress1: TEdit;
     EditConsistAddress2: TEdit;
     EditThrottleAddress1: TEdit;
     EditCommandStationIPAddress: TEdit;
     EditThrottleAddress2: TEdit;
-    EditConsistAddress1: TEdit;
     ImageList: TImageList;
     Label1: TLabel;
     Label2: TLabel;
@@ -58,6 +57,10 @@ type
     Label104: TLabel;
     LabelThrottleSpeed1: TLabel;
     LabelThrottleSpeed2: TLabel;
+    PageControlConsists1: TPageControl;
+    PageControlConsists2: TPageControl;
+    PanelConsistEditor1: TPanel;
+    PanelConsistEditor2: TPanel;
     PanelConsistWizard1: TPanel;
     PanelConsistWizard2: TPanel;
     PanelThrottleAssign2: TPanel;
@@ -71,13 +74,13 @@ type
     PanelThrottleFace2: TPanel;
     PanelThrottleKeypad1: TPanel;
     PanelThrottleKeypad2: TPanel;
+    RadioGroupConstistSpeedStep1: TRadioGroup;
     RadioGroupConstistSpeedStep2: TRadioGroup;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
-    RadioGroupConstistSpeedStep1: TRadioGroup;
+    SpeedButtonConsistSubtract1: TSpeedButton;
     SpeedButtonConsistSubtract2: TSpeedButton;
     SpeedButtonConsistTrainAdd1: TSpeedButton;
-    SpeedButtonConsistSubtract1: TSpeedButton;
     SpeedButtonConstistTrainAdd2: TSpeedButton;
     SpeedButtonQuerySpeedThrottle1: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
@@ -112,17 +115,24 @@ type
     SpeedButtonThrottleAssign2: TSpeedButton;
     StatusBarThrottle1: TStatusBar;
     StatusBarThrottle2: TStatusBar;
+    TabSheetConsistNew1: TTabSheet;
+    TabSheetConsists1: TTabSheet;
+    TabSheetConsistNew2: TTabSheet;
+    TabSheetConsists2: TTabSheet;
     TrackBarThrottle1: TTrackBar;
     TrackBarThrottle2: TTrackBar;
+    TreeViewConsists1: TTreeView;
+    TreeViewConsists2: TTreeView;
     TreeViewConsistWizard1: TTreeView;
     TreeViewConsistWizard2: TTreeView;
-    procedure Button1Click(Sender: TObject);
     procedure ButtonBuildConstist1Click(Sender: TObject);
     procedure ButtonBuildConstist2Click(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
     procedure ButtonConnect2Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
+    procedure PageControlConsists1Change(Sender: TObject);
+    procedure PageControlConsists2Change(Sender: TObject);
     procedure SpeedButtonConsistSubtract1Click(Sender: TObject);
     procedure SpeedButtonConsistSubtract2Click(Sender: TObject);
     procedure SpeedButtonConsistTrainAdd1Click(Sender: TObject);
@@ -237,18 +247,6 @@ begin
     ControllerNode1.SearchTrainsByDccAddress(DccSearchCriteria);
     FreeAndNil(DccSearchCriteria);
   end;
-end;
-
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  if ControllerNode1.IsTrainAssigned then
-    ReleaseTrain1;
-
-
-  ControllerNode1.AssignTrainByDccAddress(123, False, ldss28);
-  ControllerNode1.AssignTrainByDccAddress(234, False, ldss28);
-  ControllerNode1.AssignTrainByDccAddress(567, True, ldss28);
-  ControllerNode1.AssignTrainByDccAddress(987, True, ldss28);
 end;
 
 procedure TForm1.ButtonBuildConstist2Click(Sender: TObject);
@@ -970,6 +968,28 @@ end;
 procedure TForm1.OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   LabelNodeID2.Caption := 'NodeID: ' + LccSourceNode.NodeIDStr;
+end;
+
+procedure TForm1.PageControlConsists1Change(Sender: TObject);
+begin
+  if PageControlConsists1.ActivePage = TabSheetConsistNew1 then
+  begin
+    PanelConsistEditor1.Enabled := True;
+  end else
+  begin
+    PanelConsistEditor1.Enabled := False;
+  end;
+end;
+
+procedure TForm1.PageControlConsists2Change(Sender: TObject);
+begin
+  if PageControlConsists2.ActivePage = TabSheetConsistNew2 then
+  begin
+    PanelConsistEditor2.Enabled := True;
+  end else
+  begin
+    PanelConsistEditor2.Enabled := False;
+  end;
 end;
 
 end.
