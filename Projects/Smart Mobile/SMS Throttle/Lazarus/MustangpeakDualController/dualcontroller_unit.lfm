@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 489
+  Left = 561
   Height = 633
-  Top = 146
+  Top = 115
   Width = 733
   BorderStyle = bsSingle
   Caption = 'Form1'
@@ -366,86 +366,115 @@ object Form1: TForm1
           ClientHeight = 206
           ClientWidth = 167
           TabOrder = 0
-          object Label8: TLabel
-            Left = 7
-            Height = 16
+          object PanelConsistCreate1: TPanel
+            Left = 1
+            Height = 159
             Top = 1
-            Width = 81
-            Caption = 'DCC Address'
-            ParentColor = False
-          end
-          object EditConsistAddress1: TEdit
-            Left = 95
-            Height = 22
-            Top = 2
-            Width = 48
+            Width = 165
+            Align = alTop
+            ClientHeight = 159
+            ClientWidth = 165
             TabOrder = 0
-            Text = '455'
+            object EditConsistAddress1: TEdit
+              Left = 95
+              Height = 22
+              Top = 2
+              Width = 48
+              TabOrder = 0
+              Text = '455'
+            end
+            object Label8: TLabel
+              Left = 7
+              Height = 16
+              Top = 1
+              Width = 81
+              Caption = 'DCC Address'
+              ParentColor = False
+            end
+            object CheckBoxConsistAddress1: TCheckBox
+              Left = 16
+              Height = 18
+              Top = 24
+              Width = 100
+              Caption = 'Long Address'
+              TabOrder = 1
+            end
+            object RadioGroupConstistSpeedStep1: TRadioGroup
+              Left = 7
+              Height = 74
+              Top = 48
+              Width = 96
+              AutoFill = True
+              Caption = 'Speed Steps'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 56
+              ClientWidth = 88
+              ItemIndex = 0
+              Items.Strings = (
+                '14 Step'
+                '28 Step'
+                '128 Step'
+              )
+              TabOrder = 2
+            end
+            object SpeedButtonConsistTrainAdd1: TSpeedButton
+              Left = 109
+              Height = 34
+              Top = 56
+              Width = 34
+              Font.Height = -27
+              Font.Style = [fsBold]
+              Images = ImageList
+              ImageIndex = 3
+              OnClick = SpeedButtonConsistTrainAdd1Click
+              ParentFont = False
+            end
+            object SpeedButtonConsistSubtract1: TSpeedButton
+              Left = 109
+              Height = 34
+              Top = 88
+              Width = 34
+              Font.Height = -27
+              Font.Style = [fsBold]
+              Images = ImageList
+              ImageIndex = 4
+              OnClick = SpeedButtonConsistSubtract1Click
+              ParentFont = False
+            end
+            object ButtonBuildConstist1: TButton
+              Left = 7
+              Height = 25
+              Top = 128
+              Width = 136
+              Caption = 'Build Consist'
+              OnClick = ButtonBuildConstist1Click
+              TabOrder = 3
+            end
           end
-          object CheckBoxConsistAddress1: TCheckBox
-            Left = 16
-            Height = 18
-            Top = 24
-            Width = 100
-            Caption = 'Long Address'
+          object PanelConsistRelease1: TPanel
+            Left = 1
+            Height = 50
+            Top = 155
+            Width = 165
+            Align = alBottom
+            ClientHeight = 50
+            ClientWidth = 165
+            Enabled = False
             TabOrder = 1
-          end
-          object RadioGroupConstistSpeedStep1: TRadioGroup
-            Left = 7
-            Height = 74
-            Top = 48
-            Width = 96
-            AutoFill = True
-            Caption = 'Speed Steps'
-            ChildSizing.LeftRightSpacing = 6
-            ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-            ChildSizing.EnlargeVertical = crsHomogenousChildResize
-            ChildSizing.ShrinkHorizontal = crsScaleChilds
-            ChildSizing.ShrinkVertical = crsScaleChilds
-            ChildSizing.Layout = cclLeftToRightThenTopToBottom
-            ChildSizing.ControlsPerLine = 1
-            ClientHeight = 56
-            ClientWidth = 88
-            ItemIndex = 0
-            Items.Strings = (
-              '14 Step'
-              '28 Step'
-              '128 Step'
-            )
-            TabOrder = 2
-          end
-          object SpeedButtonConsistTrainAdd1: TSpeedButton
-            Left = 109
-            Height = 34
-            Top = 56
-            Width = 34
-            Font.Height = -27
-            Font.Style = [fsBold]
-            Images = ImageList
-            ImageIndex = 3
-            OnClick = SpeedButtonConsistTrainAdd1Click
-            ParentFont = False
-          end
-          object SpeedButtonConsistSubtract1: TSpeedButton
-            Left = 109
-            Height = 34
-            Top = 88
-            Width = 34
-            Font.Height = -27
-            Font.Style = [fsBold]
-            Images = ImageList
-            ImageIndex = 4
-            OnClick = SpeedButtonConsistSubtract1Click
-            ParentFont = False
-          end
-          object ButtonBuildConstist1: TButton
-            Left = 7
-            Height = 25
-            Top = 128
-            Width = 136
-            Caption = 'Build Consist'
-            OnClick = ButtonBuildConstist1Click
-            TabOrder = 3
+            object ButtonConsistRelease1: TButton
+              Left = 8
+              Height = 25
+              Top = 0
+              Width = 136
+              Caption = 'Release Consist'
+              TabOrder = 0
+            end
           end
         end
         object PageControlConsists1: TPageControl
@@ -913,86 +942,115 @@ object Form1: TForm1
           ClientHeight = 206
           ClientWidth = 162
           TabOrder = 1
-          object ButtonBuildConstist2: TButton
-            Left = 5
-            Height = 25
-            Top = 128
-            Width = 139
-            Caption = 'Build Consist'
-            OnClick = ButtonBuildConstist2Click
+          object PanelConsistCreate2: TPanel
+            Left = 1
+            Height = 159
+            Top = 1
+            Width = 160
+            Align = alTop
+            ClientHeight = 159
+            ClientWidth = 160
             TabOrder = 0
+            object EditConsistAddress2: TEdit
+              Left = 96
+              Height = 22
+              Top = 2
+              Width = 48
+              TabOrder = 0
+              Text = '455'
+            end
+            object Label9: TLabel
+              Left = 5
+              Height = 16
+              Top = 2
+              Width = 81
+              Caption = 'DCC Address'
+              ParentColor = False
+            end
+            object CheckBoxConsistAddress2: TCheckBox
+              Left = 16
+              Height = 18
+              Top = 24
+              Width = 100
+              Caption = 'Long Address'
+              TabOrder = 1
+            end
+            object RadioGroupConstistSpeedStep2: TRadioGroup
+              Left = 5
+              Height = 74
+              Top = 48
+              Width = 97
+              AutoFill = True
+              Caption = 'Speed Steps'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 1
+              ClientHeight = 56
+              ClientWidth = 89
+              ItemIndex = 0
+              Items.Strings = (
+                '14 Step'
+                '28 Step'
+                '128 Step'
+              )
+              TabOrder = 2
+            end
+            object SpeedButtonConstistTrainAdd2: TSpeedButton
+              Left = 109
+              Height = 34
+              Top = 56
+              Width = 34
+              Font.Height = -27
+              Font.Style = [fsBold]
+              Images = ImageList
+              ImageIndex = 3
+              OnClick = SpeedButtonConstistTrainAdd2Click
+              ParentFont = False
+            end
+            object SpeedButtonConsistSubtract2: TSpeedButton
+              Left = 109
+              Height = 34
+              Top = 88
+              Width = 34
+              Font.Height = -27
+              Font.Style = [fsBold]
+              Images = ImageList
+              ImageIndex = 4
+              OnClick = SpeedButtonConsistSubtract2Click
+              ParentFont = False
+            end
+            object ButtonBuildConstist2: TButton
+              Left = 5
+              Height = 25
+              Top = 126
+              Width = 139
+              Caption = 'Build Consist'
+              OnClick = ButtonBuildConstist2Click
+              TabOrder = 3
+            end
           end
-          object SpeedButtonConsistSubtract2: TSpeedButton
-            Left = 109
-            Height = 34
-            Top = 88
-            Width = 34
-            Font.Height = -27
-            Font.Style = [fsBold]
-            Images = ImageList
-            ImageIndex = 4
-            OnClick = SpeedButtonConsistSubtract2Click
-            ParentFont = False
-          end
-          object SpeedButtonConstistTrainAdd2: TSpeedButton
-            Left = 109
-            Height = 34
-            Top = 56
-            Width = 34
-            Font.Height = -27
-            Font.Style = [fsBold]
-            Images = ImageList
-            ImageIndex = 3
-            OnClick = SpeedButtonConstistTrainAdd2Click
-            ParentFont = False
-          end
-          object RadioGroupConstistSpeedStep2: TRadioGroup
-            Left = 5
-            Height = 74
-            Top = 48
-            Width = 97
-            AutoFill = True
-            Caption = 'Speed Steps'
-            ChildSizing.LeftRightSpacing = 6
-            ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-            ChildSizing.EnlargeVertical = crsHomogenousChildResize
-            ChildSizing.ShrinkHorizontal = crsScaleChilds
-            ChildSizing.ShrinkVertical = crsScaleChilds
-            ChildSizing.Layout = cclLeftToRightThenTopToBottom
-            ChildSizing.ControlsPerLine = 1
-            ClientHeight = 56
-            ClientWidth = 89
-            ItemIndex = 0
-            Items.Strings = (
-              '14 Step'
-              '28 Step'
-              '128 Step'
-            )
+          object PanelConsistRelease2: TPanel
+            Left = 1
+            Height = 50
+            Top = 155
+            Width = 160
+            Align = alBottom
+            ClientHeight = 50
+            ClientWidth = 160
+            Enabled = False
             TabOrder = 1
-          end
-          object CheckBoxConsistAddress2: TCheckBox
-            Left = 16
-            Height = 18
-            Top = 24
-            Width = 100
-            Caption = 'Long Address'
-            TabOrder = 2
-          end
-          object EditConsistAddress2: TEdit
-            Left = 96
-            Height = 22
-            Top = 2
-            Width = 48
-            TabOrder = 3
-            Text = '455'
-          end
-          object Label9: TLabel
-            Left = 5
-            Height = 16
-            Top = 2
-            Width = 81
-            Caption = 'DCC Address'
-            ParentColor = False
+            object ButtonConsistRelease2: TButton
+              Left = 5
+              Height = 25
+              Top = 0
+              Width = 138
+              Caption = 'Release Consist'
+              TabOrder = 0
+            end
           end
         end
       end

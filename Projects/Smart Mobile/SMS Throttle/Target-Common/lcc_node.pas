@@ -192,6 +192,7 @@ type
     FOnTimeoutExpired: TOnActionTimoutExpired;
     FOwner: TLccNode;
     FSendMessage: TOnMessageEvent;
+    FSpawnedAction: TLccAction;  // User property to use to hold a spawned action within this action to hold a reference to it.
     FStates: TOnMessageEventArray;
     FTerminated: Boolean;
     FTimeoutCounts: Integer;
@@ -210,6 +211,7 @@ type
     property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
     property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
     property OnCompleteCallback: TOnActionCompleteCallback read FOnCompleteCallback write FOnCompleteCallback;
+    property SpawnedAction: TLccAction read FSpawnedAction write FSpawnedAction;
 
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
     function _NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
@@ -221,6 +223,7 @@ type
     procedure CompleteCallback(SourceAction: TLccAction); virtual; // override to do something
     procedure DoTimeoutExpired; virtual;
     procedure UnRegisterSelf;
+    procedure UnhookCallbackOnSpawnedAction;
 
   public
    //  property Cancel: Boolean read FCancel write FCancel;
@@ -723,6 +726,12 @@ procedure TLccAction.UnRegisterSelf;
 begin
   if Assigned(ActionHub) then
     ActionHub.UnregisterActionAndMarkForFree(Self);
+end;
+
+procedure TLccAction.UnhookCallbackOnSpawnedAction;
+begin
+  if Assigned(SpawnedAction) then
+    SpawnedAction.RegisterCallBack(nil); // never let the callback to run
 end;
 
 function TLccAction.TimeoutExpired: Boolean;

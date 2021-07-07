@@ -16,6 +16,8 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ButtonConsistRelease1: TButton;
+    ButtonConsistRelease2: TButton;
     ButtonBuildConstist1: TButton;
     ButtonBuildConstist2: TButton;
     ButtonReleaseConsist1: TButton;
@@ -59,6 +61,10 @@ type
     LabelThrottleSpeed2: TLabel;
     PageControlConsists1: TPageControl;
     PageControlConsists2: TPageControl;
+    PanelConsistCreate1: TPanel;
+    PanelConsistCreate2: TPanel;
+    PanelConsistRelease1: TPanel;
+    PanelConsistRelease2: TPanel;
     PanelConsistEditor1: TPanel;
     PanelConsistEditor2: TPanel;
     PanelConsistWizard1: TPanel;
@@ -191,11 +197,11 @@ type
     procedure OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
     procedure OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
 
-    procedure OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
-    procedure OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerAttachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerAttachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 
-    procedure OnControllerDetachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
-    procedure OnControllerDetachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerDetachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerDetachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 
     procedure OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
     procedure OnControllerQueryListenerGetCount2(Sender: TLccNode; ListenerCount: Byte);
@@ -589,8 +595,8 @@ begin
           ControllerNode1.OnQueryFunctionReply := @OnControllerQueryFunctionReply1;
           ControllerNode1.OnSearchResult := @OnControllerSearchResult1;
           ControllerNode1.OnSearchMultiResult := @OnControllerSearchMultiResult1;
-          ControllerNode1.OnAttachListener := @OnControllerAttachListener1;
-          ControllerNode1.OnDetachListener := @OnControllerDetachListener1;
+          ControllerNode1.OnAttachListenerReply := @OnControllerAttachListenerReply1;
+          ControllerNode1.OnDetachListenerReply := @OnControllerDetachListenerReply1;
           ControllerNode1.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount1;
           ControllerNode1.OnQueryListenerIndex := @OnControllerQueryListenerIndex1;
           PanelThrottleFace1.Enabled := True;
@@ -639,8 +645,8 @@ begin
           ControllerNode2.OnQueryFunctionReply := @OnControllerQueryFunctionReply2;
           ControllerNode2.OnSearchResult := @OnControllerSearchResult2;
           ControllerNode2.OnSearchMultiResult := @OnControllerSearchMultiResult2;
-          ControllerNode2.OnAttachListener := @OnControllerAttachListener2;
-          ControllerNode2.OnDetachListener := @OnControllerDetachListener2;
+          ControllerNode2.OnAttachListenerReply:= @OnControllerAttachListenerReply2;
+          ControllerNode2.OnDetachListenerReply := @OnControllerDetachListenerReply2;
           ControllerNode2.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount2;
           ControllerNode2.OnQueryListenerIndex := @OnControllerQueryListenerIndex2;
           PanelThrottleFace2.Enabled := True;
@@ -834,22 +840,22 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerAttachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerAttachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListener1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListener2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
 begin
 
 end;
@@ -974,10 +980,12 @@ procedure TForm1.PageControlConsists1Change(Sender: TObject);
 begin
   if PageControlConsists1.ActivePage = TabSheetConsistNew1 then
   begin
-    PanelConsistEditor1.Enabled := True;
+    PanelConsistCreate1.Enabled := True;
+    PanelConsistRelease1.Enabled := False;
   end else
   begin
-    PanelConsistEditor1.Enabled := False;
+    PanelConsistCreate1.Enabled := False;
+    PanelConsistRelease1.Enabled := True;
   end;
 end;
 
@@ -985,10 +993,12 @@ procedure TForm1.PageControlConsists2Change(Sender: TObject);
 begin
   if PageControlConsists2.ActivePage = TabSheetConsistNew2 then
   begin
-    PanelConsistEditor2.Enabled := True;
+    PanelConsistCreate2.Enabled := True;
+    PanelConsistRelease2.Enabled := False;
   end else
   begin
-    PanelConsistEditor2.Enabled := False;
+    PanelConsistCreate2.Enabled := False;
+    PanelConsistRelease2.Enabled := True;
   end;
 end;
 

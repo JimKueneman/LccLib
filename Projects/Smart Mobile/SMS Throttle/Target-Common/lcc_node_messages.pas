@@ -154,13 +154,12 @@ public
   procedure LoadTractionControllerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerID: TNodeID);
   procedure LoadTractionControllerChangingNotify(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AControllerNodeID: TNodeID);
   procedure LoadTractionControllerChangedReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Allow: Boolean);
-  procedure LoadTractionListenerAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
+  procedure LoadTractionListenerAttach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerFlags: Byte; AListenerNodeID: TNodeID);
   procedure LoadTractionListenerAttachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID; ReplyCode: Word);
-  procedure LoadTractionListenerDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
+  procedure LoadTractionListenerDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerFlags: Byte; AListenerNodeID: TNodeID);
   procedure LoadTractionListenerDetachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID; ReplyCode: Word);
-  procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
-  procedure LoadTractionListenerQueryReply_NoInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount, ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; Flags: Byte);
+  procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte);  //$FF will just return the total count
+  procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount, ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte; InvalidIndex: Boolean); // if $FF is asked for only the Listener Count is valid
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
@@ -2117,7 +2116,7 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionListenerAttach(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerFlags: Byte;
   AListenerNodeID: TNodeID);
 begin
   ZeroFields;
@@ -2128,7 +2127,7 @@ begin
   DataCount := 9;
   FDataArray[0] := TRACTION_LISTENER;
   FDataArray[1] := TRACTION_LISTENER_ATTACH;
-  FDataArray[2] := 0;
+  FDataArray[2] := ListenerFlags;
   InsertNodeID(3, AListenerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
@@ -2144,7 +2143,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 10;
   FDataArray[0] := TRACTION_LISTENER;
-  FDataArray[1] := TRACTION_LISTENER_ATTACH;
+  FDataArray[1] := TRACTION_LISTENER_ATTACH_REPLY;
   FDataArray[2] := 0;
   InsertNodeID(3, AListenerNodeID);
   FDataArray[8] := Hi(ReplyCode);
@@ -2153,7 +2152,8 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionListenerDetach(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerFlags: Byte;
+  AListenerNodeID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
@@ -2163,7 +2163,7 @@ begin
   DataCount := 9;
   FDataArray[0] := TRACTION_LISTENER;
   FDataArray[1] := TRACTION_LISTENER_DETACH;
-  FDataArray[2] := 0;
+  FDataArray[2] := ListenerFlags;
   InsertNodeID(3, AListenerNodeID);
   MTI := MTI_TRACTION_REQUEST;
 end;
@@ -2179,7 +2179,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 10;
   FDataArray[0] := TRACTION_LISTENER;
-  FDataArray[1] := TRACTION_LISTENER_DETACH;
+  FDataArray[1] := TRACTION_LISTENER_DETACH_REPLY;
   FDataArray[2] := 0;
   InsertNodeID(3, AListenerNodeID);
   FDataArray[8] := Hi(ReplyCode);
@@ -2188,56 +2188,50 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionListenerQuery(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  DataCount := 9;
+  DataCount := 3;
   FDataArray[0] := TRACTION_LISTENER;
   FDataArray[1] := TRACTION_LISTENER_QUERY;
-  FDataArray[2] := 0;
-  InsertNodeID(3, AListenerNodeID);
+  FDataArray[2] := Index;
   MTI := MTI_TRACTION_REQUEST;
-end;
-
-procedure TLccMessage.LoadTractionListenerQueryReply_NoInfo(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-begin
-  ZeroFields;
-  SourceID := ASourceID;
-  DestID := ADestID;
-  CAN.SourceAlias := ASourceAlias;
-  CAN.DestAlias := ADestAlias;
-  DataCount := 0;
-  MTI := MTI_TRACTION_REPLY;
 end;
 
 procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount,
-  ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; Flags: Byte);
+  ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte;
+  InvalidIndex: Boolean);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if NullNodeID(AListenerNodeID) then
-  begin
+  if InvalidIndex then
+  begin           // Invalid Index the reply is no data other than the message codes
     DataCount := 3;
     FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
+    FDataArray[1] := TRACTION_LISTENER_QUERY_REPLY;
+  end else
+  if NullNodeID(AListenerNodeID) then
+  begin          // Null Node ID means all they want is the Count
+    DataCount := 3;
+    FDataArray[0] := TRACTION_LISTENER;
+    FDataArray[1] := TRACTION_LISTENER_QUERY_REPLY;
     FDataArray[2] := ListenerCount;
   end else
-  begin
-    DataCount := 10;
+  begin          // Valid index so sent the full gamit of info
+    DataCount := 11;
     FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
+    FDataArray[1] := TRACTION_LISTENER_QUERY_REPLY;
     FDataArray[2] := ListenerCount;
     FDataArray[3] := ListenerNodeIndex;
-    FDataArray[4] := Flags;
+    FDataArray[4] := ListenerFlags;
     InsertNodeID(5, AListenerNodeID);
   end;
   MTI := MTI_TRACTION_REPLY;
