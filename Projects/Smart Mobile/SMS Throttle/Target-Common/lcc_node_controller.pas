@@ -417,7 +417,6 @@ begin
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0);
   LccSearchTrainAction.SearchCriteria := (SearchCriteria[SearchCriteriaIndex] as TLccSearchCriteria).Criteria;
   LccSearchTrainAction.RegisterCallBack(Self);
-  SpawnedAction := LccSearchTrainAction;
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
 
   // Give it plenty of time for the CS to create the Lcc Node if it has to.
@@ -594,7 +593,7 @@ begin
   WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, SearchCriteria);
   SendMessage(Owner, WorkerMessage);
 
-  SetTimoutCountThreshold(Round(1000)); // seconds to collect trains
+  SetTimoutCountThreshold(Round(1500)); // seconds to collect trains
   AdvanceToNextState;
 end;
 
@@ -663,7 +662,9 @@ begin
   end;
 
   if TimeoutExpired then    // Times up, report out....
-    AdvanceToNextState;
+  begin
+    AdvanceToNextState;  // Timeout is NOT an error here, it is normal
+  end;
 end;
 
 function TLccActionSearchGatherAndSelectTrain._2ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -678,6 +679,7 @@ begin
   try
     ControllerNode := Owner as TLccTrainController;
 
+    // We will get a timeout error on this, which is normal.
     if Trains.Count > 0 then
     begin
       iSelectedTrain := 0;
@@ -693,7 +695,8 @@ begin
       Trains.Remove(SelectedTrain);
       Trains.Clear;
       Trains.Add(SelectedTrain);
-    end;
+    end else
+      ErrorCode := laecNoTrainFound;
   finally
     AdvanceToNextState;
     IgnoreTimer := False;
@@ -765,6 +768,7 @@ begin
   if TimeoutExpired then
   begin
     AdvanceToNextState;
+    ErrorCode := laecTimedOut;
   end;
 end;
 
@@ -831,6 +835,7 @@ begin
   if TimeoutExpired then
   begin
     AdvanceToNextState;
+    ErrorCode := laecTimedOut;
   end;
 end;
 
@@ -851,22 +856,18 @@ begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   ControllerNode := Owner as TLccTrainController;
-  if Assigned(ControllerNode) then
+  if ControllerNode.IsTrainAssigned then
   begin
-    if ControllerNode.IsTrainAssigned then
-    begin
-      WorkerMessage.LoadTractionControllerRelease(SourceNodeID, SourceAliasID, ControllerNode.AssignedTrain.NodeID, ControllerNode.AssignedTrain.AliasID, SourceNodeID, SourceAliasID);
-      SendMessage(ControllerNode, WorkerMessage);
-      ControllerNode.ClearAssignedTrain;
-    end;
-
-    IgnoreTimer := True;
-    try
-      ControllerNode.DoTrainReleased;
-    finally
-      AdvanceToNextState;
-      IgnoreTimer := False;
-    end;
+    WorkerMessage.LoadTractionControllerRelease(SourceNodeID, SourceAliasID, ControllerNode.AssignedTrain.NodeID, ControllerNode.AssignedTrain.AliasID, SourceNodeID, SourceAliasID);
+    SendMessage(ControllerNode, WorkerMessage);
+    ControllerNode.ClearAssignedTrain;
+  end;
+  IgnoreTimer := True;
+  try
+    ControllerNode.DoTrainReleased;  Should return if we tried to release a train not assigned to us?   Continue reviewing this for the Error codes....
+  finally
+    AdvanceToNextState;
+    IgnoreTimer := False;
   end;
 end;
 
@@ -935,7 +936,10 @@ begin
   end;
 
   if TimeoutExpired then
+  begin
     AdvanceToNextState;
+    ErrorCode := laecTimedOut;
+  end;
 end;
 
 procedure TLccActionTractionQueryFunction.LoadStateArray;
@@ -1002,7 +1006,10 @@ begin
   end;
 
   if TimeoutExpired then
-    _NFinalStateCleanup(Sender, SourceMessage);
+  begin
+    AdvanceToNextState;
+    ErrorCode := laecTimedOut;
+  end;
 end;
 
 procedure TLccActionTractionQuerySpeed.LoadStateArray;
@@ -1023,7 +1030,6 @@ begin
 
   LocalAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0);
   LocalAction.RegisterCallBack(Self);
-  SpawnedAction := LocalAction;
   LocalAction.SearchCriteria := SearchCriteria;
   Owner.LccActions.RegisterAndKickOffAction(LocalAction, nil);
 
@@ -1035,10 +1041,8 @@ end;
 function TLccActionSearchAndAssignTrain._1ActionWaitForTrainSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
-  if Terminated then
+  if ErrorCode <> laecOk then
   begin
-    UnhookCallbackOnSpawnedAction; // never let the callback to run
-    SpawnedAction := nil;
     AdvanceToNextState;
     Exit;
   end;
@@ -1047,9 +1051,8 @@ begin
 
   if TimeoutExpired then    // Times up, report out....
   begin
-    UnhookCallbackOnSpawnedAction; // never let the callback to run
-    SpawnedAction := nil;
     AdvanceToNextState;
+    ErrorCode := laecTimedOut;
   end;
 end;
 
@@ -1068,11 +1071,10 @@ begin
       LocalAction := TLccActionAssignTrain.Create(Owner, SourceNodeID, SourceAliasID, TempAction.Trains[0].NodeID, TempAction.Trains[0].AliasID);
       LocalAction.Trains.Add(TempAction.Trains[0].Clone);
       LocalAction.RegisterCallBack(Self);
-      SpawnedAction := LocalAction;
       Owner.LccActions.RegisterAndKickOffAction(LocalAction, nil);
       SetTimoutCountThreshold(1000); // seconds to collect Assign Train
     end else
-      Terminated := True;
+      ErrorCode := laecNoTrainFound
   end else
   if SourceAction is TLccActionAssignTrain then
   begin

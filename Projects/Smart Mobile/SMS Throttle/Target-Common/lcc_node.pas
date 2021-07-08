@@ -181,20 +181,22 @@ type
     function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word): TLccActionTrainInfo;
   end;
 
+
+  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound);
+
   { TLccAction }
 
   TLccAction = class(TObject)
   private
     FActionHub: TLccActionHub;
     FActionStateIndex: Integer;
+    FErrorCode: TLccActionErrorCode;
     FIgnoreTimer: Boolean;
     FOnCompleteCallback: TOnActionCompleteCallback;
     FOnTimeoutExpired: TOnActionTimoutExpired;
     FOwner: TLccNode;
     FSendMessage: TOnMessageEvent;
-    FSpawnedAction: TLccAction;  // User property to use to hold a spawned action within this action to hold a reference to it.
     FStates: TOnMessageEventArray;
-    FTerminated: Boolean;
     FTimeoutCounts: Integer;
     FTimeoutCountThreshold: Integer;
     FWorkerMessage: TLccMessage;
@@ -211,7 +213,6 @@ type
     property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
     property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
     property OnCompleteCallback: TOnActionCompleteCallback read FOnCompleteCallback write FOnCompleteCallback;
-    property SpawnedAction: TLccAction read FSpawnedAction write FSpawnedAction;
 
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
     function _NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
@@ -223,8 +224,6 @@ type
     procedure CompleteCallback(SourceAction: TLccAction); virtual; // override to do something
     procedure DoTimeoutExpired; virtual;
     procedure UnRegisterSelf;
-    procedure UnhookCallbackOnSpawnedAction;
-
   public
    //  property Cancel: Boolean read FCancel write FCancel;
 
@@ -243,7 +242,7 @@ type
    // Check to see if the timer that was set previousely through SetTimoutCountThreshold
     property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
     // User property that can be used to flag the statemachine should skip through states to the end
-    property Terminated: Boolean read FTerminated write FTerminated;
+    property ErrorCode: TLccActionErrorCode read FErrorCode write FErrorCode;
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); virtual;
     destructor Destroy; override;
@@ -726,12 +725,6 @@ procedure TLccAction.UnRegisterSelf;
 begin
   if Assigned(ActionHub) then
     ActionHub.UnregisterActionAndMarkForFree(Self);
-end;
-
-procedure TLccAction.UnhookCallbackOnSpawnedAction;
-begin
-  if Assigned(SpawnedAction) then
-    SpawnedAction.RegisterCallBack(nil); // never let the callback to run
 end;
 
 function TLccAction.TimeoutExpired: Boolean;
