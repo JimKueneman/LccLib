@@ -101,9 +101,9 @@ type
     function Clone: TDccSearchCriteria;
   end;
 
-  { TLccSearchCriteria }
+  { TLccEncodedSearchCriteria }
 
-  TLccSearchCriteria = class
+  TLccEncodedSearchCriteria = class
   private
     FCriteria: DWORD;
   public
@@ -147,7 +147,7 @@ type
 
     property SearchCriteriaIndex: Integer read FSearchCriteriaIndex write FSearchCriteriaIndex;
   public
-    property SearchCriteria: TObjectList read FSearchCriteria write FSearchCriteria;  // TLccSearchCriteria objects
+    property SearchCriteria: TObjectList read FSearchCriteria write FSearchCriteria;  // TLccEncodedSearchCriteria objects
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); override;
     destructor Destroy; override;
@@ -172,7 +172,7 @@ type
     FSearchCriteria: DWORD;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
-    function _1ActionWaitForTrainSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _1ActionWait(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
     procedure CompleteCallback(SourceAction: TLccAction); override;
     procedure LoadStateArray; override;
@@ -261,7 +261,7 @@ type
 
 type
 
-  TOnControllerSearchResult = procedure(Sender: TLccActionTrain; var SelectedResultIndex: Integer) of object;
+  TOnControllerSearchResult = procedure(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer) of object;
   TOnControllerSearchMultiResult = procedure(Sender: TLccActionTrain; Trains: TLccActionTrainList) of object;
   TOnControllerTrainAssignedReply = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
   TOnControllerTrainReleasedReply = procedure(Sender: TLccNode) of object;
@@ -326,7 +326,7 @@ type
     procedure DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunctionReply(Address: DWORD; Value: Word); virtual;
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
-    procedure DoSearchResult(Sender: TLccActionTrain; var SelectedResultIndex: Integer); virtual;
+    procedure DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer); virtual;
     procedure DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainList); virtual;
     procedure DoControllerAttachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
     procedure DoControllerDetachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
@@ -376,9 +376,9 @@ type
 
 implementation
 
-{ TLccSearchCriteria }
+{ TLccEncodedSearchCriteria }
 
-constructor TLccSearchCriteria.Create(ACriteria: DWORD);
+constructor TLccEncodedSearchCriteria.Create(ACriteria: DWORD);
 begin
   FCriteria := ACriteria;
 end;
@@ -404,7 +404,6 @@ end;
 function TLccActionSearchGatherAndSelectTrains._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
-  SetTimoutCountThreshold(5000);
   AdvanceToNextState;
 end;
 
@@ -414,28 +413,18 @@ var
 begin
   Result := False;
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
+  // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0);
-  LccSearchTrainAction.SearchCriteria := (SearchCriteria[SearchCriteriaIndex] as TLccSearchCriteria).Criteria;
+  LccSearchTrainAction.SearchCriteria := (SearchCriteria[SearchCriteriaIndex] as TLccEncodedSearchCriteria).Criteria;
   LccSearchTrainAction.RegisterCallBack(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
-
-  // Give it plenty of time for the CS to create the Lcc Node if it has to.
-  SetTimoutCountThreshold(10000);
   AdvanceToNextState;
 end;
 
 function TLccActionSearchGatherAndSelectTrains._2ActionWaitForSpawnedAction(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
-
-  if TimeoutExpired then
-  begin
-    Inc(FSearchCriteriaIndex);
-    if SearchCriteriaIndex < SearchCriteria.Count then
-      AdvanceToNextState(-1)
-    else
-      AdvanceToNextState;   // Done
-  end;
+  // We just spin here waiting for each search task to complete.  We are moved on in the Callback when ready
 end;
 
 function TLccActionSearchGatherAndSelectTrains._3ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -443,15 +432,19 @@ var
   ControllerNode: TLccTrainController;
 begin
   Result := False;
-  // Report the results
-  IgnoreTimer := True;  // Stop reentrancy
-  try
-    ControllerNode := Owner as TLccTrainController;
-    ControllerNode.DoSearchMultiResult(Self, Trains);
-  finally
-    AdvanceToNextState;
-    IgnoreTimer := False;
-  end;
+  if ErrorCode = laecOk then
+  begin
+    // Report the results
+    IgnoreTimer := True;  // Stop reentrancy
+    try
+      ControllerNode := Owner as TLccTrainController;
+      ControllerNode.DoSearchMultiResult(Self, Trains);
+    finally
+      AdvanceToNextState;
+      IgnoreTimer := False;
+    end;
+  end else
+    AdvanceToNextState;  // Error, just finish up
 end;
 
 procedure TLccActionSearchGatherAndSelectTrains.LoadStateArray;
@@ -478,17 +471,30 @@ end;
 
 procedure TLccActionSearchGatherAndSelectTrains.CompleteCallback(SourceAction: TLccAction);
 var
-  LccSearchTrainAction: TLccActionSearchGatherAndSelectTrain;
+  SpawnedSearchAction: TLccActionSearchGatherAndSelectTrain;
 begin
-  LccSearchTrainAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
-  if LccSearchTrainAction.Trains.Count = 1 then
-    Trains.Add(LccSearchTrainAction.Trains[0].Clone);
+  SpawnedSearchAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
 
-  Inc(FSearchCriteriaIndex);
-  if SearchCriteriaIndex < SearchCriteria.Count then
-    AdvanceToNextState(-1)
-  else
+  if SpawnedSearchAction.ErrorCode = laecOk then
+  begin
+    if SpawnedSearchAction.Trains.Count = 1 then
+      Trains.Add(SpawnedSearchAction.Trains[0].Clone);
+
+    // Move to the next Criteria in our list
+    Inc(FSearchCriteriaIndex);
+    // if we are done move on else backup one to create a new search task
+    if SearchCriteriaIndex < SearchCriteria.Count then
+      AdvanceToNextState(-1)
+    else
+      AdvanceToNextState;
+  end else
+  begin
+    // The task had and error code so just report it back to the originator of this
+    // instance and exit.
+    Trains.Clear;
+    ErrorCode := SpawnedSearchAction.ErrorCode;
     AdvanceToNextState;
+  end;
 end;
 
 destructor TLccActionSearchGatherAndSelectTrains.Destroy;
@@ -501,11 +507,11 @@ end;
 
 function TLccActionAssignTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
-  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   Assert(Trains.Count > 0, 'TLccActionAssignTrain: Must have a train in the Trains Property to Assign');
 
-  //  Attept to assigned the controller to the Train stored in the Trains property
+  //  Attept to assigne the controller to the Train stored in the Trains property
   if Trains.Count > 0 then
   begin
     WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, SourceNodeID);
@@ -522,9 +528,9 @@ var
 begin
   Result := False;
 
-  // SourceMessagfe could be nil from a timer
+  // SourceMessage could be nil from a timer
   // This code assumes that index Trains[0] is the selected train
- if Assigned(SourceMessage) and (Trains.Count > 0) then
+  if Assigned(SourceMessage) and (Trains.Count > 0) then
   begin // Only care if it is coming from our potental Train
     if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Trains[0].NodeID, Trains[0].AliasID, True) then
     begin
@@ -572,6 +578,7 @@ begin
     // Just in case, can't hurt
     WorkerMessage.LoadTractionControllerRelease(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, SourceNodeID, SourceAliasID);
     SendMessage(Owner, WorkerMessage);
+    ErrorCode := laecTimedOut;
     AdvanceToNextState;
   end;
 end;
@@ -590,10 +597,11 @@ function TLccActionSearchGatherAndSelectTrain._0ReceiveFirstMessage(Sender: TObj
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  // Send the search message
   WorkerMessage.LoadTractionSearch(SourceNodeID, SourceAliasID, SearchCriteria);
   SendMessage(Owner, WorkerMessage);
 
-  SetTimoutCountThreshold(Round(1500)); // seconds to collect trains
+  SetTimoutCountThreshold(Round(2000)); // milliseconds to allow trains to resspond; If the train node needs to be created then it can take >750ms
   AdvanceToNextState;
 end;
 
@@ -626,9 +634,10 @@ begin
                LocalTrain.SearchCriteria := SourceMessage.TractionSearchExtractSearchData;
                LocalTrain.SearchCriteriaFound := True;
                LocalTrain.SNIP_Valid := False;
-               // Send a message back to the Train Node from this controller asking for the SNIP
+               // Send a message back to the Train Node from this controller asking for the STNIP
                WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(SourceNodeID, SourceAliasID, LocalTrain.NodeID, LocalTrain.AliasID);
                SendMessage(Owner, WorkerMessage);
+               SetTimoutCountThreshold(Round(500)); // milliseconds to allow trains to resspond to the STNIP
              end
            end
         end;
@@ -679,24 +688,28 @@ begin
   try
     ControllerNode := Owner as TLccTrainController;
 
-    // We will get a timeout error on this, which is normal.
     if Trains.Count > 0 then
-    begin
-      iSelectedTrain := 0;
-      if Assigned(ControllerNode.OnSearchResult) then
+      iSelectedTrain := 0
+    else
+      iSelectedTrain := -1;
+
+      // Let the handler deal with no trains as an error code
+      ControllerNode.DoSearchResult(Self, Trains, iSelectedTrain);
+
+      // If there are no trains don't do anything
+      if Trains.Count > 0 then
       begin
-        iSelectedTrain := 0;
-        ControllerNode.DoSearchResult(Self, iSelectedTrain);
+        // Validate what the program returned for an index
         if (iSelectedTrain < 0) or (iSelectedTrain >= Trains.Count) then
           iSelectedTrain := 0;
-      end;
-      // Only have the selected train in the Trains property
-      SelectedTrain := Trains[iSelectedTrain];
-      Trains.Remove(SelectedTrain);
-      Trains.Clear;
-      Trains.Add(SelectedTrain);
-    end else
-      ErrorCode := laecNoTrainFound;
+
+        // Only have the selected train in the Trains property
+        SelectedTrain := Trains[iSelectedTrain];
+        Trains.Remove(SelectedTrain);
+        Trains.Clear;
+        Trains.Add(SelectedTrain);
+      end else
+        ErrorCode := laecNoTrainFound; // set a code for no train found
   finally
     AdvanceToNextState;
     IgnoreTimer := False;
@@ -767,8 +780,8 @@ begin
 
   if TimeoutExpired then
   begin
-    AdvanceToNextState;
     ErrorCode := laecTimedOut;
+    AdvanceToNextState;
   end;
 end;
 
@@ -788,7 +801,7 @@ begin
 
   WorkerMessage.LoadTractionListenerAttach(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, Flags, ListenerNodeID);
   SendMessage(Self, WorkerMessage);
-  SetTimoutCountThreshold(1000);
+  SetTimoutCountThreshold(2000);
   AdvanceToNextState;
 end;
 
@@ -834,8 +847,8 @@ begin
 
   if TimeoutExpired then
   begin
-    AdvanceToNextState;
     ErrorCode := laecTimedOut;
+    AdvanceToNextState;
   end;
 end;
 
@@ -864,7 +877,7 @@ begin
   end;
   IgnoreTimer := True;
   try
-    ControllerNode.DoTrainReleased;  Should return if we tried to release a train not assigned to us?   Continue reviewing this for the Error codes....
+    ControllerNode.DoTrainReleased; // Should return if we tried to release a train not assigned to us?   Continue reviewing this for the Error codes....
   finally
     AdvanceToNextState;
     IgnoreTimer := False;
@@ -894,7 +907,7 @@ begin
     end;
   end;
   AdvanceToNextState;
-  SetTimoutCountThreshold(20000);
+  SetTimoutCountThreshold(2000);
 end;
 
 function TLccActionTractionQueryFunction._1ActionWaitForQueryFunctionResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -937,8 +950,8 @@ begin
 
   if TimeoutExpired then
   begin
-    AdvanceToNextState;
     ErrorCode := laecTimedOut;
+    AdvanceToNextState;
   end;
 end;
 
@@ -968,7 +981,7 @@ begin
     end;
   end;
   AdvanceToNextState;
-  SetTimoutCountThreshold(20000);
+  SetTimoutCountThreshold(2000);
 end;
 
 function TLccActionTractionQuerySpeed._1ActionWaitForQuerySpeedResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -1007,8 +1020,8 @@ begin
 
   if TimeoutExpired then
   begin
-    AdvanceToNextState;
     ErrorCode := laecTimedOut;
+    AdvanceToNextState;
   end;
 end;
 
@@ -1038,46 +1051,40 @@ begin
 end;
 
 
-function TLccActionSearchAndAssignTrain._1ActionWaitForTrainSearch(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionSearchAndAssignTrain._1ActionWait(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
-  if ErrorCode <> laecOk then
-  begin
-    AdvanceToNextState;
-    Exit;
-  end;
-
-   // Waiting for the CompleteCallback or time expires
-
-  if TimeoutExpired then    // Times up, report out....
-  begin
-    AdvanceToNextState;
-    ErrorCode := laecTimedOut;
-  end;
+  // All is handled in the callback, just spin here
 end;
 
 procedure TLccActionSearchAndAssignTrain.CompleteCallback(SourceAction: TLccAction);
 var
-  LocalAction: TLccActionAssignTrain;
-  TempAction: TLccActionSearchGatherAndSelectTrain;
+  NextSpawnedAction: TLccActionAssignTrain;
+  SpawnedSearchAction: TLccActionSearchGatherAndSelectTrain;
 begin
-  // The first step of this action is to lauch a child action to do the search and select of a train
+  // The first step of this action is to launch a child action to do the search and select of a train
+  // so when that is finished it calls back with the results or an error
   if SourceAction is TLccActionSearchGatherAndSelectTrain then
   begin
-    TempAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
+    SpawnedSearchAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
     // Selected a train in the child Action now Assign it
-    if TempAction.Trains.Count > 0 then
+    if SpawnedSearchAction.ErrorCode = laecOk then
     begin
-      LocalAction := TLccActionAssignTrain.Create(Owner, SourceNodeID, SourceAliasID, TempAction.Trains[0].NodeID, TempAction.Trains[0].AliasID);
-      LocalAction.Trains.Add(TempAction.Trains[0].Clone);
-      LocalAction.RegisterCallBack(Self);
-      Owner.LccActions.RegisterAndKickOffAction(LocalAction, nil);
-      SetTimoutCountThreshold(1000); // seconds to collect Assign Train
+      NextSpawnedAction := TLccActionAssignTrain.Create(Owner, SourceNodeID, SourceAliasID, SpawnedSearchAction.Trains[0].NodeID, SpawnedSearchAction.Trains[0].AliasID);
+      NextSpawnedAction.Trains.Add(SpawnedSearchAction.Trains[0].Clone);
+      NextSpawnedAction.RegisterCallBack(Self);
+      Owner.LccActions.RegisterAndKickOffAction(NextSpawnedAction, nil);
+      // We stay in the same wait state until this task returns
     end else
-      ErrorCode := laecNoTrainFound
+    begin
+      // Search failed so move on
+      ErrorCode := SpawnedSearchAction.ErrorCode;
+      AdvanceToNextState;
+    end;
   end else
   if SourceAction is TLccActionAssignTrain then
   begin
+    ErrorCode := (SourceAction as TLccActionAssignTrain).ErrorCode;
     AdvanceToNextState;
   end;
 end;
@@ -1086,7 +1093,7 @@ procedure TLccActionSearchAndAssignTrain.LoadStateArray;
 begin
   SetStateArrayLength(3);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
-  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForTrainSearch;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWait;
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 end;
 
@@ -1348,7 +1355,7 @@ begin
       else
         WorkerMessage.TractionSearchEncodeSearchString(DccCriteria.SearchStr, TrackProtocolFlags, SearchData);
 
-      SearchTrainsAction.SearchCriteria.Add( TLccSearchCriteria.Create(SearchData));
+      SearchTrainsAction.SearchCriteria.Add( TLccEncodedSearchCriteria.Create(SearchData));
     end;
 
     LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);
@@ -1475,10 +1482,10 @@ begin
     OnControllerRequestTakeover(Self, Allow);
 end;
 
-procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; var SelectedResultIndex: Integer);
+procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
 begin
   if Assigned(OnSearchResult) then
-    OnSearchResult(Sender, SelectedResultIndex);
+    OnSearchResult(Sender, TrainList, SelectedResultIndex);
 end;
 
 procedure TLccTrainController.DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainList);
