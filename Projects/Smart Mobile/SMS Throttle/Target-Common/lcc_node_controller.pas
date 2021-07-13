@@ -228,7 +228,7 @@ type
 
   TLccActionTractionListenerAttach = class(TLccActionTrain)
   private
-    FFlags: Byte;
+    FFlags: Byte;  // TRACTION_LISTENER_FLAG_xxxx constants
     FListenerNodeID: TNodeID;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
@@ -244,7 +244,7 @@ type
 
   TLccActionTractionListenerDetach = class(TLccActionTrain)
   private
-    FFlags: Byte;
+      FFlags: Byte;   // TRACTION_LISTENER_FLAG_xxxx constants
       FListenerNodeID: TNodeID;
     protected
       function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
@@ -256,10 +256,27 @@ type
       property Flags: Byte read FFlags write FFlags;
     end;
 
-  { TLccActionTractionListenerQuery }
+  { TLccActionTractionListenerQueryCount }
+
+  TLccActionTractionListenerQueryCount = class(TLccActionTrain)
+    protected
+      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+      function _1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+      procedure LoadStateArray; override;
+  end;
+
 
   TLccActionTractionListenerQuery = class(TLccActionTrain)
+  private
+    FiListenerQuery: Byte;  // The index of the Listerner to query information about
+    protected
+      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+      function _1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
+      procedure LoadStateArray; override;
+    public
+      property iListenerQuery: Byte read FiListenerQuery write FiListenerQuery;
   end;
 
 
@@ -275,7 +292,7 @@ type
   TOnControllerAttachListenerReply = procedure(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word) of object;
   TOnControllerDetachListenerReply = procedure(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word) of object;
   TOnControllerQueryListenerGetCount = procedure(Sender: TLccNode; ListenerCount: Byte) of object;
-  TOnControllerQueryListenerIndex = procedure(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID) of object;
+  TOnControllerQueryListenerIndex = procedure(Sender: TLccNode; ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID) of object;
 
   // ******************************************************************************
 
@@ -335,7 +352,7 @@ type
     procedure DoControllerAttachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
     procedure DoControllerDetachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
     procedure DoControllerQueryListenerGetCount(ListenerCount: Byte); virtual;
-    procedure DoControllerQueryListenerIndex(ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID); virtual;
+    procedure DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID); virtual;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
@@ -379,6 +396,147 @@ type
 
 
 implementation
+
+{ TLccActionTractionListenerQuery }
+
+procedure TLccActionTractionListenerQuery.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitforReply;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
+function TLccActionTractionListenerQuery._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  WorkerMessage.LoadTractionListenerQuery(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, iListenerQuery, False);
+  SendMessage(Self, WorkerMessage);
+  SetTimoutCountThreshold(1000);
+  AdvanceToNextState;
+end;
+
+function TLccActionTractionListenerQuery._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ControllerNode: TLccTrainController;
+  ListenerCount: Byte;
+  ListenerNodeID: TNodeID;
+  ListenerFlags: Byte;
+  ListenerIndex: Byte;
+begin
+  Result := False;
+
+  ControllerNode := Owner as TLccTrainController;
+
+  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  begin
+    case SourceMessage.MTI of
+       MTI_TRACTION_REPLY :
+         begin
+           case SourceMessage.DataArray[0] of
+             TRACTION_LISTENER :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_LISTENER_QUERY_REPLY :
+                       begin
+                         IgnoreTimer := True;
+                         try
+                           if SourceMessage.DataCount = 11 then
+                           begin
+                             ListenerCount := SourceMessage.DataArrayIndexer[2];
+                             ListenerNodeID := NULL_NODE_ID;
+                             SourceMessage.ExtractDataBytesAsNodeID(5, ListenerNodeID);
+                             ListenerFlags := SourceMessage.DataArrayIndexer[4];
+                             ListenerIndex := SourceMessage.DataArrayIndexer[3];
+                             ControllerNode.DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags, ListenerNodeID);
+                           end;
+                         finally
+                           AdvanceToNextState;
+                           IgnoreTimer := False;;
+                         end;
+                       end;
+                   end;
+
+                 end;
+           end;
+         end;
+    end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    ErrorCode := laecTimedOut;
+    AdvanceToNextState;
+  end;
+end;
+
+{ TLccActionTractionListenerQueryCount }
+
+procedure TLccActionTractionListenerQueryCount.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+   States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitforReply;
+   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
+function TLccActionTractionListenerQueryCount._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  WorkerMessage.LoadTractionListenerQuery(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, $FF, True);
+  SendMessage(Self, WorkerMessage);
+  SetTimoutCountThreshold(1000);
+  AdvanceToNextState;
+end;
+
+function TLccActionTractionListenerQueryCount._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ControllerNode: TLccTrainController;
+  ListenerCount: Byte;
+begin
+  Result := False;
+
+  ControllerNode := Owner as TLccTrainController;
+
+  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  begin
+    case SourceMessage.MTI of
+       MTI_TRACTION_REPLY :
+         begin
+           case SourceMessage.DataArray[0] of
+             TRACTION_LISTENER :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_LISTENER_QUERY_REPLY :
+                       begin
+                         IgnoreTimer := True;
+                         try
+                           if SourceMessage.DataCount = 3 then
+                           begin
+                             ListenerCount := SourceMessage.DataArrayIndexer[2];
+                             ControllerNode.DoControllerQueryListenerGetCount(ListenerCount);
+                           end;
+                         finally
+                           AdvanceToNextState;
+                           IgnoreTimer := False;;
+                         end;
+                       end;
+                   end;
+
+                 end;
+           end;
+         end;
+    end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    ErrorCode := laecTimedOut;
+    AdvanceToNextState;
+  end;
+end;
 
 { TLccEncodedSearchCriteria }
 
@@ -761,7 +919,7 @@ begin
              TRACTION_LISTENER :
                  begin
                    case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_ATTACH :
+                     TRACTION_LISTENER_DETACH_REPLY :
                        begin
                          IgnoreTimer := True;
                          try
@@ -828,7 +986,7 @@ begin
              TRACTION_LISTENER :
                  begin
                    case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_ATTACH :
+                     TRACTION_LISTENER_ATTACH_REPLY :
                        begin
                          IgnoreTimer := True;
                          try
@@ -1516,10 +1674,11 @@ begin
     OnQueryListenerGetCount(Self, ListenerCount);
 end;
 
-procedure TLccTrainController.DoControllerQueryListenerIndex(ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+procedure TLccTrainController.DoControllerQueryListenerIndex(ListenerCount,
+  ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID);
 begin
   if Assigned(FOnQueryListenerIndex) then
-    FOnQueryListenerIndex(Self, ListenerIndex, ListenerFlags, ListenerNodeID);
+    FOnQueryListenerIndex(Self, ListenerCount, ListenerIndex, ListenerFlags, ListenerNodeID);
 end;
 
 function TLccTrainController.GetCdiFile: string;

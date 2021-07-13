@@ -450,11 +450,11 @@ const
   TRACTION_LISTENER_QUERY             = $03;
   TRACTION_LISTENER_QUERY_REPLY       = $03;
 
-  TRACTION_LISTENER_FLAG_ALIAS_VALID  = $01;
+  TRACTION_LISTENER_FLAG_ALIAS_VALID  = $01;   // Depreciated, Aliases are not portable across ethernet bridges.  Alias parameter no longer used
   TRACTION_LISTENER_FLAG_REVERSE_DIR  = $02;
-  TRACTION_LISTENER_FLAG_LINK_F0      = $04;
-  TRACTION_LISTENER_FLAG_LINK_FN      = $08;
-  TRACTION_LISTENER_FLAG_HIDDEN       = $10;
+  TRACTION_LISTENER_FLAG_LINK_F0      = $04;   // Pass forward the F0 function
+  TRACTION_LISTENER_FLAG_LINK_FN      = $08;   // Pass forward all functions
+  TRACTION_LISTENER_FLAG_HIDDEN       = $10;   // Listener is hidden (not shown in UI).  I think is should be defined as "non-Train" Listener
 
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;

@@ -206,8 +206,8 @@ type
     procedure OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
     procedure OnControllerQueryListenerGetCount2(Sender: TLccNode; ListenerCount: Byte);
 
-    procedure OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
-    procedure OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+    procedure OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+    procedure OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -871,12 +871,16 @@ begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+procedure TForm1.OnControllerQueryListenerIndex1(Sender: TLccNode;
+  ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte;
+  ListenerNodeID: TNodeID);
 begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+procedure TForm1.OnControllerQueryListenerIndex2(Sender: TLccNode;
+  ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte;
+  ListenerNodeID: TNodeID);
 begin
 
 end;

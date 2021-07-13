@@ -652,15 +652,15 @@ begin
 
   OwnerTrain := Owner as TLccTrainNode;
   if (SourceMessage.DataCount = 2) then // no query data, just wants the total number of listeners retured
-    WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0, False)
+    WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0)
   else begin
     RequestedIndex := SourceMessage.DataArray[2];
     if RequestedIndex < OwnerTrain.Listeners.Count then
     begin
       Listener := OwnerTrain.Listeners.FindByIndex(RequestedIndex);
-      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, RequestedIndex, Listener.NodeID, Listener.EncodeFlags, False)
+      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, RequestedIndex, Listener.NodeID, Listener.EncodeFlags)
     end else
-      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0, True);   // Outside of range, bad index
+      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0);   // Outside of range, bad index
   end;
   SendMessage(Self, WorkerMessage);
   AdvanceToNextState;
