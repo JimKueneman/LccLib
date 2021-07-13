@@ -83,6 +83,7 @@ type
 
   TLccActionSearchAndAssignTrain = class;
 
+  // Used internally to TLccTrainController for multiple train searches, eventually converted into a TLccEncodedSearchCriteria object
   { TDccSearchCriteria }
 
   TDccSearchCriteria = class
@@ -100,6 +101,9 @@ type
 
     function Clone: TDccSearchCriteria;
   end;
+
+
+  // Used internally to TLccActionSearchGatherAndSelectTrains for multiple train searches
 
   { TLccEncodedSearchCriteria }
 
@@ -134,8 +138,8 @@ type
   // Calls TLccActionSearchGatherAndSelectTrain for all items in the SearchCriteria property
   TLccActionSearchGatherAndSelectTrains = class(TLccActionTrain)
   private
-    FSearchCriteria: TObjectList;
-    FSearchCriteriaIndex: Integer;
+    FEncodedSearchCriteria: TObjectList;
+    FiEncodedSearchCriteria: Integer;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
     function _1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -145,9 +149,9 @@ type
     procedure LoadStateArray; override;
     procedure CompleteCallback(SourceAction: TLccAction); override;
 
-    property SearchCriteriaIndex: Integer read FSearchCriteriaIndex write FSearchCriteriaIndex;
+    property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
   public
-    property SearchCriteria: TObjectList read FSearchCriteria write FSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); override;
     destructor Destroy; override;
@@ -354,9 +358,9 @@ type
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word);
-    procedure AttachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
-    procedure DetachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
-    procedure QueryListeners(ATrainNodeID: TNodeID);
+    procedure ListenerAttach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+    procedure ListenerDetach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+    procedure ListenersQuery(ATrainNodeID: TNodeID);
     procedure ReleaseTrain;
     procedure QuerySpeed;
     procedure QueryFunction(Address: Word);
@@ -415,7 +419,7 @@ begin
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
   // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0);
-  LccSearchTrainAction.SearchCriteria := (SearchCriteria[SearchCriteriaIndex] as TLccEncodedSearchCriteria).Criteria;
+  LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccEncodedSearchCriteria).Criteria;
   LccSearchTrainAction.RegisterCallBack(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
   AdvanceToNextState;
@@ -462,11 +466,11 @@ constructor TLccActionSearchGatherAndSelectTrains.Create(AnOwner: TLccNode;
   ADestAliasID: Word);
 begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID);
-  FSearchCriteria := TObjectList.Create;
-  {$IFNDEF GWSCRIPT}
-  SearchCriteria.OwnsObjects := True;
+  FEncodedSearchCriteria := TObjectList.Create;
+  {$IFNDEF DWSCRIPT}
+  EncodedSearchCriteria.OwnsObjects := True;
   {$ENDIF}
-  SearchCriteriaIndex := 0;
+  iEncodedSearchCriteria := 0;
 end;
 
 procedure TLccActionSearchGatherAndSelectTrains.CompleteCallback(SourceAction: TLccAction);
@@ -481,9 +485,9 @@ begin
       Trains.Add(SpawnedSearchAction.Trains[0].Clone);
 
     // Move to the next Criteria in our list
-    Inc(FSearchCriteriaIndex);
+    Inc(FiEncodedSearchCriteria);
     // if we are done move on else backup one to create a new search task
-    if SearchCriteriaIndex < SearchCriteria.Count then
+    if iEncodedSearchCriteria < EncodedSearchCriteria.Count then
       AdvanceToNextState(-1)
     else
       AdvanceToNextState;
@@ -499,7 +503,7 @@ end;
 
 destructor TLccActionSearchGatherAndSelectTrains.Destroy;
 begin
-  FreeAndNil(FSearchCriteria);
+  FreeAndNil(FEncodedSearchCriteria);
   inherited Destroy;
 end;
 
@@ -1117,7 +1121,7 @@ begin
   LccActions.RegisterAndKickOffAction(LccAssignTrainAction, nil);
 end;
 
-procedure TLccTrainController.AttachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+procedure TLccTrainController.ListenerAttach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
 var
   LccTractionAttachListenerAction: TLccActionTractionListenerAttach;
 begin
@@ -1129,7 +1133,7 @@ begin
   end;
 end;
 
-procedure TLccTrainController.DetachListener(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
+procedure TLccTrainController.ListenerDetach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID);
 var
   LccTractionDetachListenerAction: TLccActionTractionListenerDetach;
 begin
@@ -1141,7 +1145,7 @@ begin
   end;
 end;
 
-procedure TLccTrainController.QueryListeners(ATrainNodeID: TNodeID);
+procedure TLccTrainController.ListenersQuery(ATrainNodeID: TNodeID);
 begin
 
  // what is the result here all the listerners in a list? retain all the parent/child relationships like Balazs suggested?  Need to discuss with him the value of that
@@ -1355,7 +1359,7 @@ begin
       else
         WorkerMessage.TractionSearchEncodeSearchString(DccCriteria.SearchStr, TrackProtocolFlags, SearchData);
 
-      SearchTrainsAction.SearchCriteria.Add( TLccEncodedSearchCriteria.Create(SearchData));
+      SearchTrainsAction.EncodedSearchCriteria.Add( TLccEncodedSearchCriteria.Create(SearchData));
     end;
 
     LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);

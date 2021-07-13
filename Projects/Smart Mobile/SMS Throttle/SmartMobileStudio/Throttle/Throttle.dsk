@@ -6,8 +6,9 @@
       <tab filename="TabSettingsForm" fullname="TabSettingsForm.pas" topline="138" col="31" row="152" splitview="0" designview="0" splitter="0.468659609556198" />
       <tab filename="LccNode" fullname="LccNode.pas" topline="53" col="37" row="67" />
       <tab filename="lcc_node_train" fullname="..\..\Target-Common\lcc_node_train.pas" topline="947" col="23" row="959" />
-      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="538" col="77" row="564" />
-      <activetab>lcc_node</activetab>
+      <tab filename="lcc_node" fullname="..\..\Target-Common\lcc_node.pas" topline="538" col="24" row="549" />
+      <tab filename="lcc_node_controller" fullname="..\..\Target-Common\lcc_node_controller.pas" topline="452" col="97" row="478" />
+      <activetab>lcc_node_controller</activetab>
       <breakpoints>
         <bkpt>
           <unit>lcc_node_messages</unit>
@@ -16,12 +17,12 @@
       </breakpoints>
     </editor>
     <Statistics>
-      <BackgroundCompilations>8039</BackgroundCompilations>
-      <EditTime>T05:33:57.299</EditTime>
-      <CompileTime>T00:30:51.977</CompileTime>
-      <TotalTime>1900-03-06T21:42:39.607</TotalTime>
+      <BackgroundCompilations>8040</BackgroundCompilations>
+      <EditTime>T05:34:04.741</EditTime>
+      <CompileTime>T00:30:58.403</CompileTime>
+      <TotalTime>1900-03-06T21:44:52.135</TotalTime>
       <DesigningTime>T10:51:43.017</DesigningTime>
-      <RunningTime>1900-01-16T21:45:10.503</RunningTime>
+      <RunningTime>1900-01-16T21:46:41.326</RunningTime>
       <TotalLinesOfCode>731</TotalLinesOfCode>
     </Statistics>
   </state>
