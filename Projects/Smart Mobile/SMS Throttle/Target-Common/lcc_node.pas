@@ -199,6 +199,7 @@ type
     FStates: TOnMessageEventArray;
     FTimeoutCounts: Integer;
     FTimeoutCountThreshold: Integer;
+    FUniqueID: Integer;
     FWorkerMessage: TLccMessage;
   protected
     FSourceAliasID: Word;
@@ -243,8 +244,10 @@ type
     property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
     // User property that can be used to flag the statemachine should skip through states to the end
     property ErrorCode: TLccActionErrorCode read FErrorCode write FErrorCode;
+    // Unique ID to allow users to identify which Action is in callbacks.
+    property UniqueID: Integer read FUniqueID;
 
-    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); virtual;
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); virtual;
     destructor Destroy; override;
 
     // Set the index to the next function that will be pointed to in the States array
@@ -271,7 +274,7 @@ type
     // User property hold trains nodes that are being working on in the task
     property Trains: TLccActionTrainList read FTrains write FTrains;
 
-    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word); override;
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
     destructor Destroy; override;
   end;
 
@@ -485,9 +488,11 @@ end;
 
 { TLccActionTrain }
 
-constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
+constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID;
+  ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word;
+  AnUniqueID: Integer);
 begin
-  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID);
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
   FTrains := TLccActionTrainList.Create;
 end;
 
@@ -612,9 +617,11 @@ end;
 { TLccAction }
 
 constructor TLccAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID;
-  ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word);
+  ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word;
+  AnUniqueID: Integer);
 begin
   Inc(ActionObjectsAllocated);
+  FUniqueID := AnUniqueID;
   FOwner := AnOwner;;
   WorkerMessage := TLccMessage.Create;
   FSourceNodeID := ASourceNodeID;

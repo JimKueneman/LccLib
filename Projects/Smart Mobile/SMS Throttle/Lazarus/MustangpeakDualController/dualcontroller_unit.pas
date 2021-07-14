@@ -250,7 +250,7 @@ begin
       TreeNode := TreeNode.GetNext;
     end;
   finally
-    ControllerNode1.SearchTrainsByDccAddress(DccSearchCriteria);
+    ControllerNode1.SearchTrainsByDccAddress(DccSearchCriteria, 100);
     FreeAndNil(DccSearchCriteria);
   end;
 end;
@@ -810,6 +810,12 @@ end;
 
 procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
 begin
+  if (Sender.UniqueID = 100) and (Trains.Count > 1) then
+  begin
+    // This is a search for a consist
+    ControllerNode1.ListenerAttach(Trains[0].NodeID, Trains[0].AliasID, Trains[1].NodeID, 200);
+    ControllerNode1.ListenerAttach(Trains[1].NodeID, Trains[1].AliasID, Trains[0].NodeID, 200);
+  end;
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 

@@ -1383,17 +1383,17 @@ begin
     MTI_TRACTION_REQUEST :
       begin
         case SourceMessage.DataArray[0] of
-          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetSpeed.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
-          TRACTION_FUNCTION        : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetFunction.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
-          TRACTION_E_STOP          : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionEmergencyStop.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), nil);
-          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQuerySpeedReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), nil);
-          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryFunctionReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
+          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetSpeed.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+          TRACTION_FUNCTION        : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetFunction.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+          TRACTION_E_STOP          : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionEmergencyStop.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+          TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQuerySpeedReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+          TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryFunctionReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
           TRACTION_CONTROLLER_CONFIG :
             begin
               case SourceMessage.DataArray[1] of
-                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionControllerAssignReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
-                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionControllerRelease.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), nil);
-                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryController.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), nil);
+                TRACTION_CONTROLLER_CONFIG_ASSIGN  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionControllerAssignReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+                TRACTION_CONTROLLER_CONFIG_RELEASE : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionControllerRelease.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+                TRACTION_CONTROLLER_CONFIG_QUERY   : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryController.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
                end
             end;
           TRACTION_LISTENER :
@@ -1401,9 +1401,9 @@ begin
               if IsReservedBy(SourceMessage) then
               begin
                 case SourceMessage.DataArray[1] of
-                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerAttachReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), nil);
-                  TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerDetachReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
-                  TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryListenerReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), SourceMessage);
+                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerAttachReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+                  TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerDetachReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+                  TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryListenerReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
                 end;
               end
             end;
