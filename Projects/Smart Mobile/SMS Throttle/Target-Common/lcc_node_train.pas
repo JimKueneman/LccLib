@@ -366,47 +366,43 @@ type
   end;
 
 type
+  { TLccTrainDccNode }
 
-  { TLccTrainNode }
-
-  TLccTrainNode = class(TLccNode)
+  TLccTrainDccNode = class(TLccNode)
   private
-    FAttachedController: TAttachedController;
+    // DCC Only fields, should make a common class and derive a DCC specific one from it
     FDccAddress: Word;
     FDccLongAddress: Boolean;
-    FFunctions: TLccFunctions;
-    FName: string;
+    FDccSpeedStep: TLccDccSpeedStep;
     FOnSendMessageComPort: TMessageComPort;
-    FReserveWatchDogTimer: TLccTimer;
-    FRoadNumber: string;
-    FSearchEvent: TEventID;
+
+    // Lcc Traction fields
+    FFunctions: TLccFunctions;
     FSpeed: THalfFloat;
-    FSpeedStep: TLccDccSpeedStep;
+
+    FSearchEvent: TEventID;  // When creating a train node this is the temporary storage for the train node as the node is being created and allocating is NodeID/AliasID
+    FListeners: TListenerList;
+    FAttachedController: TAttachedController;
+    FRequestingControllerAliasID: Word;    // When a controller in trying to attach it is stored here in the actions when we have to query other controllers to ask them if it is ok
+    FRequestingControllerNodeID: TNodeID;  // When a controller in trying to attach it is stored here in the actions when we have to query other controllers to ask them if it is ok
+
     function GetDirection: TLccTrainDirection;
     function GetFunctions(Index: Integer): Word;
+
     procedure SetDccAddress(AValue: Word);
     procedure SetDccLongAddress(AValue: Boolean);
+    procedure SetDccSpeedStep(AValue: TLccDccSpeedStep);
+
     procedure SetDirection(AValue: TLccTrainDirection);
     procedure SetFunctions(Index: Integer; AValue: Word);
-    procedure SetName(AValue: string);
-    procedure SetRoadNumber(AValue: string);
     procedure SetSpeed(AValue: THalfFloat);
-    procedure SetSpeedStep(AValue: TLccDccSpeedStep);
   protected
     property AttachedController: TAttachedController read FAttachedController write FAttachedController;
-    property ReserveWatchDogTimer: TLccTimer read FReserveWatchDogTimer write FReserveWatchDogTimer;
-   private
-     FAssignResult: Byte;
-     FListeners: TListenerList;
-     FRequestingControllerAliasID: Word;
-     FRequestingControllerNodeID: TNodeID;
-   protected
-     property AssignResult: Byte read FAssignResult write FAssignResult;
-     property RequestingControllerNodeID: TNodeID read FRequestingControllerNodeID write FRequestingControllerNodeID;
-     property RequestingControllerAliasID: Word read FRequestingControllerAliasID write FRequestingControllerAliasID;
+
+    property RequestingControllerNodeID: TNodeID read FRequestingControllerNodeID write FRequestingControllerNodeID;
+    property RequestingControllerAliasID: Word read FRequestingControllerAliasID write FRequestingControllerAliasID;
 
     procedure ClearAttachedController;
-    procedure OnReserveWatchDogTimer(Sender: TObject);
 
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
@@ -421,17 +417,14 @@ type
 
     property DccAddress: Word read FDccAddress write SetDccAddress;
     property DccLongAddress: Boolean read FDccLongAddress write SetDccLongAddress;
+    property DccSpeedStep: TLccDccSpeedStep read FDccSpeedStep write SetDccSpeedStep;
+
     property Listeners: TListenerList read FListeners write FListeners;
-    property Name: string read FName write SetName;
-    property RoadNumber: string read FRoadNumber write SetRoadNumber;
-    property SpeedStep: TLccDccSpeedStep read FSpeedStep write SetSpeedStep;
     property Speed: THalfFloat read FSpeed write SetSpeed;
     property Direction: TLccTrainDirection read GetDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
     property OnSendMessageComPort: TMessageComPort read FOnSendMessageComPort write FOnSendMessageComPort;
-
-    // The Search Event that may have created this Train Node, used as storage for the Command Station to create and wait for Initilization to complete
-    property SearchEvent: TEventID read FSearchEvent write FSearchEvent;
+    property SearchEvent: TEventID read FSearchEvent write FSearchevent;
 
     constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean); override;
     destructor Destroy; override;
@@ -444,7 +437,7 @@ type
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
   end;
 
-  TLccTrainCanNodeClass = class of TLccTrainNode;
+  TLccTrainCanNodeClass = class of TLccTrainDccNode;
 
   function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
   function SpeedStepToIndex(SpeedStep: TLccDccSpeedStep): Integer;
@@ -644,13 +637,13 @@ end;
 
 function TLccActionTractionQueryListenerReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
   Listener: TListenerNode;
   RequestedIndex: Integer;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   if (SourceMessage.DataCount = 2) then // no query data, just wants the total number of listeners retured
     WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0)
   else begin
@@ -670,13 +663,13 @@ end;
 
 function TLccActionTractionListenerDetachReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
   ReplyCode: Word;
   ListenerNodeID: TNodeID;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   ListenerNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
 
@@ -752,13 +745,13 @@ end;
 
 function TLccActionTractionListenerAttachReply._2AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
   NewListenerNode: TListenerNode;
   ReplyCode: Word;
 begin
   Result := False;
   ReplyCode := S_OK;
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
 
   // Things to concider:
   //   1) Can't add a Node as its own Listener
@@ -816,7 +809,7 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  AttachedController := (Owner as TLccTrainNode).AttachedController;
+  AttachedController := (Owner as TLccTrainDccNode).AttachedController;
   if (AttachedController.NodeID[0] = 0) and (AttachedController.NodeID[1] = 0) and (AttachedController.AliasID = 0) then
     WorkerMessage.LoadTractionControllerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, NULL_NODE_ID)
   else
@@ -829,11 +822,11 @@ end;
 
 function TLccActionTractionControllerRelease._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   if OwnerTrain.ControllerEquals(DestNodeID, DestAliasID) then
     OwnerTrain.ClearAttachedController;
   AdvanceToNextState;
@@ -843,11 +836,11 @@ end;
 
 function TLccActionTractionEmergencyStop._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   OwnerTrain.Speed := 0;
   AdvanceToNextState;
 end;
@@ -856,12 +849,12 @@ end;
 
 function TLccActionTractionSetFunction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
   FunctionAddress: DWORD;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   if OwnerTrain.ControllerAssigned then
     if OwnerTrain.ControllerEquals(DestNodeID, DestAliasID) then
     begin
@@ -875,11 +868,11 @@ end;
 
 function TLccActionTractionSetSpeed._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   if OwnerTrain.ControllerAssigned then
     if OwnerTrain.ControllerEquals(DestNodeID, DestAliasID) then
       OwnerTrain.Speed := SourceMessage.TractionExtractSetSpeed;
@@ -895,7 +888,7 @@ begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   FunctionAddress := SourceMessage.TractionExtractFunctionAddress;
-  WorkerMessage.LoadTractionQueryFunctionReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, FunctionAddress, (Owner as TLccTrainNode).Functions[FunctionAddress]);
+  WorkerMessage.LoadTractionQueryFunctionReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, FunctionAddress, (Owner as TLccTrainDccNode).Functions[FunctionAddress]);
   SendMessage(Owner, WorkerMessage);
   AdvanceToNextState;
 end;
@@ -904,11 +897,11 @@ end;
 
 function TLccActionTractionQuerySpeedReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
   WorkerMessage.LoadTractionQuerySpeedReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Speed, 0, HalfNaN, HalfNaN);
   SendMessage(Owner, WorkerMessage);
   AdvanceToNextState;
@@ -1003,12 +996,12 @@ end;
 
 function TLccActionTractionControllerAssignReply._2TestForAnotherControllerAssigned(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  OwnerTrain: TLccTrainNode;
+  OwnerTrain: TLccTrainDccNode;
 begin
   Result := False;
 
   // SourceMessage is not used here and this get clocked by the timer pump
-  OwnerTrain := Owner as TLccTrainNode;
+  OwnerTrain := Owner as TLccTrainDccNode;
 
   if OwnerTrain.ControllerAssigned and not OwnerTrain.ControllerEquals(RequestingControllerNodeID, FRequestingControllerAliasID) then
   begin
@@ -1069,24 +1062,24 @@ begin
   // Don't need the SourceMessage and will get clocked by the timer pump
   if AssignResult = TRACTION_CONTROLLER_CONFIG_REPLY_OK then
   begin
-    (Owner as TLccTrainNode).ClearAttachedController;
-    (Owner as TLccTrainNode).FAttachedController.NodeID := RequestingControllerNodeID;
-    (Owner as TLccTrainNode).FAttachedController.AliasID := RequestingControllerAliasID;
+    (Owner as TLccTrainDccNode).ClearAttachedController;
+    (Owner as TLccTrainDccNode).FAttachedController.NodeID := RequestingControllerNodeID;
+    (Owner as TLccTrainDccNode).FAttachedController.AliasID := RequestingControllerAliasID;
   end;
   WorkerMessage.LoadTractionControllerAssignReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, AssignResult);
   SendMessage(Owner, WorkerMessage);
   AdvanceToNextState;
 end;
 
-{ TLccTrainNode }
+{ TLccTrainDccNode }
 
-constructor TLccTrainNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean);
+constructor TLccTrainDccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: String; GridConnectLink: Boolean);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
   FListeners := TListenerList.Create;
 end;
 
-procedure TLccTrainNode.BeforeLogin;
+procedure TLccTrainDccNode.BeforeLogin;
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.Datagram := True;
@@ -1124,7 +1117,7 @@ begin
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
 end;
 
-function TLccTrainNode.EncodeFunctionValuesDccStyle: DWORD;
+function TLccTrainDccNode.EncodeFunctionValuesDccStyle: DWORD;
 var
   i: Integer;
 begin
@@ -1138,7 +1131,7 @@ begin
   end;
 end;
 
-function TLccTrainNode.EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
+function TLccTrainDccNode.EncodeToDccGridConnect(DccPacket: TDCCPacket): String;
 var
   i: Integer;
 begin
@@ -1148,13 +1141,13 @@ begin
   Result := Result + ';';
 end;
 
-procedure TLccTrainNode.DoSendMessageComPort(GridConnectString: string);
+procedure TLccTrainDccNode.DoSendMessageComPort(GridConnectString: string);
 begin
   if Assigned(OnSendMessageComPort) then
     OnSendMessageComPort(Self, GridConnectString);
 end;
 
-function TLccTrainNode.DccFunctionHandler(DccAddress: Word;
+function TLccTrainDccNode.DccFunctionHandler(DccAddress: Word;
   LongAddress: Boolean; FunctionAddress: DWORD; AllDccFunctionBitsEncoded: DWORD
   ): TDCCPacket;
 var
@@ -1218,7 +1211,7 @@ begin
   end;
 end;
 
-function TLccTrainNode.DccSpeedDirHandler(DccAddress: Word;
+function TLccTrainDccNode.DccSpeedDirHandler(DccAddress: Word;
   LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep
   ): TDCCPacket;
 var
@@ -1288,7 +1281,7 @@ begin
   end;
 end;
 
-destructor TLccTrainNode.Destroy;
+destructor TLccTrainDccNode.Destroy;
 begin
   {$IFDEF DWSCRIPT}
   FListeners.Free;
@@ -1298,7 +1291,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TLccTrainNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1,
+procedure TLccTrainDccNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1,
   Data2, Data3, Data4, Data5, ValidDataByes: Byte);
 begin
   NewMessage.PacketBytes[0] := Data1;
@@ -1309,7 +1302,7 @@ begin
   NewMessage.Flags := ValidDataByes;
 end;
 
-procedure TLccTrainNode.ClearAttachedController;
+procedure TLccTrainDccNode.ClearAttachedController;
 begin
   FAttachedController.NodeID := NULL_NODE_ID;
   FAttachedController.AliasID := 0;
@@ -1319,23 +1312,23 @@ begin
   FAttachedController.AttachNotifyAliasID := 0;
 end;
 
-function TLccTrainNode.ControllerAssigned: Boolean;
+function TLccTrainDccNode.ControllerAssigned: Boolean;
 begin
   Result := ((AttachedController.NodeID[0] <> 0) and (AttachedController.NodeID[1] <> 0) or (AttachedController.AliasID <> 0))
 end;
 
-function TLccTrainNode.ControllerEquals(ATestNodeID: TNodeID; ATestNodeAlias: Word): Boolean;
+function TLccTrainDccNode.ControllerEquals(ATestNodeID: TNodeID; ATestNodeAlias: Word): Boolean;
 begin
   Result := ((AttachedController.NodeID[0] = ATestNodeID[0]) and (AttachedController.NodeID[1] = ATestNodeID[1])) or
             (AttachedController.AliasID = ATestNodeAlias)
 end;
 
-function TLccTrainNode.GetCdiFile: string;
+function TLccTrainDccNode.GetCdiFile: string;
 begin
   Result := CDI_XML_TRAIN_NODE
 end;
 
-function TLccTrainNode.GetDirection: TLccTrainDirection;
+function TLccTrainDccNode.GetDirection: TLccTrainDirection;
 begin
   if HalfIsNegative(Speed) then
     Result := tdReverse
@@ -1343,7 +1336,7 @@ begin
     Result := tdForward;
 end;
 
-function TLccTrainNode.GetFunctions(Index: Integer): Word;
+function TLccTrainDccNode.GetFunctions(Index: Integer): Word;
 begin
   if (Index >= 0) and (Index < Length(FFunctions)) then
     Result := FFunctions[Index]
@@ -1351,34 +1344,29 @@ begin
     Result := $FFFF
 end;
 
-function TLccTrainNode.IsReserved: Boolean;
+function TLccTrainDccNode.IsReserved: Boolean;
 begin
   Result := (AttachedController.ReservationNodeID[0] <> 0) or (AttachedController.ReservationNodeID[1] <> 0) or (AttachedController.ReservationAliasID <> 0);
 end;
 
-function TLccTrainNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
+function TLccTrainDccNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
 begin
   Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.ReservationNodeID, AttachedController.ReservationAliasID, True);
 end;
 
-procedure TLccTrainNode.OnReserveWatchDogTimer(Sender: TObject);
-begin
-  ReserveWatchDogTimer.Enabled := False;
-  FAttachedController.ReservationAliasID := 0;
-  FAttachedController.ReservationNodeID := NULL_NODE_ID;
-end;
-
-function TLccTrainNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+function TLccTrainDccNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
   Result := inherited ProcessMessage(SourceMessage);
 
-  // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
     if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
   end;
 
+  // We only are dealing with messages with destinations for us from here on
+
+  // Some of these could be done without creating an Action but doing it this way ensures nice encapulation of the code in the Action object and keeps this message handler very clean
   case SourceMessage.MTI of
     MTI_TRACTION_REQUEST :
       begin
@@ -1419,24 +1407,24 @@ begin
   end;
 end;
 
-function TLccTrainNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
+function TLccTrainDccNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
   Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
 end;
 
-procedure TLccTrainNode.SetDccAddress(AValue: Word);
+procedure TLccTrainDccNode.SetDccAddress(AValue: Word);
 begin
   if FDccAddress = AValue then Exit;
   FDccAddress := AValue;
 end;
 
-procedure TLccTrainNode.SetDccLongAddress(AValue: Boolean);
+procedure TLccTrainDccNode.SetDccLongAddress(AValue: Boolean);
 begin
   if FDccLongAddress = AValue then Exit;
   FDccLongAddress := AValue;
 end;
 
-procedure TLccTrainNode.SetDirection(AValue: TLccTrainDirection);
+procedure TLccTrainDccNode.SetDirection(AValue: TLccTrainDirection);
 begin
   if AValue = tdReverse then
     Speed := FSpeed or $8000
@@ -1444,7 +1432,7 @@ begin
     Speed := FSpeed and $7FFF;
 end;
 
-procedure TLccTrainNode.SetFunctions(Index: Integer; AValue: Word);
+procedure TLccTrainDccNode.SetFunctions(Index: Integer; AValue: Word);
 var
   DccPacket: TDCCPacket;
   DccGridConnect: string;
@@ -1458,34 +1446,22 @@ begin
   end;
 end;
 
-procedure TLccTrainNode.SetName(AValue: string);
-begin
-  if FName = AValue then Exit;
-  FName := AValue;
-end;
-
-procedure TLccTrainNode.SetRoadNumber(AValue: string);
-begin
-  if FRoadNumber = AValue then Exit;
-  FRoadNumber := AValue;
-end;
-
-procedure TLccTrainNode.SetSpeed(AValue: THalfFloat);
+procedure TLccTrainDccNode.SetSpeed(AValue: THalfFloat);
 var
   DccPacket: TDCCPacket;
   DccGridConnect: string;
 begin
   if AValue = Speed then Exit;
   FSpeed := AValue;
-  DccPacket := DccSpeedDirHandler(DccAddress, DccLongAddress, Speed, SpeedStep);
+  DccPacket := DccSpeedDirHandler(DccAddress, DccLongAddress, Speed, DccSpeedStep);
   DccGridConnect := EncodeToDccGridConnect( DccPacket);
   DoSendMessageComPort(DccGridConnect);
 end;
 
-procedure TLccTrainNode.SetSpeedStep(AValue: TLccDccSpeedStep);
+procedure TLccTrainDccNode.SetDccSpeedStep(AValue: TLccDccSpeedStep);
 begin
-  if FSpeedStep = AValue then Exit;
-  FSpeedStep := AValue;
+  if FDccSpeedStep = AValue then Exit;
+  FDccSpeedStep := AValue;
 end;
 
 end.

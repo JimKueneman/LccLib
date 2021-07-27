@@ -3054,8 +3054,8 @@ var TW3ErrorObject = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3ErrorObject.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// EW3ErrorObject = class (EW3Exception)
 ///  [line: 21, column: 3, file: System.Objects]
@@ -4679,8 +4679,8 @@ var TAllocation = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TAllocation.$Intf={
-   IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
-   ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
+   IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
+   ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
 }
 function a$397(Self) {
    var Result = false;
@@ -17431,14 +17431,14 @@ var TBinaryData = {
    ,HandleReleased$:function($){return $.ClassType.HandleReleased($)}
 };
 TBinaryData.$Intf={
-   IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
-   ,IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
-   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
-   ,IBinaryDataImport:[TBinaryData.FromBase64]
+   IBinaryDataWriteAccess:[TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
    ,IBinaryDataReadWriteAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes,TBinaryData.AppendBytes,TBinaryData.AppendStr,TBinaryData.AppendMemory,TBinaryData.AppendBuffer,TBinaryData.AppendFloat32,TBinaryData.AppendFloat64,TBinaryData.Write$4,TBinaryData.WriteFloat32,TBinaryData.WriteFloat64,TBinaryData.CopyFrom$2,TBinaryData.CopyFromMemory,TBinaryData.CutBinaryData,TBinaryData.CutStream,TBinaryData.CutTypedArray]
+   ,IBinaryDataExport:[TBinaryData.ToBase64,TBinaryData.ToString$10,TBinaryData.ToTypedArray,TBinaryData.ToBytes,TBinaryData.ToHexDump,TBinaryData.ToStream,TBinaryData.Clone$1]
+   ,IBinaryDataReadAccess:[TBinaryData.ReadFloat32,TBinaryData.ReadFloat64,TBinaryData.ReadBool,TBinaryData.ReadInt,TBinaryData.ReadStr$1,TBinaryData.ReadBytes]
    ,IBinaryDataBitAccess:[TBinaryData.GetBitCount,TBinaryData.GetBit$1,TBinaryData.SetBit$1]
-   ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
+   ,IBinaryDataImport:[TBinaryData.FromBase64]
    ,IBinaryTransport:[TAllocation.DataOffset$1,TAllocation.DataGetSize$1,TAllocation.DataRead$1,TAllocation.DataWrite$1]
+   ,IAllocation:[TAllocation.GetHandle,TAllocation.GetTotalSize,TAllocation.GetSize$3,TAllocation.GetTransport,TAllocation.Allocate$1,TAllocation.Grow,TAllocation.Shrink,TAllocation.ReAllocate,TAllocation.Transport,TAllocation.Release$2]
 }
 /// EBinaryData = class (EW3Exception)
 ///  [line: 125, column: 3, file: System.Memory.Buffer]
@@ -28492,8 +28492,8 @@ var TW3VirtualFsParser = {
    ,Create$71:TW3ErrorObject.Create$71
 };
 TW3VirtualFsParser.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemObject = class (TW3ErrorObject)
 ///  [line: 100, column: 3, file: System.FileSystem.Virtual]
@@ -28623,8 +28623,8 @@ var TW3VirtualFileSystemObject = {
 };
 TW3VirtualFileSystemObject.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemObject.WriteFileObjectData,TW3VirtualFileSystemObject.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFolder = class (TW3VirtualFileSystemObject)
 ///  [line: 142, column: 3, file: System.FileSystem.Virtual]
@@ -28823,10 +28823,10 @@ var TW3VirtualFileSystemFolder = {
    ,WriteFileObjectData$:function($){return $.ClassType.WriteFileObjectData.apply($.ClassType, arguments)}
 };
 TW3VirtualFileSystemFolder.$Intf={
-   IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
+   ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystemFile = class (TW3VirtualFileSystemObject)
 ///  [line: 175, column: 3, file: System.FileSystem.Virtual]
@@ -28895,8 +28895,8 @@ var TW3VirtualFileSystemFile = {
 };
 TW3VirtualFileSystemFile.$Intf={
    IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFile.WriteFileObjectData,TW3VirtualFileSystemFile.ReadFileObjectData]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3VirtualFileSystem = class (TW3VirtualFileSystemFolder)
 ///  [line: 211, column: 3, file: System.FileSystem.Virtual]
@@ -29283,8 +29283,8 @@ TW3VirtualFileSystem.$Intf={
    IW3VirtualFileSystem:[TW3VirtualFileSystem.FindFileObject,TW3VirtualFileSystem.RegisterNewFileSystemObject,TW3VirtualFileSystem.UnRegisterFileSystemObject,TW3VirtualFileSystem.DataWrittenToFile,TW3VirtualFileSystem.DataReadFromFile]
    ,IW3FileSystemObject:[TW3VirtualFileSystemObject.SetRoot,TW3VirtualFileSystemObject.SetName$5,TW3VirtualFileSystemObject.SetSize$13,TW3VirtualFileSystemObject.GetPath$2,TW3VirtualFileSystemObject.GetName$5,TW3VirtualFileSystemObject.GetSize$11,TW3VirtualFileSystemFolder.WriteFileObjectData,TW3VirtualFileSystemFolder.ReadFileObjectData]
    ,IW3FileSystemFolder:[TW3VirtualFileSystemFolder.GetLocalFileObj,TW3VirtualFileSystemFolder.AddChildObject,TW3VirtualFileSystemFolder.RemoveChildObject]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TBTreeNode = class (JObject)
 ///  [line: 24, column: 3, file: System.BTree]
@@ -29555,8 +29555,8 @@ var TW3DirectoryParser = {
 };
 TW3DirectoryParser.$Intf={
    IW3DirectoryParser:[TW3DirectoryParser.GetPathSeparator,TW3DirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3DirectoryParser.IsValidPath,TW3DirectoryParser.HasValidPathChars,TW3DirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3DirectoryParser.GetFileNameWithoutExtension,TW3DirectoryParser.GetPathName,TW3DirectoryParser.GetDevice,TW3DirectoryParser.GetFileName,TW3DirectoryParser.GetExtension,TW3DirectoryParser.GetDirectoryName,TW3DirectoryParser.IncludeTrailingPathDelimiter,TW3DirectoryParser.IncludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeLeadingPathDelimiter,TW3DirectoryParser.ExcludeTrailingPathDelimiter,TW3DirectoryParser.ChangeFileExt]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3UnixDirectoryParser = class (TW3DirectoryParser)
 ///  [line: 81, column: 3, file: System.IOUtils]
@@ -29932,8 +29932,8 @@ var TW3UnixDirectoryParser = {
 };
 TW3UnixDirectoryParser.$Intf={
    IW3DirectoryParser:[TW3UnixDirectoryParser.GetPathSeparator,TW3UnixDirectoryParser.GetRootMoniker,TW3DirectoryParser.GetErrorObject,TW3UnixDirectoryParser.IsValidPath,TW3UnixDirectoryParser.HasValidPathChars,TW3UnixDirectoryParser.HasValidFileNameChars,TW3DirectoryParser.IsRelativePath,TW3DirectoryParser.IsPathRooted,TW3UnixDirectoryParser.GetFileNameWithoutExtension,TW3UnixDirectoryParser.GetPathName,TW3UnixDirectoryParser.GetDevice,TW3UnixDirectoryParser.GetFileName,TW3UnixDirectoryParser.GetExtension,TW3UnixDirectoryParser.GetDirectoryName,TW3UnixDirectoryParser.IncludeTrailingPathDelimiter,TW3UnixDirectoryParser.IncludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeLeadingPathDelimiter,TW3UnixDirectoryParser.ExcludeTrailingPathDelimiter,TW3UnixDirectoryParser.ChangeFileExt]
-   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
    ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TPath = class (TObject)
 ///  [line: 107, column: 3, file: System.IOUtils]
@@ -30260,7 +30260,7 @@ var TTabMainForm = {
          Allow.v = $VarToBool(confirm("Allow another throttle to take over the train"));
       }
       if (Allow.v && (Self.ControllerManager$1.ControllerNode!==null)) {
-         TLccTrainController.ReleaseTrain(Self.ControllerManager$1.ControllerNode);
+         TLccTrainController.ReleaseTrain(Self.ControllerManager$1.ControllerNode,0);
       }
    }
    /// procedure TTabMainForm.OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult)
@@ -30305,7 +30305,7 @@ var TTabMainForm = {
          Self.FCallbacksAssigned = true;
       }
       if (Self.ControllerManager$1.FControllerCreated) {
-         TLccTrainController.AssignTrainByDccAddress(Self.ControllerManager$1.ControllerNode,parseInt(TW3EditBox.GetText$3(Self.W3EditBoxDccAddress),10),TW3CheckBox.GetChecked(Self.W3CheckBoxLongAddress),(Self.W3RadioGroupSpeedStep.FItemIndex+1));
+         TLccTrainController.AssignTrainByDccAddress(Self.ControllerManager$1.ControllerNode,parseInt(TW3EditBox.GetText$3(Self.W3EditBoxDccAddress),10),TW3CheckBox.GetChecked(Self.W3CheckBoxLongAddress),(Self.W3RadioGroupSpeedStep.FItemIndex+1),0);
       }
    }
    /// procedure TTabMainForm.W3ButtonForwardClick(Sender: TObject)
@@ -30326,7 +30326,7 @@ var TTabMainForm = {
    ///  [line: 176, column: 24, file: TabMainForm]
    ,W3ButtonReleaseTrainClick:function(Self, Sender) {
       if (Self.ControllerManager$1.FControllerCreated) {
-         TLccTrainController.ReleaseTrain(Self.ControllerManager$1.ControllerNode);
+         TLccTrainController.ReleaseTrain(Self.ControllerManager$1.ControllerNode,0);
       }
    }
    /// procedure TTabMainForm.W3ButtonReverseClick(Sender: TObject)
@@ -31903,7 +31903,7 @@ var TLccMessage = {
       Self.FMTI = 7240;
    }
    /// procedure TLccMessage.LoadDatagramAck(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Ok: Boolean; ReplyPending: Boolean; TimeOutValueN: Byte)
-   ///  [line: 2401, column: 23, file: lcc_node_messages]
+   ///  [line: 2404, column: 23, file: lcc_node_messages]
    ,LoadDatagramAck:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Ok, ReplyPending, TimeOutValueN) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -31923,7 +31923,7 @@ var TLccMessage = {
       }
    }
    /// procedure TLccMessage.LoadDatagramRejected(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reason: Word)
-   ///  [line: 2421, column: 23, file: lcc_node_messages]
+   ///  [line: 2424, column: 23, file: lcc_node_messages]
    ,LoadDatagramRejected:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Reason) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -32008,7 +32008,7 @@ var TLccMessage = {
       Self.FCAN.FMTI$1 = 7340032;
    }
    /// procedure TLccMessage.LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray)
-   ///  [line: 2285, column: 23, file: lcc_node_messages]
+   ///  [line: 2288, column: 23, file: lcc_node_messages]
    ,LoadSimpleNodeIdentInfoReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, SimplePackedArray) {
       var i$7 = 0;
       TLccMessage.ZeroFields(Self);
@@ -32024,7 +32024,7 @@ var TLccMessage = {
       Self.FMTI = 2568;
    }
    /// procedure TLccMessage.LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word)
-   ///  [line: 2275, column: 23, file: lcc_node_messages]
+   ///  [line: 2278, column: 23, file: lcc_node_messages]
    ,LoadSimpleTrainNodeIdentInfoRequest:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -32219,20 +32219,36 @@ var TLccMessage = {
       Self.FDataArray[9] = Lo(ReplyCode);
       Self.FMTI = 488;
    }
-   /// procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount: Byte; ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte; InvalidIndex: Boolean)
-   ///  [line: 2205, column: 23, file: lcc_node_messages]
-   ,LoadTractionListenerQueryReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, ListenerCount, ListenerNodeIndex, AListenerNodeID, ListenerFlags, InvalidIndex) {
+   /// procedure TLccMessage.LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte; CountOnly: Boolean)
+   ///  [line: 2190, column: 23, file: lcc_node_messages]
+   ,LoadTractionListenerQuery:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Index$6, CountOnly) {
+      TLccMessage.ZeroFields(Self);
+      Self.FSourceID = ASourceID.slice(0);
+      Self.FDestID = ADestID.slice(0);
+      Self.FCAN.FSourceAlias = ASourceAlias;
+      Self.FCAN.FDestAlias = ADestAlias;
+      if (CountOnly) {
+         Self.FDataCount = 2;
+         Self.FDataArray[0] = 48;
+         Self.FDataArray[1] = 3;
+      } else {
+         Self.FDataCount = 3;
+         Self.FDataArray[0] = 48;
+         Self.FDataArray[1] = 3;
+         Self.FDataArray[2] = Index$6;
+      }
+      Self.FMTI = 1512;
+   }
+   /// procedure TLccMessage.LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount: Byte; ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte)
+   ///  [line: 2214, column: 23, file: lcc_node_messages]
+   ,LoadTractionListenerQueryReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, ListenerCount, ListenerNodeIndex, AListenerNodeID, ListenerFlags) {
       AListenerNodeID = { v : AListenerNodeID };
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
       Self.FDestID = ADestID.slice(0);
       Self.FCAN.FSourceAlias = ASourceAlias;
       Self.FCAN.FDestAlias = ADestAlias;
-      if (InvalidIndex) {
-         Self.FDataCount = 3;
-         Self.FDataArray[0] = 48;
-         Self.FDataArray[1] = 3;
-      } else if (NullNodeID(AListenerNodeID.v.slice(0))) {
+      if (NullNodeID(AListenerNodeID.v.slice(0))) {
          Self.FDataCount = 3;
          Self.FDataArray[0] = 48;
          Self.FDataArray[1] = 3;
@@ -32249,7 +32265,7 @@ var TLccMessage = {
       Self.FMTI = 488;
    }
    /// procedure TLccMessage.LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean)
-   ///  [line: 2257, column: 23, file: lcc_node_messages]
+   ///  [line: 2260, column: 23, file: lcc_node_messages]
    ,LoadTractionManageReply:function(Self, ASourceID, ASourceAlias, ADestID, ADestAlias, Accepted) {
       TLccMessage.ZeroFields(Self);
       Self.FSourceID = ASourceID.slice(0);
@@ -32785,7 +32801,7 @@ function EqualEventID(EventID1, EventID2) {
    return EventID1[0] == EventID2[0] && EventID1[1] == EventID2[1] && EventID1[2] == EventID2[2] && EventID1[3] == EventID2[3] && EventID1[4] == EventID2[4] && EventID1[5] == EventID2[5] && EventID1[6] == EventID2[6] && EventID1[7] == EventID2[7];
 };
 /// TLccNode = class (TObject)
-///  [line: 321, column: 3, file: lcc_node]
+///  [line: 324, column: 3, file: lcc_node]
 var TLccNode = {
    $ClassName:"TLccNode",$Parent:TObject
    ,$Init:function ($) {
@@ -32799,7 +32815,7 @@ var TLccNode = {
       $.F_100msTimer = null;
    }
    /// procedure TLccNode.AutoGenerateEvents()
-   ///  [line: 992, column: 20, file: lcc_node]
+   ///  [line: 999, column: 20, file: lcc_node]
    ,AutoGenerateEvents:function(Self) {
       var i$7 = 0,
          TempEventID = {v:[0,0,0,0,0,0,0,0]};
@@ -32822,7 +32838,7 @@ var TLccNode = {
       }
    }
    /// procedure TLccNode.BeforeLogin()
-   ///  [line: 1019, column: 20, file: lcc_node]
+   ///  [line: 1026, column: 20, file: lcc_node]
    ,BeforeLogin:function(Self) {
       Self.FProtocolSupportedProtocols.FConfigurationDefinitionInfo = true;
       Self.FProtocolSupportedProtocols.FDatagram = true;
@@ -32860,7 +32876,7 @@ var TLccNode = {
       TLccEventAutoGenerate.SetStartIndex(Self.FProtocolEventsProduced.FAutoGenerate,0);
    }
    /// constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean)
-   ///  [line: 918, column: 22, file: lcc_node]
+   ///  [line: 925, column: 22, file: lcc_node]
    ,Create$200:function(Self, ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink) {
       var i$7 = 0,
          Counter = 0;
@@ -32915,14 +32931,14 @@ var TLccNode = {
       return Self
    }
    /// procedure TLccNode.CreateNodeID(var Seed: TNodeID)
-   ///  [line: 1622, column: 20, file: lcc_node]
+   ///  [line: 1629, column: 20, file: lcc_node]
    ,CreateNodeID:function(Self, Seed) {
       Seed.v[1] = 131346;
       Seed.v[0] = RandomInt(16777215);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[17](Self);
    }
    /// destructor TLccNode.Destroy()
-   ///  [line: 1633, column: 21, file: lcc_node]
+   ///  [line: 1640, column: 21, file: lcc_node]
    ,Destroy:function(Self) {
       TW3Timer.SetEnabled(Self.F_100msTimer,false);
       Self.FAliasID = 0;
@@ -32958,7 +32974,7 @@ var TLccNode = {
       TObject.Destroy(Self);
    }
    /// function TLccNode.FindCdiElement(TestXML: String; Element: String; var Offset: Integer; var ALength: Integer) : Boolean
-   ///  [line: 1673, column: 19, file: lcc_node]
+   ///  [line: 1680, column: 19, file: lcc_node]
    ,FindCdiElement:function(Self, TestXML, Element$2, Offset$5, ALength) {
       var Result = false;
       var OffsetEnd = 0;
@@ -32984,12 +33000,12 @@ var TLccNode = {
       return Result
    }
    /// function TLccNode.GenerateID_Alias_From_Seed(var Seed: TNodeID) : Word
-   ///  [line: 1580, column: 19, file: lcc_node]
+   ///  [line: 1587, column: 19, file: lcc_node]
    ,GenerateID_Alias_From_Seed:function(Self, Seed) {
       return (((Seed.v[0]^Seed.v[1])^(Seed.v[0]>>>12))^(Seed.v[1]>>>12))&4095;
    }
    /// procedure TLccNode.GenerateNewSeed(var Seed: TNodeID)
-   ///  [line: 1585, column: 20, file: lcc_node]
+   ///  [line: 1592, column: 20, file: lcc_node]
    ,GenerateNewSeed:function(Self, Seed) {
       var temp1 = 0,
          temp2 = 0;
@@ -33001,17 +33017,17 @@ var TLccNode = {
       Seed.v[0] = Seed.v[0]&16777215;
    }
    /// function TLccNode.GetAliasIDStr() : String
-   ///  [line: 859, column: 19, file: lcc_node]
+   ///  [line: 866, column: 19, file: lcc_node]
    ,GetAliasIDStr:function(Self) {
       return "0x" + IntToHex(Self.FAliasID,4);
    }
    /// function TLccNode.GetCdiFile() : String
-   ///  [line: 1698, column: 19, file: lcc_node]
+   ///  [line: 1705, column: 19, file: lcc_node]
    ,GetCdiFile:function(Self) {
       return "<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>TC1000<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>";
    }
    /// function TLccNode.GetNodeIDStr() : String
-   ///  [line: 852, column: 19, file: lcc_node]
+   ///  [line: 859, column: 19, file: lcc_node]
    ,GetNodeIDStr:function(Self) {
       var Result = "";
       Result = IntToHex(Self.FNodeID$1[1],6);
@@ -33020,7 +33036,7 @@ var TLccNode = {
       return Result
    }
    /// function TLccNode.LoadManufacturerDataStream(ACdi: String) : Boolean
-   ///  [line: 864, column: 19, file: lcc_node]
+   ///  [line: 871, column: 19, file: lcc_node]
    ,LoadManufacturerDataStream:function(Self, ACdi) {
       var Result = false;
       var AnOffset = { v : 0 },
@@ -33092,7 +33108,7 @@ var TLccNode = {
       return Result
    }
    /// procedure TLccNode.Login(ANodeID: TNodeID)
-   ///  [line: 1703, column: 20, file: lcc_node]
+   ///  [line: 1710, column: 20, file: lcc_node]
    ,Login:function(Self, ANodeID) {
       ANodeID = { v : ANodeID };
       var Temp$1 = {v:[0,0]};
@@ -33121,7 +33137,7 @@ var TLccNode = {
       }
    }
    /// procedure TLccNode.LogInLCC(ANodeID: TNodeID)
-   ///  [line: 1061, column: 20, file: lcc_node]
+   ///  [line: 1068, column: 20, file: lcc_node]
    ,LogInLCC:function(Self, ANodeID) {
       ANodeID = { v : ANodeID };
       TLccNode.BeforeLogin$(Self);
@@ -33137,7 +33153,7 @@ var TLccNode = {
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[12](Self);
    }
    /// procedure TLccNode.Logout()
-   ///  [line: 1733, column: 20, file: lcc_node]
+   ///  [line: 1740, column: 20, file: lcc_node]
    ,Logout:function(Self) {
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[13](Self);
       if (Self.FGridConnect$1) {
@@ -33151,7 +33167,7 @@ var TLccNode = {
       TDatagramQueue.Clear$34(Self.FDatagramResendQueue);
    }
    /// procedure TLccNode.On_100msTimer(Sender: TObject)
-   ///  [line: 1749, column: 20, file: lcc_node]
+   ///  [line: 1756, column: 20, file: lcc_node]
    ,On_100msTimer:function(Self, Sender) {
       var Temp$1 = {v:[0,0]};
       if (Self.FGridConnect$1) {
@@ -33194,7 +33210,7 @@ var TLccNode = {
       }
    }
    /// function TLccNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1801, column: 19, file: lcc_node]
+   ///  [line: 1808, column: 19, file: lcc_node]
    ,ProcessMessage$1:function(Self, SourceMessage) {
       var Result = false;
       if (Self.FGridConnect$1) {
@@ -33205,7 +33221,7 @@ var TLccNode = {
       return Result
    }
    /// function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1517, column: 19, file: lcc_node]
+   ///  [line: 1524, column: 19, file: lcc_node]
    ,ProcessMessageGridConnect:function(Self, SourceMessage) {
       var Result = false;
       var TestNodeID = {v:[0,0]};
@@ -33250,7 +33266,7 @@ var TLccNode = {
       return Result
    }
    /// function TLccNode.ProcessMessageLCC(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1075, column: 19, file: lcc_node]
+   ///  [line: 1082, column: 19, file: lcc_node]
    ,ProcessMessageLCC:function(Self, SourceMessage) {
       var Result = false;
       var TestNodeID = {v:[0,0]},
@@ -33580,7 +33596,7 @@ break;
       return Result
    }
    /// procedure TLccNode.Relogin()
-   ///  [line: 1600, column: 20, file: lcc_node]
+   ///  [line: 1607, column: 20, file: lcc_node]
    ,Relogin:function(Self) {
       var Temp$1 = {v:[0,0]};
       Temp$1.v = Self.FSeedNodeID.slice(0);
@@ -33599,7 +33615,7 @@ break;
       TW3Timer.SetEnabled(Self.F_100msTimer,true);
    }
    /// procedure TLccNode.SendConsumedEvents()
-   ///  [line: 1818, column: 20, file: lcc_node]
+   ///  [line: 1825, column: 20, file: lcc_node]
    ,SendConsumedEvents:function(Self) {
       var i$7 = 0,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
@@ -33611,7 +33627,7 @@ break;
       }
    }
    /// procedure TLccNode.SendConsumerIdentify(var Event: TEventID)
-   ///  [line: 1831, column: 20, file: lcc_node]
+   ///  [line: 1838, column: 20, file: lcc_node]
    ,SendConsumerIdentify:function(Self, Event$3) {
       var EventObj = null,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
@@ -33623,19 +33639,19 @@ break;
       }
    }
    /// procedure TLccNode.SendDatagramAckReply(SourceMessage: TLccMessage; ReplyPending: Boolean; TimeOutValueN: Byte)
-   ///  [line: 1809, column: 20, file: lcc_node]
+   ///  [line: 1816, column: 20, file: lcc_node]
    ,SendDatagramAckReply:function(Self, SourceMessage, ReplyPending, TimeOutValueN) {
       TLccMessage.LoadDatagramAck(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,true,ReplyPending,TimeOutValueN);
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessageDatagram);
    }
    /// procedure TLccNode.SendDatagramRejectedReply(SourceMessage: TLccMessage; Reason: Word)
-   ///  [line: 1845, column: 20, file: lcc_node]
+   ///  [line: 1852, column: 20, file: lcc_node]
    ,SendDatagramRejectedReply:function(Self, SourceMessage, Reason) {
       TLccMessage.LoadDatagramRejected(Self.FWorkerMessageDatagram,Self.FNodeID$1.slice(0),Self.FAliasID,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,Reason);
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessageDatagram);
    }
    /// procedure TLccNode.SendDatagramRequiredReply(SourceMessage: TLccMessage; ReplyLccMessage: TLccMessage)
-   ///  [line: 1853, column: 20, file: lcc_node]
+   ///  [line: 1860, column: 20, file: lcc_node]
    ,SendDatagramRequiredReply:function(Self, SourceMessage, ReplyLccMessage) {
       if (TDatagramQueue.Add$24(Self.FDatagramResendQueue,TLccMessage.Clone$2(ReplyLccMessage))) {
          TLccNode.SendDatagramAckReply(Self,SourceMessage,false,0);
@@ -33645,20 +33661,20 @@ break;
       }
    }
    /// procedure TLccNode.SendEvents()
-   ///  [line: 1863, column: 20, file: lcc_node]
+   ///  [line: 1870, column: 20, file: lcc_node]
    ,SendEvents:function(Self) {
       TLccNode.SendConsumedEvents(Self);
       TLccNode.SendProducedEvents(Self);
    }
    /// procedure TLccNode.SendInitializeComplete()
-   ///  [line: 1869, column: 20, file: lcc_node]
+   ///  [line: 1876, column: 20, file: lcc_node]
    ,SendInitializeComplete:function(Self) {
       TLccMessage.LoadInitializationComplete(Self.FWorkerMessage$2,Self.FNodeID$1.slice(0),Self.FAliasID);
       Self.FSendMessageFunc$1(Self,Self.FWorkerMessage$2);
       $AsIntf(Self.FNodeManager,"INodeManagerCallbacks")[16](Self);
    }
    /// procedure TLccNode.SendProducedEvents()
-   ///  [line: 1876, column: 20, file: lcc_node]
+   ///  [line: 1883, column: 20, file: lcc_node]
    ,SendProducedEvents:function(Self) {
       var i$7 = 0,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
@@ -33670,7 +33686,7 @@ break;
       }
    }
    /// procedure TLccNode.SendProducerIdentify(var Event: TEventID)
-   ///  [line: 1889, column: 20, file: lcc_node]
+   ///  [line: 1896, column: 20, file: lcc_node]
    ,SendProducerIdentify:function(Self, Event$3) {
       var EventObj = null,
          Temp$1 = {v:[0,0,0,0,0,0,0,0]};
@@ -33696,23 +33712,23 @@ var TLccActionTrainList = {
       $.FTrainList = null;
    }
    /// procedure TLccActionTrainList.Add(ATrain: TLccActionTrainInfo)
-   ///  [line: 543, column: 31, file: lcc_node]
+   ///  [line: 548, column: 31, file: lcc_node]
    ,Add$21:function(Self, ATrain) {
       TObjectList.Add$1(Self.FTrainList,ATrain);
    }
    /// procedure TLccActionTrainList.Clear()
-   ///  [line: 568, column: 31, file: lcc_node]
+   ///  [line: 573, column: 31, file: lcc_node]
    ,Clear$31:function(Self) {
       TObjectList.Clear$8(Self.FTrainList);
    }
    /// constructor TLccActionTrainList.Create()
-   ///  [line: 517, column: 33, file: lcc_node]
+   ///  [line: 522, column: 33, file: lcc_node]
    ,Create$203:function(Self) {
       Self.FTrainList = TObjectList.Create$127($New(TObjectList));
       return Self
    }
    /// function TLccActionTrainList.CreateNew(ANodeID: TNodeID; AnAliasID: Word) : TLccActionTrainInfo
-   ///  [line: 535, column: 30, file: lcc_node]
+   ///  [line: 540, column: 30, file: lcc_node]
    ,CreateNew:function(Self, ANodeID, AnAliasID) {
       var Result = null;
       Result = TObject.Create($New(TLccActionTrainInfo));
@@ -33722,23 +33738,23 @@ var TLccActionTrainList = {
       return Result
    }
    /// destructor TLccActionTrainList.Destroy()
-   ///  [line: 529, column: 32, file: lcc_node]
+   ///  [line: 534, column: 32, file: lcc_node]
    ,Destroy:function(Self) {
       FreeAndNil(Self.FTrainList);
       TObject.Destroy(Self);
    }
    /// function TLccActionTrainList.GetCount() : Integer
-   ///  [line: 507, column: 30, file: lcc_node]
+   ///  [line: 512, column: 30, file: lcc_node]
    ,GetCount$8:function(Self) {
       return TObjectList.GetCount$1(Self.FTrainList);
    }
    /// function TLccActionTrainList.GetTrains(Index: Integer) : TLccActionTrainInfo
-   ///  [line: 502, column: 30, file: lcc_node]
+   ///  [line: 507, column: 30, file: lcc_node]
    ,GetTrains:function(Self, Index$6) {
       return $As(TObjectList.GetItem$14(Self.FTrainList,Index$6),TLccActionTrainInfo);
    }
    /// function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word) : TLccActionTrainInfo
-   ///  [line: 593, column: 30, file: lcc_node]
+   ///  [line: 598, column: 30, file: lcc_node]
    ,MatchingNodeAndSearchCriteria:function(Self, TestNodeID, TestAliasID) {
       var Result = null;
       var i$7 = 0,
@@ -33756,7 +33772,7 @@ var TLccActionTrainList = {
       return Result
    }
    /// procedure TLccActionTrainList.Remove(ATrain: TLccActionTrainInfo)
-   ///  [line: 553, column: 31, file: lcc_node]
+   ///  [line: 558, column: 31, file: lcc_node]
    ,Remove$10:function(Self, ATrain) {
       var i$7 = 0;
       i$7 = TObjectList.IndexOf$1(Self.FTrainList,ATrain);
@@ -33765,7 +33781,7 @@ var TLccActionTrainList = {
       }
    }
    /// procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccActionTrainInfo)
-   ///  [line: 512, column: 31, file: lcc_node]
+   ///  [line: 517, column: 31, file: lcc_node]
    ,SetTrains:function(Self, Index$6, AValue) {
       TObjectList.SetItem$5(Self.FTrainList,Index$6,AValue);
    }
@@ -33785,7 +33801,7 @@ var TLccActionTrainInfo = {
       $.FSNIP_Version = 0;
    }
    /// function TLccActionTrainInfo.Clone() : TLccActionTrainInfo
-   ///  [line: 467, column: 30, file: lcc_node]
+   ///  [line: 470, column: 30, file: lcc_node]
    ,Clone$3:function(Self) {
       var Result = null;
       Result = TObject.Create($New(TLccActionTrainInfo));
@@ -33814,7 +33830,7 @@ var TLccAction = {
    ,$Init:function ($) {
       TObject.$Init($);
       $.FActionHub = $.FOnCompleteCallback = $.FOwner$5 = $.FSendMessage = $.FWorkerMessage$3 = null;
-      $.FActionStateIndex = $.FTimeoutCounts = $.FTimeoutCountThreshold = 0;
+      $.FActionStateIndex = $.FTimeoutCounts = $.FTimeoutCountThreshold = $.FUniqueID = 0;
       $.FDestAliasID = 0;
       $.FDestNodeID = [0,0];
       $.FErrorCode$1 = 0;
@@ -33824,7 +33840,7 @@ var TLccAction = {
       $.FStates = [];
    }
    /// function TLccAction.AdvanceToNextState(JumpCount: Integer = 1) : Integer
-   ///  [line: 629, column: 21, file: lcc_node]
+   ///  [line: 636, column: 21, file: lcc_node]
    ,AdvanceToNextState:function(Self, JumpCount) {
       var Result = 0;
       (Self.FActionStateIndex+= JumpCount);
@@ -33832,16 +33848,17 @@ var TLccAction = {
       return Result
    }
    /// procedure TLccAction.CompleteCallback(SourceAction: TLccAction)
-   ///  [line: 635, column: 22, file: lcc_node]
+   ///  [line: 642, column: 22, file: lcc_node]
    ,CompleteCallback:function(Self, SourceAction) {
       if (SourceAction) {
          Self.FOnCompleteCallback = $Event1(Self,TLccAction.CompleteCallback$);
       }
    }
-   /// constructor TLccAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word)
-   ///  [line: 614, column: 24, file: lcc_node]
-   ,Create$202:function(Self, AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID) {
+   /// constructor TLccAction.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer)
+   ///  [line: 619, column: 24, file: lcc_node]
+   ,Create$202:function(Self, AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID) {
       ++ActionObjectsAllocated;
+      Self.FUniqueID = AnUniqueID;
       Self.FOwner$5 = AnOwner;
       Self.FWorkerMessage$3 = TLccMessage.Create$197($New(TLccMessage));
       Self.FSourceNodeID = ASourceNodeID.slice(0);
@@ -33854,21 +33871,21 @@ var TLccAction = {
       return Self
    }
    /// destructor TLccAction.Destroy()
-   ///  [line: 641, column: 23, file: lcc_node]
+   ///  [line: 648, column: 23, file: lcc_node]
    ,Destroy:function(Self) {
       --ActionObjectsAllocated;
       TObject.Free(Self.FWorkerMessage$3);
       TObject.Destroy(Self);
    }
    /// procedure TLccAction.LoadStateArray()
-   ///  [line: 674, column: 22, file: lcc_node]
+   ///  [line: 681, column: 22, file: lcc_node]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,2);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
       Self.FStates[1]=$Event2(Self,TLccAction._NFinalStateCleanup);
    }
    /// function TLccAction.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 681, column: 21, file: lcc_node]
+   ///  [line: 688, column: 21, file: lcc_node]
    ,ProcessMessage$3:function(Self, SourceMessage) {
       var Result = false;
       Result = false;
@@ -33878,17 +33895,17 @@ var TLccAction = {
       return Result
    }
    /// procedure TLccAction.RegisterCallBack(AnLccAction: TLccAction)
-   ///  [line: 689, column: 22, file: lcc_node]
+   ///  [line: 696, column: 22, file: lcc_node]
    ,RegisterCallBack:function(Self, AnLccAction) {
       Self.FOnCompleteCallback = $Event1(AnLccAction,TLccAction.CompleteCallback$);
    }
    /// procedure TLccAction.SetStateArrayLength(NewLength: Integer)
-   ///  [line: 699, column: 22, file: lcc_node]
+   ///  [line: 706, column: 22, file: lcc_node]
    ,SetStateArrayLength:function(Self, NewLength) {
       $ArraySetLenC(Self.FStates,NewLength,function (){return null});
    }
    /// procedure TLccAction.SetTimoutCountThreshold(NewThreshold_ms: Integer; ResetCounter: Boolean = True)
-   ///  [line: 708, column: 22, file: lcc_node]
+   ///  [line: 715, column: 22, file: lcc_node]
    ,SetTimoutCountThreshold:function(Self, NewThreshold_ms, ResetCounter) {
       Self.FTimeoutCountThreshold = Trunc(NewThreshold_ms / 100)+1;
       if (ResetCounter) {
@@ -33896,12 +33913,12 @@ var TLccAction = {
       }
    }
    /// function TLccAction.TimeoutExpired() : Boolean
-   ///  [line: 730, column: 21, file: lcc_node]
+   ///  [line: 737, column: 21, file: lcc_node]
    ,TimeoutExpired:function(Self) {
       return Self.FTimeoutCounts > Self.FTimeoutCountThreshold;
    }
    /// procedure TLccAction.TimeTick()
-   ///  [line: 715, column: 22, file: lcc_node]
+   ///  [line: 722, column: 22, file: lcc_node]
    ,TimeTick:function(Self) {
       if (!(Self.FIgnoreTimer)) {
          ++Self.FTimeoutCounts;
@@ -33909,14 +33926,14 @@ var TLccAction = {
       }
    }
    /// procedure TLccAction.UnRegisterSelf()
-   ///  [line: 724, column: 22, file: lcc_node]
+   ///  [line: 731, column: 22, file: lcc_node]
    ,UnRegisterSelf:function(Self) {
       if (Self.FActionHub) {
          TLccActionHub.UnregisterActionAndMarkForFree(Self.FActionHub,Self);
       }
    }
    /// function TLccAction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 658, column: 21, file: lcc_node]
+   ///  [line: 665, column: 21, file: lcc_node]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
@@ -33924,7 +33941,7 @@ var TLccAction = {
       return Result
    }
    /// function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 664, column: 21, file: lcc_node]
+   ///  [line: 671, column: 21, file: lcc_node]
    ,_NFinalStateCleanup:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
@@ -33943,22 +33960,22 @@ var TLccAction = {
    ,_0ReceiveFirstMessage$:function($){return $.ClassType._0ReceiveFirstMessage.apply($.ClassType, arguments)}
 };
 /// TLccActionTrain = class (TLccAction)
-///  [line: 267, column: 3, file: lcc_node]
+///  [line: 270, column: 3, file: lcc_node]
 var TLccActionTrain = {
    $ClassName:"TLccActionTrain",$Parent:TLccAction
    ,$Init:function ($) {
       TLccAction.$Init($);
       $.FTrains = null;
    }
-   /// constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word)
-   ///  [line: 488, column: 29, file: lcc_node]
-   ,Create$202:function(Self, AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID) {
-      TLccAction.Create$202(Self,AnOwner,ASourceNodeID.slice(0),ASourceAliasID,ADestNodeID.slice(0),ADestAliasID);
+   /// constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer)
+   ///  [line: 491, column: 29, file: lcc_node]
+   ,Create$202:function(Self, AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID) {
+      TLccAction.Create$202(Self,AnOwner,ASourceNodeID.slice(0),ASourceAliasID,ADestNodeID.slice(0),ADestAliasID,AnUniqueID);
       Self.FTrains = TLccActionTrainList.Create$203($New(TLccActionTrainList));
       return Self
    }
    /// destructor TLccActionTrain.Destroy()
-   ///  [line: 494, column: 28, file: lcc_node]
+   ///  [line: 499, column: 28, file: lcc_node]
    ,Destroy:function(Self) {
       FreeAndNil(Self.FTrains);
       TLccAction.Destroy(Self);
@@ -33970,7 +33987,7 @@ var TLccActionTrain = {
    ,_0ReceiveFirstMessage:TLccAction._0ReceiveFirstMessage
 };
 /// TLccActionHub = class (TObject)
-///  [line: 280, column: 3, file: lcc_node]
+///  [line: 283, column: 3, file: lcc_node]
 var TLccActionHub = {
    $ClassName:"TLccActionHub",$Parent:TObject
    ,$Init:function ($) {
@@ -33978,7 +33995,7 @@ var TLccActionHub = {
       $.FActionInSendMessage = $.FLccActiveActions = $.FLccCompletedActions = $.FOwner$6 = $.FSendMessageFunc$2 = $.FWorkerMessage$4 = null;
    }
    /// procedure TLccActionHub.ClearCompletedActions()
-   ///  [line: 769, column: 25, file: lcc_node]
+   ///  [line: 776, column: 25, file: lcc_node]
    ,ClearCompletedActions:function(Self) {
       var i$7 = 0;
       try {
@@ -33991,7 +34008,7 @@ var TLccActionHub = {
       }
    }
    /// constructor TLccActionHub.Create(AnOwner: TLccNode; ASendMessageFunc: TOnMessageEvent)
-   ///  [line: 737, column: 27, file: lcc_node]
+   ///  [line: 744, column: 27, file: lcc_node]
    ,Create$205:function(Self, AnOwner, ASendMessageFunc) {
       Self.FLccActiveActions = TObjectList.Create$127($New(TObjectList));
       Self.FLccCompletedActions = TObjectList.Create$127($New(TObjectList));
@@ -34009,7 +34026,7 @@ var TLccActionHub = {
       TObject.Free(Self.FWorkerMessage$4);
    }
    /// function TLccActionHub.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 796, column: 24, file: lcc_node]
+   ///  [line: 803, column: 24, file: lcc_node]
    ,ProcessMessage$4:function(Self, SourceMessage) {
       var Result = false;
       var i$7 = 0;
@@ -34027,7 +34044,7 @@ var TLccActionHub = {
       return Result
    }
    /// function TLccActionHub.RegisterAndKickOffAction(AnAction: TLccAction; KickOffMessage: TLccMessage) : Boolean
-   ///  [line: 816, column: 24, file: lcc_node]
+   ///  [line: 823, column: 24, file: lcc_node]
    ,RegisterAndKickOffAction:function(Self, AnAction, KickOffMessage) {
       var Result = false;
       AnAction.FActionHub = Self;
@@ -34036,7 +34053,7 @@ var TLccActionHub = {
       return Result
    }
    /// procedure TLccActionHub.TimeTick()
-   ///  [line: 823, column: 25, file: lcc_node]
+   ///  [line: 830, column: 25, file: lcc_node]
    ,TimeTick$1:function(Self) {
       var i$7 = 0;
       for(i$7=TObjectList.GetCount$1(Self.FLccActiveActions)-1;i$7>=0;i$7--) {
@@ -34045,7 +34062,7 @@ var TLccActionHub = {
       TLccActionHub.ClearCompletedActions(Self);
    }
    /// procedure TLccActionHub.UnregisterActionAndMarkForFree(AnAction: TLccAction)
-   ///  [line: 832, column: 25, file: lcc_node]
+   ///  [line: 839, column: 25, file: lcc_node]
    ,UnregisterActionAndMarkForFree:function(Self, AnAction) {
       var i$7 = 0;
       i$7 = TObjectList.IndexOf$1(Self.FLccActiveActions,AnAction);
@@ -34887,7 +34904,7 @@ var TListenerNode = {
       $.FNodeID = [0,0];
    }
    /// procedure TListenerNode.DecodeFlags(Flags: Byte)
-   ///  [line: 524, column: 25, file: lcc_node_train]
+   ///  [line: 517, column: 25, file: lcc_node_train]
    ,DecodeFlags:function(Self, Flags$4) {
       Self.FReverseDirection = (Flags$4&2) == 2;
       Self.FLinkF0 = (Flags$4&4) == 4;
@@ -34895,7 +34912,7 @@ var TListenerNode = {
       Self.FHidden$1 = (Flags$4&16) == 16;
    }
    /// function TListenerNode.EncodeFlags() : Byte
-   ///  [line: 532, column: 24, file: lcc_node_train]
+   ///  [line: 525, column: 24, file: lcc_node_train]
    ,EncodeFlags:function(Self) {
       var Result = 0;
       Result = 0;
@@ -34924,7 +34941,7 @@ var TListenerList = {
       $.FListenerList = null;
    }
    /// function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word = 0) : TListenerNode
-   ///  [line: 556, column: 24, file: lcc_node_train]
+   ///  [line: 549, column: 24, file: lcc_node_train]
    ,Add$20:function(Self, NodeID$6, Flags$4, AliasID$4) {
       var Result = null;
       AliasID$4 = AliasID$4;
@@ -34934,14 +34951,14 @@ var TListenerList = {
       return Result
    }
    /// constructor TListenerList.Create()
-   ///  [line: 543, column: 27, file: lcc_node_train]
+   ///  [line: 536, column: 27, file: lcc_node_train]
    ,Create$199:function(Self) {
       TObject.Create(Self);
       Self.FListenerList = TObjectList.Create$127($New(TObjectList));
       return Self
    }
    /// function TListenerList.Delete(NodeID: TNodeID) : Boolean
-   ///  [line: 564, column: 24, file: lcc_node_train]
+   ///  [line: 557, column: 24, file: lcc_node_train]
    ,Delete$8:function(Self, NodeID$6) {
       var Result = false;
       var Index$6 = 0;
@@ -34954,13 +34971,13 @@ var TListenerList = {
       return Result
    }
    /// destructor TListenerList.Destroy()
-   ///  [line: 581, column: 26, file: lcc_node_train]
+   ///  [line: 574, column: 26, file: lcc_node_train]
    ,Destroy:function(Self) {
       TObject.Free(Self.FListenerList);
       TObject.Destroy(Self);
    }
    /// function TListenerList.FindByIndex(Index: Byte) : TListenerNode
-   ///  [line: 607, column: 24, file: lcc_node_train]
+   ///  [line: 600, column: 24, file: lcc_node_train]
    ,FindByIndex:function(Self, Index$6) {
       var Result = null;
       if (Index$6 < TListenerList.GetCount$7(Self)) {
@@ -34971,7 +34988,7 @@ var TListenerList = {
       return Result
    }
    /// function TListenerList.FindNode(NodeID: TNodeID) : TListenerNode
-   ///  [line: 591, column: 24, file: lcc_node_train]
+   ///  [line: 584, column: 24, file: lcc_node_train]
    ,FindNode:function(Self, NodeID$6) {
       var Result = null;
       var i$7 = 0,
@@ -34988,7 +35005,7 @@ var TListenerList = {
       return Result
    }
    /// function TListenerList.FindNodeIndex(NodeID: TNodeID) : Integer
-   ///  [line: 615, column: 24, file: lcc_node_train]
+   ///  [line: 608, column: 24, file: lcc_node_train]
    ,FindNodeIndex:function(Self, NodeID$6) {
       var Result = 0;
       var i$7 = 0,
@@ -35005,31 +35022,34 @@ var TListenerList = {
       return Result
    }
    /// function TListenerList.GetCount() : Integer
-   ///  [line: 632, column: 24, file: lcc_node_train]
+   ///  [line: 625, column: 24, file: lcc_node_train]
    ,GetCount$7:function(Self) {
       return TObjectList.GetCount$1(Self.FListenerList);
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
-/// TLccTrainNode = class (TLccNode)
+/// TLccTrainDirection enumeration
+///  [line: 309, column: 3, file: lcc_node_train]
+var TLccTrainDirection = [ "tdForward", "tdReverse" ];
+/// TLccTrainDccNode = class (TLccNode)
 ///  [line: 372, column: 3, file: lcc_node_train]
-var TLccTrainNode = {
-   $ClassName:"TLccTrainNode",$Parent:TLccNode
+var TLccTrainDccNode = {
+   $ClassName:"TLccTrainDccNode",$Parent:TLccNode
    ,$Init:function ($) {
       TLccNode.$Init($);
       $.FAttachedController = {NodeID$3:[0,0],AliasID$1:0,ReservationNodeID:[0,0],ReservationAliasID:0,AttatchNotifyNodeID:[0,0],AttachNotifyAliasID:0};
       $.FDccAddress = 0;
       $.FDccLongAddress = false;
+      $.FDccSpeedStep = 0;
       $.FFunctions = function () {
          for (var r=[],i=0; i<29; i++) r.push(0);
          return r
       }();
       $.FListeners = $.FOnSendMessageComPort = null;
       $.FSpeed = 0;
-      $.FSpeedStep = 0;
    }
-   /// procedure TLccTrainNode.BeforeLogin()
-   ///  [line: 1089, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.BeforeLogin()
+   ///  [line: 1082, column: 28, file: lcc_node_train]
    ,BeforeLogin:function(Self) {
       Self.FProtocolSupportedProtocols.FConfigurationDefinitionInfo = true;
       Self.FProtocolSupportedProtocols.FDatagram = true;
@@ -35063,8 +35083,8 @@ var TLccTrainNode = {
       Self.FProtocolMemoryOptions.FHighSpace = 255;
       Self.FProtocolMemoryOptions.FLowSpace = 249;
    }
-   /// procedure TLccTrainNode.ClearAttachedController()
-   ///  [line: 1312, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.ClearAttachedController()
+   ///  [line: 1305, column: 28, file: lcc_node_train]
    ,ClearAttachedController:function(Self) {
       Self.FAttachedController.NodeID$3 = NULL_NODE_ID.slice(0);
       Self.FAttachedController.AliasID$1 = 0;
@@ -35073,25 +35093,25 @@ var TLccTrainNode = {
       Self.FAttachedController.AttatchNotifyNodeID = NULL_NODE_ID.slice(0);
       Self.FAttachedController.AttachNotifyAliasID = 0;
    }
-   /// function TLccTrainNode.ControllerAssigned() : Boolean
-   ///  [line: 1322, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.ControllerAssigned() : Boolean
+   ///  [line: 1315, column: 27, file: lcc_node_train]
    ,ControllerAssigned:function(Self) {
       return (Self.FAttachedController.NodeID$3[0]!=0) && (Self.FAttachedController.NodeID$3[1]!=0) || (Self.FAttachedController.AliasID$1!=0);
    }
-   /// function TLccTrainNode.ControllerEquals(ATestNodeID: TNodeID; ATestNodeAlias: Word) : Boolean
-   ///  [line: 1327, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.ControllerEquals(ATestNodeID: TNodeID; ATestNodeAlias: Word) : Boolean
+   ///  [line: 1320, column: 27, file: lcc_node_train]
    ,ControllerEquals:function(Self, ATestNodeID, ATestNodeAlias) {
       return Self.FAttachedController.NodeID$3[0] == ATestNodeID[0] && Self.FAttachedController.NodeID$3[1] == ATestNodeID[1] || Self.FAttachedController.AliasID$1 == ATestNodeAlias;
    }
-   /// constructor TLccTrainNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean)
-   ///  [line: 1083, column: 27, file: lcc_node_train]
+   /// constructor TLccTrainDccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: String; GridConnectLink: Boolean)
+   ///  [line: 1076, column: 30, file: lcc_node_train]
    ,Create$200:function(Self, ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink) {
       TLccNode.Create$200(Self,ASendMessageFunc,ANodeManager,CdiXML,GridConnectLink);
       Self.FListeners = TListenerList.Create$199($New(TListenerList));
       return Self
    }
-   /// function TLccTrainNode.DccFunctionHandler(DccAddress: Word; LongAddress: Boolean; FunctionAddress: DWord; AllDccFunctionBitsEncoded: DWord) : TDCCPacket
-   ///  [line: 1157, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.DccFunctionHandler(DccAddress: Word; LongAddress: Boolean; FunctionAddress: DWord; AllDccFunctionBitsEncoded: DWord) : TDCCPacket
+   ///  [line: 1150, column: 27, file: lcc_node_train]
    ,DccFunctionHandler:function(Self, DccAddress$1, LongAddress$1, FunctionAddress, AllDccFunctionBitsEncoded) {
       var Result = {PacketBytes:[0,0,0,0,0],Flags:0};
       var FunctionMask = 0,
@@ -35129,19 +35149,19 @@ var TLccTrainNode = {
       }
       if ((AddressHi&192) == 192) {
          if (FunctionAddress < 13) {
-            TLccTrainNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,FunctionMask,0,0,3);
+            TLccTrainDccNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,FunctionMask,0,0,3);
          } else {
-            TLccTrainNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,FunctionExtendedCode,FunctionMask,0,4);
+            TLccTrainDccNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,FunctionExtendedCode,FunctionMask,0,4);
          }
       } else if (FunctionAddress < 13) {
-         TLccTrainNode.DccLoadPacket(Self,Result,AddressLo,FunctionMask,0,0,0,2);
+         TLccTrainDccNode.DccLoadPacket(Self,Result,AddressLo,FunctionMask,0,0,0,2);
       } else {
-         TLccTrainNode.DccLoadPacket(Self,Result,AddressLo,FunctionExtendedCode,FunctionMask,0,0,3);
+         TLccTrainDccNode.DccLoadPacket(Self,Result,AddressLo,FunctionExtendedCode,FunctionMask,0,0,3);
       }
       return Result
    }
-   /// procedure TLccTrainNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1: Byte; Data2: Byte; Data3: Byte; Data4: Byte; Data5: Byte; ValidDataByes: Byte)
-   ///  [line: 1301, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.DccLoadPacket(var NewMessage: TDCCPacket; Data1: Byte; Data2: Byte; Data3: Byte; Data4: Byte; Data5: Byte; ValidDataByes: Byte)
+   ///  [line: 1294, column: 28, file: lcc_node_train]
    ,DccLoadPacket:function(Self, NewMessage, Data1, Data2, Data3, Data4, Data5, ValidDataByes) {
       NewMessage.PacketBytes[0] = Data1;
       NewMessage.PacketBytes[1] = Data2;
@@ -35150,9 +35170,9 @@ var TLccTrainNode = {
       NewMessage.PacketBytes[4] = Data5;
       NewMessage.Flags = ValidDataByes;
    }
-   /// function TLccTrainNode.DccSpeedDirHandler(DccAddress: Word; LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep) : TDCCPacket
-   ///  [line: 1221, column: 24, file: lcc_node_train]
-   ,DccSpeedDirHandler:function(Self, DccAddress$1, LongAddress$1, SpeedDir, DccSpeedStep) {
+   /// function TLccTrainDccNode.DccSpeedDirHandler(DccAddress: Word; LongAddress: Boolean; SpeedDir: THalfFloat; DccSpeedStep: TLccDccSpeedStep) : TDCCPacket
+   ///  [line: 1214, column: 27, file: lcc_node_train]
+   ,DccSpeedDirHandler:function(Self, DccAddress$1, LongAddress$1, SpeedDir, DccSpeedStep$1) {
       var Result = {PacketBytes:[0,0,0,0,0],Flags:0};
       var IsForward = false,
          AbsoluteSpeed = 0,
@@ -35167,7 +35187,7 @@ var TLccTrainNode = {
       }
       AddressHi = Hi(DccAddress$1);
       AddressLo = Lo(DccAddress$1);
-      switch (DccSpeedStep) {
+      switch (DccSpeedStep$1) {
          case 0 :
          case 1 :
             AbsoluteSpeed = 0.14 * AbsoluteSpeed;
@@ -35179,9 +35199,9 @@ var TLccTrainNode = {
                LocalSpeedStep = LocalSpeedStep|64;
             }
             if ((AddressHi&192) == 192) {
-               TLccTrainNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,LocalSpeedStep,0,0,3);
+               TLccTrainDccNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,LocalSpeedStep,0,0,3);
             } else {
-               TLccTrainNode.DccLoadPacket(Self,Result,AddressLo,LocalSpeedStep,0,0,0,2);
+               TLccTrainDccNode.DccLoadPacket(Self,Result,AddressLo,LocalSpeedStep,0,0,0,2);
             }
             break;
          case 2 :
@@ -35194,9 +35214,9 @@ var TLccTrainNode = {
                LocalSpeedStep = LocalSpeedStep|64;
             }
             if ((AddressHi&192) == 192) {
-               TLccTrainNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,LocalSpeedStep,0,0,3);
+               TLccTrainDccNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,LocalSpeedStep,0,0,3);
             } else {
-               TLccTrainNode.DccLoadPacket(Self,Result,AddressLo,LocalSpeedStep,0,0,0,2);
+               TLccTrainDccNode.DccLoadPacket(Self,Result,AddressLo,LocalSpeedStep,0,0,0,2);
             }
             break;
          case 3 :
@@ -35209,33 +35229,33 @@ var TLccTrainNode = {
             if (IsForward) {
                LocalSpeedStep = LocalSpeedStep|128;
             }
-            TLccTrainNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,63,LocalSpeedStep,0,4);
+            TLccTrainDccNode.DccLoadPacket(Self,Result,AddressHi,AddressLo,63,LocalSpeedStep,0,4);
             break;
       }
       return Result
    }
-   /// destructor TLccTrainNode.Destroy()
-   ///  [line: 1291, column: 26, file: lcc_node_train]
+   /// destructor TLccTrainDccNode.Destroy()
+   ///  [line: 1284, column: 29, file: lcc_node_train]
    ,Destroy:function(Self) {
       TObject.Free(Self.FListeners);
       TLccNode.Destroy(Self);
    }
-   /// procedure TLccTrainNode.DoSendMessageComPort(GridConnectString: String)
-   ///  [line: 1151, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.DoSendMessageComPort(GridConnectString: String)
+   ///  [line: 1144, column: 28, file: lcc_node_train]
    ,DoSendMessageComPort:function(Self, GridConnectString) {
       GridConnectString = { v : GridConnectString };
       if (Self.FOnSendMessageComPort) {
          Self.FOnSendMessageComPort(Self,GridConnectString);
       }
    }
-   /// function TLccTrainNode.EncodeFunctionValuesDccStyle() : DWord
-   ///  [line: 1127, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.EncodeFunctionValuesDccStyle() : DWord
+   ///  [line: 1120, column: 27, file: lcc_node_train]
    ,EncodeFunctionValuesDccStyle:function(Self) {
       var Result = 0;
       var i$7 = 0;
       Result = 0;
       for(i$7=28;i$7>=0;i$7--) {
-         if (TLccTrainNode.GetFunctions(Self,i$7) > 0) {
+         if (TLccTrainDccNode.GetFunctions(Self,i$7) > 0) {
             Result = Result|1;
          }
          if (i$7 > 0) {
@@ -35244,8 +35264,8 @@ var TLccTrainNode = {
       }
       return Result
    }
-   /// function TLccTrainNode.EncodeToDccGridConnect(DccPacket: TDCCPacket) : String
-   ///  [line: 1141, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.EncodeToDccGridConnect(DccPacket: TDCCPacket) : String
+   ///  [line: 1134, column: 27, file: lcc_node_train]
    ,EncodeToDccGridConnect:function(Self, DccPacket) {
       var Result = "";
       var i$7 = 0;
@@ -35257,13 +35277,13 @@ var TLccTrainNode = {
       Result = Result + ";";
       return Result
    }
-   /// function TLccTrainNode.GetCdiFile() : String
-   ///  [line: 1333, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.GetCdiFile() : String
+   ///  [line: 1326, column: 27, file: lcc_node_train]
    ,GetCdiFile:function(Self) {
       return "<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>VTN1000<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>";
    }
-   /// function TLccTrainNode.GetFunctions(Index: Integer) : Word
-   ///  [line: 1346, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.GetFunctions(Index: Integer) : Word
+   ///  [line: 1339, column: 27, file: lcc_node_train]
    ,GetFunctions:function(Self, Index$6) {
       var Result = 0;
       if (Index$6 >= 0 && Index$6 < 29) {
@@ -35273,13 +35293,13 @@ var TLccTrainNode = {
       }
       return Result
    }
-   /// function TLccTrainNode.IsReservedBy(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1359, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.IsReservedBy(SourceMessage: TLccMessage) : Boolean
+   ///  [line: 1352, column: 27, file: lcc_node_train]
    ,IsReservedBy:function(Self, SourceMessage) {
       return EqualNode(SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,Self.FAttachedController.ReservationNodeID.slice(0),Self.FAttachedController.ReservationAliasID,true);
    }
-   /// function TLccTrainNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1371, column: 24, file: lcc_node_train]
+   /// function TLccTrainDccNode.ProcessMessage(SourceMessage: TLccMessage) : Boolean
+   ///  [line: 1357, column: 27, file: lcc_node_train]
    ,ProcessMessage$1:function(Self, SourceMessage) {
       var Result = false;
       Result = TLccNode.ProcessMessage$1(Self,SourceMessage);
@@ -35292,44 +35312,44 @@ var TLccTrainNode = {
          case 1512 :
             switch (SourceMessage.FDataArray[0]) {
                case 0 :
-                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionSetSpeed),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionSetSpeed),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                   break;
                case 1 :
-                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionSetFunction),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionSetFunction),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                   break;
                case 2 :
-                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionEmergencyStop),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),null);
+                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionEmergencyStop),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),null);
                   break;
                case 16 :
-                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQuerySpeedReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),null);
+                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQuerySpeedReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),null);
                   break;
                case 17 :
-                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryFunctionReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                  Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryFunctionReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                   break;
                case 32 :
                   switch (SourceMessage.FDataArray[1]) {
                      case 1 :
-                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionControllerAssignReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionControllerAssignReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                         break;
                      case 2 :
-                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionControllerRelease),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),null);
+                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionControllerRelease),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),null);
                         break;
                      case 3 :
-                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryController),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),null);
+                        Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryController),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),null);
                         break;
                   }
                   break;
                case 48 :
-                  if (TLccTrainNode.IsReservedBy(Self,SourceMessage)) {
+                  if (TLccTrainDccNode.IsReservedBy(Self,SourceMessage)) {
                      switch (SourceMessage.FDataArray[1]) {
                         case 1 :
-                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionListenerAttachReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),null);
+                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionListenerAttachReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),null);
                            break;
                         case 2 :
-                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionListenerDetachReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionListenerDetachReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                            break;
                         case 3 :
-                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryListenerReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias),SourceMessage);
+                           Result = TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionQueryListenerReply),Self,SourceMessage.FDestID.slice(0),SourceMessage.FCAN.FDestAlias,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias,0),SourceMessage);
                            break;
                      }
                   }
@@ -35350,36 +35370,44 @@ break;
       }
       return Result
    }
-   /// procedure TLccTrainNode.SetDccAddress(AValue: Word)
-   ///  [line: 1427, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.SetDccAddress(AValue: Word)
+   ///  [line: 1415, column: 28, file: lcc_node_train]
    ,SetDccAddress:function(Self, AValue) {
       if (Self.FDccAddress == AValue) {
          return;
       }
       Self.FDccAddress = AValue;
    }
-   /// procedure TLccTrainNode.SetDccLongAddress(AValue: Boolean)
-   ///  [line: 1433, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.SetDccLongAddress(AValue: Boolean)
+   ///  [line: 1421, column: 28, file: lcc_node_train]
    ,SetDccLongAddress:function(Self, AValue) {
       if (Self.FDccLongAddress == AValue) {
          return;
       }
       Self.FDccLongAddress = AValue;
    }
-   /// procedure TLccTrainNode.SetFunctions(Index: Integer; AValue: Word)
-   ///  [line: 1447, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.SetDccSpeedStep(AValue: TLccDccSpeedStep)
+   ///  [line: 1473, column: 28, file: lcc_node_train]
+   ,SetDccSpeedStep:function(Self, AValue) {
+      if (Self.FDccSpeedStep == AValue) {
+         return;
+      }
+      Self.FDccSpeedStep = AValue;
+   }
+   /// procedure TLccTrainDccNode.SetFunctions(Index: Integer; AValue: Word)
+   ///  [line: 1435, column: 28, file: lcc_node_train]
    ,SetFunctions:function(Self, Index$6, AValue) {
       var DccPacket = {PacketBytes:[0,0,0,0,0],Flags:0},
          DccGridConnect = "";
       if (Index$6 >= 0 && Index$6 < 29) {
          Self.FFunctions[Index$6] = AValue;
-         DccPacket = TLccTrainNode.DccFunctionHandler(Self,Self.FDccAddress,Self.FDccLongAddress,Index$6,TLccTrainNode.EncodeFunctionValuesDccStyle(Self));
-         DccGridConnect = TLccTrainNode.EncodeToDccGridConnect(Self,Clone$TDCCPacket(DccPacket));
-         TLccTrainNode.DoSendMessageComPort(Self,DccGridConnect);
+         DccPacket = TLccTrainDccNode.DccFunctionHandler(Self,Self.FDccAddress,Self.FDccLongAddress,Index$6,TLccTrainDccNode.EncodeFunctionValuesDccStyle(Self));
+         DccGridConnect = TLccTrainDccNode.EncodeToDccGridConnect(Self,Clone$TDCCPacket(DccPacket));
+         TLccTrainDccNode.DoSendMessageComPort(Self,DccGridConnect);
       }
    }
-   /// procedure TLccTrainNode.SetSpeed(AValue: THalfFloat)
-   ///  [line: 1473, column: 25, file: lcc_node_train]
+   /// procedure TLccTrainDccNode.SetSpeed(AValue: THalfFloat)
+   ///  [line: 1461, column: 28, file: lcc_node_train]
    ,SetSpeed:function(Self, AValue) {
       var DccPacket = {PacketBytes:[0,0,0,0,0],Flags:0},
          DccGridConnect = "";
@@ -35387,17 +35415,9 @@ break;
          return;
       }
       Self.FSpeed = AValue;
-      DccPacket = TLccTrainNode.DccSpeedDirHandler(Self,Self.FDccAddress,Self.FDccLongAddress,Self.FSpeed,Self.FSpeedStep);
-      DccGridConnect = TLccTrainNode.EncodeToDccGridConnect(Self,Clone$TDCCPacket(DccPacket));
-      TLccTrainNode.DoSendMessageComPort(Self,DccGridConnect);
-   }
-   /// procedure TLccTrainNode.SetSpeedStep(AValue: TLccDccSpeedStep)
-   ///  [line: 1485, column: 25, file: lcc_node_train]
-   ,SetSpeedStep:function(Self, AValue) {
-      if (Self.FSpeedStep == AValue) {
-         return;
-      }
-      Self.FSpeedStep = AValue;
+      DccPacket = TLccTrainDccNode.DccSpeedDirHandler(Self,Self.FDccAddress,Self.FDccLongAddress,Self.FSpeed,Self.FDccSpeedStep);
+      DccGridConnect = TLccTrainDccNode.EncodeToDccGridConnect(Self,Clone$TDCCPacket(DccPacket));
+      TLccTrainDccNode.DoSendMessageComPort(Self,DccGridConnect);
    }
    ,Destroy$:function($){return $.ClassType.Destroy($)}
    ,BeforeLogin$:function($){return $.ClassType.BeforeLogin($)}
@@ -35405,9 +35425,6 @@ break;
    ,GetCdiFile$:function($){return $.ClassType.GetCdiFile($)}
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
 };
-/// TLccTrainDirection enumeration
-///  [line: 309, column: 3, file: lcc_node_train]
-var TLccTrainDirection = [ "tdForward", "tdReverse" ];
 /// TLccActionTractionSetSpeed = class (TLccAction)
 ///  [line: 261, column: 4, file: lcc_node_train]
 var TLccActionTractionSetSpeed = {
@@ -35416,15 +35433,15 @@ var TLccActionTractionSetSpeed = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionSetSpeed._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 876, column: 37, file: lcc_node_train]
+   ///  [line: 869, column: 37, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
-      if (TLccTrainNode.ControllerAssigned(OwnerTrain)) {
-         if (TLccTrainNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
-            TLccTrainNode.SetSpeed(OwnerTrain,TLccMessage.TractionExtractSetSpeed(SourceMessage));
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
+      if (TLccTrainDccNode.ControllerAssigned(OwnerTrain)) {
+         if (TLccTrainDccNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
+            TLccTrainDccNode.SetSpeed(OwnerTrain,TLccMessage.TractionExtractSetSpeed(SourceMessage));
          }
       }
       TLccAction.AdvanceToNextState(Self,1);
@@ -35444,17 +35461,17 @@ var TLccActionTractionSetFunction = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionSetFunction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 857, column: 40, file: lcc_node_train]
+   ///  [line: 850, column: 40, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null,
          FunctionAddress = 0;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
-      if (TLccTrainNode.ControllerAssigned(OwnerTrain)) {
-         if (TLccTrainNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
+      if (TLccTrainDccNode.ControllerAssigned(OwnerTrain)) {
+         if (TLccTrainDccNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
             FunctionAddress = TLccMessage.TractionExtractFunctionAddress(SourceMessage);
-            TLccTrainNode.SetFunctions(OwnerTrain,FunctionAddress,TLccMessage.TractionExtractFunctionValue(SourceMessage));
+            TLccTrainDccNode.SetFunctions(OwnerTrain,FunctionAddress,TLccMessage.TractionExtractFunctionValue(SourceMessage));
          }
       }
       TLccAction.AdvanceToNextState(Self,1);
@@ -35474,12 +35491,12 @@ var TLccActionTractionQuerySpeedReply = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionQuerySpeedReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 905, column: 44, file: lcc_node_train]
+   ///  [line: 898, column: 44, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
       TLccMessage.LoadTractionQuerySpeedReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,OwnerTrain.FSpeed,0,65535,65535);
       Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.AdvanceToNextState(Self,1);
@@ -35499,23 +35516,23 @@ var TLccActionTractionQueryListenerReply = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionQueryListenerReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 645, column: 47, file: lcc_node_train]
+   ///  [line: 638, column: 47, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null,
          Listener$1 = null,
          RequestedIndex = 0;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
       if (SourceMessage.FDataCount == 2) {
-         TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0,false);
+         TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0);
       } else {
          RequestedIndex = SourceMessage.FDataArray[2];
          if (RequestedIndex < TListenerList.GetCount$7(OwnerTrain.FListeners)) {
             Listener$1 = TListenerList.FindByIndex(OwnerTrain.FListeners,RequestedIndex);
-            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),RequestedIndex,Listener$1.FNodeID.slice(0),TListenerNode.EncodeFlags(Listener$1),false);
+            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),RequestedIndex,Listener$1.FNodeID.slice(0),TListenerNode.EncodeFlags(Listener$1));
          } else {
-            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0,true);
+            TLccMessage.LoadTractionListenerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,TListenerList.GetCount$7(OwnerTrain.FListeners),0,NULL_NODE_ID.slice(0),0);
          }
       }
       Self.FSendMessage(Self,Self.FWorkerMessage$3);
@@ -35536,13 +35553,13 @@ var TLccActionTractionQueryFunctionReply = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionQueryFunctionReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 891, column: 47, file: lcc_node_train]
+   ///  [line: 884, column: 47, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var FunctionAddress = 0;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
       FunctionAddress = TLccMessage.TractionExtractFunctionAddress(SourceMessage);
-      TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,FunctionAddress,TLccTrainNode.GetFunctions($As(Self.FOwner$5,TLccTrainNode),FunctionAddress));
+      TLccMessage.LoadTractionQueryFunctionReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,FunctionAddress,TLccTrainDccNode.GetFunctions($As(Self.FOwner$5,TLccTrainDccNode),FunctionAddress));
       Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
@@ -35561,12 +35578,12 @@ var TLccActionTractionQueryController = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionQueryController._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 813, column: 44, file: lcc_node_train]
+   ///  [line: 806, column: 44, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var AttachedController$1 = {NodeID$3:[0,0],AliasID$1:0,ReservationNodeID:[0,0],ReservationAliasID:0,AttatchNotifyNodeID:[0,0],AttachNotifyAliasID:0};
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      Copy$TAttachedController($As(Self.FOwner$5,TLccTrainNode).FAttachedController,AttachedController$1);
+      Copy$TAttachedController($As(Self.FOwner$5,TLccTrainDccNode).FAttachedController,AttachedController$1);
       if ((AttachedController$1.NodeID$3[0]==0) && (AttachedController$1.NodeID$3[1]==0) && (AttachedController$1.AliasID$1==0)) {
          TLccMessage.LoadTractionControllerQueryReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,NULL_NODE_ID.slice(0));
       } else {
@@ -35590,14 +35607,14 @@ var TLccActionTractionListenerDetachReply = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionListenerDetachReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 671, column: 48, file: lcc_node_train]
+   ///  [line: 664, column: 48, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null,
          ReplyCode = 0,
          ListenerNodeID$3 = {v:[0,0]};
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
       ListenerNodeID$3.v = NULL_NODE_ID.slice(0);
       TLccMessage.ExtractDataBytesAsNodeID(SourceMessage,3,ListenerNodeID$3);
       if (TListenerList.Delete$8(OwnerTrain.FListeners,ListenerNodeID$3.v.slice(0))) {
@@ -35627,7 +35644,7 @@ var TLccActionTractionListenerAttachReply = {
       $.FListenerNodeID = [0,0];
    }
    /// procedure TLccActionTractionListenerAttachReply.LoadStateArray()
-   ///  [line: 802, column: 49, file: lcc_node_train]
+   ///  [line: 795, column: 49, file: lcc_node_train]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,4);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -35636,7 +35653,7 @@ var TLccActionTractionListenerAttachReply = {
       Self.FStates[3]=$Event2(Self,TLccAction._NFinalStateCleanup);
    }
    /// function TLccActionTractionListenerAttachReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 695, column: 48, file: lcc_node_train]
+   ///  [line: 688, column: 48, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var TempNodeID = {v:[0,0]};
@@ -35654,7 +35671,7 @@ var TLccActionTractionListenerAttachReply = {
       return Result
    }
    /// function TLccActionTractionListenerAttachReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 715, column: 48, file: lcc_node_train]
+   ///  [line: 708, column: 48, file: lcc_node_train]
    ,_1WaitForNodeVerified:function(Self, Sender, SourceMessage) {
       var Result = false;
       var TempNodeID = {v:[0,0]};
@@ -35682,7 +35699,7 @@ var TLccActionTractionListenerAttachReply = {
       return Result
    }
    /// function TLccActionTractionListenerAttachReply._2AttachListener(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 753, column: 48, file: lcc_node_train]
+   ///  [line: 746, column: 48, file: lcc_node_train]
    ,_2AttachListener:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null,
@@ -35690,7 +35707,7 @@ var TLccActionTractionListenerAttachReply = {
          ReplyCode = 0;
       Result = false;
       ReplyCode = 0;
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
       if (EqualNodeID(Self.FSourceNodeID.slice(0),Self.FListenerNodeID.slice(0),false)) {
          ReplyCode = 4224;
       }
@@ -35731,13 +35748,13 @@ var TLccActionTractionEmergencyStop = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionEmergencyStop._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 844, column: 42, file: lcc_node_train]
+   ///  [line: 837, column: 42, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
-      TLccTrainNode.SetSpeed(OwnerTrain,0);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
+      TLccTrainDccNode.SetSpeed(OwnerTrain,0);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
@@ -35755,14 +35772,14 @@ var TLccActionTractionControllerRelease = {
       TLccAction.$Init($);
    }
    /// function TLccActionTractionControllerRelease._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 830, column: 46, file: lcc_node_train]
+   ///  [line: 823, column: 46, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
-      if (TLccTrainNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
-         TLccTrainNode.ClearAttachedController(OwnerTrain);
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
+      if (TLccTrainDccNode.ControllerEquals(OwnerTrain,Self.FDestNodeID.slice(0),Self.FDestAliasID)) {
+         TLccTrainDccNode.ClearAttachedController(OwnerTrain);
       }
       TLccAction.AdvanceToNextState(Self,1);
       return Result
@@ -35779,12 +35796,12 @@ var TLccActionTractionControllerAssignReply = {
    $ClassName:"TLccActionTractionControllerAssignReply",$Parent:TLccAction
    ,$Init:function ($) {
       TLccAction.$Init($);
-      $.FAssignResult$1 = 0;
+      $.FAssignResult = 0;
       $.FRequestingControllerAliasID$1 = 0;
       $.FRequestingControllerNodeID$1 = [0,0];
    }
    /// procedure TLccActionTractionControllerAssignReply.LoadStateArray()
-   ///  [line: 919, column: 51, file: lcc_node_train]
+   ///  [line: 912, column: 51, file: lcc_node_train]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,6);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -35795,7 +35812,7 @@ var TLccActionTractionControllerAssignReply = {
       Self.FStates[5]=$Event2(Self,TLccAction._NFinalStateCleanup);
    }
    /// function TLccActionTractionControllerAssignReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 930, column: 50, file: lcc_node_train]
+   ///  [line: 923, column: 50, file: lcc_node_train]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var LocalRequestingControllerAlias = {v:[0,0]};
@@ -35826,7 +35843,7 @@ switch (SourceMessage.FDataArray[1]) {
       return Result
    }
    /// function TLccActionTractionControllerAssignReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 967, column: 50, file: lcc_node_train]
+   ///  [line: 960, column: 50, file: lcc_node_train]
    ,_1WaitForNodeVerified$1:function(Self, Sender, SourceMessage) {
       var Result = false;
       var TempNodeID = {v:[0,0]};
@@ -35854,29 +35871,29 @@ switch (SourceMessage.FDataArray[1]) {
       return Result
    }
    /// function TLccActionTractionControllerAssignReply._2TestForAnotherControllerAssigned(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1004, column: 50, file: lcc_node_train]
+   ///  [line: 997, column: 50, file: lcc_node_train]
    ,_2TestForAnotherControllerAssigned:function(Self, Sender, SourceMessage) {
       var Result = false;
       var OwnerTrain = null;
       Result = false;
-      OwnerTrain = $As(Self.FOwner$5,TLccTrainNode);
-      if (TLccTrainNode.ControllerAssigned(OwnerTrain) && (!(TLccTrainNode.ControllerEquals(OwnerTrain,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1)))) {
+      OwnerTrain = $As(Self.FOwner$5,TLccTrainDccNode);
+      if (TLccTrainDccNode.ControllerAssigned(OwnerTrain) && (!(TLccTrainDccNode.ControllerEquals(OwnerTrain,Self.FRequestingControllerNodeID$1.slice(0),Self.FRequestingControllerAliasID$1)))) {
          TLccMessage.LoadTractionControllerChangingNotify(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,OwnerTrain.FAttachedController.NodeID$3.slice(0),OwnerTrain.FAttachedController.AliasID$1,Self.FRequestingControllerNodeID$1.slice(0));
          Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
          TLccAction.SetTimoutCountThreshold(Self,5000,true);
-         Self.FAssignResult$1 = 255;
+         Self.FAssignResult = 255;
       } else {
-         Self.FAssignResult$1 = 0;
+         Self.FAssignResult = 0;
       }
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
    /// function TLccActionTractionControllerAssignReply._3WaitForChangeNotify(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1025, column: 50, file: lcc_node_train]
+   ///  [line: 1018, column: 50, file: lcc_node_train]
    ,_3WaitForChangeNotify:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
-      if (Self.FAssignResult$1 == 255) {
+      if (Self.FAssignResult == 255) {
          if (SourceMessage) {
             switch (SourceMessage.FMTI) {
                case 488 :
@@ -35884,7 +35901,7 @@ switch (SourceMessage.FDataArray[1]) {
                      case 32 :
                         switch (SourceMessage.FDataArray[1]) {
                            case 4 :
-                              Self.FAssignResult$1 = SourceMessage.FDataArray[2];
+                              Self.FAssignResult = SourceMessage.FDataArray[2];
                               TLccAction.AdvanceToNextState(Self,1);
                               break;
                         }
@@ -35894,26 +35911,26 @@ switch (SourceMessage.FDataArray[1]) {
             }
          }
          if (TLccAction.TimeoutExpired(Self)) {
-            Self.FAssignResult$1 = 0;
+            Self.FAssignResult = 0;
             TLccAction.AdvanceToNextState(Self,1);
          }
       } else {
-         Self.FAssignResult$1 = 0;
+         Self.FAssignResult = 0;
          TLccAction.AdvanceToNextState(Self,1);
       }
       return Result
    }
    /// function TLccActionTractionControllerAssignReply._4SendAssignReply(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1065, column: 50, file: lcc_node_train]
+   ///  [line: 1058, column: 50, file: lcc_node_train]
    ,_4SendAssignReply:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = false;
-      if (!Self.FAssignResult$1) {
-         TLccTrainNode.ClearAttachedController($As(Self.FOwner$5,TLccTrainNode));
-         $As(Self.FOwner$5,TLccTrainNode).FAttachedController.NodeID$3 = Self.FRequestingControllerNodeID$1.slice(0);
-         $As(Self.FOwner$5,TLccTrainNode).FAttachedController.AliasID$1 = Self.FRequestingControllerAliasID$1;
+      if (!Self.FAssignResult) {
+         TLccTrainDccNode.ClearAttachedController($As(Self.FOwner$5,TLccTrainDccNode));
+         $As(Self.FOwner$5,TLccTrainDccNode).FAttachedController.NodeID$3 = Self.FRequestingControllerNodeID$1.slice(0);
+         $As(Self.FOwner$5,TLccTrainDccNode).FAttachedController.AliasID$1 = Self.FRequestingControllerAliasID$1;
       }
-      TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,Self.FAssignResult$1);
+      TLccMessage.LoadTractionControllerAssignReply(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FDestNodeID.slice(0),Self.FDestAliasID,Self.FAssignResult);
       Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
@@ -35961,7 +35978,7 @@ function Clone$TAttachedController($) {
 var _28_STEP_TABLE = [0,2,18,3,19,4,20,5,21,6,22,7,23,8,24,9,25,10,26,11,27,12,28,13,29,14,30,15,15],
     _14_STEP_TABLE = [0,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 /// TLccTrainController = class (TLccNode)
-///  [line: 295, column: 3, file: lcc_node_controller]
+///  [line: 316, column: 3, file: lcc_node_controller]
 var TLccTrainController = {
    $ClassName:"TLccTrainController",$Parent:TLccNode
    ,$Init:function ($) {
@@ -35979,14 +35996,14 @@ var TLccTrainController = {
       $.FOnTrainReleased = null;
       $.FSpeed$1 = 0;
    }
-   /// procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep)
-   ///  [line: 1371, column: 31, file: lcc_node_controller]
-   ,AssignTrainByDccAddress:function(Self, DccAddress$1, IsLongAddress, SpeedSteps) {
-      TLccTrainController.AssignTrainByDccTrain(Self,DccAddress$1.toString(),IsLongAddress,SpeedSteps);
+   /// procedure TLccTrainController.AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0)
+   ///  [line: 1541, column: 31, file: lcc_node_controller]
+   ,AssignTrainByDccAddress:function(Self, DccAddress$1, IsLongAddress, SpeedSteps, UniqueID$1) {
+      TLccTrainController.AssignTrainByDccTrain(Self,DccAddress$1.toString(),IsLongAddress,SpeedSteps,0);
    }
-   /// procedure TLccTrainController.AssignTrainByDccTrain(SearchString: String; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep)
-   ///  [line: 1376, column: 31, file: lcc_node_controller]
-   ,AssignTrainByDccTrain:function(Self, SearchString$1, IsLongAddress, SpeedSteps) {
+   /// procedure TLccTrainController.AssignTrainByDccTrain(SearchString: String; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0)
+   ///  [line: 1547, column: 31, file: lcc_node_controller]
+   ,AssignTrainByDccTrain:function(Self, SearchString$1, IsLongAddress, SpeedSteps, UniqueID$1) {
       var TrackProtocolFlags = 0;
       TrackProtocolFlags = 232;
       if (IsLongAddress) {
@@ -36008,11 +36025,11 @@ var TLccTrainController = {
             TrackProtocolFlags = TrackProtocolFlags|3;
             break;
       }
-      TLccTrainController.AssignTrainByOpenLCB(Self,SearchString$1,TrackProtocolFlags);
+      TLccTrainController.AssignTrainByOpenLCB(Self,SearchString$1,TrackProtocolFlags,0);
    }
-   /// procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: String; TrackProtocolFlags: Word)
-   ///  [line: 1103, column: 31, file: lcc_node_controller]
-   ,AssignTrainByOpenLCB:function(Self, SearchString$1, TrackProtocolFlags) {
+   /// procedure TLccTrainController.AssignTrainByOpenLCB(SearchString: String; TrackProtocolFlags: Word; UniqueID: Integer = 0)
+   ///  [line: 1265, column: 31, file: lcc_node_controller]
+   ,AssignTrainByOpenLCB:function(Self, SearchString$1, TrackProtocolFlags, UniqueID$1) {
       var LocalSearchCriteria = { v : 0 },
          LccAssignTrainAction = null;
       TLccTrainController.ClearAssignedTrain(Self);
@@ -36021,12 +36038,12 @@ var TLccTrainController = {
       LocalSearchCriteria.v = 0;
       TLccMessage.TractionSearchEncodeSearchString(Self.FWorkerMessage$2.ClassType,SearchString$1,TrackProtocolFlags,LocalSearchCriteria);
       Self.FAssignedTrain.RequestedSearchData = LocalSearchCriteria.v;
-      LccAssignTrainAction = TLccAction.Create$202$($New(TLccActionSearchAndAssignTrain),Self,Self.FNodeID$1.slice(0),Self.FAliasID,NULL_NODE_ID.slice(0),0);
-      LccAssignTrainAction.FSearchCriteria$3 = LocalSearchCriteria.v;
+      LccAssignTrainAction = TLccAction.Create$202$($New(TLccActionSearchAndAssignTrain),Self,Self.FNodeID$1.slice(0),Self.FAliasID,NULL_NODE_ID.slice(0),0,UniqueID$1);
+      LccAssignTrainAction.FSearchCriteria$2 = LocalSearchCriteria.v;
       TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,LccAssignTrainAction,null);
    }
    /// procedure TLccTrainController.BeforeLogin()
-   ///  [line: 1399, column: 31, file: lcc_node_controller]
+   ///  [line: 1571, column: 31, file: lcc_node_controller]
    ,BeforeLogin:function(Self) {
       Self.FProtocolSupportedProtocols.FConfigurationDefinitionInfo = true;
       Self.FProtocolSupportedProtocols.FDatagram = true;
@@ -36055,7 +36072,7 @@ var TLccTrainController = {
       Self.FProtocolMemoryOptions.FLowSpace = 249;
    }
    /// procedure TLccTrainController.ClearAssignedTrain()
-   ///  [line: 1467, column: 31, file: lcc_node_controller]
+   ///  [line: 1639, column: 31, file: lcc_node_controller]
    ,ClearAssignedTrain:function(Self) {
       Self.FAssignedTrain.SearchString = "";
       Self.FAssignedTrain.Listeners$1 = [];
@@ -36067,47 +36084,47 @@ var TLccTrainController = {
       Self.FAssignedTrain.Listeners$1 = [];
    }
    /// procedure TLccTrainController.DoControllerTakeOver(var Allow: Boolean)
-   ///  [line: 1479, column: 31, file: lcc_node_controller]
+   ///  [line: 1651, column: 31, file: lcc_node_controller]
    ,DoControllerTakeOver:function(Self, Allow) {
       if (Self.FOnControllerRequestTakeover) {
          Self.FOnControllerRequestTakeover(Self,Allow);
       }
    }
    /// procedure TLccTrainController.DoQueryFunctionReply(Address: DWord; Value: Word)
-   ///  [line: 1443, column: 31, file: lcc_node_controller]
+   ///  [line: 1615, column: 31, file: lcc_node_controller]
    ,DoQueryFunctionReply:function(Self, Address$2, Value$5) {
       if (Self.FOnQueryFunctionReply) {
          Self.FOnQueryFunctionReply(Self,Address$2,Value$5);
       }
    }
    /// procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer)
-   ///  [line: 1485, column: 31, file: lcc_node_controller]
+   ///  [line: 1657, column: 31, file: lcc_node_controller]
    ,DoSearchResult:function(Self, Sender, TrainList$1, SelectedResultIndex) {
       if (Self.FOnSearchResult) {
          Self.FOnSearchResult(Sender,TrainList$1,SelectedResultIndex);
       }
    }
    /// procedure TLccTrainController.DoTrainAssigned(Reason: TControllerTrainAssignResult)
-   ///  [line: 1431, column: 31, file: lcc_node_controller]
+   ///  [line: 1603, column: 31, file: lcc_node_controller]
    ,DoTrainAssigned:function(Self, Reason) {
       if (Self.FOnTrainAssigned) {
          Self.FOnTrainAssigned(Self,Reason);
       }
    }
    /// procedure TLccTrainController.DoTrainReleased()
-   ///  [line: 1437, column: 31, file: lcc_node_controller]
+   ///  [line: 1609, column: 31, file: lcc_node_controller]
    ,DoTrainReleased:function(Self) {
       if (Self.FOnTrainReleased) {
          Self.FOnTrainReleased(Self);
       }
    }
    /// function TLccTrainController.GetCdiFile() : String
-   ///  [line: 1521, column: 30, file: lcc_node_controller]
+   ///  [line: 1694, column: 30, file: lcc_node_controller]
    ,GetCdiFile:function(Self) {
       return "<?xml version=\"1.0\" encoding=\"utf-8\"?><?xml-stylesheet type=\"text\/xsl\" href=\"http:\/\/openlcb.org\/trunk\/prototypes\/xml\/xslt\/cdi.xsl\"?><cdi xmlns:xsi=\"http:\/\/www.w3.org\/2001\/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http:\/\/openlcb.org\/trunk\/specs\/schema\/cdi.xsd\"><identification><manufacturer>Mustangpeak<\/manufacturer><model>TCN1000<\/model><hardwareVersion>1.0.0.0<\/hardwareVersion><softwareVersion>1.0.0.0<\/softwareVersion><\/identification><segment origin=\"1\" space=\"253\"><name>User<\/name><description>User defined information<\/description><group><name>User Data<\/name><description>Add your own unique node info here<\/description><string size=\"63\"><name>User Name<\/name><\/string><string size=\"64\"><name>User Description<\/name><\/string><\/group><\/segment><\/cdi>";
    }
    /// function TLccTrainController.GetFunctions(Index: Integer) : Word
-   ///  [line: 1526, column: 30, file: lcc_node_controller]
+   ///  [line: 1699, column: 30, file: lcc_node_controller]
    ,GetFunctions$1:function(Self, Index$6) {
       var Result = 0;
       Result = 0;
@@ -36117,12 +36134,12 @@ var TLccTrainController = {
       return Result
    }
    /// function TLccTrainController.IsTrainAssigned() : Boolean
-   ///  [line: 1533, column: 30, file: lcc_node_controller]
+   ///  [line: 1706, column: 30, file: lcc_node_controller]
    ,IsTrainAssigned:function(Self) {
       return (Self.FAssignedTrain.NodeID$5[0]!=0) || (Self.FAssignedTrain.NodeID$5[1]!=0) || (Self.FAssignedTrain.AliasID$3!=0);
    }
    /// function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1200, column: 30, file: lcc_node_controller]
+   ///  [line: 1366, column: 30, file: lcc_node_controller]
    ,ProcessMessage$1:function(Self, SourceMessage) {
       var Result = false;
       var AllowTakeOver = { v : false };
@@ -36159,25 +36176,25 @@ var TLccTrainController = {
       }
       return Result
    }
-   /// procedure TLccTrainController.QueryFunction(Address: Word)
-   ///  [line: 1247, column: 31, file: lcc_node_controller]
-   ,QueryFunction:function(Self, Address$2) {
+   /// procedure TLccTrainController.QueryFunction(Address: Word; UniqueID: Integer = 0)
+   ///  [line: 1413, column: 31, file: lcc_node_controller]
+   ,QueryFunction:function(Self, Address$2, UniqueID$1) {
       var LccQueryFunctionAction = null;
       if (TLccTrainController.IsTrainAssigned(Self)) {
-         LccQueryFunctionAction = TLccAction.Create$202$($New(TLccActionTractionQueryFunction),Self,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$5.slice(0),Self.FAssignedTrain.AliasID$3);
+         LccQueryFunctionAction = TLccAction.Create$202$($New(TLccActionTractionQueryFunction),Self,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$5.slice(0),Self.FAssignedTrain.AliasID$3,UniqueID$1);
          LccQueryFunctionAction.FAddress = Address$2;
          TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,LccQueryFunctionAction,null);
       }
    }
-   /// procedure TLccTrainController.ReleaseTrain()
-   ///  [line: 1155, column: 31, file: lcc_node_controller]
-   ,ReleaseTrain:function(Self) {
+   /// procedure TLccTrainController.ReleaseTrain(UniqueID: Integer = 0)
+   ///  [line: 1321, column: 31, file: lcc_node_controller]
+   ,ReleaseTrain:function(Self, UniqueID$1) {
       if (TLccTrainController.IsTrainAssigned(Self)) {
-         TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionReleaseTrain),Self,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$5.slice(0),Self.FAssignedTrain.AliasID$3),null);
+         TLccActionHub.RegisterAndKickOffAction(Self.FLccActions,TLccAction.Create$202$($New(TLccActionTractionReleaseTrain),Self,Self.FNodeID$1.slice(0),Self.FAliasID,Self.FAssignedTrain.NodeID$5.slice(0),Self.FAssignedTrain.AliasID$3,UniqueID$1),null);
       }
    }
    /// procedure TLccTrainController.SetDirection(AValue: TLccTrainDirection)
-   ///  [line: 1161, column: 31, file: lcc_node_controller]
+   ///  [line: 1327, column: 31, file: lcc_node_controller]
    ,SetDirection$3:function(Self, AValue) {
       Self.FDirection$3 = AValue;
       if (TLccTrainController.IsTrainAssigned(Self)) {
@@ -36190,7 +36207,7 @@ var TLccTrainController = {
       }
    }
    /// procedure TLccTrainController.SetFunctions(Index: Integer; AValue: Word)
-   ///  [line: 1174, column: 31, file: lcc_node_controller]
+   ///  [line: 1340, column: 31, file: lcc_node_controller]
    ,SetFunctions$1:function(Self, Index$6, AValue) {
       if (Index$6 >= 0 && Index$6 <= 28) {
          Self.FFunctionArray[Index$6] = AValue;
@@ -36201,7 +36218,7 @@ var TLccTrainController = {
       }
    }
    /// procedure TLccTrainController.SetSpeed(AValue: Single)
-   ///  [line: 1187, column: 31, file: lcc_node_controller]
+   ///  [line: 1353, column: 31, file: lcc_node_controller]
    ,SetSpeed$1:function(Self, AValue) {
       Self.FSpeed$1 = Math.abs(AValue);
       if (TLccTrainController.IsTrainAssigned(Self)) {
@@ -36220,14 +36237,14 @@ var TLccTrainController = {
    ,ProcessMessage$1$:function($){return $.ClassType.ProcessMessage$1.apply($.ClassType, arguments)}
 };
 /// TLccActionTractionReleaseTrain = class (TLccActionTrain)
-///  [line: 185, column: 3, file: lcc_node_controller]
+///  [line: 189, column: 3, file: lcc_node_controller]
 var TLccActionTractionReleaseTrain = {
    $ClassName:"TLccActionTractionReleaseTrain",$Parent:TLccActionTrain
    ,$Init:function ($) {
       TLccActionTrain.$Init($);
    }
    /// function TLccActionTractionReleaseTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 865, column: 41, file: lcc_node_controller]
+   ///  [line: 1027, column: 41, file: lcc_node_controller]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var ControllerNode$1 = null;
@@ -36248,7 +36265,7 @@ var TLccActionTractionReleaseTrain = {
       return Result
    }
    /// procedure TLccActionTractionReleaseTrain.LoadStateArray()
-   ///  [line: 887, column: 42, file: lcc_node_controller]
+   ///  [line: 1049, column: 42, file: lcc_node_controller]
    ,LoadStateArray:function(Self) {
       TLccAction.LoadStateArray(Self);
    }
@@ -36259,7 +36276,7 @@ var TLccActionTractionReleaseTrain = {
    ,_0ReceiveFirstMessage$:function($){return $.ClassType._0ReceiveFirstMessage.apply($.ClassType, arguments)}
 };
 /// TLccActionTractionQueryFunction = class (TLccActionTrain)
-///  [line: 209, column: 3, file: lcc_node_controller]
+///  [line: 213, column: 3, file: lcc_node_controller]
 var TLccActionTractionQueryFunction = {
    $ClassName:"TLccActionTractionQueryFunction",$Parent:TLccActionTrain
    ,$Init:function ($) {
@@ -36267,7 +36284,7 @@ var TLccActionTractionQueryFunction = {
       $.FAddress = 0;
    }
    /// procedure TLccActionTractionQueryFunction.LoadStateArray()
-   ///  [line: 958, column: 43, file: lcc_node_controller]
+   ///  [line: 1120, column: 43, file: lcc_node_controller]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,3);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -36275,7 +36292,7 @@ var TLccActionTractionQueryFunction = {
       Self.FStates[2]=$Event2(Self,TLccAction._NFinalStateCleanup);
    }
    /// function TLccActionTractionQueryFunction._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 894, column: 42, file: lcc_node_controller]
+   ///  [line: 1056, column: 42, file: lcc_node_controller]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var ControllerNode$1 = null;
@@ -36292,7 +36309,7 @@ var TLccActionTractionQueryFunction = {
       return Result
    }
    /// function TLccActionTractionQueryFunction._1ActionWaitForQueryFunctionResults(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 913, column: 42, file: lcc_node_controller]
+   ///  [line: 1075, column: 42, file: lcc_node_controller]
    ,_1ActionWaitForQueryFunctionResults:function(Self, Sender, SourceMessage) {
       var Result = false;
       var ControllerNode$1 = null;
@@ -36334,26 +36351,26 @@ var TLccActionTractionQueryFunction = {
    ,_0ReceiveFirstMessage$:function($){return $.ClassType._0ReceiveFirstMessage.apply($.ClassType, arguments)}
 };
 /// TLccActionSearchGatherAndSelectTrain = class (TLccActionTrain)
-///  [line: 118, column: 3, file: lcc_node_controller]
+///  [line: 122, column: 3, file: lcc_node_controller]
 var TLccActionSearchGatherAndSelectTrain = {
    $ClassName:"TLccActionSearchGatherAndSelectTrain",$Parent:TLccActionTrain
    ,$Init:function ($) {
       TLccActionTrain.$Init($);
-      $.FSearchCriteria$2 = 0;
+      $.FSearchCriteria$1 = 0;
    }
    /// function TLccActionSearchGatherAndSelectTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 596, column: 47, file: lcc_node_controller]
+   ///  [line: 758, column: 47, file: lcc_node_controller]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      TLccMessage.LoadTractionSearch(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FSearchCriteria$2);
+      TLccMessage.LoadTractionSearch(Self.FWorkerMessage$3,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,Self.FSearchCriteria$1);
       Self.FSendMessage(Self.FOwner$5,Self.FWorkerMessage$3);
       TLccAction.SetTimoutCountThreshold(Self,2000,true);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
    /// function TLccActionSearchGatherAndSelectTrain._1ActionGatherSearchResults(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 608, column: 47, file: lcc_node_controller]
+   ///  [line: 770, column: 47, file: lcc_node_controller]
    ,_1ActionGatherSearchResults$1:function(Self, Sender, SourceMessage) {
       var Result = false;
       var TrainVersion = { v : 0 },
@@ -36370,7 +36387,7 @@ var TLccActionSearchGatherAndSelectTrain = {
             case 1349 :
             case 1348 :
             case 1351 :
-               if (TLccMessage.TractionSearchIsEvent(SourceMessage) && TLccMessage.TractionSearchExtractSearchData(SourceMessage) == Self.FSearchCriteria$2) {
+               if (TLccMessage.TractionSearchIsEvent(SourceMessage) && TLccMessage.TractionSearchExtractSearchData(SourceMessage) == Self.FSearchCriteria$1) {
                   LocalTrain = TLccActionTrainList.CreateNew(Self.FTrains,SourceMessage.FSourceID.slice(0),SourceMessage.FCAN.FSourceAlias);
                   if (LocalTrain) {
                      LocalTrain.FSearchCriteria = TLccMessage.TractionSearchExtractSearchData(SourceMessage);
@@ -36411,7 +36428,7 @@ var TLccActionSearchGatherAndSelectTrain = {
       return Result
    }
    /// function TLccActionSearchGatherAndSelectTrain._2ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 679, column: 47, file: lcc_node_controller]
+   ///  [line: 841, column: 47, file: lcc_node_controller]
    ,_2ActionReportSearchResults:function(Self, Sender, SourceMessage) {
       var Result = false;
       var ControllerNode$1 = null,
@@ -36445,7 +36462,7 @@ var TLccActionSearchGatherAndSelectTrain = {
       return Result
    }
    /// procedure TLccActionSearchGatherAndSelectTrain.LoadStateArray()
-   ///  [line: 719, column: 48, file: lcc_node_controller]
+   ///  [line: 881, column: 48, file: lcc_node_controller]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,4);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -36460,41 +36477,41 @@ var TLccActionSearchGatherAndSelectTrain = {
    ,_0ReceiveFirstMessage$:function($){return $.ClassType._0ReceiveFirstMessage.apply($.ClassType, arguments)}
 };
 /// TLccActionSearchAndAssignTrain = class (TLccActionTrain)
-///  [line: 170, column: 3, file: lcc_node_controller]
+///  [line: 174, column: 3, file: lcc_node_controller]
 var TLccActionSearchAndAssignTrain = {
    $ClassName:"TLccActionSearchAndAssignTrain",$Parent:TLccActionTrain
    ,$Init:function ($) {
       TLccActionTrain.$Init($);
-      $.FSearchCriteria$3 = 0;
+      $.FSearchCriteria$2 = 0;
    }
    /// function TLccActionSearchAndAssignTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1038, column: 41, file: lcc_node_controller]
+   ///  [line: 1200, column: 41, file: lcc_node_controller]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       var LocalAction = null;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
-      LocalAction = TLccAction.Create$202$($New(TLccActionSearchGatherAndSelectTrain),Self.FOwner$5,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,NULL_NODE_ID.slice(0),0);
+      LocalAction = TLccAction.Create$202$($New(TLccActionSearchGatherAndSelectTrain),Self.FOwner$5,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,NULL_NODE_ID.slice(0),0,Self.FUniqueID);
       TLccAction.RegisterCallBack(LocalAction,Self);
-      LocalAction.FSearchCriteria$2 = Self.FSearchCriteria$3;
+      LocalAction.FSearchCriteria$1 = Self.FSearchCriteria$2;
       TLccActionHub.RegisterAndKickOffAction(Self.FOwner$5.FLccActions,LocalAction,null);
       TLccAction.SetTimoutCountThreshold(Self,5000,true);
       TLccAction.AdvanceToNextState(Self,1);
       return Result
    }
    /// function TLccActionSearchAndAssignTrain._1ActionWait(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 1054, column: 41, file: lcc_node_controller]
+   ///  [line: 1216, column: 41, file: lcc_node_controller]
    ,_1ActionWait:function(Self, Sender, SourceMessage) {
       return false;
    }
    /// procedure TLccActionSearchAndAssignTrain.CompleteCallback(SourceAction: TLccAction)
-   ///  [line: 1060, column: 42, file: lcc_node_controller]
+   ///  [line: 1222, column: 42, file: lcc_node_controller]
    ,CompleteCallback:function(Self, SourceAction) {
       var NextSpawnedAction = null,
          SpawnedSearchAction = null;
       if ($Is(SourceAction,TLccActionSearchGatherAndSelectTrain)) {
          SpawnedSearchAction = $As(SourceAction,TLccActionSearchGatherAndSelectTrain);
          if (!SpawnedSearchAction.FErrorCode$1) {
-            NextSpawnedAction = TLccAction.Create$202$($New(TLccActionAssignTrain),Self.FOwner$5,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,TLccActionTrainList.GetTrains(SpawnedSearchAction.FTrains,0).FNodeID$2.slice(0),TLccActionTrainList.GetTrains(SpawnedSearchAction.FTrains,0).FAliasID$1);
+            NextSpawnedAction = TLccAction.Create$202$($New(TLccActionAssignTrain),Self.FOwner$5,Self.FSourceNodeID.slice(0),Self.FSourceAliasID,TLccActionTrainList.GetTrains(SpawnedSearchAction.FTrains,0).FNodeID$2.slice(0),TLccActionTrainList.GetTrains(SpawnedSearchAction.FTrains,0).FAliasID$1,Self.FUniqueID);
             TLccActionTrainList.Add$21(NextSpawnedAction.FTrains,TLccActionTrainInfo.Clone$3(TLccActionTrainList.GetTrains(SpawnedSearchAction.FTrains,0)));
             TLccAction.RegisterCallBack(NextSpawnedAction,Self);
             TLccActionHub.RegisterAndKickOffAction(Self.FOwner$5.FLccActions,NextSpawnedAction,null);
@@ -36508,7 +36525,7 @@ var TLccActionSearchAndAssignTrain = {
       }
    }
    /// procedure TLccActionSearchAndAssignTrain.LoadStateArray()
-   ///  [line: 1092, column: 42, file: lcc_node_controller]
+   ///  [line: 1254, column: 42, file: lcc_node_controller]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,3);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -36522,14 +36539,14 @@ var TLccActionSearchAndAssignTrain = {
    ,_0ReceiveFirstMessage$:function($){return $.ClassType._0ReceiveFirstMessage.apply($.ClassType, arguments)}
 };
 /// TLccActionAssignTrain = class (TLccActionTrain)
-///  [line: 159, column: 3, file: lcc_node_controller]
+///  [line: 163, column: 3, file: lcc_node_controller]
 var TLccActionAssignTrain = {
    $ClassName:"TLccActionAssignTrain",$Parent:TLccActionTrain
    ,$Init:function ($) {
       TLccActionTrain.$Init($);
    }
    /// function TLccActionAssignTrain._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 508, column: 32, file: lcc_node_controller]
+   ///  [line: 670, column: 32, file: lcc_node_controller]
    ,_0ReceiveFirstMessage:function(Self, Sender, SourceMessage) {
       var Result = false;
       Result = TLccAction._0ReceiveFirstMessage(Self,Sender,SourceMessage);
@@ -36543,7 +36560,7 @@ var TLccActionAssignTrain = {
       return Result
    }
    /// function TLccActionAssignTrain._1ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage) : Boolean
-   ///  [line: 525, column: 32, file: lcc_node_controller]
+   ///  [line: 687, column: 32, file: lcc_node_controller]
    ,_1ActionWaitForAssignThrottleResult:function(Self, Sender, SourceMessage) {
       var Result = false;
       var ControllerNode$1 = null;
@@ -36596,7 +36613,7 @@ var TLccActionAssignTrain = {
       return Result
    }
    /// procedure TLccActionAssignTrain.LoadStateArray()
-   ///  [line: 586, column: 33, file: lcc_node_controller]
+   ///  [line: 748, column: 33, file: lcc_node_controller]
    ,LoadStateArray:function(Self) {
       TLccAction.SetStateArrayLength(Self,3);
       Self.FStates[0]=$Event2(Self,TLccAction._0ReceiveFirstMessage$);
@@ -36613,7 +36630,7 @@ var TLccActionAssignTrain = {
 ///  [line: 82, column: 3, file: lcc_node_controller]
 var TControllerTrainAssignResult = [ "tarAssigned", "tarFailTrainRefused", "tarFailControllerRefused" ];
 /// TAttachedTrain = record
-///  [line: 284, column: 3, file: lcc_node_controller]
+///  [line: 305, column: 3, file: lcc_node_controller]
 function Copy$TAttachedTrain(s,d) {
    d.NodeID$5=s.NodeID$5.slice(0);
    d.AliasID$3=s.AliasID$3;
@@ -37075,8 +37092,8 @@ var TLccNodeManager = {
    ,Destroy$:function($){return $.ClassType.Destroy($)}
 };
 TLccNodeManager.$Intf={
-   INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
-   ,INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   INodeManagerCallbacks:[TLccNodeManager.DoAliasIDChanged,TLccNodeManager.DoCANAliasMapReset,TLccNodeManager.DoCDIRead,TLccNodeManager.DoConfigMemAddressSpaceInfoReply,TLccNodeManager.DoConfigMemOptionsReply,TLccNodeManager.DoConfigMemReadReply,TLccNodeManager.DoConfigMemWriteReply,TLccNodeManager.DoCreateLccNode,TLccNodeManager.DoConsumerIdentify,TLccNodeManager.DoConsumerIdentified,TLccNodeManager.DoDatagramReply,TLccNodeManager.DoDestroyLccNode,TLccNodeManager.DoLogInNode,TLccNodeManager.DoLogOutNode,TLccNodeManager.DoFDI,TLccNodeManager.DoFunctionConfiguration,TLccNodeManager.DoInitializationComplete,TLccNodeManager.DoNodeIDChanged,TLccNodeManager.DoOptionalInteractionRejected,TLccNodeManager.DoProducerIdentify,TLccNodeManager.DoProducerIdentified,TLccNodeManager.DoProtocolIdentifyReply,TLccNodeManager.DoRemoteButtonReply,TLccNodeManager.DoSimpleNodeIdentReply,TLccNodeManager.DoSimpleTrainNodeIdentReply,TLccNodeManager.DoTractionEmergencyStop,TLccNodeManager.DoTractionSpeedSet,TLccNodeManager.DoTractionFunctionSet,TLccNodeManager.DoTractionQuerySpeed,TLccNodeManager.DoTractionQueryFunction,TLccNodeManager.DoTractionControllerConfig,TLccNodeManager.DoTractionListenerConfig,TLccNodeManager.DoTractionManage,TLccNodeManager.DoVerifiedNodeID]
+   ,INodeManager:[TLccNodeManager.Clear$30,TLccNodeManager.AddNode,TLccNodeManager.AddNodeByClass,TLccNodeManager.LogoutAll,TLccNodeManager.GetNode,TLccNodeManager.GetNodeCount,TLccNodeManager.ExtractNode]
 }
 /// TTabSettingsForm = class (TW3Form)
 ///  [line: 48, column: 3, file: TabSettingsForm]
@@ -37615,8 +37632,8 @@ var TW3WebSocket = {
    ,Create$71$:function($){return $.ClassType.Create$71($)}
 };
 TW3WebSocket.$Intf={
-   IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
-   ,IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   IW3ErrorObject:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.SetLastErrorF$1,TW3ErrorObject.SetLastError$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
+   ,IW3ErrorAccess:[TW3ErrorObject.GetFailed$1,TW3ErrorObject.GetLastError$1,TW3ErrorObject.ClearLastError$1]
 }
 /// TW3RegEx = class (TObject)
 ///  [line: 31, column: 3, file: System.RegEx]

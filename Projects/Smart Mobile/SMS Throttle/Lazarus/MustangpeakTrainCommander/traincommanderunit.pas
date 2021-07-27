@@ -182,13 +182,13 @@ end;
 procedure TFormTrainCommander.ButtonTrainsClearClick(Sender: TObject);
 var
   i: Integer;
-  TrainNode: TLccTrainNode;
+  TrainNode: TLccTrainDccNode;
 begin
   for i := 0 to NodeManager.GetNodeCount - 1 do
   begin
-    if NodeManager.Node[i] is TLccTrainNode then
+    if NodeManager.Node[i] is TLccTrainDccNode then
     begin
-      TrainNode := NodeManager.Node[i] as TLccTrainNode;
+      TrainNode := NodeManager.Node[i] as TLccTrainDccNode;
       TrainNode.Logout;
       NodeManager.Nodes.Delete(i);
     end;
@@ -575,20 +575,20 @@ end;
 
 procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 var
-  TrainNode: TLccTrainNode;
+  TrainNode: TLccTrainDccNode;
   Item: TListItem;
   SpeedStep: string;
 begin
-  if LccSourceNode is TLccTrainNode then
+  if LccSourceNode is TLccTrainDccNode then
   begin
-    TrainNode := LccSourceNode as TLccTrainNode;
+    TrainNode := LccSourceNode as TLccTrainDccNode;
 
     TrainNode.OnSendMessageComPort := @OnComPortSendMessage;
 
     Item := ListViewTrains.Items.Add;
     Item.Data := TrainNode;
     Item.ImageIndex := 18;
-    case TrainNode.SpeedStep of
+    case TrainNode.DccSpeedStep of
       ldssDefault : SpeedStep := 'Default Step';
       ldss14      : SpeedStep := '14 Step';
       ldss28      : SpeedStep := '28 Step';
@@ -656,7 +656,7 @@ procedure TFormTrainCommander.OnNodeManagerNodeLogout(Sender: TObject; LccSource
 var
   i: Integer;
 begin
-  if LccSourceNode is TLccTrainNode then
+  if LccSourceNode is TLccTrainDccNode then
   begin
     for i := 0 to ListViewTrains.Items.Count - 1 do
     begin
