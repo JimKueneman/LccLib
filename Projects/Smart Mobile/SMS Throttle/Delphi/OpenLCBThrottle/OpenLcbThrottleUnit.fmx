@@ -50,7 +50,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       Size.Height = 519.000000000000000000
       Size.PlatformDefault = False
       TabHeight = 49.000000000000000000
-      TabIndex = 2
+      TabIndex = 0
       TabOrder = 0
       TabPosition = Bottom
       Sizes = (
@@ -66,7 +66,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 119.000000000000000000
         Size.Height = 49.000000000000000000
         Size.PlatformDefault = False
@@ -730,7 +730,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 119.000000000000000000
         Size.Height = 49.000000000000000000
         Size.PlatformDefault = False
@@ -1182,7 +1182,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         FooterAppearanceClassName = 'TListHeaderObjects'
         Align = Client
         Size.Width = 225.000000000000000000
-        Size.Height = 174.000000000000000000
+        Size.Height = 158.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
         OnChange = ListViewTrainsChange
@@ -1195,7 +1195,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
       object LayoutTrainsMultiViewSearch: TLayout
         Align = Top
         ClipChildren = True
-        Position.Y = 281.000000000000000000
+        Position.Y = 297.000000000000000000
         Size.Width = 225.000000000000000000
         Size.Height = 64.000000000000000000
         Size.PlatformDefault = False
@@ -1226,7 +1226,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         Align = Top
         Position.Y = 50.000000000000000000
         Size.Width = 225.000000000000000000
-        Size.Height = 231.000000000000000000
+        Size.Height = 247.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 3
         object FloatAnimationAddTrain: TFloatAnimation
@@ -1238,7 +1238,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         object ListBoxAddTrain: TListBox
           Align = Client
           Size.Width = 225.000000000000000000
-          Size.Height = 231.000000000000000000
+          Size.Height = 247.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           ShowScrollBars = False
@@ -1247,7 +1247,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
           DefaultItemStyles.GroupHeaderStyle = ''
           DefaultItemStyles.GroupFooterStyle = ''
           Viewport.Width = 221.000000000000000000
-          Viewport.Height = 227.000000000000000000
+          Viewport.Height = 243.000000000000000000
           object ListBoxItemTrainName: TListBoxItem
             Selectable = False
             TabOrder = 0

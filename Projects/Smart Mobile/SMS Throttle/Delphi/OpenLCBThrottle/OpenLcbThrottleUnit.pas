@@ -31,7 +31,7 @@ uses
   lcc_ethernet_common,
   lcc_math_float16, Data.DB, Datasnap.DBClient, System.Rtti,
   System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
-  Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope;
+  Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope, FMX.Memo.Types;
 
 
 type
@@ -217,7 +217,7 @@ type
     procedure GridLayoutFunctionControlsGroup1Resize(Sender: TObject);
     procedure SpeedButtonEditTrainClick(Sender: TObject);
   private
-    FNodeManager: TLccCanNodeManager;
+    FNodeManager: TLccNodeManager;
     FEthernetClient: TLccEthernetClient;
     FOpenLcbSettings: TOpenLcbSettings;
     FNodeID: string;
@@ -244,7 +244,7 @@ type
     procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
     procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
     procedure OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
-    procedure OnControllerSearchResult(Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray; SearchResultCount: Integer; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain;
 
@@ -256,7 +256,7 @@ type
   public
     { Public declarations }
     property EthernetClient: TLccEthernetClient read FEthernetClient write FEthernetClient;
-    property NodeManager: TLccCanNodeManager read FNodeManager write FNodeManager;
+    property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property ControllerNode: TLccTrainController read FControllerNode write FControllerNode; // First Node created by the NodeManager, it is assigned when the Ethenetlink is established
 
     property OpenLcbSettings: TOpenLcbSettings read FOpenLcbSettings write FOpenLcbSettings;
@@ -349,13 +349,13 @@ end;
 
 procedure TOpenLcbThrottleForm.ButtonNodeCreateClick(Sender: TObject);
 var
-  CanNode: TLccCanNode;
+  CanNode: TLccNode;
 begin
   lcc_defines.Max_Allowed_Buffers := 1; // HACK ALLERT: Allow OpenLCB Python Scripts to run
 
   if NodeManager.Nodes.Count = 0 then
   begin
-    CanNode := NodeManager.AddNode(CDI_XML) as TLccCanNode;
+    CanNode := NodeManager.AddNode(CDI_XML, False) as TLccNode;
 
     CanNode.ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
     CanNode.ProtocolSupportedProtocols.Datagram := True;
@@ -515,7 +515,7 @@ begin
 
   FOpenLcbSettings := TOpenLcbSettings.Create;
 
-  FNodeManager := TLccCanNodeManager.Create(nil);
+  FNodeManager := TLccNodeManager.Create(nil, True);
   NodeManager.OnLccNodeAliasIDChanged := OnNodeManagerAliasChange;
   NodeManager.OnLccNodeIDChanged := OnNodeManagerIDChange;
   NodeManager.OnLccNodeDestroy := OnNodeManagerNodeDestroy;
@@ -605,7 +605,7 @@ end;
 
 procedure TOpenLcbThrottleForm.OnNodeManagerAliasChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  FNodeAlias := (LccSourceNode as TLccCanNode).AliasIDStr;
+  FNodeAlias := (LccSourceNode as TLccNode).AliasIDStr;
 end;
 
 procedure TOpenLcbThrottleForm.OnNodeManagerNodeCreate(Sender: TObject; LccSourceNode: TLccNode);
@@ -628,7 +628,7 @@ end;
 
 procedure TOpenLcbThrottleForm.OnNodeManagerIDChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
-  FNodeID := (LccSourceNode as TLccCanNode).NodeIDStr;
+  FNodeID := (LccSourceNode as TLccNode).NodeIDStr;
 end;
 
 procedure TOpenLcbThrottleForm.OnNodeManagerNodeInitializationComplete(
@@ -703,8 +703,8 @@ begin
           ControllerNode.OnTrainReleased := OnControllerTrainReleased;
           ControllerNode.OnControllerRequestTakeover := OnControllerReqestTakeover;
           ControllerNode.OnQuerySpeedReply := OnControllerQuerySpeedReply;
-         ControllerNode.OnQueryFunctionReply := OnControllerQueryFunctionReply;
-           ControllerNode.OnSearchResult := OnControllerSearchResult;
+          ControllerNode.OnQueryFunctionReply := OnControllerQueryFunctionReply;
+          ControllerNode.OnSearchResult := OnControllerSearchResult;
        //   PanelThrottleFace1.Enabled := True;
         end;
       lcsDisconnecting :
@@ -784,21 +784,20 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerReqestTakeover(Sender: TLccNode;
-  var Allow: Boolean);
+procedure TOpenLcbThrottleForm.OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
 begin
   // Allow :=  FormThrottleTakeover.ShowModal = mrYes
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerSearchResult(
-  Sender: TLccTractionAssignTrainAction; Results: TLccSearchResultsArray;
-  SearchResultCount: Integer; var SelectedResultIndex: Integer);
+procedure TOpenLcbThrottleForm.OnControllerSearchResult(Sender: TLccActionTrain;
+  TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
 begin
-  case SearchResultCount of
+  case TrainList.Count of
     0: ShowMessage('No Search Results');
     1: SelectedResultIndex := 0;
   else
     ShowMessage('Multiple Search Results: Please Select');
+    SelectedResultIndex := 0
   end;
 end;
 

@@ -57,14 +57,17 @@ uses
   lcc_protocol_events,
   lcc_protocol_supportedprotocols,
   lcc_protocol_datagram,
-  lcc_protocol_base;
+  lcc_protocol_base,
+  lcc_alias_mappings;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
 
   TIMEOUT_TIME = 100; // milli seconds
   TIMEOUT_CONTROLLER_NOTIFY_WAIT = 5000;  // 5 seconds
+  TIMEOUT_CONTROLLER_RESERVE_WAIT = 5000;
   TIMEOUT_NODE_VERIFIED_WAIT = 800;       // 800ms
+  TIMEOUT_NODE_ALIAS_MAPPING_WAIT = 1000;       // 800ms
 
 const
 
@@ -151,7 +154,7 @@ type
   TLccActionTrainList = class
   private
     {$IFDEF DELPHI}
-    FTrainList: TObjectList<TLccTrainActionInfo>;
+    FTrainList: TObjectList<TLccActionTrainInfo>;
     {$ELSE}
     FTrainList: TObjectList;
     {$ENDIF}
@@ -160,7 +163,7 @@ type
     procedure SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
   protected
   {$IFDEF DELPHI}
-    property TrainList: TObjectList<TLccTrainActionInfo> read FTrainList write FTrainList;
+    property TrainList: TObjectList<TLccActionTrainInfo> read FTrainList write FTrainList;
     {$ELSE}
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}
@@ -182,7 +185,7 @@ type
   end;
 
 
-  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound);
+  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed);
 
   { TLccAction }
 
@@ -190,6 +193,7 @@ type
   private
     FActionHub: TLccActionHub;
     FActionStateIndex: Integer;
+    FAliasMapping: TLccAliasMapping;
     FErrorCode: TLccActionErrorCode;
     FIgnoreTimer: Boolean;
     FOnCompleteCallback: TOnActionCompleteCallback;
@@ -209,6 +213,7 @@ type
 
     property ActionHub: TLccActionHub read FActionHub write FActionHub;
     property ActionStateIndex: Integer read FActionStateIndex write FActionStateIndex;
+    property AliasMapping: TLccAliasMapping read FAliasMapping write FAliasMapping;
     property States: TOnMessageEventArray read FStates write FStates;
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
@@ -324,6 +329,7 @@ type
   TLccNode = class(TObject)
   private
     FAliasID: Word;
+    FAliasMappings: TLccAliasMappingList;
     FDuplicateAliasDetected: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
@@ -420,9 +426,10 @@ type
     property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
 
     // GridConnect Helpers
+    property AliasMappings: TLccAliasMappingList read FAliasMappings;
     property AliasID: Word read FAliasID;
-     property AliasIDStr: String read GetAliasIDStr;
-     property Permitted: Boolean read FPermitted;
+    property AliasIDStr: String read GetAliasIDStr;
+    property Permitted: Boolean read FPermitted;
 
     property ACDIMfg: TACDIMfg read FACDIMfg write FACDIMfg;
     property ACDIUser: TACDIUser read FACDIUser write FACDIUser;
@@ -521,13 +528,13 @@ end;
 
 constructor TLccActionTrainList.Create;
 begin
-{$IFDEF DELPHI}
-  FTrainList := TObjectList<TLccTrainActionInfo>.Create(False);
+  {$IFDEF DELPHI}
+    FTrainList := TObjectList<TLccActionTrainInfo>.Create(False);
   {$ELSE}
-   FTrainList := TObjectList.Create;
-   {$IFNDEF DWSCRIPT}
-   TrainList.OwnsObjects := False;
-   {$ENDIF}
+    FTrainList := TObjectList.Create;
+    {$IFNDEF DWSCRIPT}
+      TrainList.OwnsObjects := False;
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -642,7 +649,7 @@ end;
 procedure TLccAction.CompleteCallback(SourceAction: TLccAction);
 begin
   if Assigned(SourceAction) then
-    OnCompleteCallback := @CompleteCallback;
+    OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}CompleteCallback;
 end;
 
 destructor TLccAction.Destroy;
@@ -695,7 +702,7 @@ end;
 
 procedure TLccAction.RegisterCallBack(AnLccAction: TLccAction);
 begin
-  OnCompleteCallback := @AnLccAction.CompleteCallback;
+  OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}AnLccAction.CompleteCallback;
 end;
 
 procedure TLccAction.ResetTimeoutCounter;
@@ -922,7 +929,7 @@ begin
   Result := True;
 end;
 
-constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string; GridConnectLink: Boolean);
+constructor TLccNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string; GridConnectLink: Boolean);
 var
   i, Counter: Integer;
 begin
@@ -955,6 +962,7 @@ begin
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
+  FAliasMappings := TLccAliasMappingList.Create(True);
 
   _100msTimer := TLccTimer.Create(nil);
   _100msTimer.Enabled := False;
@@ -1577,6 +1585,15 @@ begin
             end;
             Result := True;
           end;
+        MTI_CAN_AMR :
+          begin   // Alias going away clear it from the cache
+            AliasMappings.RemoveMapping(SourceMessage.CAN.SourceAlias);
+          end;
+        MTI_CAN_AMD :
+          begin  // Alias coming on line save a copy of this mapping for future use
+            SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
+            AliasMappings.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
+          end;
       end
     end;
     if not Result then
@@ -1651,6 +1668,7 @@ begin
 
   (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
   _100msTimer.Free;
+  FAliasMappings.Free;
   FProtocolSupportedProtocols.Free;
   FProtocolSimpleNodeInfo.Free;
   FTProtocolMemoryConfigurationDefinitionInfo.Free;

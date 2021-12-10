@@ -43,6 +43,7 @@ uses
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
+  lcc_alias_mappings,
   lcc_utilities,
   lcc_defines,
   lcc_node_messages,
@@ -305,6 +306,31 @@ type
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
+
+   { TLccActionTractionManageReserve }
+
+   TLccActionTractionManageReserve = class(TLccAction)
+   private
+     FReservedByNodeAliasID: Word;
+     FReservedByNodeID: TNodeID;
+   protected
+     property ReservedByNodeID: TNodeID read FReservedByNodeID write FReservedByNodeID;
+     property ReservedByNodeAliasID: Word read FReservedByNodeAliasID write FReservedByNodeAliasID;
+
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+     function _1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _2ReserveTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+     procedure LoadStateArray; override;
+   end;
+
+
+   { TLccActionTractionManageRelease }
+
+   TLccActionTractionManageRelease = class(TLccAction)
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+   end;
+
 type
   TLccTrainDirection = (tdForward, tdReverse);
   TLccFunctions = array[0..28] of Word;
@@ -313,8 +339,6 @@ type
   TAttachedController = record
     NodeID: TNodeID;
     AliasID: Word;
-    ReservationNodeID: TNodeID;
-    ReservationAliasID: Word;
     AttatchNotifyNodeID: TNodeID;
     AttachNotifyAliasID: Word;
   end;
@@ -378,6 +402,8 @@ type
 
     // Lcc Traction fields
     FFunctions: TLccFunctions;
+    FReservationAliasID: Word;
+    FReservationNodeID: TNodeID;
     FSpeed: THalfFloat;
 
     FSearchEvent: TEventID;  // When creating a train node this is the temporary storage for the train node as the node is being created and allocating is NodeID/AliasID
@@ -402,7 +428,11 @@ type
     property RequestingControllerNodeID: TNodeID read FRequestingControllerNodeID write FRequestingControllerNodeID;
     property RequestingControllerAliasID: Word read FRequestingControllerAliasID write FRequestingControllerAliasID;
 
+    property ReservationNodeID: TNodeID read FReservationNodeID write FReservationNodeID;
+    property ReservationAliasID: Word read FReservationAliasID write FReservationAliasID;
+
     procedure ClearAttachedController;
+    procedure ClearReservationNode;
 
     function GetCdiFile: string; override;
     procedure BeforeLogin; override;
@@ -510,6 +540,110 @@ begin
     else
       Result := 'S'
   end
+end;
+
+{ TLccActionTractionManageRelease }
+
+function TLccActionTractionManageRelease._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainDccNode;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  if Assigned(SourceMessage) then
+  begin
+    OwnerTrain := Owner as TLccTrainDccNode;
+    if OwnerTrain.ReservationEquals(SourceMessage.DestID, SourceMessage.CAN.DestAlias) then
+      OwnerTrain.ClearReservationNode;
+  end;
+
+  AdvanceToNextState;
+end;
+
+{ TLccActionTractionManageReserve }
+
+function TLccActionTractionManageReserve._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  TempNodeID: TNodeID;
+
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  TempNodeID := NULL_NODE_ID;
+  SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
+  FReservedByNodeID := TempNodeID;
+
+  if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
+  begin
+    AliasMapping := Owner.AliasMappings.FindMapping(SourceMessage.CAN.SourceAlias);
+    if not Assigned(AliasMapping) then
+    begin
+      WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
+      SendMessage(Owner, WorkerMessage);
+      SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
+      AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
+    end;
+  end else
+  begin
+    ReservedByNodeAliasID := 0;
+    ReservedByNodeID := SourceMessage.SourceID;
+    AdvanceToNextState(2);
+  end;
+end;
+
+function TLccActionTractionManageReserve._1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  TempNodeID: TNodeID;
+begin
+  Result := False;
+
+  // Only way to get here is if we were GridConnect
+  AliasMapping := Owner.AliasMappings.FindMapping(SourceMessage.CAN.SourceAlias);
+  if Assigned(AliasMapping) then
+  begin
+    ReservedByNodeAliasID := AliasMapping.AnAlias;
+    ReservedByNodeID := AliasMapping.AnID;
+    AdvanceToNextState;
+  end else
+  begin
+    if TimeoutExpired then
+    begin
+      // Can't get the Alias.
+      FReservedByNodeID := NULL_NODE_ID;
+      FReservedByNodeAliasID := 0;
+      AdvanceToNextState;
+    end;
+  end;
+end;
+
+function TLccActionTractionManageReserve._2ReserveTrain(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainDccNode;
+begin
+  Result := False;
+
+  OwnerTrain := Owner as TLccTrainDccNode;
+
+  if (ReservedByNodeAliasID <> 0) and not NullNodeID(ReservedByNodeID) then
+  begin
+    OwnerTrain.ReservationNodeID := ReservedByNodeID;
+    OwnerTrain.ReservationAliasID := ReservedByNodeAliasID;
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, True);
+    SendMessage(Self, WorkerMessage);
+  end else
+  begin
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
+    SendMessage(Self, WorkerMessage);
+  end;
+end;
+
+procedure TLccActionTractionManageReserve.LoadStateArray;
+begin
+  SetStateArrayLength(4);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForAliasMapping;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ReserveTrain;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 { TListenerNode }
@@ -705,8 +839,7 @@ begin
   AdvanceToNextState; // Wait for the Notify (if needed)
 end;
 
-function TLccActionTractionListenerAttachReply._1WaitForNodeVerified(
-  Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionTractionListenerAttachReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   TempNodeID: TNodeID;
 begin
@@ -1307,9 +1440,13 @@ begin
   FAttachedController.NodeID := NULL_NODE_ID;
   FAttachedController.AliasID := 0;
   FAttachedController.NodeID := NULL_NODE_ID;
-  FAttachedController.ReservationAliasID := 0;
-  FAttachedController.AttatchNotifyNodeID := NULL_NODE_ID;
   FAttachedController.AttachNotifyAliasID := 0;
+end;
+
+procedure TLccTrainDccNode.ClearReservationNode;
+begin
+  FReservationNodeID := NULL_NODE_ID;
+  FReservationAliasID := 0;
 end;
 
 function TLccTrainDccNode.ControllerAssigned: Boolean;
@@ -1346,12 +1483,12 @@ end;
 
 function TLccTrainDccNode.IsReserved: Boolean;
 begin
-  Result := (AttachedController.ReservationNodeID[0] <> 0) or (AttachedController.ReservationNodeID[1] <> 0) or (AttachedController.ReservationAliasID <> 0);
+  Result := (ReservationNodeID[0] <> 0) or (ReservationNodeID[1] <> 0) or (ReservationAliasID <> 0);
 end;
 
 function TLccTrainDccNode.IsReservedBy(SourceMessage: TLccMessage): Boolean;
 begin
-  Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AttachedController.ReservationNodeID, AttachedController.ReservationAliasID, True);
+  Result := EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ReservationNodeID, ReservationAliasID, True);
 end;
 
 function TLccTrainDccNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
@@ -1398,8 +1535,8 @@ begin
           TRACTION_MANAGE :
             begin
               case SourceMessage.DataArray[1] of
-                TRACTION_MANAGE_RESERVE : begin WorkerMessage.LoadTractionManageReply(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, True); SendMessageFunc(Self, WorkerMessage) end;
-                TRACTION_MANAGE_RELEASE : begin end;
+                TRACTION_MANAGE_RESERVE : begin LccActions.RegisterAndKickOffAction(TLccActionTractionManageReserve.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage); end;
+                TRACTION_MANAGE_RELEASE : begin LccActions.RegisterAndKickOffAction(TLccActionTractionManageRelease.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage); end;
               end
             end;
         end;
@@ -1409,7 +1546,7 @@ end;
 
 function TLccTrainDccNode.ReservationEquals(ATestNodeID: TNodeID; ATestAlias: Word): Boolean;
 begin
-  Result := ((AttachedController.ReservationNodeID[0] = ATestNodeID[0]) and (AttachedController.ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = AttachedController.ReservationAliasID)
+  Result := ((ReservationNodeID[0] = ATestNodeID[0]) and (ReservationNodeID[1] = ATestNodeID[1])) or (ATestAlias = ReservationAliasID)
 end;
 
 procedure TLccTrainDccNode.SetDccAddress(AValue: Word);

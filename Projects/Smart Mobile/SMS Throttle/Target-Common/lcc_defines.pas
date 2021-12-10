@@ -459,6 +459,7 @@ const
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;
   TRACTION_MANAGE_RELEASE             = $02;
+  TRACTION_MANAGE_HEARTBEAT           = $03;
   TRACTION_RESERVE_REPLY              = $01;
 
   TRACTION_MANAGE_RESERVE_REPLY_OK   = $00;    // Failed is not 0

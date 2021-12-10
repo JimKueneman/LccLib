@@ -7,8 +7,8 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="10"/>
-        <CursorPos X="10" Y="22"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="68" Y="25"/>
         <UsageCount Value="61"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -131,7 +131,6 @@
       </Unit16>
       <Unit17>
         <Filename Value="../../../Target-PC/HardwareConnection/lcc_comport.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="153"/>
         <CursorPos X="124" Y="168"/>

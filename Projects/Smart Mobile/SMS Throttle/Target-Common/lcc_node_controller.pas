@@ -79,7 +79,7 @@ const
 
 type
 
-  TControllerTrainAssignResult = (tarAssigned, tarFailTrainRefused, tarFailControllerRefused);
+  TControllerTrainAssignResult = (tarAssigned, tarFailTrainRefused, tarFailControllerRefused, tarReserveFailed);
 
   TLccActionSearchAndAssignTrain = class;
 
@@ -138,7 +138,11 @@ type
   // Calls TLccActionSearchGatherAndSelectTrain for all items in the SearchCriteria property
   TLccActionSearchGatherAndSelectTrains = class(TLccActionTrain)
   private
+    {$IFDEF DELPHI}
+    FEncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria>;
+    {$ELSE}
     FEncodedSearchCriteria: TObjectList;
+    {$ENDIF}
     FiEncodedSearchCriteria: Integer;
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
@@ -151,7 +155,11 @@ type
 
     property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
   public
+    {$IFDEF DELPHI}
+    property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    {$ELSE}
     property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    {$ENDIF}
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
     destructor Destroy; override;
@@ -163,7 +171,8 @@ type
   TLccActionAssignTrain = class(TLccActionTrain)
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
-    function _1ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _1ActionWaitForReservationAndAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _2ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
     procedure LoadStateArray; override;
   end;
@@ -385,7 +394,11 @@ type
     procedure SearchTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
+    {$IFDEF DELPHI}
+    procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    {$ELSE}
     procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    {$ENDIF}
     procedure EmergencyStop(UniqueID: Integer = 0);
     function IsTrainAssigned: Boolean;
 
@@ -623,8 +636,11 @@ constructor TLccActionSearchGatherAndSelectTrains.Create(AnOwner: TLccNode;
   ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID;
   ADestAliasID: Word; AnUniqueID: Integer);
 begin
-  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
+  {$IFDEF DELPHI}
+  FEncodedSearchCriteria := TObjectList<TLccEncodedSearchCriteria>.Create;
+  {$ELSE}
   FEncodedSearchCriteria := TObjectList.Create;
+  {$ENDIF}
   {$IFNDEF DWSCRIPT}
   EncodedSearchCriteria.OwnsObjects := True;
   {$ENDIF}
@@ -673,18 +689,82 @@ begin
 
   Assert(Trains.Count > 0, 'TLccActionAssignTrain: Must have a train in the Trains Property to Assign');
 
-  //  Attept to assigne the controller to the Train stored in the Trains property
+  //  Attempt to assign the controller to the Train stored in the Trains property
   if Trains.Count > 0 then
   begin
-    WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, SourceNodeID);
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, True);
     SendMessage(Owner, WorkerMessage);
-    SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT * 2); // seconds to assign the train, the command station will give 5 seconds to receive a reply from an existing controller to give it up
+    SetTimoutCountThreshold(TIMEOUT_CONTROLLER_RESERVE_WAIT);
   end;
-
   AdvanceToNextState;
 end;
 
-function TLccActionAssignTrain._1ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionAssignTrain._1ActionWaitForReservationAndAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  ControllerNode: TLccTrainController;
+begin
+  Result := False;
+
+  // SourceMessage could be nil from a timer
+  // This code assumes that index Trains[0] is the selected train
+  if Assigned(SourceMessage) and (Trains.Count > 0) then
+  begin // Only care if it is coming from our potental Train
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Trains[0].NodeID, Trains[0].AliasID, True) then
+    begin
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_CONTROLLER_CONFIG :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                     TRACTION_RESERVE_REPLY :
+                       begin
+                         IgnoreTimer := True; // keep the timer from being reentrant during event calls with blocking code (dialogs)
+                         try
+                           case SourceMessage.DataArray[2] of
+                             TRACTION_MANAGE_RESERVE_REPLY_OK :
+                               begin
+                                 ControllerNode := Owner as TLccTrainController;
+                                 if Assigned(ControllerNode) then
+                                 begin
+                                   WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, SourceNodeID);
+                                   SendMessage(Owner, WorkerMessage);
+                                   SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT * 2); // seconds to assign the train, the command station will give 5 seconds to receive a reply from an existing controller to give it up
+                                   AdvanceToNextState;
+                                 end;
+                               end;
+                             else begin
+                               (Owner as TLccTrainController).DoTrainAssigned(tarReserveFailed);
+                               ErrorCode := laecReservedFailed;
+                               AdvanceToNextState(2);
+                             end;
+                           end;
+                         finally
+                           IgnoreTimer := False;
+                         end
+                       end;
+                   end;
+                 end;
+             end;
+           end;
+      end;
+    end;
+  end;
+
+  if TimeoutExpired then
+  begin
+    // Just in case, can't hurt
+    WorkerMessage.LoadTractionControllerRelease(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, SourceNodeID, SourceAliasID);
+    SendMessage(Owner, WorkerMessage);
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
+    SendMessage(Owner, WorkerMessage);
+    ErrorCode := laecTimedOut;
+    AdvanceToNextState(2);
+  end;
+end;
+
+function TLccActionAssignTrain._2ActionWaitForAssignThrottleResult(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   ControllerNode: TLccTrainController;
 begin
@@ -740,6 +820,8 @@ begin
     // Just in case, can't hurt
     WorkerMessage.LoadTractionControllerRelease(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, SourceNodeID, SourceAliasID);
     SendMessage(Owner, WorkerMessage);
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
+    SendMessage(Owner, WorkerMessage);
     ErrorCode := laecTimedOut;
     AdvanceToNextState;
   end;
@@ -747,10 +829,11 @@ end;
 
 procedure TLccActionAssignTrain.LoadStateArray;
 begin
-  SetStateArrayLength(3);
+  SetStateArrayLength(4);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
-  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForAssignThrottleResult;
-  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForReservationAndAssignThrottle;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionWaitForAssignThrottleResult;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 { TLccActionSearchGatherAndSelectTrain }
@@ -1477,8 +1560,11 @@ begin
   LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
 end;
 
-procedure TLccTrainController.SearchTrainsByDccAddress(
-  TrainCriteria: TObjectList; UniqueID: Integer);
+{$IFDEF DELPHI}
+procedure TLccTrainController.SearchTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+{$ELSE}
+procedure TLccTrainController.SearchTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer);
+{$ENDIF}
 var
   i: Integer;
   DccCriteria: TDccSearchCriteria;
@@ -1493,8 +1579,11 @@ begin
     // Need to translate the DccSearch criteria into LccSearch encoded criteria to launch the search.
     for i := 0 to TrainCriteria.Count - 1 do
     begin
+      {$IFDEF DELPHI}
+      DccCriteria := TrainCriteria[i];
+      {$ELSE}
       DccCriteria := TrainCriteria[i] as TDccSearchCriteria;
-
+      {$ENDIF}
       if DccCriteria.Address > 0 then
         TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
                               TRACTION_SEARCH_ALLOCATE_FORCE or
