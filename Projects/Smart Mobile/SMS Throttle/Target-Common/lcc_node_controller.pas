@@ -118,7 +118,7 @@ type
 
   { TLccActionSearchGatherAndSelectTrain }
 
-  // Trains property contains the selected train when the action completes
+  // Trains[0]/Train property will contain the selected train when the action completes
   TLccActionSearchGatherAndSelectTrain = class(TLccActionTrain)
   private
     FSearchCriteria: DWord;
@@ -167,7 +167,7 @@ type
 
   { TLccActionAssignTrain }
 
-  // Sends an Assign message and waits for a result
+  // Sends an Assign message and waits for a result.  Assumes the Trains[0] index is the train and must be valid
   TLccActionAssignTrain = class(TLccActionTrain)
   protected
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
@@ -291,8 +291,8 @@ type
 
 type
 
-  TOnControllerSearchResult = procedure(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer) of object;
-  TOnControllerSearchMultiResult = procedure(Sender: TLccActionTrain; Trains: TLccActionTrainList) of object;
+  TOnControllerSearchResult = procedure(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer) of object;
+  TOnControllerSearchMultiResult = procedure(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList) of object;
   TOnControllerTrainAssignedReply = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
   TOnControllerTrainReleasedReply = procedure(Sender: TLccNode) of object;
   TOnControllerQuerySpeedReply = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
@@ -356,8 +356,8 @@ type
     procedure DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunctionReply(Address: DWORD; Value: Word); virtual;
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
-    procedure DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer); virtual;
-    procedure DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainList); virtual;
+    procedure DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer); virtual;
+    procedure DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList); virtual;
     procedure DoControllerAttachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
     procedure DoControllerDetachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
     procedure DoControllerQueryListenerGetCount(ListenerCount: Byte); virtual;
@@ -453,7 +453,7 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_QUERY_REPLY :
                        begin
-                         IgnoreTimer := True;
+                         FreezeTimer := True;
                          try
                            if SourceMessage.DataCount = 11 then
                            begin
@@ -466,7 +466,7 @@ begin
                            end;
                          finally
                            AdvanceToNextState;
-                           IgnoreTimer := False;;
+                           FreezeTimer := False;;
                          end;
                        end;
                    end;
@@ -524,7 +524,7 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_QUERY_REPLY :
                        begin
-                         IgnoreTimer := True;
+                         FreezeTimer := True;
                          try
                            if SourceMessage.DataCount = 3 then
                            begin
@@ -533,7 +533,7 @@ begin
                            end;
                          finally
                            AdvanceToNextState;
-                           IgnoreTimer := False;;
+                           FreezeTimer := False;;
                          end;
                        end;
                    end;
@@ -591,7 +591,7 @@ begin
   // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
   LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccEncodedSearchCriteria).Criteria;
-  LccSearchTrainAction.RegisterCallBack(Self);
+  LccSearchTrainAction.RegisterCallBackOnExit(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
   AdvanceToNextState;
 end;
@@ -610,13 +610,13 @@ begin
   if ErrorCode = laecOk then
   begin
     // Report the results
-    IgnoreTimer := True;  // Stop reentrancy
+    FreezeTimer := True;  // Stop reentrancy
     try
       ControllerNode := Owner as TLccTrainController;
       ControllerNode.DoSearchMultiResult(Self, Trains);
     finally
       AdvanceToNextState;
-      IgnoreTimer := False;
+      FreezeTimer := False;
     end;
   end else
     AdvanceToNextState;  // Error, just finish up
@@ -656,7 +656,7 @@ begin
   if SpawnedSearchAction.ErrorCode = laecOk then
   begin
     if SpawnedSearchAction.Trains.Count = 1 then
-      Trains.Add(SpawnedSearchAction.Trains[0].Clone);
+      Trains.Add(SpawnedSearchAction.Train.Clone);
 
     // Move to the next Criteria in our list
     Inc(FiEncodedSearchCriteria);
@@ -689,10 +689,11 @@ begin
 
   Assert(Trains.Count > 0, 'TLccActionAssignTrain: Must have a train in the Trains Property to Assign');
 
-  //  Attempt to assign the controller to the Train stored in the Trains property
+  //  Attempt to assign the controller to the Train stored in the Trains[0]/Train property
   if Trains.Count > 0 then
   begin
-    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, True);
+    // Reserve the Train first
+    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, Train.NodeID, Train.AliasID, True);
     SendMessage(Owner, WorkerMessage);
     SetTimoutCountThreshold(TIMEOUT_CONTROLLER_RESERVE_WAIT);
   end;
@@ -700,48 +701,46 @@ begin
 end;
 
 function TLccActionAssignTrain._1ActionWaitForReservationAndAssignThrottle(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  ControllerNode: TLccTrainController;
 begin
   Result := False;
 
   // SourceMessage could be nil from a timer
-  // This code assumes that index Trains[0] is the selected train
+  // This code assumes that index Trains[0]/Train is the selected train
   if Assigned(SourceMessage) and (Trains.Count > 0) then
   begin // Only care if it is coming from our potental Train
-    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Trains[0].NodeID, Trains[0].AliasID, True) then
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Train.NodeID, Train.AliasID, True) then
     begin
       case SourceMessage.MTI of
          MTI_TRACTION_REPLY :
            begin
              case SourceMessage.DataArray[0] of
-               TRACTION_CONTROLLER_CONFIG :
+               TRACTION_MANAGE :
                  begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_RESERVE_REPLY :
                        begin
-                         IgnoreTimer := True; // keep the timer from being reentrant during event calls with blocking code (dialogs)
+                         // keep the timer from being reentrant during event calls with blocking code (dialogs)
+                         FreezeTimer := True;
                          try
                            case SourceMessage.DataArray[2] of
                              TRACTION_MANAGE_RESERVE_REPLY_OK :
                                begin
-                                 ControllerNode := Owner as TLccTrainController;
-                                 if Assigned(ControllerNode) then
-                                 begin
-                                   WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, Trains[0].NodeID, Trains[0].AliasID, SourceNodeID);
-                                   SendMessage(Owner, WorkerMessage);
-                                   SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT * 2); // seconds to assign the train, the command station will give 5 seconds to receive a reply from an existing controller to give it up
-                                   AdvanceToNextState;
-                                 end;
+                                 // Train is Reserved time to Assign it to the Controller
+                                 // Timeout allows time if the Train is connected to another controller to ask that controller to release it
+                                 WorkerMessage.LoadTractionControllerAssign(SourceNodeID, SourceAliasID, Train.NodeID, Train.AliasID, SourceNodeID);
+                                 SendMessage(Owner, WorkerMessage);
+                                 SetTimoutCountThreshold(TIMEOUT_CONTROLLER_NOTIFY_WAIT * 2);
+                                 AdvanceToNextState;
                                end;
                              else begin
-                               (Owner as TLccTrainController).DoTrainAssigned(tarReserveFailed);
+                               if Assigned(Owner) then
+                                (Owner as TLccTrainController).DoTrainAssigned(tarReserveFailed);
                                ErrorCode := laecReservedFailed;
                                AdvanceToNextState(2);
                              end;
                            end;
                          finally
-                           IgnoreTimer := False;
+                           FreezeTimer := False;
                          end
                        end;
                    end;
@@ -774,7 +773,7 @@ begin
   // This code assumes that index Trains[0] is the selected train
   if Assigned(SourceMessage) and (Trains.Count > 0) then
   begin // Only care if it is coming from our potental Train
-    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Trains[0].NodeID, Trains[0].AliasID, True) then
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Train.NodeID, Train.AliasID, True) then
     begin
       case SourceMessage.MTI of
          MTI_TRACTION_REPLY :
@@ -785,26 +784,47 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
                        begin
-                         IgnoreTimer := True; // keep the timer from being reentrant during event calls with blocking code (dialogs)
+                         // keep the timer from being reentrant during event calls with blocking code (dialogs)
+                         FreezeTimer := True;
+                         if Assigned(Owner) then
+                           ControllerNode := Owner as TLccTrainController;
                          try
                            case SourceMessage.DataArray[2] of
                              TRACTION_CONTROLLER_CONFIG_REPLY_OK :
                                begin
-                                 ControllerNode := Owner as TLccTrainController;
                                   if Assigned(ControllerNode) then
                                   begin
                                     ControllerNode.FAssignedTrain.NodeID := DestNodeID;
                                     ControllerNode.FAssignedTrain.AliasID := DestAliasID;
-                                    ControllerNode.FAssignedTrain.RepliedSearchData := Trains[0].SearchCriteria;
-                                    (Owner as TLccTrainController).DoTrainAssigned(tarAssigned)
+                                    ControllerNode.FAssignedTrain.RepliedSearchData := Train.SearchCriteria;
+                                    ControllerNode.DoTrainAssigned(tarAssigned);
+                                    if ReleaseTrain then
+                                    begin
+                                      WorkerMessage.LoadTractionManage(SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, False);
+                                      SendMessage(Owner, WorkerMessage);
+                                    end;
                                  end;
                                end;
-                             TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER : (Owner as TLccTrainController).DoTrainAssigned(tarFailTrainRefused);
-                             TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN               : (Owner as TLccTrainController).DoTrainAssigned(tarFailControllerRefused);
+                             TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+                               begin
+                                  if Assigned(ControllerNode) then
+                                    ControllerNode.DoTrainAssigned(tarFailTrainRefused);
+                               end;
+                             TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN               :
+                               begin
+                                  if Assigned(ControllerNode) then
+                                    ControllerNode.DoTrainAssigned(tarFailControllerRefused);
+                               end;
                            end;
                          finally
+                           // Release the Train if desired.  Where this is false would be if collecting trains for a consist and wanting to keep them locked
+                           if ReleaseTrain then
+                           begin
+                             WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
+                             SendMessage(Owner, WorkerMessage);
+                           end;
                            AdvanceToNextState;
-                           IgnoreTimer := False;
+                           FreezeTimer := False;
                          end
                        end;
                    end;
@@ -929,7 +949,7 @@ var
 begin
   Result := False;
 
-  IgnoreTimer := True;  // Stop reentrancy
+  FreezeTimer := True;  // Stop reentrancy
   try
     ControllerNode := Owner as TLccTrainController;
 
@@ -957,7 +977,7 @@ begin
         ErrorCode := laecNoTrainFound; // set a code for no train found
   finally
     AdvanceToNextState;
-    IgnoreTimer := False;
+    FreezeTimer := False;
   end;
 end;
 
@@ -1004,7 +1024,7 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_DETACH_REPLY :
                        begin
-                         IgnoreTimer := True;
+                         FreezeTimer := True;
                          try
                            TempNodeID := NULL_NODE_ID;
                            SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
@@ -1012,7 +1032,7 @@ begin
                            ControllerNode.DoControllerDetachListenerReply(TempNodeID, ReplyCode);
                          finally
                            AdvanceToNextState;
-                           IgnoreTimer := False;;
+                           FreezeTimer := False;;
                          end;
                        end;
                    end;
@@ -1071,7 +1091,7 @@ begin
                    case SourceMessage.DataArray[1] of
                      TRACTION_LISTENER_ATTACH_REPLY :
                        begin
-                         IgnoreTimer := True;
+                         FreezeTimer := True;
                          try
                            TempNodeID := NULL_NODE_ID;
                            SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
@@ -1079,7 +1099,7 @@ begin
                            ControllerNode.DoControllerAttachListenerReply(TempNodeID, ReplyCode);
                          finally
                            AdvanceToNextState;
-                           IgnoreTimer := False;
+                           FreezeTimer := False;
                          end;
                        end;
                    end;
@@ -1120,12 +1140,12 @@ begin
     SendMessage(ControllerNode, WorkerMessage);
     ControllerNode.ClearAssignedTrain;
   end;
-  IgnoreTimer := True;
+  FreezeTimer := True;
   try
     ControllerNode.DoTrainReleased; // Should return if we tried to release a train not assigned to us?   Continue reviewing this for the Error codes....
   finally
     AdvanceToNextState;
-    IgnoreTimer := False;
+    FreezeTimer := False;
   end;
 end;
 
@@ -1177,12 +1197,12 @@ begin
                   begin  // this can be turned into a request/reply action
                     if Address = SourceMessage.TractionExtractFunctionAddress then
                     begin
-                      IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+                      FreezeTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
                       try
                         ControllerNode.DoQueryFunctionReply(Address, SourceMessage.TractionExtractFunctionValue);
                       finally
                         AdvanceToNextState;
-                        IgnoreTimer := False;
+                        FreezeTimer := False;
                       end;
                     end;
                   end;
@@ -1248,12 +1268,12 @@ begin
               case SourceMessage.DataArray[0] of
                 TRACTION_QUERY_SPEED_REPLY :
                   begin  // this can be turned into a request/reply action
-                    IgnoreTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
+                    FreezeTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
                     try
                       ControllerNode.DoQuerySpeedReply(SourceMessage.TractionExtractSetSpeed, SourceMessage.TractionExtractCommandedSpeed, SourceMessage.TractionExtractActualSpeed, SourceMessage.TractionExtractSpeedStatus);
                     finally
                       AdvanceToNextState;
-                      IgnoreTimer := False;
+                      FreezeTimer := False;
                     end;
                   end;
               end;
@@ -1286,12 +1306,14 @@ var
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
+  // First Search for the the train wanted
   LocalAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
-  LocalAction.RegisterCallBack(Self);
+  LocalAction.RegisterCallBackOnExit(Self);
   LocalAction.SearchCriteria := SearchCriteria;
   Owner.LccActions.RegisterAndKickOffAction(LocalAction, nil);
 
-  SetTimoutCountThreshold(5000); // seconds to collect trains, end that Action and kick off another before this times out!!!
+  // seconds to collect trains, end that Action and kick off another before this times out!!!
+  SetTimoutCountThreshold(5000);
   AdvanceToNextState;
 end;
 
@@ -1313,22 +1335,25 @@ begin
   begin
     SpawnedSearchAction := SourceAction as TLccActionSearchGatherAndSelectTrain;
     // Selected a train in the child Action now Assign it
-    if SpawnedSearchAction.ErrorCode = laecOk then
+    if (SpawnedSearchAction.ErrorCode = laecOk) and Assigned(SpawnedSearchAction.Train) then
     begin
-      NextSpawnedAction := TLccActionAssignTrain.Create(Owner, SourceNodeID, SourceAliasID, SpawnedSearchAction.Trains[0].NodeID, SpawnedSearchAction.Trains[0].AliasID, UniqueID);
-      NextSpawnedAction.Trains.Add(SpawnedSearchAction.Trains[0].Clone);
-      NextSpawnedAction.RegisterCallBack(Self);
+      NextSpawnedAction := TLccActionAssignTrain.Create(Owner, SourceNodeID, SourceAliasID, SpawnedSearchAction.Train.NodeID, SpawnedSearchAction.Train.AliasID, UniqueID);
+      NextSpawnedAction.ReleaseTrain := ReleaseTrain;
+      NextSpawnedAction.Trains.Add(SpawnedSearchAction.Train.Clone);
+      NextSpawnedAction.RegisterCallBackOnExit(Self);
       Owner.LccActions.RegisterAndKickOffAction(NextSpawnedAction, nil);
-      // We stay in the same wait state until this task returns
+      // We stay in the same wait state until this task Exits
     end else
     begin
       // Search failed so move on
       ErrorCode := SpawnedSearchAction.ErrorCode;
+      SpawnedSearchAction.Trains.Clear;
       AdvanceToNextState;
     end;
   end else
   if SourceAction is TLccActionAssignTrain then
   begin
+    // The Action has tried to clean up on its own on an error so we can just pass the errorcode
     ErrorCode := (SourceAction as TLccActionAssignTrain).ErrorCode;
     AdvanceToNextState;
   end;
@@ -1743,13 +1768,13 @@ begin
     OnControllerRequestTakeover(Self, Allow);
 end;
 
-procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   if Assigned(OnSearchResult) then
     OnSearchResult(Sender, TrainList, SelectedResultIndex);
 end;
 
-procedure TLccTrainController.DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+procedure TLccTrainController.DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
 begin
   if Assigned(OnSearchMultiResult) then
     OnSearchMultiResult(Sender, Trains);

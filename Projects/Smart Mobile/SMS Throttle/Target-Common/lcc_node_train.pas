@@ -311,9 +311,11 @@ type
 
    TLccActionTractionManageReserve = class(TLccAction)
    private
+     FAliasMappingAlias: Word;
      FReservedByNodeAliasID: Word;
      FReservedByNodeID: TNodeID;
    protected
+     property AliasMappingAlias: Word read FAliasMappingAlias write FAliasMappingAlias;
      property ReservedByNodeID: TNodeID read FReservedByNodeID write FReservedByNodeID;
      property ReservedByNodeAliasID: Word read FReservedByNodeAliasID write FReservedByNodeAliasID;
 
@@ -575,14 +577,15 @@ begin
 
   if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
   begin
-    AliasMapping := Owner.AliasMappings.FindMapping(SourceMessage.CAN.SourceAlias);
+    AliasMappingAlias := SourceMessage.CAN.SourceAlias;
+    AliasMapping := Owner.AliasMappings.FindMapping(AliasMappingAlias);
     if not Assigned(AliasMapping) then
     begin
       WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
       SendMessage(Owner, WorkerMessage);
       SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
-      AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
     end;
+    AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
   end else
   begin
     ReservedByNodeAliasID := 0;
@@ -592,13 +595,11 @@ begin
 end;
 
 function TLccActionTractionManageReserve._1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-var
-  TempNodeID: TNodeID;
 begin
   Result := False;
 
   // Only way to get here is if we were GridConnect
-  AliasMapping := Owner.AliasMappings.FindMapping(SourceMessage.CAN.SourceAlias);
+  AliasMapping := Owner.AliasMappings.FindMapping(AliasMappingAlias);
   if Assigned(AliasMapping) then
   begin
     ReservedByNodeAliasID := AliasMapping.AnAlias;
@@ -628,13 +629,14 @@ begin
   begin
     OwnerTrain.ReservationNodeID := ReservedByNodeID;
     OwnerTrain.ReservationAliasID := ReservedByNodeAliasID;
-    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, True);
+    WorkerMessage.LoadTractionManageReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, True);
     SendMessage(Self, WorkerMessage);
   end else
   begin
-    WorkerMessage.LoadTractionManage(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
+    WorkerMessage.LoadTractionManageReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, False);
     SendMessage(Self, WorkerMessage);
   end;
+  AdvanceToNextState;
 end;
 
 procedure TLccActionTractionManageReserve.LoadStateArray;

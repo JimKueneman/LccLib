@@ -2269,9 +2269,9 @@ begin
   FDataArray[0] := TRACTION_MANAGE;
   FDataArray[1] := TRACTION_RESERVE_REPLY;
   if Accepted then
-    FDataArray[2] := S_OK
+    FDataArray[2] := TRACTION_MANAGE_RESERVE_REPLY_OK
   else
-    FDataArray[2] := S_FALSE;
+    FDataArray[2] := TRACTION_MANAGE_RESERVE_REPLY_FAIL;
   MTI := MTI_TRACTION_REPLY;
 end;
 

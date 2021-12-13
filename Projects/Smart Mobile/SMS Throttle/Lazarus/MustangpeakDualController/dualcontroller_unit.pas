@@ -191,11 +191,11 @@ type
     procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
     procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 
-    procedure OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
-    procedure OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+    procedure OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
+    procedure OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
 
     procedure OnControllerAttachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
     procedure OnControllerAttachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
@@ -808,7 +808,7 @@ begin
     ReleaseTrain2;
 end;
 
-procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
 begin
   if (Sender.UniqueID = 100) and (Trains.Count > 1) then
   begin
@@ -819,12 +819,12 @@ begin
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 
-procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainList);
+procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
 begin
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 
-procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case TrainList.Count of
@@ -835,7 +835,7 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case TrainList.Count of

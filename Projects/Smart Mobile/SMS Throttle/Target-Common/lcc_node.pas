@@ -149,9 +149,9 @@ type
     function Clone: TLccActionTrainInfo;
   end;
 
-  { TLccActionTrainList }
+  { TLccActionTrainInfoList }
 
-  TLccActionTrainList = class
+  TLccActionTrainInfoList = class
   private
     {$IFDEF DELPHI}
     FTrainList: TObjectList<TLccActionTrainInfo>;
@@ -195,7 +195,7 @@ type
     FActionStateIndex: Integer;
     FAliasMapping: TLccAliasMapping;
     FErrorCode: TLccActionErrorCode;
-    FIgnoreTimer: Boolean;
+    FFreezeTimer: Boolean;
     FOnCompleteCallback: TOnActionCompleteCallback;
     FOnTimeoutExpired: TOnActionTimoutExpired;
     FOwner: TLccNode;
@@ -220,6 +220,7 @@ type
     property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
     property OnCompleteCallback: TOnActionCompleteCallback read FOnCompleteCallback write FOnCompleteCallback;
 
+    // This message never gets a timer tick so never try to create a wait state here.
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
     function _NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
 
@@ -244,7 +245,7 @@ type
     property SendMessage: TOnMessageEvent read FSendMessage write FSendMessage;
 
     // Disables the timer from running any code.  Does not physically disable the timer but just short circuits TimeTick
-    property IgnoreTimer: Boolean read FIgnoreTimer write FIgnoreTimer;
+    property FreezeTimer: Boolean read FFreezeTimer write FFreezeTimer;
    // Check to see if the timer that was set previousely through SetTimoutCountThreshold
     property OnTimeoutExpired: TOnActionTimoutExpired read FOnTimeoutExpired write FOnTimeoutExpired;
     // User property that can be used to flag the statemachine should skip through states to the end
@@ -266,7 +267,7 @@ type
     // Compares CountThreshold and Counter to see if the timeout timer has expired
     function TimeoutExpired: Boolean;
     // Sets the OnCompleteCallback property to the CompleteCallack method of the passed function
-    procedure RegisterCallBack(AnLccAction: TLccAction);
+    procedure RegisterCallBackOnExit(AnLccAction: TLccAction);
   end;
 
 
@@ -274,10 +275,15 @@ type
 
   TLccActionTrain = class(TLccAction)
   private
-    FTrains: TLccActionTrainList;
+    FReleaseTrain: Boolean;
+    FTrains: TLccActionTrainInfoList;
+    function GetTrain: TLccActionTrainInfo;
   public
+    // We may not want to Release the train lock if we are Assigning and Creating a Consist.  Must mainually release the trains when done
+    property ReleaseTrain: Boolean read FReleaseTrain write FReleaseTrain;
     // User property hold trains nodes that are being working on in the task
-    property Trains: TLccActionTrainList read FTrains write FTrains;
+    property Trains: TLccActionTrainInfoList read FTrains write FTrains;
+    property Train: TLccActionTrainInfo read GetTrain;
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
     destructor Destroy; override;
@@ -495,12 +501,20 @@ end;
 
 { TLccActionTrain }
 
+function TLccActionTrain.GetTrain: TLccActionTrainInfo;
+begin
+  Result := nil;
+  if Trains.Count > 0 then
+    Result := Trains[0];
+end;
+
 constructor TLccActionTrain.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID;
   ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word;
   AnUniqueID: Integer);
 begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
-  FTrains := TLccActionTrainList.Create;
+  FTrains := TLccActionTrainInfoList.Create;
+  FReleaseTrain := True;
 end;
 
 destructor TLccActionTrain.Destroy;
@@ -509,24 +523,24 @@ begin
   inherited Destroy;
 end;
 
-{ TLccActionTrainList }
+{ TLccActionTrainInfoList }
 
-function TLccActionTrainList.GetTrains(Index: Integer): TLccActionTrainInfo;
+function TLccActionTrainInfoList.GetTrains(Index: Integer): TLccActionTrainInfo;
 begin
   Result := TrainList[Index] as TLccActionTrainInfo;
 end;
 
-function TLccActionTrainList.GetCount: Integer;
+function TLccActionTrainInfoList.GetCount: Integer;
 begin
   Result := TrainList.Count;
 end;
 
-procedure TLccActionTrainList.SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
+procedure TLccActionTrainInfoList.SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
 begin
   TrainList[Index] := AValue;
 end;
 
-constructor TLccActionTrainList.Create;
+constructor TLccActionTrainInfoList.Create;
 begin
   {$IFDEF DELPHI}
     FTrainList := TObjectList<TLccActionTrainInfo>.Create(False);
@@ -538,13 +552,13 @@ begin
   {$ENDIF}
 end;
 
-destructor TLccActionTrainList.Destroy;
+destructor TLccActionTrainInfoList.Destroy;
 begin
   FreeAndNil(FTrainList);
   inherited Destroy;
 end;
 
-function TLccActionTrainList.CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccActionTrainInfo;
+function TLccActionTrainInfoList.CreateNew(ANodeID: TNodeID; AnAliasID: Word): TLccActionTrainInfo;
 begin
   Result := TLccActionTrainInfo.Create;
   Add(Result);
@@ -552,17 +566,17 @@ begin
   Result.AliasID := AnAliasID;
 end;
 
-procedure TLccActionTrainList.Add(ATrain: TLccActionTrainInfo);
+procedure TLccActionTrainInfoList.Add(ATrain: TLccActionTrainInfo);
 begin
   TrainList.Add(ATrain);
 end;
 
-function TLccActionTrainList.IndexOf(ATrain: TLccActionTrainInfo): Integer;
+function TLccActionTrainInfoList.IndexOf(ATrain: TLccActionTrainInfo): Integer;
 begin
   Result := TrainList.IndexOf(ATrain);
 end;
 
-procedure TLccActionTrainList.Remove(ATrain: TLccActionTrainInfo);
+procedure TLccActionTrainInfoList.Remove(ATrain: TLccActionTrainInfo);
 {$IFDEF DWSCRIPT}
  var
    i: Integer;
@@ -577,12 +591,12 @@ begin
   {$ENDIF}
 end;
 
-procedure TLccActionTrainList.Clear();
+procedure TLccActionTrainInfoList.Clear();
 begin
   TrainList.Clear;
 end;
 
-function TLccActionTrainList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
+function TLccActionTrainInfoList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
 var
   i: Integer;
   LocalTrain: TLccActionTrainInfo;
@@ -602,7 +616,7 @@ begin
   end;
 end;
 
-function TLccActionTrainList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID;TestAliasID: Word): TLccActionTrainInfo;
+function TLccActionTrainInfoList.MatchingNodeAndSearchCriteria(TestNodeID: TNodeID;TestAliasID: Word): TLccActionTrainInfo;
 var
   i: Integer;
   LocalTrain: TLccActionTrainInfo;
@@ -696,11 +710,12 @@ function TLccAction.ProcessMessage(SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
   // Only send to the active State in the Action
-  if (ActionStateIndex > -1) and (ActionStateIndex < Length(States)) then
+  // Never send a TimerTick call to State 0 though.
+  if (ActionStateIndex > 0) and (ActionStateIndex < Length(States)) then
     Result := States[ActionStateIndex](Owner, SourceMessage);
 end;
 
-procedure TLccAction.RegisterCallBack(AnLccAction: TLccAction);
+procedure TLccAction.RegisterCallBackOnExit(AnLccAction: TLccAction);
 begin
   OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}AnLccAction.CompleteCallback;
 end;
@@ -728,7 +743,7 @@ end;
 
 procedure TLccAction.TimeTick;
 begin
-  if not IgnoreTimer then
+  if not FreezeTimer then
   begin
     Inc(FTimeoutCounts);
     ProcessMessage(nil);    // Force a clock tick in the state machine

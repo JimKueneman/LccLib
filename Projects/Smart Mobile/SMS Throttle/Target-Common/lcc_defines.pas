@@ -463,6 +463,7 @@ const
   TRACTION_RESERVE_REPLY              = $01;
 
   TRACTION_MANAGE_RESERVE_REPLY_OK   = $00;    // Failed is not 0
+  TRACTION_MANAGE_RESERVE_REPLY_FAIL = $01;
 
 type
   TLccDccSpeedStep = (ldssDefault, ldss14, ldss28, ldss128);
