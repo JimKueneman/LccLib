@@ -305,9 +305,9 @@ type
 
   // ******************************************************************************
 
-  TAttachedTrainReservationState = (trsNotReserved, trsReserving, trsReserved);
-  TAttachedTrainAssignmentState = (tasNotAssigned, tasAssigning, tasAssigned, tasUnAssigning);
-  TAttachedTrainSearchState = (tssNotSearching, tssSearching);
+//  TAttachedTrainReservationState = (trsNotReserved, trsReserving, trsReserved);
+//  TAttachedTrainAssignmentState = (tasNotAssigned, tasAssigning, tasAssigned, tasUnAssigning);
+//  TAttachedTrainSearchState = (tssNotSearching, tssSearching);
 
   // WARNING: For SMS these are zeroed manually in the Clear method.   If you add
   // more data, make sure it is cleared in the method for SMS

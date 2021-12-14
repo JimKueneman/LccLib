@@ -8,8 +8,9 @@
       <Unit0>
         <Filename Value="SimpleOlcbNode.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="10"/>
-        <CursorPos X="51" Y="194"/>
+        <CursorPos X="47" Y="20"/>
         <UsageCount Value="35"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -64,10 +65,9 @@
       </Unit7>
       <Unit8>
         <Filename Value="..\..\..\..\Library\LCC\lcc_common_classes.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="45"/>
-        <CursorPos X="53" Y="70"/>
+        <CursorPos X="68" Y="61"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit8>

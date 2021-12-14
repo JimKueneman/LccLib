@@ -18,6 +18,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="TrainCommanderUnit"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="643"/>
         <CursorPos X="106" Y="658"/>
         <UsageCount Value="245"/>
@@ -36,7 +37,7 @@
       <Unit3>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_common.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="128"/>
         <CursorPos Y="156"/>
         <UsageCount Value="204"/>
@@ -60,8 +61,7 @@
       </Unit5>
       <Unit6>
         <Filename Value="../../Target-Common/lcc_node_train.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="594"/>
         <CursorPos X="39" Y="605"/>
         <UsageCount Value="166"/>
@@ -69,7 +69,7 @@
       </Unit6>
       <Unit7>
         <Filename Value="../../Target-Common/lcc_node_controller.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="403"/>
         <CursorPos X="10" Y="430"/>
         <UsageCount Value="112"/>
@@ -77,7 +77,7 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../Target-Common/lcc_node_commandstation.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="257"/>
         <CursorPos X="36" Y="282"/>
         <UsageCount Value="183"/>
@@ -107,7 +107,7 @@
       </Unit11>
       <Unit12>
         <Filename Value="../../Target-Common/lcc_defines.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="449"/>
         <CursorPos X="37" Y="466"/>
         <UsageCount Value="143"/>
@@ -115,7 +115,7 @@
       </Unit12>
       <Unit13>
         <Filename Value="../../Target-Common/lcc_node.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="841"/>
         <CursorPos X="25" Y="849"/>
         <UsageCount Value="306"/>
@@ -130,7 +130,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="../../Target-Common/lcc_alias_mappings.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="59"/>
         <CursorPos Y="85"/>
         <UsageCount Value="11"/>
@@ -138,11 +138,10 @@
       </Unit15>
       <Unit16>
         <Filename Value="C:/lazarus/fpc/3.0.4/source/rtl/inc/objpash.inc"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="49"/>
         <CursorPos X="8" Y="65"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit16>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
