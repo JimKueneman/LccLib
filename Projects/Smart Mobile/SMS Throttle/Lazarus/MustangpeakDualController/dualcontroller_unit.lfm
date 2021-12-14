@@ -89,9 +89,9 @@ object Form1: TForm1
       Height = 354
       Top = 49
       Width = 368
-      ActivePage = TabSheetThrottle1Throttle
+      ActivePage = TabSheetThrottle1Consists
       Align = alClient
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 2
       object TabSheetThrottle1Throttle: TTabSheet
         Caption = 'Throttle'
@@ -366,21 +366,21 @@ object Form1: TForm1
       object TabSheetThrottle1Consists: TTabSheet
         Caption = 'Consists'
         ClientHeight = 324
-        ClientWidth = 344
+        ClientWidth = 362
         object PanelConsistWizard1: TPanel
           Left = 0
           Height = 324
           Top = 0
-          Width = 344
+          Width = 362
           Align = alClient
           ClientHeight = 324
-          ClientWidth = 344
+          ClientWidth = 362
           TabOrder = 0
           object PageControlConsists1: TPageControl
             Left = 1
             Height = 322
             Top = 1
-            Width = 342
+            Width = 360
             ActivePage = TabSheetConsistNew1
             Align = alClient
             TabIndex = 0
@@ -388,13 +388,13 @@ object Form1: TForm1
             OnChange = PageControlConsists1Change
             object TabSheetConsistNew1: TTabSheet
               Caption = 'Create'
-              ClientHeight = 292
-              ClientWidth = 336
+              ClientHeight = 322
+              ClientWidth = 360
               object TreeViewConsistWizard1: TTreeView
                 Left = 161
-                Height = 292
+                Height = 322
                 Top = 0
-                Width = 175
+                Width = 199
                 Align = alClient
                 HideSelection = False
                 Images = ImageList
@@ -406,11 +406,11 @@ object Form1: TForm1
               end
               object PanelConsistCreate1: TPanel
                 Left = 0
-                Height = 292
+                Height = 322
                 Top = 0
                 Width = 161
                 Align = alLeft
-                ClientHeight = 292
+                ClientHeight = 322
                 ClientWidth = 161
                 TabOrder = 1
                 object EditConsistAddress1: TEdit
