@@ -456,6 +456,10 @@ const
   TRACTION_LISTENER_FLAG_LINK_FN      = $08;   // Pass forward all functions
   TRACTION_LISTENER_FLAG_HIDDEN       = $10;   // Listener is hidden (not shown in UI).  I think is should be defined as "non-Train" Listener
 
+  TRACTION_LISTENER_ATTACH_REPLY_OK               = $0000;
+  TRACTION_LISTENER_ATTACH_REPLY_NOTFOUND         = $1030;
+  TRACTION_LISTENER_ATTACH_REPLY_PERMANTENT_ERROR = $1032;
+
   TRACTION_MANAGE                     = $40;
   TRACTION_MANAGE_RESERVE             = $01;
   TRACTION_MANAGE_RELEASE             = $02;

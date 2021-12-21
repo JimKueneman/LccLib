@@ -68,6 +68,8 @@ const
   TIMEOUT_CONTROLLER_RESERVE_WAIT = 5000;
   TIMEOUT_NODE_VERIFIED_WAIT = 800;       // 800ms
   TIMEOUT_NODE_ALIAS_MAPPING_WAIT = 1000;       // 800ms
+  TIMEOUT_CREATE_TRAIN_WAIT = 1000;       // 1000ms
+  TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT = 500;       // per listener
 
 const
 
@@ -117,6 +119,7 @@ type
   TLccActionTrainInfo = class
   private
     FAliasID: Word;
+    FIsConnectedAsListener: Boolean;
     FIsReserved: Boolean;            // The Train has its Reserved flag set for our operation (we reserved it)
     FNodeID: TNodeID;
     FSearchCriteria: DWORD;          // Search Critera Data
@@ -185,7 +188,7 @@ type
   end;
 
 
-  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed);
+  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed, laecListenerAttachFailed);
 
   { TLccAction }
 
@@ -256,6 +259,8 @@ type
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); virtual;
     destructor Destroy; override;
 
+    // Set the index to the last exit function that will be pointed to in the States array
+    function AdvanceToLastState: Integer;
     // Set the index to the next function that will be pointed to in the States array
     function AdvanceToNextState(JumpCount: Integer = 1): Integer;
     // Each decendant must set the number of state functions it implements
@@ -657,6 +662,8 @@ end;
 function TLccAction.AdvanceToNextState(JumpCount: Integer): Integer;
 begin
   Inc(FActionStateIndex, JumpCount);
+  if (FActionStateIndex > Length(States) - 1) or (FActionStateIndex < 0) then
+    FActionStateIndex := Length(States) - 1;     // Error just run the last state to exit
   Result := FActionStateIndex;
 end;
 
@@ -675,6 +682,12 @@ begin
   FreeAndNil(FWorkerMessage);
   {$ENDIF}
   inherited Destroy;
+end;
+
+function TLccAction.AdvanceToLastState: Integer;
+begin
+  FActionStateIndex := Length(States) - 1;     // Error just run the last state to exit
+  Result := FActionStateIndex;
 end;
 
 procedure TLccAction.DoTimeoutExpired;

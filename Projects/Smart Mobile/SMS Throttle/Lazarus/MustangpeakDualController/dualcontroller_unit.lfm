@@ -388,13 +388,13 @@ object Form1: TForm1
             OnChange = PageControlConsists1Change
             object TabSheetConsistNew1: TTabSheet
               Caption = 'Create'
-              ClientHeight = 322
-              ClientWidth = 360
+              ClientHeight = 292
+              ClientWidth = 354
               object TreeViewConsistWizard1: TTreeView
                 Left = 161
-                Height = 322
+                Height = 292
                 Top = 0
-                Width = 199
+                Width = 193
                 Align = alClient
                 HideSelection = False
                 Images = ImageList
@@ -406,11 +406,11 @@ object Form1: TForm1
               end
               object PanelConsistCreate1: TPanel
                 Left = 0
-                Height = 322
+                Height = 292
                 Top = 0
                 Width = 161
                 Align = alLeft
-                ClientHeight = 322
+                ClientHeight = 292
                 ClientWidth = 161
                 TabOrder = 1
                 object EditConsistAddress1: TEdit
@@ -493,6 +493,14 @@ object Form1: TForm1
                   Caption = 'Create Consist'
                   OnClick = ButtonCreateConstist1Click
                   TabOrder = 3
+                end
+                object CheckBoxConsistReverseDir1: TCheckBox
+                  Left = 8
+                  Height = 18
+                  Top = 176
+                  Width = 122
+                  Caption = 'Reverse Direction'
+                  TabOrder = 4
                 end
               end
             end
@@ -646,9 +654,9 @@ object Form1: TForm1
       Height = 354
       Top = 49
       Width = 368
-      ActivePage = TabSheetThrottle2Throttle
+      ActivePage = TabSheetThrottle2Consists
       Align = alClient
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 2
       object TabSheetThrottle2Throttle: TTabSheet
         Caption = 'Throttle'
@@ -923,21 +931,21 @@ object Form1: TForm1
       object TabSheetThrottle2Consists: TTabSheet
         Caption = 'Consists'
         ClientHeight = 324
-        ClientWidth = 360
+        ClientWidth = 362
         object PanelConsistWizard2: TPanel
           Left = 0
           Height = 324
           Top = 0
-          Width = 360
+          Width = 362
           Align = alClient
           ClientHeight = 324
-          ClientWidth = 360
+          ClientWidth = 362
           TabOrder = 0
           object PageControlConsists2: TPageControl
             Left = 1
             Height = 322
             Top = 1
-            Width = 358
+            Width = 360
             ActivePage = TabSheetConsistNew2
             Align = alClient
             TabIndex = 0
@@ -945,13 +953,13 @@ object Form1: TForm1
             OnChange = PageControlConsists2Change
             object TabSheetConsistNew2: TTabSheet
               Caption = 'Create'
-              ClientHeight = 292
-              ClientWidth = 352
+              ClientHeight = 322
+              ClientWidth = 360
               object TreeViewConsistWizard2: TTreeView
                 Left = 161
-                Height = 292
+                Height = 322
                 Top = 0
-                Width = 191
+                Width = 199
                 Align = alClient
                 TabOrder = 0
                 OnMouseDown = TreeViewConsistWizard2MouseDown
@@ -959,11 +967,11 @@ object Form1: TForm1
               end
               object PanelConsistCreate2: TPanel
                 Left = 0
-                Height = 292
+                Height = 322
                 Top = 0
                 Width = 161
                 Align = alLeft
-                ClientHeight = 292
+                ClientHeight = 322
                 ClientWidth = 161
                 TabOrder = 1
                 object EditConsistAddress2: TEdit
@@ -1046,6 +1054,14 @@ object Form1: TForm1
                   Caption = 'Create Consist'
                   OnClick = ButtonCreateConstist2Click
                   TabOrder = 3
+                end
+                object CheckBoxConsistReverseDir2: TCheckBox
+                  Left = 5
+                  Height = 18
+                  Top = 176
+                  Width = 122
+                  Caption = 'Reverse Direction'
+                  TabOrder = 4
                 end
               end
             end

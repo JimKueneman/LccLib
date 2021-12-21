@@ -26,8 +26,10 @@ type
     ButtonReleaseConsist2: TButton;
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
+    CheckBoxConsistReverseDir2: TCheckBox;
     CheckBoxConsistAddress1: TCheckBox;
     CheckBoxConsistAddress2: TCheckBox;
+    CheckBoxConsistReverseDir1: TCheckBox;
     CheckBoxForwardF0_1: TCheckBox;
     CheckBoxForwardF0_2: TCheckBox;
     CheckBoxForwardFn_1: TCheckBox;
@@ -184,38 +186,38 @@ type
     procedure OnClientServer2ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 
     // The Controller is the Controller Node created in the NodeManager
-    procedure ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
-    procedure ControllerTrainAssigned2(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+    procedure ControllerTrainAssigned1(Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
+    procedure ControllerTrainAssigned2(Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
 
-    procedure ControllerTrainReleased1(Sender: TLccNode);
-    procedure ControllerTrainReleased2(Sender: TLccNode);
+    procedure ControllerTrainReleased1(Sender: TLccTrainController);
+    procedure ControllerTrainReleased2(Sender: TLccTrainController);
 
-    procedure OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
-    procedure OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerQuerySpeedReply1(Sender: TLccTrainController; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply1(Sender: TLccTrainController; Address: DWORD; Value: Word);
 
-    procedure OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
-    procedure OnControllerQueryFunctionReply2(Sender: TLccNode; Address: DWORD; Value: Word);
+    procedure OnControllerQuerySpeedReply2(Sender: TLccTrainController; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply2(Sender: TLccTrainController; Address: DWORD; Value: Word);
 
-    procedure OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
-    procedure OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
+    procedure OnControllerReqestTakeover1(Sender: TLccTrainController; var Allow: Boolean);
+    procedure OnControllerReqestTakeover2(Sender: TLccTrainController; var Allow: Boolean);
 
-    procedure OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
-    procedure OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult1(Sender: TLccTrainController; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+    procedure OnControllerSearchResult2(Sender: TLccTrainController; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 
-    procedure OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
-    procedure OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
+    procedure OnControllerSearchMultiResult1(Sender: TLccTrainController; Trains: TLccActionTrainInfoList);
+    procedure OnControllerSearchMultiResult2(Sender: TLccTrainController; Trains: TLccActionTrainInfoList);
 
-    procedure OnControllerAttachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
-    procedure OnControllerAttachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerAttachListenerReply1(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word);
+    procedure OnControllerAttachListenerReply2(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word);
 
-    procedure OnControllerDetachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
-    procedure OnControllerDetachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+    procedure OnControllerDetachListenerReply1(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word);
+    procedure OnControllerDetachListenerReply2(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word);
 
-    procedure OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
-    procedure OnControllerQueryListenerGetCount2(Sender: TLccNode; ListenerCount: Byte);
+    procedure OnControllerQueryListenerGetCount1(Sender: TLccTrainController; ListenerCount: Byte);
+    procedure OnControllerQueryListenerGetCount2(Sender: TLccTrainController; ListenerCount: Byte);
 
-    procedure OnControllerQueryListenerIndex1(Sender: TLccNode; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
-    procedure OnControllerQueryListenerIndex2(Sender: TLccNode; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+    procedure OnControllerQueryListenerIndex1(Sender: TLccTrainController; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
+    procedure OnControllerQueryListenerIndex2(Sender: TLccTrainController; ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte; ListenerNodeID: TNodeID);
 
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
@@ -260,7 +262,7 @@ begin
       TreeNode := TreeNode.GetNext;
     end;
   finally
-    ControllerNode1.SearchTrainsByDccAddress(DccSearchCriteria, 100);
+    ControllerNode1.ConsistTrainsByDccAddress(DccSearchCriteria, 100);
     FreeAndNil(DccSearchCriteria);
   end;
 end;
@@ -692,7 +694,8 @@ begin
   ButtonConnect2.Caption := 'Connect';
 end;
 
-procedure TForm1.ControllerTrainAssigned1(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+procedure TForm1.ControllerTrainAssigned1(Sender: TLccTrainController;
+  Reason: TControllerTrainAssignResult);
 begin
   case Reason of
     tarAssigned :
@@ -709,7 +712,8 @@ begin
   end;
 end;
 
-procedure TForm1.ControllerTrainAssigned2(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+procedure TForm1.ControllerTrainAssigned2(Sender: TLccTrainController;
+  Reason: TControllerTrainAssignResult);
 begin
   case Reason of
     tarAssigned :
@@ -726,19 +730,20 @@ begin
   end;
 end;
 
-procedure TForm1.ControllerTrainReleased1(Sender: TLccNode);
+procedure TForm1.ControllerTrainReleased1(Sender: TLccTrainController);
 begin
   PanelThrottleKeypad1.Enabled := False;
   SpeedButtonThrottleAssign1.Caption := 'Allocate Train';
 end;
 
-procedure TForm1.ControllerTrainReleased2(Sender: TLccNode);
+procedure TForm1.ControllerTrainReleased2(Sender: TLccTrainController);
 begin
   PanelThrottleKeypad2.Enabled := False;
   SpeedButtonThrottleAssign2.Caption := 'Allocate Train';
 end;
 
-procedure TForm1.OnControllerQueryFunctionReply1(Sender: TLccNode; Address: DWORD; Value: Word);
+procedure TForm1.OnControllerQueryFunctionReply1(Sender: TLccTrainController;
+  Address: DWORD; Value: Word);
 begin
   ControllerNode1.Functions[Address] := Value;
   case Address of
@@ -757,7 +762,8 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerQueryFunctionReply2(Sender: TLccNode; Address: DWORD; Value: Word);
+procedure TForm1.OnControllerQueryFunctionReply2(Sender: TLccTrainController;
+  Address: DWORD; Value: Word);
 begin
     ControllerNode2.Functions[Address] := Value;
     case Address of
@@ -776,7 +782,8 @@ begin
     end;
 end;
 
-procedure TForm1.OnControllerQuerySpeedReply1(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+procedure TForm1.OnControllerQuerySpeedReply1(Sender: TLccTrainController;
+  SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
   TrackBarThrottle1.Position := Abs( Round(HalfToFloat(SetSpeed)));
 
@@ -791,7 +798,8 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerQuerySpeedReply2(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+procedure TForm1.OnControllerQuerySpeedReply2(Sender: TLccTrainController;
+  SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
   TrackBarThrottle2.Position := Abs( Round(HalfToFloat(SetSpeed)));
 
@@ -806,7 +814,8 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerReqestTakeover1(Sender: TLccNode; var Allow: Boolean);
+procedure TForm1.OnControllerReqestTakeover1(Sender: TLccTrainController;
+  var Allow: Boolean);
 begin
   if CheckBoxThrottleTakeover1.Checked then
     Allow :=  FormThrottleTakeover.ShowModal = mrYes;
@@ -814,7 +823,8 @@ begin
     ReleaseTrain1;
 end;
 
-procedure TForm1.OnControllerReqestTakeover2(Sender: TLccNode; var Allow: Boolean);
+procedure TForm1.OnControllerReqestTakeover2(Sender: TLccTrainController;
+  var Allow: Boolean);
 begin
   if CheckBoxThrottleTakeover2.Checked then
     Allow :=  FormThrottleTakeover.ShowModal = mrYes;
@@ -822,9 +832,10 @@ begin
     ReleaseTrain2;
 end;
 
-procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
+procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccTrainController;
+  Trains: TLccActionTrainInfoList);
 begin
-  if (Sender.UniqueID = 100) and (Trains.Count > 1) then
+  if Trains.Count > 1 then
   begin
     // This is a search for a consist
     ControllerNode1.ListenerAttach(Trains[0].NodeID, Trains[0].AliasID, Trains[1].NodeID, 200);
@@ -833,12 +844,14 @@ begin
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 
-procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
+procedure TForm1.OnControllerSearchMultiResult2(Sender: TLccTrainController;
+  Trains: TLccActionTrainInfoList);
 begin
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;
 
-procedure TForm1.OnControllerSearchResult1(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult1(Sender: TLccTrainController;
+  TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case TrainList.Count of
@@ -849,7 +862,8 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerSearchResult2(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+procedure TForm1.OnControllerSearchResult2(Sender: TLccTrainController;
+  TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   SelectedResultIndex := 0;
   case TrainList.Count of
@@ -860,45 +874,50 @@ begin
   end;
 end;
 
-procedure TForm1.OnControllerAttachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListenerReply1(Sender: TLccTrainController;
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerAttachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerAttachListenerReply2(Sender: TLccTrainController;
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListenerReply1(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListenerReply1(Sender: TLccTrainController;
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerDetachListenerReply2(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word);
+procedure TForm1.OnControllerDetachListenerReply2(Sender: TLccTrainController;
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerGetCount1(Sender: TLccNode; ListenerCount: Byte);
+procedure TForm1.OnControllerQueryListenerGetCount1(
+  Sender: TLccTrainController; ListenerCount: Byte);
 begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerGetCount2(Sender: TLccNode;
-  ListenerCount: Byte);
+procedure TForm1.OnControllerQueryListenerGetCount2(
+  Sender: TLccTrainController; ListenerCount: Byte);
 begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerIndex1(Sender: TLccNode;
+procedure TForm1.OnControllerQueryListenerIndex1(Sender: TLccTrainController;
   ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte;
   ListenerNodeID: TNodeID);
 begin
 
 end;
 
-procedure TForm1.OnControllerQueryListenerIndex2(Sender: TLccNode;
+procedure TForm1.OnControllerQueryListenerIndex2(Sender: TLccTrainController;
   ListenerCount, ListenerIndex: Byte; ListenerFlags: Byte;
   ListenerNodeID: TNodeID);
 begin
@@ -942,31 +961,31 @@ var
   NodeCaption: string;
   DccAddress: Integer;
 begin
-  if TryStrToInt(EditConsistAddress2.Text, DccAddress) then
+  if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
-    if Assigned(TreeViewConsistWizard2.Selected) then
+    if Assigned(TreeViewConsistWizard1.Selected) then
     begin
-      SelectedNode := TreeViewConsistWizard2.Selected;
+      SelectedNode := TreeViewConsistWizard1.Selected;
       ConsistItem := TDccSearchCriteria(SelectedNode.Data);
 
-      NodeCaption := EditConsistAddress2.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, Verbose) + ',' + SpeedStepToString(IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1), Verbose);
+      NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, Verbose) + ',' + SpeedStepToString(IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1), Verbose);
 
-      if TreeViewConsistWizard2.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates
+      if TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates
       begin
         SelectedNode.Text := NodeCaption;
         ConsistItem.Address := DccAddress;
-        ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1);
-        ConsistItem.LongAddress := CheckBoxConsistAddress2.Checked;
+        ConsistItem.SpeedStep := IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1);
+        ConsistItem.LongAddress := CheckBoxConsistAddress1.Checked;
 
         SelectedNode.Update;
-        TreeViewConsistWizard2.Selected := nil;
-        EditConsistAddress2.SetFocus;
-        EditConsistAddress2.SelectAll;
+        TreeViewConsistWizard1.Selected := nil;
+        EditConsistAddress1.SetFocus;
+        EditConsistAddress1.SelectAll;
       end else
         ShowMessage('Duplicate Train');
     end else
     begin
-      ConsistItem := TDccSearchCriteria.Create('', DccAddress, IndexToSpeedStep(RadioGroupConstistSpeedStep2.ItemIndex + 1), CheckBoxConsistAddress2.Checked);
+      ConsistItem := TDccSearchCriteria.Create('', DccAddress, IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1), CheckBoxConsistAddress1.Checked);
       NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, Verbose) + ',' + SpeedStepToString(IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1), Verbose);
 
       if TreeViewConsistWizard1.Items.FindNodeWithText(NodeCaption) = nil then // No duplicates

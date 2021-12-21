@@ -80,6 +80,7 @@ const
 type
 
   TControllerTrainAssignResult = (tarAssigned, tarFailTrainRefused, tarFailControllerRefused, tarReserveFailed);
+  TControllerTrainConsistResults = (tcrOk, tcrSearchTimedOut);
 
   TLccActionSearchAndAssignTrain = class;
 
@@ -114,6 +115,7 @@ type
     property Criteria: DWORD read FCriteria write FCriteria;
 
     constructor Create(ACriteria: DWORD);
+    function Clone: TLccEncodedSearchCriteria;
   end;
 
   { TLccActionSearchGatherAndSelectTrain }
@@ -154,6 +156,46 @@ type
     procedure CompleteCallback(SourceAction: TLccAction); override;
 
     property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
+  public
+    {$IFDEF DELPHI}
+    property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    {$ELSE}
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    {$ENDIF}
+
+    constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
+    destructor Destroy; override;
+  end;
+
+  { TLccActionConsistTrains }
+
+  // Trains property contains the selected trains when the action completes
+  // Calls TLccActionSearchGatherAndSelectTrain for all items in the SearchCriteria property
+  TLccActionConsistTrains = class(TLccActionTrain)
+  private
+    FAttachFailedReplyCount: Integer;
+    FAttachSuccessfulReplyCount: Integer;
+    {$IFDEF DELPHI}
+    FEncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria>;
+    {$ELSE}
+    FEncodedSearchCriteria: TObjectList;
+    {$ENDIF}
+    FiEncodedSearchCriteria: Integer;
+    FAttachRequestCount: Integer;
+  protected
+    function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+    function _1ActionWaitForSpawnedAction(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _2ActionListenerAttach(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _3WaitForListenerAttachReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+    function _4ActionListenerDetachOnError(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+    procedure LoadStateArray; override;
+    procedure CompleteCallback(SourceAction: TLccAction); override;
+
+    property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
+    property AttachRequestCount: Integer read FAttachRequestCount write FAttachRequestCount;
+    property AttachSuccessfulReplyCount: Integer read FAttachSuccessfulReplyCount write FAttachSuccessfulReplyCount;
+    property AttachFailedReplyCount: Integer read FAttachFailedReplyCount write FAttachFailedReplyCount;
   public
     {$IFDEF DELPHI}
     property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
@@ -291,17 +333,20 @@ type
 
 type
 
-  TOnControllerSearchResult = procedure(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer) of object;
-  TOnControllerSearchMultiResult = procedure(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList) of object;
-  TOnControllerTrainAssignedReply = procedure(Sender: TLccNode; Reason: TControllerTrainAssignResult) of object;
-  TOnControllerTrainReleasedReply = procedure(Sender: TLccNode) of object;
-  TOnControllerQuerySpeedReply = procedure(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
-  TOnControllerQueryFunctionReply = procedure(Sender: TLccNode; Address: DWORD; Value: Word) of object;
-  TOnControllerRequestTakeover = procedure(Sender: TLccNode; var Allow: Boolean) of object;
-  TOnControllerAttachListenerReply = procedure(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word) of object;
-  TOnControllerDetachListenerReply = procedure(Sender: TLccNode; ListenerNodeID: TNodeID; ReplyCode: Word) of object;
-  TOnControllerQueryListenerGetCount = procedure(Sender: TLccNode; ListenerCount: Byte) of object;
-  TOnControllerQueryListenerIndex = procedure(Sender: TLccNode; ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID) of object;
+  TLccTrainController = class;
+
+  TOnControllerConsistsResults = procedure(Sender: TLccTrainController; ConsistResult: TControllerTrainConsistResults) of object;
+  TOnControllerSearchResult = procedure(Sender: TLccTrainController; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer) of object;
+  TOnControllerSearchMultiResult = procedure(Sender: TLccTrainController; Trains: TLccActionTrainInfoList) of object;
+  TOnControllerTrainAssignedReply = procedure(Sender: TLccTrainController; Reason: TControllerTrainAssignResult) of object;
+  TOnControllerTrainReleasedReply = procedure(Sender: TLccTrainController) of object;
+  TOnControllerQuerySpeedReply = procedure(Sender: TLccTrainController; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte) of object;
+  TOnControllerQueryFunctionReply = procedure(Sender: TLccTrainController; Address: DWORD; Value: Word) of object;
+  TOnControllerRequestTakeover = procedure(Sender: TLccTrainController; var Allow: Boolean) of object;
+  TOnControllerAttachListenerReply = procedure(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word) of object;
+  TOnControllerDetachListenerReply = procedure(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word) of object;
+  TOnControllerQueryListenerGetCount = procedure(Sender: TLccTrainController; ListenerCount: Byte) of object;
+  TOnControllerQueryListenerIndex = procedure(Sender: TLccTrainController; ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID) of object;
 
   // ******************************************************************************
 
@@ -329,6 +374,7 @@ type
     FDirection: TLccTrainDirection;
     FFunctionArray: TLccFunctions;
     FOnAttachListenerReply: TOnControllerAttachListenerReply;
+    FOnConsistResults: TOnControllerConsistsResults;
     FOnControllerRequestTakeover: TOnControllerRequestTakeover;
     FOnDetachListenerReply: TOnControllerDetachListenerReply;
     FOnQueryFunctionReply: TOnControllerQueryFunctionReply;
@@ -355,11 +401,12 @@ type
     procedure DoTrainReleased; virtual;
     procedure DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte); virtual;
     procedure DoQueryFunctionReply(Address: DWORD; Value: Word); virtual;
+    procedure DoConsist(ConsistResults: TControllerTrainConsistResults); virtual;
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
-    procedure DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer); virtual;
-    procedure DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList); virtual;
-    procedure DoControllerAttachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
-    procedure DoControllerDetachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte); virtual;
+    procedure DoSearchResult(TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer); virtual;
+    procedure DoSearchMultiResult(Trains: TLccActionTrainInfoList); virtual;
+    procedure DoControllerAttachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte); virtual;
+    procedure DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte); virtual;
     procedure DoControllerQueryListenerGetCount(ListenerCount: Byte); virtual;
     procedure DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID); virtual;
 
@@ -369,6 +416,7 @@ type
     property Direction: TLccTrainDirection read FDirection write SetDirection;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
 
+    property OnConsistResults: TOnControllerConsistsResults read FOnConsistResults write FOnConsistResults;
     property OnTrainAssigned: TOnControllerTrainAssignedReply read FOnTrainAssigned write FOnTrainAssigned;
     property OnTrainReleased: TOnControllerTrainReleasedReply read FOnTrainReleased write FOnTrainReleased;
     property OnQuerySpeedReply: TOnControllerQuerySpeedReply read FOnQuerySpeedReply write FOnQuerySpeedReply;
@@ -396,8 +444,10 @@ type
     procedure SearchTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
     {$IFDEF DELPHI}
     procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure ConsistTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ELSE}
     procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure ConsistTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ENDIF}
     procedure EmergencyStop(UniqueID: Integer = 0);
     function IsTrainAssigned: Boolean;
@@ -409,6 +459,144 @@ type
 
 
 implementation
+
+{ TLccActionConsistTrains }
+
+function TLccActionConsistTrains._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  SpawnedAction: TLccActionSearchGatherAndSelectTrains;
+  i: Integer;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  SpawnedAction := TLccActionSearchGatherAndSelectTrains.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
+  for i := 0 to EncodedSearchCriteria.Count - 1 do
+    SpawnedAction.EncodedSearchCriteria.Add( (EncodedSearchCriteria[i] as TLccEncodedSearchCriteria).Clone);
+
+  SpawnedAction.RegisterCallBackOnExit(Self);
+  Owner.LccActions.RegisterAndKickOffAction(SpawnedAction, nil);
+  SetTimoutCountThreshold( Trunc(TIMEOUT_CREATE_TRAIN_WAIT * EncodedSearchCriteria.Count));  // 1 Wait Unit for each train we are trying to create
+  AdvanceToNextState;
+end;
+
+function TLccActionConsistTrains._1ActionWaitForSpawnedAction(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+  // Spinning here
+  // Will break out from the Callback even from timeouts
+end;
+
+function TLccActionConsistTrains._2ActionListenerAttach(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  i: Integer;
+  ActionListenerAttach: TLccActionTractionListenerAttach;
+begin
+  Result := False;
+  AttachSuccessfulReplyCount := 0;
+  AttachFailedReplyCount := 0;
+
+
+  AttachRequestCount := (2 * EncodedSearchCriteria.Count) - 2;
+  for i := 0 to Trains.Count - 2 do
+  begin
+    ActionLIstenerAttach := TLccActionTractionListenerAttach.Create(Owner, SourceNodeID, SourceAliasID, Trains[i].NodeID, Trains[i].AliasID, 0);
+    ActionListenerAttach.ListenerNodeID := Trains[i+1].NodeID;
+    ActionListenerAttach.RegisterCallBackOnExit(Self);
+    Owner.LccActions.RegisterAndKickOffAction(ActionListenerAttach, nil);
+
+    ActionLIstenerAttach := TLccActionTractionListenerAttach.Create(Owner, SourceNodeID, SourceAliasID, Trains[i+1].NodeID, Trains[i+1].AliasID, 0);
+    ActionListenerAttach.ListenerNodeID := Trains[i].NodeID;
+    ActionListenerAttach.RegisterCallBackOnExit(Self);
+    Owner.LccActions.RegisterAndKickOffAction(ActionListenerAttach, nil);
+  end;
+  SetTimoutCountThreshold( Trunc(TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT * EncodedSearchCriteria.Count));
+  AdvanceToNextState;
+end;
+
+function TLccActionConsistTrains._3WaitForListenerAttachReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+  // Spinning here
+  // Will break out from the Callback even from timeouts
+end;
+
+function TLccActionConsistTrains._4ActionListenerDetachOnError(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TLccActionConsistTrains.CompleteCallback(SourceAction: TLccAction);
+var
+  SpawnedSearchTrains: TLccActionSearchGatherAndSelectTrains;
+  SpawnedListenerAttach: TLccActionTractionListenerAttach;
+  i: Integer;
+begin
+  if SourceAction is TLccActionSearchGatherAndSelectTrains then
+  begin
+    SpawnedSearchTrains := SourceAction as TLccActionSearchGatherAndSelectTrains;
+    if SpawnedSearchTrains.ErrorCode = laecOk then
+    begin
+      if SpawnedSearchTrains.Trains.Count = EncodedSearchCriteria.Count then
+      begin
+        for i := 0 to SpawnedSearchTrains.Trains.Count - 1 do
+          Trains.Add( SpawnedSearchTrains.Trains[i].Clone);
+        AdvanceToNextState;
+      end else
+      begin
+        // Could not create one or more of the trains we needed...
+        // If timed out then that will be the error code
+        ErrorCode := SpawnedSearchTrains.ErrorCode;
+        (Owner as TLccTrainController).DoConsist(tcrSearchTimedOut);
+        AdvanceToLastState;
+      end;
+    end
+  end else
+  if SourceAction is TLccActionTractionListenerAttach then
+  begin
+    SpawnedListenerAttach := SourceAction as TLccActionTractionListenerAttach;
+    if SpawnedListenerAttach.ErrorCode = laecOk then
+      Inc(FAttachSuccessfulReplyCount);
+    if SpawnedListenerAttach.ErrorCode = laecListenerAttachFailed then
+      Inc(FAttachFailedReplyCount);
+    if Trains.Count = (AttachSuccessfulReplyCount + AttachFailedReplyCount) then
+      begin
+        AdvanceToNextState;
+      end;
+  end;
+end;
+
+procedure TLccActionConsistTrains.LoadStateArray;
+begin
+  SetStateArrayLength(6);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForSpawnedAction;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionListenerAttach;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_3WaitForListenerAttachReply;
+  States[4] := {$IFNDEF DELPHI}@{$ENDIF}_4ActionListenerDetachOnError;
+  States[5] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+
+end;
+
+constructor TLccActionConsistTrains.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer);
+begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
+
+  {$IFDEF DELPHI}
+  FEncodedSearchCriteria := TObjectList<TLccEncodedSearchCriteria>.Create;
+  {$ELSE}
+  FEncodedSearchCriteria := TObjectList.Create;
+  {$ENDIF}
+  {$IFNDEF DWSCRIPT}
+  EncodedSearchCriteria.OwnsObjects := True;
+  {$ENDIF}
+  iEncodedSearchCriteria := 0;
+end;
+
+destructor TLccActionConsistTrains.Destroy;
+begin
+  FreeAndNil(FEncodedSearchCriteria);
+  inherited Destroy;
+end;
 
 { TLccActionTractionListenerQuery }
 
@@ -558,6 +746,11 @@ begin
   FCriteria := ACriteria;
 end;
 
+function TLccEncodedSearchCriteria.Clone: TLccEncodedSearchCriteria;
+begin
+  Result := TLccEncodedSearchCriteria.Create(Criteria);
+end;
+
 { TDccSearchCriteria }
 
 constructor TDccSearchCriteria.Create(ASearchString: string; AnAddress: Word;
@@ -613,7 +806,7 @@ begin
     FreezeTimer := True;  // Stop reentrancy
     try
       ControllerNode := Owner as TLccTrainController;
-      ControllerNode.DoSearchMultiResult(Self, Trains);
+      ControllerNode.DoSearchMultiResult(Trains);
     finally
       AdvanceToNextState;
       FreezeTimer := False;
@@ -636,6 +829,8 @@ constructor TLccActionSearchGatherAndSelectTrains.Create(AnOwner: TLccNode;
   ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID;
   ADestAliasID: Word; AnUniqueID: Integer);
 begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
+
   {$IFDEF DELPHI}
   FEncodedSearchCriteria := TObjectList<TLccEncodedSearchCriteria>.Create;
   {$ELSE}
@@ -959,7 +1154,7 @@ begin
       iSelectedTrain := -1;
 
       // Let the handler deal with no trains as an error code
-      ControllerNode.DoSearchResult(Self, Trains, iSelectedTrain);
+      ControllerNode.DoSearchResult(Trains, iSelectedTrain);
 
       // If there are no trains don't do anything
       if Trains.Count > 0 then
@@ -1006,7 +1201,6 @@ end;
 function TLccActionTractionListenerDetach._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   ControllerNode: TLccTrainController;
-  TempNodeID: TNodeID;
   ReplyCode: Word;
 begin
   Result := False;
@@ -1015,31 +1209,29 @@ begin
 
   if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
   begin
-    case SourceMessage.MTI of
-       MTI_TRACTION_REPLY :
-         begin
-           case SourceMessage.DataArray[0] of
-             TRACTION_LISTENER :
-                 begin
-                   case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_DETACH_REPLY :
-                       begin
-                         FreezeTimer := True;
-                         try
-                           TempNodeID := NULL_NODE_ID;
-                           SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
+    FreezeTimer := True;
+    try
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_LISTENER :
+                   begin
+                     case SourceMessage.DataArray[1] of
+                       TRACTION_LISTENER_DETACH_REPLY :
+                         begin
                            ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                           ControllerNode.DoControllerDetachListenerReply(TempNodeID, ReplyCode);
-                         finally
+                           ControllerNode.DoControllerDetachListenerReply(Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), ReplyCode);
                            AdvanceToNextState;
-                           FreezeTimer := False;;
                          end;
-                       end;
-                   end;
+                     end;
 
-                 end;
+                   end;
+             end;
            end;
-         end;
+      end;
+    finally
+      FreezeTimer := False;
     end;
   end;
 
@@ -1073,7 +1265,6 @@ end;
 function TLccActionTractionListenerAttach._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   ControllerNode: TLccTrainController;
-  TempNodeID: TNodeID;
   ReplyCode: Word;
 begin
   Result := False;
@@ -1082,31 +1273,30 @@ begin
 
   if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
   begin
-    case SourceMessage.MTI of
-       MTI_TRACTION_REPLY :
-         begin
-           case SourceMessage.DataArray[0] of
-             TRACTION_LISTENER :
-                 begin
-                   case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_ATTACH_REPLY :
-                       begin
-                         FreezeTimer := True;
-                         try
-                           TempNodeID := NULL_NODE_ID;
-                           SourceMessage.ExtractDataBytesAsNodeID(2, TempNodeID);
+    FreezeTimer := True;
+    try
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_LISTENER :
+                   begin
+                     case SourceMessage.DataArray[1] of
+                       TRACTION_LISTENER_DETACH_REPLY :
+                         begin
                            ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                           ControllerNode.DoControllerAttachListenerReply(TempNodeID, ReplyCode);
-                         finally
+                           ControllerNode.DoControllerAttachListenerReply(Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), ReplyCode);
                            AdvanceToNextState;
-                           FreezeTimer := False;
-                         end;
-                       end;
-                   end;
+                         end else
+                           ErrorCode := laecListenerAttachFailed;
+                     end;
 
-                 end;
+                   end;
+             end;
            end;
-         end;
+      end;
+    finally
+      FreezeTimer := False;
     end;
   end;
 
@@ -1646,6 +1836,17 @@ begin
   end;
 end;
 
+{$IFDEF DELPHI}
+procedure TLccTrainController.ConsistTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+{$ELSE}
+procedure TLccTrainController.ConsistTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer);
+{$ENDIF}
+begin
+
+  ///  Need a new custom Action here...
+  SearchTrainsByDccAddress(TrainCriteria, UniqueID);
+end;
+
 procedure TLccTrainController.QuerySpeed(UniqueID: Integer);
 begin
   if IsTrainAssigned then
@@ -1658,8 +1859,7 @@ begin
   AssignTrainByDccTrain(IntToStr(DccAddress), IsLongAddress, SpeedSteps);
 end;
 
-procedure TLccTrainController.AssignTrainByDccTrain(SearchString: string;
-  IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer);
+procedure TLccTrainController.AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer);
 var
   TrackProtocolFlags: Word;
 begin
@@ -1732,8 +1932,13 @@ begin
     OnQueryFunctionReply(Self, Address, Value);
 end;
 
-procedure TLccTrainController.DoQuerySpeedReply(ASetSpeed, ACommandSpeed,
-  AnActualSpeed: THalfFloat; Status: Byte);
+procedure TLccTrainController.DoConsist(ConsistResults: TControllerTrainConsistResults);
+begin
+  if Assigned(OnConsistResults) then
+    OnConsistResults(Self, ConsistResults);
+end;
+
+procedure TLccTrainController.DoQuerySpeedReply(ASetSpeed, ACommandSpeed, AnActualSpeed: THalfFloat; Status: Byte);
 begin
   if Assigned(OnQuerySpeedReply) then
     OnQuerySpeedReply(Self, ASetSpeed, ACommandSpeed, AnActualSpeed, Status);
@@ -1768,28 +1973,30 @@ begin
     OnControllerRequestTakeover(Self, Allow);
 end;
 
-procedure TLccTrainController.DoSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
+procedure TLccTrainController.DoSearchResult(
+  TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   if Assigned(OnSearchResult) then
-    OnSearchResult(Sender, TrainList, SelectedResultIndex);
+    OnSearchResult(Self, TrainList, SelectedResultIndex);
 end;
 
-procedure TLccTrainController.DoSearchMultiResult(Sender: TLccActionTrain; Trains: TLccActionTrainInfoList);
+procedure TLccTrainController.DoSearchMultiResult(
+  Trains: TLccActionTrainInfoList);
 begin
   if Assigned(OnSearchMultiResult) then
-    OnSearchMultiResult(Sender, Trains);
+    OnSearchMultiResult(Self, Trains);
 end;
 
-procedure TLccTrainController.DoControllerAttachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte);
+procedure TLccTrainController.DoControllerAttachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte);
 begin
   if Assigned(OnAttachListenerReply) then
-    OnAttachListenerReply(Self, ListenerNodeID, ReplyCode);
+    OnAttachListenerReply(Self, Listener, ReplyCode);
 end;
 
-procedure TLccTrainController.DoControllerDetachListenerReply(ListenerNodeID: TNodeID; ReplyCode: Byte);
+procedure TLccTrainController.DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte);
 begin
   if Assigned(OnDetachListenerReply) then
-    OnDetachListenerReply(Self, ListenerNodeID, ReplyCode);
+    OnDetachListenerReply(Self, Listener, ReplyCode);
 end;
 
 procedure TLccTrainController.DoControllerQueryListenerGetCount(ListenerCount: Byte);
