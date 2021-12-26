@@ -16,6 +16,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ButtonActionObjectCount: TButton;
     ButtonCreateConstist1: TButton;
     ButtonCreateConstist2: TButton;
     ButtonConsistRefresh1: TButton;
@@ -139,6 +140,7 @@ type
     TreeViewConsists2: TTreeView;
     TreeViewConsistWizard1: TTreeView;
     TreeViewConsistWizard2: TTreeView;
+    procedure ButtonActionObjectCountClick(Sender: TObject);
     procedure ButtonCreateConstist1Click(Sender: TObject);
     procedure ButtonCreateConstist2Click(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
@@ -265,6 +267,11 @@ begin
     ControllerNode1.ConsistTrainsByDccAddress(DccSearchCriteria, 100);
     FreeAndNil(DccSearchCriteria);
   end;
+end;
+
+procedure TForm1.ButtonActionObjectCountClick(Sender: TObject);
+begin
+  ButtonActionObjectCount.Caption := 'Action Objects = ' + IntToStr(ActionObjectsAllocated);
 end;
 
 procedure TForm1.ButtonCreateConstist2Click(Sender: TObject);
@@ -837,9 +844,6 @@ procedure TForm1.OnControllerSearchMultiResult1(Sender: TLccTrainController;
 begin
   if Trains.Count > 1 then
   begin
-    // This is a search for a consist
-    ControllerNode1.ListenerAttach(Trains[0].NodeID, Trains[0].AliasID, Trains[1].NodeID, 200);
-    ControllerNode1.ListenerAttach(Trains[1].NodeID, Trains[1].AliasID, Trains[0].NodeID, 200);
   end;
   ShowMessage('Found Trains: ' + IntToStr(Trains.Count));
 end;

@@ -59,7 +59,8 @@ type
 
   TLccAliasMappingList = class(TObjectList)
     function FindMapping(AnAliasID: Word): TLccAliasMapping;
-    procedure AddMapping(AnAlias: Word; AnID: TNodeID);
+    function FindMapping(ANodeID: TNodeID): TLccAliasMapping; overload;
+    function AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
     procedure RemoveMapping(AnAlias: Word);
   end;
 
@@ -84,17 +85,32 @@ begin
   end;
 end;
 
-procedure TLccAliasMappingList.AddMapping(AnAlias: Word; AnID: TNodeID);
+function TLccAliasMappingList.FindMapping(ANodeID: TNodeID): TLccAliasMapping;
 var
-  NewMapping: TLccAliasMapping;
+  i: Integer;
+  TestMapping: TLccAliasMapping;
 begin
-  NewMapping := FindMapping(AnAlias);
-  if not Assigned(NewMapping) then
+  Result := nil;                      // Needs to Sort then do a binary search here eventually
+  for i := 0 to Count - 1 do
   begin
-    NewMapping := TLccAliasMapping.Create;
-    NewMapping.AnID := AnID;
-    NewMapping.AnAlias := AnAlias;
-    Add(NewMapping);
+    TestMapping := Items[i] as TLccAliasMapping;
+    if (TestMapping.AnID[0] = ANodeID[0]) and (TestMapping.AnID[1] = ANodeID[1]) then
+    begin
+      Result := TestMapping;
+      Break;
+    end;
+  end;
+end;
+
+function TLccAliasMappingList.AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
+begin
+  Result := FindMapping(AnAlias);
+  if not Assigned(Result) then
+  begin
+    Result := TLccAliasMapping.Create;
+    Result.AnID := AnID;
+    Result.AnAlias := AnAlias;
+    Add(Result);
   end;
 end;
 

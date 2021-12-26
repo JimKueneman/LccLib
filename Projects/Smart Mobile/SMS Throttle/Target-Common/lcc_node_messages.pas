@@ -1552,7 +1552,7 @@ begin
   end;
 
   {$IFDEF LCC_MOBILE}
-    SearchData := 0;
+  SearchData := 0;
   for i := 0 to Length(SearchString)-1 do
   begin
     case SearchString[i] of

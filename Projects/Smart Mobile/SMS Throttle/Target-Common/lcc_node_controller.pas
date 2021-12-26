@@ -47,7 +47,8 @@ uses
   lcc_math_float16,
   lcc_node,
   lcc_node_train,
-  lcc_utilities;
+  lcc_utilities,
+  lcc_alias_mappings;
 
 const
   CDI_XML_CONTROLLER: string = (
@@ -105,16 +106,20 @@ type
 
   // Used internally to TLccActionSearchGatherAndSelectTrains for multiple train searches
 
-  { TLccEncodedSearchCriteria }
+  { TLccDccEncodedSearchCriteria }
 
-  TLccEncodedSearchCriteria = class
+  TLccDccEncodedSearchCriteria = class
   private
     FCriteria: DWORD;
   public
     property Criteria: DWORD read FCriteria write FCriteria;
 
+    function EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean): DWORD;
+
     constructor Create(ACriteria: DWORD);
-    function Clone: TLccEncodedSearchCriteria;
+    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
+    constructor Create(DccSearchCriteria: TDccSearchCriteria);
+    function Clone: TLccDccEncodedSearchCriteria;
   end;
 
   { TLccActionSearchGatherAndSelectTrain }
@@ -159,7 +164,7 @@ type
     {$IFDEF DELPHI}
     property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
-    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
     {$ENDIF}
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
@@ -199,7 +204,7 @@ type
     {$IFDEF DELPHI}
     property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
-    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
     {$ENDIF}
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
@@ -404,8 +409,8 @@ type
     procedure DoControllerTakeOver(var Allow: Boolean); virtual;
     procedure DoSearchResult(TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer); virtual;
     procedure DoSearchMultiResult(Trains: TLccActionTrainInfoList); virtual;
-    procedure DoControllerAttachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte); virtual;
-    procedure DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte); virtual;
+    procedure DoControllerAttachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Word); virtual;
+    procedure DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Word); virtual;
     procedure DoControllerQueryListenerGetCount(ListenerCount: Byte); virtual;
     procedure DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID); virtual;
 
@@ -431,24 +436,29 @@ type
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
-    procedure ListenerAttach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID; UniqueID: Integer = 0);
-    procedure ListenerDetach(ATrainNodeID: TNodeID; ATrainNodeAliasID: Word; AListenerNodeID: TNodeID; UniqueID: Integer = 0);
-    procedure ListenersQuery(ATrainNodeID: TNodeID; UniqueID: Integer = 0);
     procedure ReleaseTrain(UniqueID: Integer = 0);
+
     procedure QuerySpeed(UniqueID: Integer = 0);
     procedure QueryFunction(Address: Word; UniqueID: Integer = 0);
     procedure QueryFunctions(UniqueID: Integer = 0);
+
     procedure SearchTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
     {$IFDEF DELPHI}
-    procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
-    procedure ConsistTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ELSE}
-    procedure SearchTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
-    procedure ConsistTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure SearchTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ENDIF}
+
+    {$IFDEF DELPHI}
+    procedure ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    {$ELSE}
+    procedure ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    {$ENDIF}
+
     procedure EmergencyStop(UniqueID: Integer = 0);
+
     function IsTrainAssigned: Boolean;
 
     function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
@@ -470,7 +480,7 @@ begin
 
   SpawnedSearchAndGatherTrainsAction := TLccActionSearchGatherAndSelectTrains.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
   for i := 0 to EncodedSearchCriteria.Count - 1 do
-    SpawnedSearchAndGatherTrainsAction.EncodedSearchCriteria.Add( (EncodedSearchCriteria[i] as TLccEncodedSearchCriteria).Clone);
+    SpawnedSearchAndGatherTrainsAction.EncodedSearchCriteria.Add( (EncodedSearchCriteria[i] as TLccDccEncodedSearchCriteria).Clone);
 
   SpawnedSearchAndGatherTrainsAction.RegisterCallBackOnExit(Self);
   Owner.LccActions.RegisterAndKickOffAction(SpawnedSearchAndGatherTrainsAction, nil);
@@ -538,6 +548,8 @@ begin
     ActionListenerDetach.RegisterCallBackOnExit(Self);
     Owner.LccActions.RegisterAndKickOffAction(ActionListenerDetach, nil);
   end;
+
+  AdvanceToNextState;
 end;
 
 procedure TLccActionConsistTrains.CompleteCallback(SourceAction: TLccAction);
@@ -755,16 +767,65 @@ begin
   end;
 end;
 
-{ TLccEncodedSearchCriteria }
+{ TLccDccEncodedSearchCriteria }
 
-constructor TLccEncodedSearchCriteria.Create(ACriteria: DWORD);
+function TLccDccEncodedSearchCriteria.EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean): DWORD;
+var
+  i: Integer;
+  TrackProtocolFlags: Word;
+begin
+  Result := 0;
+
+  // Need to translate the DCC criteria into LccSearch encoded criteria to launch the search.
+  if AnAddress > 0 then
+    TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
+                          TRACTION_SEARCH_ALLOCATE_FORCE or
+                          TRACTION_SEARCH_TYPE_EXACT_MATCH or
+                          TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY
+  else
+    TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
+                          TRACTION_SEARCH_ALLOCATE_FORCE or
+                          TRACTION_SEARCH_TYPE_ALL_MATCH or
+                          TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+
+
+  if IsLongAddress then
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_LONG
+  else
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ADDRESS_DEFAULT;
+
+  case ASpeedStep of
+     ldssDefault : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_ANY_SPEED_STEP;
+     ldss14      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_14_SPEED_STEP;
+     ldss28      : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_28_SPEED_STEP;
+     ldss128     : TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_TRACK_PROTOCOL_DCC_128_SPEED_STEP;
+  end;
+
+  if AnAddress > 0 then
+    TLccMessage.TractionSearchEncodeSearchString(IntToStr(AnAddress), TrackProtocolFlags, Result)
+  else
+    TLccMessage.TractionSearchEncodeSearchString(ASearchString, TrackProtocolFlags, Result);
+
+end;
+
+constructor TLccDccEncodedSearchCriteria.Create(ACriteria: DWORD);
 begin
   FCriteria := ACriteria;
 end;
 
-function TLccEncodedSearchCriteria.Clone: TLccEncodedSearchCriteria;
+constructor TLccDccEncodedSearchCriteria.Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
 begin
-  Result := TLccEncodedSearchCriteria.Create(Criteria);
+  Criteria := EncodeDccCriteria(ASearchString, AnAddress, ASpeedStep, IsLongAddress);
+end;
+
+constructor TLccDccEncodedSearchCriteria.Create(DccSearchCriteria: TDccSearchCriteria);
+begin
+  Criteria := EncodeDccCriteria(DccSearchCriteria.SearchStr, DccSearchCriteria.Address, DccSearchCriteria.SpeedStep, DccSearchCriteria.LongAddress);
+end;
+
+function TLccDccEncodedSearchCriteria.Clone: TLccDccEncodedSearchCriteria;
+begin
+  Result := TLccDccEncodedSearchCriteria.Create(Criteria);
 end;
 
 { TDccSearchCriteria }
@@ -799,7 +860,7 @@ begin
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
   // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
-  LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccEncodedSearchCriteria).Criteria;
+  LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccDccEncodedSearchCriteria).Criteria;
   LccSearchTrainAction.RegisterCallBackOnExit(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
   AdvanceToNextState;
@@ -1091,6 +1152,7 @@ var
   TrainManufacturer,
   TrainOwner: string;
   LocalTrain: TLccActionTrainInfo;
+  AliasMapping: TLccAliasMapping;
 begin
   Result := False;
 
@@ -1107,13 +1169,17 @@ begin
              LocalTrain := Trains.CreateNew(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
              if Assigned(LocalTrain) then
              begin
+               // Need to make sure the NodeID property is valid once we add it to the Trains list as well
+               if Owner.GridConnect then
+                 ValidateAliasMapping(SourceMessage.CAN.SourceAlias, True);
+
                LocalTrain.SearchCriteria := SourceMessage.TractionSearchExtractSearchData;
                LocalTrain.SearchCriteriaFound := True;
                LocalTrain.SNIP_Valid := False;
                // Send a message back to the Train Node from this controller asking for the STNIP
                WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(SourceNodeID, SourceAliasID, LocalTrain.NodeID, LocalTrain.AliasID);
                SendMessage(Owner, WorkerMessage);
-               SetTimoutCountThreshold(Round(TIMEOUT_SNIP_REPONSE_WAIT)); // milliseconds to allow trains to resspond to the STNIP
+               SetTimoutCountThreshold(Round(TIMEOUT_SNIP_REPONSE_WAIT)); // milliseconds to allow trains to resspond to the STNIP _AND_ the Alias Mapping AME call
              end
            end
         end;
@@ -1148,8 +1214,25 @@ begin
 
   if TimeoutExpired then    // Times up, report out....
   begin
-    AdvanceToNextState;  // Timeout is NOT an error here, it is normal
-  end;
+    AliasMapping := ValidateAliasMappingWait;
+    if Assigned(AliasMapping) then
+    begin
+      LocalTrain := Trains.MatchingAlias(AliasMapping.AnAlias);
+      if Assigned(LocalTrain) then
+      begin
+        LocalTrain.NodeID := AliasMapping.AnID;
+        AdvanceToNextState  // Timeout is NOT an error here, it is normal
+      end else
+      begin
+        ErrorCode := laecUnableToCreateAliasMapping;
+        AdvanceToLastState;
+      end
+    end else
+    begin
+      ErrorCode := laecUnableToCreateAliasMapping;
+      AdvanceToLastState;
+    end
+  end
 end;
 
 function TLccActionSearchGatherAndSelectTrain._2ActionReportSearchResults(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -1223,31 +1306,34 @@ begin
 
   ControllerNode := Owner as TLccTrainController;
 
-  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  if Assigned(SourceMessage) then
   begin
-    FreezeTimer := True;
-    try
-      case SourceMessage.MTI of
-         MTI_TRACTION_REPLY :
-           begin
-             case SourceMessage.DataArray[0] of
-               TRACTION_LISTENER :
-                   begin
-                     case SourceMessage.DataArray[1] of
-                       TRACTION_LISTENER_DETACH_REPLY :
-                         begin
-                           ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                           ControllerNode.DoControllerDetachListenerReply(Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), ReplyCode);
-                           AdvanceToNextState;
-                         end;
-                     end;
+    if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+    begin
+      FreezeTimer := True;
+      try
+        case SourceMessage.MTI of
+           MTI_TRACTION_REPLY :
+             begin
+               case SourceMessage.DataArray[0] of
+                 TRACTION_LISTENER :
+                     begin
+                       case SourceMessage.DataArray[1] of
+                         TRACTION_LISTENER_DETACH_REPLY :
+                           begin
+                             ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
+                             ControllerNode.DoControllerDetachListenerReply(nil, ReplyCode);
+                             AdvanceToNextState;
+                           end;
+                       end;
 
-                   end;
+                     end;
+               end;
              end;
-           end;
+        end;
+      finally
+        FreezeTimer := False;
       end;
-    finally
-      FreezeTimer := False;
     end;
   end;
 
@@ -1274,7 +1360,7 @@ begin
 
   WorkerMessage.LoadTractionListenerAttach(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, Flags, ListenerNodeID);
   SendMessage(Self, WorkerMessage);
-  SetTimoutCountThreshold(2000);
+  SetTimoutCountThreshold(TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT);
   AdvanceToNextState;
 end;
 
@@ -1287,32 +1373,35 @@ begin
 
   ControllerNode := Owner as TLccTrainController;
 
-  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  if Assigned(SourceMessage) then
   begin
-    FreezeTimer := True;
-    try
-      case SourceMessage.MTI of
-         MTI_TRACTION_REPLY :
-           begin
-             case SourceMessage.DataArray[0] of
-               TRACTION_LISTENER :
-                   begin
-                     case SourceMessage.DataArray[1] of
-                       TRACTION_LISTENER_DETACH_REPLY :
-                         begin
-                           ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
-                           ControllerNode.DoControllerAttachListenerReply(Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias), ReplyCode);
-                           AdvanceToNextState;
-                         end else
-                           ErrorCode := laecListenerAttachFailed;
-                     end;
+    if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+    begin
+      FreezeTimer := True;
+      try
+        case SourceMessage.MTI of
+           MTI_TRACTION_REPLY :
+             begin
+               case SourceMessage.DataArray[0] of
+                 TRACTION_LISTENER :
+                     begin
+                       case SourceMessage.DataArray[1] of
+                         TRACTION_LISTENER_DETACH_REPLY :
+                           begin
+                             ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
+                             ControllerNode.DoControllerAttachListenerReply(nil, ReplyCode);
+                             AdvanceToNextState;
+                           end else
+                             ErrorCode := laecListenerAttachFailed;
+                       end;
 
-                   end;
+                     end;
+               end;
              end;
-           end;
+        end;
+      finally
+        FreezeTimer := False;
       end;
-    finally
-      FreezeTimer := False;
     end;
   end;
 
@@ -1594,44 +1683,6 @@ begin
   LccActions.RegisterAndKickOffAction(LccAssignTrainAction, nil);
 end;
 
-procedure TLccTrainController.ListenerAttach(ATrainNodeID: TNodeID;
-  ATrainNodeAliasID: Word; AListenerNodeID: TNodeID; UniqueID: Integer);
-var
-  LccTractionAttachListenerAction: TLccActionTractionListenerAttach;
-begin
-  if IsTrainAssigned then
-  begin
-    LccTractionAttachListenerAction := TLccActionTractionListenerAttach.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID, UniqueID);
-    LccTractionAttachListenerAction.ListenerNodeID := AListenerNodeID;
-    LccActions.RegisterAndKickOffAction(LccTractionAttachListenerAction, nil);
-  end;
-end;
-
-procedure TLccTrainController.ListenerDetach(ATrainNodeID: TNodeID;
-  ATrainNodeAliasID: Word; AListenerNodeID: TNodeID; UniqueID: Integer);
-var
-  LccTractionDetachListenerAction: TLccActionTractionListenerDetach;
-begin
-  if IsTrainAssigned then
-  begin
-    LccTractionDetachListenerAction := TLccActionTractionListenerDetach.Create(Self, NodeID, AliasID, ATrainNodeID, ATrainNodeAliasID, UniqueID);
-    LccTractionDetachListenerAction.ListenerNodeID := AListenerNodeID;
-    LccActions.RegisterAndKickOffAction(LccTractionDetachListenerAction, nil);
-  end;
-end;
-
-procedure TLccTrainController.ListenersQuery(ATrainNodeID: TNodeID;
-  UniqueID: Integer);
-begin
-
- // what is the result here all the listerners in a list? retain all the parent/child relationships like Balazs suggested?  Need to discuss with him the value of that
-
-  if IsTrainAssigned then
-  begin
-
-  end;
-end;
-
 procedure TLccTrainController.ReleaseTrain(UniqueID: Integer);
 begin
   if IsTrainAssigned then
@@ -1792,9 +1843,9 @@ begin
 end;
 
 {$IFDEF DELPHI}
-procedure TLccTrainController.SearchTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
 {$ELSE}
-procedure TLccTrainController.SearchTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer);
+procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer);
 {$ENDIF}
 var
   i: Integer;
@@ -1803,17 +1854,17 @@ var
   SearchData: DWORD;
   SearchTrainsAction: TLccActionSearchGatherAndSelectTrains;
 begin
-  if TrainCriteria.Count > 0 then
+  if DccSearchCriteria.Count > 0 then
   begin
     SearchTrainsAction := TLccActionSearchGatherAndSelectTrains.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, UniqueID);
 
     // Need to translate the DccSearch criteria into LccSearch encoded criteria to launch the search.
-    for i := 0 to TrainCriteria.Count - 1 do
+    for i := 0 to DccSearchCriteria.Count - 1 do
     begin
       {$IFDEF DELPHI}
       DccCriteria := TrainCriteria[i];
       {$ELSE}
-      DccCriteria := TrainCriteria[i] as TDccSearchCriteria;
+      DccCriteria := DccSearchCriteria[i] as TDccSearchCriteria;
       {$ENDIF}
       if DccCriteria.Address > 0 then
         TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
@@ -1845,7 +1896,7 @@ begin
       else
         WorkerMessage.TractionSearchEncodeSearchString(DccCriteria.SearchStr, TrackProtocolFlags, SearchData);
 
-      SearchTrainsAction.EncodedSearchCriteria.Add( TLccEncodedSearchCriteria.Create(SearchData));
+      SearchTrainsAction.EncodedSearchCriteria.Add( TLccDccEncodedSearchCriteria.Create(SearchData));
     end;
 
     LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);
@@ -1853,9 +1904,9 @@ begin
 end;
 
 {$IFDEF DELPHI}
-procedure TLccTrainController.ConsistTrainsByDccAddress(TrainCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+procedure TLccTrainController.ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
 {$ELSE}
-procedure TLccTrainController.ConsistTrainsByDccAddress(TrainCriteria: TObjectList; UniqueID: Integer);
+procedure TLccTrainController.ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer);
 {$ENDIF}
 var
   ActionConsistTrains: TLccActionConsistTrains;
@@ -1863,8 +1914,9 @@ var
 begin
 
   ActionConsistTrains := TLccActionConsistTrains.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, 0);
-  for i := 0 to TrainCriteria.Count - 1 do
-    ActionConsistTrains.EncodedSearchCriteria.Add(TrainCriteria[i]);
+
+  for i := 0 to DccSearchCriteria.Count - 1 do
+    ActionConsistTrains.EncodedSearchCriteria.Add( TLccDccEncodedSearchCriteria.Create( DccSearchCriteria[i] as TDccSearchCriteria));
   LccActions.RegisterAndKickOffAction(ActionConsistTrains, nil)
 end;
 
@@ -2008,13 +2060,15 @@ begin
     OnSearchMultiResult(Self, Trains);
 end;
 
-procedure TLccTrainController.DoControllerAttachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte);
+procedure TLccTrainController.DoControllerAttachListenerReply(
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
   if Assigned(OnAttachListenerReply) then
     OnAttachListenerReply(Self, Listener, ReplyCode);
 end;
 
-procedure TLccTrainController.DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Byte);
+procedure TLccTrainController.DoControllerDetachListenerReply(
+  Listener: TLccActionTrainInfo; ReplyCode: Word);
 begin
   if Assigned(OnDetachListenerReply) then
     OnDetachListenerReply(Self, Listener, ReplyCode);

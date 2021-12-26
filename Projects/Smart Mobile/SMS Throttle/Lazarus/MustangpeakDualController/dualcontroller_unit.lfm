@@ -574,6 +574,15 @@ object Form1: TForm1
       Caption = 'Command Station IP Address'
       ParentColor = False
     end
+    object ButtonActionObjectCount: TButton
+      Left = 465
+      Height = 22
+      Top = 13
+      Width = 151
+      Caption = 'Action Objects = 0'
+      OnClick = ButtonActionObjectCountClick
+      TabOrder = 1
+    end
   end
   object PanelThrottle2: TPanel
     Left = 370

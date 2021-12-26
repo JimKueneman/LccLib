@@ -183,13 +183,14 @@ type
     function IndexOf(ATrain: TLccActionTrainInfo): Integer;
     procedure Remove(ATrain: TLccActionTrainInfo);
     procedure Clear();
+    function MatchingAlias(TestAlias: Word): TLccActionTrainInfo;
 
     function MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
     function MatchingNodeAndSearchCriteria(TestNodeID: TNodeID; TestAliasID: Word): TLccActionTrainInfo;
   end;
 
 
-  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed, laecListenerAttachFailed);
+  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed, laecListenerAttachFailed, laecUnableToCreateAliasMapping);
 
   { TLccAction }
 
@@ -197,7 +198,8 @@ type
   private
     FActionHub: TLccActionHub;
     FActionStateIndex: Integer;
-    FAliasMapping: TLccAliasMapping;
+    FAliasMappingAlias: Word;
+    FAliasMappingNodeID: TNodeID;
     FErrorCode: TLccActionErrorCode;
     FFreezeTimer: Boolean;
     FOnCompleteCallback: TOnActionCompleteCallback;
@@ -215,9 +217,10 @@ type
     FDestAliasID: Word;
     FDestNodeID: TNodeID;
 
+    property AliasMappingAlias: Word read FAliasMappingAlias write FAliasMappingAlias;
+    property AliasMappingNodeID: TNodeID read FAliasMappingNodeID write FAliasMappingNodeID;
     property ActionHub: TLccActionHub read FActionHub write FActionHub;
     property ActionStateIndex: Integer read FActionStateIndex write FActionStateIndex;
-    property AliasMapping: TLccAliasMapping read FAliasMapping write FAliasMapping;
     property States: TOnMessageEventArray read FStates write FStates;
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
     property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
@@ -235,6 +238,11 @@ type
     procedure CompleteCallback(SourceAction: TLccAction); virtual; // override to do something
     procedure DoTimeoutExpired; virtual;
     procedure UnRegisterSelf;
+    function ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
+    function ValidateAliasMappingWait: TLccAliasMapping;
+    function ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
+    function ValidateNodeIDMappingWait(ASourceMessage: TLccMessage): TLccAliasMapping;
+
   public
    //  property Cancel: Boolean read FCancel write FCancel;
 
@@ -602,6 +610,26 @@ begin
   TrainList.Clear;
 end;
 
+function TLccActionTrainInfoList.MatchingAlias(TestAlias: Word): TLccActionTrainInfo;
+var
+  i: Integer;
+  LocalTrain: TLccActionTrainInfo;
+begin
+  Result := nil;
+  i := 0;
+  while i < TrainList.Count do
+  begin
+    LocalTrain := Trains[i];
+    if LocalTrain.AliasID = TestAlias then
+    begin
+      Result := LocalTrain;
+      i := TrainList.Count;
+    end;
+    Inc(i);
+  end;
+
+end;
+
 function TLccActionTrainInfoList.MatchingSearchCriteria(TestSearchCriteria: DWord): TLccActionTrainInfo;
 var
   i: Integer;
@@ -768,6 +796,75 @@ procedure TLccAction.UnRegisterSelf;
 begin
   if Assigned(ActionHub) then
     ActionHub.UnregisterActionAndMarkForFree(Self);
+end;
+
+function TLccAction.ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
+begin
+  AliasMappingAlias := AnAliasToMap;
+  Result := Owner.AliasMappings.FindMapping(AliasMappingAlias);
+  if not Assigned(Result) and SendAME then
+  begin
+    WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
+    SendMessage(Owner, WorkerMessage);
+    SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
+  end;
+end;
+
+function TLccAction.ValidateAliasMappingWait: TLccAliasMapping;
+begin
+  // Only way to get here is if we were GridConnect
+  Result := Owner.AliasMappings.FindMapping(AliasMappingAlias);
+  if not Assigned(Result) then
+  begin
+    if TimeoutExpired then
+    begin
+      // Can't get the Alias.
+      ErrorCode := laecTimedOut;
+      AdvanceToLastState;
+    end;
+  end;
+end;
+
+function TLccAction.ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
+begin
+  AliasMappingNodeID := ANodeIDToMap;
+  Result := Owner.AliasMappings.FindMapping(AliasMappingNodeID);
+  if not Assigned(Result) and SendVerify then
+  begin
+    WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, AliasMappingNodeID);
+    SendMessage(Owner, WorkerMessage);
+    SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
+  end;
+end;
+
+function TLccAction.ValidateNodeIDMappingWait(ASourceMessage: TLccMessage): TLccAliasMapping;
+var
+  TempNodeID: TNodeID;
+begin
+  Result := nil;
+  if Assigned(ASourceMessage) then   // Could be time tick calling and we need to wait for a real message
+  begin
+    case ASourceMessage.MTI of
+      MTI_VERIFIED_NODE_ID_NUMBER :
+        begin
+          TempNodeID := NULL_NODE_ID;
+          if EqualNodeID(ASourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), AliasMappingNodeID, False) then
+          begin
+            Result := Owner.AliasMappings.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
+          end;
+        end;
+    end;
+  end;
+
+  if not Assigned(Result) then
+  begin
+    if TimeoutExpired then
+    begin
+      // Can't get the Alias.
+      ErrorCode := laecTimedOut;
+      AdvanceToLastState;
+    end;
+  end;
 end;
 
 function TLccAction.TimeoutExpired: Boolean;

@@ -288,8 +288,9 @@ type
      property ListenerNodeAliasID: Word read FListenerNodeAliasID write FListenerNodeAliasID;
 
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
-     function _1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
-     function _2AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _2WaitForVerifyMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+     function _3AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 
      procedure LoadStateArray; override;
    end;
@@ -311,11 +312,9 @@ type
 
    TLccActionTractionManageReserve = class(TLccAction)
    private
-     FAliasMappingAlias: Word;
      FReservedByNodeAliasID: Word;
      FReservedByNodeID: TNodeID;
    protected
-     property AliasMappingAlias: Word read FAliasMappingAlias write FAliasMappingAlias;
      property ReservedByNodeID: TNodeID read FReservedByNodeID write FReservedByNodeID;
      property ReservedByNodeAliasID: Word read FReservedByNodeAliasID write FReservedByNodeAliasID;
 
@@ -567,7 +566,7 @@ end;
 function TLccActionTractionManageReserve._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   TempNodeID: TNodeID;
-
+  AliasMapping: TLccAliasMapping;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -577,15 +576,13 @@ begin
 
   if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
   begin
-    AliasMappingAlias := SourceMessage.CAN.SourceAlias;
-    AliasMapping := Owner.AliasMappings.FindMapping(AliasMappingAlias);
-    if not Assigned(AliasMapping) then
+    AliasMapping := ValidateAliasMapping(SourceMessage.CAN.SourceAlias, True);
+    if Assigned(AliasMapping) then
     begin
-      WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
-      SendMessage(Owner, WorkerMessage);
-      SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
-    end;
-    AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
+      ReservedByNodeAliasID := AliasMapping.AnAlias;
+      AdvanceToNextState(2)
+    end else
+      AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
   end else
   begin
     ReservedByNodeAliasID := 0;
@@ -595,25 +592,18 @@ begin
 end;
 
 function TLccActionTractionManageReserve._1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  AliasMapping: TLccAliasMapping;
 begin
+  // Only way to get here is if we were GridConnect
   Result := False;
 
-  // Only way to get here is if we were GridConnect
-  AliasMapping := Owner.AliasMappings.FindMapping(AliasMappingAlias);
+  AliasMapping := ValidateAliasMappingWait;
   if Assigned(AliasMapping) then
   begin
     ReservedByNodeAliasID := AliasMapping.AnAlias;
     ReservedByNodeID := AliasMapping.AnID;
     AdvanceToNextState;
-  end else
-  begin
-    if TimeoutExpired then
-    begin
-      // Can't get the Alias.
-      FReservedByNodeID := NULL_NODE_ID;
-      FReservedByNodeAliasID := 0;
-      AdvanceToNextState;
-    end;
   end;
 end;
 
@@ -834,51 +824,48 @@ begin
 
   if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
   begin
-    WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, ListenerNodeID);
-    SendMessage(Owner, WorkerMessage);
-    SetTimoutCountThreshold(TIMEOUT_NODE_VERIFIED_WAIT, True);
-  end;
-  AdvanceToNextState; // Wait for the Notify (if needed)
+    ValidateAliasMapping(SourceMessage.CAN.SourceAlias, True); // No reason to test because we have to go to the next state
+    AdvanceToNextState;
+  end else
+    AdvanceToNextState(3);
 end;
 
-function TLccActionTractionListenerAttachAndReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionTractionListenerAttachAndReply._1WaitForAliasMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  TempNodeID: TNodeID;
+  AliasMapping: TLccAliasMapping;
 begin
   Result := False;
+  // Only way to get here is if we were GridConnect
+  Result := False;
 
-  if Owner.GridConnect then
+  AliasMapping := ValidateAliasMappingWait;
+  if Assigned(AliasMapping) then
   begin
-    if Assigned(SourceMessage) then   // Could be time tick calling and we need to wait for a real message
-    begin
-      case SourceMessage.MTI of
-        MTI_VERIFIED_NODE_ID_NUMBER :
-          begin
-            TempNodeID := NULL_NODE_ID;
-            if EqualNodeID(SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), ListenerNodeID, False) then
-            begin
-              FListenerNodeAliasID := SourceMessage.CAN.SourceAlias;
-              AdvanceToNextState;
-            end;
-          end;
-      end;
-    end;
-
-    if TimeoutExpired then
-    begin
-      // Can't get the Alias...... so just quit
-      FListenerNodeID := NULL_NODE_ID;
-      FListenerNodeAliasID := 0;
-      _NFinalStateCleanup(Sender, SourceMessage);
-    end;
-
-  end else
-  begin // Not GridConnect just move on don't need the Alias
-    AdvanceToNextState;
+    AliasMapping := ValidateNodeIDMapping(ListenerNodeID, True);
+    if Assigned(AliasMapping) then
+      AdvanceToNextState(2)
+    else
+      AdvanceToNextState;
   end;
 end;
 
-function TLccActionTractionListenerAttachAndReply._2AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionTractionListenerAttachAndReply._2WaitForVerifyMapping(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  AliasMapping: TLccAliasMapping;
+begin
+   Result := False;
+
+  // Only way to get here is if we were GridConnect
+  Result := False;
+
+  AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
+  if Assigned(AliasMapping) then
+  begin
+    AdvanceToNextState
+  end;
+end;
+
+function TLccActionTractionListenerAttachAndReply._3AttachListener(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   OwnerTrain: TLccTrainDccNode;
   NewListenerNode: TListenerNode;
@@ -929,11 +916,13 @@ end;
 
 procedure TLccActionTractionListenerAttachAndReply.LoadStateArray;
 begin
-  SetStateArrayLength(4);
+  SetStateArrayLength(5);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
-  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForNodeVerified;
-  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2AttachListener;
-  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
+
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForAliasMapping;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2WaitForVerifyMapping;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_3AttachListener;
+  States[4] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 { TLccActionTractionQueryController }
@@ -1058,6 +1047,7 @@ end;
 function TLccActionTractionControllerAssignReply._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   LocalRequestingControllerAlias: TNodeID;
+  AliasMapping: TLccAliasMapping;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -1076,14 +1066,20 @@ begin
                       LocalRequestingControllerAlias := FRequestingControllerNodeID;
                       LocalRequestingControllerAlias := SourceMessage.ExtractDataBytesAsNodeID(3, LocalRequestingControllerAlias);
                       FRequestingControllerNodeID := LocalRequestingControllerAlias;
-                      RequestingControllerAliasID := 0;
+                      FRequestingControllerAliasID := 0;  // Need to request this
+
                       if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
                       begin
-                        WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, RequestingControllerNodeID);
-                        SendMessage(Owner, WorkerMessage);
-                        SetTimoutCountThreshold(TIMEOUT_NODE_VERIFIED_WAIT, True);
-                      end;
-                      AdvanceToNextState; // Wait for the Notify (if needed)
+                        AliasMapping := ValidateNodeIDMapping(RequestingControllerNodeID, True);
+                        if Assigned(AliasMapping) then
+                        begin
+                          FRequestingControllerAliasID := AliasMapping.AnAlias;
+                          AdvanceToNextState(2)
+                        end
+                        else
+                          AdvanceToNextState;
+                      end else
+                        AdvanceToNextState(2)
                     end;
                  end
               end;
@@ -1095,38 +1091,30 @@ end;
 function TLccActionTractionControllerAssignReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   TempNodeID: TNodeID;
+  AliasMapping: TLccAliasMapping;
 begin
   Result := False;
 
-  if Owner.GridConnect then
+  // Only GridConnect will ever reach here.
+  if Assigned(SourceMessage) then
   begin
-    if Assigned(SourceMessage) then   // Could be time tick calling and we need to wait for a real message
+    AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
+    if Assigned(AliasMapping) then
     begin
-      case SourceMessage.MTI of
-        MTI_VERIFIED_NODE_ID_NUMBER :
-          begin
-            TempNodeID := NULL_NODE_ID;
-            if EqualNodeID(SourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), RequestingControllerNodeID, False) then
-            begin
-              RequestingControllerAliasID := SourceMessage.CAN.SourceAlias;
-              AdvanceToNextState;
-            end;
-          end;
-      end;
-    end;
-
-    if TimeoutExpired then
-    begin
-      // Can't get the Alias...... so just quit
-      RequestingControllerNodeID := NULL_NODE_ID;
-      RequestingControllerAliasID := 0;
-      _NFinalStateCleanup(Sender, SourceMessage);
-    end;
-
-  end else
-  begin // Not GridConnect just move on don't need the Alias
-    AdvanceToNextState;
+      RequestingControllerAliasID := AliasMapping.AnAlias;
+      AdvanceToNextState;
+    end
   end;
+
+  if TimeoutExpired then
+  begin
+    // Can't get the Alias...... so just quit
+    ErrorCode := laecUnableToCreateAliasMapping;
+    RequestingControllerNodeID := NULL_NODE_ID;
+    RequestingControllerAliasID := 0;
+    AdvanceToLastState;
+  end;
+
 end;
 
 function TLccActionTractionControllerAssignReply._2TestForAnotherControllerAssigned(Sender: TObject; SourceMessage: TLccMessage): Boolean;
@@ -1528,7 +1516,7 @@ begin
               if IsReservedBy(SourceMessage) then
               begin
                 case SourceMessage.DataArray[1] of
-                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerAttachAndReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+                  TRACTION_LISTENER_ATTACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerAttachAndReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
                   TRACTION_LISTENER_DETACH : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionListenerDetachAndReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
                   TRACTION_LISTENER_QUERY  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryListenerAndReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
                 end;
