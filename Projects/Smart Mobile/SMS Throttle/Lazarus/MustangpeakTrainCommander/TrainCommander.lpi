@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
+      <Flags>
+        <CompatibilityMode Value="True"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="TrainCommander"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -21,7 +23,6 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="0"/>
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>
@@ -74,14 +75,14 @@
       <OtherUnitFiles Value="..\..\Target-PC;..\..\Target-PC\HardwareConnection;..\..\Target-Common;..\..\Target-PC\Synapse_LCC"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <Conditionals Value="if TargetOS = 'darwin' then
+    <Conditionals Value="if TargetOS = &apos;darwin&apos; then
 begin
-//  CustomOptions += '-k-macosx_version_min -k10.4';
- // CustomOptions += '-XR/Developer/SDKs/MacOSX10.4u.sdk/';
-  CustomOptions += ' -dUseCThreads';
+//  CustomOptions += &apos;-k-macosx_version_min -k10.4&apos;;
+ // CustomOptions += &apos;-XR/Developer/SDKs/MacOSX10.4u.sdk/&apos;;
+  CustomOptions += &apos; -dUseCThreads&apos;;
 end;
-if TargetOS = 'linux' then
-  CustomOptions += ' -dUseCThreads';"/>
+if TargetOS = &apos;linux&apos; then
+  CustomOptions += &apos; -dUseCThreads&apos;;"/>
     <BuildMacros>
       <Count Value="1"/>
       <Item1>
@@ -101,6 +102,8 @@ if TargetOS = 'linux' then
         <StackChecks Value="True"/>
       </Checks>
       <VerifyObjMethodCallValidity Value="True"/>
+      <TargetCPU Value="x86_64"/>
+      <TargetOS Value="darwin"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>

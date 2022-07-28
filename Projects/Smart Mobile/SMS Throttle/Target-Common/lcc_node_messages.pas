@@ -158,7 +158,8 @@ public
   procedure LoadTractionListenerAttachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID; ReplyCode: Word);
   procedure LoadTractionListenerDetach(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerFlags: Byte; AListenerNodeID: TNodeID);
   procedure LoadTractionListenerDetachReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AListenerNodeID: TNodeID; ReplyCode: Word);
-  procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte; CountOnly: Boolean);  // $FF will just return the total count
+  procedure LoadTractionListenerQuery(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte);
+  procedure LoadTractionListenerQueryCount(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount, ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
@@ -197,6 +198,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
   // Node Ident (SNIP)
   procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure ExtractSimpleNodeIdentInfo(var Version: byte; var Manufacturer: string; var Model: string; var HardwareVersion: string; var SoftwareVersion: string; UserVersion: byte; var UserName: string; var UserDescription: string);
   // FDI
   procedure LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadFunctionConfigurationRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; FunctionAddress: DWord; Count: Integer);
@@ -2188,26 +2190,30 @@ begin
 end;
 
 procedure TLccMessage.LoadTractionListenerQuery(ASourceID: TNodeID;
-  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte;
-  CountOnly: Boolean);
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Index: Byte);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
-  if CountOnly then
-  begin
-    DataCount := 2;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
-  end else
-  begin
-    DataCount := 3;
-    FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY;
-    FDataArray[2] := Index;
-  end;
+  DataCount := 3;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_QUERY;
+  FDataArray[2] := Index;
+  MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionListenerQueryCount(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 2;
+  FDataArray[0] := TRACTION_LISTENER;
+  FDataArray[1] := TRACTION_LISTENER_QUERY;
   MTI := MTI_TRACTION_REQUEST;
 end;
 
@@ -2309,6 +2315,63 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 0;
   MTI := MTI_SIMPLE_NODE_INFO_REQUEST;
+end;
+
+procedure TLccMessage.ExtractSimpleNodeIdentInfo(var Version: byte;
+  var Manufacturer: string; var Model: string; var HardwareVersion: string;
+  var SoftwareVersion: string; UserVersion: byte; var UserName: string;
+  var UserDescription: string);
+var
+  i: Integer;
+begin
+  i := 0;
+  Version := DataArrayIndexer[i];
+  Inc(i);
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    Manufacturer := Manufacturer + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    Model := Model + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    HardwareVersion := HardwareVersion + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    SoftwareVersion := SoftwareVersion + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
+
+  UserVersion := DataArrayIndexer[i];
+  Inc(i);
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    UserName := UserName + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
+
+  while DataArrayIndexer[i] <> 0 do
+  begin
+    UserDescription := UserDescription + Char( DataArrayIndexer[i]);
+    Inc(i);
+  end;
+  Inc(i); // Skip the Null
 end;
 
 procedure TLccMessage.LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);

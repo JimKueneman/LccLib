@@ -507,12 +507,12 @@ object Form1: TForm1
             object TabSheetConsists1: TTabSheet
               Caption = 'Existing'
               ClientHeight = 292
-              ClientWidth = 336
+              ClientWidth = 354
               object TreeViewConsists1: TTreeView
                 Left = 160
                 Height = 292
                 Top = 0
-                Width = 176
+                Width = 194
                 Align = alClient
                 TabOrder = 0
               end

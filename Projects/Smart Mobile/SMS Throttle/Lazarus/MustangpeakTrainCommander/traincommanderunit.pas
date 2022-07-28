@@ -335,7 +335,7 @@ begin
   LccHTTPServer.OnConnectionStateChange := @OnCommandStationHTTPConnectionState;
   LccHTTPServer.OnErrorMessage := @OnCommandStationHTTPErrorMessage;
 
-  ComPort := TLccComPort.Create(nil, NodeManager);
+  ComPort := TLccComPort.Create(nil, nil); // This is only to send Raw GridConnect Message to the CS, don't pass the Node Manager to send every OpenLCB Message
   ComPort.OnConnectionStateChange := @OnComPortConnectionStateChange;
   ComPort.OnErrorMessage := @OnComPortErrorMessage;
   ComPort.OnReceiveMessage := @OnComPortReceiveMessage;

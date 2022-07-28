@@ -640,7 +640,7 @@ function TLccActionTractionListenerQuery._0ReceiveFirstMessage(Sender: TObject; 
 begin
   Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  WorkerMessage.LoadTractionListenerQuery(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, iListenerQuery, False);
+  WorkerMessage.LoadTractionListenerQuery(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, iListenerQuery);
   SendMessage(Self, WorkerMessage);
   SetTimoutCountThreshold(1000);
   AdvanceToNextState;
@@ -714,7 +714,7 @@ function TLccActionTractionListenerQueryCount._0ReceiveFirstMessage(Sender: TObj
 begin
   Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
-  WorkerMessage.LoadTractionListenerQuery(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, $FF, True);
+  WorkerMessage.LoadTractionListenerQueryCount(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID);
   SendMessage(Self, WorkerMessage);
   SetTimoutCountThreshold(1000);
   AdvanceToNextState;
@@ -1151,6 +1151,16 @@ var
   TrainName,
   TrainManufacturer,
   TrainOwner: string;
+
+  Version,
+  UserVersion: byte;
+  Manufacturer,
+  Model,
+  HardwareVersion,
+  SoftwareVersion,
+  UserName,
+  UserDescription: string;
+
   LocalTrain: TLccActionTrainInfo;
   AliasMapping: TLccAliasMapping;
 begin
@@ -1175,14 +1185,53 @@ begin
 
                LocalTrain.SearchCriteria := SourceMessage.TractionSearchExtractSearchData;
                LocalTrain.SearchCriteriaFound := True;
-               LocalTrain.SNIP_Valid := False;
+
+               // Send a message back to the Train Node from this controller asking for the number of Listeners it has
+               WorkerMessage.LoadTractionListenerQueryCount(SourceNodeID, SourceAliasID, LocalTrain.NodeID, LocalTrain.AliasID);
+               SendMessage(Owner, WorkerMessage);
+
+               LocalTrain.TrainSNIP.Valid := False;
                // Send a message back to the Train Node from this controller asking for the STNIP
                WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(SourceNodeID, SourceAliasID, LocalTrain.NodeID, LocalTrain.AliasID);
                SendMessage(Owner, WorkerMessage);
+
+               LocalTrain.SNIP.Valid := False;
+               // Send a message back to the Train Node from this controller asking for the STNIP
+               WorkerMessage.LoadSimpleNodeIdentInfoRequest(SourceNodeID, SourceAliasID, LocalTrain.NodeID, LocalTrain.AliasID);
+               SendMessage(Owner, WorkerMessage);
+
                SetTimoutCountThreshold(Round(TIMEOUT_SNIP_REPONSE_WAIT)); // milliseconds to allow trains to resspond to the STNIP _AND_ the Alias Mapping AME call
              end
            end
         end;
+       MTI_SIMPLE_NODE_INFO_REPLY :
+         begin
+           // find the right Node that this SNIP belongs to
+            // Expectation is that we recieved the producer identified first because we asked for this above after the slot has been created
+            LocalTrain := Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+            if Assigned(LocalTrain) then
+            begin
+              // all this claptrap for SMS and var parameters....
+              Version := 0;
+              UserVersion := 0;
+              Manufacturer := '';
+              Model := '';
+              HardwareVersion := '';
+              SoftwareVersion := '';
+              UserName := '';
+              UserDescription := '';
+              SourceMessage.ExtractSimpleNodeIdentInfo(Version, Manufacturer, Model, HardwareVersion, SoftwareVersion, UserVersion, UserName, UserDescription);
+              LocalTrain.SNIP.Version := Version;
+              LocalTrain.SNIP.Manufacturer := Manufacturer;
+              LocalTrain.SNIP.Model := Model;
+              LocalTrain.SNIP.HardwareVersion := HardwareVersion;
+              LocalTrain.SNIP.SoftwareVersion := SoftwareVersion;
+              LocalTrain.SNIP.UserVersion := UserVersion;
+              LocalTrain.SNIP.UserName := UserName;
+              LocalTrain.SNIP.UserDescription := UserDescription;
+              LocalTrain.SNIP.Valid := True;
+            end;
+         end;
        MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
          begin
             // find the right Node that this SNIP belongs to
@@ -1199,16 +1248,37 @@ begin
               TrainManufacturer := '';
               TrainOwner := '';
               SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
-              LocalTrain.SNIP_Manufacturer := TrainManufacturer;
-              LocalTrain.SNIP_Owner := TrainOwner;
-              LocalTrain.SNIP_Roadname := TrainRoadName;
-              LocalTrain.SNIP_RoadNumber := TrainRoadNumber;
-              LocalTrain.SNIP_TrainClass := TrainClass;
-              LocalTrain.SNIP_TrainName := TrainName;
-              LocalTrain.SNIP_Version := TrainVersion;
-              LocalTrain.SNIP_Valid := True;
+              LocalTrain.TrainSNIP.Manufacturer := TrainManufacturer;
+              LocalTrain.TrainSNIP.Owner := TrainOwner;
+              LocalTrain.TrainSNIP.Roadname := TrainRoadName;
+              LocalTrain.TrainSNIP.RoadNumber := TrainRoadNumber;
+              LocalTrain.TrainSNIP.TrainClass := TrainClass;
+              LocalTrain.TrainSNIP.TrainName := TrainName;
+              LocalTrain.TrainSNIP.Version := TrainVersion;
+              LocalTrain.TrainSNIP.Valid := True;
             end;
          end;
+       MTI_TRACTION_REPLY :
+         begin
+           case SourceMessage.DataArrayIndexer[0] of
+              TRACTION_LISTENER :
+                begin
+                  case SourceMessage.DataArrayIndexer[1] of
+                     TRACTION_LISTENER_QUERY_REPLY :
+                       begin
+                         if SourceMessage.DataCount = 3 then
+                         begin
+                           LocalTrain := Trains.MatchingNodeAndSearchCriteria(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+                           if Assigned(LocalTrain) then
+                           begin
+                             LocalTrain.Listener.Count := SourceMessage.DataArrayIndexer[2]
+                           end
+                         end;
+                       end;
+                  end
+                end;
+           end
+         end
     end;
   end;
 
@@ -1240,6 +1310,8 @@ var
   ControllerNode: TLccTrainController;
   iSelectedTrain: Integer;
   SelectedTrain: TLccActionTrainInfo;
+var
+  i: Integer;
 begin
   Result := False;
 
@@ -1264,9 +1336,11 @@ begin
 
         // Only have the selected train in the Trains property
         SelectedTrain := Trains[iSelectedTrain];
-        Trains.Remove(SelectedTrain);
-        Trains.Clear;
-        Trains.Add(SelectedTrain);
+        for i := Trains.Count - 1 downto 0 do
+        begin
+          if SelectedTrain <> Trains[iSelectedTrain] then
+            Trains.Remove(SelectedTrain);
+        end;
       end else
         ErrorCode := laecNoTrainFound; // set a code for no train found
   finally

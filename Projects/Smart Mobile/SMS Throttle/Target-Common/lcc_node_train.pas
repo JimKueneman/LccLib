@@ -1203,6 +1203,9 @@ begin
 end;
 
 procedure TLccTrainDccNode.BeforeLogin;
+var
+  DccAddressStr: string;
+  i: Integer;
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.Datagram := True;
@@ -1238,6 +1241,21 @@ begin
   ProtocolMemoryOptions.WriteStream := False;
   ProtocolMemoryOptions.HighSpace := MSI_CDI;
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+
+  // TODO... this should be a persistent Stream if the user changes the name in the Configuration Dialog
+  //         save to a file with the DccAddress as the filename??????
+  StreamConfig.Position := ADDRESS_USER_NAME;
+  if StreamConfig.ReadByte = 0 then
+  begin
+    StreamConfig.Position := ADDRESS_USER_NAME;
+    DccAddressStr := IntToStr(DccAddress);
+    for i := 1 to Length(DccAddressStr) do
+    {$IFDEF LCC_MOBILE}
+      StreamWriteByte(StreamConfig, Ord(DccAddressStr[i-1]))
+    {$ELSE}
+      StreamWriteByte(StreamConfig, Ord(DccAddressStr[i]))
+    {$ENDIF}
+  end;
 end;
 
 function TLccTrainDccNode.EncodeFunctionValuesDccStyle: DWORD;
@@ -1311,27 +1329,28 @@ begin
     begin
       FunctionMask := AllDccFunctionBitsEncoded shr 13;
       FunctionExtendedCode := {$IFNDEF FPC}$DE{$ELSE}%11011110{$ENDIF};
-    end
-  end else
-  begin
-    FunctionMask := AllDccFunctionBitsEncoded shr 21;
-    FunctionExtendedCode := {$IFNDEF FPC}$DF{$ELSE}%11011111{$ENDIF};
-  end;
+    end else
+    if FunctionAddress < 29 then
+    begin
+      FunctionMask := AllDccFunctionBitsEncoded shr 21;
+      FunctionExtendedCode := {$IFNDEF FPC}$DF{$ELSE}%11011111{$ENDIF};
+    end;
 
-  // Now create the DCC Packet
-  if AddressHi and NMRA_LONGADDRESS_MASK_BYTE = NMRA_LONGADDRESS_MASK_BYTE then
-  begin
-    if FunctionAddress < 13 then
-      DccLoadPacket(Result, AddressHi, AddressLo, FunctionMask, 0, 0, 3)
-    else
-      DccLoadPacket(Result, AddressHi, AddressLo, FunctionExtendedCode, FunctionMask, 0, 4)
-  end else
-  begin
-    if FunctionAddress < 13 then
-      DccLoadPacket(Result, AddressLo, FunctionMask, 0, 0, 0, 2)
-    else
-      DccLoadPacket(Result, AddressLo, FunctionExtendedCode, FunctionMask, 0, 0, 3)
-  end;
+    // Now create the DCC Packet
+    if AddressHi and NMRA_LONGADDRESS_MASK_BYTE = NMRA_LONGADDRESS_MASK_BYTE then
+    begin
+      if FunctionAddress < 13 then
+        DccLoadPacket(Result, AddressHi, AddressLo, FunctionMask, 0, 0, 3)
+      else
+        DccLoadPacket(Result, AddressHi, AddressLo, FunctionExtendedCode, FunctionMask, 0, 4)
+    end else
+    begin
+      if FunctionAddress < 13 then
+        DccLoadPacket(Result, AddressLo, FunctionMask, 0, 0, 0, 2)
+      else
+        DccLoadPacket(Result, AddressLo, FunctionExtendedCode, FunctionMask, 0, 0, 3)
+    end;
+  end
 end;
 
 function TLccTrainDccNode.DccSpeedDirHandler(DccAddress: Word;

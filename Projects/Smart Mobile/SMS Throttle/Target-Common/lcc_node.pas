@@ -105,50 +105,109 @@ type
   TLccNode = class;
   TLccAction = class;
   TLccActionHub = class;
+  TLccActionTrainInfoList = class;
 
   TOnActionTimoutExpired = procedure(Sender: TLccAction) of object;
   TOnActionCompleteCallback = procedure(SourceAction: TLccAction) of object;
 
-  // common container for Train information to be used in Action Tasks
-  // a task may not use all the field but it make is common and easy to
-  // pass train data from task to task.
 
-  { TLccActionTrain }
+  { TLccActionTrainSnip }
+
+  TLccActionTrainSnip = class
+  private
+    FManufacturer: string;
+    FOwner: string;
+    FRoadName: string;
+    FRoadNumber: string;
+    FTrainClass: string;
+    FTrainName: string;
+    FValid: Boolean;
+    FVersion: Byte;
+  public
+    property Manufacturer: string read FManufacturer write FManufacturer;
+    property Owner: string read FOwner write FOwner;
+    property RoadName: string read FRoadName write FRoadName;
+    property TrainName: string read FTrainName write FTrainName;
+    property TrainClass: string read FTrainClass write FTrainClass;
+    property RoadNumber: string read FRoadNumber write FRoadNumber;
+    property Version: Byte read FVersion write FVersion;
+    property Valid: Boolean read FValid write FValid;
+  end;
+
+  { TLccActionSnipRec }
+
+  TLccActionSnipRec = class
+  private
+    FHardwareVersion: string;
+    FManufacturer: string;
+    FModel: string;
+    FSoftwareVersion: string;
+    FUserDecription: string;
+    FUserDescription: string;
+    FUserName: string;
+    FUserVersion: Byte;
+    FValid: Boolean;
+    FVersion: Byte;
+  public
+    property Version: Byte read FVersion write FVersion;
+    property Manufacturer: string read FManufacturer write FManufacturer;
+    property Model: string read FModel write FModel;
+    property HardwareVersion: string read FHardwareVersion write FHardwareVersion;
+    property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
+    property UserVersion: Byte read FUserVersion write FUserVersion;
+    property UserName: string read FUserName write FUserName;
+    property UserDescription: string read FUserDescription write FUserDecription;
+
+    property Valid: Boolean read FValid write FValid;
+  end;
+
+  { TLccListenerInfo }
+
+  TLccListenerInfo = class
+  private
+    FFlags: Byte;
+    FCount: Integer;
+    FList: TLccActionTrainInfoList;
+    FNodeIndex: Byte;
+  public
+    property NodeIndex: Byte read FNodeIndex write FNodeIndex;
+    property Flags: Byte read FFlags write FFlags;
+    property Count: Integer read FCount write FCount;
+
+    property List: TLccActionTrainInfoList read FList write FList;
+
+    constructor Create; virtual;
+    destructor Destroy; override;
+  end;
 
   { TLccActionTrainInfo }
 
   TLccActionTrainInfo = class
   private
     FAliasID: Word;
-    FIsConnectedAsListener: Boolean;
     FIsReserved: Boolean;            // The Train has its Reserved flag set for our operation (we reserved it)
+    FListener: TLccListenerInfo;
     FNodeID: TNodeID;
     FSearchCriteria: DWORD;          // Search Critera Data
     FSearchCriteriaFound: Boolean;   // This NodeID/AliasID Train responded that it has this Search Criteria
     FSearchCriteriaValid: Boolean;   // The Search Critera Data is valid information and can be used
-    FSNIP_Manufacturer: string;
-    FSNIP_Owner: string;
-    FSNIP_RoadName: string;
-    FSNIP_RoadNumber: string;
-    FSNIP_TrainClass: string;
-    FSNIP_TrainName: string;
-    FSNIP_Valid: Boolean;
-    FSNIP_Version: Byte;
+    FSNIP: TLccActionSnipRec;
+    FTrainSNIP: TLccActionTrainSnip;
   public
     property NodeID: TNodeID read FNodeID write FNodeID;
     property AliasID: Word read FAliasID write FAliasID;
     property SearchCriteria: DWORD read FSearchCriteria write FSearchCriteria;
     property SearchCriteriaValid: Boolean read FSearchCriteriaValid write FSearchCriteriaValid;
     property SearchCriteriaFound: Boolean read FSearchCriteriaFound write FSearchCriteriaFound;
-    property SNIP_Manufacturer: string read FSNIP_Manufacturer write FSNIP_Manufacturer;
-    property SNIP_Owner: string read FSNIP_Owner write FSNIP_Owner;
-    property SNIP_RoadName: string read FSNIP_RoadName write FSNIP_RoadName;
-    property SNIP_TrainName: string read FSNIP_TrainName write FSNIP_TrainName;
-    property SNIP_TrainClass: string read FSNIP_TrainClass write FSNIP_TrainClass;
-    property SNIP_RoadNumber: string read FSNIP_RoadNumber write FSNIP_RoadNumber;
-    property SNIP_Version: Byte read FSNIP_Version write FSNIP_Version;
-    property SNIP_Valid: Boolean read FSNIP_Valid write FSNIP_Valid;
+
     property IsReserved: Boolean read FIsReserved write FIsReserved;
+    property TrainSNIP: TLccActionTrainSnip read FTrainSNIP write FTrainSNIP;
+    property SNIP: TLccActionSnipRec read FSNIP write FSNIP;
+    property Listener: TLccListenerInfo read FListener write FListener;
+
+
+    constructor Create; virtual;
+    destructor Destroy; override;
 
     function Clone: TLccActionTrainInfo;
   end;
@@ -159,19 +218,26 @@ type
   private
     {$IFDEF DELPHI}
     FTrainList: TObjectList<TLccActionTrainInfo>;
+    FConsistList: TObjectList<TLccActionTrainInfo>;
     {$ELSE}
     FTrainList: TObjectList;
+    FConsistList: TObjectList;
     {$ENDIF}
+    function GetConsits(Index: Integer): TLccActionTrainInfo;
     function GetCount: Integer;
     function GetTrains(Index: Integer): TLccActionTrainInfo;
+    procedure SetConsits(Index: Integer; AValue: TLccActionTrainInfo);
     procedure SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
   protected
   {$IFDEF DELPHI}
     property TrainList: TObjectList<TLccActionTrainInfo> read FTrainList write FTrainList;
+    property ConsistList: TObjectList<TLccActionTrainInfo> read FConsistList write FConsistList;
     {$ELSE}
     property TrainList: TObjectList read FTrainList write FTrainList;
+    property ConsistList: TObjectList read FConsistList write FConsistList;
     {$ENDIF}
   public
+    property Consits[Index: Integer]: TLccActionTrainInfo read GetConsits write SetConsits;
     property Trains[Index: Integer]: TLccActionTrainInfo read GetTrains write SetTrains; default;
     property Count: Integer read GetCount;
 
@@ -492,9 +558,55 @@ implementation
 uses
   lcc_node_manager;
 
+{ TLccListenerInfo }
+
+constructor TLccListenerInfo.Create;
+begin
+  FList := TLccActionTrainInfoList.Create;
+end;
+
+destructor TLccListenerInfo.Destroy;
+begin
+  FreeAndNil(FList);
+  inherited Destroy;
+end;
+
 { TLccActionTrainInfo }
 
+constructor TLccActionTrainInfo.Create;
+begin
+  inherited Create;
+  FTrainSNIP := TLccActionTrainSnip.Create;
+  FSNIP := TLccActionSnipRec.Create;
+  FListener := TLccListenerInfo.Create;
+end;
+
+destructor TLccActionTrainInfo.Destroy;
+begin
+  FreeAndNil(FTrainSNIP);
+  FreeAndNil(FSNIP);
+  FreeAndNil(FListener);
+  inherited Destroy;
+end;
+
 function TLccActionTrainInfo.Clone: TLccActionTrainInfo;
+
+   procedure BuildListeners(TargetListenerList, SourceListenerList: TLccActionTrainInfoList);
+   var
+     i: Integer;
+     LocalListener, NewListener: TLccListenerInfo;
+   begin
+     for i := 0 to SourceListenerList.Count - 1 do
+     begin
+        NewListener := TLccListenerInfo.Create;
+        LocalListener := (SourceListenerList[i].Listener as TLccListenerInfo);
+
+        NewListener.Count := LocalListener.Count;
+        NewListener.Flags := LocalListener.Flags;
+        NewListener.NodeIndex := LocalListener.NodeIndex;
+     end;
+   end;
+
 begin
   Result := TLccActionTrainInfo.Create;
   Result.NodeID := NodeID;
@@ -502,14 +614,34 @@ begin
   Result.SearchCriteria := SearchCriteria;
   Result.SearchCriteriaValid := SearchCriteriaValid;
   Result.SearchCriteriaFound := SearchCriteriaFound;
-  Result.SNIP_Manufacturer := SNIP_Manufacturer;
-  Result.SNIP_Owner := SNIP_Owner;
-  Result.SNIP_RoadName := SNIP_RoadName;
-  Result.SNIP_TrainName := SNIP_TrainName;
-  Result.SNIP_TrainClass := SNIP_TrainClass;
-  Result.SNIP_RoadNumber := SNIP_RoadNumber;
-  Result.SNIP_Version := SNIP_Version;
-  Result.SNIP_Valid := SNIP_Valid;
+
+  Result.TrainSNIP.Manufacturer := TrainSNIP.Manufacturer;
+  Result.TrainSNIP.Owner := TrainSNIP.Owner;
+  Result.TrainSNIP.RoadName := TrainSNIP.RoadName;
+  Result.TrainSNIP.TrainName := TrainSNIP.TrainName;
+  Result.TrainSNIP.TrainClass := TrainSNIP.TrainClass;
+  Result.TrainSNIP.RoadNumber := TrainSNIP.RoadNumber;
+  Result.TrainSNIP.Version := TrainSNIP.Version;
+  Result.TrainSNIP.Valid := TrainSNIP.Valid;
+
+  Result.SNIP.Version := SNIP.Version;
+  Result.SNIP.Manufacturer := SNIP.Manufacturer;
+  Result.SNIP.Model := SNIP.Model;
+  Result.SNIP.HardwareVersion := SNIP.HardwareVersion;
+  Result.SNIP.SoftwareVersion := SNIP.SoftwareVersion;
+  Result.SNIP.UserVersion := SNIP.UserVersion;
+  Result.SNIP.UserName := SNIP.UserName;
+  Result.SNIP.UserDescription := SNIP.UserDescription;
+
+  Result.SNIP.Valid := SNIP.Valid;
+
+  Result.Listener.Count := Listener.Count;
+  Result.Listener.NodeIndex := Listener.NodeIndex;
+  Result.Listener.Flags := Listener.Flags;
+
+  if Listener.List.Count > 1 then
+    BuildListeners(Result.Listener.List, Listener.List);
+
   Result.IsReserved := IsReserved;
 end;
 
@@ -544,9 +676,20 @@ begin
   Result := TrainList[Index] as TLccActionTrainInfo;
 end;
 
+procedure TLccActionTrainInfoList.SetConsits(Index: Integer;
+  AValue: TLccActionTrainInfo);
+begin
+  ConsistList[Index] := AValue;
+end;
+
 function TLccActionTrainInfoList.GetCount: Integer;
 begin
   Result := TrainList.Count;
+end;
+
+function TLccActionTrainInfoList.GetConsits(Index: Integer): TLccActionTrainInfo;
+begin
+  Result := ConsistList[Index] as TLccActionTrainInfo;
 end;
 
 procedure TLccActionTrainInfoList.SetTrains(Index: Integer; AValue: TLccActionTrainInfo);
@@ -558,10 +701,13 @@ constructor TLccActionTrainInfoList.Create;
 begin
   {$IFDEF DELPHI}
     FTrainList := TObjectList<TLccActionTrainInfo>.Create(False);
+    FConsistList := TObjectList<TLccActionTrainInfo>.Create(False);
   {$ELSE}
     FTrainList := TObjectList.Create;
+    FConsistList := TObjectList.Create;
     {$IFNDEF DWSCRIPT}
-      TrainList.OwnsObjects := False;
+      TrainList.OwnsObjects := True;
+      ConsistList.OwnsObjects := True;
     {$ENDIF}
   {$ENDIF}
 end;
@@ -569,6 +715,7 @@ end;
 destructor TLccActionTrainInfoList.Destroy;
 begin
   FreeAndNil(FTrainList);
+  FreeAndNil(FConsistList);
   inherited Destroy;
 end;
 
