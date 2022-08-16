@@ -725,9 +725,6 @@ begin
     // Test to see if any of the Queues had a message to send, if not then send an idle message
     if AQueue <> nil then
     begin
-    
-    LATB11_bit := 1;
-    
       ABuffer^.TX_TransmittingPacket := AMessage^;                               // Copy the message to the Transmit Buffer
       ABuffer^.TX_XOR_Byte := 0;                                                  // Build the XOR Byte
       i := 0;
@@ -745,9 +742,6 @@ begin
         AQueue^.Tail := 0;
       Inc(AQueue^.TotalSent);
       Dec(AQueue^.Count);
-      
-    LATB11_bit := 0;
-
     end else
       NMRA_DCC_LoadIdlePacketIntoTransmitter(ABuffer, PreambleCount);
   end

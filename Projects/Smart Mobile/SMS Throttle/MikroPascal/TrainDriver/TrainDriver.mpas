@@ -43,33 +43,31 @@ var
 
 // End DCC Connection Pins
 
+  ServiceModeEnabled: Boolean;
+  OffEnabled: Boolean;
 
 procedure OPStack_DCC_Timer(); iv IVT_ADDR_T1INTERRUPT; ics ICS_AUTO;
 begin
   T1IF_bit := 0;                                                                // Clear the Flag
 
- // if CommandStationRamData.OverloadDetected then
- // begin
-    // Toggle the Bridge off
-////    H_Bridge_A_Lo := 0;                                                           // Bridge Off
- //   H_Bridge_A_Hi := 0;                                                           // Bridge Off
-//    H_Bridge_B_Lo := 0;                                                           // Bridge Off
-//    H_Bridge_B_Hi := 0;                                                           // Bridge Off
- // end else
+  if OffEnabled then
   begin
-  //  if CommandStationConfigurationShadowRam.OutputMode = CONFIG_OUTPUTMODE_SERVICE_MODE then
-  // begin
-  //    RunServiceMode                                                              // Command Station is in Service Mode
-  //  end else
+    H_Bridge_A_Hi := 0;
+    H_Bridge_B_Lo := 0;
+    H_Bridge_A_Lo := 0;
+    H_Bridge_B_Hi := 0;
+  end else
+  if ServiceModeEnabled then
+  begin
+    if ServiceModeInfo.iStateMachine <> STATE_SERVICEMODE_IDLE then
     begin
-      // Command Station is in Main Line Mode
-      if Track.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT = 1 then
+      if Programming.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT = 1 then
       begin
         if H_Bridge_A_Lo = 0 then
         begin
-          H_Bridge_A_Hi := 0; 
-          H_Bridge_B_Lo := 0; 
-          H_Bridge_A_Lo := 1; 
+          H_Bridge_A_Hi := 0;
+          H_Bridge_B_Lo := 0;
+          H_Bridge_A_Lo := 1;
           H_Bridge_B_Hi := 1;
         end
       end else
@@ -79,46 +77,105 @@ begin
         H_Bridge_A_Hi := 1;
         H_Bridge_B_Lo := 1;
       end;
-
-      // Now we can update the xxxx_DCC_PIN_BIT flags for the next 56us time slot
-      NMRA_DCC_58us_TimeTick(@Track);                                                         // < 1us
-      NMRA_DCC_TransmitterStateMachine(@Track, False, False);   // < 5us
-      NMRA_DCC_LoadPacketIntoTransmitterStateMachine(@Track, PREAMBLE_BIT_COUNT_NORMAL);      // < 11us    Max
+      NMRA_DCC_58us_TimeTick(@Programming);
+      NMRA_DCC_TransmitterStateMachine(@Programming, True, False);   // < 5us
+      
+      ServiceMode_56us_TimeTick;
+      ServiceMode_StateMachine(@Programming);
+      
+    end else
+    begin
+      H_Bridge_A_Hi := 0;
+      H_Bridge_B_Lo := 0;
+      H_Bridge_A_Lo := 0;
+      H_Bridge_B_Hi := 0;
     end
-  end;
+  end else
+  begin
+     // Command Station is in Main Line Mode
+    if Track.TX_Flags.TRANSMITTING_FLAG_DCC_PIN_BIT = 1 then
+    begin
+      if H_Bridge_A_Lo = 0 then
+      begin
+        H_Bridge_A_Hi := 0; 
+        H_Bridge_B_Lo := 0; 
+        H_Bridge_A_Lo := 1; 
+        H_Bridge_B_Hi := 1;
+      end
+    end else
+    begin
+      H_Bridge_A_Lo := 0;
+      H_Bridge_B_Hi := 0;
+      H_Bridge_A_Hi := 1;
+      H_Bridge_B_Lo := 1;
+    end;
+
+    // Now we can update the xxxx_DCC_PIN_BIT flags for the next 56us time slot
+    NMRA_DCC_58us_TimeTick(@Track);                                                         // < 1us
+    NMRA_DCC_TransmitterStateMachine(@Track, False, False);   // < 5us
+    NMRA_DCC_LoadPacketIntoTransmitterStateMachine(@Track, PREAMBLE_BIT_COUNT_NORMAL);      // < 11us    Max
+  end
 end;
 
 procedure OPStack_5ms_Timer(); iv IVT_ADDR_T5INTERRUPT; ics ICS_AUTO;
 begin
   T5IF_bit := 0;
+
+  ServiceMode_5ms_TimeTick;
 end;
 
 procedure OPStack_100ms_Timer(); iv IVT_ADDR_T2INTERRUPT; ics ICS_AUTO;
 begin
   T2IF_bit := 0;
+  
+  ServiceMode_100ms_TimeTick
 end;
+
+const
+  SMI_READBYTE  = 0;
+  SMI_WRITEBYTE = 1;
+  SMI_READBIT   = 2;
+  SMI_WRITEBIT  = 3;
+
+type
+  TServiceModeMessage = record
+    AddressLo: Word;                        // [IN] Address of the CV to access
+    AddressHi: Word;                        // [IN] Address of the CV to access
+    Instruction: Byte;                      // [IN] What to do with that CV,  SMI_xxxx constant
+    DataByte: Byte;                         // [IN/OUT] If a byte read then this is the current value of the CV, 
+                                            //          if a write then this is the byte to write to the CV
+                                            //          if a bit operation the bit index [0..7] is passed in and the Bit value is passed back
+  end;
 
 var
   DccGridConnectString: PGridConnectString;
-  i, DccDataIndex: Integer;
+  i, DataIndex: Integer;
   N_Found: Boolean;
   DccPacket: TDCCPacket;
-  HexStr: string[2];
+  HexStr: string[3];
+  ValueStr: string[6];
   W: Byte;
+  ServiceModeMessage: TServiceModeMessage;
 begin
 
   TRISB11_bit := 0; // Output
+  
+  LATB11_bit := 0;
   
   H_Bridge_A_Lo_Direction          := 0;
   H_Bridge_A_Hi_Direction          := 0;
   H_Bridge_B_Lo_Direction          := 0;
   H_Bridge_B_Hi_Direction          := 0;
+  
+  ServiceModeEnabled := True;
+  OffEnabled := False;
 
   NMRA_DCC_Initialize(1850);     // Clock ticks every 31.25ns * 1856 = 58us interrupts
   MCU_Setup_Initialize;
+  ServiceMode_Initialize;
 //  MCU_EnableSerialFlash;
   MCU_EnableUART;
- // MCU_Enable100msTimer;
+  MCU_Enable100msTimer;
   MCU_EnableDCCTimer;
   MCU_Enable5msServiceModeTimer;
  // MCU_Enable10msTimer;
@@ -131,7 +188,29 @@ begin
 
   while True do
   begin
-     
+  
+    if ServiceMode_Running then
+    begin
+      if ServiceMode_ResultsReady then
+      begin
+
+        if ServiceMode_Ack_Found then
+        begin
+          UART1_Write_Text('Ack Found: CV'+LF);
+          IntToStr(ServiceModeInfo.CV, ValueStr);
+          UART1_Write_Text(ValueStr+LF);
+          IntToStr(ServiceModeInfo.Value, ValueStr);
+          UART1_Write_Text(ValueStr+LF);
+        end else
+        begin
+          UART1_Write_Text('Ack not Found'+LF);
+          IntToStr(ServiceModeInfo.CV, ValueStr);
+          UART1_Write_Text(ValueStr+LF);
+        end;
+        ServiceMode_Quit
+      end;
+    end;
+    
     if UART1_Data_Ready then
     begin
       if GridConnect_DecodeMachine(UART1_Read, DccGridConnectString) then
@@ -139,7 +218,7 @@ begin
         if DccGridConnectString^[1] = 'R' then  // Are you a Raw DCC Packet?
         begin
           i := 0;
-          DccDataIndex := 0;
+          DataIndex := 0;
           N_Found := False;
           while DccGridConnectString^[i] <> ';' do  // Spin until we find the end of the packet
           begin
@@ -153,12 +232,12 @@ begin
               HexStr[1] := DccGridConnectString^[i+1];
               HexStr[2] := #0;     // VERY IMPORTANT UNLESS YOU SET A STRING TO HEXSTR OR THE NULL WON'T BE SET AND LENGTH() FAILS IN THE HEXTOBYTE!!!!
               W := HexToByte(HexStr);
-              DccPacket.PacketBytes[DccDataIndex] := W;
-              DccDataIndex := DccDataIndex + 1;
+              DccPacket.PacketBytes[DataIndex] := W;
+              DataIndex := DataIndex + 1;
               i := i + 2;  // 2 char = byte
             end;
           end;
-          DccPacket.Flags := DccDataIndex;
+          DccPacket.Flags := DataIndex;      // Only the first 3 bits are the length, rest set to zero
 
       {
           UART1_Write_Text(':R00000000N');
@@ -175,7 +254,12 @@ begin
         if DccGridConnectString^[1] = 'S' then  // Are you a Service Mode Packet?
         begin
           i := 0;
-          DccDataIndex := 0;
+          DataIndex := 0;
+          ServiceModeMessage.Instruction := 0;
+          ServiceModeMessage.AddressLo := 0;
+          ServiceModeMessage.AddressHi := 0;
+          ServiceModeMessage.DataByte := 0;
+          
           N_Found := False;
           while DccGridConnectString^[i] <> ';' do  // Spin until we find the end of the packet
           begin
@@ -189,11 +273,33 @@ begin
               HexStr[1] := DccGridConnectString^[i+1];
               HexStr[2] := #0;     // VERY IMPORTANT UNLESS YOU SET A STRING TO HEXSTR OR THE NULL WON'T BE SET AND LENGTH() FAILS IN THE HEXTOBYTE!!!!
               W := HexToByte(HexStr);
+              
+              case DataIndex of
+                0 : ServiceModeMessage.Instruction := W;
+                1 : ServiceModeMessage.AddressHi := W;
+                2 : ServiceModeMessage.AddressLo := W shl 8;
+                3 : ServiceModeMessage.AddressLo := ServiceModeMessage.AddressLo or W;
+                4 : ServiceModeMessage.DataByte := W;
+              end;
 
-              DccDataIndex := DccDataIndex + 1;
+              DataIndex := DataIndex + 1;
               i := i + 2;  // 2 char = byte
             end;
           end;
+          
+          ServiceMode_EngageServiceMode(@Programming, True, SERVICEMODE_READ, SERVICE_MODE_TYPE_DIRECT_BYTE, 8, 0, 0);
+          
+          UART1_Write_Text(LF); UART1_Write_Text(LF); UART1_Write_Text(LF);
+          ByteToStr(ServiceModeMessage.Instruction, HexStr); UART1_Write_Text( HexStr);
+          UART1_Write_Text(LF);
+
+          ByteToStr(ServiceModeMessage.AddressHi, HexStr); UART1_Write_Text( HexStr);
+          ByteToStr(Hi(ServiceModeMessage.AddressLo), HexStr); UART1_Write_Text( HexStr);
+          ByteToStr(Lo(ServiceModeMessage.AddressLo), HexStr); UART1_Write_Text( HexStr);
+          UART1_Write_Text(LF);
+
+          ByteToStr(ServiceModeMessage.DataByte, HexStr); UART1_Write_Text( HexStr);
+          UART1_Write_Text(LF); UART1_Write_Text(LF); UART1_Write_Text(LF);
         end;
       end;
     end;

@@ -36,8 +36,14 @@ ActiveImageIndex=-1
 [OPENED_FILES]
 File0=TrainDriver.mpas
 File1=.\NMRA_DCC\NMRAnetServiceMode.mpas
-File2=MCU_Setup_dsPIC33EP256GP502.mpas
-Count=3
+File2=.\NMRA_DCC\ServiceModeDefines.mpas
+File3=GridConnect.mpas
+File4=.\NMRA_DCC\DirectServiceMode.mpas
+File5=.\NMRA_DCC\CommonServiceMode.mpas
+File6=MCU_Setup_dsPIC33EP256GP502.mpas
+File7=HelperFunctions.mpas
+File8=.\NMRA_DCC\NMRAnetDCC.mpas
+Count=9
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -60,9 +66,7 @@ Count=5
 0=TrainDriver.mppds
 1=Sources
 4=NMRA_DCC
-Count=3
-[LIB_EXPANDED_NODES]
-0=
-1=
-47=
+19=Output Files
 Count=4
+[LIB_EXPANDED_NODES]
+Count=1

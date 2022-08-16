@@ -5,6 +5,7 @@ unit DirectServiceMode;
 {.$DEFINE PRINT_DIRECT_MODE_STATEMACHINE}
 
 uses
+  HelperFunctions,
   NMRAnetDCC,
   CommonServiceMode,
   ServiceModeDefines;

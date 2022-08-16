@@ -74,13 +74,14 @@ begin
         begin
           if NextChar <> ':' then                                               // Handle double ":"'s by doing nothing if the next byte is a ":", just wait for the next byte to see if it is a "X"
           begin
-            if (NextChar = 'X') or (NextChar = 'x') or (NextChar = 'R') or (NextChar = 'r') then
+            // Allow any character here for future growth
+      //      if (NextChar = 'X') or (NextChar = 'x') or (NextChar = 'R') or (NextChar = 'r') then
             begin
               ReceiveGridConnectBuffer[ReceiveGridConnectBufferIndex] := NextChar;
               Inc(ReceiveGridConnectBufferIndex);
               GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_FIND_HEADER
-            end else
-               GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START          // Error, start over
+            end //else
+              // GridConnectReceiveState := GRIDCONNECT_STATE_SYNC_START          // Error, start over
           end
         end;
       GRIDCONNECT_STATE_SYNC_FIND_HEADER :

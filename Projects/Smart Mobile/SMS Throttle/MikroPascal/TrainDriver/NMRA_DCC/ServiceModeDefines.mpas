@@ -1,10 +1,10 @@
 unit ServiceModeDefines;
 
 const
-  PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT              = 0;   // Start looking for the Acknowledge bit
-  PROGRAMMING_ACK_DETECTED_BIT                      = 1;   // A valid Acknowledge was detected
-  PROGRAMMING_ACK_TIMER_DETECTED_LEADINGEDGE_BIT    = 2;   // 6ms timer is running
-  PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT = 3;   // 6ms timer ran but ACK was not high at the end of the timer
+  PROGRAMMING_ACK_SCANNING_FOR_ACK_BIT              = 0;   // BitOffset: Start looking for the Acknowledge bit
+  PROGRAMMING_ACK_DETECTED_BIT                      = 1;   // BitOffset: A valid Acknowledge was detected
+  PROGRAMMING_ACK_TIMER_DETECTED_LEADINGEDGE_BIT    = 2;   // BitOffset: 6ms timer is running
+  PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT = 3;   // BitOffset: 6ms timer ran but ACK was not high at the end of the timer
 
   SERVICE_MODE_RESULT_ERROR_CODE_SET                      = $80;  // Hi bit set = Error
   SERVICE_MODE_RESULT_NO_ACK                              = $80;  // There was no ACK

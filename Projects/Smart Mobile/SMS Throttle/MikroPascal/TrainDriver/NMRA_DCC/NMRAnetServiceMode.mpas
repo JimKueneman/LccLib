@@ -40,8 +40,12 @@ procedure ServiceMode_5ms_TimeTick; forward;
 procedure ServiceMode_100ms_TimeTick; forward;
 // Runs the statemachine from the Stop Bit of the DCC Transmitter Statemachine
 procedure ServiceMode_StateMachine(BufferPtr: PDCCBufferInfo);
+// True if and Ack was found, must make sure ResultsReady first.
+function ServiceMode_Ack_Found: Boolean;
 // Tests if the statemachine is in a mode where it is waiting to have the results of the operation read
 function ServiceMode_ResultsReady: Boolean;
+// True if the StateMachine is anything but Idle
+function ServiceMode_Running: Boolean;
 // Ends the Statemachine (after a completed read/write cycle)
 procedure ServiceMode_Quit;
 {$IFDEF PRINT}
@@ -116,7 +120,7 @@ end;
 // ****************************************************************************
 procedure ServiceMode_EngageServiceMode(BufferPtr: PDCCBufferInfo; PowerOnCycle: Boolean; AReadWrite, AServiceModeType: Byte; ACV: Word; AValue, BitIndex: Byte);
 begin
-  NMRA_DCC_ResetTransmitter(@Programming);
+  NMRA_DCC_ResetTransmitter(BufferPtr);
   ServiceModeInfo.ReadWrite := AReadWrite;                                      // SERVCIE_MODE_READ or SERVCIE_MODE_WRITE
   ServiceModeInfo.CV := ACV;                                                    // The CV to write or the buffer to receive the CV read
   ServiceModeInfo.ServiceModeType := AServiceModeType;
@@ -194,7 +198,12 @@ begin
   // This will only be called if the state machine detects the start of an Acknowledge
   // from the decoder.
   if DCC_Programming_ACK_Pin = 1 then
+  begin
+  
+ //  LATB11_bit := not LATB11_bit;
+
     ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT := 1
+  end
   else
     ServiceModeInfo.State.PROGRAMMING_ACK_FAILED_TO_DETECT_TRAILINGEDGE_BIT := 1;
 end;
@@ -224,12 +233,19 @@ begin
   end
 end;
 
+function ServiceMode_Ack_Found: Boolean;
+begin
+  Result := ServiceModeInfo.State.PROGRAMMING_ACK_DETECTED_BIT = 1;
+end;
+
+function ServiceMode_Running: Boolean;
+begin
+  Result := ServiceModeInfo.iStateMachine > STATE_SERVICEMODE_IDLE
+end;
 
 function ServiceMode_ResultsReady: Boolean;
 begin
-  Result := False;
-  if ServiceModeInfo.iStateMachine = STATE_SERVICEMODE_RESULTS_READY then
-    Result := True;
+  Result := ServiceModeInfo.iStateMachine = STATE_SERVICEMODE_RESULTS_READY
 end;
 
 procedure ServiceMode_Quit;
