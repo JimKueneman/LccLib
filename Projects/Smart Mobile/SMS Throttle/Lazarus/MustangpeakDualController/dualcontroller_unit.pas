@@ -16,6 +16,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TButton;
     ButtonActionObjectCount: TButton;
     ButtonCreateConstist1: TButton;
     ButtonCreateConstist2: TButton;
@@ -39,6 +40,14 @@ type
     CheckBoxThrottleLongAddress2: TCheckBox;
     CheckBoxThrottleTakeover1: TCheckBox;
     CheckBoxThrottleTakeover2: TCheckBox;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
+    Edit6: TEdit;
+    Edit7: TEdit;
+    Edit8: TEdit;
     EditCommandStationIPAddress: TEdit;
     EditConsistAddress1: TEdit;
     EditConsistAddress2: TEdit;
@@ -46,7 +55,19 @@ type
     EditThrottleAddress2: TEdit;
     ImageList: TImageList;
     Label1: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
     Label2: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -68,6 +89,7 @@ type
     PageControlThrottle2: TPageControl;
     PageControlConsists1: TPageControl;
     PageControlThrottle1: TPageControl;
+    PanelThrottle1ServiceMode: TPanel;
     PanelConsistCreate1: TPanel;
     PanelConsistCreate2: TPanel;
     PanelConsistRelease1: TPanel;
@@ -126,6 +148,8 @@ type
     SpeedButtonThrottleAssign2: TSpeedButton;
     StatusBarThrottle1: TStatusBar;
     StatusBarThrottle2: TStatusBar;
+    TabSheetThrottle1ServiceMode: TTabSheet;
+    TabSheetThrottle2ServiceMode: TTabSheet;
     TabSheetThrottle2Consists: TTabSheet;
     TabSheetConsistNew2: TTabSheet;
     TabSheetConsists2: TTabSheet;
@@ -140,6 +164,7 @@ type
     TreeViewConsists2: TTreeView;
     TreeViewConsistWizard1: TTreeView;
     TreeViewConsistWizard2: TTreeView;
+    procedure Button1Click(Sender: TObject);
     procedure ButtonActionObjectCountClick(Sender: TObject);
     procedure ButtonCreateConstist1Click(Sender: TObject);
     procedure ButtonCreateConstist2Click(Sender: TObject);
@@ -186,6 +211,12 @@ type
 
     procedure OnClientServer2ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnClientServer2ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
+
+    procedure OnMemoryConfigRead1(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+    procedure OnMemoryConfigRead2(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+
+    procedure OnMemoryConfigWrite1(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+    procedure OnMemoryConfigWrite2(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
 
     // The Controller is the Controller Node created in the NodeManager
     procedure ControllerTrainAssigned1(Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
@@ -272,6 +303,11 @@ end;
 procedure TForm1.ButtonActionObjectCountClick(Sender: TObject);
 begin
   ButtonActionObjectCount.Caption := 'Action Objects = ' + IntToStr(ActionObjectsAllocated);
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+//  ControllerNode1.OnMemoryConfigRead:=;
 end;
 
 procedure TForm1.ButtonCreateConstist2Click(Sender: TObject);
@@ -622,6 +658,7 @@ begin
           ControllerNode1.OnDetachListenerReply := @OnControllerDetachListenerReply1;
           ControllerNode1.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount1;
           ControllerNode1.OnQueryListenerIndex := @OnControllerQueryListenerIndex1;
+          ControllerNode1.OnMemoryConfigRead := @OnMemoryConfigRead1;
           PageControlThrottle1.Enabled := True;
         end;
       lcsDisconnecting :
@@ -672,6 +709,7 @@ begin
           ControllerNode2.OnDetachListenerReply := @OnControllerDetachListenerReply2;
           ControllerNode2.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount2;
           ControllerNode2.OnQueryListenerIndex := @OnControllerQueryListenerIndex2;
+          ControllerNode2.OnMemoryConfigRead := @OnMemoryConfigRead2;
           PageControlThrottle2.Enabled := True;
         end;
       lcsDisconnecting :
@@ -699,6 +737,30 @@ begin
   NodeManager2.Clear;
   StatusBarThrottle2.Panels[0].Text := 'Disconnected';
   ButtonConnect2.Caption := 'Connect';
+end;
+
+procedure TForm1.OnMemoryConfigRead1(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+begin
+
+end;
+
+procedure TForm1.OnMemoryConfigRead2(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+begin
+
+end;
+
+procedure TForm1.OnMemoryConfigWrite1(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+begin
+
+end;
+
+procedure TForm1.OnMemoryConfigWrite2(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+begin
+
 end;
 
 procedure TForm1.ControllerTrainAssigned1(Sender: TLccTrainController;

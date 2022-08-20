@@ -213,7 +213,9 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
   function ExtractAddressSpace: Byte;
   procedure LoadConfigMemAddressSpaceInfo(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte);
   procedure LoadConfigMemOptions(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure LoadConfigMemRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ConfigMemSize: Byte);
+  procedure LoadConfigMemRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ReadCount: Byte);
+  procedure LoadConfigMemReadReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ConfigMemData: array of Byte);
+  procedure LoadConfigMemReadReplyError(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ErrorCode: Word; ErrorCodeString: string);
   procedure LoadConfigMemWriteInteger(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; IntegerSize: Byte; DataInteger: Integer);
   procedure LoadConfigMemWriteString(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; AString: String);
   procedure LoadConfigMemWriteArray(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte; ConfigMemAddress: DWord; ArraySize: Integer; AnArray: array of Byte);
@@ -2529,10 +2531,9 @@ end;
 
 procedure TLccMessage.LoadConfigMemRead(ASourceID: TNodeID;
   ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte;
-  ConfigMemAddress: DWord; ConfigMemSize: Byte);
+  ConfigMemAddress: DWord; ReadCount: Byte);
 begin
-  if ConfigMemSize > 64 then
-    ConfigMemSize := 64;
+  Assert(ReadCount > 64, 'TLccMessage.LoadConfigMemRead must be less than 64 bytes');
 
   // Really should be a Get Address Space Info message here to make sure the start address is 0.....
   ZeroFields;
@@ -2541,6 +2542,8 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   FDataArray[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
+
+  // Use the long version with the optional Byte 6 if the memory space is not one of the original 3 (CDI, All, Config)
   if AddressSpace < MSI_CONFIG then
   begin
     FDataArray[1] := MCP_READ;
@@ -2549,23 +2552,134 @@ begin
     FDataArray[4] := _Hi(ConfigMemAddress);
     FDataArray[5] := _Lo(ConfigMemAddress);
     FDataArray[6] := AddressSpace;
-    FDataArray[7] := ConfigMemSize;
+    FDataArray[7] := ReadCount;
     DataCount := 8;
   end else
   begin
     case AddressSpace of
-      MSI_CDI : FDataArray[1] := MCP_READ or MCP_CDI;
-      MSI_ALL : FDataArray[1] := MCP_READ or MCP_ALL;
-      MSI_CONFIG : FDataArray[1] := MCP_READ or MCP_CONFIGURATION;
+      MSI_CDI    : FDataArray[1] := MCP_READ_CDI;
+      MSI_ALL    : FDataArray[1] := MCP_READ_ALL;
+      MSI_CONFIG : FDataArray[1] := MCP_READ_CONFIGURATION;
     end;
     FDataArray[2] := _Highest(ConfigMemAddress);
     FDataArray[3] := _Higher(ConfigMemAddress);
     FDataArray[4] := _Hi(ConfigMemAddress);
     FDataArray[5] := _Lo(ConfigMemAddress);
-    FDataArray[6] := ConfigMemSize;
+    FDataArray[6] := ReadCount;
     DataCount := 7;
   end;
   MTI := MTI_DATAGRAM;
+end;
+
+procedure TLccMessage.LoadConfigMemReadReply(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte;
+  ConfigMemAddress: DWord; ConfigMemData: array of Byte);
+var
+  i: Integer;
+begin
+  Assert(Length(ConfigMemData) > 64, 'TLccMessage.LoadConfigMemReadReply can only return 64 bytes');
+  Assert(Length(ConfigMemData) < 1, 'TLccMessage.LoadConfigMemReadReply must return 1 byte');
+
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  FDataArray[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
+
+  // Use the long version with the optional Byte 6 if the memory space is not one of the original 3 (CDI, All, Config)
+  if AddressSpace < MSI_CONFIG then
+  begin
+    FDataArray[1] := MCP_READ_REPLY;
+    FDataArray[2] := _Highest(ConfigMemAddress);
+    FDataArray[3] := _Higher(ConfigMemAddress);
+    FDataArray[4] := _Hi(ConfigMemAddress);
+    FDataArray[5] := _Lo(ConfigMemAddress);
+    FDataArray[6] := AddressSpace;
+    for i := 0 to Length(ConfigMemData) - 1 do
+      FDataArray[i+7] := ConfigMemData[i];
+    DataCount := 7 + Length(ConfigMemData);
+  end else
+  begin
+    case AddressSpace of
+      MSI_CDI    : FDataArray[1] := MCP_READ_REPLY_CDI;
+      MSI_ALL    : FDataArray[1] := MCP_READ_REPLY_ALL;
+      MSI_CONFIG : FDataArray[1] := MCP_READ_REPLY_CONFIGURATION;
+    end;
+    FDataArray[2] := _Highest(ConfigMemAddress);
+    FDataArray[3] := _Higher(ConfigMemAddress);
+    FDataArray[4] := _Hi(ConfigMemAddress);
+    FDataArray[5] := _Lo(ConfigMemAddress);
+    for i := 0 to Length(ConfigMemData) - 1 do
+      FDataArray[i+6] := ConfigMemData[i];
+    DataCount := 6 + Length(ConfigMemData);
+  end;
+  MTI := MTI_DATAGRAM;
+end;
+
+procedure TLccMessage.LoadConfigMemReadReplyError(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; AddressSpace: Byte;
+  ConfigMemAddress: DWord; ErrorCode: Word; ErrorCodeString: string);
+var
+  i: Integer;
+  CharPtr: PChar;
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  FDataArray[0] := DATAGRAM_PROTOCOL_CONFIGURATION;
+
+  // Use the long version with the optional Byte 6 if the memory space is not one of the original 3 (CDI, All, Config)
+  if AddressSpace < MSI_CONFIG then
+  begin
+    FDataArray[1] := MCP_READ_REPLY;
+    FDataArray[2] := _Highest(ConfigMemAddress);
+    FDataArray[3] := _Higher(ConfigMemAddress);
+    FDataArray[4] := _Hi(ConfigMemAddress);
+    FDataArray[5] := _Lo(ConfigMemAddress);
+    FDataArray[6] := AddressSpace;
+    FDataArray[7] := Hi(ErrorCode);
+    FDataArray[8] := Lo(ErrorCode);
+
+    {$IFDEF LCC_MOBILE}
+    for i := 1 to Length(ErrorCodeString) do
+      FDataArray[i+8] := Byte(ErrorCodeString[i]);
+    {$ELSE}
+    for i := 0 to Length(ErrorCodeString) - 1 do
+      FDataArray[i+9] := Byte(ErrorCodeString[i]);
+    {$ENDIF}
+    FDataArray[9+Length(ErrorCodeString)] := Byte(#0);
+
+    DataCount := 9+Length(ErrorCodeString)+1;
+  end else
+  begin
+    case AddressSpace of
+      MSI_CDI    : FDataArray[1] := MCP_READ_REPLY_CDI;
+      MSI_ALL    : FDataArray[1] := MCP_READ_REPLY_ALL;
+      MSI_CONFIG : FDataArray[1] := MCP_READ_REPLY_CONFIGURATION;
+    end;
+    FDataArray[2] := _Highest(ConfigMemAddress);
+    FDataArray[3] := _Higher(ConfigMemAddress);
+    FDataArray[4] := _Hi(ConfigMemAddress);
+    FDataArray[5] := _Lo(ConfigMemAddress);
+    FDataArray[6] := Hi(ErrorCode);
+    FDataArray[7] := Lo(ErrorCode);
+
+    {$IFDEF LCC_MOBILE}
+    for i := 1 to Length(ErrorCodeString) do
+      FDataArray[i+7] := Byte(ErrorCodeString[i]);
+    {$ELSE}
+    for i := 0 to Length(ErrorCodeString) - 1 do
+      FDataArray[i+8] := Byte(ErrorCodeString[i]);
+    {$ENDIF}
+    FDataArray[8+Length(ErrorCodeString)] := Byte(#0);
+
+    DataCount := 8+Length(ErrorCodeString)+1;
+  end;
+  MTI := MTI_DATAGRAM;
+
 end;
 
 procedure TLccMessage.LoadConfigMemWriteArray(ASourceID: TNodeID;

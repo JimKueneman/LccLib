@@ -1785,7 +1785,7 @@ begin
              end
          else begin {case else}
              // Unknown Datagram Type
-             WorkerMessage.LoadDatagramRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_TYPE);
+             WorkerMessage.LoadDatagramRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT_NOT_IMPLEMENTED or ERROR_TYPE);
              SendMessageFunc(Self, WorkerMessage);
              Result := True;
            end;
@@ -1794,7 +1794,7 @@ begin
   else begin
       if SourceMessage.HasDestination then
       begin
-        WorkerMessage.LoadOptionalInteractionRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT or ERROR_NOT_IMPLEMENTED or ERROR_MTI, SourceMessage.MTI);
+        WorkerMessage.LoadOptionalInteractionRejected(NodeID, FAliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, ERROR_PERMANENT_NOT_IMPLEMENTED or ERROR_MTI, SourceMessage.MTI);
         SendMessageFunc(Self, WorkerMessage);
         Result := True;
       end;
@@ -2155,7 +2155,7 @@ begin
     SendDatagramAckReply(SourceMessage, False, 0);   // We will be sending a Read Reply
     SendMessageFunc(Self, ReplyLccMessage);
   end else
-    SendDatagramRejectedReply(SourceMessage, ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE)
+    SendDatagramRejectedReply(SourceMessage, ERROR_TEMPORARY_BUFFER_UNAVAILABLE)
 end;
 
 procedure TLccNode.SendEvents;

@@ -332,6 +332,16 @@ type
      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
    end;
 
+   { TLccActionMemoryConfigurationRead }
+
+   TLccActionMemoryConfigurationRead = class(TLccAction)
+   protected
+     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;  override;
+     function _1WaitForReadReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+     procedure LoadStateArray; override;
+   end;
+
 type
   TLccTrainDirection = (tdForward, tdReverse);
   TLccFunctions = array[0..28] of Word;
@@ -541,6 +551,58 @@ begin
     else
       Result := 'S'
   end
+end;
+
+{ TLccActionMemoryConfigurationRead }
+
+function TLccActionMemoryConfigurationRead._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  OwnerTrain: TLccTrainDccNode;
+  DccServiceModeGridConnect, AddressStr: string;
+  Address: DWord;
+  ReadCount: Word;
+begin
+  Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  if Assigned(SourceMessage) then
+  begin
+    OwnerTrain := Owner as TLccTrainDccNode;
+    Address := SourceMessage.ExtractDataBytesAsInt(2, 5);
+    ReadCount := 0;
+    if SourceMessage.DataArray[1] = MCP_READ then
+    begin
+      if SourceMessage.DataArray[6] = MSI_CONFIG then
+        ReadCount := SourceMessage.ExtractDataBytesAsWord(7)
+      else if SourceMessage.DataArray[1] = MCP_READ_CONFIGURATION then
+        ReadCount := SourceMessage.ExtractDataBytesAsWord(6)
+    end;
+
+    if ReadCount > 0 then
+    begin
+      AddressStr := UIntToStr(Address);
+      DccServiceModeGridConnect := ':S00000000N' + AddressStr + '0000;';
+      OwnerTrain.DoSendMessageComPort(DccServiceModeGridConnect);
+      AdvanceToNextState;
+    end else
+    begin
+      SourceMessage.LoadConfigMemReadReplyError(SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Address, MSI_CONFIG, $FF, 'Read Timed Out');
+      AdvanceToLastState;
+    end;
+  end;
+end;
+
+function TLccActionMemoryConfigurationRead._1WaitForReadReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  if TimeoutCounts > TimeoutCountThreshold then
+    AdvanceToNextState();
+end;
+
+procedure TLccActionMemoryConfigurationRead.LoadStateArray;
+begin
+  SetStateArrayLength(3);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1WaitForReadReply;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup
 end;
 
 { TLccActionTractionManageRelease }
@@ -802,7 +864,7 @@ begin
   if OwnerTrain.Listeners.Delete(ListenerNodeID) then
     ReplyCode := S_OK
   else
-    ReplyCode := ERROR_PERMANENT or ERROR_NOT_FOUND;
+    ReplyCode := ERROR_PERMANENT_INVALID_ARGUMENTS;
 
   WorkerMessage.LoadTractionListenerDetachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
   SendMessage(Self, WorkerMessage);
@@ -883,7 +945,7 @@ begin
   //   5) Not enough memory to allocate another Listener
 
   if EqualNodeID(SourceNodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
-    ReplyCode := ERROR_PERMANENT or ERROR_INVALID_ARGUMENTS;
+    ReplyCode := ERROR_PERMANENT_INVALID_ARGUMENTS;
   // Balasz does not agree this is a falure
   // if not EqualNodeID(NodeID, OwnerTrain.AttachedController.NodeID, False) then
   //   ReplyCode := ERROR_PERMANENT or ERROR_SOURCE_NOT_PERMITED;
@@ -902,7 +964,7 @@ begin
       if Assigned(NewListenerNode) then
         ReplyCode := S_OK
       else
-        ReplyCode := ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE;
+        ReplyCode := ERROR_TEMPORARY_BUFFER_UNAVAILABLE;
       WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
       SendMessage(Self, WorkerMessage);
     end;
@@ -1514,6 +1576,13 @@ begin
 
   // Some of these could be done without creating an Action but doing it this way ensures nice encapulation of the code in the Action object and keeps this message handler very clean
   case SourceMessage.MTI of
+    MTI_DATAGRAM :
+      begin
+        case SourceMessage.DataArray[DATAGRAM_PROTOCOL_CONFIGURATION] of
+          MCP_READ : Result := LccActions.RegisterAndKickOffAction(TLccActionMemoryConfigurationRead.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+     //     MCP_WRITE : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetSpeed.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+        end
+      end;
     MTI_TRACTION_REQUEST :
       begin
         case SourceMessage.DataArray[0] of

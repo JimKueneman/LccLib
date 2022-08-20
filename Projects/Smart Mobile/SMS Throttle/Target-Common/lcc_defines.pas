@@ -360,16 +360,23 @@ const
   MCP_WRITE                           = $00;                                    // MemoryConfigurationProtocol - Write Memory Mask
   MCP_WRITE_STREAM                    = $20;
   MCP_READ                            = $40;                                    // MemoryConfigurationProtocol - Read Memory Mask
+  MCP_READ_CONFIGURATION              = $41;
+  MCP_READ_ALL                        = $42;
+  MCP_READ_CDI                        = $43;
+
   MCP_READ_STREAM                     = $60;
   MCP_OPERATION                       = $80;                                    // MemoryConfigurationProtocol - Operation Mask
   MCP_READ_REPLY                      = $50;                                    // MemoryConfigurationProtocol - Read Reply Mask [Does not include the Address Space Mask "or" it with the the Address space masks below]
+  MCP_READ_REPLY_CONFIGURATION        = $51;
+  MCP_READ_REPLY_ALL                  = $52;
+  MCP_READ_REPLY_CDI                  = $53;
+  MCP_READ_REPLY_FAILURE              = $58;
+  MCP_READ_REPLY_FAILURE_CONFIG       = $59;
+  MCP_READ_REPLY_FAILURE_ALL          = $5A;
+  MCP_READ_REPLY_FAILURE_CDI          = $5B;
+
   MCP_WRITE_REPLY                     = $10;
   MCP_READ_STREAM_REPLY               = $70;
-
-  MCP_READ_OK                         = $50;
-  MCP_READ_ERROR                      = $58;
-  MCP_WRITE_OK                        = $10;
-  MCP_WRITE_ERROR                     = $18;
 
   MCP_CDI                             = $03;                                    // Address space = CDI ($FF) access Mask
   MCP_ALL                             = $02;                                    // Address space = All ($FE) access Mask
@@ -526,24 +533,23 @@ const
 
   MAX_CONFIG_MEM_READWRITE_SIZE = 64;
 
-  ERROR_TEMPORARY                     = $2000;
+  // Permanent error modifier
   ERROR_PERMANENT                     = $1000;
-
-  // Permanent error modifier (OR with ERROR_PERMANENT}
-  ERROR_SOURCE_NOT_PERMITED           = $0020;
-  ERROR_NOT_FOUND                     = $0030;
-  ERROR_NOT_IMPLEMENTED               = $0040;
+  ERROR_PERMANENT_SOURCE_NOT_PERMITED = $1020;
+  ERROR_PERMANENT_NOT_IMPLEMENTED     = $1040;
+  ERROR_PERMANENT_INVALID_ARGUMENTS   = $1080;
 
   ERROR_SUBCOMMAND                    = $0001;
   ERROR_TYPE                          = $0002;
   ERROR_MTI                           = $0003;
 
-  // Temporary error modifier (OR with ERROR_TEMPORARY}
-  ERROR_TIMEOUT                       = $0010;
-  ERROR_BUFFER_UNAVAILABLE            = $0020;
-  ERROR_NOT_EXPECTED                  = $0040;
-  ERROR_TRANSFER_ERROR                = $0080;
-  ERROR_INVALID_ARGUMENTS             = $0080;
+  // Temporary error modifier
+  ERROR_TEMPORARY                     = $2000;
+  ERROR_TEMPORARY_TIMEOUT             = $2010;
+  ERROR_TEMPORARY_BUFFER_UNAVAILABLE  = $2020;
+  ERROR_TEMPORARY_NOT_EXPECTED        = $2040;
+  ERROR_TEMPORARY_TRANSFER_ERROR      = $0080;
+  ERROR_TEMPORARY_INVALID_ARGUMENTS   = $2080;
 
   ERROR_WAITING_FOR_ENDFRAME          = $0001;
   ERROR_NO_START_FRAME                = $0001;

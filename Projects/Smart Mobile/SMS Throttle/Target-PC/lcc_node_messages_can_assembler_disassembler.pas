@@ -250,7 +250,7 @@ begin                                                                           
                 Result := imgcr_True
               end else
               begin
-                LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_BUFFER_UNAVAILABLE);
+                LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY_BUFFER_UNAVAILABLE);
                 Result := imgcr_ErrorToSend
               end;
             end;
@@ -260,7 +260,7 @@ begin                                                                           
             InProcessMessage := FindByAliasAndMTI(LccMessage);
             if Assigned(InProcessMessage) then
             begin
-              LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_NOT_EXPECTED or ERROR_NO_END_FRAME);
+              LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY_NOT_EXPECTED or ERROR_NO_END_FRAME);
               Result := imgcr_ErrorToSend;
               Remove(InProcessMessage, True)                                         // Something is wrong, out of order.  Throw it away
             end
@@ -298,7 +298,7 @@ begin                                                                           
               Result := imgcr_True
             end else
             begin  // Out of order but let the node handle that if needed, note this could be also if we ran out of buffers....
-              LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_NOT_EXPECTED or ERROR_NO_START_FRAME);
+              LccMessage.LoadDatagramRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY_NOT_EXPECTED or ERROR_NO_START_FRAME);
               Result := imgcr_ErrorToSend
             end;
           end;
@@ -318,7 +318,7 @@ begin                                                                           
                   InProcessMessage := FindByAliasAndMTI(LccMessage);
                   if Assigned(InProcessMessage) then
                   begin
-                    LccMessage.LoadOptionalInteractionRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_NOT_EXPECTED or ERROR_NO_END_FRAME, LccMessage.MTI);
+                    LccMessage.LoadOptionalInteractionRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY_NOT_EXPECTED or ERROR_NO_END_FRAME, LccMessage.MTI);
                     Result := imgcr_ErrorToSend;
                     Remove(InProcessMessage, True)                              // Something is wrong, out of order.  Throw it away
                   end else
@@ -340,7 +340,7 @@ begin                                                                           
                   begin
                     // Out of order but let the node handle that if needed (Owned Nodes Only)
                     // Don't swap the IDs, need to find the right target node first
-                    LccMessage.LoadOptionalInteractionRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY or ERROR_NOT_EXPECTED or ERROR_NO_START_FRAME, LccMessage.MTI);
+                    LccMessage.LoadOptionalInteractionRejected(LccMessage.DestID, LccMessage.CAN.DestAlias, LccMessage.SourceID, LccMessage.CAN.SourceAlias, ERROR_TEMPORARY_NOT_EXPECTED or ERROR_NO_START_FRAME, LccMessage.MTI);
                     Result := imgcr_ErrorToSend
                   end;
                 end;
