@@ -110,7 +110,7 @@ if TargetOS = &apos;linux&apos; then
     </CodeGeneration>
     <Linking>
       <Debugging>
-        <DebugInfoType Value="dsDwarf3"/>
+        <DebugInfoType Value="dsDwarf2Set"/>
         <UseValgrind Value="True"/>
       </Debugging>
       <Options>

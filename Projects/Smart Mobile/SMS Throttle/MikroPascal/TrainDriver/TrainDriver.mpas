@@ -167,7 +167,7 @@ begin
   H_Bridge_B_Lo_Direction          := 0;
   H_Bridge_B_Hi_Direction          := 0;
   
-  ServiceModeEnabled := True;
+  ServiceModeEnabled := False;
   OffEnabled := False;
 
   NMRA_DCC_Initialize(1850);     // Clock ticks every 31.25ns * 1856 = 58us interrupts

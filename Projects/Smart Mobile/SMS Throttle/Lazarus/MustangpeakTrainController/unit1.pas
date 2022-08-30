@@ -109,8 +109,8 @@ type
   private
     FControllerNode: TLccTrainController;
   protected
-    procedure OnControllerNodeTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
-    procedure OnControllerNodeTrainReleased(Sender: TLccNode);
+    procedure OnControllerNodeTrainAssigned(Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
+    procedure OnControllerNodeTrainReleased(Sender: TLccTrainController);
   public
     EthernetClient: TLccEthernetClient;
     NodeManager: TLccNodeManager;
@@ -392,7 +392,8 @@ begin
   ControllerNode.Speed := TrackBarThrottleSpeed.Position;
 end;
 
-procedure TFormTrainController.OnControllerNodeTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
+procedure TFormTrainController.OnControllerNodeTrainAssigned(
+  Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
 begin
   case Reason of
     tarAssigned :
@@ -411,7 +412,8 @@ begin
   end;
 end;
 
-procedure TFormTrainController.OnControllerNodeTrainReleased(Sender: TLccNode);
+procedure TFormTrainController.OnControllerNodeTrainReleased(
+  Sender: TLccTrainController);
 begin
   ButtonAssignTrain.Enabled := True;
   ButtonReleaseTrain.Enabled := False;

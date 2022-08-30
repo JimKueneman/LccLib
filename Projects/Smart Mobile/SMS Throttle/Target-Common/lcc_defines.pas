@@ -229,10 +229,10 @@ const
   MTI_CAN_SIMPLE_TRAIN_INFO_REQUEST      = $09DA8000;                                // Databytes = Destination Alias
   MTI_CAN_SIMPLE_TRAIN_INFO_REPLY        = $099C8000;                                // Databytes = Destination Alias, ACDI Data
 
-  MTI_CAN_TRACTION_PROTOCOL              = $095EA000;                                // Databyte = depends
-  MTI_CAN_TRACTION_PROXY_PROTOCOL        = $091EA000;
-  MTI_CAN_TRACTION_REPLY                 = $095E8000;                                // Databyte = depends
-  MTI_CAN_TRACTION_PROXY_REPLY           = $091E8000;
+  MTI_CAN_TRACTION_PROTOCOL              = $095EB000;                                // Databyte = depends
+//  MTI_CAN_TRACTION_PROXY_PROTOCOL        = $091EA000;
+  MTI_CAN_TRACTION_REPLY                 = $091E9000;                                // Databyte = depends
+//  MTI_CAN_TRACTION_PROXY_REPLY           = $091E8000;
 
   MTI_CAN_STREAM_INIT_REQUEST            = $09CC8000;
   MTI_CAN_STREAM_INIT_REPLY              = $09868000;
@@ -281,8 +281,8 @@ const
   MTI_TRACTION_SIMPLE_TRAIN_INFO_REQUEST = $0DA8;                                // Databytes = Destination Alias
   MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY   = $09C8;                                // Databytes = Destination Alias, ACDI Data
 
-  MTI_TRACTION_REQUEST               = $05E8;                                // Databyte = depends
-  MTI_TRACTION_REPLY                 = $01E8;                                // Databyte = depends
+  MTI_TRACTION_REQUEST               = $05EB;                                // Databyte = depends
+  MTI_TRACTION_REPLY                 = $01E9;                                // Databyte = depends
 
   MTI_REMOTE_BUTTON_REQUEST           = $0948;
   MTI_REMOTE_BUTTON_REPLY            = $0949;
@@ -590,8 +590,13 @@ var
   NULL_NODE_ID: TNodeID;
 
   NULL_EVENT_ID              : TEventID;
+  EVENT_EMERGENCY_OFF        : TEventID;
+  EVENT_EMERGENCY_OFF_CLEAR  : TEventID;
   EVENT_EMERGENCY_STOP       : TEventID;
+  EVENT_EMERGENCY_STOP_CLEAR : TEventID;
   EVENT_NEW_LOG_ENTRY        : TEventID;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE     : TEventID;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD : TEventID;
   EVENT_IDENT_BUTTON_PRESSED : TEventID;
   EVENT_DUPLICATE_ID_DETECTED: TEventID;
   EVENT_IS_TRAIN             : TEventID;
@@ -650,46 +655,98 @@ initialization
   NULL_EVENT_ID[4]               := 0;
   NULL_EVENT_ID[5]               := 0;
   NULL_EVENT_ID[6]               := 0;
+  NULL_EVENT_ID[7]               := 0;
+
+
+  EVENT_EMERGENCY_OFF[0]        := $01;
+  EVENT_EMERGENCY_OFF[1]        := $00;
+  EVENT_EMERGENCY_OFF[2]        := $00;
+  EVENT_EMERGENCY_OFF[3]        := $00;
+  EVENT_EMERGENCY_OFF[4]        := $00;
+  EVENT_EMERGENCY_OFF[5]        := $00;
+  EVENT_EMERGENCY_OFF[6]        := $FF;
+  EVENT_EMERGENCY_OFF[7]        := $FF;
+
+  EVENT_EMERGENCY_OFF_CLEAR[0]  := $01;
+  EVENT_EMERGENCY_OFF_CLEAR[1]  := $00;
+  EVENT_EMERGENCY_OFF_CLEAR[2]  := $00;
+  EVENT_EMERGENCY_OFF_CLEAR[3]  := $00;
+  EVENT_EMERGENCY_OFF_CLEAR[4]  := $00;
+  EVENT_EMERGENCY_OFF_CLEAR[5]  := $00;
+  EVENT_EMERGENCY_OFF_CLEAR[6]  := $FF;
+  EVENT_EMERGENCY_OFF_CLEAR[7]  := $FE;
 
   EVENT_EMERGENCY_STOP[0]        := $01;
   EVENT_EMERGENCY_STOP[1]        := $00;
   EVENT_EMERGENCY_STOP[2]        := $00;
   EVENT_EMERGENCY_STOP[3]        := $00;
   EVENT_EMERGENCY_STOP[4]        := $00;
-  EVENT_EMERGENCY_STOP[5]        := $FF;
+  EVENT_EMERGENCY_STOP[5]        := $00;
   EVENT_EMERGENCY_STOP[6]        := $FF;
+  EVENT_EMERGENCY_STOP[7]        := $FD;
+
+  EVENT_EMERGENCY_STOP_CLEAR[0]  := $01;
+  EVENT_EMERGENCY_STOP_CLEAR[1]  := $00;
+  EVENT_EMERGENCY_STOP_CLEAR[2]  := $00;
+  EVENT_EMERGENCY_STOP_CLEAR[3]  := $00;
+  EVENT_EMERGENCY_STOP_CLEAR[4]  := $00;
+  EVENT_EMERGENCY_STOP_CLEAR[5]  := $00;
+  EVENT_EMERGENCY_STOP_CLEAR[6]  := $FF;
+  EVENT_EMERGENCY_STOP_CLEAR[7]  := $FC;
 
   EVENT_NEW_LOG_ENTRY[0]         := $01;
   EVENT_NEW_LOG_ENTRY[1]         := $00;
   EVENT_NEW_LOG_ENTRY[2]         := $00;
   EVENT_NEW_LOG_ENTRY[3]         := $00;
   EVENT_NEW_LOG_ENTRY[4]         := $00;
-  EVENT_NEW_LOG_ENTRY[5]         := $FF;
-  EVENT_NEW_LOG_ENTRY[6]         := $F8;
+  EVENT_NEW_LOG_ENTRY[5]         := $00;
+  EVENT_NEW_LOG_ENTRY[6]         := $FF;
+  EVENT_NEW_LOG_ENTRY[7]         := $F8;
+
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[0]  := $01;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[1]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[2]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[3]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[4]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[5]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[6]  := $FF;
+  EVENT_POWERSUPPLY_BROWNOUT_NODE[7]  := $F1;
+
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[0]  := $01;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[1]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[2]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[3]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[4]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[5]  := $00;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[6]  := $FF;
+  EVENT_POWERSUPPLY_BROWNOUT_STANDARD[7]  := $F0;
 
   EVENT_IDENT_BUTTON_PRESSED[0]  := $01;
   EVENT_IDENT_BUTTON_PRESSED[1]  := $00;
   EVENT_IDENT_BUTTON_PRESSED[2]  := $00;
   EVENT_IDENT_BUTTON_PRESSED[3]  := $00;
   EVENT_IDENT_BUTTON_PRESSED[4]  := $00;
-  EVENT_IDENT_BUTTON_PRESSED[5]  := $FE;
-  EVENT_IDENT_BUTTON_PRESSED[6]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[5]  := $00;
+  EVENT_IDENT_BUTTON_PRESSED[6]  := $FE;
+  EVENT_IDENT_BUTTON_PRESSED[7]  := $00;
 
   EVENT_DUPLICATE_ID_DETECTED[0] := $01;
   EVENT_DUPLICATE_ID_DETECTED[1] := $10;
   EVENT_DUPLICATE_ID_DETECTED[2] := $00;
   EVENT_DUPLICATE_ID_DETECTED[3] := $00;
   EVENT_DUPLICATE_ID_DETECTED[4] := $00;
-  EVENT_DUPLICATE_ID_DETECTED[5] := $02;
-  EVENT_DUPLICATE_ID_DETECTED[6] := $01;
+  EVENT_DUPLICATE_ID_DETECTED[5] := $00;
+  EVENT_DUPLICATE_ID_DETECTED[6] := $02;
+  EVENT_DUPLICATE_ID_DETECTED[7] := $01;
 
   EVENT_IS_TRAIN[0]              := $01;
   EVENT_IS_TRAIN[1]              := $01;
   EVENT_IS_TRAIN[2]              := $00;
   EVENT_IS_TRAIN[3]              := $00;
   EVENT_IS_TRAIN[4]              := $00;
-  EVENT_IS_TRAIN[5]              := $03;
+  EVENT_IS_TRAIN[5]              := $00;
   EVENT_IS_TRAIN[6]              := $03;
+  EVENT_IS_TRAIN[7]              := $03;
 
   // EVENT_IS_PROXY Depreciated
 
@@ -698,8 +755,9 @@ initialization
   EVENT_DELIVERS_CLOCK[2]        := $00;
   EVENT_DELIVERS_CLOCK[3]        := $00;
   EVENT_DELIVERS_CLOCK[4]        := $00;
-  EVENT_DELIVERS_CLOCK[5]        := $05;
-  EVENT_DELIVERS_CLOCK[6]        := $01;
+  EVENT_DELIVERS_CLOCK[5]        := $00;
+  EVENT_DELIVERS_CLOCK[6]        := $05;
+  EVENT_DELIVERS_CLOCK[7]        := $01;
 
 
 end.

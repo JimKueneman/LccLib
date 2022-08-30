@@ -333,9 +333,9 @@ type
       property iListenerQuery: Byte read FiListenerQuery write FiListenerQuery;
   end;
 
-  { TLccActionReadConfiguration }
+  { TLccActionConfigurationRead }
 
-  TLccActionReadConfiguration = class(TLccActionTrain)
+  TLccActionConfigurationRead = class(TLccActionTrain)
   private
     FCVAddress: DWord;
     protected
@@ -347,6 +347,29 @@ type
       constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer; ACVAddress: DWord); reintroduce;
 
       property CVAddress: DWord read FCVAddress;
+  end;
+
+  { TLccActionConfigurationQuery }
+
+  TLccActionConfigurationQuery = class(TLccActionTrain)
+  private
+    FCurrentCV: DWord;
+    FEndCV: DWord;
+    FStartCV: DWord;
+    protected
+      function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; override;
+      function _1ConfigurationRead(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+      function _2WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+
+      procedure LoadStateArray; override;
+      procedure CompleteCallback(SourceAction: TLccAction); override;
+
+      property CurrentCV: DWord read FCurrentCV write FCurrentCV;
+    public
+      constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer; AStartCV, AnEndCV: DWord); reintroduce;
+
+      property StartCV: DWord read FStartCV;
+      property EndCV: DWord read FEndCV;
   end;
 
 
@@ -366,7 +389,7 @@ type
   TOnControllerDetachListenerReply = procedure(Sender: TLccTrainController; Listener: TLccActionTrainInfo; ReplyCode: Word) of object;
   TOnControllerQueryListenerGetCount = procedure(Sender: TLccTrainController; ListenerCount: Byte) of object;
   TOnControllerQueryListenerIndex = procedure(Sender: TLccTrainController; ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID) of object;
-  TOnMemoryConfigRead = procedure(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string) of Object;
+  TOnQueryConfigurationReply = procedure(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string) of Object;
 
   // ******************************************************************************
 
@@ -394,10 +417,10 @@ type
     FDirection: TLccTrainDirection;
     FFunctionArray: TLccFunctions;
     FOnAttachListenerReply: TOnControllerAttachListenerReply;
-    FOnMemoryConfigRead: TOnMemoryConfigRead;
     FOnConsistResults: TOnControllerConsistsResults;
     FOnControllerRequestTakeover: TOnControllerRequestTakeover;
     FOnDetachListenerReply: TOnControllerDetachListenerReply;
+    FOnQueryConfigurationReply: TOnQueryConfigurationReply;
     FOnQueryFunctionReply: TOnControllerQueryFunctionReply;
     FOnQueryListenerGetCount: TOnControllerQueryListenerGetCount;
     FOnQueryListenerIndex: TOnControllerQueryListenerIndex;
@@ -432,7 +455,7 @@ type
     procedure DoControllerDetachListenerReply(Listener: TLccActionTrainInfo; ReplyCode: Word); virtual;
     procedure DoControllerQueryListenerGetCount(ListenerCount: Byte); virtual;
     procedure DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags: Byte; ListenerNodeID: TNodeID); virtual;
-    procedure DoMemoryConfigRead(ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string); virtual;
+    procedure DoQueryConfigurationReply(ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string); virtual;
 
   public
     property AssignedTrain: TAttachedTrain read FAssignedTrain write FAssignedTrain;
@@ -441,7 +464,6 @@ type
     property ConfigurationVariable[Index: Integer]: Byte read GetConfigurationVariable write SetConfigurationVariable;
     property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
 
-    property OnMemoryConfigRead: TOnMemoryConfigRead read FOnMemoryConfigRead write FOnMemoryConfigRead;
     property OnConsistResults: TOnControllerConsistsResults read FOnConsistResults write FOnConsistResults;
     property OnTrainAssigned: TOnControllerTrainAssignedReply read FOnTrainAssigned write FOnTrainAssigned;
     property OnTrainReleased: TOnControllerTrainReleasedReply read FOnTrainReleased write FOnTrainReleased;
@@ -454,6 +476,7 @@ type
     property OnDetachListenerReply: TOnControllerDetachListenerReply read FOnDetachListenerReply write FOnDetachListenerReply;
     property OnQueryListenerGetCount: TOnControllerQueryListenerGetCount read FOnQueryListenerGetCount write FOnQueryListenerGetCount;
     property OnQueryListenerIndex: TOnControllerQueryListenerIndex read FOnQueryListenerIndex write FOnQueryListenerIndex;
+    property OnQueryConfigurationReply: TOnQueryConfigurationReply read FOnQueryConfigurationReply write FOnQueryConfigurationReply;
 
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
@@ -463,6 +486,7 @@ type
     procedure QuerySpeed(UniqueID: Integer = 0);
     procedure QueryFunction(Address: Word; UniqueID: Integer = 0);
     procedure QueryFunctions(UniqueID: Integer = 0);
+    procedure QueryConfigurationVariables(AStartAddress, AnEndAddress: DWord; UniqueID: Integer = 0);
 
     procedure SearchTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
@@ -491,9 +515,80 @@ type
 
 implementation
 
-{ TLccActionReadConfiguration }
+{ TLccActionConfigurationQuery }
 
-function TLccActionReadConfiguration._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionConfigurationQuery._0ReceiveFirstMessage(Sender: TObject;
+  SourceMessage: TLccMessage): Boolean;
+begin
+  Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+  AdvanceToNextState;
+end;
+
+function TLccActionConfigurationQuery._1ConfigurationRead(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+var
+  LccActionConfigurationRead: TLccActionConfigurationRead;
+begin
+  LccActionConfigurationRead := TLccActionConfigurationRead.Create(Owner, SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, UniqueID, CurrentCV);
+  LccActionConfigurationRead.SetTimoutCountThreshold(5000, True);
+  LccActionConfigurationRead.RegisterCallBackOnExit(Self);
+
+  Result := ActionHub.RegisterAndKickOffAction(LccActionConfigurationRead, SourceMessage);
+
+  AdvanceToNextState;
+end;
+
+function TLccActionConfigurationQuery._2WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+begin
+  // Spinning here
+  // Will break out from the Callback even from timeouts
+  Result := False
+end;
+
+procedure TLccActionConfigurationQuery.LoadStateArray;
+begin
+  SetStateArrayLength(4);
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ConfigurationRead;
+  States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2WaitforReply;
+  States[3] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
+end;
+
+procedure TLccActionConfigurationQuery.CompleteCallback(SourceAction: TLccAction);
+var
+  LccActionConfigurationRead: TLccActionConfigurationRead;
+begin
+  // Look and see if the TLccActionConfigurationRead was successful then move to the next one
+  LccActionConfigurationRead := SourceAction as TLccActionConfigurationRead;
+  if LccActionConfigurationRead.ErrorCode = laecOk then
+  begin
+    Inc(FCurrentCV);
+    if CurrentCV <= EndCV then
+    begin
+
+      AdvanceToNextState(-1);       // Backup one to run the next CV
+    end else
+      AdvanceToLastState;
+  end else
+  begin
+    ErrorCode := LccActionConfigurationRead.ErrorCode;
+    AdvanceToLastState;
+  end;
+end;
+
+constructor TLccActionConfigurationQuery.Create(AnOwner: TLccNode;
+  ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID;
+  ADestAliasID: Word; AnUniqueID: Integer; AStartCV, AnEndCV: DWord);
+begin
+  inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
+
+  FStartCV := AStartCV;
+  FEndCV := AnEndCV;
+  FCurrentCV := StartCV;
+end;
+
+{ TLccActionConfigurationRead }
+
+function TLccActionConfigurationRead._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result:=inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
@@ -503,7 +598,7 @@ begin
   AdvanceToNextState;
 end;
 
-function TLccActionReadConfiguration._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
+function TLccActionConfigurationRead._1WaitforReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
   ControllerNode: TLccTrainController;
 begin
@@ -520,21 +615,21 @@ begin
               DATAGRAM_PROTOCOL_CONFIGURATION:
                 begin
                   case SourceMessage.DataArray[1] of
-                      MCP_READ_REPLY                : ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(7, 10), S_OK, '');
-                      MCP_READ_REPLY_CONFIGURATION  : ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(6, 9), S_OK, '');
+                      MCP_READ_REPLY                : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(7, 10), S_OK, '');
+                      MCP_READ_REPLY_CONFIGURATION  : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(6, 9), S_OK, '');
                       MCP_READ_REPLY_FAILURE        :
                         begin
                           if SourceMessage.DataCount > 11 then  // Is there an optional string?
-                            ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), SourceMessage.ExtractDataBytesAsString(11, 62))
+                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), SourceMessage.ExtractDataBytesAsString(11, 62))
                           else
-                            ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), '');
+                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), '');
                         end;
                       MCP_READ_REPLY_FAILURE_CONFIG :
                         begin
                           if SourceMessage.DataCount > 10 then  // Is there an optional string?
-                            ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), SourceMessage.ExtractDataBytesAsString(10, 62))
+                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), SourceMessage.ExtractDataBytesAsString(10, 62))
                           else
-                            ControllerNode.DoMemoryConfigRead(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), '');
+                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), '');
                         end
                   end;
                 end;
@@ -542,9 +637,16 @@ begin
          end;
     end;
   end;
+
+  if TimeoutExpired then
+  begin
+    // Set Error Code
+    if TimeoutExpired then
+      AdvanceToLastState;
+  end;
 end;
 
-procedure TLccActionReadConfiguration.LoadStateArray;
+procedure TLccActionConfigurationRead.LoadStateArray;
 begin
   SetStateArrayLength(3);
   States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
@@ -552,7 +654,7 @@ begin
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_NFinalStateCleanup;
 end;
 
-constructor TLccActionReadConfiguration.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer; ACVAddress: DWord);
+constructor TLccActionConfigurationRead.Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer; ACVAddress: DWord);
 begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
   FCVAddress := ACVAddress;
@@ -1961,6 +2063,11 @@ begin
   end;
 end;
 
+procedure TLccTrainController.QueryConfigurationVariables(AStartAddress, AnEndAddress: DWord; UniqueID: Integer);
+begin
+  LccActions.RegisterAndKickOffAction(TLccActionConfigurationQuery.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, UniqueID, AStartAddress, AnEndAddress), nil);
+end;
+
 procedure TLccTrainController.SearchTrainByDccAddress(DccAddress: Word;
   IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer);
 begin
@@ -2250,10 +2357,12 @@ begin
     FOnQueryListenerIndex(Self, ListenerCount, ListenerIndex, ListenerFlags, ListenerNodeID);
 end;
 
-procedure TLccTrainController.DoMemoryConfigRead(ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+procedure TLccTrainController.DoQueryConfigurationReply(
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string
+  );
 begin
-  if Assigned(FOnMemoryConfigRead) then
-    FOnMemoryConfigRead(Self, ConfigMemAddress, Value, ErrorCode, ErrorMsg);
+  if Assigned(FOnQueryConfigurationReply) then
+    FOnQueryConfigurationReply(Self, ConfigMemAddress, Value, ErrorCode, ErrorMsg);
 end;
 
 function TLccTrainController.GetCdiFile: string;

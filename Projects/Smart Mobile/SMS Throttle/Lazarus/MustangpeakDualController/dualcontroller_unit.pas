@@ -60,13 +60,9 @@ type
     Label12: TLabel;
     Label13: TLabel;
     Label14: TLabel;
-    Label15: TLabel;
-    Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
-    Label19: TLabel;
     Label2: TLabel;
-    Label20: TLabel;
     Label21: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -212,8 +208,8 @@ type
     procedure OnClientServer2ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnClientServer2ErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 
-    procedure OnMemoryConfigRead1(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
-    procedure OnMemoryConfigRead2(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+    procedure OnQueryConfigurationReply1(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+    procedure OnQueryConfigurationReply2(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
 
     procedure OnMemoryConfigWrite1(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
     procedure OnMemoryConfigWrite2(Sender: TLccTrainController; ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
@@ -307,7 +303,12 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-//  ControllerNode1.OnMemoryConfigRead:=;
+  ControllerNode1.QueryConfigurationVariables(0, 8);
+
+  // This needs to be though out... can't read directly take too long... Functions store some assumed value it then fire off a read of the node to update...
+  // Do that here?  I don't know if that makes sense... It would if not for the Service Track part of this... The train node would just have this info to return
+  // immediately.
+
 end;
 
 procedure TForm1.ButtonCreateConstist2Click(Sender: TObject);
@@ -658,7 +659,7 @@ begin
           ControllerNode1.OnDetachListenerReply := @OnControllerDetachListenerReply1;
           ControllerNode1.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount1;
           ControllerNode1.OnQueryListenerIndex := @OnControllerQueryListenerIndex1;
-          ControllerNode1.OnMemoryConfigRead := @OnMemoryConfigRead1;
+          ControllerNode1.OnQueryConfigurationReply := @OnQueryConfigurationReply1;
           PageControlThrottle1.Enabled := True;
         end;
       lcsDisconnecting :
@@ -709,7 +710,7 @@ begin
           ControllerNode2.OnDetachListenerReply := @OnControllerDetachListenerReply2;
           ControllerNode2.OnQueryListenerGetCount := @OnControllerQueryListenerGetCount2;
           ControllerNode2.OnQueryListenerIndex := @OnControllerQueryListenerIndex2;
-          ControllerNode2.OnMemoryConfigRead := @OnMemoryConfigRead2;
+          ControllerNode2.OnQueryConfigurationReply := @OnQueryConfigurationReply2;
           PageControlThrottle2.Enabled := True;
         end;
       lcsDisconnecting :
@@ -739,14 +740,29 @@ begin
   ButtonConnect2.Caption := 'Connect';
 end;
 
-procedure TForm1.OnMemoryConfigRead1(Sender: TLccTrainController;
-  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+procedure TForm1.OnQueryConfigurationReply1(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string
+  );
 begin
-
+  if ErrorCode = S_OK then
+  begin
+    case ConfigMemAddress of
+      0 : Edit1.Caption:=IntToStr(Value);
+      1 : Edit2.Caption:=IntToStr(Value);
+      2 : Edit3.Caption:=IntToStr(Value);
+      3 : Edit4.Caption:=IntToStr(Value);
+      4 : Edit5.Caption:=IntToStr(Value);
+      5 : Edit6.Caption:=IntToStr(Value);
+      6 : Edit7.Caption:=IntToStr(Value);
+      7 : Edit8.Caption:=IntToStr(Value);
+    end;
+  end else
+    ShowMessage('Configuration Memoery Read Failure: Error Code: ' + IntToStr(ErrorCode) + ' Message: ' + ErrorMsg);
 end;
 
-procedure TForm1.OnMemoryConfigRead2(Sender: TLccTrainController;
-  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string);
+procedure TForm1.OnQueryConfigurationReply2(Sender: TLccTrainController;
+  ConfigMemAddress: LongWord; Value: LongWord; ErrorCode: Byte; ErrorMsg: string
+  );
 begin
 
 end;
