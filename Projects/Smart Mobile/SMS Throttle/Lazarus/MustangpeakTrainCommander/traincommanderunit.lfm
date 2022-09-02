@@ -245,39 +245,35 @@ object FormTrainCommander: TFormTrainCommander
     ClientHeight = 217
     ClientWidth = 267
     TabOrder = 5
-    object ListViewTrains: TListView
-      Left = 1
-      Height = 184
-      Top = 32
-      Width = 265
-      Align = alClient
-      Columns = <      
-        item
-          Caption = 'Trains Allocated'
-          Width = 600
-        end>
-      SmallImages = ImageListMain
-      TabOrder = 0
-      ViewStyle = vsReport
-    end
     object PanelTrainsHeader: TPanel
       Left = 1
-      Height = 31
+      Height = 23
       Top = 1
       Width = 265
       Align = alTop
-      ClientHeight = 31
+      Caption = 'Trains'
+      ClientHeight = 23
       ClientWidth = 265
-      TabOrder = 1
+      TabOrder = 0
       object ButtonTrainsClear: TButton
-        Left = 8
+        Left = 184
         Height = 23
-        Top = 7
+        Top = 0
         Width = 75
+        Anchors = [akRight, akBottom]
         Caption = 'Clear'
         OnClick = ButtonTrainsClearClick
         TabOrder = 0
       end
+    end
+    object TreeViewTrains: TTreeView
+      Left = 1
+      Height = 192
+      Top = 24
+      Width = 265
+      Align = alClient
+      Images = ImageListMain
+      TabOrder = 1
     end
   end
   object MemoLog: TMemo
@@ -311,8 +307,8 @@ object FormTrainCommander: TFormTrainCommander
     ResizeAnchor = akBottom
   end
   object ImageListMain: TImageList
-    Left = 72
-    Top = 168
+    Left = 168
+    Top = 136
     Bitmap = {
       4C7A2000000010000000100000003C1B00000000000078DAED5D097054C979DE
       5C8E733887CB152715DB7179E32BB1AB5C761257E24A6A5DDE95C07B78775921

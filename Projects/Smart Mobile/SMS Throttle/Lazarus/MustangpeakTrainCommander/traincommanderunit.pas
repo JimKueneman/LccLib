@@ -36,7 +36,6 @@ type
     LabelAliasID: TLabel;
     LabelAliasIDCaption: TLabel;
     LabelNodeIDCaption: TLabel;
-    ListViewTrains: TListView;
     ListviewConnections: TListView;
     MemoComPort: TMemo;
     MemoLog: TMemo;
@@ -49,6 +48,7 @@ type
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
     TimerIncomingMessagePump: TTimer;
+    TreeViewTrains: TTreeView;
     procedure ButtonActionObjectCountClick(Sender: TObject);
     procedure ButtonHTTPServerClick(Sender: TObject);
     procedure ButtonWebserverConnectClick(Sender: TObject);
@@ -107,6 +107,14 @@ type
     procedure OnNodeManagerIDChanged(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnLccNodeTractionListenerAttach(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
+    procedure OnLccNodeTractionListenerDetach(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
+    procedure OnLccNodeTractionListenerQuery(Sender: TObject; LccSourceNode: TLccNode; Index: Integer);
+
+    function TrainNodeToCaption(ATrainNode: TLccTrainDccNode): string;
+    function FindSingleLevelNodeWithData(ParentNode: TTreeNode; const NodeData: Pointer): TTreeNode;
+    procedure RebuildTrainListview;
+    procedure FlushTrains;
 
   public
     property LccServer: TLccEthernetServer read FLccServer write FLccServer;
@@ -114,6 +122,7 @@ type
     property LccHTTPServer: TLccHTTPServer read FLccHTTPServer write FLccHTTPServer;
     property NodeManager: TLccNodeManager read FNodeManager write FNodeManager;
     property ComPort: TLccComPort read FComPort write FComPort;
+
   end;
 
 var
@@ -180,20 +189,8 @@ begin
 end;
 
 procedure TFormTrainCommander.ButtonTrainsClearClick(Sender: TObject);
-var
-  i: Integer;
-  TrainNode: TLccTrainDccNode;
 begin
-  for i := 0 to NodeManager.GetNodeCount - 1 do
-  begin
-    if NodeManager.Node[i] is TLccTrainDccNode then
-    begin
-      TrainNode := NodeManager.Node[i] as TLccTrainDccNode;
-      TrainNode.Logout;
-      NodeManager.Nodes.Delete(i);
-    end;
-  end;
-  ListViewTrains.Clear;
+  FlushTrains
 end;
 
 procedure TFormTrainCommander.CheckBox1Change(Sender: TObject);
@@ -320,6 +317,9 @@ begin
   NodeManager.OnLccMessageSend := @OnNodeManagerSendMessage;
   NodeManager.OnLccNodeLogin := @OnNodeManagerNodeLogin;
   NodeManager.OnLccNodeLogout := @OnNodeManagerNodeLogout;
+  NodeManager.OnLccNodeTractionListenerAttach := @OnLccNodeTractionListenerAttach;
+  NodeManager.OnLccNodeTractionListenerDetach := @OnLccNodeTractionListenerDetach;
+  NodeManager.OnLccNodeTractionListenerQuery := @OnLccNodeTractionListenerQuery;
 
   FLccServer := TLccEthernetServer.Create(nil, NodeManager);
   LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
@@ -576,8 +576,7 @@ end;
 procedure TFormTrainCommander.OnNodeManagerNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
 var
   TrainNode: TLccTrainDccNode;
-  Item: TListItem;
-  SpeedStep: string;
+  TreeNode: TTreeNode;
 begin
   if LccSourceNode is TLccTrainDccNode then
   begin
@@ -585,20 +584,108 @@ begin
 
     TrainNode.OnSendMessageComPort := @OnComPortSendMessage;
 
-    Item := ListViewTrains.Items.Add;
-    Item.Data := TrainNode;
-    Item.ImageIndex := 18;
-    case TrainNode.DccSpeedStep of
-      ldssDefault : SpeedStep := 'Default Step';
-      ldss14      : SpeedStep := '14 Step';
-      ldss28      : SpeedStep := '28 Step';
-      ldss128     : SpeedStep := '128 Step';
-    end;
-    if TrainNode.DccLongAddress then
-      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Long ' + SpeedStep + ' [' + TrainNode.AliasIDStr + ']'
-    else
-      Item.Caption := 'Train Node: ' + IntToStr(TrainNode.DccAddress) + ' Short ' + SpeedStep + ' [' + TrainNode.AliasIDStr + ']'
+    TreeNode := TreeViewTrains.Items.Add(nil, TrainNodeToCaption(TrainNode));
+    TreeNode.Data := TrainNode;
+    TreeNode.ImageIndex := 18;
   end;
+end;
+
+procedure TFormTrainCommander.OnLccNodeTractionListenerAttach(Sender: TObject;
+  LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
+begin
+  RebuildTrainListview;
+end;
+
+procedure TFormTrainCommander.OnLccNodeTractionListenerDetach(Sender: TObject;
+  LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
+begin
+  RebuildTrainListview ;
+end;
+
+procedure TFormTrainCommander.OnLccNodeTractionListenerQuery(Sender: TObject;
+  LccSourceNode: TLccNode; Index: Integer);
+begin
+
+end;
+
+function TFormTrainCommander.TrainNodeToCaption(ATrainNode: TLccTrainDccNode): string;
+var
+  SpeedStep: string;
+begin
+  case ATrainNode.DccSpeedStep of
+    ldssDefault : SpeedStep := 'Default Step';
+    ldss14      : SpeedStep := '14 Step';
+    ldss28      : SpeedStep := '28 Step';
+    ldss128     : SpeedStep := '128 Step';
+  end;
+
+  if ATrainNode.DccLongAddress then
+    Result := IntToStr(ATrainNode.DccAddress) + ' Long ' + SpeedStep + ' [' + ATrainNode.AliasIDStr + ']' + ' [' + ATrainNode.NodeIDStr + ']'
+  else
+    Result := IntToStr(ATrainNode.DccAddress) + ' Short ' + SpeedStep + ' [' + ATrainNode.AliasIDStr + ']' + ' [' + ATrainNode.NodeIDStr + ']';
+end;
+
+function TFormTrainCommander.FindSingleLevelNodeWithData(ParentNode: TTreeNode;
+  const NodeData: Pointer): TTreeNode;
+begin
+  if ParentNode = nil then
+    Result := TreeViewTrains.Items.GetFirstNode
+  else
+    Result := ParentNode.GetFirstChild;
+  while Assigned(Result) and (Result.Data <> NodeData) do
+    Result := Result.GetNextSibling;
+end;
+
+procedure TFormTrainCommander.RebuildTrainListview;
+var
+  ListenerTrainNode, ParentTrainNode: TLccTrainDccNode;
+  ParentTreeNode, ChildTreeNode: TTreeNode;
+  i, j: Integer;
+begin
+
+  TreeViewTrains.Items.Clear;
+
+  for i := 0 to NodeManager.Nodes.Count - 1 do
+  begin
+    if NodeManager.Node[i] is TLccTrainDccNode then
+    begin
+      ParentTrainNode := NodeManager.Node[i] as TLccTrainDccNode;
+      ParentTreeNode := TreeViewTrains.Items.Add(nil, TrainNodeToCaption(ParentTrainNode));
+      ParentTreeNode.ImageIndex := 18;
+      for j := 0 to ParentTrainNode.Listeners.Count - 1 do
+      begin
+        ListenerTrainNode := NodeManager.FindNodeByNodeID(ParentTrainNode.Listeners.Listener[j].NodeID) as TLccTrainDccNode;
+        if Assigned(ListenerTrainNode) then
+        begin
+           ChildTreeNode := TreeViewTrains.Items.AddChild(ParentTreeNode, TrainNodeToCaption(ListenerTrainNode));
+           ChildTreeNode.ImageIndex := 7;
+        end else
+        begin
+           ChildTreeNode := TreeViewTrains.Items.AddChild(ParentTreeNode, '[Unknown]');
+           ChildTreeNode.ImageIndex := 7;
+        end;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TFormTrainCommander.FlushTrains;
+var
+  i: Integer;
+  TrainNode: TLccTrainDccNode;
+begin
+  for i := NodeManager.GetNodeCount - 1 downto 0  do
+  begin
+    if NodeManager.Node[i] is TLccTrainDccNode then
+    begin
+      TrainNode := NodeManager.Node[i] as TLccTrainDccNode;
+      TrainNode.Logout;      // Node will be deleted from Treeview when it logs out
+      NodeManager.Nodes.Delete(i);
+      TrainNode.Free;
+    end;
+  end;
+  TreeViewTrains.Items.Clear;
 end;
 
 procedure TFormTrainCommander.OnComPortConnectionStateChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
@@ -654,17 +741,18 @@ end;
 
 procedure TFormTrainCommander.OnNodeManagerNodeLogout(Sender: TObject; LccSourceNode: TLccNode);
 var
-  i: Integer;
+  TreeNode: TTreeNode;
+  TrainNode: TLccTrainDccNode;
 begin
   if LccSourceNode is TLccTrainDccNode then
   begin
-    for i := 0 to ListViewTrains.Items.Count - 1 do
+    TrainNode := LccSourceNode as TLccTrainDccNode;
+    TreeNode := TreeViewTrains.Items.FindNodeWithData(TrainNode);
+    while Assigned(TreeNode) do
     begin
-      if ListViewTrains.Items[i].Data = Pointer(LccSourceNode) then
-      begin
-        ListViewTrains.Items.Delete(i);
-        Break;
-      end;
+      if Assigned(TreeNode) then
+        TreeViewTrains.Items.Delete(TreeNode);
+      TreeNode := TreeViewTrains.Items.FindNodeWithData(LccSourceNode);
     end;
   end;
 end;

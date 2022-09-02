@@ -517,10 +517,10 @@ implementation
 
 { TLccActionConfigurationQuery }
 
-function TLccActionConfigurationQuery._0ReceiveFirstMessage(Sender: TObject;
-  SourceMessage: TLccMessage): Boolean;
+function TLccActionConfigurationQuery._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
   AdvanceToNextState;
 end;
 
@@ -528,11 +528,12 @@ function TLccActionConfigurationQuery._1ConfigurationRead(Sender: TObject; Sourc
 var
   LccActionConfigurationRead: TLccActionConfigurationRead;
 begin
+  // Node ProcessMessage or Timer Tick
   LccActionConfigurationRead := TLccActionConfigurationRead.Create(Owner, SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, UniqueID, CurrentCV);
   LccActionConfigurationRead.SetTimoutCountThreshold(5000, True);
   LccActionConfigurationRead.RegisterCallBackOnExit(Self);
 
-  Result := ActionHub.RegisterAndKickOffAction(LccActionConfigurationRead, SourceMessage);
+  Result := ActionHub.RegisterAndKickOffAction(LccActionConfigurationRead, nil);
 
   AdvanceToNextState;
 end;
@@ -604,37 +605,39 @@ var
 begin
   Result := False;
 
-  ControllerNode := Owner as TLccTrainController;
-
-  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  if Assigned(SourceMessage) then // Node ProcessMessage Only
   begin
-    case SourceMessage.MTI of
-       MTI_DATAGRAM :
-         begin
-           case SourceMessage.DataArray[0] of
-              DATAGRAM_PROTOCOL_CONFIGURATION:
-                begin
-                  case SourceMessage.DataArray[1] of
-                      MCP_READ_REPLY                : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(7, 10), S_OK, '');
-                      MCP_READ_REPLY_CONFIGURATION  : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(6, 9), S_OK, '');
-                      MCP_READ_REPLY_FAILURE        :
-                        begin
-                          if SourceMessage.DataCount > 11 then  // Is there an optional string?
-                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), SourceMessage.ExtractDataBytesAsString(11, 62))
-                          else
-                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), '');
-                        end;
-                      MCP_READ_REPLY_FAILURE_CONFIG :
-                        begin
-                          if SourceMessage.DataCount > 10 then  // Is there an optional string?
-                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), SourceMessage.ExtractDataBytesAsString(10, 62))
-                          else
-                            ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), '');
-                        end
+    ControllerNode := Owner as TLccTrainController;
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
+    begin
+      case SourceMessage.MTI of
+         MTI_DATAGRAM :
+           begin
+             case SourceMessage.DataArray[0] of
+                DATAGRAM_PROTOCOL_CONFIGURATION:
+                  begin
+                    case SourceMessage.DataArray[1] of
+                        MCP_READ_REPLY                : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(7, 10), S_OK, '');
+                        MCP_READ_REPLY_CONFIGURATION  : ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), SourceMessage.ExtractDataBytesAsInt(6, 9), S_OK, '');
+                        MCP_READ_REPLY_FAILURE        :
+                          begin
+                            if SourceMessage.DataCount > 11 then  // Is there an optional string?
+                              ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), SourceMessage.ExtractDataBytesAsString(11, 62))
+                            else
+                              ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(7), '');
+                          end;
+                        MCP_READ_REPLY_FAILURE_CONFIG :
+                          begin
+                            if SourceMessage.DataCount > 10 then  // Is there an optional string?
+                              ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), SourceMessage.ExtractDataBytesAsString(10, 62))
+                            else
+                              ControllerNode.DoQueryConfigurationReply(SourceMessage.ExtractDataBytesAsInt(2, 5), 0, SourceMessage.ExtractDataBytesAsWord(6), '');
+                          end
+                    end;
                   end;
-                end;
+             end;
            end;
-         end;
+      end;
     end;
   end;
 
@@ -692,22 +695,30 @@ var
   ActionListenerAttach: TLccActionTractionListenerAttach;
 begin
   Result := False;
+
+  // Node ProcessMessage or Timer Tick
+
   AttachSuccessfulReplyCount := 0;
   AttachFailedReplyCount := 0;
+  AttachRequestCount := 0;
 
-
-  AttachRequestCount := (2 * EncodedSearchCriteria.Count) - 2;
-  for i := 0 to Trains.Count - 2 do
+//  AttachRequestCount := (2 * EncodedSearchCriteria.Count) - 2;
+  i := 0;
+  while i < Trains.Count - 1 do
   begin
     ActionLIstenerAttach := TLccActionTractionListenerAttach.Create(Owner, SourceNodeID, SourceAliasID, Trains[i].NodeID, Trains[i].AliasID, 0);
-    ActionListenerAttach.ListenerNodeID := Trains[i+1].NodeID;
+    ActionListenerAttach.ListenerNodeID := Trains[i+1].NodeID;   // Listener to attach to Trains[i]
     ActionListenerAttach.RegisterCallBackOnExit(Self);
     Owner.LccActions.RegisterAndKickOffAction(ActionListenerAttach, nil);
+    Inc(FAttachRequestCount);
 
     ActionLIstenerAttach := TLccActionTractionListenerAttach.Create(Owner, SourceNodeID, SourceAliasID, Trains[i+1].NodeID, Trains[i+1].AliasID, 0);
-    ActionListenerAttach.ListenerNodeID := Trains[i].NodeID;
+    ActionListenerAttach.ListenerNodeID := Trains[i].NodeID;    // Listener to attach to Trains[i+1]
     ActionListenerAttach.RegisterCallBackOnExit(Self);
     Owner.LccActions.RegisterAndKickOffAction(ActionListenerAttach, nil);
+    Inc(FAttachRequestCount);
+
+    Inc(i);
   end;
   SetTimoutCountThreshold( Trunc(TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT * EncodedSearchCriteria.Count));
   AdvanceToNextState;
@@ -726,6 +737,8 @@ var
   ActionListenerDetach: TLccActionTractionListenerDetach;
 begin
   Result := False;
+
+  // Node ProcessMessage or Timer Tick
 
   for i := 0 to Trains.Count - 2 do
   begin
@@ -766,6 +779,7 @@ begin
       (Owner as TLccTrainController).DoConsist();
       AdvanceToLastState;
     end;
+     SpawnedSearchTrains.RegisterCallBackOnExit(nil);
   end else
   if SourceAction is TLccActionTractionListenerAttach then
   begin
@@ -775,11 +789,12 @@ begin
     else
        Inc(FAttachFailedReplyCount);
     end;
+    SpawnedListenerAttach.RegisterCallBackOnExit(nil);
 
-    if Trains.Count = AttachSuccessfulReplyCount then
+    if AttachRequestCount = AttachSuccessfulReplyCount then
       AdvanceToLastState     // Sucessful and Done
     else
-    if Trains.Count = (AttachSuccessfulReplyCount + AttachFailedReplyCount) then
+    if AttachRequestCount = (AttachSuccessfulReplyCount + AttachFailedReplyCount) then
       AdvanceToNextState;   // Unsucessful, need to clean up
   end;
 end;
@@ -787,7 +802,7 @@ end;
 procedure TLccActionConsistTrains.LoadStateArray;
 begin
   SetStateArrayLength(6);
-  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[0] := {$IFNDEF DRELPHI}@{$ENDIF}_0ReceiveFirstMessage;
   States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForSearchGatherAndSelectTrainsAction;
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionListenerAttach;
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_3WaitForListenerAttachReply;
@@ -847,40 +862,42 @@ var
 begin
   Result := False;
 
-  ControllerNode := Owner as TLccTrainController;
-
-  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  if Assigned(SourceMessage) then // Node ProcessMessage Only
   begin
-    case SourceMessage.MTI of
-       MTI_TRACTION_REPLY :
-         begin
-           case SourceMessage.DataArray[0] of
-             TRACTION_LISTENER :
-                 begin
-                   case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_QUERY_REPLY :
-                       begin
-                         FreezeTimer := True;
-                         try
-                           if SourceMessage.DataCount = 11 then
-                           begin
-                             ListenerCount := SourceMessage.DataArrayIndexer[2];
-                             ListenerNodeID := NULL_NODE_ID;
-                             SourceMessage.ExtractDataBytesAsNodeID(5, ListenerNodeID);
-                             ListenerFlags := SourceMessage.DataArrayIndexer[4];
-                             ListenerIndex := SourceMessage.DataArrayIndexer[3];
-                             ControllerNode.DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags, ListenerNodeID);
+    ControllerNode := Owner as TLccTrainController;
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
+    begin
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_LISTENER :
+                   begin
+                     case SourceMessage.DataArray[1] of
+                       TRACTION_LISTENER_QUERY_REPLY :
+                         begin
+                           FreezeTimer := True;
+                           try
+                             if SourceMessage.DataCount = 11 then
+                             begin
+                               ListenerCount := SourceMessage.DataArrayIndexer[2];
+                               ListenerNodeID := NULL_NODE_ID;
+                               SourceMessage.ExtractDataBytesAsNodeID(5, ListenerNodeID);
+                               ListenerFlags := SourceMessage.DataArrayIndexer[4];
+                               ListenerIndex := SourceMessage.DataArrayIndexer[3];
+                               ControllerNode.DoControllerQueryListenerIndex(ListenerCount, ListenerIndex, ListenerFlags, ListenerNodeID);
+                             end;
+                           finally
+                             AdvanceToNextState;
+                             FreezeTimer := False;;
                            end;
-                         finally
-                           AdvanceToNextState;
-                           FreezeTimer := False;;
                          end;
-                       end;
-                   end;
+                     end;
 
-                 end;
+                   end;
+             end;
            end;
-         end;
+      end;
     end;
   end;
 
@@ -918,36 +935,38 @@ var
 begin
   Result := False;
 
-  ControllerNode := Owner as TLccTrainController;
-
-  if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+  if Assigned(SourceMessage) then // Node ProcessMessage Only
   begin
-    case SourceMessage.MTI of
-       MTI_TRACTION_REPLY :
-         begin
-           case SourceMessage.DataArray[0] of
-             TRACTION_LISTENER :
-                 begin
-                   case SourceMessage.DataArray[1] of
-                     TRACTION_LISTENER_QUERY_REPLY :
-                       begin
-                         FreezeTimer := True;
-                         try
-                           if SourceMessage.DataCount = 3 then
-                           begin
-                             ListenerCount := SourceMessage.DataArrayIndexer[2];
-                             ControllerNode.DoControllerQueryListenerGetCount(ListenerCount);
+    ControllerNode := Owner as TLccTrainController;
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
+    begin
+      case SourceMessage.MTI of
+         MTI_TRACTION_REPLY :
+           begin
+             case SourceMessage.DataArray[0] of
+               TRACTION_LISTENER :
+                   begin
+                     case SourceMessage.DataArray[1] of
+                       TRACTION_LISTENER_QUERY_REPLY :
+                         begin
+                           FreezeTimer := True;
+                           try
+                             if SourceMessage.DataCount = 3 then
+                             begin
+                               ListenerCount := SourceMessage.DataArrayIndexer[2];
+                               ControllerNode.DoControllerQueryListenerGetCount(ListenerCount);
+                             end;
+                           finally
+                             AdvanceToNextState;
+                             FreezeTimer := False;;
                            end;
-                         finally
-                           AdvanceToNextState;
-                           FreezeTimer := False;;
                          end;
-                       end;
-                   end;
+                     end;
 
-                 end;
+                   end;
+             end;
            end;
-         end;
+      end;
     end;
   end;
 
@@ -1040,6 +1059,7 @@ end;
 function TLccActionSearchGatherAndSelectTrains._0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
   AdvanceToNextState;
 end;
 
@@ -1048,6 +1068,9 @@ var
   LccSearchTrainAction: TLccActionSearchGatherAndSelectTrain;
 begin
   Result := False;
+
+  // Node ProcessMessage or Timer Tick
+
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
   // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
@@ -1068,6 +1091,9 @@ var
   ControllerNode: TLccTrainController;
 begin
   Result := False;
+
+  // Node ProcessMessage or Timer Tick
+
   if ErrorCode = laecOk then
   begin
     // Report the results
@@ -1167,9 +1193,8 @@ function TLccActionAssignTrain._1ActionWaitForReservationAndAssignThrottle(Sende
 begin
   Result := False;
 
-  // SourceMessage could be nil from a timer
   // This code assumes that index Trains[0]/Train is the selected train
-  if Assigned(SourceMessage) and (Trains.Count > 0) then
+  if Assigned(SourceMessage) and (Trains.Count > 0) then // Node ProcessMessage Only
   begin // Only care if it is coming from our potental Train
     if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Train.NodeID, Train.AliasID, True) then
     begin
@@ -1232,9 +1257,8 @@ var
 begin
   Result := False;
 
-  // SourceMessage could be nil from a timer
   // This code assumes that index Trains[0] is the selected train
-  if Assigned(SourceMessage) and (Trains.Count > 0) then
+  if Assigned(SourceMessage) and (Trains.Count > 0) then // Node ProcessMessage Only
   begin // Only care if it is coming from our potental Train
     if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, Train.NodeID, Train.AliasID, True) then
     begin
@@ -1357,8 +1381,7 @@ var
 begin
   Result := False;
 
-  // SourceMessagfe could be nil from a timer
-  if Assigned(SourceMessage) then
+  if Assigned(SourceMessage) then  // Node ProcessMessage only
   begin
     case SourceMessage.MTI of
        MTI_PRODUCER_IDENTIFIED_CLEAR,
@@ -1506,6 +1529,8 @@ var
 begin
   Result := False;
 
+  // Node ProcessMessage or Timer Tick
+
   FreezeTimer := True;  // Stop reentrancy
   try
     ControllerNode := Owner as TLccTrainController;
@@ -1569,11 +1594,10 @@ var
 begin
   Result := False;
 
-  ControllerNode := Owner as TLccTrainController;
-
-  if Assigned(SourceMessage) then
+  if Assigned(SourceMessage) then  // Node ProcessMessage Only
   begin
-    if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+    ControllerNode := Owner as TLccTrainController;
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
     begin
       FreezeTimer := True;
       try
@@ -1636,11 +1660,10 @@ var
 begin
   Result := False;
 
-  ControllerNode := Owner as TLccTrainController;
-
-  if Assigned(SourceMessage) then
+  if Assigned(SourceMessage) then // Node ProcessMessage Only
   begin
-    if EqualNode(SourceMessage.DestID, SourceMessage.CAN.DestAlias, DestNodeID, DestAliasID, True) then
+    ControllerNode := Owner as TLccTrainController;
+    if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, DestNodeID, DestAliasID, True) then
     begin
       FreezeTimer := True;
       try
@@ -1651,7 +1674,7 @@ begin
                  TRACTION_LISTENER :
                      begin
                        case SourceMessage.DataArray[1] of
-                         TRACTION_LISTENER_DETACH_REPLY :
+                         TRACTION_LISTENER_ATTACH_REPLY :
                            begin
                              ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
                              ControllerNode.DoControllerAttachListenerReply(nil, ReplyCode);
@@ -1741,7 +1764,7 @@ var
 begin
   Result := False;
 
-  if Assigned(SourceMessage) then
+  if Assigned(SourceMessage) then // Node ProcessMessage Only
   begin
     ControllerNode := Owner as TLccTrainController;
     if Assigned(ControllerNode) then
@@ -1815,7 +1838,7 @@ var
 begin
   Result := False;
 
-  if Assigned(SourceMessage) then
+  if Assigned(SourceMessage) then  // Node ProcessMessage Only
   begin
     ControllerNode := Owner as TLccTrainController;
     if Assigned(ControllerNode) then
@@ -1865,6 +1888,8 @@ var
   LocalAction: TLccActionSearchGatherAndSelectTrain;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
+
+  // Node ProcessMessage or Timer Tick
 
   // First Search for the the train wanted
   LocalAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);

@@ -70,7 +70,7 @@ const
   TIMEOUT_NODE_ALIAS_MAPPING_WAIT = 1000;       // 800ms
   TIMEOUT_CREATE_TRAIN_WAIT = 1000;       // 1000ms
   TIMEOUT_SNIP_REPONSE_WAIT = 500;
-  TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT = 500;       // per listener
+  TIMEOUT_LISTENER_ATTACH_TRAIN_WAIT = 5000;       // per listener, will have to map CAN Alias if on CAN so may take a bit...
 
 const
 
@@ -276,6 +276,7 @@ type
     FTimeoutCounts: Integer;
     FTimeoutCountThreshold: Integer;
     FUniqueID: Integer;
+    FWaitingForFree: Boolean;
     FWorkerMessage: TLccMessage;
   protected
     FSourceAliasID: Word;
@@ -292,8 +293,10 @@ type
     property TimeoutCounts: Integer read FTimeoutCounts write FTimeoutCounts;
     property TimeoutCountThreshold: Integer read FTimeoutCountThreshold write FTimeoutCountThreshold;
     property OnCompleteCallback: TOnActionCompleteCallback read FOnCompleteCallback write FOnCompleteCallback;
+    property WaitingForFree: Boolean read FWaitingForFree write FWaitingForFree;
 
-    // This message never gets a timer tick so never try to create a wait state here.
+    // This message never gets a timer tick so never try to create a wait state here.  The ActionHub calls this off in its KickOff call
+    // Any state after this can be called from a nodes ProcessMessage loop, with that SourceMessage, or from the Timer with nil
     function _0ReceiveFirstMessage(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
     function _NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean; virtual;
 
@@ -845,8 +848,13 @@ end;
 
 procedure TLccAction.CompleteCallback(SourceAction: TLccAction);
 begin
-  if Assigned(SourceAction) then
-    OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}CompleteCallback;
+  FreezeTimer := True;
+  try
+    if Assigned(SourceAction) then
+      OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}CompleteCallback;
+  finally
+    FreezeTimer := False;
+  end;
 end;
 
 destructor TLccAction.Destroy;
@@ -881,11 +889,15 @@ end;
 function TLccAction._NFinalStateCleanup(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
   Result := False;
-  SourceMessage := SourceMessage;
-  FActionStateIndex := Length(FStates) - 1;
-  if Assigned(OnCompleteCallback) then
-    OnCompleteCallback(Self);
-  UnRegisterSelf;
+  if not WaitingForFree then  // Only allow this to be called once, may get called after the first time through
+  begin
+    SourceMessage := SourceMessage;
+    FActionStateIndex := Length(FStates) - 1;
+    if Assigned(OnCompleteCallback) then
+      OnCompleteCallback(Self);
+    UnRegisterSelf;
+    WaitingForFree := True;
+  end;
 end;
 
 procedure TLccAction.LoadStateArray;
@@ -906,7 +918,10 @@ end;
 
 procedure TLccAction.RegisterCallBackOnExit(AnLccAction: TLccAction);
 begin
-  OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}AnLccAction.CompleteCallback;
+  if Assigned(AnLccAction) then
+    OnCompleteCallback := {$IFNDEF DELPHI}@{$ENDIF}AnLccAction.CompleteCallback
+  else
+    OnCompleteCallback := nil;
 end;
 
 procedure TLccAction.ResetTimeoutCounter;
@@ -1592,7 +1607,7 @@ begin
                end;
              TRACTION_LISTENER :
                begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionListenerConfig(Self, SourceMessage, False);
+
                end;
              TRACTION_MANAGE :
                begin
@@ -1619,7 +1634,7 @@ begin
                end;
              TRACTION_LISTENER :
                begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionListenerConfig(Self, SourceMessage, True);
+
                end;
              TRACTION_MANAGE :
                begin

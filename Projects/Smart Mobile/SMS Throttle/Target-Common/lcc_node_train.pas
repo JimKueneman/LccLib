@@ -279,11 +279,11 @@ type
 
    TLccActionTractionListenerAttachAndReply = class(TLccAction)
    private
-     FAttachFlags: Byte;
+     FListenerAttachFlags: Byte;
      FListenerNodeAliasID: Word;
      FListenerNodeID: TNodeID;
    protected
-     property AttachFlags: Byte read FAttachFlags write FAttachFlags;
+     property ListenerAttachFlags: Byte read FListenerAttachFlags write FListenerAttachFlags;
      property ListenerNodeID: TNodeID read FListenerNodeID write FListenerNodeID;
      property ListenerNodeAliasID: Word read FListenerNodeAliasID write FListenerNodeAliasID;
 
@@ -487,6 +487,9 @@ type
 
 implementation
 
+uses
+  lcc_node_manager;
+
 function SpeedStepToString(SpeedStep: TLccDccSpeedStep; Verbose: Boolean): string;
 begin
   if Verbose then
@@ -579,7 +582,7 @@ begin
 
     if ReadCount > 0 then
     begin
-      AddressStr := UIntToStr(Address);
+      AddressStr := IntToStr(Address);
       DccServiceModeGridConnect := ':S00000000N' + AddressStr + '0000;';
       OwnerTrain.DoSendMessageComPort(DccServiceModeGridConnect);
       AdvanceToNextState;
@@ -660,6 +663,7 @@ begin
   // Only way to get here is if we were GridConnect
   Result := False;
 
+  // Node ProcessMessage or Timer Tick
   AliasMapping := ValidateAliasMappingWait;
   if Assigned(AliasMapping) then
   begin
@@ -677,6 +681,7 @@ begin
 
   OwnerTrain := Owner as TLccTrainDccNode;
 
+  // Node ProcessMessage or Timer Tick
   if (ReservedByNodeAliasID <> 0) and not NullNodeID(ReservedByNodeID) then
   begin
     OwnerTrain.ReservationNodeID := ReservedByNodeID;
@@ -740,6 +745,7 @@ begin
   Result := TListenerNode.Create;
   Result.NodeID := NodeID;
   Result.DecodeFlags(Flags);
+  FListenerList.Add(Result);
 end;
 
 function TListenerList.Delete(NodeID: TNodeID): Boolean;
@@ -748,7 +754,7 @@ var
 begin
   Result := False;
   Index := FindNodeIndex(NodeID);
-  if Index > 0 then
+  if Index >= 0 then
   begin
     {$IFDEF DWSCRIPT}
     FListenerList.Remove(Index);
@@ -839,9 +845,15 @@ begin
     if RequestedIndex < OwnerTrain.Listeners.Count then
     begin
       Listener := OwnerTrain.Listeners.FindByIndex(RequestedIndex);
-      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, RequestedIndex, Listener.NodeID, Listener.EncodeFlags)
+      WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, RequestedIndex, Listener.NodeID, Listener.EncodeFlags);
+      if Assigned(SourceMessage) then
+        (OwnerTrain.NodeManager as INodeManagerCallbacks).DoTractionListenerQuery(OwnerTrain, RequestedIndex);
     end else
+    begin
       WorkerMessage.LoadTractionListenerQueryReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, OwnerTrain.Listeners.Count, 0, NULL_NODE_ID, 0);   // Outside of range, bad index
+      if Assigned(SourceMessage) then
+        (OwnerTrain.NodeManager as INodeManagerCallbacks).DoTractionListenerQuery(OwnerTrain, -1);
+    end;
   end;
   SendMessage(Self, WorkerMessage);
   AdvanceToNextState;
@@ -854,17 +866,21 @@ var
   OwnerTrain: TLccTrainDccNode;
   ReplyCode: Word;
   ListenerNodeID: TNodeID;
+  ListenerFlags: Byte;
 begin
   Result := inherited _0ReceiveFirstMessage(Sender, SourceMessage);
 
   OwnerTrain := Owner as TLccTrainDccNode;
   ListenerNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, ListenerNodeID);
+  ListenerFlags := SourceMessage.DataArrayIndexer[2];
 
   if OwnerTrain.Listeners.Delete(ListenerNodeID) then
     ReplyCode := S_OK
   else
     ReplyCode := ERROR_PERMANENT_INVALID_ARGUMENTS;
+
+  (OwnerTrain.NodeManager as INodeManagerCallbacks).DoTractionListenerDetach(OwnerTrain, ListenerNodeID, ListenerFlags);
 
   WorkerMessage.LoadTractionListenerDetachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
   SendMessage(Self, WorkerMessage);
@@ -882,7 +898,7 @@ begin
   TempNodeID := NULL_NODE_ID;
   SourceMessage.ExtractDataBytesAsNodeID(3, TempNodeID);  // Make SMS happy
   FListenerNodeID := TempNodeID;
-  AttachFlags := SourceMessage.DataArray[2];
+  ListenerAttachFlags := SourceMessage.DataArray[2];
 
   if Owner.GridConnect then // Need to get the AliasID of the Requesting Controller if we are grid connect
   begin
@@ -898,8 +914,8 @@ var
 begin
   Result := False;
   // Only way to get here is if we were GridConnect
-  Result := False;
 
+  // Node ProcessMessage or Timer Tick Ok here
   AliasMapping := ValidateAliasMappingWait;
   if Assigned(AliasMapping) then
   begin
@@ -918,12 +934,14 @@ begin
    Result := False;
 
   // Only way to get here is if we were GridConnect
-  Result := False;
 
-  AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
-  if Assigned(AliasMapping) then
+  if Assigned(SourceMessage) then  // Node ProcessMessage only
   begin
-    AdvanceToNextState
+    AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
+    if Assigned(AliasMapping) then
+    begin
+      AdvanceToNextState
+    end;
   end;
 end;
 
@@ -934,6 +952,9 @@ var
   ReplyCode: Word;
 begin
   Result := False;
+
+  // Node ProcessMessage or Timer Tick
+
   ReplyCode := S_OK;
   OwnerTrain := Owner as TLccTrainDccNode;
 
@@ -946,7 +967,7 @@ begin
 
   if EqualNodeID(SourceNodeID, ListenerNodeID, False) then  // Trying to create a Listener that is the nodes itself.... will cause infinte loops
     ReplyCode := ERROR_PERMANENT_INVALID_ARGUMENTS;
-  // Balasz does not agree this is a falure
+  // Balasz does not agree this is a failure
   // if not EqualNodeID(NodeID, OwnerTrain.AttachedController.NodeID, False) then
   //   ReplyCode := ERROR_PERMANENT or ERROR_SOURCE_NOT_PERMITED;
 
@@ -955,12 +976,12 @@ begin
     NewListenerNode := OwnerTrain.Listeners.FindNode(ListenerNodeID);
     if Assigned(NewListenerNode) then
     begin  // Simple update of flags
-      NewListenerNode.DecodeFlags(AttachFlags);
+      NewListenerNode.DecodeFlags(ListenerAttachFlags);
       WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
       SendMessage(Self, WorkerMessage);
     end else
     begin  // Add The listener to the list
-      NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, AttachFlags);
+      NewListenerNode := OwnerTrain.Listeners.Add(ListenerNodeID, ListenerNodeAliasID, ListenerAttachFlags);
       if Assigned(NewListenerNode) then
         ReplyCode := S_OK
       else
@@ -968,12 +989,15 @@ begin
       WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
       SendMessage(Self, WorkerMessage);
     end;
+
+    (OwnerTrain.NodeManager as INodeManagerCallbacks).DoTractionListenerAttach(OwnerTrain, ListenerNodeID, ListenerAttachFlags);
   end else
   begin // Send the Error Message
     WorkerMessage.LoadTractionListenerAttachReply(SourceNodeID, SourceAliasID, DestNodeID, DestAliasID, ListenerNodeID, ReplyCode);
     SendMessage(Self, WorkerMessage);
   end;
   AdvanceToNextState;
+
 end;
 
 procedure TLccActionTractionListenerAttachAndReply.LoadStateArray;
@@ -1157,8 +1181,9 @@ var
 begin
   Result := False;
 
-  // Only GridConnect will ever reach here.
-  if Assigned(SourceMessage) then
+  // Only GridConnect will ever reach here through decision in previous state
+
+  if Assigned(SourceMessage) then   // Ignore the Timer Ticks
   begin
     AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
     if Assigned(AliasMapping) then
@@ -1310,7 +1335,16 @@ begin
   if StreamConfig.ReadByte = 0 then
   begin
     StreamConfig.Position := ADDRESS_USER_NAME;
+
     DccAddressStr := IntToStr(DccAddress);
+    if DccAddress < 128 then
+    begin
+      if DccLongAddress then
+        DccAddressStr := DccAddressStr + 'L'
+      else
+        DccAddressStr := DccAddressStr + 'S';
+    end;
+
     for i := 1 to Length(DccAddressStr) do
     {$IFDEF LCC_MOBILE}
       StreamWriteByte(StreamConfig, Ord(DccAddressStr[i-1]))

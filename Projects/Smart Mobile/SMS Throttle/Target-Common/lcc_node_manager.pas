@@ -75,6 +75,8 @@ type
   end;
 
 
+  { INodeManagerCallbacks }
+
   INodeManagerCallbacks = interface
     ['{C6920bCA-08BC-4D45-B27C-174640FA3106}']
     procedure DoAliasIDChanged(LccNode: TLccNode);               //*
@@ -108,7 +110,9 @@ type
     procedure DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
     procedure DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
     procedure DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionListenerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
+    procedure DoTractionListenerAttach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
+    procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
+    procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer);
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
     procedure DoVerifiedNodeID(LccNode: TLccNode);
   end;
@@ -123,6 +127,9 @@ type
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccNode: TLccNode) of object;
   TOnLccNodeConfigMemAddressSpace = procedure(Sender: TObject; LccNode: TLccNode; AddressSpace: Byte) of object;
   TOnLccNodeMessageWithReply = procedure(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean) of object;
+  TOnLccNodeListenerAttach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
+  TOnLccNodeListenerDetach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
+  TOnLccNodeListenerQuery = procedure(Sender: TObject; LccSourceNode: TLccNode; Index: Integer) of object;
 
   { TLccNodeManager }
 
@@ -158,7 +165,9 @@ type
     FOnLccNodeTractionControllerConfig: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionEmergencyStop: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionFunctionSet: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionListenerConfig: TOnLccNodeMessageWithReply;
+    FOnLccNodeTractionListenerAttach: TOnLccNodeListenerDetach;
+    FOnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach;
+    FOnLccNodeTractionListenerQuery: TOnLccNodeListenerQuery;
     FOnLccNodeTractionManage: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionQueryFunction: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithReply;
@@ -209,7 +218,9 @@ type
     procedure DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionListenerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
+    procedure DoTractionListenerAttach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte); virtual;
+    procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte); virtual;
+    procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer); virtual;
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoVerifiedNodeID(LccNode: TLccNode); virtual;
 
@@ -239,6 +250,7 @@ type
     function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
     function GetNodeCount: Integer;
     function ExtractNode(Index: Integer): TLccNode;
+    function FindNodeByNodeID(NodeID: TNodeID): TLccNode;
 
     procedure LogoutAll;
 
@@ -296,8 +308,10 @@ type
     property OnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithReply read FOnLccNodeTractionQuerySpeed write FOnLccNodeTractionQuerySpeed;
     property OnLccNodeTractionQueryFunction: TOnLccNodeMessageWithReply read FOnLccNodeTractionQueryFunction write FOnLccNodeTractionQueryFunction;
     property OnLccNodeTractionControllerConfig: TOnLccNodeMessageWithReply read FOnLccNodeTractionControllerConfig write FOnLccNodeTractionControllerConfig;
-    property OnLccNodeTractionListenerConfig: TOnLccNodeMessageWithReply read FOnLccNodeTractionListenerConfig write FOnLccNodeTractionListenerConfig;
     property OnLccNodeTractionManage: TOnLccNodeMessageWithReply read FOnLccNodeTractionManage write FOnLccNodeTractionManage;
+    property OnLccNodeTractionListenerAttach: TOnLccNodeListenerAttach read FOnLccNodeTractionListenerAttach write FOnLccNodeTractionListenerAttach;
+    property OnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach read FOnLccNodeTractionListenerDetach write FOnLccNodeTractionListenerDetach;
+    property OnLccNodeTractionListenerQuery: TOnLccNodeListenerQuery read FOnLccNodeTractionListenerQuery write FOnLccNodeTractionListenerQuery;
 
     // Traction DCC Functions
     property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
@@ -527,11 +541,25 @@ begin
     OnLccNodeTractionFunctionSet(Self, LccNode, LccMessage, IsReply);
 end;
 
-procedure TLccNodeManager.DoTractionListenerConfig(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionListenerAttach(LccNode: TLccNode;
+  Listener: TNodeID; Flags: Byte);
 begin
-  if Assigned(OnLccNodeTractionListenerConfig) then
-    OnLccNodeTractionListenerConfig(Self, LccNode, LccMessage, IsReply);
+  if Assigned(OnLccNodeTractionListenerAttach) then
+    OnLccNodeTractionListenerAttach(Self, LccNode, Listener, Flags);
+end;
+
+procedure TLccNodeManager.DoTractionListenerDetach(LccNode: TLccNode;
+  Listener: TNodeID; Flags: Byte);
+begin
+  if Assigned(OnLccNodeTractionListenerDetach) then
+    OnLccNodeTractionListenerDetach(Self, LccNode, Listener, Flags);
+end;
+
+procedure TLccNodeManager.DoTractionListenerQuery(LccNode: TLccNode;
+  Index: Integer);
+begin
+  if Assigned(OnLccNodeTractionListenerQuery) then
+     OnLccNodeTractionListenerQuery(Self, LccNode, Index);
 end;
 
 procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode;
@@ -558,6 +586,21 @@ begin
     {$ELSE}
     Nodes.Delete(Index);
     {$ENDIF}
+  end;
+end;
+
+function TLccNodeManager.FindNodeByNodeID(NodeID: TNodeID): TLccNode;
+var
+  i: Integer;
+begin
+  Result := nil;
+  for i := 0 to Nodes.Count - 1 do
+  begin
+    if EqualNodeID(NodeID, Node[i].NodeID, False) then
+    begin
+      Result := Node[i];
+      Break
+    end;
   end;
 end;
 
