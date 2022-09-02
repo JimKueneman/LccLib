@@ -1250,7 +1250,7 @@ begin
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
-  FAliasMappings := TLccAliasMappingList.Create(True);
+  FAliasMappings := TLccAliasMappingList.Create;
 
   _100msTimer := TLccTimer.Create(nil);
   _100msTimer.Enabled := False;

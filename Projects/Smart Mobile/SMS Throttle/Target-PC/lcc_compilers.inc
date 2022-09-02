@@ -32,9 +32,11 @@
 {$IFNDEF FPC}
   {$IFDEF IOS}
     {$DEFINE LCC_MOBILE}
+    {$ZEROBASEDSTRINGS ON} // Keep the zero based index for strings on mobile apps
   {$ENDIF}
   {$IFDEF ANDROID}
     {$DEFINE LCC_MOBILE}
+    {$ZEROBASEDSTRINGS ON} // Keep the zero based index for strings on mobile apps
   {$ENDIF}
 {$ENDIF}
 

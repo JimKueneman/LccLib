@@ -30,7 +30,7 @@ object FormTrainCommander: TFormTrainCommander
       TabOrder = 0
     end
     object ButtonEthernetConnect: TButton
-      Left = 17
+      Left = 16
       Height = 23
       Top = 8
       Width = 152

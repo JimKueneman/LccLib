@@ -239,12 +239,12 @@ type
     procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 
     // The Controller is the Controller Node created in the NodeManager
-    procedure OnControllerTrainAssigned(Sender: TLccNode; Reason: TControllerTrainAssignResult);
-    procedure OnControllerTrainReleased(Sender: TLccNode);
-    procedure OnControllerQuerySpeedReply(Sender: TLccNode; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
-    procedure OnControllerQueryFunctionReply(Sender: TLccNode; Address: DWORD; Value: Word);
-    procedure OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
-    procedure OnControllerSearchResult(Sender: TLccActionTrain; TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+    procedure OnControllerTrainAssigned(Sender: TLccTrainController; Reason: TControllerTrainAssignResult);
+    procedure OnControllerTrainReleased(Sender: TLccTrainController);
+    procedure OnControllerQuerySpeedReply(Sender: TLccTrainController; SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
+    procedure OnControllerQueryFunctionReply(Sender: TLccTrainController; Address: DWORD; Value: Word);
+    procedure OnControllerReqestTakeover(Sender: TLccTrainController; var Allow: Boolean);
+    procedure OnControllerSearchResult(Sender: TLccTrainController; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 
     procedure ReleaseTrain;
 
@@ -731,7 +731,7 @@ begin
   ShowMessage('Error Code: ' + IntToStr(Info.ErrorCode) + ' ' + Info.MessageStr);
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerQueryFunctionReply(Sender: TLccNode;
+procedure TOpenLcbThrottleForm.OnControllerQueryFunctionReply(Sender: TLccTrainController;
   Address: DWORD; Value: Word);
 begin
   ControllerNode.Functions[Address] := Value;
@@ -768,7 +768,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerQuerySpeedReply(Sender: TLccNode;
+procedure TOpenLcbThrottleForm.OnControllerQuerySpeedReply(Sender: TLccTrainController;
   SetSpeed, CommandSpeed, ActualSpeed: THalfFloat; Status: Byte);
 begin
   ScrollBarThrottle.Value := Abs( Round(HalfToFloat(SetSpeed)));
@@ -784,13 +784,12 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerReqestTakeover(Sender: TLccNode; var Allow: Boolean);
+procedure TOpenLcbThrottleForm.OnControllerReqestTakeover(Sender: TLccTrainController; var Allow: Boolean);
 begin
   // Allow :=  FormThrottleTakeover.ShowModal = mrYes
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerSearchResult(Sender: TLccActionTrain;
-  TrainList: TLccActionTrainList; var SelectedResultIndex: Integer);
+procedure TOpenLcbThrottleForm.OnControllerSearchResult(Sender: TLccTrainController; TrainList: TLccActionTrainInfoList; var SelectedResultIndex: Integer);
 begin
   case TrainList.Count of
     0: ShowMessage('No Search Results');
@@ -801,7 +800,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerTrainAssigned(Sender: TLccNode;
+procedure TOpenLcbThrottleForm.OnControllerTrainAssigned(Sender: TLccTrainController;
   Reason: TControllerTrainAssignResult);
 begin
   case Reason of
@@ -819,7 +818,7 @@ begin
   end;
 end;
 
-procedure TOpenLcbThrottleForm.OnControllerTrainReleased(Sender: TLccNode);
+procedure TOpenLcbThrottleForm.OnControllerTrainReleased(Sender: TLccTrainController);
 begin
  // PanelThrottleKeypad1.Enabled := False;
 end;

@@ -1293,6 +1293,9 @@ procedure TLccTrainDccNode.BeforeLogin;
 var
   DccAddressStr: string;
   i: Integer;
+  {$IFDEF DELPHI}
+  B: Byte;
+  {$ENDIF}
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.Datagram := True;
@@ -1332,7 +1335,12 @@ begin
   // TODO... this should be a persistent Stream if the user changes the name in the Configuration Dialog
   //         save to a file with the DccAddress as the filename??????
   StreamConfig.Position := ADDRESS_USER_NAME;
+  {$IFDEF DELPHI}
+  StreamConfig.ReadData(B);
+  if B = 0 then
+  {$ELSE}
   if StreamConfig.ReadByte = 0 then
+  {$ENDIF}
   begin
     StreamConfig.Position := ADDRESS_USER_NAME;
 

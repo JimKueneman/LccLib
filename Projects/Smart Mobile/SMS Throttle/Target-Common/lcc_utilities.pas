@@ -267,7 +267,6 @@ var
         HostAddr: SockAddr;
         l: Cardinal;
         UnixAddr: sockaddr_in;
-        i: Integer;
 
       begin
         err := 0;
@@ -507,7 +506,8 @@ begin
   if Length(Event) = 16 then
   begin
     {$IFDEF LCC_MOBILE}
-    Result[0] := StrToInt('0x' + Event[0] + Event[1]);
+    i := 0;
+    Result[0] := StrToInt('0x' + Event[i] + Event[i+1]);
     Result[1] := StrToInt('0x' + Event[2] + Event[3]);
     Result[2] := StrToInt('0x' + Event[4] + Event[5]);
     Result[3] := StrToInt('0x' + Event[6] + Event[7]);

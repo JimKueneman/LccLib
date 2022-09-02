@@ -165,7 +165,7 @@ type
     FOnLccNodeTractionControllerConfig: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionEmergencyStop: TOnLccNodeMessageWithReply;
     FOnLccNodeTractionFunctionSet: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionListenerAttach: TOnLccNodeListenerDetach;
+    FOnLccNodeTractionListenerAttach: TOnLccNodeListenerAttach;
     FOnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach;
     FOnLccNodeTractionListenerQuery: TOnLccNodeListenerQuery;
     FOnLccNodeTractionManage: TOnLccNodeMessageWithReply;

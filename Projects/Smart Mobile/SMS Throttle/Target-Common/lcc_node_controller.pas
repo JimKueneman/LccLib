@@ -116,9 +116,9 @@ type
 
     function EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean): DWORD;
 
-    constructor Create(ACriteria: DWORD);
-    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
-    constructor Create(DccSearchCriteria: TDccSearchCriteria);
+    constructor Create(ACriteria: DWORD); overload;
+    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean); overload;
+    constructor Create(DccSearchCriteria: TDccSearchCriteria); overload;
     function Clone: TLccDccEncodedSearchCriteria;
   end;
 
@@ -145,7 +145,7 @@ type
   TLccActionSearchGatherAndSelectTrains = class(TLccActionTrain)
   private
     {$IFDEF DELPHI}
-    FEncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria>;
+    FEncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria>;
     {$ELSE}
     FEncodedSearchCriteria: TObjectList;
     {$ENDIF}
@@ -162,7 +162,7 @@ type
     property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
   public
     {$IFDEF DELPHI}
-    property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
     property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
     {$ENDIF}
@@ -180,7 +180,7 @@ type
     FAttachFailedReplyCount: Integer;
     FAttachSuccessfulReplyCount: Integer;
     {$IFDEF DELPHI}
-    FEncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria>;
+    FEncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria>;
     {$ELSE}
     FEncodedSearchCriteria: TObjectList;
     {$ENDIF}
@@ -202,7 +202,7 @@ type
     property AttachFailedReplyCount: Integer read FAttachFailedReplyCount write FAttachFailedReplyCount;
   public
     {$IFDEF DELPHI}
-    property EncodedSearchCriteria: TObjectList<TLccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
     property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
     {$ENDIF}
@@ -802,7 +802,7 @@ end;
 procedure TLccActionConsistTrains.LoadStateArray;
 begin
   SetStateArrayLength(6);
-  States[0] := {$IFNDEF DRELPHI}@{$ENDIF}_0ReceiveFirstMessage;
+  States[0] := {$IFNDEF DELPHI}@{$ENDIF}_0ReceiveFirstMessage;
   States[1] := {$IFNDEF DELPHI}@{$ENDIF}_1ActionWaitForSearchGatherAndSelectTrainsAction;
   States[2] := {$IFNDEF DELPHI}@{$ENDIF}_2ActionListenerAttach;
   States[3] := {$IFNDEF DELPHI}@{$ENDIF}_3WaitForListenerAttachReply;
@@ -816,7 +816,7 @@ begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
 
   {$IFDEF DELPHI}
-  FEncodedSearchCriteria := TObjectList<TLccEncodedSearchCriteria>.Create;
+  FEncodedSearchCriteria := TObjectList<TLccDccEncodedSearchCriteria>.Create;
   {$ELSE}
   FEncodedSearchCriteria := TObjectList.Create;
   {$ENDIF}
@@ -1126,7 +1126,7 @@ begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
 
   {$IFDEF DELPHI}
-  FEncodedSearchCriteria := TObjectList<TLccEncodedSearchCriteria>.Create;
+  FEncodedSearchCriteria := TObjectList<TLccDccEncodedSearchCriteria>.Create;
   {$ELSE}
   FEncodedSearchCriteria := TObjectList.Create;
   {$ENDIF}
@@ -2157,7 +2157,7 @@ begin
     for i := 0 to DccSearchCriteria.Count - 1 do
     begin
       {$IFDEF DELPHI}
-      DccCriteria := TrainCriteria[i];
+      DccCriteria := DccSearchCriteria[i];
       {$ELSE}
       DccCriteria := DccSearchCriteria[i] as TDccSearchCriteria;
       {$ENDIF}

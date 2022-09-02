@@ -57,8 +57,27 @@ type
 
   { TLccAliasMappingList }
 
-  TLccAliasMappingList = class(TObjectList)
-    function FindMapping(AnAliasID: Word): TLccAliasMapping;
+  TLccAliasMappingList = class(TObject)
+
+  private
+    {$IFDEF DELPHI}
+    FMappingList: TObjectList<TLccAliasMapping>;
+    {$ELSE}
+    FMappingList: TObjectList;
+    {$ENDIF}
+
+  protected
+    {$IFDEF DELPHI}
+    property MappingList: TObjectList<TLccAliasMapping> read FMappingList write FMappingList;
+    {$ELSE}
+    property MappingList: TObjectList read FMappingList write FMappingList;
+    {$ENDIF}
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function FindMapping(AnAliasID: Word): TLccAliasMapping; overload;
     function FindMapping(ANodeID: TNodeID): TLccAliasMapping; overload;
     function AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
     procedure RemoveMapping(AnAlias: Word);
@@ -68,15 +87,31 @@ implementation
 
 { TLccAliasMappingList }
 
+constructor TLccAliasMappingList.Create;
+begin
+  inherited Create;
+  {$IFDEF DELPHI}
+  FMappingList := TObjectList<TLccAliasMapping>.Create(True);
+  {$ELSE}
+  FMappingList := TObjectList.Create(True);
+  {$ENDIF}
+end;
+
+destructor TLccAliasMappingList.Destroy;
+begin
+  FreeAndNil(FMappingList);
+  inherited Destroy;
+end;
+
 function TLccAliasMappingList.FindMapping(AnAliasID: Word): TLccAliasMapping;
 var
   i: Integer;
   TestMapping: TLccAliasMapping;
 begin
   Result := nil;                      // Needs to Sort then do a binary search here eventually
-  for i := 0 to Count - 1 do
+  for i := 0 to MappingList.Count - 1 do
   begin
-    TestMapping := Items[i] as TLccAliasMapping;
+    TestMapping := MappingList.Items[i] as TLccAliasMapping;
     if TestMapping.AnAlias = AnAliasID then
     begin
       Result := TestMapping;
@@ -91,9 +126,9 @@ var
   TestMapping: TLccAliasMapping;
 begin
   Result := nil;                      // Needs to Sort then do a binary search here eventually
-  for i := 0 to Count - 1 do
+  for i := 0 to MappingList.Count - 1 do
   begin
-    TestMapping := Items[i] as TLccAliasMapping;
+    TestMapping := MappingList.Items[i] as TLccAliasMapping;
     if (TestMapping.AnID[0] = ANodeID[0]) and (TestMapping.AnID[1] = ANodeID[1]) then
     begin
       Result := TestMapping;
@@ -110,7 +145,7 @@ begin
     Result := TLccAliasMapping.Create;
     Result.AnID := AnID;
     Result.AnAlias := AnAlias;
-    Add(Result);
+    MappingList.Add(Result);
   end;
 end;
 
@@ -120,7 +155,7 @@ var
 begin
   TestMapping := FindMapping(AnAlias);
   if Assigned(TestMapping) then
-    Remove(TestMapping);
+    MappingList.Remove(TestMapping);
 end;
 
 end.
