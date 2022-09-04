@@ -84,42 +84,19 @@ type
 
   TLccActionSearchAndAssignTrain = class;
 
-  // Used internally to TLccTrainController for multiple train searches, eventually converted into a TLccEncodedSearchCriteria object
-  { TDccSearchCriteria }
+  { TLccDCCSearchCriteriaEvent }
 
-  TDccSearchCriteria = class
-  private
-    FAddress: Word;
-    FLongAddress: Boolean;
-    FSearchStr: string;       // Set Address to 0 to use the Search string
-    FSpeedStep: TLccDccSpeedStep;
-  public
-    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
-    property Address: Word read FAddress write FAddress;
-    property SearchStr: string read FSearchStr write FSearchStr;
-    property SpeedStep: TLccDccSpeedStep read FSpeedStep write FSpeedStep;
-    property LongAddress: Boolean read FLongAddress write FLongAddress;
-
-    function Clone: TDccSearchCriteria;
-  end;
-
-
-  // Used internally to TLccActionSearchGatherAndSelectTrains for multiple train searches
-
-  { TLccDccEncodedSearchCriteria }
-
-  TLccDccEncodedSearchCriteria = class
+  TLccDCCSearchCriteriaEvent = class
   private
     FCriteria: DWORD;
   public
     property Criteria: DWORD read FCriteria write FCriteria;
 
-    function EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean): DWORD;
+    function EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean; ForceNewNode: Boolean): DWORD;
 
-    constructor Create(ACriteria: DWORD); overload;
-    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean); overload;
-    constructor Create(DccSearchCriteria: TDccSearchCriteria); overload;
-    function Clone: TLccDccEncodedSearchCriteria;
+    constructor Create(AEncodedCriteria: DWORD); overload;
+    constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress, ForceNewNode: Boolean); overload;
+     function Clone: TLccDCCSearchCriteriaEvent;
   end;
 
   { TLccActionSearchGatherAndSelectTrain }
@@ -145,7 +122,7 @@ type
   TLccActionSearchGatherAndSelectTrains = class(TLccActionTrain)
   private
     {$IFDEF DELPHI}
-    FEncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria>;
+    FEncodedSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>;
     {$ELSE}
     FEncodedSearchCriteria: TObjectList;
     {$ENDIF}
@@ -162,9 +139,9 @@ type
     property iEncodedSearchCriteria: Integer read FiEncodedSearchCriteria write FiEncodedSearchCriteria;
   public
     {$IFDEF DELPHI}
-    property EncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
-    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDCCSearchCriteriaEvent objects
     {$ENDIF}
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
@@ -180,7 +157,7 @@ type
     FAttachFailedReplyCount: Integer;
     FAttachSuccessfulReplyCount: Integer;
     {$IFDEF DELPHI}
-    FEncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria>;
+    FEncodedSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>;
     {$ELSE}
     FEncodedSearchCriteria: TObjectList;
     {$ENDIF}
@@ -202,9 +179,9 @@ type
     property AttachFailedReplyCount: Integer read FAttachFailedReplyCount write FAttachFailedReplyCount;
   public
     {$IFDEF DELPHI}
-    property EncodedSearchCriteria: TObjectList<TLccDccEncodedSearchCriteria> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent> read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccEncodedSearchCriteria objects
     {$ELSE}
-    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDccEncodedSearchCriteria objects
+    property EncodedSearchCriteria: TObjectList read FEncodedSearchCriteria write FEncodedSearchCriteria;  // TLccDCCSearchCriteriaEvent objects
     {$ENDIF}
 
     constructor Create(AnOwner: TLccNode; ASourceNodeID: TNodeID; ASourceAliasID: Word; ADestNodeID: TNodeID; ADestAliasID: Word; AnUniqueID: Integer); override;
@@ -492,13 +469,13 @@ type
     procedure SearchTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure SearchTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
     {$IFDEF DELPHI}
-    procedure SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ELSE}
     procedure SearchTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ENDIF}
 
     {$IFDEF DELPHI}
-    procedure ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
+    procedure ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ELSE}
     procedure ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer = 0);  // Pass TDccSearchCriteria objects
     {$ENDIF}
@@ -674,7 +651,7 @@ begin
 
   SpawnedSearchAndGatherTrainsAction := TLccActionSearchGatherAndSelectTrains.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
   for i := 0 to EncodedSearchCriteria.Count - 1 do
-    SpawnedSearchAndGatherTrainsAction.EncodedSearchCriteria.Add( (EncodedSearchCriteria[i] as TLccDccEncodedSearchCriteria).Clone);
+    SpawnedSearchAndGatherTrainsAction.EncodedSearchCriteria.Add( (EncodedSearchCriteria[i] as TLccDCCSearchCriteriaEvent).Clone);
 
   SpawnedSearchAndGatherTrainsAction.RegisterCallBackOnExit(Self);
   Owner.LccActions.RegisterAndKickOffAction(SpawnedSearchAndGatherTrainsAction, nil);
@@ -816,7 +793,7 @@ begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
 
   {$IFDEF DELPHI}
-  FEncodedSearchCriteria := TObjectList<TLccDccEncodedSearchCriteria>.Create;
+  FEncodedSearchCriteria := TObjectList<TLccDCCSearchCriteriaEvent>.Create;
   {$ELSE}
   FEncodedSearchCriteria := TObjectList.Create;
   {$ENDIF}
@@ -977,9 +954,11 @@ begin
   end;
 end;
 
-{ TLccDccEncodedSearchCriteria }
+{ TLccDCCSearchCriteriaEvent }
 
-function TLccDccEncodedSearchCriteria.EncodeDccCriteria(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean): DWORD;
+function TLccDCCSearchCriteriaEvent.EncodeDccCriteria(ASearchString: string;
+  AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean;
+  ForceNewNode: Boolean): DWORD;
 var
   i: Integer;
   TrackProtocolFlags: Word;
@@ -989,14 +968,15 @@ begin
   // Need to translate the DCC criteria into LccSearch encoded criteria to launch the search.
   if AnAddress > 0 then
     TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
-                          TRACTION_SEARCH_ALLOCATE_FORCE or
                           TRACTION_SEARCH_TYPE_EXACT_MATCH or
                           TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY
   else
     TrackProtocolFlags := TRACTION_SEARCH_TARGET_ADDRESS_MATCH or
-                          TRACTION_SEARCH_ALLOCATE_FORCE or
                           TRACTION_SEARCH_TYPE_ALL_MATCH or
                           TRACTION_SEARCH_TRACK_PROTOCOL_GROUP_DCC_ONLY;
+
+  if ForceNewNode then
+    TrackProtocolFlags := TrackProtocolFlags or TRACTION_SEARCH_ALLOCATE_FORCE;
 
 
   if IsLongAddress then
@@ -1018,40 +998,21 @@ begin
 
 end;
 
-constructor TLccDccEncodedSearchCriteria.Create(ACriteria: DWORD);
+constructor TLccDCCSearchCriteriaEvent.Create(AEncodedCriteria: DWORD);
 begin
-  FCriteria := ACriteria;
+  FCriteria := AEncodedCriteria;
 end;
 
-constructor TLccDccEncodedSearchCriteria.Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
+constructor TLccDCCSearchCriteriaEvent.Create(ASearchString: string;
+  AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress,
+  ForceNewNode: Boolean);
 begin
-  Criteria := EncodeDccCriteria(ASearchString, AnAddress, ASpeedStep, IsLongAddress);
+  FCriteria := EncodeDccCriteria(ASearchString, AnAddress, ASpeedStep, IsLongAddress, ForceNewNode);
 end;
 
-constructor TLccDccEncodedSearchCriteria.Create(DccSearchCriteria: TDccSearchCriteria);
+function TLccDCCSearchCriteriaEvent.Clone: TLccDCCSearchCriteriaEvent;
 begin
-  Criteria := EncodeDccCriteria(DccSearchCriteria.SearchStr, DccSearchCriteria.Address, DccSearchCriteria.SpeedStep, DccSearchCriteria.LongAddress);
-end;
-
-function TLccDccEncodedSearchCriteria.Clone: TLccDccEncodedSearchCriteria;
-begin
-  Result := TLccDccEncodedSearchCriteria.Create(Criteria);
-end;
-
-{ TDccSearchCriteria }
-
-constructor TDccSearchCriteria.Create(ASearchString: string; AnAddress: Word;
-  ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean);
-begin
-  FSpeedStep := ASpeedStep;
-  FAddress := AnAddress;
-  FLongAddress := IsLongAddress;
-  FSearchStr := ASearchString;
-end;
-
-function TDccSearchCriteria.Clone: TDccSearchCriteria;
-begin
-  Result := TDccSearchCriteria.Create(SearchStr, Address, SpeedStep, LongAddress);
+  Result := TLccDCCSearchCriteriaEvent.Create(Criteria);
 end;
 
 { TLccActionSearchGatherAndSelectTrains }
@@ -1074,7 +1035,7 @@ begin
   // this is called recursivly until the Callback detects we are done with all the search items and it moves us out of this state
   // Spawn a child task and wait for it to end in the next state
   LccSearchTrainAction := TLccActionSearchGatherAndSelectTrain.Create(Owner, SourceNodeID, SourceAliasID, NULL_NODE_ID, 0, UniqueID);
-  LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccDccEncodedSearchCriteria).Criteria;
+  LccSearchTrainAction.SearchCriteria := (EncodedSearchCriteria[iEncodedSearchCriteria] as TLccDCCSearchCriteriaEvent).Criteria;
   LccSearchTrainAction.RegisterCallBackOnExit(Self);
   Owner.LccActions.RegisterAndKickOffAction(LccSearchTrainAction, nil);
   AdvanceToNextState;
@@ -1126,7 +1087,7 @@ begin
   inherited Create(AnOwner, ASourceNodeID, ASourceAliasID, ADestNodeID, ADestAliasID, AnUniqueID);
 
   {$IFDEF DELPHI}
-  FEncodedSearchCriteria := TObjectList<TLccDccEncodedSearchCriteria>.Create;
+  FEncodedSearchCriteria := TObjectList<TLccDCCSearchCriteriaEvent>.Create;
   {$ELSE}
   FEncodedSearchCriteria := TObjectList.Create;
   {$ENDIF}
@@ -2031,6 +1992,16 @@ begin
       Exit;
   end;
 
+  case SourceMessage.MTI of
+     MTI_PRODUCER_IDENTIFIED_CLEAR,
+     MTI_PRODUCER_IDENTIFIED_SET,
+     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+       begin
+         if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
+           TrainRoster.Add(SourceMessage);
+       end;
+  end;
+
   // Only care if coming from our Assigned Train
   if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID, True) then
   begin
@@ -2138,21 +2109,32 @@ begin
 end;
 
 {$IFDEF DELPHI}
-procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>; UniqueID: Integer);
 {$ELSE}
-procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer);
+procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer);  // TLccDCCSearchCriteriaEvent objects in ObjectList
 {$ENDIF}
 var
   i: Integer;
-  DccCriteria: TDccSearchCriteria;
+  DccCriteria: TLccDCCSearchCriteriaEvent;
   TrackProtocolFlags: Word;
   SearchData: DWORD;
   SearchTrainsAction: TLccActionSearchGatherAndSelectTrains;
 begin
+  // We take over the ObjectList, do not free objects or the list.
   if DccSearchCriteria.Count > 0 then
   begin
     SearchTrainsAction := TLccActionSearchGatherAndSelectTrains.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, UniqueID);
 
+
+    for i := 0 to DccSearchCriteria.Count - 1 do
+    begin
+      DccCriteria := DccSearchCriteria[i] as TLccDCCSearchCriteriaEvent;
+      SearchTrainsAction.EncodedSearchCriteria.Add( DccCriteria);
+    end;
+
+    LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);
+
+    (*
     // Need to translate the DccSearch criteria into LccSearch encoded criteria to launch the search.
     for i := 0 to DccSearchCriteria.Count - 1 do
     begin
@@ -2191,27 +2173,22 @@ begin
       else
         WorkerMessage.TractionSearchEncodeSearchString(DccCriteria.SearchStr, TrackProtocolFlags, SearchData);
 
-      SearchTrainsAction.EncodedSearchCriteria.Add( TLccDccEncodedSearchCriteria.Create(SearchData));
-    end;
-
-    LccActions.RegisterAndKickOffAction(SearchTrainsAction, nil);
+      SearchTrainsAction.EncodedSearchCriteria.Add( TLccDCCSearchCriteriaEvent.Create(SearchData));
+    end;       } *)
   end;
 end;
 
 {$IFDEF DELPHI}
-procedure TLccTrainController.ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TDccSearchCriteria>; UniqueID: Integer);
+procedure TLccTrainController.ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList<TLccDCCSearchCriteriaEvent>; UniqueID: Integer);
 {$ELSE}
 procedure TLccTrainController.ConsistTrainsByDccAddress(DccSearchCriteria: TObjectList; UniqueID: Integer);
 {$ENDIF}
 var
   ActionConsistTrains: TLccActionConsistTrains;
-  i: Integer;
 begin
-
+  // We take over the ObjectList... do not free the objects or destroy the list
   ActionConsistTrains := TLccActionConsistTrains.Create(Self, NodeID, AliasID, NULL_NODE_ID, 0, 0);
-
-  for i := 0 to DccSearchCriteria.Count - 1 do
-    ActionConsistTrains.EncodedSearchCriteria.Add( TLccDccEncodedSearchCriteria.Create( DccSearchCriteria[i] as TDccSearchCriteria));
+  ActionConsistTrains.EncodedSearchCriteria := DccSearchCriteria;
   LccActions.RegisterAndKickOffAction(ActionConsistTrains, nil)
 end;
 

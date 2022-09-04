@@ -56,8 +56,6 @@ if TargetOS = &apos;linux&apos; then
               <StackChecks Value="True"/>
             </Checks>
             <VerifyObjMethodCallValidity Value="True"/>
-            <TargetCPU Value="x86_64"/>
-            <TargetOS Value="darwin"/>
           </CodeGeneration>
           <Linking>
             <Debugging>

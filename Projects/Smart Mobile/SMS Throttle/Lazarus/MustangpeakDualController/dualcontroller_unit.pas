@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
+  StdCtrls, Buttons, CheckLst, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
   throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common,
   Contnrs;
@@ -17,11 +17,12 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
+    Button2: TButton;
+    ButtonConsistSave1: TButton;
+    ButtonConsistAdd1: TButton;
+    ButtonConsistRemove1: TButton;
     ButtonActionObjectCount: TButton;
-    ButtonCreateConstist1: TButton;
     ButtonCreateConstist2: TButton;
-    ButtonConsistRefresh1: TButton;
-    ButtonConsistRelease1: TButton;
     ButtonConsistRelease2: TButton;
     ButtonConsistRefresh2: TButton;
     ButtonReleaseConsist1: TButton;
@@ -29,9 +30,7 @@ type
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
     CheckBoxConsistReverseDir2: TCheckBox;
-    CheckBoxConsistAddress1: TCheckBox;
     CheckBoxConsistAddress2: TCheckBox;
-    CheckBoxConsistReverseDir1: TCheckBox;
     CheckBoxForwardF0_1: TCheckBox;
     CheckBoxForwardF0_2: TCheckBox;
     CheckBoxForwardFn_1: TCheckBox;
@@ -49,7 +48,6 @@ type
     Edit7: TEdit;
     Edit8: TEdit;
     EditCommandStationIPAddress: TEdit;
-    EditConsistAddress1: TEdit;
     EditConsistAddress2: TEdit;
     EditThrottleAddress1: TEdit;
     EditThrottleAddress2: TEdit;
@@ -60,6 +58,7 @@ type
     Label12: TLabel;
     Label13: TLabel;
     Label14: TLabel;
+    LabelConsistExpander1: TLabel;
     Label17: TLabel;
     Label18: TLabel;
     Label2: TLabel;
@@ -72,7 +71,6 @@ type
     Label101: TLabel;
     Label100: TLabel;
     Label7: TLabel;
-    Label8: TLabel;
     Label9: TLabel;
     LabelAlias2: TLabel;
     LabelNodeID2: TLabel;
@@ -81,19 +79,18 @@ type
     Label104: TLabel;
     LabelThrottleSpeed1: TLabel;
     LabelThrottleSpeed2: TLabel;
+    ListViewConsistTable1: TListView;
     PageControlConsists2: TPageControl;
     PageControlThrottle2: TPageControl;
-    PageControlConsists1: TPageControl;
     PageControlThrottle1: TPageControl;
+    PanelConsitEditor1: TPanel;
+    PanelConsistEditHeader1: TPanel;
     PanelThrottle1ServiceMode: TPanel;
-    PanelConsistCreate1: TPanel;
     PanelConsistCreate2: TPanel;
-    PanelConsistRelease1: TPanel;
     PanelConsistRelease2: TPanel;
-    PanelConsistWizard1: TPanel;
     PanelConsistWizard2: TPanel;
     PanelThrottleAssign1: TPanel;
-    PanelThrottle1: TPanel;
+    PanelThrottleConsistEdit1: TPanel;
     PanelThrottleAssign2: TPanel;
     PanelThrottleFace1: TPanel;
     PanelThrottleFace2: TPanel;
@@ -103,13 +100,10 @@ type
     PanelThrottle2: TPanel;
     PanelThrottleEthernet: TPanel;
     PanelThrottleEthernet1: TPanel;
-    RadioGroupConstistSpeedStep1: TRadioGroup;
     RadioGroupConstistSpeedStep2: TRadioGroup;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
-    SpeedButtonConsistSubtract1: TSpeedButton;
     SpeedButtonConsistSubtract2: TSpeedButton;
-    SpeedButtonConsistTrainAdd1: TSpeedButton;
     SpeedButtonConstistTrainAdd2: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
     SpeedButtonForward2: TSpeedButton;
@@ -150,15 +144,10 @@ type
     TabSheetConsistNew2: TTabSheet;
     TabSheetConsists2: TTabSheet;
     TabSheetThrottle2Throttle: TTabSheet;
-    TabSheetConsistNew1: TTabSheet;
-    TabSheetConsists1: TTabSheet;
-    TabSheetThrottle1Consists: TTabSheet;
     TabSheetThrottle1Throttle: TTabSheet;
     TrackBarThrottle1: TTrackBar;
     TrackBarThrottle2: TTrackBar;
-    TreeViewConsists1: TTreeView;
     TreeViewConsists2: TTreeView;
-    TreeViewConsistWizard1: TTreeView;
     TreeViewConsistWizard2: TTreeView;
     procedure Button1Click(Sender: TObject);
     procedure ButtonActionObjectCountClick(Sender: TObject);
@@ -168,8 +157,7 @@ type
     procedure ButtonConnect2Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
-    procedure PageControlConsists1Change(Sender: TObject);
-    procedure PageControlConsists2Change(Sender: TObject);
+    procedure LabelConsistExpander1Click(Sender: TObject);
     procedure SpeedButtonConsistSubtract1Click(Sender: TObject);
     procedure SpeedButtonConsistSubtract2Click(Sender: TObject);
     procedure SpeedButtonConsistTrainAdd1Click(Sender: TObject);
@@ -275,12 +263,12 @@ implementation
 { TForm1 }
 
 procedure TForm1.ButtonCreateConstist1Click(Sender: TObject);
-var
+{var
   TreeNode: TTreeNode;
   DccSearchCriteria: TObjectList;
-  ConsistItem: TDccSearchCriteria;
+  ConsistItem: TDccSearchCriteria;  }
 begin
-  DccSearchCriteria := TObjectList.Create;
+ { DccSearchCriteria := TObjectList.Create;
   DccSearchCriteria.OwnsObjects := False;
   try
     TreeNode := TreeViewConsistWizard1.Items.GetFirstNode;
@@ -293,7 +281,7 @@ begin
   finally
     ControllerNode1.ConsistTrainsByDccAddress(DccSearchCriteria, 100);
     FreeAndNil(DccSearchCriteria);
-  end;
+  end;   }
 end;
 
 procedure TForm1.ButtonActionObjectCountClick(Sender: TObject);
@@ -315,7 +303,8 @@ procedure TForm1.ButtonCreateConstist2Click(Sender: TObject);
 var
   TreeNode: TTreeNode;
   DccSearchCriteria: TObjectList;
-  ConsistItem: TDccSearchCriteria;
+  ConsistItem: TLccDCCSearchCriteriaEvent;
+
 begin
   DccSearchCriteria := TObjectList.Create;
   DccSearchCriteria.OwnsObjects := False;
@@ -323,13 +312,13 @@ begin
     TreeNode := TreeViewConsistWizard2.Items.GetFirstNode;
     while Assigned(TreeNode) do
     begin
-      ConsistItem := (TDccSearchCriteria( TreeNode.Data));
+  //    ConsistItem := (TDccSearchCriteria( TreeNode.Data));
       DccSearchCriteria.Add( ConsistItem);
       TreeNode := TreeNode.GetNext;
     end;
   finally
-//    ControllerNode2.SearchTrainsByDccAddress(DccSearchCriteria);
-    FreeAndNil(DccSearchCriteria);
+    // we give the ObjectList to the callee....
+    ControllerNode2.SearchTrainsByDccAddress(DccSearchCriteria);
   end;
 end;
 
@@ -420,7 +409,22 @@ begin
   PanelThrottleKeypad1.Enabled := False;
   PanelThrottleKeypad2.Enabled := False;
 
+  PanelConsitEditor1.Height := PanelConsistEditHeader1.Height;
+
   WorkerMessage := TLccMessage.Create;
+end;
+
+procedure TForm1.LabelConsistExpander1Click(Sender: TObject);
+begin
+  if PanelConsistEditHeader1.Height = PanelConsitEditor1.Height then
+  begin
+    PanelConsitEditor1.Height := 162;
+    LabelConsistExpander1.Caption := '>';
+  end else
+  begin
+    PanelConsitEditor1.Height := PanelConsistEditHeader1.Height;
+    LabelConsistExpander1.Caption := 'v';
+  end;
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);
@@ -526,7 +530,7 @@ begin
     begin
       // We will get a notification callback when the controller is assigned (or refused)
       if TryStrToInt(EditThrottleAddress1.Text, DccAddress) then
-        ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps1.ItemIndex + 1))
+        ControllerNode1.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress1.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps1.ItemIndex))
       else
         ShowMessage('Invalid Address');
     end;
@@ -546,7 +550,7 @@ begin
     begin
       // We will get a notification callback when the controller is assigned (or refused)
       if TryStrToInt(EditThrottleAddress2.Text, DccAddress) then
-        ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps2.ItemIndex + 1))
+        ControllerNode2.AssignTrainByDccAddress(DccAddress, CheckBoxThrottleLongAddress2.Checked, IndexToSpeedStep(RadioGroupThrottleSpeedSteps2.ItemIndex))
       else
         ShowMessage('Invalid Address');
     end;
@@ -572,44 +576,43 @@ begin
 end;
 
 procedure TForm1.TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
-var
-  ConsistItem: TDccSearchCriteria;
+//var
+ // ConsistItem: TDccSearchCriteria;     // JDK
 begin
-  ConsistItem := TDccSearchCriteria( Node.Data);
-  FreeAndNil(ConsistItem);
+ // ConsistItem := TDccSearchCriteria( Node.Data);
+ // FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if htNowhere in TreeViewConsistWizard1.GetHitTestInfoAt(X, Y) then
-    TreeViewConsistWizard1.Selected := nil;
+
 end;
 
 procedure TForm1.TreeViewConsistWizard1SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TDccSearchCriteria;
+ // ConsistItem: TDccSearchCriteria;              // JDK
 begin
-  Node := TreeViewConsistWizard1.Selected;
+//  Node := TreeViewConsistWizard1.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TDccSearchCriteria(Node.Data);
-    if Assigned(ConsistItem) then
+  //  ConsistItem := TDccSearchCriteria(Node.Data);
+//    if Assigned(ConsistItem) then
     begin
-      CheckBoxConsistAddress1.Checked := ConsistItem.LongAddress;
-      RadioGroupConstistSpeedStep1.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
-      EditConsistAddress1.Text := IntToStr(ConsistItem.Address);
+//      CheckBoxConsistAddress1.Checked := ConsistItem.LongAddress;
+ //     RadioGroupConstistSpeedStep1.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
+ //     EditConsistAddress1.Text := IntToStr(ConsistItem.Address);
     end
   end
 end;
 
 procedure TForm1.TreeViewConsistWizard2Deletion(Sender: TObject; Node: TTreeNode);
-var
-  ConsistItem: TDccSearchCriteria;
+//var
+//  ConsistItem: TDccSearchCriteria;        // JDK
 begin
-  ConsistItem := TDccSearchCriteria( Node.Data);
-  FreeAndNil(ConsistItem);
+ // ConsistItem := TDccSearchCriteria( Node.Data);
+//  FreeAndNil(ConsistItem);
 end;
 
 procedure TForm1.TreeViewConsistWizard2MouseDown(Sender: TObject;
@@ -622,17 +625,17 @@ end;
 procedure TForm1.TreeViewConsistWizard2SelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
-  ConsistItem: TDccSearchCriteria;
+ // ConsistItem: TDccSearchCriteria;     // JDK
 begin
   Node := TreeViewConsistWizard2.Selected;
   if Assigned(Node) then
   begin
-    ConsistItem := TDccSearchCriteria(Node.Data);
-    if Assigned(ConsistItem) then
+ //   ConsistItem := TDccSearchCriteria(Node.Data);
+ //   if Assigned(ConsistItem) then
     begin
-      CheckBoxConsistAddress2.Checked := ConsistItem.LongAddress;
-      RadioGroupConstistSpeedStep2.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
-      EditConsistAddress2.Text := IntToStr(ConsistItem.Address);
+ //     CheckBoxConsistAddress2.Checked := ConsistItem.LongAddress;
+//      RadioGroupConstistSpeedStep2.ItemIndex := SpeedStepToIndex(ConsistItem.SpeedStep) - 1;
+ //     EditConsistAddress2.Text := IntToStr(ConsistItem.Address);
     end
   end
 end;
@@ -1019,12 +1022,8 @@ begin
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);
-var
-  TreeNode: TTreeNode;
 begin
-  TreeNode := TreeViewConsistWizard1.Selected;
-  if Assigned(TreeNode) then
-    TreeViewConsistWizard1.Items.Delete(TreeNode);  // Object in Data will be free in the deletion callback event
+
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract2Click(Sender: TObject);
@@ -1039,16 +1038,16 @@ end;
 procedure TForm1.SpeedButtonConsistTrainAdd1Click(Sender: TObject);
 var
   SelectedNode: TTreeNode;
-  ConsistItem: TDccSearchCriteria;
+//  ConsistItem: TDccSearchCriteria;      // JDK
   NodeCaption: string;
   DccAddress: Integer;
 begin
-  if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
+ { if TryStrToInt(EditConsistAddress1.Text, DccAddress) then
   begin
     if Assigned(TreeViewConsistWizard1.Selected) then
     begin
       SelectedNode := TreeViewConsistWizard1.Selected;
-      ConsistItem := TDccSearchCriteria(SelectedNode.Data);
+  //    ConsistItem := TDccSearchCriteria(SelectedNode.Data);
 
       NodeCaption := EditConsistAddress1.Text + ': ' + AddressBooleanToText(ConsistItem.LongAddress, Verbose) + ',' + SpeedStepToString(IndexToSpeedStep(RadioGroupConstistSpeedStep1.ItemIndex + 1), Verbose);
 
@@ -1082,17 +1081,17 @@ begin
         ShowMessage('Duplicate Train');
     end
   end else
-    ShowMessage('Enter a valid DCC Address');
+    ShowMessage('Enter a valid DCC Address');    }
 end;
 
 procedure TForm1.SpeedButtonConstistTrainAdd2Click(Sender: TObject);
 var
   SelectedNode: TTreeNode;
-  ConsistItem: TDccSearchCriteria;
+//  ConsistItem: TDccSearchCriteria;    // JDK
   NodeCaption: string;
   DccAddress: Integer;
 begin
-  if TryStrToInt(EditConsistAddress2.Text, DccAddress) then
+ { if TryStrToInt(EditConsistAddress2.Text, DccAddress) then
   begin
     if Assigned(TreeViewConsistWizard2.Selected) then
     begin
@@ -1131,7 +1130,7 @@ begin
         ShowMessage('Duplicate Train');
     end
   end else
-    ShowMessage('Enter a valid DCC Address');
+    ShowMessage('Enter a valid DCC Address');    }
 end;
 
 procedure TForm1.OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -1153,32 +1152,6 @@ end;
 procedure TForm1.OnNodeManager2IDChange(Sender: TObject; LccSourceNode: TLccNode);
 begin
   LabelNodeID2.Caption := 'NodeID: ' + LccSourceNode.NodeIDStr;
-end;
-
-procedure TForm1.PageControlConsists1Change(Sender: TObject);
-begin
-  if PageControlConsists1.ActivePage = TabSheetConsistNew1 then
-  begin
- //   PanelConsistCreate1.Enabled := True;
- //   PanelConsistRelease1.Enabled := False;
-  end else
-  begin
- //   PanelConsistCreate1.Enabled := False;
- //   PanelConsistRelease1.Enabled := True;
-  end;
-end;
-
-procedure TForm1.PageControlConsists2Change(Sender: TObject);
-begin
-  if PageControlConsists2.ActivePage = TabSheetConsistNew2 then
-  begin
-//    PanelConsistCreate2.Enabled := True;
-//    PanelConsistRelease2.Enabled := False;
-  end else
-  begin
-//    PanelConsistCreate2.Enabled := False;
-//    PanelConsistRelease2.Enabled := True;
-  end;
 end;
 
 end.

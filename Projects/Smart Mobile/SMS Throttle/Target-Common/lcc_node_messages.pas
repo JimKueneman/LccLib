@@ -132,6 +132,7 @@ public
   procedure LoadProtocolIdentifyInquiry(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadProtocolIdentifyReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Flags: TLccSupportedProtocolArray);
   // Event Exchange
+  function IsEqualEventID(TestEvent: TEventID): Boolean;
   procedure LoadConsumerIdentify(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID);
   procedure LoadConsumerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);
   procedure LoadProducerIdentify(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID);
@@ -1778,6 +1779,11 @@ begin
   FDataArray[0] := Flags[5];
   DataCount := 6;
   MTI := MTI_PROTOCOL_SUPPORT_REPLY;
+end;
+
+function TLccMessage.IsEqualEventID(TestEvent: TEventID): Boolean;
+begin
+  Result := EqualEventID(TestEvent, ExtractDataBytesAsEventID(0));
 end;
 
 procedure TLccMessage.LoadConsumerIdentified(ASourceID: TNodeID; ASourceAlias: Word; var Event: TEventID; EventState: TEventState);

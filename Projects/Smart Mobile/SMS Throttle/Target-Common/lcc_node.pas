@@ -57,8 +57,7 @@ uses
   lcc_protocol_events,
   lcc_protocol_supportedprotocols,
   lcc_protocol_datagram,
-  lcc_protocol_base,
-  lcc_alias_mappings;
+  lcc_protocol_base;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;

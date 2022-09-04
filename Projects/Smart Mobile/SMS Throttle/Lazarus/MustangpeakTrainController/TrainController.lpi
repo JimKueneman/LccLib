@@ -78,8 +78,6 @@ if TargetOS = &apos;linux&apos; then
       </Item1>
     </BuildMacros>
     <CodeGeneration>
-      <TargetCPU Value="x86_64"/>
-      <TargetOS Value="darwin"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>
