@@ -265,7 +265,7 @@ var
         sock: longint;
         err: longint;
         HostAddr: SockAddr;
-        l: Cardinal;
+        l: {$IFDEF ANDROID32}Integer{$ELSE}Cardinal{$ENDIF};
         UnixAddr: sockaddr_in;
 
       begin

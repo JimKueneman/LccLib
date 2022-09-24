@@ -46,7 +46,7 @@ type
     property Manufacturer: string read FManufacturer;
     property Owner: string read FOwner;
 
- //   function ProcessMessage(LccMessage: TLccMessage; Traction: TTraction): Boolean; reintroduce; virtual;
+    function ProcessMessage(LccMessage: TLccMessage): Boolean;
   end;
 
 implementation
@@ -104,5 +104,21 @@ begin
   Valid := True;
 end;
      }
+{ TTractionProtocolSimpleTrainNodeInfo }
+
+{function TTractionProtocolSimpleTrainNodeInfo.ProcessMessage(
+  LccMessage: TLccMessage; Traction: TTraction): Boolean;
+begin
+
+end;
+
+ TTractionProtocolSimpleTrainNodeInfo }
+
+function TTractionProtocolSimpleTrainNodeInfo.ProcessMessage(LccMessage: TLccMessage): Boolean;
+begin
+  Result := False
+end;
+
 end.
+
 

@@ -596,6 +596,7 @@ end;
 
 function TLccActionMemoryConfigurationRead._1WaitForReadReply(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 begin
+  Result := True;
   if TimeoutCounts > TimeoutCountThreshold then
     AdvanceToNextState();
 end;
@@ -741,7 +742,7 @@ end;
 
 function TListenerList.Add(NodeID: TNodeID; Flags: Byte; AliasID: Word): TListenerNode;
 begin
-  AliasID := AliasID;
+ // AliasID := AliasID;
   Result := TListenerNode.Create;
   Result.NodeID := NodeID;
   Result.DecodeFlags(Flags);
@@ -1176,7 +1177,6 @@ end;
 
 function TLccActionTractionControllerAssignReply._1WaitForNodeVerified(Sender: TObject; SourceMessage: TLccMessage): Boolean;
 var
-  TempNodeID: TNodeID;
   AliasMapping: TLccAliasMapping;
 begin
   Result := False;
@@ -1298,6 +1298,7 @@ var
   {$ENDIF}
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.MemConfig := True;
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
   ProtocolSupportedProtocols.SimpleNodeInfo := True;
@@ -1400,6 +1401,8 @@ var
   AddressHi, AddressLo: Byte;
 begin
   Result.Flags := 0;
+  FunctionMask := 0;
+  FunctionExtendedCode := 0;
 
   // Split the address to make clear when loading bytes
   AddressHi := (DccAddress shr 8) and $00FF;

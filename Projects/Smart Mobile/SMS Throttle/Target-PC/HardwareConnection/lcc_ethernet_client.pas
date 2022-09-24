@@ -163,7 +163,7 @@ end;
 
 function TLccEthernetClient.OpenConnection(ConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
-  Result := inherited OpenConnection(ConnectionInfo as TLccEthernetConnectionInfo);
+  inherited OpenConnection(ConnectionInfo as TLccEthernetConnectionInfo);
   Result := TLccEthernetClientThread.Create(True, Self, ConnectionInfo);
   OnConnectionStateChange := OnConnectionStateChange;
   OnErrorMessage := OnErrorMessage;

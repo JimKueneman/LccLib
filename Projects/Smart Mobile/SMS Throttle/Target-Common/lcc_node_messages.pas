@@ -165,6 +165,7 @@ public
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
 
+  function TractionIsTrainEvent: Boolean;
   function TractionExtractSetSpeed: THalfFloat;
   function TractionExtractCommandedSpeed: THalfFloat;
   function TractionExtractActualSpeed: THalfFloat;
@@ -177,7 +178,7 @@ public
   function TractionSearchDecodeSearchString: string;
   procedure LoadTractionSearch(ASourceID: TNodeID; ASourceAlias: Word; SearchData: DWORD);
   function TractionSearchExtractSearchData: DWORD;
-  function TractionSearchIsEvent: Boolean;
+  function TractionIsSearchEvent: Boolean;
   function TractionSearchIsForceAllocate: Boolean;
   function TractionSearchIsExactMatchOnly: Boolean;
   function TractionSearchIsAddressMatchOnly: Boolean;
@@ -199,7 +200,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
   // Node Ident (SNIP)
   procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure ExtractSimpleNodeIdentInfo(var Version: byte; var Manufacturer: string; var Model: string; var HardwareVersion: string; var SoftwareVersion: string; UserVersion: byte; var UserName: string; var UserDescription: string);
+  procedure ExtractSimpleNodeIdentInfo(var Version: byte; var Manufacturer: string; var Model: string; var HardwareVersion: string; var SoftwareVersion: string; var UserVersion: byte; var UserName: string; var UserDescription: string);
   // FDI
   procedure LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
   procedure LoadFunctionConfigurationRead(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; FunctionAddress: DWord; Count: Integer);
@@ -1453,7 +1454,6 @@ end;
 
 function TLccMessage.TractionExtractActualSpeed: THalfFloat;
 begin
-  Result := 0;
   Result := DataArray[6];
   Result := Result shl 8;
   Result := Result or DataArray[7];
@@ -1461,7 +1461,6 @@ end;
 
 function TLccMessage.TractionExtractCommandedSpeed: THalfFloat;
 begin
-  Result := 0;
   Result := DataArray[4];
   Result := Result shl 8;
   Result := Result or DataArray[5];
@@ -1469,7 +1468,6 @@ end;
 
 function TLccMessage.TractionExtractFunctionAddress: LongWord;
 begin
-  Result := 0;
   Result := DataArray[1];
   Result := Result shl 8;
   Result := Result or DataArray[2];
@@ -1479,7 +1477,6 @@ end;
 
 function TLccMessage.TractionExtractFunctionValue: Word;
 begin
-  Result := 0;
   Result := DataArray[4];
   Result := Result shl 8;
   Result := Result or DataArray[5];
@@ -1628,9 +1625,14 @@ begin
   Result := DataArray[7] and TRACTION_SEARCH_TARGET_ADDRESS_MATCH = TRACTION_SEARCH_TARGET_ADDRESS_MATCH
 end;
 
-function TLccMessage.TractionSearchIsEvent: Boolean;
+function TLccMessage.TractionIsSearchEvent: Boolean;
 begin
   Result := (DataArray[0] = $09) and (DataArray[1] = $00) and (DataArray[2] = $99) and (DataArray[3] = $FF);
+end;
+
+function TLccMessage.TractionIsTrainEvent: Boolean;
+begin
+  Result := IsEqualEventID(EVENT_IS_TRAIN);
 end;
 
 function TLccMessage.TractionSearchIsExactMatchOnly: Boolean;
@@ -2327,7 +2329,7 @@ end;
 
 procedure TLccMessage.ExtractSimpleNodeIdentInfo(var Version: byte;
   var Manufacturer: string; var Model: string; var HardwareVersion: string;
-  var SoftwareVersion: string; UserVersion: byte; var UserName: string;
+  var SoftwareVersion: string; var UserVersion: byte; var UserName: string;
   var UserDescription: string);
 var
   i: Integer;
@@ -2379,7 +2381,6 @@ begin
     UserDescription := UserDescription + Char( DataArrayIndexer[i]);
     Inc(i);
   end;
-  Inc(i); // Skip the Null
 end;
 
 procedure TLccMessage.LoadFDIRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -2628,7 +2629,6 @@ procedure TLccMessage.LoadConfigMemReadReplyError(ASourceID: TNodeID;
   ConfigMemAddress: DWord; ErrorCode: Word; ErrorCodeString: string);
 var
   i: Integer;
-  CharPtr: PChar;
 begin
   ZeroFields;
   SourceID := ASourceID;

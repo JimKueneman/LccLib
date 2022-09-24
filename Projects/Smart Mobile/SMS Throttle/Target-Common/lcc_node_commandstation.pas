@@ -114,6 +114,7 @@ end;
 procedure TLccCommandStationNode.BeforeLogin;
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.MemConfig := True;
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
   ProtocolSupportedProtocols.SimpleNodeInfo := True;
@@ -242,7 +243,7 @@ begin
       end;
     MTI_PRODUCER_IDENDIFY :
       begin
-        if SourceMessage.TractionSearchIsEvent then    // Is the the event for for traction search?
+        if SourceMessage.TractionIsSearchEvent then    // Is the the event for for traction search?
         begin
           SearchStr := SourceMessage.TractionSearchDecodeSearchString;
 

@@ -57,7 +57,8 @@ uses
   lcc_protocol_events,
   lcc_protocol_supportedprotocols,
   lcc_protocol_datagram,
-  lcc_protocol_base;
+  lcc_protocol_base,
+  lcc_alias_mappings;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -417,7 +418,6 @@ type
   TLccNode = class(TObject)
   private
     FAliasID: Word;
-    FAliasMappings: TLccAliasMappingList;
     FDuplicateAliasDetected: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
@@ -514,7 +514,6 @@ type
     property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
 
     // GridConnect Helpers
-    property AliasMappings: TLccAliasMappingList read FAliasMappings;
     property AliasID: Word read FAliasID;
     property AliasIDStr: String read GetAliasIDStr;
     property Permitted: Boolean read FPermitted;
@@ -890,7 +889,7 @@ begin
   Result := False;
   if not WaitingForFree then  // Only allow this to be called once, may get called after the first time through
   begin
-    SourceMessage := SourceMessage;
+ //   SourceMessage := SourceMessage;
     FActionStateIndex := Length(FStates) - 1;
     if Assigned(OnCompleteCallback) then
       OnCompleteCallback(Self);
@@ -962,7 +961,7 @@ end;
 function TLccAction.ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
 begin
   AliasMappingAlias := AnAliasToMap;
-  Result := Owner.AliasMappings.FindMapping(AliasMappingAlias);
+  Result := AliasMappingServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) and SendAME then
   begin
     WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
@@ -974,7 +973,7 @@ end;
 function TLccAction.ValidateAliasMappingWait: TLccAliasMapping;
 begin
   // Only way to get here is if we were GridConnect
-  Result := Owner.AliasMappings.FindMapping(AliasMappingAlias);
+  Result := AliasMappingServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) then
   begin
     if TimeoutExpired then
@@ -989,7 +988,7 @@ end;
 function TLccAction.ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
 begin
   AliasMappingNodeID := ANodeIDToMap;
-  Result := Owner.AliasMappings.FindMapping(AliasMappingNodeID);
+  Result := AliasMappingServer.FindMapping(AliasMappingNodeID);
   if not Assigned(Result) and SendVerify then
   begin
     WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, AliasMappingNodeID);
@@ -1011,7 +1010,7 @@ begin
           TempNodeID := NULL_NODE_ID;
           if EqualNodeID(ASourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), AliasMappingNodeID, False) then
           begin
-            Result := Owner.AliasMappings.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
+            Result := AliasMappingServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
           end;
         end;
     end;
@@ -1249,7 +1248,6 @@ begin
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
-  FAliasMappings := TLccAliasMappingList.Create;
 
   _100msTimer := TLccTimer.Create(nil);
   _100msTimer.Enabled := False;
@@ -1874,12 +1872,12 @@ begin
           end;
         MTI_CAN_AMR :
           begin   // Alias going away clear it from the cache
-            AliasMappings.RemoveMapping(SourceMessage.CAN.SourceAlias);
+            AliasMappingServer.RemoveMapping(SourceMessage.CAN.SourceAlias);
           end;
         MTI_CAN_AMD :
           begin  // Alias coming on line save a copy of this mapping for future use
             SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-            AliasMappings.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
+            AliasMappingServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
           end;
       end
     end;
@@ -1955,7 +1953,6 @@ begin
 
   (NodeManager as INodeManagerCallbacks).DoDestroyLccNode(Self);
   _100msTimer.Free;
-  FAliasMappings.Free;
   FProtocolSupportedProtocols.Free;
   FProtocolSimpleNodeInfo.Free;
   FTProtocolMemoryConfigurationDefinitionInfo.Free;

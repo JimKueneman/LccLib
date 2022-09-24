@@ -20,6 +20,7 @@ uses
   {$IFDEF FPC}
   {$ELSE}
     System.Generics.Collections,
+    System.Types,
   {$ENDIF}
  // {$IFDEF ULTIBO}
 //  Winsock2,
@@ -488,7 +489,7 @@ var
   List: TList;
   StrList: TStringList;
   i: Integer;
-  OldText, NewText: ansistring;
+  OldText, NewText: AnsiString;
 begin
   List := ConnectionThreads.LockList;
   try
@@ -497,12 +498,12 @@ begin
       StrList := TLccConnectionThread(List[i]).OutgoingGridConnect.LockList;
       try
         StrList.Delimiter := Chr(10);
-        OldText := StrList.DelimitedText;
+        OldText := AnsiString( StrList.DelimitedText);
       if OldText <> '' then
       begin
         StrList.DelimitedText := GridConnectStr;
-        NewText := StrList.DelimitedText;
-        StrList.DelimitedText := OldText + Chr(10) + NewText
+        NewText := AnsiString(StrList.DelimitedText);
+        StrList.DelimitedText := String(OldText + Chr(10) + NewText)
       end else
         StrList.DelimitedText := GridConnectStr;
       finally

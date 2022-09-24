@@ -22,9 +22,7 @@ uses
 {$ENDIF}
   lcc_protocol_base,
   lcc_defines,
-  lcc_node_messages,
-  lcc_utilities,
-  lcc_math_float16;
+  lcc_node_messages;
 
 type
 
@@ -42,19 +40,19 @@ implementation
 { TProtocolTraction }
 
 procedure TProtocolTraction.SetSpeedDir(ALccMessage: TLccMessage);
-var
-  Speed: Single;
+//var
+ // Speed: Single;
 begin
-  Speed := HalfToFloat( ALccMessage.ExtractDataBytesAsInt(1, 2));
+//  Speed := HalfToFloat( ALccMessage.ExtractDataBytesAsInt(1, 2));
 end;
 
 procedure TProtocolTraction.SetFunction(ALccMessage: TLccMessage);
-var
-  FunctionAddress: DWORD;
-  FunctionValue: WORD;
+//var
+ // FunctionAddress: DWORD;
+ // FunctionValue: WORD;
 begin
-  FunctionAddress := ALccMessage.ExtractDataBytesAsInt(1, 3);
-  FunctionValue := ALccMessage.ExtractDataBytesAsInt(4, 5);
+ // FunctionAddress := ALccMessage.ExtractDataBytesAsInt(1, 3);
+ // FunctionValue := ALccMessage.ExtractDataBytesAsInt(4, 5);
 end;
 
 

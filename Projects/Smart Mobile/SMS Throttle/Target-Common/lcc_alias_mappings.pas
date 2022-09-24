@@ -44,9 +44,11 @@ uses
   {$ENDIF}
 {$ENDIF}
   lcc_defines,
-  lcc_node_messages,
-  lcc_math_float16,
-  lcc_utilities;
+  lcc_node_messages;
+
+
+
+//Is seems like this should all be able to be handled in the SendMessage engine.... if the Alias is needed can''t that engine get the Alias if needed?.....
 
 type
   TLccAliasMapping = class(TObject)
@@ -55,9 +57,9 @@ type
     AnID: TNodeID;
   end;
 
-  { TLccAliasMappingList }
+  { TLccAliasMappingServer }
 
-  TLccAliasMappingList = class(TObject)
+  TLccAliasMappingServer = class(TObject)
 
   private
     {$IFDEF DELPHI}
@@ -65,6 +67,7 @@ type
     {$ELSE}
     FMappingList: TObjectList;
     {$ENDIF}
+    FWorkerMessage: TLccMessage;
 
   protected
     {$IFDEF DELPHI}
@@ -72,6 +75,8 @@ type
     {$ELSE}
     property MappingList: TObjectList read FMappingList write FMappingList;
     {$ENDIF}
+
+    property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
 
   public
     constructor Create;
@@ -83,11 +88,14 @@ type
     procedure RemoveMapping(AnAlias: Word);
   end;
 
+var
+  AliasMappingServer: TLccAliasMappingServer;
+
 implementation
 
-{ TLccAliasMappingList }
+{ TLccAliasMappingServer }
 
-constructor TLccAliasMappingList.Create;
+constructor TLccAliasMappingServer.Create;
 begin
   inherited Create;
   {$IFDEF DELPHI}
@@ -95,15 +103,17 @@ begin
   {$ELSE}
   FMappingList := TObjectList.Create(True);
   {$ENDIF}
+  WorkerMessage := TLccMessage.Create;
 end;
 
-destructor TLccAliasMappingList.Destroy;
+destructor TLccAliasMappingServer.Destroy;
 begin
   FreeAndNil(FMappingList);
+  FreeAndNil(FWorkerMessage);
   inherited Destroy;
 end;
 
-function TLccAliasMappingList.FindMapping(AnAliasID: Word): TLccAliasMapping;
+function TLccAliasMappingServer.FindMapping(AnAliasID: Word): TLccAliasMapping;
 var
   i: Integer;
   TestMapping: TLccAliasMapping;
@@ -120,7 +130,7 @@ begin
   end;
 end;
 
-function TLccAliasMappingList.FindMapping(ANodeID: TNodeID): TLccAliasMapping;
+function TLccAliasMappingServer.FindMapping(ANodeID: TNodeID): TLccAliasMapping;
 var
   i: Integer;
   TestMapping: TLccAliasMapping;
@@ -137,7 +147,7 @@ begin
   end;
 end;
 
-function TLccAliasMappingList.AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
+function TLccAliasMappingServer.AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
 begin
   Result := FindMapping(AnAlias);
   if not Assigned(Result) then
@@ -149,7 +159,7 @@ begin
   end;
 end;
 
-procedure TLccAliasMappingList.RemoveMapping(AnAlias: Word);
+procedure TLccAliasMappingServer.RemoveMapping(AnAlias: Word);
 var
   TestMapping: TLccAliasMapping;
 begin
@@ -157,6 +167,13 @@ begin
   if Assigned(TestMapping) then
     MappingList.Remove(TestMapping);
 end;
+
+initialization
+  AliasMappingServer := TLccAliasMappingServer.Create;
+
+finalization
+  FreeAndNil(AliasMappingServer);
+
 
 end.
 

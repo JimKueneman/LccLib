@@ -510,7 +510,7 @@ begin
   for n := 1 to Length(Value) do
   begin
     c := Value[n];
-    if c in Specials then
+    if AnsiChar(c) in Specials then
     begin
       Result[l] := Delimiter;
       Inc(l);

@@ -184,22 +184,22 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
             Size.Width = 408.000000000000000000
             Size.Height = 420.000000000000000000
             Size.PlatformDefault = False
-            TabHeight = 44.000000000000000000
+            TabHeight = 49.000000000000000000
             TabIndex = 0
             TabOrder = 2
             TabPosition = PlatformDefault
             Sizes = (
               408s
-              376s
+              371s
               408s
-              376s)
+              371s)
             object TabItemFunctionGroup0: TTabItem
               CustomIcon = <
                 item
                 end>
               IsSelected = True
               Size.Width = 56.000000000000000000
-              Size.Height = 44.000000000000000000
+              Size.Height = 49.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = ''
               TabOrder = 0
@@ -219,7 +219,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 Padding.Bottom = 4.000000000000000000
                 Orientation = Horizontal
                 Size.Width = 408.000000000000000000
-                Size.Height = 376.000000000000000000
+                Size.Height = 371.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
                 OnResize = GridLayoutFunctionControlsGroup0Resize
@@ -412,7 +412,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 end>
               IsSelected = False
               Size.Width = 63.000000000000000000
-              Size.Height = 44.000000000000000000
+              Size.Height = 49.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = ''
               TabOrder = 0
@@ -425,7 +425,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
                 ItemWidth = 44.000000000000000000
                 Orientation = Horizontal
                 Size.Width = 408.000000000000000000
-                Size.Height = 376.000000000000000000
+                Size.Height = 371.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 0
                 OnResize = GridLayoutFunctionControlsGroup1Resize
@@ -1147,7 +1147,7 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         TabOrder = 0
         object SpeedButtonAddTrain: TSpeedButton
           Align = Left
-          Size.Width = 50.000000000000000000
+          Size.Width = 48.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'composetoolbutton'
@@ -1166,8 +1166,8 @@ object OpenLcbThrottleForm: TOpenLcbThrottleForm
         end
         object SpeedButtonEditTrain: TSpeedButton
           Align = Left
-          Position.X = 50.000000000000000000
-          Size.Width = 135.000000000000000000
+          Position.X = 48.000000000000000000
+          Size.Width = 48.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'deleteitembutton'

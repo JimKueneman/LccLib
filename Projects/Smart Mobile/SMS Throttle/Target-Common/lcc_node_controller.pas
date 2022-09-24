@@ -48,7 +48,8 @@ uses
   lcc_node,
   lcc_node_train,
   lcc_utilities,
-  lcc_alias_mappings;
+  lcc_alias_mappings,
+  lcc_train_server;
 
 const
   CDI_XML_CONTROLLER: string = (
@@ -960,7 +961,6 @@ function TLccDCCSearchCriteriaEvent.EncodeDccCriteria(ASearchString: string;
   AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress: Boolean;
   ForceNewNode: Boolean): DWORD;
 var
-  i: Integer;
   TrackProtocolFlags: Word;
 begin
   Result := 0;
@@ -1234,6 +1234,7 @@ begin
                        begin
                          // keep the timer from being reentrant during event calls with blocking code (dialogs)
                          FreezeTimer := True;
+                         ControllerNode := nil;
                          if Assigned(Owner) then
                            ControllerNode := Owner as TLccTrainController;
                          try
@@ -1349,7 +1350,7 @@ begin
        MTI_PRODUCER_IDENTIFIED_SET,
        MTI_PRODUCER_IDENTIFIED_UNKNOWN :
          begin
-           if SourceMessage.TractionSearchIsEvent and (SourceMessage.TractionSearchExtractSearchData = SearchCriteria) then
+           if SourceMessage.TractionIsSearchEvent and (SourceMessage.TractionSearchExtractSearchData = SearchCriteria) then
            begin
              LocalTrain := Trains.CreateNew(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
              if Assigned(LocalTrain) then
@@ -1985,21 +1986,14 @@ var
 begin
   Result :=inherited ProcessMessage(SourceMessage);
 
+  // Keep the TrainServer Current
+  TrainServer.ProcessMessage(SourceMessage);
+
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
     if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
-  end;
-
-  case SourceMessage.MTI of
-     MTI_PRODUCER_IDENTIFIED_CLEAR,
-     MTI_PRODUCER_IDENTIFIED_SET,
-     MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-       begin
-         if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
-           TrainRoster.Add(SourceMessage);
-       end;
   end;
 
   // Only care if coming from our Assigned Train
@@ -2116,8 +2110,8 @@ procedure TLccTrainController.SearchTrainsByDccAddress(DccSearchCriteria: TObjec
 var
   i: Integer;
   DccCriteria: TLccDCCSearchCriteriaEvent;
-  TrackProtocolFlags: Word;
-  SearchData: DWORD;
+//  TrackProtocolFlags: Word;
+//  SearchData: DWORD;
   SearchTrainsAction: TLccActionSearchGatherAndSelectTrains;
 begin
   // We take over the ObjectList, do not free objects or the list.
@@ -2230,6 +2224,7 @@ end;
 procedure TLccTrainController.BeforeLogin;
 begin
   ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+  ProtocolSupportedProtocols.MemConfig := True;
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
   ProtocolSupportedProtocols.SimpleNodeInfo := True;
@@ -2381,7 +2376,7 @@ end;
 
 function TLccTrainController.GetConfigurationVariable(Index: Integer): Byte;
 begin
-
+  Result := 0;
 end;
 
 procedure TLccTrainController.SetConfigurationVariable(Index: Integer; AValue: Byte);

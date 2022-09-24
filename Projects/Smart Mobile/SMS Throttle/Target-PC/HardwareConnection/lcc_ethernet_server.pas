@@ -247,7 +247,7 @@ end;
 
 procedure TLccEthernetListener.SendMessage(AMessage: TLccMessage);
 begin
-  AMessage := AMessage;
+//  AMessage := AMessage;
 
 end;
 
@@ -312,7 +312,7 @@ end;
 
 function TLccEthernetServer.OpenConnection(AConnectionInfo: TLccHardwareConnectionInfo): TLccConnectionThread;
 begin
-  Result := inherited OpenConnection(AConnectionInfo);
+  inherited OpenConnection(AConnectionInfo);
   Result := CreateListenerObject(AConnectionInfo.Clone as TLccEthernetConnectionInfo);
   (Result as TLccEthernetListener).Suspended := False;
   ListenerThread := (Result as TLccEthernetListener);
