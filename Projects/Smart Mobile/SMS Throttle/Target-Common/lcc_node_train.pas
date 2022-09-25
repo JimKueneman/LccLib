@@ -43,7 +43,7 @@ uses
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
-  lcc_alias_mappings,
+  lcc_alias_server,
   lcc_utilities,
   lcc_defines,
   lcc_node_messages,

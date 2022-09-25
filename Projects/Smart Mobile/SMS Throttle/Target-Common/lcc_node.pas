@@ -58,7 +58,7 @@ uses
   lcc_protocol_supportedprotocols,
   lcc_protocol_datagram,
   lcc_protocol_base,
-  lcc_alias_mappings,
+  lcc_alias_server,
   lcc_train_server;
 
 const
@@ -419,7 +419,7 @@ type
   TLccNode = class(TObject)
   private
     FAliasID: Word;
-    FAliasMappingServer: TLccAliasMappingServer;
+    FAliasServer: TLccAliasServer;
     FDuplicateAliasDetected: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
@@ -508,7 +508,7 @@ type
     procedure Relogin;
 
   public
-    property AliasMappingServer: TLccAliasMappingServer read FAliasMappingServer;
+    property AliasServer: TLccAliasServer read FAliasServer;
     property TrainServer: TLccTrainServer read FTrainServer;
     property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
     property GridConnect: Boolean read FGridConnect;
@@ -966,7 +966,7 @@ end;
 function TLccAction.ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
 begin
   AliasMappingAlias := AnAliasToMap;
-  Result := Owner.AliasMappingServer.FindMapping(AliasMappingAlias);
+  Result := Owner.AliasServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) and SendAME then
   begin
     WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
@@ -978,7 +978,7 @@ end;
 function TLccAction.ValidateAliasMappingWait: TLccAliasMapping;
 begin
   // Only way to get here is if we were GridConnect
-  Result := Owner.AliasMappingServer.FindMapping(AliasMappingAlias);
+  Result := Owner.AliasServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) then
   begin
     if TimeoutExpired then
@@ -993,7 +993,7 @@ end;
 function TLccAction.ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
 begin
   AliasMappingNodeID := ANodeIDToMap;
-  Result := Owner.AliasMappingServer.FindMapping(AliasMappingNodeID);
+  Result := Owner.AliasServer.FindMapping(AliasMappingNodeID);
   if not Assigned(Result) and SendVerify then
   begin
     WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, AliasMappingNodeID);
@@ -1015,7 +1015,7 @@ begin
           TempNodeID := NULL_NODE_ID;
           if EqualNodeID(ASourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), AliasMappingNodeID, False) then
           begin
-            Result := Owner.AliasMappingServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
+            Result := Owner.AliasServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
           end;
         end;
     end;
@@ -1156,14 +1156,15 @@ end;
 
 function TLccNode.GetNodeIDStr: String;
 begin
- Result := IntToHex(NodeID[1], 6);
+  Result := NodeIDToString(NodeID, False);
+{ Result := IntToHex(NodeID[1], 6);
  Result := Result + IntToHex(NodeID[0], 6);
- Result := '0x' + Result
+ Result := '0x' + Result   }
 end;
 
 function TLccNode.GetAliasIDStr: String;
 begin
-  Result := '0x' + IntToHex(FAliasID, 4);
+  Result := NodeAliasToString(AliasID);
 end;
 
 function TLccNode.LoadManufacturerDataStream(ACdi: string): Boolean;
@@ -1253,7 +1254,7 @@ begin
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
-  FAliasMappingServer := TLccAliasMappingServer.Create;
+  FAliasServer := TLccAliasServer.Create;
   FTrainServer := TLccTrainServer.Create;
 
   _100msTimer := TLccTimer.Create(nil);
@@ -1366,6 +1367,8 @@ begin
 end;
 
 procedure TLccNode.LogInLCC(ANodeID: TNodeID);
+var
+  AMapping: TLccAliasMapping;
 begin
   BeforeLogin;
   if NullNodeID(ANodeID) then
@@ -1377,6 +1380,13 @@ begin
   AutoGenerateEvents;
   SendEvents;
   (NodeManager as INodeManagerCallbacks).DoLogInNode(Self);
+
+  if GridConnect then
+  begin
+    AMapping := AliasServer.AddMapping(AliasID, NodeID);
+    if Assigned(AMapping) then
+      (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
+  end;
 end;
 
 function TLccNode.ProcessMessageLCC(SourceMessage: TLccMessage): Boolean;
@@ -1404,6 +1414,22 @@ begin
   end;
 
   LccActions.ProcessMessage(SourceMessage);
+
+
+  // Train Roster Updates ******************************************************
+  case SourceMessage.MTI of
+    MTI_PRODUCER_IDENTIFIED_CLEAR,
+    MTI_PRODUCER_IDENTIFIED_SET,
+    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+      begin
+        if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
+        begin
+          // Interesting.... need both?
+     //     TrainServer.AddTrainObject();
+        end;
+      end;
+  end;
+  // END: Train Roster Updates *************************************************
 
 
   // Next look to see if it is an addressed message and if not for use just exit
@@ -1833,7 +1859,7 @@ begin
   case SourceMessage.CAN.MTI of
     MTI_CAN_AMR :
       begin   // Alias going away clear it from the cache
-        AMapping := AliasMappingServer.RemoveMapping(SourceMessage.CAN.SourceAlias, False);
+        AMapping := AliasServer.RemoveMapping(SourceMessage.CAN.SourceAlias, False);
         try
           (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
         finally
@@ -1845,7 +1871,7 @@ begin
       begin  // Alias coming on line save a copy of this mapping for future use
         TestNodeID := NULL_NODE_ID;
         SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-        AMapping := AliasMappingServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
+        AMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
         if Assigned(AMapping) then
           (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
       end;
@@ -1853,28 +1879,16 @@ begin
   // Do this after the updates to the Alias Maps so we don't call unnecessarily
   if Permitted then
   begin
-    if not Assigned(AliasMappingServer.FindMapping(SourceMessage.CAN.SourceAlias)) then
+    if not Assigned(AliasServer.FindMapping(SourceMessage.CAN.SourceAlias)) and (SourceMessage.CAN.MTI <> MTI_CAN_AMR) then
     begin
       // Sucks to have to make this a global call but once done everyone will be updated.
       // QUESTION.... do we queue this message until we have a valid alias mapping?
       //              that way we don't have to block anything waiting for this mapping to
       //              occur in any down stream code.... seems like the best way to do this that
       //              is clean and worry free for future protocols
-      WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
-      SendMessageFunc(Self, WorkerMessage);
+   //   WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+  //    SendMessageFunc(Self, WorkerMessage);
     end;
-    // Train Roster Updates ******************************************************
-    case SourceMessage.MTI of
-      MTI_PRODUCER_IDENTIFIED_CLEAR,
-      MTI_PRODUCER_IDENTIFIED_SET,
-      MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-        begin
-          if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
-          begin
-          end;
-        end;
-    end;
-    // END: Train Roster Updates *************************************************
   end;
   // END: Alias Mapping Updates ************************************************
 
@@ -2027,7 +2041,7 @@ begin
   FStreamTractionConfig.Free;
   FStreamTractionFdi.Free;
   FLccActions.Free;
-  FAliasMappingServer.Free;
+  FAliasServer.Free;
   FTrainServer.Free;
   inherited;
 end;
@@ -2093,6 +2107,8 @@ begin
 end;
 
 procedure TLccNode.Logout;
+var
+  AMapping: TLccAliasMapping;
 begin
   (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
   if GridConnect then
@@ -2106,7 +2122,16 @@ begin
   FInitialized := False;
   _100msTimer.Enabled := False;
   DatagramResendQueue.Clear;
-  AliasMappingServer.FlushInProcessMessages;
+  if GridConnect then
+  begin
+    AliasServer.FlushInProcessMessages;
+    AMapping := AliasServer.RemoveMapping(AliasID, False);
+    try
+      (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
+    finally
+      AMapping.Free;
+    end;
+  end;
 end;
 
 procedure TLccNode.On_100msTimer(Sender: TObject);

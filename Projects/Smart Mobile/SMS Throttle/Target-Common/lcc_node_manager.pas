@@ -44,7 +44,7 @@ uses
   lcc_utilities,
   lcc_node_messages,
   lcc_train_server,
-  lcc_alias_mappings;
+  lcc_alias_server;
 
 
 const

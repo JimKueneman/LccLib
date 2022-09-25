@@ -10,7 +10,8 @@ uses
   lcc_node_manager, lcc_ethernet_client, lcc_node_messages,
   lcc_node_commandstation, lcc_node_controller, lcc_node_train,
   lcc_comport, synaser, lcc_common_classes, lcc_ethernet_common,
-  lcc_ethernet_websocket, lcc_ethernet_http;
+  lcc_ethernet_websocket, lcc_ethernet_http, servervisualunit,
+  lcc_alias_server, lcc_train_server;
 
 type
 
@@ -48,6 +49,7 @@ type
     SplitterConnections: TSplitter;
     StatusBarMain: TStatusBar;
     TimerIncomingMessagePump: TTimer;
+    ToggleBoxServerForm: TToggleBox;
     TreeViewTrains: TTreeView;
     procedure ButtonActionObjectCountClick(Sender: TObject);
     procedure ButtonHTTPServerClick(Sender: TObject);
@@ -62,6 +64,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerIncomingMessagePumpTimer(Sender: TObject);
+    procedure ToggleBoxServerFormChange(Sender: TObject);
   private
     FComPort: TLccComPort;
     FLccHTTPServer: TLccHTTPServer;
@@ -110,6 +113,11 @@ type
     procedure OnLccNodeTractionListenerAttach(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
     procedure OnLccNodeTractionListenerDetach(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte);
     procedure OnLccNodeTractionListenerQuery(Sender: TObject; LccSourceNode: TLccNode; Index: Integer);
+
+    // Other
+    procedure OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+    procedure OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+    procedure OnTrainInformationChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
 
     function TrainNodeToCaption(ATrainNode: TLccTrainDccNode): string;
     function FindSingleLevelNodeWithData(ParentNode: TTreeNode; const NodeData: Pointer): TTreeNode;
@@ -320,6 +328,9 @@ begin
   NodeManager.OnLccNodeTractionListenerAttach := @OnLccNodeTractionListenerAttach;
   NodeManager.OnLccNodeTractionListenerDetach := @OnLccNodeTractionListenerDetach;
   NodeManager.OnLccNodeTractionListenerQuery := @OnLccNodeTractionListenerQuery;
+  NodeManager.OnAliasMappingChange := @OnAliasMappingChange;
+  NodeManager.OnTrainRegisteringChange := @OnTrainRegisteringChange;
+  NodeManager.OnTrainInformationChange := @OnTrainInformationChange;
 
   FLccServer := TLccEthernetServer.Create(nil, NodeManager);
   LccServer.OnConnectionStateChange := @OnCommandStationServerConnectionState;
@@ -608,6 +619,25 @@ begin
 
 end;
 
+procedure TFormTrainCommander.OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+begin
+  if IsMapped then
+    FormServerInfo.AddAliasMapp(AnAliasMapping)
+  else
+    FormServerInfo.RemoveAliasMap(AnAliasMapping);
+end;
+
+procedure TFormTrainCommander.OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+begin
+
+end;
+
+procedure TFormTrainCommander.OnTrainInformationChange(Sender: TObject;
+  LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+
+end;
+
 function TFormTrainCommander.TrainNodeToCaption(ATrainNode: TLccTrainDccNode): string;
 var
   SpeedStep: string;
@@ -839,6 +869,14 @@ begin
     LccWebsocketServer.IncomingGridConnect.UnlockList;
     FreeAndNil(LocalMsg);
   end;
+end;
+
+procedure TFormTrainCommander.ToggleBoxServerFormChange(Sender: TObject);
+begin
+  if ToggleBoxServerForm.Checked then
+    FormServerInfo.Show
+  else
+    FormServerInfo.Hide
 end;
 
 end.

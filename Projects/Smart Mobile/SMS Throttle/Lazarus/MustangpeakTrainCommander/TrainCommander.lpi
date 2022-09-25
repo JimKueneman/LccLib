@@ -136,7 +136,7 @@ if TargetOS = &apos;linux&apos; then
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="TrainCommander.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -166,6 +166,12 @@ if TargetOS = &apos;linux&apos; then
         <Filename Value="..\..\Target-PC\HardwareConnection\lcc_ethernet_http.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="servervisualunit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormServerInfo"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

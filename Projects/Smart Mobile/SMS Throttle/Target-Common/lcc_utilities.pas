@@ -53,6 +53,7 @@ uses
   procedure StringToNullArray(AString: String; var ANullArray: TLccDynamicByteArray; var iIndex: Integer);
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
+  function NodeAliasToString(AliasID: Word): String;
   {$IFNDEF DWSCRIPT}
   procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
   function StrToNodeID(NodeID: string): TNodeID;
@@ -450,17 +451,27 @@ begin
     end;
   end else
   begin
-    for i := MAX_NODEID_LEN - 1 downto 0 do
+    Result := IntToHex(NodeID[1], 6);
+    Result := Result + IntToHex(NodeID[0], 6);
+    Result := '0x' + Result
+
+   { for i := MAX_NODEID_LEN - 1 downto 0 do
     begin
       if i < MAX_NODEID_LEN div 2 then
         Result := Result + IntToHex(((NodeID[0] shr (i*8)) and $0000FF), 2)
       else
         Result := Result + IntToHex(((NodeID[1] shr ((i-3)*8)) and $0000FF), 2)
-    end
+    end  }
   end;
 end;
 
 {$IFNDEF DWSCRIPT}
+
+function NodeAliasToString(AliasID: Word): String;
+begin
+  Result := '0x' + IntToHex(AliasID, 4);
+end;
+
 procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
 var
   TempStr: String;
