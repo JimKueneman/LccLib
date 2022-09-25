@@ -1,4 +1,4 @@
-unit lcc_alias_mappings;
+unit lcc_alias_server;
 
 interface
 
@@ -60,9 +60,9 @@ type
     property NodeAlias: Word read FNodeAlias write FNodeAlias;
   end;
 
-  { TLccAliasMappingServer }
+  { TLccAliasServer }
 
-  TLccAliasMappingServer = class(TObject)
+  TLccAliasServer = class(TObject)
 
   private
     {$IFDEF DELPHI}
@@ -98,9 +98,9 @@ type
 
 implementation
 
-{ TLccAliasMappingServer }
+{ TLccAliasServer }
 
-constructor TLccAliasMappingServer.Create;
+constructor TLccAliasServer.Create;
 begin
   inherited Create;
   {$IFDEF DELPHI}
@@ -113,7 +113,7 @@ begin
   WorkerMessage := TLccMessage.Create;
 end;
 
-destructor TLccAliasMappingServer.Destroy;
+destructor TLccAliasServer.Destroy;
 begin
   FreeAndNil(FMappingList);
   FreeAndNil(FWorkerMessage);
@@ -121,7 +121,7 @@ begin
   inherited Destroy;
 end;
 
-function TLccAliasMappingServer.FindMapping(AnAliasID: Word): TLccAliasMapping;
+function TLccAliasServer.FindMapping(AnAliasID: Word): TLccAliasMapping;
 var
   i: Integer;
   TestMapping: TLccAliasMapping;
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-function TLccAliasMappingServer.FindMapping(ANodeID: TNodeID): TLccAliasMapping;
+function TLccAliasServer.FindMapping(ANodeID: TNodeID): TLccAliasMapping;
 var
   i: Integer;
   TestMapping: TLccAliasMapping;
@@ -155,12 +155,12 @@ begin
   end;
 end;
 
-procedure TLccAliasMappingServer.FlushInProcessMessages;
+procedure TLccAliasServer.FlushInProcessMessages;
 begin
   InProcessMessageList.Clear;
 end;
 
-function TLccAliasMappingServer.AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
+function TLccAliasServer.AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
 begin
   Result := FindMapping(AnAlias);
   if not Assigned(Result) then
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-function TLccAliasMappingServer.RemoveMapping(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
+function TLccAliasServer.RemoveMapping(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
 var
   TestMapping: TLccAliasMapping;
   WasOwnsObject: Boolean;

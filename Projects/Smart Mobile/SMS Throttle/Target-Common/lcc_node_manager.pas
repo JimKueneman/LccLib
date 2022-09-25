@@ -42,7 +42,9 @@ uses
   lcc_node_controller,
   lcc_defines,
   lcc_utilities,
-  lcc_node_messages;
+  lcc_node_messages,
+  lcc_train_server,
+  lcc_alias_mappings;
 
 
 const
@@ -114,6 +116,8 @@ type
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer);
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
     procedure DoVerifiedNodeID(LccNode: TLccNode);
+    procedure DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+    procedure DoTrainRegisteringChange(LccNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
   end;
 
 type
@@ -129,12 +133,16 @@ type
   TOnLccNodeListenerAttach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerDetach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerQuery = procedure(Sender: TObject; LccSourceNode: TLccNode; Index: Integer) of object;
+  TOnAliasMappingChange = procedure(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean) of object;
+  TOnTrainRegisteringChange = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean) of object;
+  TOnTrainInformationChange = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
 
   { TLccNodeManager }
 
   TLccNodeManager = class(TComponent, INodeManagerCallbacks, INodeManager)
   private
     FGridConnect: Boolean;
+    FOnAliasMappingChange: TOnAliasMappingChange;
     FOnLccNodeAliasIDChanged: TOnLccNodeMessage;
     FOnLccMessageReceive: TOnMessageEvent;
     FOnLccNodeConfigMemAddressSpaceInfoReply: TOnLccNodeConfigMemAddressSpace;
@@ -173,7 +181,8 @@ type
     FOnLccNodeTractionSpeedSet: TOnLccNodeMessageWithReply;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnLccMessageSend: TOnMessageEvent;
-
+    FOnTrainInformationChange: TOnTrainInformationChange;
+    FOnTrainRegisteringChange: TOnTrainRegisteringChange;
     {$IFDEF DELPHI}
     FNodes: TObjectList<TLccNode>;
     {$ELSE}
@@ -222,6 +231,9 @@ type
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer); virtual;
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoVerifiedNodeID(LccNode: TLccNode); virtual;
+    procedure DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean); virtual;
+    procedure DoTrainRegisteringChange(LccNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean); virtual;
+    procedure DoTrainInformationChange(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
 
     procedure DoLccMessageSend(Sender: TObject; Message: TLccMessage); virtual;
     procedure DoLccMessageReceive(Message: TLccMessage); virtual;
@@ -316,7 +328,6 @@ type
     property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
     property OnLccNodeFunctionConfiguration: TOnLccNodeMessageWithDest read FOnLccNodeFunctionConfiguration write FOnLccNodeFunctionConfiguration;
 
-
     // Other stuff that may not be useful
     property OnLccNodeOptionalInteractionRejected: TOnLccNodeMessageWithDest read FOnLccNodeOptionalInteractionRejected write FOnLccNodeOptionalInteractionRejected;
     property OnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest read FOnLccNodeRemoteButtonReply write FOnLccNodeRemoteButtonReply;
@@ -324,6 +335,11 @@ type
     // Message Management
     property OnLccMessageReceive: TOnMessageEvent read FOnLccMessageReceive write FOnLccMessageReceive;
     property OnLccMessageSend: TOnMessageEvent read FOnLccMessageSend write FOnLccMessageSend;
+
+    // Other interesting stuff
+    property OnAliasMappingChange: TOnAliasMappingChange read FOnAliasMappingChange write FOnAliasMappingChange;
+    property OnTrainRegisteringChange: TOnTrainRegisteringChange read FOnTrainRegisteringChange write FOnTrainRegisteringChange;
+    property OnTrainInformationChange: TOnTrainInformationChange read FOnTrainInformationChange write FOnTrainInformationChange;
   end;
 
 
@@ -572,6 +588,24 @@ procedure TLccNodeManager.DoVerifiedNodeID(LccNode: TLccNode);
 begin
   if Assigned(OnLccNodeVerifiedNodeID) then
     OnLccNodeVerifiedNodeID(Self, LccNode);
+end;
+
+procedure TLccNodeManager.DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+begin
+  if Assigned(OnAliasMappingChange) then
+    OnAliasMappingChange(Self, LccNode, AnAliasMapping, IsMapped);
+end;
+
+procedure TLccNodeManager.DoTrainRegisteringChange(LccNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+begin
+  if Assigned(OnTrainRegisteringChange) then
+    OnTrainRegisteringChange(Self, LccNode, TrainObject, IsRegistered);
+end;
+
+procedure TLccNodeManager.DoTrainInformationChange(LccNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+  if Assigned(OnTrainInformationChange) then
+    OnTrainInformationChange(Self, LccNode, TrainObject);
 end;
 
 function TLccNodeManager.ExtractNode(Index: Integer): TLccNode;

@@ -1463,10 +1463,10 @@ begin
     AliasMapping := ValidateAliasMappingWait;
     if Assigned(AliasMapping) then
     begin
-      LocalTrain := Trains.MatchingAlias(AliasMapping.AnAlias);
+      LocalTrain := Trains.MatchingAlias(AliasMapping.NodeAlias);
       if Assigned(LocalTrain) then
       begin
-        LocalTrain.NodeID := AliasMapping.AnID;
+        LocalTrain.NodeID := AliasMapping.NodeID;
         AdvanceToNextState  // Timeout is NOT an error here, it is normal
       end else
       begin
@@ -1986,9 +1986,6 @@ var
 begin
   Result :=inherited ProcessMessage(SourceMessage);
 
-  // Keep the TrainServer Current
-  TrainServer.ProcessMessage(SourceMessage);
-
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then
   begin
@@ -2223,7 +2220,7 @@ end;
 
 procedure TLccTrainController.BeforeLogin;
 begin
-  ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
+ { ProtocolSupportedProtocols.ConfigurationDefinitionInfo := True;
   ProtocolSupportedProtocols.MemConfig := True;
   ProtocolSupportedProtocols.Datagram := True;
   ProtocolSupportedProtocols.EventExchange := True;
@@ -2251,7 +2248,7 @@ begin
   ProtocolMemoryOptions.WriteArbitraryBytes := True;
   ProtocolMemoryOptions.WriteStream := False;
   ProtocolMemoryOptions.HighSpace := MSI_CDI;
-  ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+  ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;       }
 end;
 
 procedure TLccTrainController.DoTrainAssigned(Reason: TControllerTrainAssignResult);

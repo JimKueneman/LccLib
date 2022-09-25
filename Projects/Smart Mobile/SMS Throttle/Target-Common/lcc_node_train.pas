@@ -645,7 +645,7 @@ begin
     AliasMapping := ValidateAliasMapping(SourceMessage.CAN.SourceAlias, True);
     if Assigned(AliasMapping) then
     begin
-      ReservedByNodeAliasID := AliasMapping.AnAlias;
+      ReservedByNodeAliasID := AliasMapping.NodeAlias;
       AdvanceToNextState(2)
     end else
       AdvanceToNextState; // Wait for AMD messages to come in to get the mapping
@@ -668,8 +668,8 @@ begin
   AliasMapping := ValidateAliasMappingWait;
   if Assigned(AliasMapping) then
   begin
-    ReservedByNodeAliasID := AliasMapping.AnAlias;
-    ReservedByNodeID := AliasMapping.AnID;
+    ReservedByNodeAliasID := AliasMapping.NodeAlias;
+    ReservedByNodeID := AliasMapping.NodeID;
     AdvanceToNextState;
   end;
 end;
@@ -1160,7 +1160,7 @@ begin
                         AliasMapping := ValidateNodeIDMapping(RequestingControllerNodeID, True);
                         if Assigned(AliasMapping) then
                         begin
-                          FRequestingControllerAliasID := AliasMapping.AnAlias;
+                          FRequestingControllerAliasID := AliasMapping.NodeAlias;
                           AdvanceToNextState(2)
                         end
                         else
@@ -1188,7 +1188,7 @@ begin
     AliasMapping := ValidateNodeIDMappingWait(SourceMessage);
     if Assigned(AliasMapping) then
     begin
-      RequestingControllerAliasID := AliasMapping.AnAlias;
+      RequestingControllerAliasID := AliasMapping.NodeAlias;
       AdvanceToNextState;
     end
   end;

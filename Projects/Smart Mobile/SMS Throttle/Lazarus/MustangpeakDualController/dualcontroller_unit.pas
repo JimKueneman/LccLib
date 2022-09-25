@@ -29,6 +29,15 @@ type
     ButtonReleaseConsist2: TButton;
     ButtonConnect1: TButton;
     ButtonConnect2: TButton;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
+    CheckBox4: TCheckBox;
+    CheckBox5: TCheckBox;
+    CheckBox6: TCheckBox;
+    CheckBox7: TCheckBox;
+    CheckBox8: TCheckBox;
+    CheckBox9: TCheckBox;
     CheckBoxConsistReverseDir2: TCheckBox;
     CheckBoxConsistAddress2: TCheckBox;
     CheckBoxForwardF0_1: TCheckBox;
@@ -58,6 +67,9 @@ type
     Label12: TLabel;
     Label13: TLabel;
     Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label8: TLabel;
     LabelConsistExpander1: TLabel;
     Label17: TLabel;
     Label18: TLabel;
@@ -83,6 +95,9 @@ type
     PageControlConsists2: TPageControl;
     PageControlThrottle2: TPageControl;
     PageControlThrottle1: TPageControl;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
     PanelConsitEditor1: TPanel;
     PanelConsistEditHeader1: TPanel;
     PanelThrottle1ServiceMode: TPanel;
@@ -103,6 +118,7 @@ type
     RadioGroupConstistSpeedStep2: TRadioGroup;
     RadioGroupThrottleSpeedSteps1: TRadioGroup;
     RadioGroupThrottleSpeedSteps2: TRadioGroup;
+    ScrollBox1: TScrollBox;
     SpeedButtonConsistSubtract2: TSpeedButton;
     SpeedButtonConstistTrainAdd2: TSpeedButton;
     SpeedButtonForward1: TSpeedButton;
@@ -158,6 +174,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure LabelConsistExpander1Click(Sender: TObject);
+    procedure ScrollBox1Click(Sender: TObject);
     procedure SpeedButtonConsistSubtract1Click(Sender: TObject);
     procedure SpeedButtonConsistSubtract2Click(Sender: TObject);
     procedure SpeedButtonConsistTrainAdd1Click(Sender: TObject);
@@ -425,6 +442,11 @@ begin
     PanelConsitEditor1.Height := PanelConsistEditHeader1.Height;
     LabelConsistExpander1.Caption := 'v';
   end;
+end;
+
+procedure TForm1.ScrollBox1Click(Sender: TObject);
+begin
+
 end;
 
 procedure TForm1.SpeedButtonForward1Click(Sender: TObject);

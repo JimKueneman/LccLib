@@ -58,7 +58,8 @@ uses
   lcc_protocol_supportedprotocols,
   lcc_protocol_datagram,
   lcc_protocol_base,
-  lcc_alias_mappings;
+  lcc_alias_mappings,
+  lcc_train_server;
 
 const
   ERROR_CONFIGMEM_ADDRESS_SPACE_MISMATCH = $0001;
@@ -418,12 +419,14 @@ type
   TLccNode = class(TObject)
   private
     FAliasID: Word;
+    FAliasMappingServer: TLccAliasMappingServer;
     FDuplicateAliasDetected: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
     FLoginTimoutCounter: Integer;
     FPermitted: Boolean;
     FSeedNodeID: TNodeID;
+    FTrainServer: TLccTrainServer;
     FWorkerMessageDatagram: TLccMessage;
     FInitialized: Boolean;
     FNodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF};
@@ -505,6 +508,8 @@ type
     procedure Relogin;
 
   public
+    property AliasMappingServer: TLccAliasMappingServer read FAliasMappingServer;
+    property TrainServer: TLccTrainServer read FTrainServer;
     property DatagramResendQueue: TDatagramQueue read FDatagramResendQueue;
     property GridConnect: Boolean read FGridConnect;
     property NodeID: TNodeID read FNodeID;
@@ -961,7 +966,7 @@ end;
 function TLccAction.ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
 begin
   AliasMappingAlias := AnAliasToMap;
-  Result := AliasMappingServer.FindMapping(AliasMappingAlias);
+  Result := Owner.AliasMappingServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) and SendAME then
   begin
     WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
@@ -973,7 +978,7 @@ end;
 function TLccAction.ValidateAliasMappingWait: TLccAliasMapping;
 begin
   // Only way to get here is if we were GridConnect
-  Result := AliasMappingServer.FindMapping(AliasMappingAlias);
+  Result := Owner.AliasMappingServer.FindMapping(AliasMappingAlias);
   if not Assigned(Result) then
   begin
     if TimeoutExpired then
@@ -988,7 +993,7 @@ end;
 function TLccAction.ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
 begin
   AliasMappingNodeID := ANodeIDToMap;
-  Result := AliasMappingServer.FindMapping(AliasMappingNodeID);
+  Result := Owner.AliasMappingServer.FindMapping(AliasMappingNodeID);
   if not Assigned(Result) and SendVerify then
   begin
     WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, AliasMappingNodeID);
@@ -1010,7 +1015,7 @@ begin
           TempNodeID := NULL_NODE_ID;
           if EqualNodeID(ASourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), AliasMappingNodeID, False) then
           begin
-            Result := AliasMappingServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
+            Result := Owner.AliasMappingServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
           end;
         end;
     end;
@@ -1248,6 +1253,8 @@ begin
   FSendMessageFunc := ASendMessageFunc;
   FNodeManager := ANodeManager;
   FGridConnect := GridConnectLink;
+  FAliasMappingServer := TLccAliasMappingServer.Create;
+  FTrainServer := TLccTrainServer.Create;
 
   _100msTimer := TLccTimer.Create(nil);
   _100msTimer.Enabled := False;
@@ -1817,9 +1824,61 @@ end;
 function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean;
 var
   TestNodeID: TNodeID;
+  AMapping: TLccAliasMapping;
 begin
   Result := False;
 
+  // Alias Mapping Updates ******************************************************
+  // Keep the Alias Maps up to date regardless of our state
+  case SourceMessage.CAN.MTI of
+    MTI_CAN_AMR :
+      begin   // Alias going away clear it from the cache
+        AMapping := AliasMappingServer.RemoveMapping(SourceMessage.CAN.SourceAlias, False);
+        try
+          (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
+        finally
+          AMapping.Free;
+        end;
+        // TrainServ
+      end;
+    MTI_CAN_AMD :
+      begin  // Alias coming on line save a copy of this mapping for future use
+        TestNodeID := NULL_NODE_ID;
+        SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
+        AMapping := AliasMappingServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
+        if Assigned(AMapping) then
+          (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
+      end;
+  end;
+  // Do this after the updates to the Alias Maps so we don't call unnecessarily
+  if Permitted then
+  begin
+    if not Assigned(AliasMappingServer.FindMapping(SourceMessage.CAN.SourceAlias)) then
+    begin
+      // Sucks to have to make this a global call but once done everyone will be updated.
+      // QUESTION.... do we queue this message until we have a valid alias mapping?
+      //              that way we don't have to block anything waiting for this mapping to
+      //              occur in any down stream code.... seems like the best way to do this that
+      //              is clean and worry free for future protocols
+      WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+      SendMessageFunc(Self, WorkerMessage);
+    end;
+    // Train Roster Updates ******************************************************
+    case SourceMessage.MTI of
+      MTI_PRODUCER_IDENTIFIED_CLEAR,
+      MTI_PRODUCER_IDENTIFIED_SET,
+      MTI_PRODUCER_IDENTIFIED_UNKNOWN :
+        begin
+          if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
+          begin
+          end;
+        end;
+    end;
+    // END: Train Roster Updates *************************************************
+  end;
+  // END: Alias Mapping Updates ************************************************
+
+  // Alias Allocation, duplicate checking after allocation**********************
   // Check for a message with the Alias equal to our own.
   if (AliasID <> 0) and (SourceMessage.CAN.SourceAlias = AliasID) then
   begin
@@ -1838,10 +1897,11 @@ begin
       Result := True;   // Logout covers any LccNode logoffs, so don't call ancester Process Message
     end
   end;
+  // END: Alias Allocation, duplicate checking after allocation******************
 
   if not Permitted then
   begin
-    // We are still trying to allocate a new Alias, someone else is using this alias to try atain
+    // We are still trying to allocate a new Alias, someone else is using this alias
     if SourceMessage.CAN.SourceAlias = AliasID then
       DuplicateAliasDetected := True;
   end else
@@ -1869,15 +1929,6 @@ begin
               SendMessageFunc(Self, WorkerMessage);
             end;
             Result := True;
-          end;
-        MTI_CAN_AMR :
-          begin   // Alias going away clear it from the cache
-            AliasMappingServer.RemoveMapping(SourceMessage.CAN.SourceAlias);
-          end;
-        MTI_CAN_AMD :
-          begin  // Alias coming on line save a copy of this mapping for future use
-            SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-            AliasMappingServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
           end;
       end
     end;
@@ -1976,6 +2027,8 @@ begin
   FStreamTractionConfig.Free;
   FStreamTractionFdi.Free;
   FLccActions.Free;
+  FAliasMappingServer.Free;
+  FTrainServer.Free;
   inherited;
 end;
 
@@ -2053,6 +2106,7 @@ begin
   FInitialized := False;
   _100msTimer.Enabled := False;
   DatagramResendQueue.Clear;
+  AliasMappingServer.FlushInProcessMessages;
 end;
 
 procedure TLccNode.On_100msTimer(Sender: TObject);
