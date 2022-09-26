@@ -103,7 +103,7 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="6"/>
         <TopLine Value="1813"/>
-        <CursorPos X="12" Y="1822"/>
+        <CursorPos X="42" Y="1830"/>
         <UsageCount Value="106"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -120,21 +120,21 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="114"/>
         <CursorPos X="73" Y="55"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="69"/>
       </Unit13>
       <Unit14>
         <Filename Value="../../Target-Common/lcc_protocol_memory_configuration.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="19"/>
         <CursorPos X="20" Y="84"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="69"/>
       </Unit14>
       <Unit15>
         <Filename Value="../../Target-Common/lcc_protocol_base.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="137"/>
         <CursorPos X="68" Y="166"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="69"/>
       </Unit15>
       <Unit16>
         <Filename Value="/Applications/Lazarus/lcl/graphics.pp"/>
@@ -142,14 +142,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="54"/>
         <CursorPos X="23" Y="69"/>
-        <UsageCount Value="34"/>
+        <UsageCount Value="33"/>
       </Unit16>
       <Unit17>
         <Filename Value="../../Target-PC/Synapse_LCC/synacode.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="56"/>
         <CursorPos Y="84"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="81"/>
       </Unit17>
       <Unit18>
         <Filename Value="../../Target-PC/HardwareConnection/lcc_ethernet_client.pas"/>

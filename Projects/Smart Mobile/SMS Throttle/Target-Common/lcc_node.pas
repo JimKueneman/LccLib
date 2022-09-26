@@ -1851,6 +1851,7 @@ function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean
 var
   TestNodeID: TNodeID;
   AMapping: TLccAliasMapping;
+  DelayedMessage: TLccMessage;
 begin
   Result := False;
 
@@ -1863,9 +1864,9 @@ begin
         try
           (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
         finally
+          AliasServer.FlushDelayedMessagesByAlias(AMapping.NodeAlias);
           AMapping.Free;
         end;
-        // TrainServ
       end;
     MTI_CAN_AMD :
       begin  // Alias coming on line save a copy of this mapping for future use
@@ -1874,21 +1875,17 @@ begin
         AMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
         if Assigned(AMapping) then
           (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
+
+        // Below if we encounted a message with a SourceAlias we did not have a mapping
+        // we delayed the message and sent and AMR so this is the reply (or not)
+        DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
+        while Assigned(DelayedMessage) do
+        begin
+          ProcessMessageLCC(DelayedMessage);
+          DelayedMessage.Free;
+          DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
+        end
       end;
-  end;
-  // Do this after the updates to the Alias Maps so we don't call unnecessarily
-  if Permitted then
-  begin
-    if not Assigned(AliasServer.FindMapping(SourceMessage.CAN.SourceAlias)) and (SourceMessage.CAN.MTI <> MTI_CAN_AMR) then
-    begin
-      // Sucks to have to make this a global call but once done everyone will be updated.
-      // QUESTION.... do we queue this message until we have a valid alias mapping?
-      //              that way we don't have to block anything waiting for this mapping to
-      //              occur in any down stream code.... seems like the best way to do this that
-      //              is clean and worry free for future protocols
-   //   WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
-  //    SendMessageFunc(Self, WorkerMessage);
-    end;
   end;
   // END: Alias Mapping Updates ************************************************
 
@@ -1921,6 +1918,23 @@ begin
   end else
   begin
     // Normal message loop once successfully allocating an Alias
+
+    // Do this after the updates to the Alias Maps so we don't call unnecessarily
+    if not SourceMessage.IsCAN then // Don't interfer with CAN log in messages...
+      if not Assigned(AliasServer.FindMapping(SourceMessage.CAN.SourceAlias)) then
+      begin
+        // Sucks to have to make this a global call but once done everyone will be updated.
+        // Optimization, don't send more AMEs if we have an Delayed Message for this Alias,
+        // already has been done.
+        if not AliasServer.HasDelayedMessageByAlias(SourceMessage.CAN.SourceAlias) then
+        begin
+          WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+          SendMessageFunc(Self, WorkerMessage);
+        end;
+        AliasServer.AddDelayedMessage(SourceMessage);
+        Result := True;    // Wait for the mapping to be valid before processing in the 100ms timer
+      end;
+
 
     TestNodeID[0] := 0;
     TestNodeID[1] := 0;
@@ -2124,7 +2138,7 @@ begin
   DatagramResendQueue.Clear;
   if GridConnect then
   begin
-    AliasServer.FlushInProcessMessages;
+    AliasServer.FlushDelayedMessages;
     AMapping := AliasServer.RemoveMapping(AliasID, False);
     try
       (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
@@ -2173,8 +2187,7 @@ begin
           LogInLCC(NodeID);
         end;
       end
-    end;
-    if Permitted then
+    end else
     begin
       DatagramResendQueue.TickTimeout;
       LccActions.TimeTick;
