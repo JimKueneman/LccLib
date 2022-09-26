@@ -79,7 +79,7 @@ type
     function FindTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
 
     {$IFDEF DELPHI}
-    property TrainList: TObjectList<TLccTrainServerObject> read FTrainList write FTrainList;
+    property TrainList: TObjectList<TLccTrainObject> read FTrainList write FTrainList;
     {$ELSE}
     property TrainList: TObjectList read FTrainList write FTrainList;
     {$ENDIF}

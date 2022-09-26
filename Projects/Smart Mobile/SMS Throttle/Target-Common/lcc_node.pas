@@ -1864,6 +1864,8 @@ var
 begin
   Result := False;
 
+ // I shoiuld be able to get rid of the AME stuff in the Actions now.  Mapping is guarenteed.
+
   // Alias Mapping Updates ******************************************************
   // Keep the Alias Maps up to date regardless of our state
 
