@@ -125,7 +125,7 @@ public
   procedure LoadAME(ASourceID: TNodeID; ASourceAlias: Word; TargetNodeID: TNodeID);
   // Basic
   procedure LoadInitializationComplete(ASourceID: TNodeID; ASourceAlias: Word);
-  procedure LoadVerifyNodeIDAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+  procedure LoadVerifyNodeIDAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; OptionalTargetNodeID: TNodeID);
   procedure LoadVerifyNodeID(ASourceID: TNodeID; ASourceAlias: Word; OptionalTargetNodeID: TNodeID);
   procedure LoadVerifiedNodeID(ASourceID: TNodeID; ASourceAlias: Word);
   // Protocol Support (PIP)
@@ -1424,13 +1424,20 @@ begin
   end;
 end;
 
-procedure TLccMessage.LoadVerifyNodeIDAddressed(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+procedure TLccMessage.LoadVerifyNodeIDAddressed(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word;
+  OptionalTargetNodeID: TNodeID);
 begin
   ZeroFields;
   SourceID := ASourceID;
   DestID := ADestID;
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
+  if not NullNodeID(OptionalTargetNodeID) then
+  begin
+    DataCount := 6;
+    InsertNodeID(0, OptionalTargetNodeID);
+  end;
   MTI := MTI_VERIFY_NODE_ID_NUMBER_DEST;
 end;
 

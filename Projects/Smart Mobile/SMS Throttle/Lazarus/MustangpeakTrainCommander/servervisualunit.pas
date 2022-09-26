@@ -23,8 +23,11 @@ type
   private
 
   public
-    procedure AddAliasMapp(AMap: TLccAliasMapping);
+    procedure AddAliasMap(AMap: TLccAliasMapping);
     procedure RemoveAliasMap(AMap: TLccAliasMapping);
+
+    procedure AddTrainObject(ATrain: TLccTrainObject);
+    procedure RemoveTrainObject(ATrain: TLccTrainObject);
   end;
 
 var
@@ -36,7 +39,7 @@ implementation
 
 { TFormServerInfo }
 
-procedure TFormServerInfo.AddAliasMapp(AMap: TLccAliasMapping);
+procedure TFormServerInfo.AddAliasMap(AMap: TLccAliasMapping);
 var
   TreeNode: TTreeNode;
   CaptionStr: String;
@@ -70,6 +73,43 @@ begin
   finally
     TreeViewAliasMaps.Items.EndUpdate;
   end;
+end;
+
+procedure TFormServerInfo.AddTrainObject(ATrain: TLccTrainObject);
+var
+  TreeNode: TTreeNode;
+  CaptionStr: String;
+begin
+  TreeViewTrains.Items.BeginUpdate;
+  try
+    CaptionStr := NodeIDToString(ATrain.NodeID, False) + '; ' + NodeAliasToString(ATrain.NodeAlias);
+
+    TreeNode := TreeViewTrains.Items.FindNodeWithText( CaptionStr);
+    if not Assigned(TreeNode) then
+    begin
+      TreeNode := TreeViewTrains.Items.Add(nil, CaptionStr);
+     end;
+  finally
+    TreeViewTrains.Items.EndUpdate;
+  end;
+end;
+
+procedure TFormServerInfo.RemoveTrainObject(ATrain: TLccTrainObject);
+var
+  TreeNode: TTreeNode;
+  CaptionStr: String;
+begin
+  TreeViewTrains.Items.BeginUpdate;
+  try
+    CaptionStr := NodeIDToString(ATrain.NodeID, False) + '; ' + NodeAliasToString(ATrain.NodeAlias);
+
+    TreeNode := TreeViewTrains.Items.FindNodeWithText( CaptionStr);
+    if Assigned(TreeNode) then
+      TreeViewTrains.Items.Delete(TreeNode);
+  finally
+    TreeViewTrains.Items.EndUpdate;
+  end;
+
 end;
 
 end.

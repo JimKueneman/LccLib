@@ -97,7 +97,7 @@ type
     function AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
     function AddDelayedMessage(ADelayedMessage: TLccMessage): TLccMessage;
     function PopDelayedMessageByAlias(AnAliasID: Word): TLccMessage;
-    function RemoveMapping(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
+    function RemoveMappingByAlias(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
   end;
 
 implementation
@@ -109,7 +109,7 @@ begin
   inherited Create;
   {$IFDEF DELPHI}
   FMappingList := TObjectList<TLccAliasMapping>.Create(True);
-  FDelayedMessageList := TObjectList<TLccMessage>.Create(True);
+  FDelayedMessageList := TObjectList<TLccMessage>.Create(False);
   {$ELSE}
   FMappingList := TObjectList.Create(True);
   FDelayedMessageList := TObjectList.Create(False);
@@ -237,7 +237,8 @@ begin
   end;
 end;
 
-function TLccAliasServer.RemoveMapping(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
+function TLccAliasServer.RemoveMappingByAlias(AnAlias: Word;
+  FreeMapping: Boolean): TLccAliasMapping;
 var
   TestMapping: TLccAliasMapping;
   WasOwnsObject: Boolean;

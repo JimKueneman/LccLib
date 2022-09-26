@@ -1395,6 +1395,8 @@ var
   Temp: TEventID;
   AddressSpace, OperationType, TractionCode: Byte;
   DoDefault: Boolean;
+  AliasMapping: TLccAliasMapping;
+  TrainObject: TLccTrainObject;
 begin
 
   // By the time a messages drops into this method it is a fully qualified OpenLCB
@@ -1424,8 +1426,14 @@ begin
       begin
         if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
         begin
-          // Interesting.... need both?
-     //     TrainServer.AddTrainObject();
+          // Guarenteed to have Mappings before I ever get here
+          AliasMapping := AliasServer.FindMapping(SourceMessage.CAN.SourceAlias);
+          if Assigned(AliasMapping) then
+          begin
+            // Gets removed in the CAN Process Message and AMR
+            TrainObject := TrainServer.AddTrainObject(AliasMapping.NodeID, AliasMapping.NodeAlias);
+            (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, TrainObject, True);
+          end;
         end;
       end;
   end;
@@ -1852,21 +1860,58 @@ var
   TestNodeID: TNodeID;
   AMapping: TLccAliasMapping;
   DelayedMessage: TLccMessage;
+  TrainObject: TLccTrainObject;
 begin
   Result := False;
 
   // Alias Mapping Updates ******************************************************
   // Keep the Alias Maps up to date regardless of our state
+
+  // Special case where we can send just an alias (below) and receive the full Node ID
+    case SourceMessage.MTI of
+      MTI_VERIFIED_NODE_ID_NUMBER :
+        begin
+          TestNodeID := NULL_NODE_ID;
+          SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
+          AMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
+          if Assigned(AMapping) then
+            (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
+
+          // We now have a Mapping so we can pop and run any messages we delayed
+          DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
+          while Assigned(DelayedMessage) do
+          begin
+            ProcessMessageLCC(DelayedMessage);
+            DelayedMessage.Free;
+            DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
+          end
+        end;
+    end;
+
   case SourceMessage.CAN.MTI of
     MTI_CAN_AMR :
-      begin   // Alias going away clear it from the cache
-        AMapping := AliasServer.RemoveMapping(SourceMessage.CAN.SourceAlias, False);
-        try
-          (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
-        finally
-          AliasServer.FlushDelayedMessagesByAlias(AMapping.NodeAlias);
-          AMapping.Free;
+      begin
+        // Remove any Mappings that are associated with this Alias that is going away
+        AMapping := AliasServer.RemoveMappingByAlias(SourceMessage.CAN.SourceAlias, False);
+        if Assigned(AMapping) then
+        begin
+          try
+            (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
+          finally
+            AliasServer.FlushDelayedMessagesByAlias(AMapping.NodeAlias);
+            AMapping.Free;
+          end;
         end;
+        // Remove any Trains that are associated with this Alias that is going away
+        TrainObject := TrainServer.RemoveTrainObjectByAlias(SourceMessage.CAN.SourceAlias);
+        if Assigned(TrainObject) then
+        begin
+          try
+            (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, TrainObject, False);
+          finally
+            TrainObject.Free;
+          end;
+        end
       end;
     MTI_CAN_AMD :
       begin  // Alias coming on line save a copy of this mapping for future use
@@ -1876,8 +1921,7 @@ begin
         if Assigned(AMapping) then
           (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
 
-        // Below if we encounted a message with a SourceAlias we did not have a mapping
-        // we delayed the message and sent and AMR so this is the reply (or not)
+        // We now have a Mapping so we can pop and run any messages we delayed
         DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
         while Assigned(DelayedMessage) do
         begin
@@ -1910,6 +1954,7 @@ begin
   end;
   // END: Alias Allocation, duplicate checking after allocation******************
 
+
   if not Permitted then
   begin
     // We are still trying to allocate a new Alias, someone else is using this alias
@@ -1919,21 +1964,28 @@ begin
   begin
     // Normal message loop once successfully allocating an Alias
 
-    // Do this after the updates to the Alias Maps so we don't call unnecessarily
+    // Do this after the updates to the Alias Maps
     if not SourceMessage.IsCAN then // Don't interfer with CAN log in messages...
+    begin
       if not Assigned(AliasServer.FindMapping(SourceMessage.CAN.SourceAlias)) then
       begin
-        // Sucks to have to make this a global call but once done everyone will be updated.
-        // Optimization, don't send more AMEs if we have an Delayed Message for this Alias,
-        // already has been done.
+        // Optimization, don't send more AMEs if we have an Delayed Message for this Alias; already has been done.
         if not AliasServer.HasDelayedMessageByAlias(SourceMessage.CAN.SourceAlias) then
         begin
-          WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+          // Sending a Verify Node ID can work as an addressed message to only ask the one node vs global......
+       //   WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
+       //   SendMessageFunc(Self, WorkerMessage);
+
+          // This is a special case where just having the Alias and nothing else is useful
+          // It breaks the future state of all messages have valid NodeID's as this one won't
+          // as we are using the message's specal case of replying with its NodeID
+          WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID);
           SendMessageFunc(Self, WorkerMessage);
         end;
         AliasServer.AddDelayedMessage(SourceMessage);
         Result := True;    // Wait for the mapping to be valid before processing in the 100ms timer
       end;
+    end;
 
 
     TestNodeID[0] := 0;
@@ -2139,7 +2191,7 @@ begin
   if GridConnect then
   begin
     AliasServer.FlushDelayedMessages;
-    AMapping := AliasServer.RemoveMapping(AliasID, False);
+    AMapping := AliasServer.RemoveMappingByAlias(AliasID, False);
     try
       (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
     finally

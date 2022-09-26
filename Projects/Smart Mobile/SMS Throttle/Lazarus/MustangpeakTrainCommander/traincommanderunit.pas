@@ -622,18 +622,20 @@ end;
 procedure TFormTrainCommander.OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
 begin
   if IsMapped then
-    FormServerInfo.AddAliasMapp(AnAliasMapping)
+    FormServerInfo.AddAliasMap(AnAliasMapping)
   else
     FormServerInfo.RemoveAliasMap(AnAliasMapping);
 end;
 
 procedure TFormTrainCommander.OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
 begin
-
+  if IsRegistered then
+    FormServerInfo.AddTrainObject(TrainObject)
+  else
+    FormServerInfo.RemoveTrainObject(TrainObject);
 end;
 
-procedure TFormTrainCommander.OnTrainInformationChange(Sender: TObject;
-  LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+procedure TFormTrainCommander.OnTrainInformationChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
 begin
 
 end;

@@ -73,7 +73,10 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddTrainObject(NewNodeID: TNodeID; NewAlias: Word): TLccTrainObject;
-    function FindTrainObject(TestNodeID: TNodeID; TestAlias: Word): TLccTrainObject;
+    function RemoveTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
+    function RemoveTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
+    function FindTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
+    function FindTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
 
     {$IFDEF DELPHI}
     property TrainList: TObjectList<TLccTrainServerObject> read FTrainList write FTrainList;
@@ -89,9 +92,9 @@ implementation
 constructor TLccTrainServer.Create;
 begin
   {$IFDEF DELPHI}
-  FTrainList := TObjectList<TLccTrainObject>.Create(True);
+  FTrainList := TObjectList<TLccTrainObject>.Create(False);
   {$ELSE}
-  FTrainList := TObjectList.Create(True);
+  FTrainList := TObjectList.Create(False);
   {$ENDIF}
 end;
 
@@ -104,11 +107,40 @@ end;
 function TLccTrainServer.AddTrainObject(NewNodeID: TNodeID; NewAlias: Word): TLccTrainObject;
 begin
   Result := TLccTrainObject.Create;
+  TrainList.Add(Result);
   Result.NodeAlias := NewAlias;
   Result.NodeID := NewNodeID;
 end;
 
-function TLccTrainServer.FindTrainObject(TestNodeID: TNodeID; TestAlias: Word): TLccTrainObject;
+function TLccTrainServer.RemoveTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
+var
+  i: Integer;
+  TrainObject: TLccTrainObject;
+begin
+  Result := nil;
+  TrainObject := FindTrainObjectByAlias(TestAlias);
+  if Assigned(TrainObject) then
+  begin
+    TrainList.Remove(TrainObject);
+    Result := TrainObject;
+  end;
+end;
+
+function TLccTrainServer.RemoveTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
+var
+  i: Integer;
+  TrainObject: TLccTrainObject;
+begin
+  Result := nil;
+  TrainObject := FindTrainObjectByNodeID(TestNodeID);
+  if Assigned(TrainObject) then
+  begin
+    TrainList.Remove(TrainObject);
+    Result := TrainObject;
+  end;
+end;
+
+function TLccTrainServer.FindTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
 var
   i: Integer;
   TrainObject: TLccTrainObject;
@@ -117,7 +149,24 @@ begin
   for i := 0 to TrainList.Count - 1 do
   begin
     TrainObject := TrainList.Items[i] as TLccTrainObject;
-    if EqualNode(TestNodeID, TestAlias, TrainObject.NodeID, TrainObject.NodeAlias, True) then
+    if TestAlias = TrainObject.NodeAlias then
+    begin
+      Result := TrainObject;
+      Break
+    end;
+  end;
+end;
+
+function TLccTrainServer.FindTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
+var
+  i: Integer;
+  TrainObject: TLccTrainObject;
+begin
+  Result := nil;
+  for i := 0 to TrainList.Count - 1 do
+  begin
+    TrainObject := TrainList.Items[i] as TLccTrainObject;
+    if EqualNodeID(TestNodeID, TrainObject.NodeID, False) then
     begin
       Result := TrainObject;
       Break
