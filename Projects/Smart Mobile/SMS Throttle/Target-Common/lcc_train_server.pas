@@ -43,8 +43,7 @@ uses
 {$ENDIF}
   lcc_defines,
   lcc_node_messages,
-  lcc_utilities,
-  lcc_alias_server;
+  lcc_utilities;
 
 type
 
@@ -114,7 +113,6 @@ end;
 
 function TLccTrainServer.RemoveTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
 var
-  i: Integer;
   TrainObject: TLccTrainObject;
 begin
   Result := nil;
@@ -128,7 +126,6 @@ end;
 
 function TLccTrainServer.RemoveTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
 var
-  i: Integer;
   TrainObject: TLccTrainObject;
 begin
   Result := nil;

@@ -48,8 +48,7 @@ uses
   lcc_node,
   lcc_node_train,
   lcc_utilities,
-  lcc_alias_server,
-  lcc_train_server;
+  lcc_alias_server;
 
 const
   CDI_XML_CONTROLLER: string = (
@@ -485,7 +484,7 @@ type
 
     function IsTrainAssigned: Boolean;
 
-    function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
+    function ProcessMessageLCC(SourceMessage: TLccMessage): Boolean; override;
   end;
 
   TLccTrainControllerClass = class of TLccTrainController;
@@ -1339,7 +1338,6 @@ var
   UserDescription: string;
 
   LocalTrain: TLccActionTrainInfo;
-  AliasMapping: TLccAliasMapping;
 begin
   Result := False;
 
@@ -1355,10 +1353,6 @@ begin
              LocalTrain := Trains.CreateNew(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
              if Assigned(LocalTrain) then
              begin
-               // Need to make sure the NodeID property is valid once we add it to the Trains list as well
-               if Owner.GridConnect then
-                 ValidateAliasMapping(SourceMessage.CAN.SourceAlias, True);
-
                LocalTrain.SearchCriteria := SourceMessage.TractionSearchExtractSearchData;
                LocalTrain.SearchCriteriaFound := True;
 
@@ -1460,24 +1454,7 @@ begin
 
   if TimeoutExpired then    // Times up, report out....
   begin
-    AliasMapping := ValidateAliasMappingWait;
-    if Assigned(AliasMapping) then
-    begin
-      LocalTrain := Trains.MatchingAlias(AliasMapping.NodeAlias);
-      if Assigned(LocalTrain) then
-      begin
-        LocalTrain.NodeID := AliasMapping.NodeID;
-        AdvanceToNextState  // Timeout is NOT an error here, it is normal
-      end else
-      begin
-        ErrorCode := laecUnableToCreateAliasMapping;
-        AdvanceToLastState;
-      end
-    end else
-    begin
-      ErrorCode := laecUnableToCreateAliasMapping;
-      AdvanceToLastState;
-    end
+    AdvanceToNextState  // Timeout is NOT an error here, it is normal
   end
 end;
 
@@ -1980,11 +1957,12 @@ begin
   end;
 end;
 
-function TLccTrainController.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+function TLccTrainController.ProcessMessageLCC(SourceMessage: TLccMessage
+  ): Boolean;
 var
   AllowTakeOver: Boolean;
 begin
-  Result :=inherited ProcessMessage(SourceMessage);
+  Result :=inherited ProcessMessageLcc(SourceMessage);
 
   // We only are dealing with messages with destinations for us from here on
   if SourceMessage.HasDestination then

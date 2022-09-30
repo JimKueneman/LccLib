@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 522
+  Left = 593
   Height = 610
-  Top = 105
+  Top = 179
   Width = 743
   BorderStyle = bsSingle
   Caption = 'Form1'
@@ -649,13 +649,22 @@ object Form1: TForm1
       ParentColor = False
     end
     object ButtonActionObjectCount: TButton
-      Left = 465
+      Left = 400
       Height = 22
-      Top = 13
+      Top = 10
       Width = 151
       Caption = 'Action Objects = 0'
       OnClick = ButtonActionObjectCountClick
       TabOrder = 1
+    end
+    object ToggleBoxLogging: TToggleBox
+      Left = 568
+      Height = 22
+      Top = 10
+      Width = 144
+      Caption = 'Show Logging'
+      OnChange = ToggleBoxLoggingChange
+      TabOrder = 2
     end
   end
   object PanelThrottle2: TPanel

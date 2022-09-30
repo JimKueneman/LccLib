@@ -1,0 +1,53 @@
+object FormNetworkLogging: TFormNetworkLogging
+  Left = 333
+  Height = 381
+  Top = 145
+  Width = 895
+  Caption = 'OpenLCB Network'
+  ClientHeight = 381
+  ClientWidth = 895
+  LCLVersion = '2.2.2.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 895
+    Align = alTop
+    ClientHeight = 50
+    ClientWidth = 895
+    TabOrder = 0
+    object Button1: TButton
+      Left = 24
+      Height = 25
+      Top = 16
+      Width = 75
+      Caption = 'Clear'
+      OnClick = Button1Click
+      TabOrder = 0
+    end
+  end
+  object MemoLogging1: TMemo
+    Left = 0
+    Height = 331
+    Top = 50
+    Width = 448
+    Align = alLeft
+    OnChange = MemoLogging1Change
+    TabOrder = 1
+  end
+  object MemoLogging2: TMemo
+    Left = 453
+    Height = 331
+    Top = 50
+    Width = 442
+    Align = alClient
+    OnChange = MemoLogging1Change
+    TabOrder = 2
+  end
+  object Splitter1: TSplitter
+    Left = 448
+    Height = 331
+    Top = 50
+    Width = 5
+  end
+end

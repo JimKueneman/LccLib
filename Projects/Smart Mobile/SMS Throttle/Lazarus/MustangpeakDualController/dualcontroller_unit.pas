@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  StdCtrls, Buttons, CheckLst, lcc_node_manager, lcc_ethernet_client, lcc_node,
+  StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
   throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common,
-  Contnrs;
+  Contnrs, form_logging;
 
 type
 
@@ -161,6 +161,7 @@ type
     TabSheetConsists2: TTabSheet;
     TabSheetThrottle2Throttle: TTabSheet;
     TabSheetThrottle1Throttle: TTabSheet;
+    ToggleBoxLogging: TToggleBox;
     TrackBarThrottle1: TTrackBar;
     TrackBarThrottle2: TTrackBar;
     TreeViewConsists2: TTreeView;
@@ -171,6 +172,7 @@ type
     procedure ButtonCreateConstist2Click(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
     procedure ButtonConnect2Click(Sender: TObject);
+    procedure ButtonShowLoggingClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure LabelConsistExpander1Click(Sender: TObject);
@@ -187,6 +189,7 @@ type
     procedure SpeedButtonThrottle1FunctionClick(Sender: TObject);
     procedure SpeedButtonThrottleAssign1Click(Sender: TObject);
     procedure SpeedButtonThrottleAssign2Click(Sender: TObject);
+    procedure ToggleBoxLoggingChange(Sender: TObject);
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
@@ -200,6 +203,12 @@ type
 
   protected
     property WorkerMessage: TLccMessage read FWorkerMessage write FWorkerMessage;
+
+    procedure OnNodeManagerSendMessage1(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManagerReceiveMessage1(Sender: TObject; LccMessage: TLccMessage);
+
+     procedure OnNodeManagerSendMessage2(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManagerReceiveMessage2(Sender: TObject; LccMessage: TLccMessage);
 
     procedure OnNodeManager1IDChange(Sender: TObject; LccSourceNode: TLccNode);
     procedure OnNodeManager1AliasChange(Sender: TObject; LccSourceNode: TLccNode);
@@ -387,6 +396,11 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonShowLoggingClick(Sender: TObject);
+begin
+
+end;
+
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   NodeManager1.Clear;
@@ -417,6 +431,12 @@ begin
 
   NodeManager2.OnLccNodeAliasIDChanged := @OnNodeManager2AliasChange;
   NodeManager2.OnLccNodeIDChanged := @OnNodeManager2IDChange;
+
+  NodeManager1.OnLccMessageReceive := @OnNodeManagerReceiveMessage1;
+  NodeManager1.OnLccMessageSend := @OnNodeManagerSendMessage1;
+
+  NodeManager2.OnLccMessageReceive := @OnNodeManagerReceiveMessage2;
+  NodeManager2.OnLccMessageSend := @OnNodeManagerSendMessage2;
 
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
@@ -579,6 +599,14 @@ begin
   end;
 end;
 
+procedure TForm1.ToggleBoxLoggingChange(Sender: TObject);
+begin
+  if ToggleBoxLogging.Checked then
+    FormNetworkLogging.Show
+  else
+    FormNetworkLogging.Hide;
+end;
+
 procedure TForm1.TrackBarThrottle1Change(Sender: TObject);
 begin
   if Assigned(ControllerNode1) then
@@ -660,6 +688,62 @@ begin
  //     EditConsistAddress2.Text := IntToStr(ConsistItem.Address);
     end
   end
+end;
+
+procedure TForm1.OnNodeManagerSendMessage1(Sender: TObject; LccMessage: TLccMessage);
+begin
+  if ToggleBoxLogging.Checked then
+  begin
+    FormNetworkLogging.MemoLogging1.Lines.BeginUpdate;
+    try
+      FormNetworkLogging.MemoLogging1.Lines.Add('S: ' + MessageToDetailedMessage(LccMessage));
+      FormNetworkLogging.MemoLogging1.SelStart := Length(FormNetworkLogging.MemoLogging1.Lines.Text);
+    finally
+      FormNetworkLogging.MemoLogging1.Lines.EndUpdate;
+    end;
+  end;
+end;
+
+procedure TForm1.OnNodeManagerReceiveMessage1(Sender: TObject; LccMessage: TLccMessage);
+begin
+  if ToggleBoxLogging.Checked then
+  begin
+    FormNetworkLogging.MemoLogging1.Lines.BeginUpdate;
+    try
+      FormNetworkLogging.MemoLogging1.Lines.Add('R: ' + MessageToDetailedMessage(LccMessage));
+      FormNetworkLogging.MemoLogging1.SelStart := Length(FormNetworkLogging.MemoLogging1.Lines.Text);
+    finally
+      FormNetworkLogging.MemoLogging1.Lines.EndUpdate;
+    end;
+  end;
+end;
+
+procedure TForm1.OnNodeManagerSendMessage2(Sender: TObject; LccMessage: TLccMessage);
+begin
+  if ToggleBoxLogging.Checked then
+  begin
+    FormNetworkLogging.MemoLogging2.Lines.BeginUpdate;
+    try
+      FormNetworkLogging.MemoLogging2.Lines.Add('S: ' + MessageToDetailedMessage(LccMessage));
+      FormNetworkLogging.MemoLogging2.SelStart := Length(FormNetworkLogging.MemoLogging2.Lines.Text);
+    finally
+      FormNetworkLogging.MemoLogging2.Lines.EndUpdate;
+    end;
+  end;
+end;
+
+procedure TForm1.OnNodeManagerReceiveMessage2(Sender: TObject; LccMessage: TLccMessage);
+begin
+  if ToggleBoxLogging.Checked then
+  begin
+    FormNetworkLogging.MemoLogging1.Lines.BeginUpdate;
+    try
+      FormNetworkLogging.MemoLogging1.Lines.Add('R: ' + MessageToDetailedMessage(LccMessage));
+      FormNetworkLogging.MemoLogging1.SelStart := Length(FormNetworkLogging.MemoLogging1.Lines.Text);
+    finally
+      FormNetworkLogging.MemoLogging1.Lines.EndUpdate;
+    end;
+  end;
 end;
 
 procedure TForm1.OnClientServer1ConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);

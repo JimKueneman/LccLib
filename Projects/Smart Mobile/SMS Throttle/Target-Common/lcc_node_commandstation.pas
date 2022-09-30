@@ -89,7 +89,7 @@ type
     procedure ClearTrains;
     function FindTrainByLccNodeID(ANodeID: TNodeID): TLccTrainDccNode;
     function FindTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean): TLccTrainDccNode;
-    function ProcessMessage(SourceMessage: TLccMessage): Boolean; override;
+    function ProcessMessageLcc(SourceMessage: TLccMessage): Boolean; override;
   end;
 
   TLccCommandStationNodeClass = class of TLccCommandStationNode;
@@ -215,7 +215,7 @@ begin
   Result := CDI_XML_COMMANDSTATION;
 end;
 
-function TLccCommandStationNode.ProcessMessage(SourceMessage: TLccMessage): Boolean;
+function TLccCommandStationNode.ProcessMessageLcc(SourceMessage: TLccMessage): Boolean;
 var
   NMRA_SpeedStep: TLccDccSpeedStep;
   SearchStr: string;
@@ -228,7 +228,7 @@ var
   ATrain: TLccTrainDccNode;
   ReturnEvent: TEventID;
 begin
-  Result := inherited ProcessMessage(SourceMessage);
+  Result := inherited ProcessMessageLcc(SourceMessage);
 
   case SourceMessage.MTI of
      MTI_INITIALIZATION_COMPLETE :

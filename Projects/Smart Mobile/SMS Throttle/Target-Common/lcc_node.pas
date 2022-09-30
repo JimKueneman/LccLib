@@ -257,7 +257,7 @@ type
   end;
 
 
-  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed, laecListenerAttachFailed, laecUnableToCreateAliasMapping);
+  TLccActionErrorCode = (laecOk, laecTimedOut, laecTerminated, laecNoTrainFound, laecReservedFailed, laecListenerAttachFailed);
 
   { TLccAction }
 
@@ -308,10 +308,6 @@ type
     procedure CompleteCallback(SourceAction: TLccAction); virtual; // override to do something
     procedure DoTimeoutExpired; virtual;
     procedure UnRegisterSelf;
-    function ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
-    function ValidateAliasMappingWait: TLccAliasMapping;
-    function ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
-    function ValidateNodeIDMappingWait(ASourceMessage: TLccMessage): TLccAliasMapping;
 
   public
    //  property Cancel: Boolean read FCancel write FCancel;
@@ -499,9 +495,6 @@ type
     procedure BeforeLogin; virtual;
     procedure LogInLCC(ANodeID: TNodeID);
 
-    function ProcessMessageLCC(SourceMessage: TLccMessage): Boolean;
-    function ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean;
-
     // GridConnect Helpers
     function GenerateID_Alias_From_Seed(var Seed: TNodeID): Word;
     procedure GenerateNewSeed(var Seed: TNodeID);
@@ -543,7 +536,9 @@ type
 
     procedure Login(ANodeID: TNodeID); virtual;
     procedure Logout; virtual;
-    function ProcessMessage(SourceMessage: TLccMessage): Boolean; virtual;
+    function ProcessMessage(SourceMessage: TLccMessage): Boolean; // Do not override this override the next 2
+    function ProcessMessageLCC(SourceMessage: TLccMessage): Boolean; virtual;
+    function ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean; virtual;
     procedure SendEvents;
     procedure SendConsumedEvents;
     procedure SendConsumerIdentify(var Event: TEventID);
@@ -963,75 +958,6 @@ begin
     ActionHub.UnregisterActionAndMarkForFree(Self);
 end;
 
-function TLccAction.ValidateAliasMapping(AnAliasToMap: Word; SendAME: Boolean): TLccAliasMapping;
-begin
-  AliasMappingAlias := AnAliasToMap;
-  Result := Owner.AliasServer.FindMapping(AliasMappingAlias);
-  if not Assigned(Result) and SendAME then
-  begin
-    WorkerMessage.LoadAME(SourceNodeID, SourceAliasID, NULL_NODE_ID);
-    SendMessage(Owner, WorkerMessage);
-    SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
-  end;
-end;
-
-function TLccAction.ValidateAliasMappingWait: TLccAliasMapping;
-begin
-  // Only way to get here is if we were GridConnect
-  Result := Owner.AliasServer.FindMapping(AliasMappingAlias);
-  if not Assigned(Result) then
-  begin
-    if TimeoutExpired then
-    begin
-      // Can't get the Alias.
-      ErrorCode := laecTimedOut;
-      AdvanceToLastState;
-    end;
-  end;
-end;
-
-function TLccAction.ValidateNodeIDMapping(ANodeIDToMap: TNodeID; SendVerify: Boolean): TLccAliasMapping;
-begin
-  AliasMappingNodeID := ANodeIDToMap;
-  Result := Owner.AliasServer.FindMapping(AliasMappingNodeID);
-  if not Assigned(Result) and SendVerify then
-  begin
-    WorkerMessage.LoadVerifyNodeID(SourceNodeID, SourceAliasID, AliasMappingNodeID);
-    SendMessage(Owner, WorkerMessage);
-    SetTimoutCountThreshold(TIMEOUT_NODE_ALIAS_MAPPING_WAIT, True);
-  end;
-end;
-
-function TLccAction.ValidateNodeIDMappingWait(ASourceMessage: TLccMessage): TLccAliasMapping;
-var
-  TempNodeID: TNodeID;
-begin
-  Result := nil;
-  if Assigned(ASourceMessage) then   // Could be time tick calling and we need to wait for a real message
-  begin
-    case ASourceMessage.MTI of
-      MTI_VERIFIED_NODE_ID_NUMBER :
-        begin
-          TempNodeID := NULL_NODE_ID;
-          if EqualNodeID(ASourceMessage.ExtractDataBytesAsNodeID(0, TempNodeID), AliasMappingNodeID, False) then
-          begin
-            Result := Owner.AliasServer.AddMapping(ASourceMessage.CAN.SourceAlias, AliasMappingNodeID);
-          end;
-        end;
-    end;
-  end;
-
-  if not Assigned(Result) then
-  begin
-    if TimeoutExpired then
-    begin
-      // Can't get the Alias.
-      ErrorCode := laecTimedOut;
-      AdvanceToLastState;
-    end;
-  end;
-end;
-
 function TLccAction.TimeoutExpired: Boolean;
 begin
   Result := TimeoutCounts > TimeoutCountThreshold ;
@@ -1402,11 +1328,19 @@ begin
   // By the time a messages drops into this method it is a fully qualified OpenLCB
   // message.  Any CAN messages that are sent as multi frames have been combined
   // into a full OpenLCB message.
+  // On GridConnect all messages have the source NodeID mapped and on messages destined
+  // for this node (DestID/DestAlias) the full NodeID has been filled in.  There is an
+  // attempt to fill in the DestID for messages that are not for this node but
+  // it can't be guarenteed that field will be valid.  This should not be of concern
+  // as we should not be doing anything with those messages anyway other than possibly snooping
 
   Result := False;
 
   TestNodeID[0] := 0;
   TestNodeID[1] := 0;
+
+
+  // Guarenteed to have Mappings before I ever get here
 
   // First look for a duplicate NodeID
   if EqualNodeID(NodeID, SourceMessage.SourceID, False) then
@@ -1856,82 +1790,79 @@ begin
 end;
 
 function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean;
+
+  procedure NewMappingAndProcessDelayedMessages;
+  var
+    LocalTestNodeID: TNodeID;
+    LocalAMapping: TLccAliasMapping;
+    LocalDelayedMessage: TLccDelayedMessage;
+  begin
+    LocalTestNodeID := NULL_NODE_ID;
+    SourceMessage.ExtractDataBytesAsNodeID(0, LocalTestNodeID);
+    LocalAMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, LocalTestNodeID);
+    if Assigned(LocalAMapping) then
+        (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, LocalAMapping, True);
+
+    LocalDelayedMessage := AliasServer.UpdateDelayedMessageMapping(LocalAMapping);
+    while Assigned(LocalDelayedMessage) do
+    begin
+      // The Delayed Message has been updated to have the required NodeID and Alias's updated
+      // All other mapping that were requested will have been completed or UpdateDelayedMessageMapping would not have
+      // returned.  The special message will need to pick that mapping up directly from the AliasServer
+      ProcessMessageLCC(LocalDelayedMessage.LccMessage);
+      LocalDelayedMessage.Free;
+      LocalDelayedMessage := AliasServer.UpdateDelayedMessageMapping(LocalAMapping);
+    end;
+    Assert(Assigned(LocalAMapping), 'Could not create an AliasMapping in TLccNode.ProcessMessageGridConnect');
+  end;
+
+  procedure MappingReset;
+  var
+    LocalMapping: TLccAliasMapping;
+    LocalTrainObject: TLccTrainObject;
+  begin
+    // Remove any Mappings that are associated with this Alias that is going away
+    LocalMapping := AliasServer.RemoveMappingByAlias(SourceMessage.CAN.SourceAlias, False);
+    if Assigned(LocalMapping) then
+    begin
+      try
+        (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, LocalMapping, False);
+      finally
+        AliasServer.FlushDelayedMessagesByAlias(LocalMapping.NodeAlias);
+        LocalMapping.Free;
+      end;
+    end;
+    // Remove any Trains that are associated with this Alias that is going away
+    LocalTrainObject := TrainServer.RemoveTrainObjectByAlias(SourceMessage.CAN.SourceAlias);
+    if Assigned(LocalTrainObject) then
+    begin
+      try
+        (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, LocalTrainObject, False);
+      finally
+        LocalTrainObject.Free;
+      end;
+    end
+  end;
+
 var
   TestNodeID: TNodeID;
-  AMapping: TLccAliasMapping;
-  DelayedMessage: TLccMessage;
-  TrainObject: TLccTrainObject;
+  SourceMapping, DestMapping: TLccAliasMapping;
+  ADelayedMessage: TLccDelayedMessage;
+  ANodeID: TNodeID;
 begin
   Result := False;
-
- // I shoiuld be able to get rid of the AME stuff in the Actions now.  Mapping is guarenteed.
-
   // Alias Mapping Updates ******************************************************
   // Keep the Alias Maps up to date regardless of our state
 
-  // Special case where we can send just an alias (below) and receive the full Node ID
-    case SourceMessage.MTI of
-      MTI_VERIFIED_NODE_ID_NUMBER :
-        begin
-          TestNodeID := NULL_NODE_ID;
-          SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-          AMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
-          if Assigned(AMapping) then
-            (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
+  // Special case to handle a non CAN message here, we sen an alias (below) the receive the full Node ID here
+  case SourceMessage.MTI of
+    MTI_VERIFIED_NODE_ID_NUMBER : NewMappingAndProcessDelayedMessages
+  end;
 
-          // We now have a Mapping so we can pop and run any messages we delayed
-          DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
-          while Assigned(DelayedMessage) do
-          begin
-            ProcessMessageLCC(DelayedMessage);
-            DelayedMessage.Free;
-            DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
-          end
-        end;
-    end;
-
+  // Now handle CAN messages that will effect or mapping database
   case SourceMessage.CAN.MTI of
-    MTI_CAN_AMR :
-      begin
-        // Remove any Mappings that are associated with this Alias that is going away
-        AMapping := AliasServer.RemoveMappingByAlias(SourceMessage.CAN.SourceAlias, False);
-        if Assigned(AMapping) then
-        begin
-          try
-            (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
-          finally
-            AliasServer.FlushDelayedMessagesByAlias(AMapping.NodeAlias);
-            AMapping.Free;
-          end;
-        end;
-        // Remove any Trains that are associated with this Alias that is going away
-        TrainObject := TrainServer.RemoveTrainObjectByAlias(SourceMessage.CAN.SourceAlias);
-        if Assigned(TrainObject) then
-        begin
-          try
-            (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, TrainObject, False);
-          finally
-            TrainObject.Free;
-          end;
-        end
-      end;
-    MTI_CAN_AMD :
-      begin  // Alias coming on line save a copy of this mapping for future use
-        TestNodeID := NULL_NODE_ID;
-        SourceMessage.ExtractDataBytesAsNodeID(0, TestNodeID);
-        AMapping := AliasServer.AddMapping(SourceMessage.CAN.SourceAlias, TestNodeID);
-        if Assigned(AMapping) then
-          (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, True);
-
-        // We now have a Mapping so we can pop and run any messages we delayed
-        DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
-        while Assigned(DelayedMessage) do
-        begin
-          ProcessMessageLCC(DelayedMessage);
-          DelayedMessage.Free;
-          DelayedMessage := AliasServer.PopDelayedMessageByAlias(SourceMessage.CAN.SourceAlias);
-        end
-      end;
+    MTI_CAN_AMR : MappingReset; // Alias Mapping Reset
+    MTI_CAN_AMD : NewMappingAndProcessDelayedMessages;  // Alias Mapping Definition
   end;
   // END: Alias Mapping Updates ************************************************
 
@@ -1966,27 +1897,72 @@ begin
   begin
     // Normal message loop once successfully allocating an Alias
 
-    // Do this after the updates to the Alias Maps
+    // Do this after the updates to the Alias Maps above
     if not SourceMessage.IsCAN then // Don't interfer with CAN log in messages...
     begin
-      if not Assigned(AliasServer.FindMapping(SourceMessage.CAN.SourceAlias)) then
-      begin
-        // Optimization, don't send more AMEs if we have an Delayed Message for this Alias; already has been done.
-        if not AliasServer.HasDelayedMessageByAlias(SourceMessage.CAN.SourceAlias) then
-        begin
-          // Sending a Verify Node ID can work as an addressed message to only ask the one node vs global......
-       //   WorkerMessage.LoadAME(NodeID, AliasID, NULL_NODE_ID);
-       //   SendMessageFunc(Self, WorkerMessage);
+      SourceMapping := AliasServer.FindMapping(SourceMessage.CAN.SourceAlias);
+      if SourceMessage.HasDestination then
+        DestMapping := AliasServer.FindMapping(SourceMessage.CAN.DestAlias)
+      else
+        DestMapping := nil;
 
-          // This is a special case where just having the Alias and nothing else is useful
-          // It breaks the future state of all messages have valid NodeID's as this one won't
-          // as we are using the message's specal case of replying with its NodeID
+      // Need to do some special message testing to map payloads that contain full IDs
+      if (not Assigned(SourceMapping) or (SourceMessage.HasDestination and not Assigned(DestMapping))) then
+      begin
+        ADelayedMessage := AliasServer.AddDelayedMessage(SourceMessage);
+        if not Assigned(SourceMapping) then  // Source Alias needs to get mapped
+        begin
           WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, NULL_NODE_ID);
           SendMessageFunc(Self, WorkerMessage);
         end;
-        AliasServer.AddDelayedMessage(SourceMessage);
-        Result := True;    // Wait for the mapping to be valid before processing in the 100ms timer
-      end;
+        if SourceMessage.HasDestination and not Assigned(DestMapping) then  // Destination Alias needs to get mapped
+        begin
+          WorkerMessage.LoadVerifyNodeIDAddressed(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.DestAlias, NULL_NODE_ID);
+          SendMessageFunc(Self, WorkerMessage);
+        end;
+        // Speical cases where a NodeID is carried in the payload and needs the mapping to
+        // an Alias created in the AliasServer
+        case SourceMessage.MTI of
+          MTI_TRACTION_REQUEST :
+            begin
+              case SourceMessage.DataArrayIndexer[0] of
+                TRACTION_CONTROLLER_CONFIG :
+                  begin
+                    case SourceMessage.DataArrayIndexer[1] of
+                      TRACTION_CONTROLLER_CONFIG_ASSIGN,
+                      TRACTION_CONTROLLER_CONFIG_RELEASE,
+                      TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
+                      begin
+                        ANodeID := NULL_NODE_ID;
+                        SourceMessage.ExtractDataBytesAsNodeID(3, ANodeID);
+                        ADelayedMessage.AddExtraMapping(ANodeID, 0);
+                      end;
+                    end
+                  end;
+                TRACTION_LISTENER :
+                  begin
+                    case SourceMessage.DataArrayIndexer[1] of
+                      TRACTION_LISTENER_ATTACH,
+                      TRACTION_LISTENER_DETACH :
+                        begin
+                          ANodeID := NULL_NODE_ID;
+                          SourceMessage.ExtractDataBytesAsNodeID(3, ANodeID);
+                          ADelayedMessage.AddExtraMapping(ANodeID, 0);
+                        end;
+                    end;
+                  end
+              end
+            end;
+        end;
+
+        Result := True;    // Exit out without calling the LCCMessage loop, wait for the AliasMapping to be valid
+      end else
+      begin
+        // Load up the NodeIDs in the SourceMessage, everything is valid
+        SourceMessage.SourceID := SourceMapping.NodeID;
+        if Assigned(DestMapping) then
+          SourceMessage.SourceID := SourceMapping.NodeID;
+      end
     end;
 
 
@@ -2010,9 +1986,9 @@ begin
               WorkerMessage.LoadAMD(NodeID, AliasID);
               SendMessageFunc(Self, WorkerMessage);
             end;
-            Result := True;
           end;
-      end
+      end;
+      Result := True;
     end;
     if not Result then
       Result := ProcessMessageLCC(SourceMessage);

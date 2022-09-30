@@ -44,11 +44,8 @@ uses
   {$ENDIF}
 {$ENDIF}
   lcc_defines,
+  lcc_utilities,
   lcc_node_messages;
-
-
-
-//Is seems like this should all be able to be handled in the SendMessage engine.... if the Alias is needed can''t that engine get the Alias if needed?.....
 
 type
   TLccAliasMapping = class(TObject)
@@ -60,6 +57,30 @@ type
     property NodeAlias: Word read FNodeAlias write FNodeAlias;
   end;
 
+
+  TLccAliasMappingRec = record
+    Alias: Word;
+    ID: TNodeID;
+  end;
+
+  TLccAliasMappingRecArray = array of TLccAliasMappingRec;
+
+  { TLccDelayedMessage }
+
+  TLccDelayedMessage = class(TObject)
+  private
+    FLccMessage: TLccMessage;
+  public
+    ExtraMappings: TLccAliasMappingRecArray;
+    property LccMessage: TLccMessage read FLccMessage write FLccMessage;
+
+    constructor Create(AMessage: TLccMessage);
+    destructor Destroy; override;
+    procedure AddExtraMapping(NodeID: TNodeID; NodeAlias: Word);
+
+  //  Maybe I just queue up all messages in here and run them all through?  Does that simplify the code in the Node at all?
+  end;
+
   { TLccAliasServer }
 
   TLccAliasServer = class(TObject)
@@ -67,7 +88,7 @@ type
   private
     {$IFDEF DELPHI}
     FMappingList: TObjectList<TLccAliasMapping>;      // List of TLccAliasMapping Objects
-    FDelayedMessageList: TObjectList<TLccMessage>;  // List of TLccMessages that are in waiting for a valid AliasMapping before processing
+    FDelayedMessageList: TObjectList<TLccDelayedMessage>;  // List of TLccMessages that are in waiting for a valid AliasMapping before processing
     {$ELSE}
     FMappingList: TObjectList;
     FDelayedMessageList: TObjectList;
@@ -77,7 +98,7 @@ type
   protected
     {$IFDEF DELPHI}
     property MappingList: TObjectList<TLccAliasMapping> read FMappingList write FMappingList;
-    property DelayedMessageList: TObjectList<TLccMessage> read FDelayedMessageList write FDelayedMessageList;
+    property DelayedMessageList: TObjectList<TLccDelayedMessage> read FDelayedMessageList write FDelayedMessageList;
     {$ELSE}
     property MappingList: TObjectList read FMappingList write FMappingList;
     property DelayedMessageList: TObjectList read FDelayedMessageList write FDelayedMessageList;
@@ -89,18 +110,44 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function HasDelayedMessageByAlias(AnAliasID: Word): Boolean;
-    function FindMapping(AnAliasID: Word): TLccAliasMapping; overload;
-    function FindMapping(ANodeID: TNodeID): TLccAliasMapping; overload;
+    function DelayedMessageMappingComplete(ADelayedMessage: TLccDelayedMessage): Boolean;
+    function AddDelayedMessage(ADelayedMessage: TLccMessage): TLccDelayedMessage;
+    function UpdateDelayedMessageMapping(NewMapping: TLccAliasMapping): TLccDelayedMessage;
     procedure FlushDelayedMessages;
     procedure FlushDelayedMessagesByAlias(AnAliasID: Word);
+
+    function FindMapping(AnAliasID: Word): TLccAliasMapping; overload;
+    function FindMapping(ANodeID: TNodeID): TLccAliasMapping; overload;
     function AddMapping(AnAlias: Word; AnID: TNodeID): TLccAliasMapping;
-    function AddDelayedMessage(ADelayedMessage: TLccMessage): TLccMessage;
-    function PopDelayedMessageByAlias(AnAliasID: Word): TLccMessage;
     function RemoveMappingByAlias(AnAlias: Word; FreeMapping: Boolean): TLccAliasMapping;
   end;
 
 implementation
+
+{ TLccDelayedMessage }
+
+constructor TLccDelayedMessage.Create(AMessage: TLccMessage);
+begin
+  inherited Create;
+  FLccMessage := AMessage.Clone;
+end;
+
+destructor TLccDelayedMessage.Destroy;
+begin
+  if Assigned(LccMessage) then
+    LccMessage.Free;
+  inherited Destroy;
+end;
+
+procedure TLccDelayedMessage.AddExtraMapping(NodeID: TNodeID; NodeAlias: Word);
+begin
+  if (NodeAlias <> 0) or (NodeID[0] <> 0) or (NodeID[1] <> 0) then
+  begin
+    SetLength(ExtraMappings, Length(ExtraMappings) + 1);
+    ExtraMappings[Length(ExtraMappings) - 1].Alias := NodeAlias;
+    ExtraMappings[Length(ExtraMappings) - 1].ID := NodeID;
+  end;
+end;
 
 { TLccAliasServer }
 
@@ -109,7 +156,7 @@ begin
   inherited Create;
   {$IFDEF DELPHI}
   FMappingList := TObjectList<TLccAliasMapping>.Create(True);
-  FDelayedMessageList := TObjectList<TLccMessage>.Create(False);
+  FDelayedMessageList := TObjectList<TLccDelayedMessage>.Create(False);
   {$ELSE}
   FMappingList := TObjectList.Create(True);
   FDelayedMessageList := TObjectList.Create(False);
@@ -125,22 +172,22 @@ begin
   inherited Destroy;
 end;
 
-function TLccAliasServer.HasDelayedMessageByAlias(AnAliasID: Word): Boolean;
+function TLccAliasServer.DelayedMessageMappingComplete(ADelayedMessage: TLccDelayedMessage): Boolean;
 var
-  DelayedMessage: TLccMessage;
   i: Integer;
 begin
-  Result := False;
-  // Count backwards so we may not have to move as much memory as they are extracted
-  for i := 0 to DelayedMessageList.Count - 1 do
+  Result := True;
+  for i := 0 to Length(ADelayedMessage.ExtraMappings) - 1 do
   begin
-    DelayedMessage := DelayedMessageList[i] as TLccMessage;
-    if DelayedMessage.CAN.SourceAlias = AnAliasID then
-    begin
-      Result := True;
-      Break
-    end;
+    if (ADelayedMessage.ExtraMappings[i].Alias = 0) and
+       ((ADelayedMessage.ExtraMappings[i].ID[0] = 0) or (ADelayedMessage.ExtraMappings[i].ID[1] = 0)) then
+      Result := False;
   end;
+  if Result then
+    Result := (ADelayedMessage.LccMessage.CAN.SourceAlias <> 0) and ((ADelayedMessage.LccMessage.SourceID[0] <> 0) or (ADelayedMessage.LccMessage.SourceID[1] <> 0));
+  // If there is a destination ID need to test it as well.
+  if Result and ADelayedMessage.LccMessage.HasDestination then
+    Result := (ADelayedMessage.LccMessage.CAN.DestAlias <> 0) and ((ADelayedMessage.LccMessage.DestID[0] <> 0) or (ADelayedMessage.LccMessage.DestID[1] <> 0));
 end;
 
 function TLccAliasServer.FindMapping(AnAliasID: Word): TLccAliasMapping;
@@ -184,15 +231,36 @@ end;
 
 procedure TLccAliasServer.FlushDelayedMessagesByAlias(AnAliasID: Word);
 var
-  DelayedMessage: TLccMessage;
-  i: Integer;
+  DelayedMessage: TLccDelayedMessage;
+  i, j: Integer;
+  DoDelete: Boolean;
 begin
   // Count backwards so we may not have to move as much memory as they are extracted
   // Flush them all associated with this Alias
   for i := DelayedMessageList.Count - 1 downto 0 do
   begin
-    DelayedMessage := DelayedMessageList[i] as TLccMessage;
-    if DelayedMessage.CAN.SourceAlias = AnAliasID then
+    DoDelete := False;
+    DelayedMessage := DelayedMessageList[i] as TLccDelayedMessage;
+
+    // Check the source alias
+    if DelayedMessage.LccMessage.CAN.SourceAlias = AnAliasID then
+      DoDelete := True;
+
+    // Check the dest alias (if needed)
+    if DelayedMessage.LccMessage.HasDestination then
+    begin
+      if DelayedMessage.LccMessage.CAN.DestAlias = AnAliasID then
+        DoDelete := True;
+    end;
+
+    // Check extra mappings
+     for j := 0 to Length(DelayedMessage.ExtraMappings) - 1 do
+    begin
+      if DelayedMessage.ExtraMappings[j].Alias = AnAliasID then
+        DoDelete := True;
+    end;
+
+    if DoDelete then
     begin
       DelayedMessageList.Delete(i);
       DelayedMessage.Free;
@@ -212,29 +280,10 @@ begin
   end;
 end;
 
-function TLccAliasServer.AddDelayedMessage(ADelayedMessage: TLccMessage): TLccMessage;
+function TLccAliasServer.AddDelayedMessage(ADelayedMessage: TLccMessage): TLccDelayedMessage;
 begin
-  Result := ADelayedMessage.Clone;
+  Result := TLccDelayedMessage.Create(ADelayedMessage);
   DelayedMessageList.Add(Result);
-end;
-
-function TLccAliasServer.PopDelayedMessageByAlias(AnAliasID: Word): TLccMessage;
-var
-  i: Integer;
-  TestMessage: TLccMessage;
-begin
-  // First in is First out
-  Result := nil;
-  for i := 0 to DelayedMessageList.Count - 1 do
-  begin
-    TestMessage := DelayedMessageList[i] as TLccMessage;
-    if TestMessage.CAN.SourceAlias = AnAliasID then
-    begin
-      Result := TestMessage;
-      DelayedMessageList.Delete(i);
-      Break;
-    end;
-  end;
 end;
 
 function TLccAliasServer.RemoveMappingByAlias(AnAlias: Word;
@@ -253,6 +302,57 @@ begin
     MappingList.Remove(TestMapping);
     MappingList.OwnsObjects := WasOwnsObject;
     Result := TestMapping;
+  end;
+end;
+
+function TLccAliasServer.UpdateDelayedMessageMapping(NewMapping: TLccAliasMapping): TLccDelayedMessage;
+var
+  i, j: Integer;
+  DelayedMessage: TLccDelayedMessage;
+begin
+  Result := nil;
+  for i := 0 to DelayedMessageList.Count - 1 do
+  begin
+    DelayedMessage := DelayedMessageList[i] as TLccDelayedMessage;
+
+    // Update the Source
+    if (DelayedMessage.LccMessage.CAN.SourceAlias = NewMapping.NodeAlias) or
+       EqualNodeID(DelayedMessage.LccMessage.SourceID, NewMapping.NodeID, False) then
+    begin
+      DelayedMessage.LccMessage.CAN.SourceAlias := NewMapping.NodeAlias;
+      DelayedMessage.LccMessage.SourceID := NewMapping.NodeID;
+    end;
+
+    // Update the Dest (if required)
+    if DelayedMessage.LccMessage.HasDestination then
+    begin
+      if (DelayedMessage.LccMessage.CAN.DestAlias = NewMapping.NodeAlias) or
+         EqualNodeID(DelayedMessage.LccMessage.DestID, NewMapping.NodeID, False) then
+      begin
+        DelayedMessage.LccMessage.CAN.DestAlias := NewMapping.NodeAlias;
+        DelayedMessage.LccMessage.DestID := NewMapping.NodeID;
+      end
+    end;
+
+    // Update Extra Mapping if necessary
+    for j := 0 to Length(DelayedMessage.ExtraMappings) - 1 do
+    begin
+      if (DelayedMessage.ExtraMappings[j].Alias = NewMapping.NodeAlias) or
+          EqualNodeID(DelayedMessage.ExtraMappings[j].ID, NewMapping.NodeID, False) then
+      begin
+        DelayedMessage.ExtraMappings[j].ID := NewMapping.NodeID;
+        DelayedMessage.ExtraMappings[j].Alias := NewMapping.NodeAlias;
+      end;
+    end;
+  end;
+
+  if DelayedMessageList.Count > 0 then
+  begin
+    if DelayedMessageMappingComplete(DelayedMessageList[0] as TLccDelayedMessage) then
+    begin
+      Result := DelayedMessageList[0] as TLccDelayedMessage;
+      DelayedMessageList.Delete(0);
+    end;
   end;
 end;
 

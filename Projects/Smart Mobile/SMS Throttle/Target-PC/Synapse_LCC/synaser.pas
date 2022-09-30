@@ -1153,6 +1153,7 @@ begin
     y := si - x;
     if y > cSerialChunk then
       y := cSerialChunk;
+    s := '';
     Setlength(s, y);
     yr := Stream.read(PAnsiChar(s)^, y);
     if yr > 0 then

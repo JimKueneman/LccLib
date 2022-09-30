@@ -1,0 +1,76 @@
+object FormConsistEditor: TFormConsistEditor
+  Left = 619
+  Height = 155
+  Top = 207
+  Width = 315
+  Caption = 'Consist Editor'
+  ClientHeight = 155
+  ClientWidth = 315
+  LCLVersion = '2.2.2.0'
+  object LabelTrain: TLabel
+    Left = 16
+    Height = 16
+    Top = 16
+    Width = 30
+    Caption = 'Train'
+    ParentColor = False
+  end
+  object LabelTrainID: TLabel
+    Left = 56
+    Height = 16
+    Top = 16
+    Width = 42
+    Caption = '[None]'
+    ParentColor = False
+  end
+  object CheckBoxReverse: TCheckBox
+    Left = 40
+    Height = 18
+    Top = 48
+    Width = 122
+    Caption = 'Reverse Direction'
+    TabOrder = 0
+  end
+  object CheckBoxLinkF0: TCheckBox
+    Left = 40
+    Height = 18
+    Top = 72
+    Width = 139
+    Caption = 'Forward Function F0'
+    TabOrder = 1
+  end
+  object CheckBoxLinkFn: TCheckBox
+    Left = 41
+    Height = 18
+    Top = 96
+    Width = 145
+    Caption = 'Forward All Functions'
+    TabOrder = 2
+  end
+  object CheckBoxHidden: TCheckBox
+    Left = 44
+    Height = 18
+    Top = 120
+    Width = 139
+    Caption = 'Hide in User Interfce'
+    TabOrder = 3
+  end
+  object Button1: TButton
+    Left = 208
+    Height = 25
+    Top = 80
+    Width = 75
+    Caption = 'Ok'
+    ModalResult = 1
+    TabOrder = 4
+  end
+  object Button2: TButton
+    Left = 208
+    Height = 25
+    Top = 112
+    Width = 75
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 5
+  end
+end
