@@ -451,11 +451,8 @@ const
 
   TRACTION_LISTENER                   = $30;
   TRACTION_LISTENER_ATTACH            = $01;
-  TRACTION_LISTENER_ATTACH_REPLY      = $01;
   TRACTION_LISTENER_DETACH            = $02;
-  TRACTION_LISTENER_DETACH_REPLY      = $02;
   TRACTION_LISTENER_QUERY             = $03;
-  TRACTION_LISTENER_QUERY_REPLY       = $03;
 
   TRACTION_LISTENER_FLAG_ALIAS_VALID  = $01;   // Depreciated, Aliases are not portable across ethernet bridges.  Alias parameter no longer used
   TRACTION_LISTENER_FLAG_REVERSE_DIR  = $02;
@@ -471,7 +468,6 @@ const
   TRACTION_MANAGE_RESERVE             = $01;
   TRACTION_MANAGE_RELEASE             = $02;
   TRACTION_MANAGE_HEARTBEAT           = $03;
-  TRACTION_RESERVE_REPLY              = $01;
 
   TRACTION_MANAGE_RESERVE_REPLY_OK   = $00;    // Failed is not 0
   TRACTION_MANAGE_RESERVE_REPLY_FAIL = $01;

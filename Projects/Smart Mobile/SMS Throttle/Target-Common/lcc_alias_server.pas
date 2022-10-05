@@ -225,7 +225,11 @@ begin
 end;
 
 procedure TLccAliasServer.FlushDelayedMessages;
+var
+  i: Integer;
 begin
+  for i := 0 to DelayedMessageList.Count - 1 do
+    (DelayedMessageList[i] as TObject).Free;
   DelayedMessageList.Clear;
 end;
 

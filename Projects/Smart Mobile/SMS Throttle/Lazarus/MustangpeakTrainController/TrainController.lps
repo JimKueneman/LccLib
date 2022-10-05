@@ -19,7 +19,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="392"/>
+        <TopLine Value="386"/>
         <CursorPos X="69" Y="405"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
@@ -58,7 +58,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="33"/>
         <CursorPos X="42" Y="42"/>
-        <UsageCount Value="0"/>
+        <UsageCount Value="10"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../Target-Common/lcc_node_messages.pas"/>

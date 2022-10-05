@@ -114,6 +114,9 @@ type
     procedure DoTractionListenerAttach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
     procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer);
+    procedure DoTractionUpdateSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionUpdateTrainSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionUpdateListenerCount(LccNode: TLccNode; TrainObject: TLccTrainObject);
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
     procedure DoVerifiedNodeID(LccNode: TLccNode);
     procedure DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
@@ -133,6 +136,9 @@ type
   TOnLccNodeListenerAttach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerDetach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerQuery = procedure(Sender: TObject; LccSourceNode: TLccNode; Index: Integer) of object;
+  TOnLccTractionUpdateSNIP = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
+  TOnLccTractionUpdateTrainSNIP = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
+  TOnLccTractionUpdateListenerCount = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
   TOnAliasMappingChange = procedure(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean) of object;
   TOnTrainRegisteringChange = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean) of object;
   TOnTrainInformationChange = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
@@ -181,6 +187,9 @@ type
     FOnLccNodeTractionSpeedSet: TOnLccNodeMessageWithReply;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnLccMessageSend: TOnMessageEvent;
+    FOnLccTractionUpdateListenerCount: TOnLccTractionUpdateListenerCount;
+    FOnLccTractionUpdateSNIP: TOnLccTractionUpdateSNIP;
+    FOnLccTractionUpdateTrainSNIP: TOnLccTractionUpdateTrainSNIP;
     FOnTrainInformationChange: TOnTrainInformationChange;
     FOnTrainRegisteringChange: TOnTrainRegisteringChange;
     {$IFDEF DELPHI}
@@ -230,6 +239,9 @@ type
     procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte); virtual;
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer); virtual;
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
+    procedure DoTractionUpdateSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionUpdateTrainSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionUpdateListenerCount(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
     procedure DoVerifiedNodeID(LccNode: TLccNode); virtual;
     procedure DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean); virtual;
     procedure DoTrainRegisteringChange(LccNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean); virtual;
@@ -323,6 +335,9 @@ type
     property OnLccNodeTractionListenerAttach: TOnLccNodeListenerAttach read FOnLccNodeTractionListenerAttach write FOnLccNodeTractionListenerAttach;
     property OnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach read FOnLccNodeTractionListenerDetach write FOnLccNodeTractionListenerDetach;
     property OnLccNodeTractionListenerQuery: TOnLccNodeListenerQuery read FOnLccNodeTractionListenerQuery write FOnLccNodeTractionListenerQuery;
+    property OnLccTractionUpdateSNIP: TOnLccTractionUpdateSNIP read FOnLccTractionUpdateSNIP write FOnLccTractionUpdateSNIP;
+    property OnLccTractionUpdateTrainSNIP: TOnLccTractionUpdateTrainSNIP read FOnLccTractionUpdateTrainSNIP write FOnLccTractionUpdateTrainSNIP;
+    property OnLccTractionUpdateListenerCount: TOnLccTractionUpdateListenerCount read FOnLccTractionUpdateListenerCount write FOnLccTractionUpdateListenerCount;
 
     // Traction DCC Functions
     property OnLccNodeFDI: TOnLccNodeMessageWithDest read FOnLccNodeFDI write FOnLccNodeFDI;
@@ -582,6 +597,24 @@ procedure TLccNodeManager.DoTractionManage(LccNode: TLccNode;
 begin
   if Assigned(OnLccNodeTractionManage) then
     OnLccNodeTractionManage(Self, LccNode, LccMessage, IsReply);
+end;
+
+procedure TLccNodeManager.DoTractionUpdateSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+  if Assigned(OnLccTractionUpdateSNIP) then
+    OnLccTractionUpdateSNIP(Self, LccNode, TrainObject);
+end;
+
+procedure TLccNodeManager.DoTractionUpdateTrainSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+  if Assigned(OnLccTractionUpdateTrainSNIP) then
+    OnLccTractionUpdateTrainSNIP(Self, LccNode, TrainObject);
+end;
+
+procedure TLccNodeManager.DoTractionUpdateListenerCount(LccNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+  if Assigned(OnLccTractionUpdateListenerCount) then
+    OnLccTractionUpdateListenerCount(Self, LccNode, TrainObject);
 end;
 
 procedure TLccNodeManager.DoVerifiedNodeID(LccNode: TLccNode);

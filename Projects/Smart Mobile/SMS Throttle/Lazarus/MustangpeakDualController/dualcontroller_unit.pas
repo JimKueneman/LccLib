@@ -9,7 +9,7 @@ uses
   StdCtrls, Buttons, lcc_node_manager, lcc_ethernet_client, lcc_node,
   lcc_node_controller, lcc_node_messages, lcc_defines, lcc_node_train, lcc_math_float16,
   throttle_takeover_request_form, lcc_common_classes, lcc_ethernet_common,
-  Contnrs, form_logging;
+  Contnrs, form_logging, form_visual_server, lcc_alias_server, lcc_train_server;
 
 type
 
@@ -162,6 +162,7 @@ type
     TabSheetThrottle2Throttle: TTabSheet;
     TabSheetThrottle1Throttle: TTabSheet;
     ToggleBoxLogging: TToggleBox;
+    ToggleBoxServerForm: TToggleBox;
     TrackBarThrottle1: TTrackBar;
     TrackBarThrottle2: TTrackBar;
     TreeViewConsists2: TTreeView;
@@ -190,6 +191,7 @@ type
     procedure SpeedButtonThrottleAssign1Click(Sender: TObject);
     procedure SpeedButtonThrottleAssign2Click(Sender: TObject);
     procedure ToggleBoxLoggingChange(Sender: TObject);
+    procedure ToggleBoxServerFormChange(Sender: TObject);
     procedure TrackBarThrottle1Change(Sender: TObject);
     procedure TrackBarThrottle2Change(Sender: TObject);
     procedure TreeViewConsistWizard1Deletion(Sender: TObject; Node: TTreeNode);
@@ -265,6 +267,12 @@ type
     procedure ReleaseTrain1;
     procedure ReleaseTrain2;
 
+    procedure OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+    procedure OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+
+    procedure OnLccTractionUpdateSNIP1(Sender: TObject; LccSourceNode: TLccNode; Index: Integer);
+    procedure OnLccTractionUpdateTrainSNIP1(Sender: TObject; LccSourceNode: TLccNode; Index: Integer);
+    procedure OnLccTractionUpdateListenerCount1(Sender: TObject; LccSourceNode: TLccNode; Index: Integer);
 
   public
     NodeManager1: TLccNodeManager;
@@ -441,6 +449,9 @@ begin
   ClientServer2.OnConnectionStateChange := @OnClientServer2ConnectionChange;
   ClientServer2.OnErrorMessage := @OnClientServer2ErrorMessage;
 
+  NodeManager1.OnAliasMappingChange := @OnAliasMappingChange;
+  NodeManager1.OnTrainRegisteringChange := @OnTrainRegisteringChange;
+
   PageControlThrottle1.Enabled := False;
   PageControlThrottle2.Enabled := False;
   PanelThrottleKeypad1.Enabled := False;
@@ -605,6 +616,14 @@ begin
     FormNetworkLogging.Show
   else
     FormNetworkLogging.Hide;
+end;
+
+procedure TForm1.ToggleBoxServerFormChange(Sender: TObject);
+begin
+  if ToggleBoxServerForm.Checked then
+    FormServerInfo.Show
+  else
+    FormServerInfo.Hide
 end;
 
 procedure TForm1.TrackBarThrottle1Change(Sender: TObject);
@@ -775,6 +794,8 @@ begin
         begin
           StatusBarThrottle1.Panels[0].Text := 'Disconnecting';
           NodeManager1.Clear;
+          FormServerInfo.TreeViewAliasMaps.Items.Clear;
+          FormServerInfo.TreeViewTrains.Items.Clear;
           ControllerNode1 := nil;
         end;
       lcsDisconnected :
@@ -1125,6 +1146,42 @@ procedure TForm1.ReleaseTrain2;
 begin
   if Assigned(ControllerNode2) then
     ControllerNode2.ReleaseTrain;
+end;
+
+procedure TForm1.OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode;
+  AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+begin
+  if IsMapped then
+    FormServerInfo.AddAliasMap(AnAliasMapping)
+  else
+    FormServerInfo.RemoveAliasMap(AnAliasMapping);
+end;
+
+procedure TForm1.OnTrainRegisteringChange(Sender: TObject;
+  LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+begin
+  if IsRegistered then
+    FormServerInfo.AddTrainObject(TrainObject)
+  else
+    FormServerInfo.RemoveTrainObject(TrainObject);
+end;
+
+procedure TForm1.OnLccTractionUpdateSNIP1(Sender: TObject;
+  LccSourceNode: TLccNode; Index: Integer);
+begin
+
+end;
+
+procedure TForm1.OnLccTractionUpdateTrainSNIP1(Sender: TObject;
+  LccSourceNode: TLccNode; Index: Integer);
+begin
+
+end;
+
+procedure TForm1.OnLccTractionUpdateListenerCount1(Sender: TObject;
+  LccSourceNode: TLccNode; Index: Integer);
+begin
+
 end;
 
 procedure TForm1.SpeedButtonConsistSubtract1Click(Sender: TObject);

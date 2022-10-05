@@ -112,56 +112,6 @@ type
   TOnActionCompleteCallback = procedure(SourceAction: TLccAction) of object;
 
 
-  { TLccActionTrainSnip }
-
-  TLccActionTrainSnip = class
-  private
-    FManufacturer: string;
-    FOwner: string;
-    FRoadName: string;
-    FRoadNumber: string;
-    FTrainClass: string;
-    FTrainName: string;
-    FValid: Boolean;
-    FVersion: Byte;
-  public
-    property Manufacturer: string read FManufacturer write FManufacturer;
-    property Owner: string read FOwner write FOwner;
-    property RoadName: string read FRoadName write FRoadName;
-    property TrainName: string read FTrainName write FTrainName;
-    property TrainClass: string read FTrainClass write FTrainClass;
-    property RoadNumber: string read FRoadNumber write FRoadNumber;
-    property Version: Byte read FVersion write FVersion;
-    property Valid: Boolean read FValid write FValid;
-  end;
-
-  { TLccActionSnipRec }
-
-  TLccActionSnipRec = class
-  private
-    FHardwareVersion: string;
-    FManufacturer: string;
-    FModel: string;
-    FSoftwareVersion: string;
-    FUserDecription: string;
-    FUserDescription: string;
-    FUserName: string;
-    FUserVersion: Byte;
-    FValid: Boolean;
-    FVersion: Byte;
-  public
-    property Version: Byte read FVersion write FVersion;
-    property Manufacturer: string read FManufacturer write FManufacturer;
-    property Model: string read FModel write FModel;
-    property HardwareVersion: string read FHardwareVersion write FHardwareVersion;
-    property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
-    property UserVersion: Byte read FUserVersion write FUserVersion;
-    property UserName: string read FUserName write FUserName;
-    property UserDescription: string read FUserDescription write FUserDecription;
-
-    property Valid: Boolean read FValid write FValid;
-  end;
-
   { TLccListenerInfo }
 
   TLccListenerInfo = class
@@ -192,8 +142,8 @@ type
     FSearchCriteria: DWORD;          // Search Critera Data
     FSearchCriteriaFound: Boolean;   // This NodeID/AliasID Train responded that it has this Search Criteria
     FSearchCriteriaValid: Boolean;   // The Search Critera Data is valid information and can be used
-    FSNIP: TLccActionSnipRec;
-    FTrainSNIP: TLccActionTrainSnip;
+    FSNIP: TLccSNIPObject;
+    FTrainSNIP: TLccTrainSNIPObject;
   public
     property NodeID: TNodeID read FNodeID write FNodeID;
     property AliasID: Word read FAliasID write FAliasID;
@@ -202,8 +152,8 @@ type
     property SearchCriteriaFound: Boolean read FSearchCriteriaFound write FSearchCriteriaFound;
 
     property IsReserved: Boolean read FIsReserved write FIsReserved;
-    property TrainSNIP: TLccActionTrainSnip read FTrainSNIP write FTrainSNIP;
-    property SNIP: TLccActionSnipRec read FSNIP write FSNIP;
+    property TrainSNIP: TLccTrainSNIPObject read FTrainSNIP write FTrainSNIP;
+    property SNIP: TLccSNIPObject read FSNIP write FSNIP;
     property Listener: TLccListenerInfo read FListener write FListener;
 
 
@@ -417,6 +367,7 @@ type
     FAliasID: Word;
     FAliasServer: TLccAliasServer;
     FDuplicateAliasDetected: Boolean;
+    FEnableTrainDatabase: Boolean;
     FGridConnect: Boolean;
     FLccActions: TLccActionHub;
     FLoginTimoutCounter: Integer;
@@ -464,6 +415,7 @@ type
 
     function GetAliasIDStr: String;
     function GetNodeIDStr: String;
+    procedure SetEnableTrainDatabase(AValue: Boolean);
   protected
     FNodeID: TNodeID;
 
@@ -510,6 +462,7 @@ type
     property Initialized: Boolean read FInitialized;
     property LccActions: TLccActionHub read FLccActions write FLccActions;
     property SendMessageFunc: TOnMessageEvent read FSendMessageFunc;
+    property EnableTrainDatabase: Boolean read FEnableTrainDatabase write SetEnableTrainDatabase;
 
     // GridConnect Helpers
     property AliasID: Word read FAliasID;
@@ -577,8 +530,8 @@ end;
 constructor TLccActionTrainInfo.Create;
 begin
   inherited Create;
-  FTrainSNIP := TLccActionTrainSnip.Create;
-  FSNIP := TLccActionSnipRec.Create;
+  FTrainSNIP := TLccTrainSNIPObject.Create;
+  FSNIP := TLccSNIPObject.Create;
   FListener := TLccListenerInfo.Create;
 end;
 
@@ -1088,6 +1041,13 @@ begin
  Result := '0x' + Result   }
 end;
 
+procedure TLccNode.SetEnableTrainDatabase(AValue: Boolean);
+begin
+  if FEnableTrainDatabase=AValue then Exit;
+  FEnableTrainDatabase:=AValue;
+  TrainServer.Clear;
+end;
+
 function TLccNode.GetAliasIDStr: String;
 begin
   Result := NodeAliasToString(AliasID);
@@ -1316,12 +1276,38 @@ begin
 end;
 
 function TLccNode.ProcessMessageLCC(SourceMessage: TLccMessage): Boolean;
+
+  procedure UpdateTrainServerAndGetTrainInfo;
+  var
+    LocalAliasMapping: TLccAliasMapping;
+    LocalTrainObject: TLccTrainObject;
+  begin
+    if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
+    begin
+      // Guarenteed to have Mappings before I ever get here
+      LocalAliasMapping := AliasServer.FindMapping(SourceMessage.CAN.SourceAlias);
+      if Assigned(LocalAliasMapping) then
+      begin
+        // Gets removed in the CAN Process Message and AMR
+        LocalTrainObject := TrainServer.AddTrainObject(LocalAliasMapping.NodeID, LocalAliasMapping.NodeAlias);
+        (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, LocalTrainObject, True);
+
+        // Get some information about this train
+        WorkerMessage.LoadSimpleNodeIdentInfoRequest(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadSimpleTrainNodeIdentInfoRequest(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+        SendMessageFunc(Self, WorkerMessage);
+        WorkerMessage.LoadTractionListenerQueryCount(NodeID, AliasID, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias);
+        SendMessageFunc(Self, WorkerMessage);
+      end;
+    end;
+  end;
+
 var
   TestNodeID: TNodeID;
   Temp: TEventID;
-  AddressSpace, OperationType, TractionCode: Byte;
+  AddressSpace, OperationType: Byte;
   DoDefault: Boolean;
-  AliasMapping: TLccAliasMapping;
   TrainObject: TLccTrainObject;
 begin
 
@@ -1350,28 +1336,6 @@ begin
   end;
 
   LccActions.ProcessMessage(SourceMessage);
-
-
-  // Train Roster Updates ******************************************************
-  case SourceMessage.MTI of
-    MTI_PRODUCER_IDENTIFIED_CLEAR,
-    MTI_PRODUCER_IDENTIFIED_SET,
-    MTI_PRODUCER_IDENTIFIED_UNKNOWN :
-      begin
-        if SourceMessage.IsEqualEventID(EVENT_IS_TRAIN) then
-        begin
-          // Guarenteed to have Mappings before I ever get here
-          AliasMapping := AliasServer.FindMapping(SourceMessage.CAN.SourceAlias);
-          if Assigned(AliasMapping) then
-          begin
-            // Gets removed in the CAN Process Message and AMR
-            TrainObject := TrainServer.AddTrainObject(AliasMapping.NodeID, AliasMapping.NodeAlias);
-            (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, TrainObject, True);
-          end;
-        end;
-      end;
-  end;
-  // END: Train Roster Updates *************************************************
 
 
   // Next look to see if it is an addressed message and if not for use just exit
@@ -1430,6 +1394,12 @@ begin
     MTI_SIMPLE_NODE_INFO_REPLY :
         begin  // Called if I send a SNIP Request and the other node replies
           // TODO need a call back handler
+          if EnableTrainDatabase then
+          begin
+            TrainObject := TrainServer.UpdateSNIP(SourceMessage);
+            if Assigned(TrainObject) then
+              (NodeManager as INodeManagerCallbacks).DoTractionUpdateSNIP(Self, TrainObject);
+          end;
           Result := True;
         end;
 
@@ -1523,16 +1493,22 @@ begin
         end;
      MTI_PRODUCER_IDENTIFIED_CLEAR :
         begin
+          if EnableTrainDatabase then
+            UpdateTrainServerAndGetTrainInfo;
           Temp := SourceMessage.ExtractDataBytesAsEventID(0);
           (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceMessage, Temp, evs_inValid);
         end;
      MTI_PRODUCER_IDENTIFIED_SET :
         begin
+          if EnableTrainDatabase then
+            UpdateTrainServerAndGetTrainInfo;
           Temp := SourceMessage.ExtractDataBytesAsEventID(0);
           (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceMessage, Temp, evs_Valid);
         end;
      MTI_PRODUCER_IDENTIFIED_UNKNOWN :
         begin
+          if EnableTrainDatabase then
+            UpdateTrainServerAndGetTrainInfo;
           Temp := SourceMessage.ExtractDataBytesAsEventID(0);
           (NodeManager as INodeManagerCallbacks).DoProducerIdentified(Self, SourceMessage, Temp, evs_Unknown);
         end;
@@ -1546,12 +1522,17 @@ begin
         end;
     MTI_TRACTION_SIMPLE_TRAIN_INFO_REPLY :
         begin
+          if EnableTrainDatabase then
+          begin
+            TrainObject := TrainServer.UpdateSNIP(SourceMessage);
+            if Assigned(TrainObject) then
+              (NodeManager as INodeManagerCallbacks).DoTractionUpdateTrainSNIP(Self, TrainObject);
+          end;
           Result := True;
         end;
     MTI_TRACTION_REQUEST :
         begin
-          TractionCode := SourceMessage.DataArrayIndexer[0];
-          case TractionCode of
+          case SourceMessage.DataArray[0] of
             TRACTION_SPEED_DIR :
                begin
                 // ProtocolTraction.SetSpeedDir(SourceMessage);
@@ -1579,7 +1560,17 @@ begin
                end;
              TRACTION_LISTENER :
                begin
-
+                 case SourceMessage.DataArrayIndexer[1] of
+                   TRACTION_LISTENER_ATTACH :
+                     begin
+                     end;
+                 TRACTION_LISTENER_DETACH :
+                     begin
+                     end;
+                   TRACTION_LISTENER_QUERY :
+                      begin
+                      end;
+                 end;
                end;
              TRACTION_MANAGE :
                begin
@@ -1590,8 +1581,7 @@ begin
         end;
     MTI_TRACTION_REPLY :
         begin
-          TractionCode := SourceMessage.DataArrayIndexer[0];
-          case TractionCode of
+          case SourceMessage.DataArray[0] of
             TRACTION_QUERY_SPEED :
                begin
                  (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, SourceMessage, True);
@@ -1605,8 +1595,25 @@ begin
                  (NodeManager as INodeManagerCallbacks).DoTractionControllerConfig(Self, SourceMessage, True);
                end;
              TRACTION_LISTENER :
-               begin
+              begin
+                case SourceMessage.DataArrayIndexer[1] of
+                  TRACTION_LISTENER_ATTACH :
+                    begin
 
+                    end;
+                  TRACTION_LISTENER_DETACH :
+                    begin
+                     end;
+                  TRACTION_LISTENER_QUERY :
+                    begin
+                      if EnableTrainDatabase then
+                      begin
+                        TrainObject := TrainServer.UpdateListenerCount(SourceMessage);
+                        if Assigned(TrainServer) then
+                           (NodeManager as INodeManagerCallbacks).DoTractionUpdateListenerCount(Self, TrainObject);
+                      end;
+                    end;
+                 end;
                end;
              TRACTION_MANAGE :
                begin
@@ -1833,13 +1840,16 @@ function TLccNode.ProcessMessageGridConnect(SourceMessage: TLccMessage): Boolean
       end;
     end;
     // Remove any Trains that are associated with this Alias that is going away
-    LocalTrainObject := TrainServer.RemoveTrainObjectByAlias(SourceMessage.CAN.SourceAlias);
-    if Assigned(LocalTrainObject) then
+    if EnableTrainDatabase then
     begin
-      try
-        (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, LocalTrainObject, False);
-      finally
-        LocalTrainObject.Free;
+      LocalTrainObject := TrainServer.RemoveTrainObjectByAlias(SourceMessage.CAN.SourceAlias);
+      if Assigned(LocalTrainObject) then
+      begin
+        try
+          (NodeManager as INodeManagerCallbacks).DoTrainRegisteringChange(Self, LocalTrainObject, False);
+        finally
+          LocalTrainObject.Free;
+        end;
       end;
     end
   end;
@@ -1854,12 +1864,12 @@ begin
   // Alias Mapping Updates ******************************************************
   // Keep the Alias Maps up to date regardless of our state
 
-  // Special case to handle a non CAN message here, we sen an alias (below) the receive the full Node ID here
+  // Special case to handle a non CAN message here, we sent an alias (below) the receive the full Node ID here
   case SourceMessage.MTI of
     MTI_VERIFIED_NODE_ID_NUMBER : NewMappingAndProcessDelayedMessages
   end;
 
-  // Now handle CAN messages that will effect or mapping database
+  // Now handle CAN messages that will effect our mapping database
   case SourceMessage.CAN.MTI of
     MTI_CAN_AMR : MappingReset; // Alias Mapping Reset
     MTI_CAN_AMD : NewMappingAndProcessDelayedMessages;  // Alias Mapping Definition
@@ -2152,7 +2162,7 @@ end;
 
 procedure TLccNode.Logout;
 var
-  AMapping: TLccAliasMapping;
+  LocaMapping: TLccAliasMapping;
 begin
   (NodeManager as INodeManagerCallbacks).DoLogOutNode(Self);
   if GridConnect then
@@ -2169,11 +2179,12 @@ begin
   if GridConnect then
   begin
     AliasServer.FlushDelayedMessages;
-    AMapping := AliasServer.RemoveMappingByAlias(AliasID, False);
+    LocaMapping := AliasServer.RemoveMappingByAlias(AliasID, False);
     try
-      (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, AMapping, False);
+      if Assigned(LocaMapping) then
+        (NodeManager as INodeManagerCallbacks).DoAliasMappingChange(Self, LocaMapping, False);
     finally
-      AMapping.Free;
+      LocaMapping.Free;
     end;
   end;
 end;

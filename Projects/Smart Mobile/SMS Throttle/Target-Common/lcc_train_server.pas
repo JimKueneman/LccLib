@@ -43,7 +43,9 @@ uses
 {$ENDIF}
   lcc_defines,
   lcc_node_messages,
-  lcc_utilities;
+  lcc_utilities,
+lcc_protocol_traction_simpletrainnodeinfo,
+  lcc_protocol_simplenodeinfo;
 
 type
 
@@ -53,10 +55,16 @@ type
   private
     FNodeAlias: Word;
     FNodeID: TNodeID;
+    FSNIP: TLccSNIPObject;
+    FTrainSNIP: TLccTrainSNIPObject;
   public
     property NodeID: TNodeID read FNodeID write FNodeID;
     property NodeAlias: Word read FNodeAlias write FNodeAlias;
+    property SNIP: TLccSNIPObject read FSNIP write FSNIP;
+    property TrainSNIP: TLccTrainSNIPObject read FTrainSNIP write FTrainSNIP;
 
+    constructor Create;
+    destructor Destroy; override;
   end;
 
   { TLccTrainServer }
@@ -76,6 +84,10 @@ type
     function RemoveTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
     function FindTrainObjectByAlias(TestAlias: Word): TLccTrainObject;
     function FindTrainObjectByNodeID(TestNodeID: TNodeID): TLccTrainObject;
+    function UpdateSNIP(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateTrainSNIP(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateListenerCount(AMessage: TLccMessage): TLccTrainObject;
+    procedure Clear;
 
     {$IFDEF DELPHI}
     property TrainList: TObjectList<TLccTrainObject> read FTrainList write FTrainList;
@@ -85,6 +97,21 @@ type
   end;
 
 implementation
+
+{ TLccTrainObject }
+
+constructor TLccTrainObject.Create;
+begin
+  FSNIP := TLccSNIPObject.Create;
+  FTrainSNIP := TLccTrainSNIPObject.Create;
+end;
+
+destructor TLccTrainObject.Destroy;
+begin
+  FreeAndNil(FSNIP);
+  FreeAndNil(FTrainSNIP);
+  inherited Destroy;
+end;
 
 { TLccTrainServer }
 
@@ -169,6 +196,95 @@ begin
       Break
     end;
   end;
+end;
+
+function TLccTrainServer.UpdateSNIP(AMessage: TLccMessage): TLccTrainObject;
+var
+  Version,
+  UserVersion: byte;
+  Manufacturer,
+  Model,
+  HardwareVersion,
+  SoftwareVersion,
+  UserName,
+  UserDescription: string;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+  begin
+    Version := 0;
+    UserVersion := 0;
+    Manufacturer := '';
+    Model := '';
+    HardwareVersion := '';
+    SoftwareVersion := '';
+    UserName := '';
+    UserDescription := '';
+    AMessage.ExtractSimpleNodeIdentInfo(Version, Manufacturer, Model, HardwareVersion, SoftwareVersion, UserVersion, UserName, UserDescription);
+    Result.SNIP.Version := Version;
+    Result.SNIP.Manufacturer := Manufacturer;
+    Result.SNIP.Model := Model;
+    Result.SNIP.HardwareVersion := HardwareVersion;
+    Result.SNIP.SoftwareVersion := SoftwareVersion;
+    Result.SNIP.UserVersion := UserVersion;
+    Result.SNIP.UserName := UserName;
+    Result.SNIP.UserDescription := UserDescription;
+    Result.SNIP.Valid := True;
+  end;
+end;
+
+function TLccTrainServer.UpdateTrainSNIP(AMessage: TLccMessage): TLccTrainObject;
+var
+  TrainVersion: Byte;
+  TrainRoadName,
+  TrainClass,
+  TrainRoadNumber,
+  TrainName,
+  TrainManufacturer,
+  TrainOwner: string;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+  begin
+    TrainVersion := 0;
+    TrainRoadName := '';
+    TrainClass := '';
+    TrainRoadNumber := '';
+    TrainName := '';
+    TrainManufacturer := '';
+    TrainOwner := '';
+    AMessage.ExtractSimpleTrainNodeIdentInfo(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
+    Result.TrainSNIP.Manufacturer := TrainManufacturer;
+    Result.TrainSNIP.Owner := TrainOwner;
+    Result.TrainSNIP.Roadname := TrainRoadName;
+    Result.TrainSNIP.RoadNumber := TrainRoadNumber;
+    Result.TrainSNIP.TrainClass := TrainClass;
+    Result.TrainSNIP.TrainName := TrainName;
+    Result.TrainSNIP.Version := TrainVersion;
+    Result.TrainSNIP.Valid := True;
+  end;
+end;
+
+function TLccTrainServer.UpdateListenerCount(AMessage: TLccMessage): TLccTrainObject;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+  begin
+
+  end;
+end;
+
+procedure TLccTrainServer.Clear;
+var
+  i: Integer;
+begin
+  try
+    for i := 0 to TrainList.Count - 1 do
+      TrainList[i].Free;
+  finally
+    TrainList.Clear;
+  end;
+
 end;
 
 end.

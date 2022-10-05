@@ -96,7 +96,7 @@ type
 
     constructor Create(AEncodedCriteria: DWORD); overload;
     constructor Create(ASearchString: string; AnAddress: Word; ASpeedStep: TLccDccSpeedStep; IsLongAddress, ForceNewNode: Boolean); overload;
-     function Clone: TLccDCCSearchCriteriaEvent;
+    function Clone: TLccDCCSearchCriteriaEvent;
   end;
 
   { TLccActionSearchGatherAndSelectTrain }
@@ -455,6 +455,7 @@ type
     property OnQueryListenerIndex: TOnControllerQueryListenerIndex read FOnQueryListenerIndex write FOnQueryListenerIndex;
     property OnQueryConfigurationReply: TOnQueryConfigurationReply read FOnQueryConfigurationReply write FOnQueryConfigurationReply;
 
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string; GridConnectLink: Boolean); override;
     procedure AssignTrainByDccAddress(DccAddress: Word; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure AssignTrainByDccTrain(SearchString: string; IsLongAddress: Boolean; SpeedSteps: TLccDccSpeedStep; UniqueID: Integer = 0);
     procedure AssignTrainByOpenLCB(SearchString: string; TrackProtocolFlags: Word; UniqueID: Integer = 0);
@@ -851,7 +852,7 @@ begin
                TRACTION_LISTENER :
                    begin
                      case SourceMessage.DataArray[1] of
-                       TRACTION_LISTENER_QUERY_REPLY :
+                       TRACTION_LISTENER_QUERY :
                          begin
                            FreezeTimer := True;
                            try
@@ -924,7 +925,7 @@ begin
                TRACTION_LISTENER :
                    begin
                      case SourceMessage.DataArray[1] of
-                       TRACTION_LISTENER_QUERY_REPLY :
+                       TRACTION_LISTENER_QUERY :
                          begin
                            FreezeTimer := True;
                            try
@@ -1165,7 +1166,7 @@ begin
                TRACTION_MANAGE :
                  begin
                    case SourceMessage.DataArray[1] of
-                     TRACTION_RESERVE_REPLY :
+                     TRACTION_MANAGE_RESERVE :
                        begin
                          // keep the timer from being reentrant during event calls with blocking code (dialogs)
                          FreezeTimer := True;
@@ -1417,7 +1418,7 @@ begin
               TrainName := '';
               TrainManufacturer := '';
               TrainOwner := '';
-              SourceMessage.ExtractSimpleTrainNodeIdentInfoReply(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
+              SourceMessage.ExtractSimpleTrainNodeIdentInfo(TrainVersion, TrainRoadName, TrainClass, TrainRoadNumber, TrainName, TrainManufacturer, TrainOwner);
               LocalTrain.TrainSNIP.Manufacturer := TrainManufacturer;
               LocalTrain.TrainSNIP.Owner := TrainOwner;
               LocalTrain.TrainSNIP.Roadname := TrainRoadName;
@@ -1434,7 +1435,7 @@ begin
               TRACTION_LISTENER :
                 begin
                   case SourceMessage.DataArrayIndexer[1] of
-                     TRACTION_LISTENER_QUERY_REPLY :
+                     TRACTION_LISTENER_QUERY :
                        begin
                          if SourceMessage.DataCount = 3 then
                          begin
@@ -1547,7 +1548,7 @@ begin
                  TRACTION_LISTENER :
                      begin
                        case SourceMessage.DataArray[1] of
-                         TRACTION_LISTENER_DETACH_REPLY :
+                         TRACTION_LISTENER_DETACH :
                            begin
                              ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
                              ControllerNode.DoControllerDetachListenerReply(nil, ReplyCode);
@@ -1613,7 +1614,7 @@ begin
                  TRACTION_LISTENER :
                      begin
                        case SourceMessage.DataArray[1] of
-                         TRACTION_LISTENER_ATTACH_REPLY :
+                         TRACTION_LISTENER_ATTACH :
                            begin
                              ReplyCode := SourceMessage.ExtractDataBytesAsWord(8);
                              ControllerNode.DoControllerAttachListenerReply(nil, ReplyCode);
@@ -1970,6 +1971,12 @@ begin
     if not EqualNode(NodeID,  AliasID, SourceMessage.DestID, SourceMessage.CAN.DestAlias, True) then
       Exit;
   end;
+
+  // We can snoop here on all train nodes and try to keep the database updated.
+  // The works until they are on a different segment and messages don't get routed
+  // to this segment.  When will that every occur?  Who nows
+
+ // TrainServer.;
 
   // Only care if coming from our Assigned Train
   if EqualNode(SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, AssignedTrain.NodeID, AssignedTrain.AliasID, True) then
@@ -2335,6 +2342,12 @@ procedure TLccTrainController.DoQueryConfigurationReply(
 begin
   if Assigned(FOnQueryConfigurationReply) then
     FOnQueryConfigurationReply(Self, ConfigMemAddress, Value, ErrorCode, ErrorMsg);
+end;
+
+constructor TLccTrainController.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string; GridConnectLink: Boolean);
+begin
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
+  EnableTrainDatabase := True;
 end;
 
 function TLccTrainController.GetCdiFile: string;

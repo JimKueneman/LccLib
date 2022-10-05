@@ -26,6 +26,29 @@ uses
 
 type
 
+    { TLccTrainSNIPObject }
+
+  TLccTrainSNIPObject = class
+  private
+    FManufacturer: string;
+    FOwner: string;
+    FRoadName: string;
+    FRoadNumber: string;
+    FTrainClass: string;
+    FTrainName: string;
+    FValid: Boolean;
+    FVersion: Byte;
+  public
+    property Manufacturer: string read FManufacturer write FManufacturer;
+    property Owner: string read FOwner write FOwner;
+    property RoadName: string read FRoadName write FRoadName;
+    property TrainName: string read FTrainName write FTrainName;
+    property TrainClass: string read FTrainClass write FTrainClass;
+    property RoadNumber: string read FRoadNumber write FRoadNumber;
+    property Version: Byte read FVersion write FVersion;
+    property Valid: Boolean read FValid write FValid;
+  end;
+
   { TTractionProtocolSimpleTrainNodeInfo }
 
   TTractionProtocolSimpleTrainNodeInfo = class(TNodeProtocolBase)

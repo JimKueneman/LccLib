@@ -29,7 +29,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="9">
       <Unit0>
         <Filename Value="DualController.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -70,8 +70,16 @@
         <Filename Value="form_logging.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FormNetworkLogging"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="form_visual_server.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormServerInfo"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

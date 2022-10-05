@@ -83,7 +83,7 @@ type
     procedure BeforeLogin; override;
 
   public
-
+    constructor Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string; GridConnectLink: Boolean); override;
     destructor Destroy; override;
     function AddTrain(ADccAddress: Word; ALongAddress: Boolean; ASpeedStep: TLccDccSpeedStep): TLccTrainDccNode;
     procedure ClearTrains;
@@ -142,6 +142,12 @@ begin
   ProtocolMemoryOptions.WriteStream := False;
   ProtocolMemoryOptions.HighSpace := MSI_CDI;
   ProtocolMemoryOptions.LowSpace := MSI_TRACTION_FUNCTION_CONFIG;
+end;
+
+constructor TLccCommandStationNode.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string; GridConnectLink: Boolean);
+begin
+  inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
+  EnableTrainDatabase := True;
 end;
 
 procedure TLccCommandStationNode.ClearTrains;

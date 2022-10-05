@@ -29,6 +29,32 @@ uses
 
 type
 
+  { TLccSNIPObject }
+
+  TLccSNIPObject = class
+  private
+    FHardwareVersion: string;
+    FManufacturer: string;
+    FModel: string;
+    FSoftwareVersion: string;
+    FUserDecription: string;
+    FUserDescription: string;
+    FUserName: string;
+    FUserVersion: Byte;
+    FValid: Boolean;
+    FVersion: Byte;
+  public
+    property Version: Byte read FVersion write FVersion;
+    property Manufacturer: string read FManufacturer write FManufacturer;
+    property Model: string read FModel write FModel;
+    property HardwareVersion: string read FHardwareVersion write FHardwareVersion;
+    property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
+    property UserVersion: Byte read FUserVersion write FUserVersion;
+    property UserName: string read FUserName write FUserName;
+    property UserDescription: string read FUserDescription write FUserDecription;
+    property Valid: Boolean read FValid write FValid;
+  end;
+
   { TProtocolSimpleNodeInfo }
 
   TProtocolSimpleNodeInfo = class(TNodeProtocolBase)

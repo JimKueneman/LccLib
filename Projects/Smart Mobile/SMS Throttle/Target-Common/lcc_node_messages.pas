@@ -196,7 +196,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
 
   // Traction Identification (STNIP)
   procedure LoadSimpleTrainNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
-  procedure ExtractSimpleTrainNodeIdentInfoReply(var Version: Byte; var RoadName: string; var TrainClass: string; var RoadNumber: string; var TrainName: string; var Manufacturer: string; var Owner: string);
+  procedure ExtractSimpleTrainNodeIdentInfo(var Version: Byte; var RoadName: string; var TrainClass: string; var RoadNumber: string; var TrainName: string; var Manufacturer: string; var Owner: string);
   // Node Ident (SNIP)
   procedure LoadSimpleNodeIdentInfoReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; SimplePackedArray: TLccDynamicByteArray);
   procedure LoadSimpleNodeIdentInfoRequest(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
@@ -830,7 +830,7 @@ begin
   Result := IntToHex(ExtractDataBytesAsInt(StartByteIndex, EndByteIndex), EndByteIndex-StartByteIndex);
 end;
 
-procedure TLccMessage.ExtractSimpleTrainNodeIdentInfoReply(var Version: Byte;
+procedure TLccMessage.ExtractSimpleTrainNodeIdentInfo(var Version: Byte;
   var RoadName: string; var TrainClass: string; var RoadNumber: string;
   var TrainName: string; var Manufacturer: string; var Owner: string);
 begin
@@ -2162,7 +2162,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 10;
   FDataArray[0] := TRACTION_LISTENER;
-  FDataArray[1] := TRACTION_LISTENER_ATTACH_REPLY;
+  FDataArray[1] := TRACTION_LISTENER_ATTACH;
   FDataArray[2] := 0;
   InsertNodeID(3, AListenerNodeID);
   FDataArray[8] := Hi(ReplyCode);
@@ -2198,7 +2198,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 10;
   FDataArray[0] := TRACTION_LISTENER;
-  FDataArray[1] := TRACTION_LISTENER_DETACH_REPLY;
+  FDataArray[1] := TRACTION_LISTENER_DETACH;
   FDataArray[2] := 0;
   InsertNodeID(3, AListenerNodeID);
   FDataArray[8] := Hi(ReplyCode);
@@ -2247,13 +2247,13 @@ begin
   begin           // Invalid Index the reply is no data other than the message codes
     DataCount := 3;
     FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY_REPLY;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
     FDataArray[2] := ListenerCount
   end else
   begin          // Valid index so sent the full gamit of info
     DataCount := 11;
     FDataArray[0] := TRACTION_LISTENER;
-    FDataArray[1] := TRACTION_LISTENER_QUERY_REPLY;
+    FDataArray[1] := TRACTION_LISTENER_QUERY;
     FDataArray[2] := ListenerCount;
     FDataArray[3] := ListenerNodeIndex;
     FDataArray[4] := ListenerFlags;
@@ -2290,7 +2290,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 3;
   FDataArray[0] := TRACTION_MANAGE;
-  FDataArray[1] := TRACTION_RESERVE_REPLY;
+  FDataArray[1] := TRACTION_MANAGE_RESERVE;
   if Accepted then
     FDataArray[2] := TRACTION_MANAGE_RESERVE_REPLY_OK
   else

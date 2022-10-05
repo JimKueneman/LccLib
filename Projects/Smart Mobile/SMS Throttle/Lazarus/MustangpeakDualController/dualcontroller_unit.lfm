@@ -633,38 +633,47 @@ object Form1: TForm1
     ClientWidth = 743
     TabOrder = 1
     object EditCommandStationIPAddress: TEdit
-      Left = 232
+      Left = 208
       Height = 23
-      Top = 9
-      Width = 136
+      Top = 10
+      Width = 120
       TabOrder = 0
       Text = '10.0.3.148'
     end
     object Label1: TLabel
-      Left = 32
+      Left = 8
       Height = 15
-      Top = 15
+      Top = 16
       Width = 155
       Caption = 'Command Station IP Address'
       ParentColor = False
     end
     object ButtonActionObjectCount: TButton
-      Left = 400
+      Left = 344
       Height = 22
-      Top = 10
-      Width = 151
+      Top = 11
+      Width = 136
       Caption = 'Action Objects = 0'
       OnClick = ButtonActionObjectCountClick
       TabOrder = 1
     end
     object ToggleBoxLogging: TToggleBox
-      Left = 568
+      Left = 488
       Height = 22
-      Top = 10
-      Width = 144
+      Top = 11
+      Width = 120
       Caption = 'Show Logging'
       OnChange = ToggleBoxLoggingChange
       TabOrder = 2
+    end
+    object ToggleBoxServerForm: TToggleBox
+      Left = 616
+      Height = 22
+      Top = 11
+      Width = 120
+      Caption = 'Show Servers'
+      OnChange = ToggleBoxServerFormChange
+      TabOrder = 3
     end
   end
   object PanelThrottle2: TPanel
@@ -1369,8 +1378,8 @@ object Form1: TForm1
     end
   end
   object ImageList: TImageList
-    Left = 396
-    Top = 9
+    Left = 664
+    Top = 48
     Bitmap = {
       4C7A070000001000000010000000C30600000000000078DAED977B4CD35714C7
       BB2DD9F38FFD61B265D9DC4CE63297B8C560325DCCA689F2D2B94C1C3E98C431
