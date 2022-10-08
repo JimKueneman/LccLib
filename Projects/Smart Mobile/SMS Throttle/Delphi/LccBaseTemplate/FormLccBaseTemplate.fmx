@@ -1,4 +1,4 @@
-object LccThrottleAppForm: TLccThrottleAppForm
+object LccBaseTemplate: TLccBaseTemplate
   Left = 0
   Top = 0
   Caption = 'Form56'
@@ -22,7 +22,7 @@ object LccThrottleAppForm: TLccThrottleAppForm
     Size.Height = 536.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 3
+    TabIndex = 1
     TabOrder = 0
     TabPosition = PlatformDefault
     Sizes = (
@@ -151,7 +151,7 @@ object LccThrottleAppForm: TLccThrottleAppForm
       CustomIcon = <
         item
         end>
-      IsSelected = False
+      IsSelected = True
       Size.Width = 100.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -237,7 +237,7 @@ object LccThrottleAppForm: TLccThrottleAppForm
       CustomIcon = <
         item
         end>
-      IsSelected = True
+      IsSelected = False
       Size.Width = 103.000000000000000000
       Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
@@ -358,17 +358,17 @@ object LccThrottleAppForm: TLccThrottleAppForm
           Text = 'Command Station IP Address'
           TextSettings.HorzAlign = Leading
         end
-        object LabelSystemDocumentsPath: TLabel
+        object LabelPath: TLabel
           Anchors = [akLeft, akTop, akRight]
           HitTest = True
           PopupMenu = PopupMenuLabelPath
           Position.X = 8.000000000000000000
-          Position.Y = 332.000000000000000000
+          Position.Y = 248.000000000000000000
           Size.Width = 389.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
-          Text = 'LabelSystemDocumentsPath'
-          TabOrder = 14
+          Text = 'LabelPath'
+          TabOrder = 11
         end
         object TextConnectionStatus: TText
           Anchors = [akLeft, akTop, akRight]
@@ -381,68 +381,24 @@ object LccThrottleAppForm: TLccThrottleAppForm
         object ButtonDeleteSettingsFile: TButton
           Anchors = [akLeft, akTop, akRight]
           Position.X = 8.000000000000000000
-          Position.Y = 240.000000000000000000
+          Position.Y = 312.000000000000000000
           Size.Width = 389.000000000000000000
           Size.Height = 22.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 16
+          TabOrder = 13
           Text = 'Delete Settings File'
           OnClick = ButtonDeleteSettingsFileClick
         end
         object ButtonDeleteAppFolder: TButton
           Anchors = [akLeft, akTop, akRight]
           Position.X = 8.000000000000000000
-          Position.Y = 270.000000000000000000
+          Position.Y = 342.000000000000000000
           Size.Width = 389.000000000000000000
           Size.Height = 22.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 15
+          TabOrder = 12
           Text = 'Delete Application Files Folder'
           OnClick = ButtonDeleteAppFolderClick
-        end
-        object LabelSystemDocumentsPathHeader: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          HitTest = True
-          PopupMenu = PopupMenuLabelPath
-          Position.X = 8.000000000000000000
-          Position.Y = 315.000000000000000000
-          Size.Width = 389.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'System Documents Path'
-          TabOrder = 13
-        end
-        object LabelApplicationDocumentsHeader: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          HitTest = True
-          PopupMenu = PopupMenuLabelPath
-          Position.X = 8.000000000000000000
-          Position.Y = 356.000000000000000000
-          Size.Width = 389.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Application Documents Path'
-          TabOrder = 11
-        end
-        object LabelApplicationDocumentsPath: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          HitTest = True
-          PopupMenu = PopupMenuLabelPath
-          Position.X = 8.000000000000000000
-          Position.Y = 373.000000000000000000
-          Size.Width = 389.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'LabelDocumentsPath'
-          TabOrder = 12
-        end
-        object TextDebugHeader: TText
-          Position.X = 8.000000000000000000
-          Position.Y = 217.000000000000000000
-          Size.Width = 389.000000000000000000
-          Size.Height = 15.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Useful stuff for debugging File Storage'
         end
       end
     end

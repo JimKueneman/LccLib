@@ -1,4 +1,4 @@
-unit FormLccThrottleApp;
+unit FormLccBaseTemplate;
 
 interface
 
@@ -24,7 +24,7 @@ const
   DEFAULT_NODE_ID = '02.02.04.05.0A.0B';
 
 type
-  TLccThrottleAppForm = class(TForm)
+  TLccBaseTemplate = class(TForm)
     TabControl1: TTabControl;
     TabItem1: TTabItem;
     TabControl2: TTabControl;
@@ -63,16 +63,12 @@ type
     EditIpAddress: TEdit;
     TextIpAddress: TText;
     TimerLogin: TTimer;
-    LabelSystemDocumentsPath: TLabel;
+    LabelPath: TLabel;
     PopupMenuLabelPath: TPopupMenu;
     MenuItemSettingsLabelPath: TMenuItem;
     TextConnectionStatus: TText;
     ButtonDeleteSettingsFile: TButton;
     ButtonDeleteAppFolder: TButton;
-    LabelSystemDocumentsPathHeader: TLabel;
-    LabelApplicationDocumentsHeader: TLabel;
-    LabelApplicationDocumentsPath: TLabel;
-    TextDebugHeader: TText;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -134,13 +130,13 @@ type
   end;
 
 var
-  LccThrottleAppForm: TLccThrottleAppForm;
+  LccBaseTemplate: TLccBaseTemplate;
 
 implementation
 
 {$R *.fmx}
 
-function TLccThrottleAppForm.ConnectionLogin: Boolean;
+function TLccBaseTemplate.ConnectionLogin: Boolean;
 var
   LocalInfo: TLccEthernetConnectionInfo;
 begin
@@ -162,13 +158,13 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.EditIpAddressExit(Sender: TObject);
+procedure TLccBaseTemplate.EditIpAddressExit(Sender: TObject);
 begin
   if ValidateIPString(EditIpAddress.Text) then
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'ipaddress', EditIpAddress.Text, True);
 end;
 
-procedure TLccThrottleAppForm.EditIpAddressKeyDown(Sender: TObject;
+procedure TLccBaseTemplate.EditIpAddressKeyDown(Sender: TObject;
   var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   if not( CharInSet(KeyChar, ['0'..'9', '.']) or ValidEditBoxKey(Key) ) then
@@ -180,13 +176,13 @@ begin
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'ipaddress', EditIpAddress.Text, True);
 end;
 
-procedure TLccThrottleAppForm.EditNodeIDExit(Sender: TObject);
+procedure TLccBaseTemplate.EditNodeIDExit(Sender: TObject);
 begin
   if ValidateNodeIDString(EditNodeID.Text) then
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'nodeid', EditNodeID.Text, True);
 end;
 
-procedure TLccThrottleAppForm.EditNodeIDKeyDown(Sender: TObject; var Key: Word;
+procedure TLccBaseTemplate.EditNodeIDKeyDown(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   if CharInSet(KeyChar, ['a'..'f']) then
@@ -202,13 +198,13 @@ begin
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'nodeid', EditNodeID.Text, True);
 end;
 
-procedure TLccThrottleAppForm.EditPortExit(Sender: TObject);
+procedure TLccBaseTemplate.EditPortExit(Sender: TObject);
 begin
   if ValidatePort(EditPort.Text) then
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'port', EditPort.Text, True);
 end;
 
-procedure TLccThrottleAppForm.EditPortKeyDown(Sender: TObject; var Key: Word;
+procedure TLccBaseTemplate.EditPortKeyDown(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   if not( CharInSet(KeyChar, ['0'..'9']) or ValidEditBoxKey(Key) ) then
@@ -220,7 +216,7 @@ begin
     XmlNodeSetFirstLevelTextContent(PathSettingsFile, 'settings', 'port', EditPort.Text, True);
 end;
 
-procedure TLccThrottleAppForm.ButtonDeleteAppFolderClick(Sender: TObject);
+procedure TLccBaseTemplate.ButtonDeleteAppFolderClick(Sender: TObject);
 var
   Files: TStringDynArray;
   i: Integer;
@@ -234,13 +230,13 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.ButtonDeleteSettingsFileClick(Sender: TObject);
+procedure TLccBaseTemplate.ButtonDeleteSettingsFileClick(Sender: TObject);
 begin
   if TFile.Exists(PathSettingsFile) then
     TFile.Delete(PathSettingsFile)
 end;
 
-procedure TLccThrottleAppForm.ButtonResetConnectionClick(Sender: TObject);
+procedure TLccBaseTemplate.ButtonResetConnectionClick(Sender: TObject);
 begin
   if not ValidateIPString(EditIpAddress.Text) then
   begin
@@ -277,7 +273,7 @@ begin
   TimerLogin.Enabled := True;
 end;
 
-procedure TLccThrottleAppForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TLccBaseTemplate.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   FCloseQueried := True;
   TimerLogin.Enabled := False;
@@ -285,7 +281,7 @@ begin
   EthernetClient.CloseConnection(nil);
 end;
 
-procedure TLccThrottleAppForm.FormCreate(Sender: TObject);
+procedure TLccBaseTemplate.FormCreate(Sender: TObject);
 begin
 
   // Firemonkey controls setup
@@ -310,13 +306,13 @@ begin
   PathMemoryConfig := TPath.GetDocumentsPath + TPath.DirectorySeparatorChar + FOLDERNAME_APP + TPath.DirectorySeparatorChar + FILENAME_MEMORY_CONFIG;
 end;
 
-procedure TLccThrottleAppForm.FormDestroy(Sender: TObject);
+procedure TLccBaseTemplate.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FEthernetClient);
   FreeAndNil(FNodeManager);
 end;
 
-procedure TLccThrottleAppForm.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+procedure TLccBaseTemplate.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   if Key = vkHardwareBack then
   begin
@@ -328,7 +324,7 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.FormShow(Sender: TObject);
+procedure TLccBaseTemplate.FormShow(Sender: TObject);
 begin
   if not ShownOnce then
   begin
@@ -337,8 +333,7 @@ begin
     TimerLogin.Enabled := True; // Try to connect
     TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, FClipboard);
 
-    LabelSystemDocumentsPath.Text := TPath.GetDocumentsPath;
-    LabelApplicationDocumentsPath.Text := PathApplicationFiles;
+    LabelPath.Text := PathApplicationFiles; // Just to help find the settings file
 
     if FileExists(PathSettingsFile) then
       XmlLoadSettingsFromFile
@@ -351,7 +346,7 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+procedure TLccBaseTemplate.GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
 begin
   case EventInfo.GestureID of
     sgiLeft:
@@ -370,13 +365,13 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.MenuItemSettingsLabelPathClick(Sender: TObject);
+procedure TLccBaseTemplate.MenuItemSettingsLabelPathClick(Sender: TObject);
 begin
   if Assigned(Clipboard) then
-    Clipboard.SetClipboard(LabelSystemDocumentsPath.Text)
+    Clipboard.SetClipboard(LabelPath.Text)
 end;
 
-procedure TLccThrottleAppForm.OnClientServerConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
+procedure TLccBaseTemplate.OnClientServerConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
   if Sender is TLccConnectionThread then
   begin
@@ -410,13 +405,13 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.OnClientServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
+procedure TLccBaseTemplate.OnClientServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
 begin
   NodeManager.LogoutAll;
   TimerLogin.Enabled := True
 end;
 
-procedure TLccThrottleAppForm.TimerLoginTimer(Sender: TObject);
+procedure TLccBaseTemplate.TimerLoginTimer(Sender: TObject);
 begin
   if not CloseQueried and (ConnectionState = lcsDisconnected) then
   begin
@@ -430,13 +425,13 @@ begin
   end;
 end;
 
-function TLccThrottleAppForm.ValidEditBoxKey(Key: Word): Boolean;
+function TLccBaseTemplate.ValidEditBoxKey(Key: Word): Boolean;
 begin
   // HardwareBack is to handle Android
   Result := (Key = vkReturn) or (Key = vkHardwareBack) or (Key = vkBack) or (Key = vkDelete) or (Key = vkLeft) or (Key = vkRight)
 end;
 
-procedure TLccThrottleAppForm.XmlLoadSettingsFromFile;
+procedure TLccBaseTemplate.XmlLoadSettingsFromFile;
 var
   SettingsXML: LccXmlDocument;
   RootNode, ChildNode: LccXmlNode;
@@ -467,7 +462,7 @@ begin
   end;
 end;
 
-procedure TLccThrottleAppForm.XmlWriteDefaultFile;
+procedure TLccBaseTemplate.XmlWriteDefaultFile;
 var
   SettingsXML: LccXmlDocument;
   RootNode, ChildNode: LccXmlNode;
