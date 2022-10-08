@@ -172,6 +172,7 @@ public
   function TractionExtractSpeedStatus: Byte;
   function TractionExtractFunctionAddress: LongWord;
   function TractionExtractFunctionValue: Word;
+  function TractionExtractControllerAssignResult: Byte;
 
   // Traction Search
   class function TractionSearchEncodeSearchString(SearchString: string; TrackProtocolFlags: Byte; var SearchData: DWORD): TSearchEncodeStringError;
@@ -463,7 +464,7 @@ begin
   if AMessage.MTI = MTI_TRACTION_REQUEST then
   begin
     case AMessage.DataArray[0] of
-        TRACTION_SPEED_DIR :
+        TRACTION_SET_SPEED_DIR :
           begin
             Result := Result + ' LCC Speed/Dir Operation; Speed = ';
             f := HalfToFloat( (AMessage.DataArray[1] shl 8) or AMessage.DataArray[2]);
@@ -476,8 +477,8 @@ begin
             end else
               Result := Result + IntToStr( round(f));
           end;
-        TRACTION_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( AMessage.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( AMessage.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( AMessage.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( AMessage.ExtractDataBytesAsInt(4, 5), 2) + ']';
-        TRACTION_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
+        TRACTION_SET_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( AMessage.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( AMessage.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( AMessage.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( AMessage.ExtractDataBytesAsInt(4, 5), 2) + ']';
+        TRACTION_SET_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
         TRACTION_QUERY_SPEED : Result := Result + ' Query Speeds';
         TRACTION_QUERY_FUNCTION : Result := Result + ' Query Function - Address: ' + IntToStr( AMessage.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( AMessage.ExtractDataBytesAsInt(1, 3), 6) + ']';
         TRACTION_CONTROLLER_CONFIG :
@@ -1083,10 +1084,10 @@ begin
     begin
       LocalMTI := CAN.MTI or CAN.SourceAlias or $10000000;
       case CAN.MTI of
-        MTI_CAN_CID0 : LocalMTI := LocalMTI or (SourceID[1] and $00FFF000);
-        MTI_CAN_CID1 : LocalMTI := LocalMTI or ((SourceID[1] shl 12) and $00FFF000);
-        MTI_CAN_CID2 : LocalMTI := LocalMTI or (SourceID[0] and $00FFF000);
-        MTI_CAN_CID3 : LocalMTI := LocalMTI or ((SourceID[0] shl 12) and $00FFF000);
+        MTI_CAN_CID0 : LocalMTI := LocalMTI {or (SourceID[1] and $00FFF000)};
+        MTI_CAN_CID1 : LocalMTI := LocalMTI {or ((SourceID[1] shl 12) and $00FFF000)};
+        MTI_CAN_CID2 : LocalMTI := LocalMTI {or (SourceID[0] and $00FFF000)};
+        MTI_CAN_CID3 : LocalMTI := LocalMTI {or ((SourceID[0] shl 12) and $00FFF000)};
       end;
     end else
       LocalMTI := DWord(( MTI shl 12) or CAN.SourceAlias or MTI_CAN_FRAME_TYPE_GENERAL or $10000000);
@@ -1489,6 +1490,11 @@ begin
   Result := Result or DataArray[5];
 end;
 
+function TLccMessage.TractionExtractControllerAssignResult: Byte;
+begin
+  Result := DataArray[2];
+end;
+
 function TLccMessage.TractionExtractSetSpeed: THalfFloat;
 var
   Speed: Word;
@@ -1870,7 +1876,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 3;
-  FDataArray[0] := TRACTION_SPEED_DIR;
+  FDataArray[0] := TRACTION_SET_SPEED_DIR;
   FDataArray[1] := Hi( HalfFloatSpeed);
   FDataArray[2] := Lo( HalfFloatSpeed);
   MTI := MTI_TRACTION_REQUEST;
@@ -1896,7 +1902,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 6;
-  FDataArray[0] := TRACTION_FUNCTION;
+  FDataArray[0] := TRACTION_SET_FUNCTION;
   FDataArray[1] := Byte((AnAddress shr 16) and $0000FF);
   FDataArray[2] := Byte((AnAddress shr 8) and $0000FF);
   FDataArray[3] := Byte(AnAddress and $0000FF);
@@ -1914,7 +1920,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 1;
-  FDataArray[0] := TRACTION_E_STOP;
+  FDataArray[0] := TRACTION_SET_E_STOP;
   MTI := MTI_TRACTION_REQUEST;
 end;
 
@@ -1941,7 +1947,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 8;
-  FDataArray[0] := TRACTION_QUERY_SPEED_REPLY;
+  FDataArray[0] := TRACTION_QUERY_SPEED;
   FDataArray[1] := Hi(SetSpeed);
   FDataArray[2] := Lo(SetSpeed);
   FDataArray[3] := Status;
@@ -1997,7 +2003,7 @@ begin
   CAN.SourceAlias := ASourceAlias;
   CAN.DestAlias := ADestAlias;
   DataCount := 6;
-  FDataArray[0] := TRACTION_QUERY_FUNCTION_REPLY;
+  FDataArray[0] := TRACTION_QUERY_FUNCTION;
   FDataArray[1] := Byte((Address shr 16) and $0000FF);
   FDataArray[2] := Byte((Address shr 8) and $0000FF);
   FDataArray[3] := Byte(Address and $00FF);
@@ -2033,7 +2039,7 @@ begin
 
   DataCount := 3;
   FDataArray[0] := TRACTION_CONTROLLER_CONFIG_REPLY;
-  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_ASSIGN;
   FDataArray[2] := AResult;
 
   MTI := MTI_TRACTION_REPLY;
@@ -2093,7 +2099,7 @@ begin
   CAN.DestAlias := ADestAlias;
   DataCount := 9;
   FDataArray[0] := TRACTION_CONTROLLER_CONFIG;
-  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY_REPLY;
+  FDataArray[1] := TRACTION_CONTROLLER_CONFIG_QUERY;
   FDataArray[2] := 0;
   InsertNodeID(3, AControllerID);
 

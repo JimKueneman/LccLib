@@ -44,24 +44,52 @@ uses
   lcc_defines,
   lcc_node_messages,
   lcc_utilities,
-lcc_protocol_traction_simpletrainnodeinfo,
+  lcc_math_float16,
+  lcc_protocol_traction_simpletrainnodeinfo,
   lcc_protocol_simplenodeinfo;
 
 type
+
+  TLccTrainControllerResult = (tcr_Ok, tcr_ControllerRefused, tcr_TrainRefused);
+
+  { TLccTrainControllerObject }
+
+  TLccTrainControllerObject = class
+  private
+    FRequestingNodeID: TNodeID;
+    FRequestResult: TLccTrainControllerResult;
+  public
+    property RequestingNodeID: TNodeID read FRequestingNodeID write FRequestingNodeID;
+    property RequestResult: TLccTrainControllerResult read FRequestResult write FRequestResult;
+  end;
 
   { TLccTrainObject }
 
   TLccTrainObject = class
   private
+    FController: TLccTrainControllerObject;
     FNodeAlias: Word;
     FNodeID: TNodeID;
     FSNIP: TLccSNIPObject;
+    FSpeedActual: THalfFloat;
+    FSpeedCommanded: THalfFloat;
+    FSpeedSet: THalfFloat;
+    FFunctions: TLccFunctions;
+    FSpeedStatusEmergencyStop: Boolean;
     FTrainSNIP: TLccTrainSNIPObject;
+    function GetFunctions(Index: Integer): Word;
+    procedure SetFunctions(Index: Integer; AValue: Word);
   public
     property NodeID: TNodeID read FNodeID write FNodeID;
     property NodeAlias: Word read FNodeAlias write FNodeAlias;
-    property SNIP: TLccSNIPObject read FSNIP write FSNIP;
-    property TrainSNIP: TLccTrainSNIPObject read FTrainSNIP write FTrainSNIP;
+    property Functions[Index: Integer]: Word read GetFunctions write SetFunctions;
+    property SpeedSet: THalfFloat read FSpeedSet;
+    property SpeedCommanded: THalfFloat read FSpeedCommanded;
+    property SpeedActual: THalfFloat read FSpeedActual;
+    property SpeedStatusEmergencyStop: Boolean read FSpeedStatusEmergencyStop;
+    property SNIP: TLccSNIPObject read FSNIP;
+    property TrainSNIP: TLccTrainSNIPObject read FTrainSNIP;
+    property Controller: TLccTrainControllerObject read FController write FController;
 
     constructor Create;
     destructor Destroy; override;
@@ -87,6 +115,11 @@ type
     function UpdateSNIP(AMessage: TLccMessage): TLccTrainObject;
     function UpdateTrainSNIP(AMessage: TLccMessage): TLccTrainObject;
     function UpdateListenerCount(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateSpeed(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateFunction(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateControllerAssign(AMessage: TLccMessage): TLccTrainObject;
+    function UpdateControllerQuery(AMessage: TLccMessage): TLccTrainObject;
+
     procedure Clear;
 
     {$IFDEF DELPHI}
@@ -100,16 +133,32 @@ implementation
 
 { TLccTrainObject }
 
+function TLccTrainObject.GetFunctions(Index: Integer): Word;
+begin
+  if (Index > -1) and (Index < MAX_FUNCTIONS) then
+    Result := FFunctions[Index]
+  else
+    Result := 0
+end;
+
+procedure TLccTrainObject.SetFunctions(Index: Integer; AValue: Word);
+begin
+   if (Index > -1) and (Index < MAX_FUNCTIONS) then
+     FFunctions[Index] := AValue
+end;
+
 constructor TLccTrainObject.Create;
 begin
   FSNIP := TLccSNIPObject.Create;
   FTrainSNIP := TLccTrainSNIPObject.Create;
+  FController := TLccTrainControllerObject.Create;
 end;
 
 destructor TLccTrainObject.Destroy;
 begin
   FreeAndNil(FSNIP);
   FreeAndNil(FTrainSNIP);
+  FreeAndNil(FController);
   inherited Destroy;
 end;
 
@@ -272,6 +321,54 @@ begin
   begin
 
   end;
+end;
+
+function TLccTrainServer.UpdateSpeed(AMessage: TLccMessage): TLccTrainObject;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+  begin
+    Result.FSpeedSet := AMessage.TractionExtractSetSpeed;
+    Result.FSpeedCommanded := AMessage.TractionExtractCommandedSpeed;
+    Result.FSpeedActual :=  AMessage.TractionExtractActualSpeed;
+    Result.FSpeedStatusEmergencyStop := AMessage.TractionExtractSpeedStatus and TRACTION_SPEED_STATUS_E_STOP = TRACTION_SPEED_STATUS_E_STOP;
+  end;
+end;
+
+function TLccTrainServer.UpdateFunction(AMessage: TLccMessage): TLccTrainObject;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+    Result.Functions[AMessage.TractionExtractFunctionAddress] := AMessage.TractionExtractFunctionValue;
+end;
+
+function TLccTrainServer.UpdateControllerAssign(AMessage: TLccMessage): TLccTrainObject;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+  begin
+    case AMessage.TractionExtractControllerAssignResult of
+      TRACTION_CONTROLLER_CONFIG_REPLY_OK :
+        begin
+          Result.Controller.RequestResult := tcr_Ok;
+        end;
+      TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_ASSIGNED_CONTROLLER :
+        begin
+          Result.Controller.RequestResult := tcr_ControllerRefused;
+        end;
+      TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY_REFUSE_TRAIN :
+        begin
+          Result.Controller.RequestResult := tcr_TrainRefused;
+        end;
+    end;
+  end;
+end;
+
+function TLccTrainServer.UpdateControllerQuery(AMessage: TLccMessage): TLccTrainObject;
+begin
+  Result := FindTrainObjectByNodeID(AMessage.SourceID);
+  if Assigned(Result) then
+    AMessage.ExtractDataBytesAsNodeID(3, Result.Controller.FRequestingNodeID);
 end;
 
 procedure TLccTrainServer.Clear;

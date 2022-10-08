@@ -11,7 +11,7 @@ uses
   lcc_node_commandstation, lcc_node_controller, lcc_node_train,
   lcc_comport, synaser, lcc_common_classes, lcc_ethernet_common,
   lcc_ethernet_websocket, lcc_ethernet_http, servervisualunit,
-  lcc_alias_server, lcc_train_server;
+  lcc_alias_server, lcc_train_server, lcc_xmlutilities;
 
 type
 
@@ -392,7 +392,7 @@ begin
           ButtonEthernetConnect.Caption := 'Disconnect Ethernet';
           StatusBarMain.Panels[0].Text := 'Ethernet: Command Station Connected at: ' + (Info as TLccEthernetConnectionInfo).ListenerIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ListenerPort);
           if NodeManager.Nodes.Count = 0 then
-            NodeManager.AddNodeByClass('', TLccCommandStationNode, True);
+            NodeManager.AddNodeByClass('', TLccCommandStationNode, True, NULL_NODE_ID);
         end;
       lcsDisconnecting :
         begin
@@ -459,7 +459,7 @@ begin
           ButtonWebserverConnect.Caption := 'Disconnect Websocket';
           StatusBarMain.Panels[1].Text := 'Websocket: Command Station Connected at: ' + (Info as TLccEthernetConnectionInfo).ListenerIP + ':' + IntToStr((Info as TLccEthernetConnectionInfo).ListenerPort);
           if NodeManager.Nodes.Count = 0 then
-            NodeManager.AddNodeByClass('', TLccCommandStationNode, True);
+            NodeManager.AddNodeByClass('', TLccCommandStationNode, True, NULL_NODE_ID);
           end;
       lcsDisconnecting :
         begin

@@ -1532,93 +1532,81 @@ begin
         end;
     MTI_TRACTION_REQUEST :
         begin
-          case SourceMessage.DataArray[0] of
-            TRACTION_SPEED_DIR :
-               begin
-                // ProtocolTraction.SetSpeedDir(SourceMessage);
-                 (NodeManager as INodeManagerCallbacks).DoTractionSpeedSet(Self, SourceMessage, False);
-               end;
-             TRACTION_FUNCTION :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionFunctionSet(Self, SourceMessage, False);
-               end;
-             TRACTION_E_STOP :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionEmergencyStop(Self, SourceMessage, False);
-               end;
-             TRACTION_QUERY_SPEED :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, SourceMessage, False);
-               end;
-             TRACTION_QUERY_FUNCTION :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionQueryFunction(Self, SourceMessage, False);
-               end;
-             TRACTION_CONTROLLER_CONFIG :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionControllerConfig(Self, SourceMessage, False);
-               end;
-             TRACTION_LISTENER :
-               begin
-                 case SourceMessage.DataArrayIndexer[1] of
-                   TRACTION_LISTENER_ATTACH :
-                     begin
-                     end;
-                 TRACTION_LISTENER_DETACH :
-                     begin
-                     end;
-                   TRACTION_LISTENER_QUERY :
-                      begin
-                      end;
-                 end;
-               end;
-             TRACTION_MANAGE :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionManage(Self, SourceMessage, False);
-               end;
+          case SourceMessage.DataArray[0] of  // May not be useful...
+            TRACTION_SET_SPEED_DIR : begin end;
+             TRACTION_SET_FUNCTION : begin end;
+             TRACTION_SET_E_STOP : begin end;
+             TRACTION_QUERY_SPEED : begin end;
+             TRACTION_QUERY_FUNCTION : begin end;
+             TRACTION_CONTROLLER_CONFIG : begin end;
+             TRACTION_LISTENER : begin end;
+             TRACTION_MANAGE : begin end;
           end;
           Result := True;
         end;
     MTI_TRACTION_REPLY :
         begin
-          case SourceMessage.DataArray[0] of
-            TRACTION_QUERY_SPEED :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, SourceMessage, True);
-               end;
-             TRACTION_QUERY_FUNCTION :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionQueryFunction(Self, SourceMessage, True);
-               end;
-             TRACTION_CONTROLLER_CONFIG :
-               begin
-                 (NodeManager as INodeManagerCallbacks).DoTractionControllerConfig(Self, SourceMessage, True);
-               end;
-             TRACTION_LISTENER :
-              begin
-                case SourceMessage.DataArrayIndexer[1] of
-                  TRACTION_LISTENER_ATTACH :
-                    begin
+          if EnableTrainDatabase then
+          begin
+            case SourceMessage.DataArray[0] of
+              TRACTION_QUERY_SPEED :
+                 begin
+                   TrainObject := TrainServer.UpdateSpeed(SourceMessage);  // Map the sourceID to a Train
+                   if Assigned(TrainObject) then
+                     (NodeManager as INodeManagerCallbacks).DoTractionQuerySpeed(Self, TrainObject);
+                 end;
+               TRACTION_QUERY_FUNCTION :
+                 begin
+                   TrainObject := TrainServer.UpdateFunction(SourceMessage);   // Map the sourceID to a Train
+                   if Assigned(TrainObject) then
+                     (NodeManager as INodeManagerCallbacks).DoTractionQueryFunction(Self, TrainObject);
+                 end;
+               TRACTION_CONTROLLER_CONFIG :
+                 begin
+                   case SourceMessage.DataArray[1] of
+                      TRACTION_CONTROLLER_CONFIG_ASSIGN :
+                        begin
+                          TrainObject := TrainServer.UpdateControllerAssign(SourceMessage);   // Map the sourceID to a Train
+                          if Assigned(TrainObject) then
+                            (NodeManager as INodeManagerCallbacks).DoTractionControllerAssign(Self, TrainObject);
+                        end;
+                      TRACTION_CONTROLLER_CONFIG_RELEASE :
+                        begin  // There is no reply to Release
+                        end;
+                      TRACTION_CONTROLLER_CONFIG_QUERY :
+                        begin
+                          TrainObject := TrainServer.UpdateControllerQuery(SourceMessage);   // Map the sourceID to a Train
+                          if Assigned(TrainObject) then
+                            (NodeManager as INodeManagerCallbacks).DoTractionControllerQuery(Self, TrainObject);
+                        end;
+                      TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
+                        begin
+                        end;
+                   end;
+                 end;
+               TRACTION_LISTENER :
+                begin
+                  case SourceMessage.DataArray[1] of
+                    TRACTION_LISTENER_ATTACH :
+                      begin
 
-                    end;
-                  TRACTION_LISTENER_DETACH :
-                    begin
-                     end;
-                  TRACTION_LISTENER_QUERY :
-                    begin
-                      if EnableTrainDatabase then
+                      end;
+                    TRACTION_LISTENER_DETACH :
+                      begin
+                       end;
+                    TRACTION_LISTENER_QUERY :
                       begin
                         TrainObject := TrainServer.UpdateListenerCount(SourceMessage);
-                        if Assigned(TrainServer) then
-                           (NodeManager as INodeManagerCallbacks).DoTractionUpdateListenerCount(Self, TrainObject);
+                        if Assigned(TrainObject) then
+                          (NodeManager as INodeManagerCallbacks).DoTractionUpdateListenerCount(Self, TrainObject);
                       end;
-                    end;
-                 end;
-               end;
+                  end;
+                end;
              TRACTION_MANAGE :
                begin
                  (NodeManager as INodeManagerCallbacks).DoTractionManage(Self, SourceMessage, True);
                end;
+             end;
           end;
           Result := True;
         end;
@@ -1636,7 +1624,7 @@ begin
        end;
      MTI_DATAGRAM :
        begin
-         case SourceMessage.DataArrayIndexer[0] of
+         case SourceMessage.DataArray[0] of
            DATAGRAM_PROTOCOL_LOGREQUEST : {0x01}  // Makes the Python Script Happy
              begin
                SendDatagramAckReply(SourceMessage, False, 0);
@@ -1646,14 +1634,14 @@ begin
                AddressSpace := 0;
 
                // Figure out where the Memory space to work on is located, encoded in the header or in the first databyte slot.
-               case SourceMessage.DataArrayIndexer[1] and $03 of
-                 MCP_NONE          : AddressSpace := SourceMessage.DataArrayIndexer[6];
+               case SourceMessage.DataArray[1] and $03 of
+                 MCP_NONE          : AddressSpace := SourceMessage.DataArray[6];
                  MCP_CDI           : AddressSpace := MSI_CDI;
                  MCP_ALL           : AddressSpace := MSI_ALL;
                  MCP_CONFIGURATION : AddressSpace := MSI_CONFIG;
                end;
 
-               case SourceMessage.DataArrayIndexer[1] and $F0 of
+               case SourceMessage.DataArray[1] and $F0 of
                  MCP_WRITE :
                    begin
                      case AddressSpace of
@@ -1740,7 +1728,7 @@ begin
                    end;
                  MCP_OPERATION :
                    begin
-                     OperationType := SourceMessage.DataArrayIndexer[1];
+                     OperationType := SourceMessage.DataArray[1];
                      case OperationType of
                        MCP_OP_GET_CONFIG :
                            begin
@@ -1935,10 +1923,10 @@ begin
         case SourceMessage.MTI of
           MTI_TRACTION_REQUEST :
             begin
-              case SourceMessage.DataArrayIndexer[0] of
+              case SourceMessage.DataArray[0] of
                 TRACTION_CONTROLLER_CONFIG :
                   begin
-                    case SourceMessage.DataArrayIndexer[1] of
+                    case SourceMessage.DataArray[1] of
                       TRACTION_CONTROLLER_CONFIG_ASSIGN,
                       TRACTION_CONTROLLER_CONFIG_RELEASE,
                       TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY :
@@ -1951,7 +1939,7 @@ begin
                   end;
                 TRACTION_LISTENER :
                   begin
-                    case SourceMessage.DataArrayIndexer[1] of
+                    case SourceMessage.DataArray[1] of
                       TRACTION_LISTENER_ATTACH,
                       TRACTION_LISTENER_DETACH :
                         begin
@@ -2055,7 +2043,6 @@ begin
   {$ELSE}
   Seed[0] := Random($FFFFFF);
   {$ENDIF}
-  (NodeManager as INodeManagerCallbacks).DoNodeIDChanged(Self);
 end;
 
 destructor TLccNode.Destroy;

@@ -323,16 +323,6 @@ type
    end;
 
 type
-  TLccTrainDirection = (tdForward, tdReverse);
-  TLccFunctions = array[0..28] of Word;
-  TMessageComPort = procedure(Sender: TObject; var GridConnectStyleMessage: string) of object;
-
-  TAttachedController = record
-    NodeID: TNodeID;
-    AliasID: Word;
-    AttatchNotifyNodeID: TNodeID;
-    AttachNotifyAliasID: Word;
-  end;
 
   { TListenerNode }
 
@@ -1042,8 +1032,8 @@ begin
                       begin
                         AliasMapping := Owner.AliasServer.FindMapping(LocalRequestingControllerNodeID);
                         RequestingControllerAliasID := AliasMapping.NodeAlias;
+                        RequestingControllerNodeID := AliasMapping.NodeID;
                       end;
-                      RequestingControllerNodeID := AliasMapping.NodeID;
                       AdvanceToNextState;
                     end;
                  end
@@ -1481,9 +1471,9 @@ begin
     MTI_TRACTION_REQUEST :
       begin
         case SourceMessage.DataArray[0] of
-          TRACTION_SPEED_DIR       : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetSpeed.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
-          TRACTION_FUNCTION        : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetFunction.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
-          TRACTION_E_STOP          : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionEmergencyStop.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
+          TRACTION_SET_SPEED_DIR       : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetSpeed.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+          TRACTION_SET_FUNCTION        : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionSetFunction.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
+          TRACTION_SET_E_STOP          : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionEmergencyStop.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
           TRACTION_QUERY_SPEED     : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQuerySpeedReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), nil);
           TRACTION_QUERY_FUNCTION  : Result := LccActions.RegisterAndKickOffAction(TLccActionTractionQueryFunctionReply.Create(Self, SourceMessage.DestID, SourceMessage.CAN.DestAlias, SourceMessage.SourceID, SourceMessage.CAN.SourceAlias, 0), SourceMessage);
           TRACTION_CONTROLLER_CONFIG :

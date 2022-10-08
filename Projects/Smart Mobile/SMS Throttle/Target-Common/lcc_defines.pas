@@ -120,11 +120,25 @@ type
 
   TMultiFrameArray = array[0..MAX_MULTIFRAME_LEN-1] of Byte;
 
+const
+  MAX_FUNCTIONS = 29;
+
 type
   TEventState = (evs_Unknown, evs_Valid, evs_InValid);
   TLccConfigDataType = (cdt_String, cdt_Int, cdt_EventID, cdt_Bit);
 
-  TLccConnectionState = (lcsConnecting, lcsConnected, lcsDisconnecting, lcsDisconnected);
+  TLccConnectionState = (lcsDisconnected, lcsConnecting, lcsConnected, lcsDisconnecting);    // make disconnected the default value
+
+  TLccTrainDirection = (tdForward, tdReverse);
+  TLccFunctions = array[0..MAX_FUNCTIONS - 1] of Word;
+  TMessageComPort = procedure(Sender: TObject; var GridConnectStyleMessage: string) of object;
+
+  TAttachedController = record
+    NodeID: TNodeID;
+    AliasID: Word;
+    AttatchNotifyNodeID: TNodeID;
+    AttachNotifyAliasID: Word;
+  end;
 
 {$IFNDEF DWSCRIPT}
 // Solves circular reference as the parser need to know about lcc_nodemanager and vice versa
@@ -424,23 +438,20 @@ const
 
   TRACTION_FLAGS_ALIAS_INCLUDED =  $01;
 
-  TRACTION_SPEED_DIR                  = $00;
-  TRACTION_FUNCTION                   = $01;
-  TRACTION_E_STOP                     = $02;
-
+  TRACTION_SET_SPEED_DIR              = $00;
+  TRACTION_SET_FUNCTION               = $01;
+  TRACTION_SET_E_STOP                 = $02;
   TRACTION_QUERY_SPEED                = $10;
-  TRACTION_QUERY_SPEED_REPLY          = $10;
   TRACTION_QUERY_FUNCTION             = $11;
-  TRACTION_QUERY_FUNCTION_REPLY       = $11;
+
+  TRACTION_SPEED_STATUS_E_STOP        = $01;
 
 
   TRACTION_CONTROLLER_CONFIG                 = $20;
   TRACTION_CONTROLLER_CONFIG_REPLY           = $20;
   TRACTION_CONTROLLER_CONFIG_ASSIGN          = $01;
-  TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY    = $01;
   TRACTION_CONTROLLER_CONFIG_RELEASE         = $02;
   TRACTION_CONTROLLER_CONFIG_QUERY           = $03;
-  TRACTION_CONTROLLER_CONFIG_QUERY_REPLY     = $03;
   TRACTION_CONTROLLER_CONFIG_CHANGING_NOTIFY = $04;
   TRACTION_CONTROLLER_CONFIG_CHANGED_NOTIFY  = $04;
 

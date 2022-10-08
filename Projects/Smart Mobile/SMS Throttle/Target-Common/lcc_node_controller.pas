@@ -1230,7 +1230,7 @@ begin
                TRACTION_CONTROLLER_CONFIG :
                  begin
                    case SourceMessage.DataArray[1] of
-                     TRACTION_CONTROLLER_CONFIG_ASSIGN_REPLY :
+                     TRACTION_CONTROLLER_CONFIG_ASSIGN :
                        begin
                          // keep the timer from being reentrant during event calls with blocking code (dialogs)
                          FreezeTimer := True;
@@ -1716,7 +1716,7 @@ begin
           MTI_TRACTION_REPLY :
             begin
               case SourceMessage.DataArray[0] of
-                TRACTION_QUERY_FUNCTION_REPLY :
+                TRACTION_QUERY_FUNCTION :
                   begin  // this can be turned into a request/reply action
                     if Address = SourceMessage.TractionExtractFunctionAddress then
                     begin
@@ -1789,7 +1789,7 @@ begin
           MTI_TRACTION_REPLY :
             begin
               case SourceMessage.DataArray[0] of
-                TRACTION_QUERY_SPEED_REPLY :
+                TRACTION_QUERY_SPEED :
                   begin  // this can be turned into a request/reply action
                     FreezeTimer := True; // keep the timer from coming in and freeing the action before DoAssigned has returned
                     try
@@ -2344,7 +2344,7 @@ begin
     FOnQueryConfigurationReply(Self, ConfigMemAddress, Value, ErrorCode, ErrorMsg);
 end;
 
-constructor TLccTrainController.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: TObject; CdiXML: string; GridConnectLink: Boolean);
+constructor TLccTrainController.Create(ASendMessageFunc: TOnMessageEvent; ANodeManager: {$IFDEF DELPHI}TComponent{$ELSE}TObject{$ENDIF}; CdiXML: string; GridConnectLink: Boolean);
 begin
   inherited Create(ASendMessageFunc, ANodeManager, CdiXML, GridConnectLink);
   EnableTrainDatabase := True;

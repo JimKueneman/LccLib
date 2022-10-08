@@ -1,0 +1,74 @@
+object FormServerInfo: TFormServerInfo
+  Left = 333
+  Height = 433
+  Top = 145
+  Width = 670
+  Caption = 'Server Information'
+  ClientHeight = 433
+  ClientWidth = 670
+  LCLVersion = '2.2.2.0'
+  object PanelAliasMappingMain: TPanel
+    Left = 0
+    Height = 433
+    Top = 0
+    Width = 320
+    Align = alLeft
+    ClientHeight = 433
+    ClientWidth = 320
+    TabOrder = 0
+    object PanelAliasMappingHeader: TPanel
+      Left = 1
+      Height = 50
+      Top = 1
+      Width = 318
+      Align = alTop
+      Caption = 'Node Alias Mappings'
+      TabOrder = 0
+    end
+    object TreeViewAliasMaps: TTreeView
+      Left = 1
+      Height = 381
+      Top = 51
+      Width = 318
+      Align = alClient
+      ShowRoot = False
+      TabOrder = 1
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoShowButtons, tvoShowLines, tvoToolTips, tvoThemedDraw]
+    end
+  end
+  object PanelTrainObjectMain: TPanel
+    Left = 325
+    Height = 433
+    Top = 0
+    Width = 345
+    Align = alClient
+    ClientHeight = 433
+    ClientWidth = 345
+    TabOrder = 1
+    object PanelTrainObjectHeader: TPanel
+      Left = 1
+      Height = 50
+      Top = 1
+      Width = 343
+      Align = alTop
+      Caption = 'Train Objects'
+      TabOrder = 0
+    end
+    object TreeViewTrains: TTreeView
+      Left = 1
+      Height = 381
+      Top = 51
+      Width = 343
+      Align = alClient
+      ShowRoot = False
+      TabOrder = 1
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoShowButtons, tvoShowLines, tvoToolTips, tvoThemedDraw]
+    end
+  end
+  object SplitterMain: TSplitter
+    Left = 320
+    Height = 433
+    Top = 0
+    Width = 5
+  end
+end

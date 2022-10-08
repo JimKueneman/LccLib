@@ -54,9 +54,13 @@ uses
   function EventIDToString(EventID: TEventID; InsertDots: Boolean): String;
   function NodeIDToString(NodeID: TNodeID; InsertDots: Boolean): String;
   function NodeAliasToString(AliasID: Word): String;
+  function ValidateIPString(IP4: string): Boolean;
+  function ValidateNodeIDString(NodeIDStr: string): Boolean;
+  function ValidatePort(PortStr: string): Boolean; overload;
+  function ValidatePort(Port: Integer): Boolean; overload;
   {$IFNDEF DWSCRIPT}
   procedure NodeIDStringToNodeID(ANodeIDStr: String; var ANodeID: TNodeID);
-  function StrToNodeID(NodeID: string): TNodeID;
+  function StrToNodeID(NodeID: string; DotConvention: Boolean = False): TNodeID;
   {$ENDIF}
   function StrToEventID(Event: string): TEventID;
   function _Lo(Data: DWORD): Byte;
@@ -336,6 +340,83 @@ begin
 
 end;
 
+function ValidatePort(PortStr: string): Boolean;
+var
+  Port: Integer;
+begin
+  Result := False;
+  if TryStrToInt(PortStr, Port) then
+    Result := ValidatePort(Port);
+end;
+
+function ValidatePort(Port: Integer): Boolean;
+begin
+  Result := Port < 65535
+end;
+
+function ValidateNodeIDString(NodeIDStr: string): Boolean;
+var
+  Octet : string;
+  Dots, I : Integer;
+begin
+  NodeIDStr := UpperCase(NodeIDStr);
+
+  NodeIDStr := NodeIDStr + '.'; //add a dot. We use a dot to trigger the Octet check, so need the last one
+  Dots := 0;
+  Octet := '0';
+  {$IFDEF LCC_MOBILE}
+  For I := 0 To Length(NodeIDStr) - 1 Do
+  {$ELSE}
+  for I := 1 To Length(NodeIDStr) do
+  {$ENDIF}
+  begin
+    if CharInSet(NodeIDStr[I], ['0'..'9', 'A'..'F', '.']) then
+    begin
+      if NodeIDStr[I] = '.' then //found a dot so inc dots and check octet value
+      begin
+        Inc(Dots);
+        if (length(Octet) = 1) or (StrToInt('$' + Octet) > 255) then
+          Dots := 7; //Either there's no number or it's higher than 255 so push dots out of range
+        Octet := '0'; // Reset to check the next octet
+      end else// End of IP4[I] is a dot   // Else IP4[I] is not a dot so
+        Octet := Octet + NodeIDStr[I]; // Add the next character to the octet
+    end else // End of IP4[I] is not a dot   // Else IP4[I] Is not in CheckSet so
+      Dots := 7; // Push dots out of range
+  end;
+  Result := (Dots = 6) // The only way that Dots will equal 4 is if we passed all the tests
+end;
+
+function ValidateIPString(IP4: string): Boolean; // Coding by Dave Sonsalla
+Var
+  Octet : String;
+  Dots, I : Integer;
+Begin
+  IP4 := IP4+'.'; //add a dot. We use a dot to trigger the Octet check, so need the last one
+  Dots := 0;
+  Octet := '0';
+  {$IFDEF LCC_MOBILE}
+  For I := 0 To Length(IP4) - 1 Do
+  {$ELSE}
+  For I := 1 To Length(IP4) Do
+  {$ENDIF}
+  Begin
+    If CharInSet(IP4[I], ['0'..'9','.']) Then
+    Begin
+      If IP4[I] = '.' Then //found a dot so inc dots and check octet value
+      Begin
+        Inc(Dots);
+        If (length(Octet) =1) Or (StrToInt(Octet) > 255) Then Dots := 5; //Either there's no number or it's higher than 255 so push dots out of range
+        Octet := '0'; // Reset to check the next octet
+      End // End of IP4[I] is a dot
+      Else // Else IP4[I] is not a dot so
+      Octet := Octet + IP4[I]; // Add the next character to the octet
+    End // End of IP4[I] is not a dot
+    Else // Else IP4[I] Is not in CheckSet so
+      Dots := 5; // Push dots out of range
+  End;
+  Result := (Dots = 4) // The only way that Dots will equal 4 is if we passed all the tests
+end;
+
 function EqualNodeID(NodeID1: TNodeID; NodeID2: TNodeID; IncludeNullNode: Boolean): Boolean;
 begin
   if IncludeNullNode then
@@ -543,18 +624,37 @@ begin
 end;
 
 {$IFNDEF DWSCRIPT}
-function StrToNodeID(NodeID: string): TNodeID;
+function StrToNodeID(NodeID: string; DotConvention: Boolean = False): TNodeID;
 var
-  Temp: QWord;
+  TempQ: QWord;
+  i: Integer;
+  TempStr: string;
 begin
   NodeID := Trim(NodeID);
+
+  if DotConvention then
+  begin
+    TempStr := '';
+    {$IFDEF LCC_MOBILE}
+    for i := 0 to Length(NodeID) - 1 do
+    {$ELSE}
+    for i := 1 to Length(NodeID) do
+    {$ENDIF}
+    begin
+      if NodeID[i] <> '.' then
+        TempStr := TempStr + NodeID[i];
+    end;
+
+  end else
+    TempStr := NodeID;
+
   {$IFDEF FPC}
-  Temp := StrToQWord(NodeID);
+  TempQ := StrToQWord(NodeID);
   {$ELSE}
-  Temp := StrToInt64(NodeID);
+  TempQ := StrToUInt64('$' + TempStr);
   {$ENDIF}
-  Result[0] :=  Temp and $0000000000FFFFFF;
-  Result[1] := (Temp and $FFFFFFFFFF000000) shr 24;  // allow the upper nibble to be part of it to catch incorrect node id values
+  Result[0] :=  TempQ and $0000000000FFFFFF;
+  Result[1] := (TempQ and $FFFFFFFFFF000000) shr 24;  // allow the upper nibble to be part of it to catch incorrect node id values
 end;
 {$ENDIF}
 
@@ -809,7 +909,7 @@ begin
         if Assigned(MultiFrame) then
         begin
           case MultiFrame.DataArray[0] of
-              TRACTION_SPEED_DIR :
+              TRACTION_SET_SPEED_DIR :
                 begin
                   Result := Result + ' LCC Speed/Dir Operation; Speed = ';
                   f := HalfToFloat( (MultiFrame.DataArray[1] shl 8) or MultiFrame.DataArray[2]);
@@ -822,8 +922,8 @@ begin
                   end else
                     Result := Result + IntToStr( round(f));
                 end;
-              TRACTION_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(4, 5), 2) + ']';
-              TRACTION_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
+              TRACTION_SET_FUNCTION : Result := Result + ' LCC Traction Operation - Function Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + '], Value: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(4, 5)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(4, 5), 2) + ']';
+              TRACTION_SET_E_STOP : Result := Result + ' LCC Traction Emergency Stop';
               TRACTION_QUERY_SPEED : Result := Result + ' Query Speeds';
               TRACTION_QUERY_FUNCTION : Result := Result + ' Query Function - Address: ' + IntToStr( MultiFrame.ExtractDataBytesAsInt(1, 3)) + ' [0x' + IntToHex( MultiFrame.ExtractDataBytesAsInt(1, 3), 6) + ']';
               TRACTION_CONTROLLER_CONFIG :

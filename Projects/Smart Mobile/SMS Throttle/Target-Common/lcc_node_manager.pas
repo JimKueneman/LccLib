@@ -68,7 +68,7 @@ type
     ['{0FE72011-CBDB-9EDC-0C36-C5031A63F27F}']
     procedure Clear;
     function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode;
-    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode;
+    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean; NodeID: TNodeID): TLccNode;
     procedure LogoutAll;
     function GetNode(Index: Integer): TLccNode;
     function GetNodeCount: Integer;
@@ -105,12 +105,12 @@ type
     procedure DoRemoteButtonReply(LccNode: TLccNode);
     procedure DoSimpleNodeIdentReply(LccNode: TLccNode);
     procedure DoSimpleTrainNodeIdentReply(LccNode: TLccNode);
-    procedure DoTractionEmergencyStop(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionSpeedSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionFunctionSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
-    procedure DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean);
+
+    procedure DoTractionQuerySpeed(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionQueryFunction(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionControllerAssign(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionControllerQuery(LccNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure DoTractionControllerChangedNotify(LccNode: TLccNode; TrainObject: TLccTrainObject);
     procedure DoTractionListenerAttach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
     procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte);
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer);
@@ -132,7 +132,8 @@ type
   TOnLccNodeMessageResultCode = procedure(Sender: TObject; LccNode: TLccNode; LccMessage: TLccMessage; ResultCode: Byte) of object;
   TOnLccNodeConfigMem = procedure(Sender: TObject; LccNode: TLccNode) of object;
   TOnLccNodeConfigMemAddressSpace = procedure(Sender: TObject; LccNode: TLccNode; AddressSpace: Byte) of object;
-  TOnLccNodeMessageWithReply = procedure(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean) of object;
+  TOnLccNodeMessageWithReply = procedure(Sender: TObject; LccSourceNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean) of object;  // TODO:
+  TOnLccNodeMessageWithTrainObject = procedure(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject) of object;
   TOnLccNodeListenerAttach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerDetach = procedure(Sender: TObject; LccSourceNode: TLccNode; ListenerID: TNodeID; Flags: Byte) of object;
   TOnLccNodeListenerQuery = procedure(Sender: TObject; LccSourceNode: TLccNode; Index: Integer) of object;
@@ -175,16 +176,15 @@ type
     FOnLccNodeRemoteButtonReply: TOnLccNodeMessageWithDest;
     FOnLccNodeSimpleNodeIdentReply: TOnLccNodeMessageWithDest;
     FOnLccNodeSimpleTrainNodeIdentReply: TOnLccNodeMessageWithDest;
-    FOnLccNodeTractionControllerConfig: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionEmergencyStop: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionFunctionSet: TOnLccNodeMessageWithReply;
+    FOnLccNodeTractionControllerChangeNotify: TOnLccNodeMessageWithTrainObject;
+    FOnLccNodeTractionControllerConfig: TOnLccNodeMessageWithTrainObject;
+    FOnLccNodeTractionControllerQuery: TOnLccNodeMessageWithTrainObject;
     FOnLccNodeTractionListenerAttach: TOnLccNodeListenerAttach;
     FOnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach;
     FOnLccNodeTractionListenerQuery: TOnLccNodeListenerQuery;
     FOnLccNodeTractionManage: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionQueryFunction: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithReply;
-    FOnLccNodeTractionSpeedSet: TOnLccNodeMessageWithReply;
+    FOnLccNodeTractionQueryFunction: TOnLccNodeMessageWithTrainObject;
+    FOnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithTrainObject;
     FOnLccNodeVerifiedNodeID: TOnLccNodeMessage;
     FOnLccMessageSend: TOnMessageEvent;
     FOnLccTractionUpdateListenerCount: TOnLccTractionUpdateListenerCount;
@@ -229,19 +229,22 @@ type
     procedure DoRemoteButtonReply(LccNode: TLccNode); virtual;
     procedure DoSimpleNodeIdentReply(LccNode: TLccNode); virtual;
     procedure DoSimpleTrainNodeIdentReply(LccNode: TLccNode); virtual;
-    procedure DoTractionEmergencyStop(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionSpeedSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionFunctionSet(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionQuerySpeed(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionQueryFunction(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
-    procedure DoTractionControllerConfig(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
+
+    procedure DoTractionQuerySpeed(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionQueryFunction(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionControllerAssign(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionControllerQuery(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+    procedure DoTractionControllerChangedNotify(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+
     procedure DoTractionListenerAttach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte); virtual;
     procedure DoTractionListenerDetach(LccNode: TLccNode; Listener: TNodeID; Flags: Byte); virtual;
     procedure DoTractionListenerQuery(LccNode: TLccNode; Index: Integer); virtual;
+
     procedure DoTractionManage(LccNode: TLccNode; LccMessage: TLccMessage; IsReply: Boolean); virtual;
     procedure DoTractionUpdateSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
     procedure DoTractionUpdateTrainSNIP(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
     procedure DoTractionUpdateListenerCount(LccNode: TLccNode; TrainObject: TLccTrainObject); virtual;
+
     procedure DoVerifiedNodeID(LccNode: TLccNode); virtual;
     procedure DoAliasMappingChange(LccNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean); virtual;
     procedure DoTrainRegisteringChange(LccNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean); virtual;
@@ -270,7 +273,7 @@ type
 
     procedure Clear;
     function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode; virtual;
-    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode; virtual;
+    function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean; NodeID: TNodeID): TLccNode; virtual;
     function GetNodeCount: Integer;
     function ExtractNode(Index: Integer): TLccNode;
     function FindNodeByNodeID(NodeID: TNodeID): TLccNode;
@@ -325,12 +328,12 @@ type
     property OnLccNodeDatagramReply: TOnLccNodeMessageWithDest read FOnLccNodeDatagramReply write FOnLccNodeDatagramReply;
 
     // Traction
-    property OnLccNodeTractionEmergencyStop: TOnLccNodeMessageWithReply read FOnLccNodeTractionEmergencyStop write FOnLccNodeTractionEmergencyStop;
-    property OnLccNodeTractionSpeedSet: TOnLccNodeMessageWithReply read FOnLccNodeTractionSpeedSet write FOnLccNodeTractionSpeedSet;
-    property OnLccNodeTractionFunctionSet: TOnLccNodeMessageWithReply read FOnLccNodeTractionFunctionSet write FOnLccNodeTractionFunctionSet;
-    property OnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithReply read FOnLccNodeTractionQuerySpeed write FOnLccNodeTractionQuerySpeed;
-    property OnLccNodeTractionQueryFunction: TOnLccNodeMessageWithReply read FOnLccNodeTractionQueryFunction write FOnLccNodeTractionQueryFunction;
-    property OnLccNodeTractionControllerConfig: TOnLccNodeMessageWithReply read FOnLccNodeTractionControllerConfig write FOnLccNodeTractionControllerConfig;
+    property OnLccNodeTractionQuerySpeed: TOnLccNodeMessageWithTrainObject read FOnLccNodeTractionQuerySpeed write FOnLccNodeTractionQuerySpeed;
+    property OnLccNodeTractionQueryFunction: TOnLccNodeMessageWithTrainObject read FOnLccNodeTractionQueryFunction write FOnLccNodeTractionQueryFunction;
+    property OnLccNodeTractionControllerConfig: TOnLccNodeMessageWithTrainObject read FOnLccNodeTractionControllerConfig write FOnLccNodeTractionControllerConfig;
+    property OnLccNodeTractionControllerQuery: TOnLccNodeMessageWithTrainObject read FOnLccNodeTractionControllerQuery write FOnLccNodeTractionControllerQuery;
+    property OnLccNodeTractionControllerChangeNotify: TOnLccNodeMessageWithTrainObject read FOnLccNodeTractionControllerChangeNotify write FOnLccNodeTractionControllerChangeNotify;
+
     property OnLccNodeTractionManage: TOnLccNodeMessageWithReply read FOnLccNodeTractionManage write FOnLccNodeTractionManage;
     property OnLccNodeTractionListenerAttach: TOnLccNodeListenerAttach read FOnLccNodeTractionListenerAttach write FOnLccNodeTractionListenerAttach;
     property OnLccNodeTractionListenerDetach: TOnLccNodeListenerDetach read FOnLccNodeTractionListenerDetach write FOnLccNodeTractionListenerDetach;
@@ -529,46 +532,34 @@ begin
     OnLccNodeSimpleTrainNodeIdentReply(Self, LccNode);
 end;
 
-procedure TLccNodeManager.DoTractionQuerySpeed(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionQuerySpeed(LccNode: TLccNode; TrainObject: TLccTrainObject);
 begin
   if Assigned(OnLccNodeTractionQuerySpeed) then
-    OnLccNodeTractionQuerySpeed(Self, LccNode, LccMessage, IsReply);
+    OnLccNodeTractionQuerySpeed(Self, LccNode, TrainObject);
 end;
 
-procedure TLccNodeManager.DoTractionSpeedSet(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
-begin
-  if Assigned(OnLccNodeTractionSpeedSet) then
-    OnLccNodeTractionSpeedSet(Self, LccNode, LccMessage, IsReply);
-end;
-
-procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionQueryFunction(LccNode: TLccNode; TrainObject: TLccTrainObject);
 begin
   if Assigned(OnLccNodeTractionQueryFunction) then
-    OnLccNodeTractionQueryFunction(Self, LccNode, LccMessage, IsReply);
+    OnLccNodeTractionQueryFunction(Self, LccNode, TrainObject);
 end;
 
-procedure TLccNodeManager.DoTractionControllerConfig(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionControllerAssign(LccNode: TLccNode; TrainObject: TLccTrainObject);
 begin
   if Assigned(OnLccNodeTractionControllerConfig) then
-    OnLccNodeTractionControllerConfig(Self, LccNode, LccMessage, IsReply);
+    OnLccNodeTractionControllerConfig(Self, LccNode, TrainObject);
 end;
 
-procedure TLccNodeManager.DoTractionEmergencyStop(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionControllerQuery(LccNode: TLccNode; TrainObject: TLccTrainObject);
 begin
-  if Assigned(OnLccNodeTractionEmergencyStop) then
-    OnLccNodeTractionEmergencyStop(Self, LccNode, LccMessage, IsReply);
+  if Assigned(OnLccNodeTractionControllerQuery) then
+    OnLccNodeTractionControllerQuery(Self, LccNode, TrainObject);
 end;
 
-procedure TLccNodeManager.DoTractionFunctionSet(LccNode: TLccNode;
-  LccMessage: TLccMessage; IsReply: Boolean);
+procedure TLccNodeManager.DoTractionControllerChangedNotify(LccNode: TLccNode; TrainObject: TLccTrainObject);
 begin
-  if Assigned(OnLccNodeTractionFunctionSet) then
-    OnLccNodeTractionFunctionSet(Self, LccNode, LccMessage, IsReply);
+  if Assigned(OnLccNodeTractionControllerChangeNotify) then
+    OnLccNodeTractionControllerChangeNotify(Self, LccNode, TrainObject);
 end;
 
 procedure TLccNodeManager.DoTractionListenerAttach(LccNode: TLccNode;
@@ -697,7 +688,7 @@ begin
     Result.Login(NULL_NODE_ID);
 end;
 
-function TLccNodeManager.AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean): TLccNode;
+function TLccNodeManager.AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean; NodeID: TNodeID): TLccNode;
 begin
   Result := nil;
   if Assigned(NodeClass) then
@@ -706,7 +697,7 @@ begin
     Nodes.Add(Result);
     DoCreateLccNode(Result);
     if AutoLogin then
-      Result.Login(NULL_NODE_ID);
+      Result.Login(NodeID);
   end;
 end;
 
