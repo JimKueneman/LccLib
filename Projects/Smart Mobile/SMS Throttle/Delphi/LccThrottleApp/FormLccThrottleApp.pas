@@ -8,10 +8,23 @@ uses
   FMX.Gestures, System.Actions, FMX.ActnList, FMX.MultiView, FMX.ListView.Types,
   FMX.ListView.Appearances, FMX.ListView.Adapters.Base, FMX.ListView, FMX.Layouts,
   System.Math.Vectors, FMX.Objects, FMX.Edit, FMX.Controls3D, FMX.Layers3D, System.IOUtils,
-  lcc_node_manager, lcc_ethernet_server, lcc_node_controller, lcc_ethernet_client,
-  lcc_ethernet_common, lcc_common_classes, lcc_defines, lcc_xmlutilities, lcc_file_utilities,
+  lcc_node_manager,
+  lcc_ethernet_server,
+  lcc_node_controller,
+  lcc_ethernet_client,
+  lcc_ethernet_common,
+  lcc_common_classes,
+  lcc_defines,
+  lcc_xmlutilities,
+  lcc_file_utilities,
   lcc_utilities,
-  FMX.Menus, FMX.Platform;
+  lcc_node,
+  lcc_node_messages,
+  lcc_train_server,
+  lcc_alias_server,
+
+  FMX.Menus, FMX.Platform, FMX.ListBox, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
+  FMX.Header;
 
 {$I lcc_compilers.inc}
 
@@ -27,15 +40,6 @@ type
   TLccThrottleAppForm = class(TForm)
     TabControl1: TTabControl;
     TabItem1: TTabItem;
-    TabControl2: TTabControl;
-    TabItem5: TTabItem;
-    ToolBar1: TToolBar;
-    lblTitle1: TLabel;
-    btnNext: TSpeedButton;
-    TabItem6: TTabItem;
-    ToolBar2: TToolBar;
-    lblTitle2: TLabel;
-    btnBack: TSpeedButton;
     TabItem2: TTabItem;
     ToolBar3: TToolBar;
     lblTitle3: TLabel;
@@ -50,7 +54,7 @@ type
     NextTabAction1: TNextTabAction;
     PreviousTabAction1: TPreviousTabAction;
     MultiViewConsist: TMultiView;
-    ListView1: TListView;
+    ListViewTrainRoster: TListView;
     SpeedButtonTab2Hamburger: TSpeedButton;
     LayoutSettingTab: TLayout;
     ButtonResetConnection: TButton;
@@ -73,6 +77,24 @@ type
     LabelApplicationDocumentsHeader: TLabel;
     LabelApplicationDocumentsPath: TLabel;
     TextDebugHeader: TText;
+    Layout1: TLayout;
+    TabControlTrainRoster: TTabControl;
+    TabItemTrainRosterSelect: TTabItem;
+    TabItemTrainRosterDetails: TTabItem;
+    ListBoxTrainRoster: TListBox;
+    ToolBarTrainRosterDetails: TToolBar;
+    LabelTrainRosterHeader: TLabel;
+    SpeedButtonTrainRosterBack: TSpeedButton;
+    TabItemTrainRosterEdit: TTabItem;
+    ToolBarTrainRosterEdit: TToolBar;
+    LabelTrainRosterEdit: TLabel;
+    SpeedButtonTrainRosterEdit: TSpeedButton;
+    ActionTrainRosterTabNext: TNextTabAction;
+    ActionTrainRosterTabPrev: TPreviousTabAction;
+    LayoutLog: TLayout;
+    HeaderLogHeader: THeader;
+    LabelLogHeader: TLabel;
+    MemoLog: TMemo;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -90,6 +112,9 @@ type
     procedure EditNodeIDExit(Sender: TObject);
     procedure ButtonDeleteSettingsFileClick(Sender: TObject);
     procedure ButtonDeleteAppFolderClick(Sender: TObject);
+    procedure SpeedButtonTrainRosterBackClick(Sender: TObject);
+    procedure ListViewTrainRosterItemClickEx(const Sender: TObject; ItemIndex: Integer; const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+    procedure MultiViewConsistHidden(Sender: TObject);
   private
     FNodeManager: TLccNodeManager;
     FEthernetClient: TLccEthernetClient;
@@ -104,9 +129,11 @@ type
     FPathSettingsFile: string;
     FPathApplicationFiles: string;
     FPathMemoryConfig: string;
+    FActiveTrainObject: TListViewItem;
     { Private declarations }
 
   protected
+
     procedure XmlLoadSettingsFromFile;
     procedure XmlWriteDefaultFile;
 
@@ -125,11 +152,23 @@ type
     property PathApplicationFiles: string read FPathApplicationFiles write FPathApplicationFiles;
     property PathSettingsFile: string read FPathSettingsFile write FPathSettingsFile;
     property PathMemoryConfig: string read FPathMemoryConfig write FPathMemoryConfig;
+    property ActiveTrainObject: TListViewItem read FActiveTrainObject write FActiveTrainObject;
+
+    // Callbacks
+    procedure OnNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
+    procedure OnAliasMappingChange(Sender: TObject; LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+    procedure OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+    procedure OnLccTractionUpdateSNIP(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure OnLccTractionUpdateTrainSNIP(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+    procedure OnLccTractionUpdateListenerCount(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+
+    procedure OnNodeManagerSendMessage(Sender: TObject; LccMessage: TLccMessage);
+    procedure OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
 
     procedure OnClientServerConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
     procedure OnClientServerErrorMessage(Sender: TObject; Info: TLccHardwareConnectionInfo);
     function ValidEditBoxKey(Key: Word): Boolean;
-
+    function FindTrainRosterListItem(TrainObject: TLccTrainObject): TListViewItem;
     function ConnectionLogin: Boolean;
   end;
 
@@ -277,6 +316,20 @@ begin
   TimerLogin.Enabled := True;
 end;
 
+function TLccThrottleAppForm.FindTrainRosterListItem(TrainObject: TLccTrainObject): TListViewItem;
+var
+  i: Integer;
+begin
+  Result := nil;
+  i := 0;
+  while i < ListViewTrainRoster.Items.Count - 1 do
+  begin
+    if TrainObject = TLccTrainObject( ListViewTrainRoster.Items[i].Tag) then
+      Result := ListViewTrainRoster.Items[i];
+    Inc(i);
+  end;
+end;
+
 procedure TLccThrottleAppForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   FCloseQueried := True;
@@ -288,10 +341,7 @@ end;
 procedure TLccThrottleAppForm.FormCreate(Sender: TObject);
 begin
 
-  // Firemonkey controls setup
-  TabControl1.ActiveTab := TabItem1;    // This defines the default active tab at runtime
-  MultiViewConsist.Mode := TMultiViewMode.Drawer;
-  TimerLogin.Enabled := False;
+  // Local field setup
 
   // Lcc library setup
   NodeManager := TLccNodeManager.Create(nil, True);
@@ -320,11 +370,11 @@ procedure TLccThrottleAppForm.FormKeyUp(Sender: TObject; var Key: Word; var KeyC
 begin
   if Key = vkHardwareBack then
   begin
-    if (TabControl1.ActiveTab = TabItem1) and (TabControl2.ActiveTab = TabItem6) then
-    begin
-      TabControl2.Previous;
-      Key := 0;
-    end;
+ //   if (TabControl1.ActiveTab = TabItem1) and (TabControl2.ActiveTab = TabItem6) then
+ //   begin
+ //     TabControl2.Previous;
+ //     Key := 0;
+ //   end;
   end;
 end;
 
@@ -334,11 +384,17 @@ begin
   begin
     FShownOnce := True;
 
-    TimerLogin.Enabled := True; // Try to connect
+    // Setup common variabled to use
     TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, FClipboard);
-
     LabelSystemDocumentsPath.Text := TPath.GetDocumentsPath;
     LabelApplicationDocumentsPath.Text := PathApplicationFiles;
+
+    // Setup components to a standard state in case forgotten in the designer
+    TabControl1.ActiveTab := TabItem1;    // This defines the default active tab at runtime
+    MultiViewConsist.Mode := TMultiViewMode.Drawer;
+    TimerLogin.Enabled := False;
+    TabControlTrainRoster.ActiveTab := TabItemTrainRosterSelect;
+    TimerLogin.Enabled := True; // Try to connect
 
     if FileExists(PathSettingsFile) then
       XmlLoadSettingsFromFile
@@ -370,10 +426,33 @@ begin
   end;
 end;
 
+procedure TLccThrottleAppForm.ListViewTrainRosterItemClickEx(const Sender: TObject; ItemIndex: Integer; const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+var
+  ListItem: TListItem;
+begin
+  if ItemObject is TListItemAccessory then
+    ActionTrainRosterTabNext.Execute
+  else begin
+    ListItem := ListViewTrainRoster.Items[ItemIndex];
+    MultiViewConsist.HideMaster
+  end;
+end;
+
 procedure TLccThrottleAppForm.MenuItemSettingsLabelPathClick(Sender: TObject);
 begin
   if Assigned(Clipboard) then
     Clipboard.SetClipboard(LabelSystemDocumentsPath.Text)
+end;
+
+procedure TLccThrottleAppForm.MultiViewConsistHidden(Sender: TObject);
+begin
+  ActiveTrainObject := nil;
+end;
+
+procedure TLccThrottleAppForm.OnAliasMappingChange(Sender: TObject;
+  LccSourceNode: TLccNode; AnAliasMapping: TLccAliasMapping; IsMapped: Boolean);
+begin
+
 end;
 
 procedure TLccThrottleAppForm.OnClientServerConnectionChange(Sender: TObject; Info: TLccHardwareConnectionInfo);
@@ -390,14 +469,30 @@ begin
         end;
      lcsConnected :
         begin
-           TextConnectionStatus.Text := 'connected';
+          TextConnectionStatus.Text := 'connected';
           ControllerNode := NodeManager.AddNodeByClass('', TLccTrainController, True, CurrentNodeID) as TLccTrainController;
+
+          NodeManager.OnAliasMappingChange := OnAliasMappingChange;
+          NodeManager.OnTrainRegisteringChange := OnTrainRegisteringChange;
+          NodeManager.OnLccNodeLogin := OnNodeLogin;
+          NodeManager.OnLccTractionUpdateSNIP := OnLccTractionUpdateSNIP;
+          NodeManager.OnLccTractionUpdateTrainSNIP := OnLccTractionUpdateSNIP;
+          NodeManager.OnLccTractionUpdateListenerCount := OnLccTractionUpdateListenerCount;
+
    //       ControllerNode.OnTrainAssigned := @OnControllerNodeTrainAssigned;
    //       ControllerNode.OnTrainReleased := @OnControllerNodeTrainReleased;
         end;
       lcsDisconnecting :
         begin
           TextConnectionStatus.Text := 'disconnecting';
+
+          NodeManager.OnAliasMappingChange := nil;
+          NodeManager.OnTrainRegisteringChange := nil;
+          NodeManager.OnLccNodeLogin := nil;
+          NodeManager.OnLccTractionUpdateSNIP := nil;
+          NodeManager.OnLccTractionUpdateTrainSNIP := nil;
+          NodeManager.OnLccTractionUpdateListenerCount := nil;
+
           NodeManager.Clear;   // Logout
           ControllerNode := nil;
         end;
@@ -414,6 +509,92 @@ procedure TLccThrottleAppForm.OnClientServerErrorMessage(Sender: TObject; Info: 
 begin
   NodeManager.LogoutAll;
   TimerLogin.Enabled := True
+end;
+
+procedure TLccThrottleAppForm.OnLccTractionUpdateListenerCount(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+
+end;
+
+procedure TLccThrottleAppForm.OnLccTractionUpdateSNIP(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+var
+  ListViewItem: TListViewItem;
+begin
+  ListViewItem := FindTrainRosterListItem(TrainObject);
+  if Assigned(ListViewItem) then
+  begin
+    ListViewItem.Text := TrainObject.SNIP.UserName
+  end;
+
+
+end;
+
+procedure TLccThrottleAppForm.OnLccTractionUpdateTrainSNIP(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
+begin
+
+end;
+
+procedure TLccThrottleAppForm.OnNodeLogin(Sender: TObject; LccSourceNode: TLccNode);
+begin
+  if LccSourceNode = ControllerNode then
+    ControllerNode.FindAllTrains;
+end;
+
+procedure TLccThrottleAppForm.OnNodeManagerReceiveMessage(Sender: TObject; LccMessage: TLccMessage);
+begin
+  MemoLog.Lines.BeginUpdate;
+  try
+    MemoLog.Lines.Add('R: ' + MessageToDetailedMessage(LccMessage))
+  finally
+    MemoLog.Lines.EndUpdate;
+  end;
+end;
+
+procedure TLccThrottleAppForm.OnNodeManagerSendMessage(Sender: TObject;  LccMessage: TLccMessage);
+begin
+  MemoLog.Lines.BeginUpdate;
+  try
+    MemoLog.Lines.Add('S: ' + MessageToDetailedMessage(LccMessage))
+  finally
+    MemoLog.Lines.EndUpdate;
+  end;
+end;
+
+procedure TLccThrottleAppForm.OnTrainRegisteringChange(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject; IsRegistered: Boolean);
+var
+  TrainListViewItem: TListViewItem;
+begin
+  if IsRegistered then
+  begin
+    TrainListViewItem := ListViewTrainRoster.Items.Add;
+    TrainListViewItem.Tag := nativeint( TrainObject);   /// HOW DO WE HOLD REFERENCES FOR FUTURE USE OF UPDATES IN EVENTS?
+
+    if TrainObject.SNIP.Valid then
+    begin
+      TrainListViewItem.Text := 'Train: ' + TrainObject.SNIP.UserName;
+    end else
+    begin
+      TrainListViewItem.Text := 'Train: ' + NodeIDToString(TrainObject.NodeID, True);
+    end;
+  end else
+  begin
+    TrainListViewItem := FindTrainRosterListItem(TrainObject);
+    if Assigned(TrainListViewItem) then
+    begin
+      if ActiveTrainObject = TrainListViewItem then
+      begin
+        TabControlTrainRoster.TabIndex := 0;
+        ActiveTrainObject := nil;
+      end;
+
+    end;
+
+  end;
+end;
+
+procedure TLccThrottleAppForm.SpeedButtonTrainRosterBackClick(Sender: TObject);
+begin
+  ActionTrainRosterTabPrev.Execute
 end;
 
 procedure TLccThrottleAppForm.TimerLoginTimer(Sender: TObject);

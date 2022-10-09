@@ -164,6 +164,7 @@ public
   procedure LoadTractionListenerQueryReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; ListenerCount, ListenerNodeIndex: Byte; AListenerNodeID: TNodeID; ListenerFlags: Byte);
   procedure LoadTractionManage(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Reserve: Boolean);
   procedure LoadTractionManageReply(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word; Accepted: Boolean);
+  procedure LoadTractionIsTrainProducer(ASourceID: TNodeID; ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
 
   function TractionIsTrainEvent: Boolean;
   function TractionExtractSetSpeed: THalfFloat;
@@ -1922,6 +1923,26 @@ begin
   DataCount := 1;
   FDataArray[0] := TRACTION_SET_E_STOP;
   MTI := MTI_TRACTION_REQUEST;
+end;
+
+procedure TLccMessage.LoadTractionIsTrainProducer(ASourceID: TNodeID;
+  ASourceAlias: Word; ADestID: TNodeID; ADestAlias: Word);
+begin
+  ZeroFields;
+  SourceID := ASourceID;
+  DestID := ADestID;
+  CAN.SourceAlias := ASourceAlias;
+  CAN.DestAlias := ADestAlias;
+  DataCount := 8;
+  FDataArray[0] := EVENT_IS_TRAIN[0];
+  FDataArray[1] := EVENT_IS_TRAIN[1];
+  FDataArray[2] := EVENT_IS_TRAIN[2];
+  FDataArray[3] := EVENT_IS_TRAIN[3];
+  FDataArray[4] := EVENT_IS_TRAIN[4];
+  FDataArray[5] := EVENT_IS_TRAIN[5];
+  FDataArray[6] := EVENT_IS_TRAIN[6];
+  FDataArray[7] := EVENT_IS_TRAIN[7];
+  MTI := MTI_PRODUCER_IDENDIFY;
 end;
 
 procedure TLccMessage.LoadTractionQuerySpeed(ASourceID: TNodeID;

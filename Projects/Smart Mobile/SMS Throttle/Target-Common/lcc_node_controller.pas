@@ -485,6 +485,10 @@ type
 
     function IsTrainAssigned: Boolean;
 
+    // NEW STARTING OCT 8 2022... above may get deleted eventually
+
+    procedure FindAllTrains;
+
     function ProcessMessageLCC(SourceMessage: TLccMessage): Boolean; override;
   end;
 
@@ -2275,6 +2279,12 @@ begin
     SendMessageFunc(Self, WorkerMessage);
     SendMessageFunc(Self, WorkerMessage);
   end;
+end;
+
+procedure TLccTrainController.FindAllTrains;
+begin
+   WorkerMessage.LoadTractionIsTrainProducer(NodeID, AliasID, NULL_NODE_ID, 0);
+   SendMessageFunc(Self, WorkerMessage);
 end;
 
 procedure TLccTrainController.ClearAssignedTrain;

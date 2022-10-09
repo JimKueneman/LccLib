@@ -37,7 +37,6 @@ type
     FManufacturer: string;
     FModel: string;
     FSoftwareVersion: string;
-    FUserDecription: string;
     FUserDescription: string;
     FUserName: string;
     FUserVersion: Byte;
@@ -51,7 +50,7 @@ type
     property SoftwareVersion: string read FSoftwareVersion write FSoftwareVersion;
     property UserVersion: Byte read FUserVersion write FUserVersion;
     property UserName: string read FUserName write FUserName;
-    property UserDescription: string read FUserDescription write FUserDecription;
+    property UserDescription: string read FUserDescription write FUserDescription;
     property Valid: Boolean read FValid write FValid;
   end;
 
