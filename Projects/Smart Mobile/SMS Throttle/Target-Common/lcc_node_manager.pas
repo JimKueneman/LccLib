@@ -271,6 +271,7 @@ type
     constructor Create(AnOwner: TComponent; GridConnectLink: Boolean); {$IFNDEF DWSCRIPT} reintroduce; virtual; {$ENDIF}
     destructor Destroy; override;
 
+    // Interal Node manipulation
     procedure Clear;
     function AddNode(CdiXML: string; AutoLogin: Boolean): TLccNode; virtual;
     function AddNodeByClass(CdiXML: string; NodeClass: TLccNodeClass; AutoLogin: Boolean; NodeID: TNodeID): TLccNode; virtual;

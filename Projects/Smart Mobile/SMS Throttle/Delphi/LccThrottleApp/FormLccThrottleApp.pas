@@ -22,6 +22,7 @@ uses
   lcc_node_messages,
   lcc_train_server,
   lcc_alias_server,
+  lcc_cdi_parser_2,
 
   FMX.Menus, FMX.Platform, FMX.ListBox, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
   FMX.Header;
@@ -81,7 +82,7 @@ type
     TabControlTrainRoster: TTabControl;
     TabItemTrainRosterSelect: TTabItem;
     TabItemTrainRosterDetails: TTabItem;
-    ListBoxTrainRoster: TListBox;
+    ListBoxTrainRosterItem: TListBox;
     ToolBarTrainRosterDetails: TToolBar;
     LabelTrainRosterHeader: TLabel;
     SpeedButtonTrainRosterBack: TSpeedButton;
@@ -95,6 +96,13 @@ type
     HeaderLogHeader: THeader;
     LabelLogHeader: TLabel;
     MemoLog: TMemo;
+    ListBoxGroupHeaderTrainDetails: TListBoxGroupHeader;
+    ListBoxItem1: TListBoxItem;
+    ListBoxItem3: TListBoxItem;
+    ListBoxItem5: TListBoxItem;
+    ListBoxItem7: TListBoxItem;
+    ListBoxItem9: TListBoxItem;
+    ListBoxItem11: TListBoxItem;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -115,6 +123,7 @@ type
     procedure SpeedButtonTrainRosterBackClick(Sender: TObject);
     procedure ListViewTrainRosterItemClickEx(const Sender: TObject; ItemIndex: Integer; const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
     procedure MultiViewConsistHidden(Sender: TObject);
+    procedure TabControlTrainRosterChange(Sender: TObject);
   private
     FNodeManager: TLccNodeManager;
     FEthernetClient: TLccEthernetClient;
@@ -295,7 +304,7 @@ begin
     TextNodeID.TextSettings.FontColor := TAlphaColors.Red;
     Exit
   end;
-  if ValidatePort(EditPort.Text) then
+  if not ValidatePort(EditPort.Text) then
   begin
     TextConnectionStatus.Text := 'Invalid Port (must be 65535 or less)';
     TextConnectionStatus.TextSettings.FontColor := TAlphaColors.Red;
@@ -313,6 +322,8 @@ begin
 
   NodeManager.LogoutAll;
   EthernetClient.CloseConnection(nil);
+  ActiveTrainObject := nil;
+  ListViewTrainRoster.Items.Clear;
   TimerLogin.Enabled := True;
 end;
 
@@ -322,7 +333,7 @@ var
 begin
   Result := nil;
   i := 0;
-  while i < ListViewTrainRoster.Items.Count - 1 do
+  while i < ListViewTrainRoster.Items.Count do
   begin
     if TrainObject = TLccTrainObject( ListViewTrainRoster.Items[i].Tag) then
       Result := ListViewTrainRoster.Items[i];
@@ -333,6 +344,8 @@ end;
 procedure TLccThrottleAppForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   FCloseQueried := True;
+  NodeManager.OnLccMessageSend := nil;;
+  NodeManager.OnLccMessageReceive := nil;
   TimerLogin.Enabled := False;
   NodeManager.LogoutAll;
   EthernetClient.CloseConnection(nil);
@@ -384,7 +397,7 @@ begin
   begin
     FShownOnce := True;
 
-    // Setup common variabled to use
+    // Setup common variables to use
     TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, FClipboard);
     LabelSystemDocumentsPath.Text := TPath.GetDocumentsPath;
     LabelApplicationDocumentsPath.Text := PathApplicationFiles;
@@ -395,6 +408,9 @@ begin
     TimerLogin.Enabled := False;
     TabControlTrainRoster.ActiveTab := TabItemTrainRosterSelect;
     TimerLogin.Enabled := True; // Try to connect
+
+    NodeManager.OnLccMessageSend := OnNodeManagerSendMessage;
+    NodeManager.OnLccMessageReceive := OnNodeManagerReceiveMessage;
 
     if FileExists(PathSettingsFile) then
       XmlLoadSettingsFromFile
@@ -525,8 +541,6 @@ begin
   begin
     ListViewItem.Text := TrainObject.SNIP.UserName
   end;
-
-
 end;
 
 procedure TLccThrottleAppForm.OnLccTractionUpdateTrainSNIP(Sender: TObject; LccSourceNode: TLccNode; TrainObject: TLccTrainObject);
@@ -595,6 +609,12 @@ end;
 procedure TLccThrottleAppForm.SpeedButtonTrainRosterBackClick(Sender: TObject);
 begin
   ActionTrainRosterTabPrev.Execute
+end;
+
+procedure TLccThrottleAppForm.TabControlTrainRosterChange(Sender: TObject);
+begin
+  if TabControlTrainRoster.TabIndex = 0 then
+    ActiveTrainObject := nil;
 end;
 
 procedure TLccThrottleAppForm.TimerLoginTimer(Sender: TObject);

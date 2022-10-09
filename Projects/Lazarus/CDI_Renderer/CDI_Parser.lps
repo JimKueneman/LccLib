@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="9"/>
+    <Version Value="12"/>
     <BuildModes Active="Default"/>
     <Units Count="20">
       <Unit0>
@@ -20,7 +20,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <CursorPos X="45" Y="9"/>
         <UsageCount Value="98"/>
         <Loaded Value="True"/>
@@ -132,6 +131,9 @@
         <Loaded Value="True"/>
       </Unit19>
     </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="1"/>
+    </General>
     <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="form_main.pas"/>
@@ -150,5 +152,9 @@
         <Caret Line="51" Column="25" TopLine="23"/>
       </Position4>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
 </CONFIG>

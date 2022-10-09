@@ -230,9 +230,7 @@ class  function TractionSearchEncodeNMRA(ForceLongAddress: Boolean; SpeedStep: T
 end;
 
 
-{$IFDEF FPC}
 function MessageToDetailedMessage(AMessage: TLccMessage): String;
-{$ENDIF}
 
 implementation
 
@@ -240,7 +238,7 @@ var
   CaptureTime: Longword;
 
 
-{$IFDEF FPC}
+
 function IsPrintableChar(C: Char): Boolean;
 begin
   Result := ((Ord( C) >= 32) and (Ord( C) <= 126)) { or ((Ord( C) >= 128) and (Ord( C) <= 255)) }
@@ -394,6 +392,8 @@ end;
 
 
 function MessageToDetailedMessage(AMessage: TLccMessage): String;
+type
+  PDWord = ^DWord;
 var
   j, S_Len: Integer;
   f: single;
@@ -471,7 +471,7 @@ begin
             f := HalfToFloat( (AMessage.DataArray[1] shl 8) or AMessage.DataArray[2]);
             if f = 0 then
             begin
-              if DWord( f) and $80000000 = $80000000 then
+              if PDWord( @f)^ and $80000000 = $80000000 then  // Fake out Delphi
                 Result := Result + '-0.0'
               else
                 Result := Result + '+0.0'
@@ -548,7 +548,7 @@ begin
                 f := HalfToFloat( Half);
                 if f = 0 then
                 begin
-                  if DWord( f) and $80000000 = $80000000 then
+                  if PDWord( @f)^ and $80000000 = $80000000 then  // Fake out Delphi
                     Result := Result + '-0.0'
                   else
                     Result := Result + '+0.0'
@@ -568,7 +568,7 @@ begin
                 f := HalfToFloat( Half);
                 if f = 0 then
                 begin
-                  if DWord( f) and $80000000 = $80000000 then
+                  if PDWord( @f)^ and $80000000 = $80000000 then  // Fake out Delphi
                     Result := Result + '-0.0'
                   else
                     Result := Result + '+0.0'
@@ -586,7 +586,7 @@ begin
                 f := HalfToFloat( Half);
                 if f = 0 then
                 begin
-                  if DWord( f) and $80000000 = $80000000 then
+                  if PDWord( @f)^ and $80000000 = $80000000 then  // Fake out Delphi
                     Result := Result + '-0.0'
                   else
                     Result := Result + '+0.0'
@@ -634,8 +634,6 @@ begin
     end;
   end;
 end;
-
-{$ENDIF}
 
 { TLccMessage }
 

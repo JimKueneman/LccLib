@@ -338,7 +338,6 @@ type
     property OnBuildInterfaceComplete: TNotifyEvent read FOnBuildInterfaceComplete write FOnBuildInterfaceComplete;
   end;
 
-procedure Register;
 
 implementation
 
@@ -346,11 +345,7 @@ type
   TLccNodeManagerHack = class(TLccNodeManager)
   end;
 
-procedure Register;
-begin
-  {$I TLccCdiParser.lrs}
-  RegisterComponents('LCC',[TLccCdiParser]);
-end;
+
 
 { TLccCdiParserSerializer }
 
